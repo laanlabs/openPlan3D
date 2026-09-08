@@ -446,3 +446,15 @@ their deadline. Local validation passes 582 unit tests; two browser workflows ad
 viewport, hit-testing, timeout and saved-dismissal checks across all three engines.
 See [the hint report](2026-09-07-onboarding-hints.md). Hardware calibration,
 physical-device coverage and the #30 release/cost gates remain.
+
+## Twenty-fifth batch: idle 3D rendering and native Safari calibration
+
+Issue #75 stops continuous animation callbacks after orbit damping settles, wakes
+the viewer for dirty changes and furniture previews, and cancels work on teardown.
+Native Safari on M4 Max measured 1,500 callbacks before and zero after in matched
+25-second quiet intervals; a warm post-orbit repeat also returned to zero. Local
+validation passes 591 unit tests, with one new workflow across all three browser
+engines. See [the report and numeric metrics](2026-09-07-idle-rendering.md) for
+measurement limits and PR validation. Frame-rate-independent walkthrough motion
+is tracked in #77. Broader hardware budgets, physical devices and the #30
+release/cost gates remain; this batch adds no cloud writes or assets.

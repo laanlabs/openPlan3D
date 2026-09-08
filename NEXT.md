@@ -22,7 +22,7 @@ intercepting field editing, and preserves furniture dimensions while replacing
 empty/invalid drafts. See [the browser report](docs/reviews/2026-09-07-cross-browser-editing.md)
 and PR checks for final engine results and merge/release status.
 
-Local validation: **582 web unit tests, 53 XCTest tests**, production build and
+Local validation: **591 web unit tests, 53 XCTest tests**, production build and
 audit pass; type checks report zero errors and 23 existing Svelte warnings.
 Desktop and phone-width browser checks cover labels, editing, persistence and
 3D. Native source availability remains separate from TestFlight/App Store release.
@@ -36,7 +36,8 @@ notes/photos/costs and pooled attachment history; furniture appearance fixes;
 category continuity; field keyboard editing and browser-engine CI; camera preview
 and 3D resource cleanup; repeatable furnished-home benchmarks and preservation of
 3D views during metadata edits; responsive top-down camera framing; onboarding
-hints that stay within resized viewports. Earlier batches and pause hashes are recorded
+hints that stay within resized viewports; idle 3D animation cleanup measured in
+native Safari. Earlier batches and pause hashes are recorded
 in the dated review log and git history.
 
 ## 1. Next engineering batch: measured rendering improvements and device coverage
@@ -69,11 +70,25 @@ not restart the eight-second timeout; manual and automatic dismissal still retai
 seen-tip behavior. See [the hint report](docs/reviews/2026-09-07-onboarding-hints.md)
 and PR checks for browser validation and release status.
 
-Next, measure the same fixtures on representative desktop/phone hardware and agree
+The [idle-rendering batch (#75)](https://github.com/laanlabs/openPlan3D/issues/75)
+replaces continuous orbit polling with requested frames that stop after damping.
+Native Safari on M4 Max recorded 1,500 idle callbacks before the change and zero
+after it in matched 25-second intervals; a post-orbit repeat also returned to zero.
+See [the report and sanitized metrics](docs/reviews/2026-09-07-idle-rendering.md).
+The regression checks controls, scene changes, placement previews and teardown in
+all three engines. These results establish idle behavior, not general FPS or
+battery-life targets.
+
+The next focused fix is [frame-rate-independent walkthrough motion (#77)](https://github.com/laanlabs/openPlan3D/issues/77).
+Movement currently uses a fixed 16 ms step per callback, so its speed changes with
+frame cadence. Integrate elapsed time with bounded pause recovery and test equal
+elapsed input at 30/60/120 Hz, key-state cleanup and pointer-lock denial.
+
+Then measure the same fixtures on representative desktop/phone hardware and agree
 frame-time and memory targets. Use those results to choose shared geometry,
 object-level visual updates or mobile quality controls. Extend desktop Safari
-checks to actual iPhone/iPad touch devices; the resource batch's native desktop
-Safari attempt was unavailable while the Mac was locked. Keep category contract
+checks to actual iPhone/iPad touch devices. The initial small-home native Safari
+calibration is complete; medium/large homes and physical phones remain. Keep category contract
 fixtures in both repositories synchronized when extending the catalog.
 
 Legacy saved package projects with chair fallbacks are protected on export and
@@ -190,11 +205,12 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
 1. Fetch both repositories and confirm clean `main` against `origin/main`; reread
    open GitHub issues and #30 for release updates. Start a focused `codex/…` branch
    from current main after checking the browser batch merge status.
-2. Start with the rendering benchmark report and hardware calibration. Preserve unknown fields,
+2. Start with walkthrough motion #77, then broaden hardware calibration. Preserve unknown fields,
    explicit clears, independent import copies, fractional transforms and pooled
    local attachments. Do not rely on temporary QA directories as source artifacts.
 3. Web baseline: Node 24/npm; run `NODE_ENV=production npm run check`,
    `NODE_ENV=production npm test` and `NODE_ENV=production npm run build`.
+   Finish check before starting build; both regenerate SvelteKit artifacts.
    Production browser workflows run in GitHub CI with cloud uploads/analytics
    disabled. Use the approved browser-control tools for local interactive QA.
 4. Native baseline: `openPlan3d.xcodeproj`, scheme `FloorPlan`, Debug simulator

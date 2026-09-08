@@ -1,0 +1,149 @@
+{
+  "date": "2026-09-07",
+  "fixture": "small",
+  "rooms": 4,
+  "furniture": 24,
+  "hardware": {
+    "model": "Mac16,9",
+    "chip": "Apple M4 Max",
+    "cpuCores": 14,
+    "memoryGB": 36,
+    "os": "macOS 26.2 (25C56)",
+    "browser": "Safari 26.2",
+    "baselineBodyCSSPixels": {
+      "width": 1324,
+      "height": 350
+    },
+    "devicePixelRatio": null
+  },
+  "units": {
+    "frameDurationMs": "Inspector elapsed frame span; not CPU work or GPU timing",
+    "memoryMB": "decimal megabytes",
+    "cpuPercent": "Safari page CPU samples; not whole-device power"
+  },
+  "samples": [
+    {
+      "name": "baseline",
+      "commit": "9e5eee59fbeb445a06cc31db15d91d17024d971b",
+      "origin": "production",
+      "recordingSeconds": 64.6642,
+      "rangeSeconds": {
+        "from": 10,
+        "to": 35
+      },
+      "renderingFrames": 1500,
+      "animationCallbacks": 1500,
+      "animationRequests": 1500,
+      "frameDurationMs": {
+        "count": 1500,
+        "min": 14.8941,
+        "mean": 16.6428,
+        "p95": 17.3196,
+        "max": 18.4265
+      },
+      "frameStartIntervalMs": {
+        "count": 1499,
+        "min": 14.9166,
+        "mean": 16.6667,
+        "p95": 17.3456,
+        "max": 18.4437
+      },
+      "cpuPercent": {
+        "count": 50,
+        "min": 1.6,
+        "mean": 1.87,
+        "p95": 2.1,
+        "max": 2.1
+      },
+      "memoryMB": {
+        "count": 50,
+        "min": 130.1847,
+        "mean": 130.7935,
+        "p95": 133.0683,
+        "max": 133.822
+      }
+    },
+    {
+      "name": "updated",
+      "commit": "552c09680bb239d15a75aefae8583a2587de7269",
+      "origin": "loopback",
+      "recordingSeconds": 83.5791,
+      "rangeSeconds": {
+        "from": 10,
+        "to": 35
+      },
+      "renderingFrames": 0,
+      "animationCallbacks": 0,
+      "animationRequests": 0,
+      "frameDurationMs": {
+        "count": 0,
+        "min": null,
+        "mean": null,
+        "p95": null,
+        "max": null
+      },
+      "frameStartIntervalMs": {
+        "count": 0,
+        "min": null,
+        "mean": null,
+        "p95": null,
+        "max": null
+      },
+      "cpuPercent": {
+        "count": 50,
+        "min": 0,
+        "mean": 0.006,
+        "p95": 0,
+        "max": 0.3
+      },
+      "memoryMB": {
+        "count": 50,
+        "min": 121.7142,
+        "mean": 122.3227,
+        "p95": 124.3028,
+        "max": 124.4339
+      }
+    },
+    {
+      "name": "updatedAfterOrbit",
+      "commit": "552c09680bb239d15a75aefae8583a2587de7269",
+      "origin": "loopback",
+      "recordingSeconds": 291.53,
+      "rangeSeconds": {
+        "from": 10,
+        "to": 35
+      },
+      "renderingFrames": 0,
+      "animationCallbacks": 0,
+      "animationRequests": 0,
+      "frameDurationMs": {
+        "count": 0,
+        "min": null,
+        "mean": null,
+        "p95": null,
+        "max": null
+      },
+      "frameStartIntervalMs": {
+        "count": 0,
+        "min": null,
+        "mean": null,
+        "p95": null,
+        "max": null
+      },
+      "cpuPercent": {
+        "count": 50,
+        "min": 0,
+        "mean": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "memoryMB": {
+        "count": 50,
+        "min": 175.9452,
+        "mean": 176.2978,
+        "p95": 178.8943,
+        "max": 181.2372
+      }
+    }
+  ]
+}
