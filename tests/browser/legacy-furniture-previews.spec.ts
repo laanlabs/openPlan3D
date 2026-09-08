@@ -1,12 +1,12 @@
 import { test, expect, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { packageJSON, readPackageZip } from '../../src/lib/utils/projectPackageZip';
-import { readSnapshotStorage } from '../../src/lib/utils/snapshotStorage';
+import { readSnapshotStorage, type StoredSnapshot } from '../../src/lib/utils/snapshotStorage';
 import { failProjectWrites, savedProjects, storedRecords } from './storage';
 
 const id = 'qa-legacy-furniture-previews';
 async function seed(page: Page) {
-  const raw = await readFile('tests/fixtures/legacy-furniture-previews.openplan.json', 'utf8');
+  const raw = JSON.stringify(JSON.parse(await readFile('tests/fixtures/legacy-furniture-previews.openplan.json', 'utf8')));
   const history = JSON.stringify([{ timestamp: 1, description: 'Before preview refresh', data: raw }]);
   await page.addInitScript(({ id, raw, history }) => {
     if (!localStorage.getItem('qaLegacyPreviewSeeded')) {
@@ -23,7 +23,7 @@ async function seed(page: Page) {
   // the history wrapper, but the archived original project bytes must survive.
   await expect.poll(async () => readSnapshotStorage((await storedRecords(page, 'history'))[id]).length).toBe(2);
   const openedHistory = (await storedRecords(page, 'history'))[id];
-  expect(readSnapshotStorage(openedHistory)[0].data).toBe(raw);
+  expect((readSnapshotStorage(openedHistory)[0] as StoredSnapshot).data).toBe(raw);
   expect(await page.evaluate(id => localStorage.getItem(`vh_${id}`), id)).toBe(history);
   return { raw, history: openedHistory };
 }
