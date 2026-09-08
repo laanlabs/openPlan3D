@@ -224,7 +224,7 @@ test('stationary walkthrough sleeps and wakes for movement, mouse look, fields a
   await idle();
 
   // Unmount with a viewer frame queued, then verify that exact request is
-  // cancelled. The 2D canvas has its own animation loop after it mounts.
+  // cancelled. The 2D canvas requests its own startup drawing after it mounts.
   await page.evaluate(() => document.dispatchEvent(new MouseEvent('mousemove', { movementX: 10 })));
   const viewerFrames: number[] = await page.evaluate(() => (window as any).__walkAudit.pendingIds());
   expect(viewerFrames).toHaveLength(1);

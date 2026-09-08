@@ -495,3 +495,15 @@ See [the cache report](2026-09-08-deployment-version-cache.md) and PR #83 for na
 Safari, final CI and deployment verification. The remaining work is measured
 hardware/device coverage and the native release/Firebase gates in #30. This batch
 adds no cloud writes, endpoints, assets or dependencies.
+
+## Twenty-ninth batch: demand-driven 2D drawing
+
+Issue #84 replaces continuous dirty-flag polling and stationary tool repaints with
+coalesced frame requests. Camera, local display and image changes wake the canvas;
+late tracing images cannot replace another floor's underlay. Local validation
+passes 628 unit tests, production build and type checking (zero errors, 22 remaining
+warnings). Three browser workflows add idle/draw, input, image-race and synthetic
+phone-width gesture coverage. See [the 2D report](2026-09-08-2d-idle.md) and PR #85
+for numerical Safari measurements and final CI/deployment verification. Active
+hardware/device measurements and #30 release/cost gates remain; no cloud writes,
+assets or dependencies are added.

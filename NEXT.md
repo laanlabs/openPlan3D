@@ -22,8 +22,8 @@ intercepting field editing, and preserves furniture dimensions while replacing
 empty/invalid drafts. See [the browser report](docs/reviews/2026-09-07-cross-browser-editing.md)
 and PR checks for final engine results and merge/release status.
 
-Local validation: **626 web unit tests, 53 XCTest tests**, production build and
-audit pass; type checks report zero errors and 23 existing Svelte warnings.
+Local validation: **628 web unit tests, 53 XCTest tests**, production build and
+audit pass; type checks report zero errors and 22 remaining Svelte warnings.
 Desktop and phone-width browser checks cover labels, editing, persistence and
 3D. Native source availability remains separate from TestFlight/App Store release.
 
@@ -37,7 +37,8 @@ category continuity; field keyboard editing and browser-engine CI; camera previe
 and 3D resource cleanup; repeatable furnished-home benchmarks and preservation of
 3D views during metadata edits; responsive top-down camera framing; onboarding
 hints that stay within resized viewports; idle 3D animation cleanup measured in
-native Safari; walkthrough timing, held-input recovery and stationary rendering cleanup. Earlier batches and pause hashes are recorded
+native Safari; walkthrough timing, held-input recovery and stationary rendering cleanup;
+2D drawing on demand with explicit display/image wakeups. Earlier batches and pause hashes are recorded
 in the dated review log and git history.
 
 ## 1. Next engineering batch: device measurements and measured editor work
@@ -104,6 +105,13 @@ frames in medium/large 25-second stationary samples, down from 1,500 each. See
 [the report and numerical measurements](docs/reviews/2026-09-08-walkthrough-idle.md)
 for provenance, limits and final PR/CI verification.
 
+The [2D drawing batch (#84)](https://github.com/laanlabs/openPlan3D/issues/84)
+replaces idle dirty-flag polling with coalesced redraw requests. Local display,
+camera/minimap controls and image completions wake the canvas; late underlays
+cannot replace another floor's image. See [the report](docs/reviews/2026-09-08-2d-idle.md)
+and [PR #85](https://github.com/laanlabs/openPlan3D/pull/85) for native measurements,
+browser regressions and final deployment status.
+
 Next, measure active orbit, stacking and editing on representative desktop/phone hardware and agree
 frame-time and memory targets. Use those results to choose shared geometry,
 object-level visual updates or mobile quality controls. Extend desktop Safari
@@ -168,8 +176,9 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
   now stops drawing after coasting; preserve mouse, keyboard and scene wakeup
   coverage when changing scheduling. The medium/large stationary Safari samples
   do not establish active-navigation FPS, memory or battery targets. The 2D
-  canvas retains a separate animation loop that polls its dirty flag; measure
-  its idle cost separately before changing that broader editor lifecycle.
+  canvas now also sleeps between changes. Preserve tool, touch, image and display
+  wakeups when extending the editor; measure active editing cost before selecting
+  another rendering optimization.
 - **Area/geometry agreement:** define whether area is measured at interior wall
   faces or another boundary, reconcile native raster-based areas with web polygons,
   and test room split/merge identity and schedules. Matching area totals are not
@@ -218,7 +227,7 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
   matrix. Refresh README counts/import features and add contributor guidance,
   fixture-oriented issue/PR templates and a release checklist. Historical review
   findings and original package metadata are not authoritative current status.
-- Reduce the 23 existing Svelte warnings with focused accessibility/component
+- Reduce the 22 remaining Svelte warnings with focused accessibility/component
   changes. The CI artifact actions now use pinned Node 24 releases. Continue dependency
   auditing rather than treating the original resolved advisories as still open.
 - Decide whether to publish/license the currently private iOS repository, add a
@@ -231,8 +240,8 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
 1. Fetch both repositories and confirm clean `main` against `origin/main`; reread
    open GitHub issues and #30 for release updates. Start a focused `codex/…` branch
    from current main after checking the browser batch merge status.
-2. Broaden furnished-home hardware calibration and device coverage; measure the
-   2D dirty-flag polling loop before selecting another idle optimization. Preserve unknown fields,
+2. Broaden furnished-home hardware calibration and device coverage; measure active
+   orbit, stacking and editing before selecting another rendering optimization. Preserve unknown fields,
    explicit clears, independent import copies, fractional transforms and pooled
    local attachments. Do not rely on temporary QA directories as source artifacts.
 3. Web baseline: Node 24/npm; run `NODE_ENV=production npm run check`,

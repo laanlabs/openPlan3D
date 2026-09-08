@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { connectedWallEndpoints } from '$lib/utils/wallEditing';
-  import { startAnimationLoop } from '$lib/utils/animationLoop';
+  import { createDrawScheduler } from '$lib/utils/drawScheduler';
   import { activeFloor, selectedTool, selectedElementId, selectedElementIds, selectedRoomId, addWall, addDoor, addWindow, updateWall, moveWallEndpoint, updateDoor, updateWindow, addFurniture, moveFurniture, transformFurnitureDuringDrag, commitFurnitureMove, rotateFurniture, setFurnitureRotation, scaleFurniture, removeElement, placingFurnitureId, placingRotation, placingDoorType, placingWindowType, detectedRoomsStore, duplicateDoor, duplicateWindow, duplicateFurniture, duplicateWall, moveWallParallel, splitWall, snapEnabled, placingStair, addStair, moveStair, updateStair, placingColumn, placingColumnShape, addColumn, moveColumn, updateColumn, calibrationMode, calibrationPoints, updateBackgroundImage, setBackgroundImage, canvasZoom, canvasCamX, canvasCamY, panMode, showFurnitureStore, addGuide, moveGuide, removeGuide, beginUndoGroup, endUndoGroup, layerVisibility, updateRoom, addMeasurement, removeMeasurement, addAnnotation, removeAnnotation, updateAnnotation, addTextAnnotation, removeTextAnnotation, updateTextAnnotation, moveTextAnnotation, toggleFurnitureLock, createGroup, ungroupElements, findGroupForElement, placingEntourageId, addEntourageItem, moveEntourage, resizeEntourage, currentProject, elevationWallId, elevationPickMode } from '$lib/stores/project';
   import type { Point, Wall, Door, Window as Win, FurnitureItem, Stair, Column, GuideLine, Measurement, Annotation, TextAnnotation, CustomEntourageDef } from '$lib/models/types';
   import type { Floor, Room } from '$lib/models/types';
@@ -33,9 +33,9 @@
   let camY = $state(0);
   let zoom = $state(1);
 
-  // Dirty flag for render optimization — only redraw when something changes
-  let canvasDirty = true;
-  function markDirty() { canvasDirty = true; }
+  // Events and subscriptions coalesce into one frame; no idle polling.
+  let drawing: ReturnType<typeof createDrawScheduler> | undefined;
+  function markDirty() { drawing?.invalidate(); }
   function getCS(): CanvasState { return { ctx, width, height, zoom, camX, camY }; }
   // Sync zoom with shared store
   onDestroy(canvasZoom.subscribe(v => { zoom = v; }));
@@ -139,8 +139,17 @@
   let showStairs = $derived(layerVis.stairs);
   let showLayerPanel = $state(false);
   let showMinimap = $state(true);
-  let minimapCanvas: HTMLCanvasElement;
+  let minimapCanvas = $state<HTMLCanvasElement>();
   const RULER_SIZE = 24;
+
+  // These local display controls also change outside canvas pointer handlers.
+  $effect(() => {
+    camX; camY; zoom;
+    showGrid; showRulers; showRoomLabels; showDimensions;
+    showMinimap; minimapCanvas;
+    bgImage; shiftDown; dragPreview;
+    markDirty();
+  });
 
   // Detected rooms
   let detectedRooms: Room[] = $state([]);
@@ -1040,14 +1049,8 @@
   }
 
 
-  function scheduleDraw() {
-    markDirty();
-  }
-
   function draw() {
     if (!ctx) return;
-    if (!canvasDirty) return;
-    canvasDirty = false;
     ctx.clearRect(0, 0, width, height);
     ctx.fillStyle = '#f8f9fa';
     ctx.fillRect(0, 0, width, height);
@@ -1057,16 +1060,6 @@
 
     const floor = currentFloor;
     if (!floor) return;
-    // Mark dirty whenever active interactions are happening (wall drawing, dragging, etc.)
-    if (wallStart || draggingFurnitureId || draggingDoorId || draggingWindowId || draggingStairId ||
-        draggingColumnId || draggingWallEndpoint || draggingWallParallel || draggingCurveHandle ||
-        draggingHandle || draggingMultiSelect || draggingRoomId || draggingRoomLabelId ||
-        draggingTextAnnotationId || draggingGuideId || measuring || annotating ||
-        currentPlacingId || isPlacingStair || isPlacingColumn || marqueeStart || isPanning ||
-        draggingEntourageId || resizingEntourageId || currentEntourageDefId) {
-      canvasDirty = true;
-    }
-
     updateDetectedRooms();
     const selId = currentSelectedId;
     const multiIds = currentSelectedIds;
@@ -1695,9 +1688,9 @@
 
   onMount(() => {
     ctx = canvas.getContext('2d')!;
+    drawing = createDrawScheduler(draw);
     resize();
     const stopTextures = setTextureLoadCallback(markDirty);
-    const stopDrawing = startAnimationLoop(draw);
     let mounted = true;
     const resizeObs = new ResizeObserver(resize);
     resizeObs.observe(canvas.parentElement!);
@@ -1765,13 +1758,18 @@
     const unsub_multi = selectedElementIds.subscribe((ids) => { currentSelectedIds = ids; markDirty(); });
     const unsub_elevopen = elevationWallId.subscribe((id) => { elevationOpen = !!id; markDirty(); });
     const unsub_elevpick = elevationPickMode.subscribe((v) => { pickingElevation = v; markDirty(); });
+    let backgroundSource: string | undefined;
     const unsub14 = activeFloor.subscribe((f) => {
-      if (f?.backgroundImage?.dataUrl && (!bgImage || bgImage.src !== f.backgroundImage.dataUrl)) {
+      const source = f?.backgroundImage?.dataUrl;
+      if (source === backgroundSource) return;
+      backgroundSource = source;
+      bgImage = null;
+      if (source) {
         const img = new Image();
-        img.onload = () => { bgImage = img; };
-        img.src = f.backgroundImage.dataUrl;
-      } else if (!f?.backgroundImage) {
-        bgImage = null;
+        img.onload = () => {
+          if (mounted && backgroundSource === source) bgImage = img;
+        };
+        img.src = source;
       }
     });
 
@@ -1808,7 +1806,7 @@
     canvas.addEventListener('touchend', onTouchEnd, { passive: false });
     canvas.addEventListener('touchcancel', onTouchEnd, { passive: false });
 
-    return () => { mounted = false; stopDrawing(); stopTextures(); resizeObs.disconnect(); unsub1(); unsub2(); unsub3(); unsub4(); unsub5(); unsub6(); unsub7(); unsub8(); unsub9(); unsub10(); unsub11(); unsub12(); unsub13(); unsub_multi(); unsub_elevopen(); unsub_elevpick(); unsub14(); unsub_col(); unsub_cols(); unsub_layers(); unsub_snapgrid(); unsubEnt1(); unsubEnt2(); document.removeEventListener('paste', handlePaste); canvas.removeEventListener('touchstart', onTouchStart); canvas.removeEventListener('touchmove', onTouchMove); canvas.removeEventListener('touchend', onTouchEnd); canvas.removeEventListener('touchcancel', onTouchEnd); };
+    return () => { mounted = false; drawing?.stop(); stopTextures(); resizeObs.disconnect(); unsub1(); unsub2(); unsub3(); unsub4(); unsub5(); unsub6(); unsub7(); unsub8(); unsub9(); unsub10(); unsub11(); unsub12(); unsub13(); unsub_multi(); unsub_elevopen(); unsub_elevpick(); unsub14(); unsub_col(); unsub_cols(); unsub_layers(); unsub_snapgrid(); unsubEnt1(); unsubEnt2(); document.removeEventListener('paste', handlePaste); canvas.removeEventListener('touchstart', onTouchStart); canvas.removeEventListener('touchmove', onTouchMove); canvas.removeEventListener('touchend', onTouchEnd); canvas.removeEventListener('touchcancel', onTouchEnd); };
   });
 
   /** Compute world bounding box of all elements */
@@ -3566,6 +3564,7 @@
           if (idx >= 0) {
             const [item] = currentFloor.furniture.splice(idx, 1);
             currentFloor.furniture.push(item);
+            markDirty();
           }
         }
         break;
@@ -3575,6 +3574,7 @@
           if (idx >= 0) {
             const [item] = currentFloor.furniture.splice(idx, 1);
             currentFloor.furniture.unshift(item);
+            markDirty();
           }
         }
         break;
