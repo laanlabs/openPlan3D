@@ -2,6 +2,9 @@
  * own cancellation so closing also clears their Svelte open state. */
 export function modalDialog(dialog: HTMLDialogElement) {
   const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  // A keyboard-opened dialog must be usable while walkthrough has captured the
+  // mouse. The viewer's existing unlock handler ends that walkthrough session.
+  if (document.pointerLockElement) document.exitPointerLock();
   dialog.showModal();
   function onKeydown(event: KeyboardEvent) {
     if (event.key !== 'Tab' || event.ctrlKey || event.metaKey || event.altKey) return;

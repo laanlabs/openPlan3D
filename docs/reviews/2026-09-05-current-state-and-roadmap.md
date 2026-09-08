@@ -530,7 +530,7 @@ window/document editor shortcuts pause while a modal is open. Closing a dialog
 preserves elevation and 3D edit modes. Command palette semantics identify the
 active result, and actions dispatch after modal teardown. Local validation passes
 647 unit tests, the production build and type checks with zero errors and nine
-remaining warnings. Seven new browser workflows cover desktop/phone keyboard
+remaining warnings. Eight new browser workflows cover desktop/phone keyboard
 protection, field edits, command execution, cancellation, mode preservation and
 printing. See [the report](2026-09-08-modal-keyboard-safety.md) and PR checks for
 final validation and deployment. This adds no Firebase writes or dependencies.

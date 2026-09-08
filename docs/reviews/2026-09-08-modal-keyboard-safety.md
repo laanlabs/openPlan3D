@@ -23,6 +23,9 @@ starting tools or processing Escape. This also protects the existing native
 package and library-restore dialogs. Elevation's capture-phase Escape handler
 and 3D input follow the same rule; modal focus clears held walkthrough input.
 Closing a modal leaves those view modes intact. Key releases still clear held input.
+Opening a modal also releases any captured mouse; the existing unlock handler
+ends a locked walkthrough session so dialog controls remain usable. A controlled
+browser regression verifies movement stops and a fresh walkthrough has no held keys.
 
 The command palette uses a named search combobox and result list with an active
 option. Its commands execute after the dialog closes, preserving actions such as
@@ -39,7 +42,7 @@ errors and **nine remaining Svelte warnings**, down from 22. Two unit regression
 cover shortcut isolation even with a background event target and resumption after
 closing the dialog.
 
-Seven new browser workflows run across Chromium, Firefox and WebKit. They cover
+Eight new browser workflows run across Chromium, Firefox and WebKit. They cover
 desktop and 390-pixel dialog focus, Tab/Shift+Tab, selected-wall preservation,
 deletion/undo after closing, field edits, command search/execution, cancelled
 RoomPlan import, template focus restoration, elevation/3D mode preservation,
