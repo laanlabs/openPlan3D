@@ -18,6 +18,7 @@ async function openWalkthrough(page: Page, pointerLock = false) {
       view: null,
       fired: 0,
       pending: () => queued.size,
+      pendingIds: () => [...queued.keys()],
       ready: () => normal.size === 0,
       start: () => { if (normal.size) throw new Error('Wait for orbit to settle'); manual = true; },
       step: (delta: number, frames: number) => {
@@ -221,10 +222,18 @@ test('stationary walkthrough sleeps and wakes for movement, mouse look, fields a
   await step(page, 16, 1);
   expect((await gpu(page))[0].draws).toBeGreaterThan(draws);
   await idle();
+
+  // Unmount with a viewer frame queued, then verify that exact request is
+  // cancelled. The 2D canvas has its own animation loop after it mounts.
+  await page.evaluate(() => document.dispatchEvent(new MouseEvent('mousemove', { movementX: 10 })));
+  const viewerFrames: number[] = await page.evaluate(() => (window as any).__walkAudit.pendingIds());
+  expect(viewerFrames).toHaveLength(1);
   await page.getByRole('button', { name: '2D', exact: true }).click();
   expect((await gpu(page))[0].lost).toBe(true);
-  // The newly mounted 2D canvas schedules its own initial zoom-to-fit frames.
-  // Flush those, then require global silence and no further disposed-GPU draws.
-  await idle();
+  const remaining: number[] = await page.evaluate(() => (window as any).__walkAudit.pendingIds());
+  expect(remaining.filter(id => viewerFrames.includes(id))).toEqual([]);
+  const disposedDraws = (await gpu(page))[0].draws;
+  await step(page, 250, 8);
+  expect((await gpu(page))[0].draws).toBe(disposedDraws);
   expect(errors).toEqual([]);
 });

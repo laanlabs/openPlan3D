@@ -166,7 +166,9 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
   quality settings before choosing the next optimization. Stationary walkthrough
   now stops drawing after coasting; preserve mouse, keyboard and scene wakeup
   coverage when changing scheduling. The medium/large stationary Safari samples
-  do not establish active-navigation FPS, memory or battery targets.
+  do not establish active-navigation FPS, memory or battery targets. The 2D
+  canvas retains a separate animation loop that polls its dirty flag; measure
+  its idle cost separately before changing that broader editor lifecycle.
 - **Area/geometry agreement:** define whether area is measured at interior wall
   faces or another boundary, reconcile native raster-based areas with web polygons,
   and test room split/merge identity and schedules. Matching area totals are not

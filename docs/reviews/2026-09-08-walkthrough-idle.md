@@ -88,11 +88,12 @@ browser pointer-lock permission/state and dispatches mouse movement through the
 actual Three controls, without exposing application references or debug hooks.
 The existing real-cadence idle workflow also checks renewed held-key movement.
 
-The first CI run reached the final new-test assertion in Firefox and WebKit:
-it counted the newly mounted 2D canvas's two initial zoom-to-fit callbacks as a
-failure. The corrected check advances those startup frames, then asserts no
-further callbacks or disposed-GPU draws. It retains all earlier 3D silence and
-interaction checks. Chromium also reproduced a dropped wakeup when the first RAF timestamp preceded
+The initial CI runs reached the final new-test teardown assertion: they counted
+the newly mounted 2D canvas's startup callbacks and its separate animation loop
+as 3D work. The corrected check queues a viewer redraw, verifies cancellation
+of that exact request on unmount, and confirms no additional draws on the disposed
+WebGL context while 2D runs. All earlier 3D silence and interaction checks remain.
+Chromium also reproduced a dropped wakeup when the first RAF timestamp preceded
 its input handler. A new unit regression first failed, then passed with the fix:
 wait for a frame after the wake time without discarding held input. The controlled
 browser workflow now exercises early/equal first-frame timestamps too. Animation
