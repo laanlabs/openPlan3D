@@ -49,6 +49,7 @@ for (const width of [1440, 390]) test(`modal focus and keys preserve the selecte
   const before = await exported(page), stored = await storedRecords(page);
   for (const name of ['Settings', 'Version History', 'Area Summary', 'Keyboard Shortcuts', 'Print Preview']) {
     if (name === 'Print Preview') await page.getByRole('button', { name: 'Save', exact: true }).press('ControlOrMeta+p');
+    else if (name === 'Keyboard Shortcuts' && width < 768) await page.getByRole('button', { name: 'Save', exact: true }).press('?');
     else await toolbar(page, name);
     const dialog = await focusInside(page, name);
     if (name === 'Area Summary') {
