@@ -1,6 +1,6 @@
 <script lang="ts">
   import { modalDialog } from '$lib/utils/modalDialog';
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount, onDestroy, tick } from 'svelte';
   import { goto } from '$app/navigation';
   import { base } from '$app/paths';
   import { localStore, storageErrorMessage, downloadLibraryBackup } from '$lib/services/datastore';
@@ -9,6 +9,7 @@
   import WelcomeScreen from '$lib/components/WelcomeScreen.svelte';
   import LibraryRestoreDialog from '$lib/components/LibraryRestoreDialog.svelte';
   import ProjectPackageDialog from '$lib/components/ProjectPackageDialog.svelte';
+  import ProjectActionsMenu from '$lib/components/ProjectActionsMenu.svelte';
   import { houseTemplates } from '$lib/utils/houseTemplates';
 
   const openingLifetime = new AbortController();
@@ -20,10 +21,12 @@
   let restoreOpen = $state(false);
   let packageOpen = $state(false);
   let loading = $state(true);
-  let confirmDeleteId = $state<string | null>(null);
-  let renamingId = $state<string | null>(null);
+  let actionDialog = $state<{ type: 'rename' | 'delete'; id: string; name: string } | null>(null);
   let renameValue = $state('');
-  let contextMenuId = $state<string | null>(null);
+  let actionError = $state<string | null>(null);
+  let actionBusy = $state(false);
+  let duplicating = $state(false);
+  let newProjectButton = $state<HTMLButtonElement>();
   let showTemplateModal = $state(false);
 
   let libraryError = $state<string | null>(null);
@@ -76,48 +79,52 @@
   function createFromTemplate(index: number) { return createProject(houseTemplates[index].create); }
   function newProject() { return createProject(() => createDefaultProject('Untitled Project')); }
 
-  async function deleteProject(id: string) {
-    await withLibraryError(async () => {
-      await localStore.delete(id);
-      confirmDeleteId = null;
-      projects = (await localStore.list()).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-    });
-  }
-
   async function duplicateProject(id: string) {
+    if (duplicating) return;
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    duplicating = true;
     await withLibraryError(async () => {
       const dup = await localStore.duplicate(id);
-      if (dup) {
-        projects = (await localStore.list()).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-        thumbnails = { ...thumbnails, [dup.id]: await localStore.getThumbnail(dup.id) };
-      }
-      contextMenuId = null;
+      if (!dup) throw new Error('This project was deleted in another tab. Reload the library to see the latest projects.');
     });
+    // Refresh errors must not turn a completed copy into a retryable mutation.
+    if (!libraryError) await withLibraryError(refreshProjects);
+    duplicating = false;
+    await tick();
+    if (document.activeElement === document.body && previous?.isConnected) previous.focus();
   }
 
-  async function startRename(id: string, currentName: string) {
-    renamingId = id;
-    renameValue = currentName;
-    contextMenuId = null;
-    await new Promise(r => setTimeout(r, 50));
-    const input = document.getElementById('rename-input') as HTMLInputElement;
-    input?.focus();
-    input?.select();
+  function openAction(type: 'rename' | 'delete', project: { id: string; name: string }) {
+    actionDialog = { type, id: project.id, name: project.name || 'Untitled Project' };
+    renameValue = project.name;
+    actionError = null;
   }
-
-  async function commitRename(id: string) {
-    await withLibraryError(async () => {
-      if (renameValue.trim()) {
-        const p = await localStore.load(id);
-        if (p) {
-          p.name = renameValue.trim();
-          p.updatedAt = new Date();
-          await localStore.save(p);
-          projects = (await localStore.list()).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-        }
+  function closeAction() { if (!actionBusy) actionDialog = null; }
+  async function submitAction() {
+    const action = actionDialog, name = renameValue.trim();
+    if (!action || actionBusy || (action.type === 'rename' && !name)) return;
+    actionBusy = true; actionError = null;
+    try {
+      if (action.type === 'delete') await localStore.delete(action.id);
+      else {
+        const project = await localStore.load(action.id);
+        if (!project) throw new Error('This project was deleted in another tab. Cancel and reload the library to see the latest projects.');
+        project.name = name;
+        project.updatedAt = new Date();
+        await localStore.save(project);
       }
-      renamingId = null;
-    });
+    } catch (error) {
+      actionError = storageErrorMessage(error);
+      actionBusy = false;
+      return;
+    }
+    actionBusy = false;
+    actionDialog = null;
+    // Close only after the transaction commits, then refresh separately so a
+    // failed list read cannot repeat a successful rename or delete.
+    await withLibraryError(refreshProjects);
+    await tick();
+    if (action.type === 'delete' && document.activeElement === document.body) newProjectButton?.focus();
   }
 
   function formatDate(d: string) {
@@ -134,8 +141,6 @@
     return date.toLocaleDateString();
   }
 </script>
-
-<svelte:window onclick={() => { contextMenuId = null; }} />
 
 {#if showWelcome}
   <WelcomeScreen onRestoreLibrary={openRestore} onImportPackage={openPackage} onDismiss={() => { showWelcome = false; void withLibraryError(refreshProjects); }} />
@@ -161,6 +166,7 @@
           Templates
         </button>
         <button
+          bind:this={newProjectButton}
           onclick={newProject}
           class="px-5 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-semibold text-sm shadow-lg shadow-blue-500/25 transition-all hover:shadow-blue-500/40 flex items-center gap-2"
         >
@@ -172,6 +178,7 @@
   </div>
 
   <div class="max-w-5xl mx-auto px-6 py-8">
+    {#if duplicating}<p role="status" class="mb-4 text-sm text-gray-500">Duplicating project…</p>{/if}
     <div class="mb-5 flex flex-wrap items-center justify-between gap-3 text-sm text-gray-500">
       <p>Projects and version history are saved in this browser.</p>
       <div class="flex flex-wrap gap-4">
@@ -209,10 +216,10 @@
       </div>
     {:else}
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {#each projects as project}
+        {#each projects as project (project.id)}
           <div class="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-gray-300 transition-all duration-200 relative">
             <!-- Thumbnail -->
-            <a href={`${base}/editor?id=${encodeURIComponent(project.id)}`} class="block">
+            <a href={`${base}/editor?id=${encodeURIComponent(project.id)}`} aria-label={`Open ${project.name || 'Untitled Project'}`} class="block">
               <div class="aspect-[4/3] bg-gray-100 relative overflow-hidden">
                 {#if thumbnails[project.id]}
                   <img src={thumbnails[project.id]} alt="" class="w-full h-full object-contain" />
@@ -226,71 +233,51 @@
 
             <!-- Info -->
             <div class="p-4">
-              {#if renamingId === project.id}
-                <input
-                  id="rename-input"
-                  type="text"
-                  bind:value={renameValue}
-                  onblur={() => commitRename(project.id)}
-                  onkeydown={(e) => { if (e.key === 'Enter') commitRename(project.id); if (e.key === 'Escape') renamingId = null; }}
-                  class="font-semibold text-gray-800 text-sm bg-blue-50 border border-blue-300 rounded px-2 py-1 w-full outline-none"
-                />
-              {:else}
-                <a href={`${base}/editor?id=${encodeURIComponent(project.id)}`} class="block">
-                  <h3 class="font-semibold text-gray-800 text-sm truncate">{project.name || 'Untitled Project'}</h3>
-                </a>
-              {/if}
+              <a href={`${base}/editor?id=${encodeURIComponent(project.id)}`} class="block">
+                <h3 class="font-semibold text-gray-800 text-sm truncate">{project.name || 'Untitled Project'}</h3>
+              </a>
               <p class="text-xs text-gray-400 mt-1">{formatDate(project.updatedAt)}</p>
             </div>
 
-            <!-- Actions menu button -->
-            <button
-              onclick={(e) => { e.stopPropagation(); contextMenuId = contextMenuId === project.id ? null : project.id; }}
-              aria-label={`Project actions for ${project.name || 'Untitled Project'}`}
-              aria-expanded={contextMenuId === project.id}
-              class="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur rounded-lg shadow-sm border border-gray-200 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100 transition-opacity hover:bg-gray-50"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="text-gray-500"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
-            </button>
-
-            <!-- Context menu -->
-            {#if contextMenuId === project.id}
-              <div
-                class="absolute top-12 right-3 bg-white rounded-lg shadow-xl border border-gray-200 py-1 w-40 z-50"
-                onclick={(e) => e.stopPropagation()}
-              >
-                <button onclick={() => { goto(`${base}/editor?id=${encodeURIComponent(project.id)}`); }} class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 text-left flex items-center gap-2">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                  Open
-                </button>
-                <button onclick={() => startRename(project.id, project.name)} class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 text-left flex items-center gap-2">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-                  Rename
-                </button>
-                <button onclick={() => duplicateProject(project.id)} class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 text-left flex items-center gap-2">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                  Duplicate
-                </button>
-                <div class="h-px bg-gray-100 my-1"></div>
-                {#if confirmDeleteId === project.id}
-                  <div class="px-3 py-2 flex items-center gap-2">
-                    <span class="text-xs text-gray-500">Delete?</span>
-                    <button onclick={() => deleteProject(project.id)} class="px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600">Yes</button>
-                    <button onclick={() => confirmDeleteId = null} class="px-2 py-1 bg-gray-200 text-gray-600 text-xs rounded hover:bg-gray-300">No</button>
-                  </div>
-                {:else}
-                  <button onclick={() => { confirmDeleteId = project.id; }} class="w-full px-3 py-2 text-sm text-red-500 hover:bg-red-50 text-left flex items-center gap-2">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                    Delete
-                  </button>
-                {/if}
-              </div>
-            {/if}
+            <ProjectActionsMenu name={project.name} disabled={duplicating}
+              onaction={(action) => {
+                if (action === 'open') goto(`${base}/editor?id=${encodeURIComponent(project.id)}`);
+                else if (action === 'duplicate') void duplicateProject(project.id);
+                else openAction(action, project);
+              }} />
           </div>
         {/each}
       </div>
     {/if}
   </div>
+
+  {#if actionDialog}
+    <dialog use:modalDialog aria-labelledby="library-action-title" aria-describedby="library-action-description"
+      oncancel={(event) => { event.preventDefault(); closeAction(); }}
+      class="m-auto w-[28rem] max-w-[calc(100vw-2rem)] max-h-[85vh] overflow-y-auto rounded-2xl bg-white p-5 text-gray-800 shadow-2xl backdrop:bg-black/50">
+      <form onsubmit={(event) => { event.preventDefault(); void submitAction(); }}>
+        <h2 id="library-action-title" class="text-lg font-semibold">{actionDialog.type === 'rename' ? 'Rename project' : 'Delete project'}</h2>
+        <p id="library-action-description" class="mt-2 break-words text-sm text-gray-500">
+          {#if actionDialog.type === 'rename'}Choose a name for {actionDialog.name}.
+          {:else}Delete “{actionDialog.name}” and its version history from this browser? This cannot be undone.{/if}
+        </p>
+        {#if actionDialog.type === 'rename'}
+          <label for="library-project-name" class="mt-4 block text-sm font-medium">Project name</label>
+          <input id="library-project-name" type="text" bind:value={renameValue} disabled={actionBusy} required
+            class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-blue-500" />
+        {/if}
+        {#if actionError}<p role="alert" class="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-900">{actionError}</p>{/if}
+        {#if actionBusy}<p role="status" class="mt-4 text-sm text-gray-500">{actionDialog.type === 'rename' ? 'Saving name…' : 'Deleting project…'}</p>{/if}
+        <div class="mt-5 flex justify-end gap-3">
+          <button type="button" onclick={closeAction} disabled={actionBusy} class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold disabled:opacity-40">Cancel</button>
+          <button type="submit" disabled={actionBusy || (actionDialog.type === 'rename' && !renameValue.trim())}
+            class="rounded-lg px-4 py-2 text-sm font-semibold text-white disabled:opacity-40 {actionDialog.type === 'rename' ? 'bg-blue-600' : 'bg-red-600'}">
+            {actionDialog.type === 'rename' ? 'Save name' : 'Delete project'}
+          </button>
+        </div>
+      </form>
+    </dialog>
+  {/if}
 
   <!-- Template Modal -->
   {#if showTemplateModal}
