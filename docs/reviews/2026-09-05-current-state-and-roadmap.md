@@ -483,3 +483,15 @@ and retains cadence, pause and real-frame movement coverage. See
 limits and final PR/CI status. A repeated production update notice with a likely
 cache-validator collision is tracked separately in #81. Active-navigation/device
 budgets, native release and #30 cost gates remain; no cloud writes or assets are added.
+
+## Twenty-eighth batch: deployment version cache correctness
+
+Issue #81 reproduces Safari retaining old version JSON after a colliding
+size/mtime validator and moves the app's notice to a bounded no-store check.
+Polling frequency, immutable assets, local save/reload and recovery behavior stay
+intact. Local validation passes 626 unit tests; three new browser workflows use a
+real HTTP-cache fixture and exercise save failures, navigation and offline retries.
+See [the cache report](2026-09-08-deployment-version-cache.md) and PR #83 for native
+Safari, final CI and deployment verification. The remaining work is measured
+hardware/device coverage and the native release/Firebase gates in #30. This batch
+adds no cloud writes, endpoints, assets or dependencies.
