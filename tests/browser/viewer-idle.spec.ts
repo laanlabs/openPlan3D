@@ -3,6 +3,8 @@ import { resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { observeGPU, gpu } from './gpu';
 
+test.use({ viewport: { width: 844, height: 600 } });
+
 test('3D sleeps when idle and wakes for controls, scene changes and walkthrough', async ({ page }) => {
   test.setTimeout(120_000);
   await observeGPU(page);
@@ -36,7 +38,8 @@ test('3D sleeps when idle and wakes for controls, scene changes and walkthrough'
   const activeDraws = async () => (await gpu(page)).find((entry: any) => entry.connected && !entry.lost)?.draws ?? 0;
   const pixels = async () => createHash('sha256').update(await canvas.evaluate((node: HTMLCanvasElement) => node.toDataURL())).digest('hex');
   const idle = async () => {
-    await expect.poll(async () => (await audit()).pending).toBe(0);
+    // Software-rendered CI needs time to draw each remaining damping step.
+    await expect.poll(async () => (await audit()).pending, { timeout: 40_000 }).toBe(0);
     const before = await audit(), draws = await activeDraws();
     // A quiet interval must contain neither polling callbacks nor GPU draws.
     await page.waitForTimeout(350);
@@ -73,7 +76,7 @@ test('3D sleeps when idle and wakes for controls, scene changes and walkthrough'
   await page.getByRole('button', { name: 'Exit Furniture Placement', exact: true }).click();
   await idle();
   expect(await pixels()).not.toBe(before);
-  await page.getByRole('button', { name: 'Edit Mode', exact: true }).click();
+  await page.getByRole('button', { name: 'Exit Edit Mode', exact: true }).click();
 
   before = await pixels();
   await page.getByRole('button', { name: 'Lighting Controls', exact: true }).click();
