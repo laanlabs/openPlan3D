@@ -84,6 +84,10 @@ for (const width of [1440, 390]) test(`field keyboard editing cannot select or p
   await notes.pressSequentially('Soft green fabric chair');
   await notes.press('Tab');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
+  // A click does not await the async IndexedDB transaction. Verify the saved
+  // note before navigating away, then independently check the reloaded editor.
+  await expect.poll(async () => (await savedProjects(page))[original.id]?.floors[0].furniture[0].details.note)
+    .toBe('Soft green fabric chair');
   await page.reload(); await selectFurniture(page);
   await expect(notes).toHaveValue('Soft green fabric chair');
   await expect(itemWidth).toHaveValue('78.125');

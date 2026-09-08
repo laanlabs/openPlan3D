@@ -59,6 +59,12 @@ The suite now has 68 workflows per engine (204 across Chromium, Firefox and
 WebKit), plus six furnished-home rendering benchmarks. See the linked GitHub issue
 and PR checks for final CI, native Safari and deployment verification.
 
+The first CI run retried the existing Chromium phone-width field-editing test:
+it reloaded immediately after clicking an asynchronous Save and read the previous
+note. That test now waits for the expected IndexedDB record before reloading,
+then retains its full editor and saved-document assertions. The walkthrough
+workflows passed their first attempts in Chromium and Firefox in that run.
+
 The controlled cadence tests establish integration behavior, not a hardware FPS
 budget. Actual iPhone/iPad touch and backgrounding checks, medium/large-home device
 calibration, native distribution and the #30 migration/billing gates remain.
