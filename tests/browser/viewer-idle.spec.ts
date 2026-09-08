@@ -96,7 +96,7 @@ test('3D sleeps when idle and wakes for controls, scene changes and walkthrough'
   await page.evaluate(() => { HTMLCanvasElement.prototype.requestPointerLock = () => Promise.reject(new DOMException('Denied', 'NotAllowedError')); });
   await page.getByRole('button', { name: 'Enter Walkthrough Mode', exact: true }).click();
   await expect(page.getByText('Walkthrough Controls', { exact: true })).toBeVisible();
-  await expect.poll(async () => (await gpu(page))[0].draws).toBeGreaterThan((await gpu(page))[0].draws);
+  await idle();
   before = await pixels();
   await page.keyboard.down('ArrowUp');
   try {

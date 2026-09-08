@@ -16,6 +16,70 @@ function run(hz: number, keys: string[], coast = false) {
 }
 
 describe('walkthrough cadence', () => {
+  it('stays inactive for sprint alone and opposing input, then wakes when one direction is released', () => {
+    const motion = new WalkthroughMotion();
+    expect(motion.active).toBe(false);
+    motion.setKey('ShiftLeft', true);
+    expect(motion.active).toBe(false);
+    for (const key of ['ArrowUp', 'ArrowDown', 'KeyA', 'KeyD']) motion.setKey(key, true);
+    expect(motion.active).toBe(false);
+    motion.setKey('ArrowDown', false);
+    expect(motion.active).toBe(true);
+  });
+
+  it('finishes coasting within two seconds while preserving the full straight-line travel', () => {
+    const motion = new WalkthroughMotion(), camera = new PerspectiveCamera();
+    motion.setKey('ArrowUp', true);
+    motion.advance(0, camera, settings); motion.advance(250, camera, settings);
+    motion.setKey('ArrowUp', false);
+    expect(motion.active).toBe(true);
+    for (let time = 500; time <= 2250; time += 250) motion.advance(time, camera, settings);
+    expect(motion.active).toBe(false);
+    expect(-camera.position.z).toBeCloseTo(20, 9); // acceleration impulse / drag
+    const settled = camera.position.clone();
+    motion.advance(2500, camera, settings);
+    expect(camera.position.equals(settled)).toBe(true);
+  });
+
+  it('wakes from the fresh input timestamp without integrating time spent stationary', () => {
+    const motion = new WalkthroughMotion(), camera = new PerspectiveCamera();
+    motion.advance(0, camera, settings); motion.stopClock();
+    motion.setKey('ArrowUp', true); motion.startClock(60_000);
+    motion.advance(60_100, camera, settings);
+    expect(-camera.position.z).toBeCloseTo(2.9430355, 6);
+  });
+
+  it('does not restart an active clock when another input or key repeat arrives', () => {
+    const motion = new WalkthroughMotion(), camera = new PerspectiveCamera();
+    motion.setKey('ArrowUp', true); motion.startClock(0);
+    motion.advance(100, camera, settings);
+    motion.setKey('ArrowUp', true, true); motion.startClock(150);
+    motion.advance(200, camera, settings);
+    expect(-camera.position.z).toBeCloseTo(9.0826823, 6);
+  });
+
+  it('stops keyboard look immediately on release without inventing look momentum', () => {
+    const motion = new WalkthroughMotion(), camera = new PerspectiveCamera();
+    motion.setKey('KeyA', true); motion.startClock(0);
+    motion.advance(100, camera, settings);
+    expect(motion.active).toBe(true);
+    motion.setKey('KeyA', false);
+    expect(motion.active).toBe(false);
+    const rotation = camera.quaternion.clone();
+    motion.stopClock(); motion.advance(60_000, camera, settings);
+    expect(camera.quaternion.equals(rotation)).toBe(true);
+  });
+
+  it('reset drops all animation demand and ignores repeats after focus loss', () => {
+    const motion = new WalkthroughMotion(), camera = new PerspectiveCamera();
+    motion.setKey('ArrowUp', true); motion.startClock(0);
+    motion.advance(100, camera, settings); motion.reset();
+    motion.setKey('ArrowUp', true, true);
+    expect(motion.active).toBe(false);
+    motion.setKey('ArrowUp', false); motion.setKey('ArrowUp', true);
+    expect(motion.active).toBe(true);
+  });
+
   for (const [name, keys, coast] of [
     ['walking', ['ArrowUp'], false],
     ['diagonal sprint', ['ArrowUp', 'ArrowRight', 'ShiftLeft'], false],

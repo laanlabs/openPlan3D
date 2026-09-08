@@ -663,11 +663,22 @@
     if (event.code === 'Escape') { exitWalkthroughMode(); return; }
     if (event.defaultPrevented || event.isComposing || event.ctrlKey || event.metaKey || event.altKey
       || isWalkthroughField(event.target)) return;
-    if (walkthroughMotion.setKey(event.code, true, event.repeat)) event.preventDefault();
+    if (walkthroughMotion.setKey(event.code, true, event.repeat)) {
+      event.preventDefault();
+      wakeWalkthrough();
+    }
   }
 
   function onKeyUp(event: KeyboardEvent) {
     walkthroughMotion.setKey(event.code, false);
+    wakeWalkthrough();
+  }
+
+  function wakeWalkthrough() {
+    if (walkthroughMode && walkthroughMotion.active) {
+      walkthroughMotion.startClock(performance.now());
+      requestRender();
+    }
   }
 
   function resetWalkthroughInput() {
@@ -919,6 +930,7 @@
 
     // Initialize PointerLock controls for walkthrough mode
     pointerControls = new PointerLockControls(camera, renderer.domElement);
+    pointerControls.addEventListener('change', markSceneDirty);
 
     // Keyboard event listeners for walkthrough
     document.addEventListener('keydown', onKeyDown, false);
@@ -1936,10 +1948,14 @@
     animId = undefined;
 
     if (walkthroughMode) {
+      const moving = walkthroughMotion.active;
       walkthroughMotion.advance(timestamp, camera, { moveSpeed, sprintSpeed, eyeHeight, floorElevation: activeFloorElevation });
-      // Always render in walkthrough mode (camera constantly moving)
-      renderer.render(scene, camera);
-      requestRender();
+      if (sceneDirty || moving) {
+        sceneDirty = false;
+        renderer.render(scene, camera);
+      }
+      if (walkthroughMotion.active) requestRender();
+      else walkthroughMotion.stopClock();
     } else {
       // A change event schedules the next damping step. Once the controls settle,
       // leave no callback queued until an interaction or scene update wakes us.
@@ -2032,6 +2048,7 @@
       sunLight.shadow.dispose();
       clearGroup(scene);
       wallMeshMap.clear();
+      pointerControls.removeEventListener('change', markSceneDirty);
       pointerControls.dispose();
       controls.dispose();
       releaseRenderer(renderer);
@@ -2376,7 +2393,7 @@
       <label class="flex items-center justify-between gap-2">
         <span class="text-white/70">Eye Height</span>
         <div class="flex items-center gap-1">
-          <input type="range" min="80" max="220" bind:value={eyeHeight} class="w-16 h-1 accent-blue-400" />
+          <input type="range" min="80" max="220" bind:value={eyeHeight} oninput={markSceneDirty} class="w-16 h-1 accent-blue-400" />
           <span class="w-10 text-right">{eyeHeight}cm</span>
         </div>
       </label>
