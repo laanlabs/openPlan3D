@@ -69,3 +69,22 @@ production renderer to either backend.
 
 References: [path tracer API](https://github.com/gkjohnson/three-gpu-pathtracer),
 [planned WebGPU migration](https://github.com/gkjohnson/three-gpu-pathtracer/issues/779).
+
+## Standalone static hosting
+
+The same viewer can be published without SvelteKit's server or the main app:
+
+```sh
+NODE_ENV=production npm run build:render-lab
+```
+
+The default output is `/tmp/openplan3d-render-site`; set `RENDER_LAB_OUTPUT` to
+choose another build directory. This build includes no Firebase SDK, analytics,
+server routes, private files or models. It opens with the local GLB picker.
+
+Only after the model owner explicitly authorizes public distribution, set
+`VITE_RENDER_LAB_MODEL=/demo.glb` during the build and copy the approved derived
+GLB to the output directory as `demo.glb`. The hosted model is downloadable;
+a hard-to-guess preview URL is not access control. Full original scan bundles and
+capture photos must not be included. Hosting the viewer does not move rendering
+to Firebase: rendering still runs on each visitor's GPU.
