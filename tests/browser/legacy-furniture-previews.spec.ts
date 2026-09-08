@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { packageJSON, readPackageZip } from '../../src/lib/utils/projectPackageZip';
+import { readSnapshotStorage } from '../../src/lib/utils/snapshotStorage';
 import { failProjectWrites, savedProjects, storedRecords } from './storage';
 
 const id = 'qa-legacy-furniture-previews';
@@ -18,7 +19,13 @@ async function seed(page: Page) {
   await page.goto(`/editor?id=${id}`);
   await page.getByRole('button', { name: 'Save', exact: true }).press('l');
   await expect(page.getByRole('button', { name: '🛏️ Queen Bed', exact: true })).toBeVisible();
-  return { raw, history };
+  // The existing editor appends a Session start snapshot. Its pooling may change
+  // the history wrapper, but the archived original project bytes must survive.
+  await expect.poll(async () => readSnapshotStorage((await storedRecords(page, 'history'))[id]).length).toBe(2);
+  const openedHistory = (await storedRecords(page, 'history'))[id];
+  expect(readSnapshotStorage(openedHistory)[0].data).toBe(raw);
+  expect(await page.evaluate(id => localStorage.getItem(`vh_${id}`), id)).toBe(history);
+  return { raw, history: openedHistory };
 }
 function observe(page: Page) {
   const errors: string[] = [], external: string[] = [], models: string[] = [];

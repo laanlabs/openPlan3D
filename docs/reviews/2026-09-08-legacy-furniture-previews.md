@@ -15,6 +15,8 @@ rotation, mirroring, explicit different catalog choices, native metadata, local
 notes/costs/photos and unknown fields remain intact. Later deliberate chair choices
 remain explicit after normal save/reload. Reading does not rewrite stored projects
 or archived history, and optimistic save comparisons still use the raw revision.
+The editor's existing Session start snapshot can append and pool history normally;
+the original archived project bytes and legacy recovery copy remain intact.
 
 Identity checks complete before any changes. Ambiguous mappings, missing source
 items, invalid widths and unsupported markers remain untouched on ordinary local
