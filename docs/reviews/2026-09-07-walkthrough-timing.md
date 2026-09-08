@@ -32,7 +32,7 @@ A single delayed frame consumes at most 250 ms, limiting catch-up after a stall.
 Below four callbacks per second this deliberately limits traveled time. Actual
 blur, visibility changes, entry, exit and teardown reset elapsed time, momentum
 and all held keys. A user returning to the page starts movement with a fresh key
-press. Both Shift keys are tracked independently, and releasing Shift outside
+press; OS key repeats cannot revive cleared movement. Both Shift keys are tracked independently, and releasing Shift outside
 walkthrough cannot leave sprint enabled on the next entry.
 
 Focused inputs, selects, text areas and editable content retain their keyboard
@@ -43,11 +43,11 @@ available. Orbit idle scheduling from #75 and top-down exit behavior remain.
 
 ## Verification
 
-Local validation: **606 unit tests**, zero type-check errors with 23 existing
-Svelte warnings, and the production build. Fifteen motion tests cover 30/60/120 Hz,
+Local validation: **607 unit tests**, zero type-check errors with 23 existing
+Svelte warnings, and the production build. Sixteen motion tests cover 30/60/120 Hz,
 uneven timing, diagonal normalization, simultaneous turning/movement, release
 momentum, speed calibration, pause limits, duplicate timestamps, input reset,
-both Shift keys, pitch limits and floor-relative height.
+key-repeat recovery, both Shift keys, pitch limits and floor-relative height.
 
 Two production-browser workflows control RAF timestamps and observe WebGL view
 uniforms at the browser boundary in CI. They compare actual rendered camera views

@@ -110,6 +110,8 @@ test('walkthrough clears held input on pause and exit and lets fields handle arr
     await page.keyboard.down('ArrowUp'); await page.keyboard.down('ShiftRight'); await page.keyboard.down('a');
     const before = await step(page);
     await page.evaluate(event => (event === 'blur' ? window : document).dispatchEvent(new Event(event)), event);
+    // Playwright marks another down on an already-held key as an OS repeat.
+    await page.keyboard.down('ArrowUp'); await page.keyboard.down('a');
     await step(page, 60_000, 1);
     expect(await step(page)).toEqual(before);
     await page.keyboard.up('ArrowUp'); await page.keyboard.up('ShiftRight'); await page.keyboard.up('a');

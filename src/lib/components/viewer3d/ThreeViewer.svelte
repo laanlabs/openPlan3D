@@ -663,7 +663,7 @@
     if (event.code === 'Escape') { exitWalkthroughMode(); return; }
     if (event.defaultPrevented || event.isComposing || event.ctrlKey || event.metaKey || event.altKey
       || isWalkthroughField(event.target)) return;
-    if (walkthroughMotion.setKey(event.code, true)) event.preventDefault();
+    if (walkthroughMotion.setKey(event.code, true, event.repeat)) event.preventDefault();
   }
 
   function onKeyUp(event: KeyboardEvent) {

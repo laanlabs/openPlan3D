@@ -89,6 +89,21 @@ describe('walkthrough cadence', () => {
     expect(camera.position.z).toBeCloseTo(run(60, ['ArrowUp']).position.z * 2, 8);
   });
 
+  it('ignores old key repeats after reset until a fresh press arrives', () => {
+    const motion = new WalkthroughMotion(), camera = new PerspectiveCamera();
+    motion.setKey('ArrowUp', true);
+    motion.reset();
+    motion.setKey('ArrowUp', true, true);
+    motion.setKey('KeyA', true, true);
+    motion.advance(0, camera, settings); motion.advance(100, camera, settings);
+    expect(camera.position.z).toBe(0);
+    expect(camera.rotation.y).toBe(0);
+    motion.setKey('ArrowUp', false);
+    motion.setKey('ArrowUp', true);
+    motion.advance(200, camera, settings);
+    expect(camera.position.z).toBeLessThan(-2);
+  });
+
   it('turns at two radians per second and clamps pitch without changing eye height', () => {
     const yaw = new Euler().setFromQuaternion(run(120, ['KeyA']).quaternion, 'YXZ');
     expect(yaw.y).toBeCloseTo(2, 8);

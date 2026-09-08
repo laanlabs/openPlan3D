@@ -18,8 +18,11 @@ export class WalkthroughMotion {
   private forwardVelocity = 0;
   private rotation = new Euler(0, 0, 0, 'YXZ');
 
-  setKey(code: string, down: boolean) {
+  setKey(code: string, down: boolean, repeat = false) {
     if (!keys.has(code)) return false;
+    // An OS repeat after returning to the page must not revive a key that blur
+    // cleared. Accept movement again on a fresh press after release.
+    if (down && repeat && !this.held.has(code)) return true;
     if (down) this.held.add(code);
     else this.held.delete(code);
     return true;

@@ -465,7 +465,7 @@ Issue #77 replaces fixed per-callback movement with elapsed-time integration,
 consistent drag/coasting and short camera-motion substeps. It preserves the
 existing speed calibration, horizontal movement and floor-relative eye height.
 Blur, visibility and mode transitions clear held input and momentum; slider
-arrows and both Shift keys behave independently. Local validation passes 606 unit
+arrows and both Shift keys behave independently. Local validation passes 607 unit
 tests, with two new browser workflows for controlled cadence, rendered motion,
 pause recovery and field input. See [the timing report](2026-09-07-walkthrough-timing.md)
 for limits and PR validation. Hardware calibration, physical devices, native
