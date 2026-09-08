@@ -37,9 +37,16 @@
 
   // Dirty flag — only render when scene changes or camera moves
   let sceneDirty = true;
-  function markSceneDirty() { sceneDirty = true; }
+  let viewerMounted = false;
+  let animId: number | undefined;
+  function requestRender() {
+    if (viewerMounted && animId === undefined) animId = requestAnimationFrame(animate);
+  }
+  function markSceneDirty() {
+    sceneDirty = true;
+    requestRender();
+  }
   let pointerControls: PointerLockControls;
-  let animId: number;
   let currentFloor = $state.raw<Floor | null>(null);
   let renderedSignature: string | null = null;
   let wallGroup: THREE.Group;
@@ -639,6 +646,7 @@
     velocity.set(0, 0, 0);
     moveForward = moveBackward = moveLeft = moveRight = false;
     lookLeft = lookRight = lookUp = lookDown = false;
+    markSceneDirty();
 
     if (typeof document !== 'undefined' && document.pointerLockElement) {
       document.exitPointerLock();
@@ -906,10 +914,12 @@
         } else if (ghostGroup) {
           ghostGroup.visible = false;
         }
+        markSceneDirty();
         renderer.domElement.style.cursor = 'crosshair';
         return;
-      } else if (ghostGroup) {
+      } else if (ghostGroup?.visible) {
         ghostGroup.visible = false;
+        markSceneDirty();
       }
 
       if (!editMode) {
@@ -993,9 +1003,7 @@
     removeGhostPreview();
     const cat = getCatalogItem(catalogId);
     if (!cat || cat.symbol) return;
-    const model = createFurnitureModelWithGLB(catalogId, cat, () => {
-      if (renderer && scene && camera) renderer.render(scene, camera);
-    }, { ghost: true });
+    const model = createFurnitureModelWithGLB(catalogId, cat, markSceneDirty, { ghost: true });
     model.visible = false;
     ghostGroup = model;
     scene.add(ghostGroup);
@@ -1006,6 +1014,7 @@
       scene.remove(ghostGroup);
       disposeModel(ghostGroup);
       ghostGroup = null;
+      markSceneDirty();
     }
   }
 
@@ -1527,7 +1536,7 @@
       };
       const model = createFurnitureModelWithGLB(fi.catalogId, furnitureDef, () => {
         // Re-render when GLB model finishes loading
-        if (renderer && scene && camera) renderer.render(scene, camera);
+        markSceneDirty();
       }, { color: fi.color, material: fi.material });
       model.position.set(fi.position.x, 1.5, fi.position.y);
       model.rotation.y = -(fi.rotation * Math.PI) / 180;
@@ -1939,12 +1948,13 @@
     } catch {
       walkthroughMouseUnavailable = true;
     }
+    markSceneDirty();
   }
 
 
 
   function animate() {
-    animId = requestAnimationFrame(animate);
+    animId = undefined;
 
     if (walkthroughMode) {
       const delta = 0.016; // Approximate 60fps
@@ -1974,8 +1984,10 @@
       }
       // Always render in walkthrough mode (camera constantly moving)
       renderer.render(scene, camera);
+      requestRender();
     } else {
-      // controls.update() may fire 'change' event (which sets sceneDirty)
+      // A change event schedules the next damping step. Once the controls settle,
+      // leave no callback queued until an interaction or scene update wakes us.
       controls.update();
       if (sceneDirty) {
         sceneDirty = false;
@@ -2010,7 +2022,8 @@
       openaiModel = getEffectiveModel(config);
     });
     init();
-    animate();
+    viewerMounted = true;
+    markSceneDirty();
 
     // Rebuild 3D scene when photo textures finish loading
     const stopTextures = setTextureLoadCallback(() => {
@@ -2041,6 +2054,7 @@
     });
 
     return () => {
+      viewerMounted = false;
       cancelAIRender();
       stopAISettings();
       stopTextures();
@@ -2048,7 +2062,8 @@
       unsub();
       stopSettings();
       unsubSel();
-      cancelAnimationFrame(animId);
+      if (animId !== undefined) cancelAnimationFrame(animId);
+      animId = undefined;
       document.removeEventListener('keydown', onKeyDown, false);
       document.removeEventListener('keyup', onKeyUp, false);
       releaseCameraPreview();
