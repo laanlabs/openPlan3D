@@ -74,10 +74,15 @@ chair/table/storage variants without changing the saved category.
 
 New `baseline.json` includes `openplanFurnitureCategoriesVersion: 1`; local web
 package state includes `furnitureCategoriesVersion: 1`. Unknown versions are
-rejected. Legacy unmarked chair fallbacks are upgraded on package re-import and
-on serialization of retained local projects, preserving edited footprints and
-explicitly different catalog choices. Export works on a copy; old open-editor
-previews refresh after re-import. Existing native categories, IDs and unknown
+rejected on package import/export. Legacy unmarked chair fallbacks are upgraded
+on package re-import and when reading saved projects, JSON or history copies.
+The retained source category and original width choose the preview, preserving
+edited footprints and explicitly different catalog choices. Reads and exports
+work on copies; raw library/history recovery bytes remain intact. Normal saves
+persist the existing category marker so later chair replacements remain explicit.
+Unsupported markers and ambiguous retained identities are left unchanged on local
+read; package export rejects them with recovery guidance. Old RoomPlan chairs
+without retained source categories cannot be reconstructed. Existing native categories, IDs and unknown
 fields survive unchanged returns. A deliberate catalog replacement changes the
 category; original unknown names are used only for the neutral preview.
 

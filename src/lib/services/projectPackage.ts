@@ -4,7 +4,7 @@ import { PACKAGE_LIMIT, jsonBytes, packageJSON, packageError, readPackageZip, wr
 import { applyNativeEdits, nativeAssetNames, nativeToWeb, validatePackageMapping, validatePackagePlan, webToNative, type PackageMapping } from '$lib/utils/projectPackageBridge';
 import { prepareLibraryRestore } from './libraryRestore';
 import type { DetailKind } from '$lib/models/types';
-import { furnitureCatalog } from '$lib/utils/furnitureCatalog';
+import { upgradeLegacyFurnitureCategories } from '$lib/utils/legacyFurnitureCategories';
 
 type PackageState = { version: 1; furnitureCategoriesVersion?: 1; native: Record<string, any>; mapping: PackageMapping; assets: Record<string, string> };
 const docs = ['manifest.json', 'plan.json', 'web.json', 'baseline.json', 'mapping.json'];
@@ -53,24 +53,11 @@ function readState(project: Project): PackageState | undefined {
   if (state.furnitureCategoriesVersion !== undefined && state.furnitureCategoriesVersion !== 1) packageError('Unsupported retained furniture-category version.');
   return { version: 1, furnitureCategoriesVersion: state.furnitureCategoriesVersion, native: validatePackagePlan(state.native), mapping: validatePackageMapping(state.mapping), assets: state.assets };
 }
-function upgradeLegacyFurniture(project: Project, native: Record<string, any>, mapping: PackageMapping, projection = nativeToWeb(native, mapping, project.name)) {
-  // Earlier importers used chairs for every non-catalog category. Upgrade only
-  // that precise fallback, retaining edits and explicitly different selections.
-  for (const entry of mapping.filter(m => m.kind === 'furniture')) {
-    const old = native.furniture.find((item: any) => item.id.toLowerCase() === entry.id.toLowerCase());
-    const candidates = project.floors.flatMap(f => f.furniture).filter(f => f.id === entry.webId);
-    const item = project.floors.find(f => f.id === entry.floorId)?.furniture.find(f => f.id === entry.webId)
-      ?? (candidates.length === 1 ? candidates[0] : undefined);
-    const preview = projection.floors.find(f => f.id === entry.floorId)?.furniture.find(f => f.id === entry.webId);
-    if (old && !furnitureCatalog.some(def => def.id === old.category) && item?.catalogId === 'chair' && preview) {
-      item.catalogId = preview.catalogId;
-      if (preview.sourceCategory !== undefined) item.sourceCategory = preview.sourceCategory;
-    }
-  }
-}
 export function projectPackageBytes(value: Project): Uint8Array {
   const project = readProject(value), state = readState(project);
-  if (state && state.furnitureCategoriesVersion === undefined) upgradeLegacyFurniture(project, state.native, state.mapping);
+  if (state && state.furnitureCategoriesVersion === undefined && !upgradeLegacyFurnitureCategories(project, state.native, state.mapping)) {
+    packageError('Legacy furniture identities could not be resolved. Download a JSON backup to preserve the retained data.');
+  }
   validateLocalImages(project);
   delete (project as any).projectPackage;
   const { plan, mapping } = webToNative(project, state?.native, state?.mapping);
@@ -125,7 +112,9 @@ export function readProjectPackage(bytes: Uint8Array): { project: Project; asset
     if (baseline.openplanItemDetailsVersion !== undefined && baseline.openplanItemDetailsVersion !== 1) packageError('Unsupported item-details baseline version.');
     if (baseline.openplanFurnitureCategoriesVersion !== undefined && baseline.openplanFurnitureCategoriesVersion !== 1) packageError('Unsupported furniture-category baseline version.');
     const before = nativeToWeb(baseline, mapping, manifest.title), after = nativeToWeb(plan, mapping, manifest.title);
-    if (baseline.openplanFurnitureCategoriesVersion === undefined) upgradeLegacyFurniture(source, baseline, mapping, before);
+    if (baseline.openplanFurnitureCategoriesVersion === undefined && !upgradeLegacyFurnitureCategories(source, baseline, mapping)) {
+      packageError('Legacy furniture identities could not be resolved. Keep the original package for recovery.');
+    }
     project = applyNativeEdits(source, before, after);
     // Older web releases retain unknown detail fields but cannot apply native
     // metadata edits to them. Their baseline has no detail-version marker, so

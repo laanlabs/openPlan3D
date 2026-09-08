@@ -14,6 +14,7 @@ export type DetailTarget = { floorId: string; kind: DetailKind; id: string };
 export type PackageMapping = { id: string; kind: string; webId: string; floorId?: string }[];
 export interface ProjectPackageState {
   version: 1;
+  furnitureCategoriesVersion?: 1;
   native: Record<string, any>;
   mapping: PackageMapping;
   assets: Record<string, string>; // assets/<filename> → base64 bytes, one copy per file
