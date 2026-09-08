@@ -18,9 +18,9 @@ async function seed(context: BrowserContext, id: string) {
 async function advanceCheck(page: Page) {
   const response = page.waitForResponse(r => new URL(r.url()).pathname === '/_app/version.json');
   await page.clock.fastForward(300_001);
-  await response;
+  await (await response).finished();
   // Flush the response's JSON parsing and Svelte DOM update before assertions.
-  await page.getByRole('button', { name: 'Save', exact: true }).focus();
+  await page.clock.runFor(50);
 }
 
 async function rename(page: Page, name: string) {
@@ -65,7 +65,9 @@ test('real cached validators cannot create a false update or hide a later deploy
 
     // Simulate loading the now-current build, retaining the old HTTP cache.
     server.serve(server.current);
+    await page.clock.pauseAt(new Date(await page.evaluate(() => Date.now()) + 1000));
     await rename(page, 'Saved across deployment');
+    expect((await savedProjects(page))['qa-deployment-cache'].name).not.toBe('Saved across deployment');
     await Promise.all([
       page.waitForEvent('framenavigated', frame => frame === page.mainFrame()),
       page.getByRole('button', { name: 'Save and reload', exact: true }).click(),

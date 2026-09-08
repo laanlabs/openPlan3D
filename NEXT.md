@@ -22,7 +22,7 @@ intercepting field editing, and preserves furniture dimensions while replacing
 empty/invalid drafts. See [the browser report](docs/reviews/2026-09-07-cross-browser-editing.md)
 and PR checks for final engine results and merge/release status.
 
-Local validation: **614 web unit tests, 53 XCTest tests**, production build and
+Local validation: **626 web unit tests, 53 XCTest tests**, production build and
 audit pass; type checks report zero errors and 23 existing Svelte warnings.
 Desktop and phone-width browser checks cover labels, editing, persistence and
 3D. Native source availability remains separate from TestFlight/App Store release.
@@ -40,15 +40,16 @@ hints that stay within resized viewports; idle 3D animation cleanup measured in
 native Safari; walkthrough timing, held-input recovery and stationary rendering cleanup. Earlier batches and pause hashes are recorded
 in the dated review log and git history.
 
-## 1. Next engineering batch: deployment correctness, then device measurements
+## 1. Next engineering batch: device measurements and measured editor work
 
-The repeated production update notice in [#81](https://github.com/laanlabs/openPlan3D/issues/81)
-is the next focused fix. A likely cause is a stale version JSON response while
-loading the current client. The deployed static server's ETag uses fixed artifact
-modification time and file size, allowing validators to collide across releases.
-Confirm the cached response and fix version checks without weakening immutable
-asset caching or save-before-reload recovery. Add a cross-deployment regression
-with equal-size/equal-mtime version files and verify an already-open Safari tab.
+The deployment check for [#81](https://github.com/laanlabs/openPlan3D/issues/81)
+bypasses stale size/mtime validators when reading the version file. Native Safari
+confirmed the stale cached response and the fixed editor's unconditional request.
+The same polling limits, immutable asset caching and save-before-reload recovery
+remain. Real HTTP-cache regressions cover equal-size version replacements and
+recovery. See [the report](docs/reviews/2026-09-08-deployment-version-cache.md) and
+[#83](https://github.com/laanlabs/openPlan3D/pull/83) for final CI, native Safari
+and deployment verification.
 
 The measured resource batch for [#67](https://github.com/laanlabs/openPlan3D/issues/67)
 repairs blank reopened camera previews, releases renderer contexts and replaced
@@ -230,8 +231,8 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
 1. Fetch both repositories and confirm clean `main` against `origin/main`; reread
    open GitHub issues and #30 for release updates. Start a focused `codex/…` branch
    from current main after checking the browser batch merge status.
-2. Fix the repeated update notice in #81, then broaden furnished-home hardware
-   calibration and device coverage. Preserve unknown fields,
+2. Broaden furnished-home hardware calibration and device coverage; measure the
+   2D dirty-flag polling loop before selecting another idle optimization. Preserve unknown fields,
    explicit clears, independent import copies, fractional transforms and pooled
    local attachments. Do not rely on temporary QA directories as source artifacts.
 3. Web baseline: Node 24/npm; run `NODE_ENV=production npm run check`,
