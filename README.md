@@ -280,3 +280,9 @@ During migration, [`storage.rules`](storage.rules) still permits legacy public c
    ```bash
    gcloud storage buckets update gs://openplan3d.firebasestorage.app --cors-file=cors.json
    ```
+
+### Local render lab (experimental)
+
+A separate `/render-lab` page tests Blender-prepared GLB scenes with Three.js
+interactive rendering and progressive GPU path tracing. It reads local files
+without uploading them. See [developer setup and limitations](docs/render-lab.md).

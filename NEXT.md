@@ -319,3 +319,15 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
 5. Keep documentation/issues aligned with results, merge only after relevant
    checks, verify deployment for application changes and remove merged branches.
    Browser QA projects are local browser data, not source-controlled project files.
+
+## Local Three.js render test
+
+An isolated `/render-lab` route now supports local GLB loading, interactive
+preview and progressive GPU path tracing with spatial noise reduction. A private
+Blender photo-study scene was exercised locally; its model and media remain out
+of this repository. See [setup, verified results and limits](docs/render-lab.md).
+653 unit tests pass, the production build succeeds and type checking has zero
+errors (seven existing warnings). Desktop camera presets, mode switching, pause
+and PNG export were exercised. This remains a test branch: finish material
+baking, browser/device qualification and shared scene integration before replacing
+any viewer. Physical-device capture and measured reprojection remain pending.
