@@ -1,7 +1,22 @@
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
-import { readFile, readdir } from 'node:fs/promises';
+import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { deploymentServer } from './deployment-server';
 import { failProjectWrites, savedProjects } from './storage';
+
+// WebKit's temporary contexts have no disk cache. Use a private, disposable
+// persistent profile for the cache regression, consistently in all engines.
+const cacheTest = test.extend({
+  context: async ({ playwright, browserName, launchOptions, contextOptions, headless, viewport }, use) => {
+    const profile = await mkdtemp(join(tmpdir(), 'openplan3d-cache-'));
+    const context = await playwright[browserName].launchPersistentContext(profile, {
+      ...launchOptions, ...contextOptions, headless, viewport,
+    });
+    try { await use(context); }
+    finally { await context.close(); await rm(profile, { recursive: true, force: true }); }
+  },
+});
 
 async function seed(context: BrowserContext, id: string) {
   const project = JSON.parse(await readFile('tests/fixtures/save-conflicts.openplan.json', 'utf8'));
@@ -30,7 +45,7 @@ async function rename(page: Page, name: string) {
   await page.getByRole('textbox', { name: 'Project name' }).press('Enter');
 }
 
-test('real cached validators cannot create a false update or hide a later deployment', async ({ page, context }) => {
+cacheTest('real cached validators cannot create a false update or hide a later deployment', async ({ page, context }) => {
   const server = await deploymentServer();
   try {
     const errors: string[] = [];
@@ -44,6 +59,15 @@ test('real cached validators cannot create a false update or hide a later deploy
       cache: 'reload',
     })).json()).version);
     expect(primed).toBe(server.different);
+    // Disk-cache commits may finish after the first fetch resolves. Establish
+    // an actual cache hit before replacing the server's representation.
+    await expect.poll(async () => {
+      const count = server.requests.length;
+      const cached = await page.evaluate(async () => (await (await fetch('/_app/version.json', {
+        cache: 'force-cache',
+      })).json()).version);
+      return cached === server.different && server.requests.length === count;
+    }).toBe(true);
     server.serve(server.current);
     // Positive control: explicitly request conditional revalidation. Header-only
     // requests bypass the cache in some engines, so they cannot prove it is warm.

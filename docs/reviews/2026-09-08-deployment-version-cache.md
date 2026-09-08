@@ -101,3 +101,19 @@ initial onboarding-flag seed guard allowed a fallback blank project after visiti
 the home page; the explicit initialization corrects that test setup. Application
 code was unchanged by these test fixes. See PR checks for final results; known
 intermediate failures/cancelled runs are not counted as successful validation.
+
+WebKit's temporary contexts did not retain the cache entry needed by the positive
+control. The cache workflow now uses a disposable persistent profile in every
+engine, verifies a real force-cache hit before changing the server response, and
+removes the temporary profile after closing it. This matches the retained browser
+cache relevant to the defect. See [Playwright's context implementation](https://github.com/microsoft/playwright/blob/main/packages/playwright-core/src/server/webkit/wkBrowser.ts)
+for the distinction between temporary contexts and disk caching. The two other
+deployment workflows keep the standard temporary test contexts.
+
+A Chromium run also exposed an existing viewer-idle test sampling race after
+stacking: the zero-pending poll succeeded, but its separate baseline snapshot
+already contained one pending frame; that final frame then completed. The helper
+now waits for an entire 350 ms quiet interval within the existing 40-second settle
+budget. It still requires zero pending work and exactly unchanged callback and
+GPU draw counts throughout the accepted interval. Viewer application code and all
+control/wakeup/pixel assertions are unchanged.

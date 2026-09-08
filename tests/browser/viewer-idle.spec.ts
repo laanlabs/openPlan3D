@@ -38,13 +38,16 @@ test('3D sleeps when idle and wakes for controls, scene changes and walkthrough'
   const activeDraws = async () => (await gpu(page)).find((entry: any) => entry.connected && !entry.lost)?.draws ?? 0;
   const pixels = async () => createHash('sha256').update(await canvas.evaluate((node: HTMLCanvasElement) => node.toDataURL())).digest('hex');
   const idle = async () => {
-    // Software-rendered CI needs time to draw each remaining damping step.
-    await expect.poll(async () => (await audit()).pending, { timeout: 40_000 }).toBe(0);
-    const before = await audit(), draws = await activeDraws();
-    // A quiet interval must contain neither polling callbacks nor GPU draws.
-    await page.waitForTimeout(350);
-    expect(await audit()).toEqual(before);
-    expect(await activeDraws()).toBe(draws);
+    // Software rendering and resize/scene observers may enqueue a final frame
+    // after the first zero-pending snapshot. Settle over a whole quiet interval.
+    await expect(async () => {
+      const before = await audit(), draws = await activeDraws();
+      expect(before.pending).toBe(0);
+      // The accepted interval still contains no callbacks, pending work or draws.
+      await page.waitForTimeout(350);
+      expect(await audit()).toEqual(before);
+      expect(await activeDraws()).toBe(draws);
+    }).toPass({ timeout: 40_000, intervals: [100, 250] });
   };
   await idle();
   let before = await pixels();
