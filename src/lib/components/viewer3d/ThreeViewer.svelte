@@ -2513,7 +2513,7 @@
   <!-- Lighting Controls Toggle Button -->
   <button
     onclick={() => { lightingPanelOpen = !lightingPanelOpen; }}
-    class="absolute bottom-4 left-4 z-50 p-2 rounded-lg transition-colors {lightingPanelOpen ? 'bg-amber-500 text-white ring-2 ring-amber-300' : 'bg-black/70 text-white hover:bg-black/80'}"
+    class="absolute bottom-4 left-4 md:left-14 z-50 p-2 rounded-lg transition-colors {lightingPanelOpen ? 'bg-amber-500 text-white ring-2 ring-amber-300' : 'bg-black/70 text-white hover:bg-black/80'}"
     title="Lighting Controls"
     aria-label="Lighting Controls"
   >
@@ -2528,7 +2528,7 @@
 
   <!-- Lighting Controls Panel -->
   {#if lightingPanelOpen}
-    <div class="absolute bottom-14 left-4 z-50 bg-black/80 text-white text-xs rounded-lg backdrop-blur-sm p-3 space-y-3 min-w-[220px] select-none">
+    <div class="absolute bottom-14 left-4 md:left-14 z-50 bg-black/80 text-white text-xs rounded-lg backdrop-blur-sm p-3 space-y-3 min-w-[220px] select-none">
       <div class="font-semibold text-white/90 text-sm flex items-center gap-1.5">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
         Lighting Controls

@@ -95,6 +95,12 @@ than ten seconds to complete the remaining orbit damping frames, and the active
 edit toggle is named Exit Edit Mode. The regression uses a smaller viewport and a
 bounded settling wait while retaining the zero-callback requirement.
 
+The full workflow also reproduced a pre-existing desktop hit-target collision:
+Keyboard Shortcuts covered the Lighting Controls toggle. The lighting toggle and
+panel now align with the unused middle slot between Help and Undo History on
+desktop; phone placement stays at the left edge. The ordinary click in this
+regression verifies that the control is reachable before changing the night preset.
+
 Walkthrough still integrates a fixed 16 ms step per callback; frame-rate-independent
 motion is the next focused follow-up in [#77](https://github.com/laanlabs/openPlan3D/issues/77).
 Device calibration, native release and the

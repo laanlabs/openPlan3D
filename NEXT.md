@@ -76,7 +76,8 @@ Native Safari on M4 Max recorded 1,500 idle callbacks before the change and zero
 after it in matched 25-second intervals; a post-orbit repeat also returned to zero.
 See [the report and sanitized metrics](docs/reviews/2026-09-07-idle-rendering.md).
 The regression checks controls, scene changes, placement previews and teardown in
-all three engines. These results establish idle behavior, not general FPS or
+all three engines. It also fixes the desktop Help button covering Lighting Controls.
+These results establish idle behavior, not general FPS or
 battery-life targets.
 
 The next focused fix is [frame-rate-independent walkthrough motion (#77)](https://github.com/laanlabs/openPlan3D/issues/77).
