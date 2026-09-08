@@ -470,3 +470,16 @@ tests, with two new browser workflows for controlled cadence, rendered motion,
 pause recovery and field input. See [the timing report](2026-09-07-walkthrough-timing.md)
 for limits and PR validation. Hardware calibration, physical devices, native
 release and the #30 cost gates remain; this batch adds no cloud writes or assets.
+
+## Twenty-seventh batch: stationary walkthrough and larger Safari fixtures
+
+Issue #80 stops walkthrough callbacks after input and coasting settle, wakes on
+fresh keyboard/mouse/field/scene changes, and excludes elapsed idle time on wake.
+Native Safari on M4 Max measured 1,500 callbacks and rendering frames before and
+zero after in matched 25-second stationary medium/large-home intervals. Local
+validation passes 614 unit tests. The browser suite adds idle/wakeup assertions
+and retains cadence, pause and real-frame movement coverage. See
+[the report and sanitized metrics](2026-09-08-walkthrough-idle.md) for measurement
+limits and final PR/CI status. A repeated production update notice with a likely
+cache-validator collision is tracked separately in #81. Active-navigation/device
+budgets, native release and #30 cost gates remain; no cloud writes or assets are added.

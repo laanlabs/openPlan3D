@@ -1,6 +1,6 @@
 # Next work and pause handoff
 
-Updated September 7, 2026. This is the current backlog for the web app and iPhone
+Updated September 8, 2026. This is the current backlog for the web app and iPhone
 companion. It supersedes the historical “next” sections in the
 [original review and batch log](docs/reviews/2026-09-05-current-state-and-roadmap.md).
 Priorities below are proposed order, not release dates or a claim of complete
@@ -22,7 +22,7 @@ intercepting field editing, and preserves furniture dimensions while replacing
 empty/invalid drafts. See [the browser report](docs/reviews/2026-09-07-cross-browser-editing.md)
 and PR checks for final engine results and merge/release status.
 
-Local validation: **607 web unit tests, 53 XCTest tests**, production build and
+Local validation: **614 web unit tests, 53 XCTest tests**, production build and
 audit pass; type checks report zero errors and 23 existing Svelte warnings.
 Desktop and phone-width browser checks cover labels, editing, persistence and
 3D. Native source availability remains separate from TestFlight/App Store release.
@@ -37,10 +37,18 @@ category continuity; field keyboard editing and browser-engine CI; camera previe
 and 3D resource cleanup; repeatable furnished-home benchmarks and preservation of
 3D views during metadata edits; responsive top-down camera framing; onboarding
 hints that stay within resized viewports; idle 3D animation cleanup measured in
-native Safari; walkthrough timing and held-input recovery. Earlier batches and pause hashes are recorded
+native Safari; walkthrough timing, held-input recovery and stationary rendering cleanup. Earlier batches and pause hashes are recorded
 in the dated review log and git history.
 
-## 1. Next engineering batch: measured rendering improvements and device coverage
+## 1. Next engineering batch: deployment correctness, then device measurements
+
+The repeated production update notice in [#81](https://github.com/laanlabs/openPlan3D/issues/81)
+is the next focused fix. A likely cause is a stale version JSON response while
+loading the current client. The deployed static server's ETag uses fixed artifact
+modification time and file size, allowing validators to collide across releases.
+Confirm the cached response and fix version checks without weakening immutable
+asset caching or save-before-reload recovery. Add a cross-deployment regression
+with equal-size/equal-mtime version files and verify an already-open Safari tab.
 
 The measured resource batch for [#67](https://github.com/laanlabs/openPlan3D/issues/67)
 repairs blank reopened camera previews, releases renderer contexts and replaced
@@ -88,11 +96,19 @@ compare equal-duration movement/look at 30/60/120 Hz and preserve floor-relative
 eye height. See [the timing report](docs/reviews/2026-09-07-walkthrough-timing.md)
 and PR checks for final browser, native Safari and deployment verification.
 
-Next, measure medium/large fixtures on representative desktop/phone hardware and agree
+The [stationary walkthrough batch (#80)](https://github.com/laanlabs/openPlan3D/issues/80)
+stops frame requests after input/coasting settles and wakes for keyboard, mouse,
+eye-height and scene changes. Native Safari recorded zero callbacks and rendering
+frames in medium/large 25-second stationary samples, down from 1,500 each. See
+[the report and numerical measurements](docs/reviews/2026-09-08-walkthrough-idle.md)
+for provenance, limits and final PR/CI verification.
+
+Next, measure active orbit, stacking and editing on representative desktop/phone hardware and agree
 frame-time and memory targets. Use those results to choose shared geometry,
 object-level visual updates or mobile quality controls. Extend desktop Safari
 checks to actual iPhone/iPad touch devices. The initial small-home native Safari
-calibration is complete; medium/large homes and physical phones remain. Keep category contract
+calibration and initial medium/large stationary walkthrough samples are complete;
+repeated active-navigation measurements and physical phones remain. Keep category contract
 fixtures in both repositories synchronized when extending the catalog.
 
 Legacy saved package projects with chair fallbacks are protected on export and
@@ -147,9 +163,10 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
   Use the new furnished-home benchmarks to agree desktop/phone frame-time and
   memory targets on real hardware. Metadata edits now preserve the scene; visual
   edits still rebuild it. Measure shared geometry, object-level updates and mobile
-  quality settings before choosing the next optimization. Walkthrough still draws
-  continuously; measure its stationary cost before extending idle scheduling to
-  that mode, including mouse look and momentum wakeups.
+  quality settings before choosing the next optimization. Stationary walkthrough
+  now stops drawing after coasting; preserve mouse, keyboard and scene wakeup
+  coverage when changing scheduling. The medium/large stationary Safari samples
+  do not establish active-navigation FPS, memory or battery targets.
 - **Area/geometry agreement:** define whether area is measured at interior wall
   faces or another boundary, reconcile native raster-based areas with web polygons,
   and test room split/merge identity and schedules. Matching area totals are not
@@ -211,7 +228,8 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
 1. Fetch both repositories and confirm clean `main` against `origin/main`; reread
    open GitHub issues and #30 for release updates. Start a focused `codex/…` branch
    from current main after checking the browser batch merge status.
-2. Broaden furnished-home hardware calibration and device coverage. Preserve unknown fields,
+2. Fix the repeated update notice in #81, then broaden furnished-home hardware
+   calibration and device coverage. Preserve unknown fields,
    explicit clears, independent import copies, fractional transforms and pooled
    local attachments. Do not rely on temporary QA directories as source artifacts.
 3. Web baseline: Node 24/npm; run `NODE_ENV=production npm run check`,

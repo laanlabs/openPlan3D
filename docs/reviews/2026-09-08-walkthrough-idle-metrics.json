@@ -1,0 +1,194 @@
+{
+  "hardware": {
+    "model": "Mac16,9",
+    "chip": "Apple M4 Max",
+    "cpuCores": 14,
+    "memoryGB": 36,
+    "os": "macOS 26.2 (25C56)",
+    "browser": "Safari 26.2",
+    "thermalWarningRecorded": false,
+    "temperatureMeasured": false
+  },
+  "layout": {
+    "beforeWalkthrough": {
+      "documentCSS": [
+        1324,
+        350
+      ],
+      "canvasCSS": [
+        1324,
+        302
+      ],
+      "dpr": 1
+    },
+    "inspector": "docked below",
+    "pointerLockBannerPresent": true,
+    "lockedViewportMeasured": false
+  },
+  "measurements": [
+    {
+      "phase": "baseline",
+      "size": "medium",
+      "commit": "d7aef95ac8092b21ea14da4f6f89799c445b2872",
+      "recordingSeconds": 84.85,
+      "rangeSeconds": {
+        "from": 10,
+        "to": 35
+      },
+      "renderingFrames": 1500,
+      "animationCallbacks": 1500,
+      "animationRequests": 1500,
+      "frameDurationMs": {
+        "count": 1500,
+        "min": 7.6418,
+        "mean": 16.6437,
+        "p95": 17.4867,
+        "max": 25.9134
+      },
+      "frameStartIntervalMs": {
+        "count": 1499,
+        "min": 7.6631,
+        "mean": 16.6666,
+        "p95": 17.5095,
+        "max": 25.9352
+      },
+      "cpuPercent": {
+        "count": 50,
+        "min": 5.5,
+        "mean": 6.252,
+        "p95": 7.9,
+        "max": 11.9
+      },
+      "memoryMB": {
+        "count": 50,
+        "min": 191.0374,
+        "mean": 193.3171,
+        "p95": 196.5588,
+        "max": 209.4039
+      }
+    },
+    {
+      "phase": "baseline",
+      "size": "large",
+      "commit": "d7aef95ac8092b21ea14da4f6f89799c445b2872",
+      "recordingSeconds": 82.7381,
+      "rangeSeconds": {
+        "from": 10,
+        "to": 35
+      },
+      "renderingFrames": 1500,
+      "animationCallbacks": 1500,
+      "animationRequests": 1500,
+      "frameDurationMs": {
+        "count": 1500,
+        "min": 13.9089,
+        "mean": 16.6434,
+        "p95": 17.5377,
+        "max": 18.7912
+      },
+      "frameStartIntervalMs": {
+        "count": 1499,
+        "min": 13.9275,
+        "mean": 16.6665,
+        "p95": 17.5713,
+        "max": 18.8091
+      },
+      "cpuPercent": {
+        "count": 50,
+        "min": 7.6,
+        "mean": 8.054,
+        "p95": 8.5,
+        "max": 8.6
+      },
+      "memoryMB": {
+        "count": 50,
+        "min": 211.753,
+        "mean": 212.8766,
+        "p95": 213.506,
+        "max": 216.0292
+      }
+    },
+    {
+      "phase": "updated",
+      "size": "medium",
+      "commit": "107ef7e5d74770401f46e5b924f53575aef93d13",
+      "recordingSeconds": 198.2342,
+      "rangeSeconds": {
+        "from": 10,
+        "to": 35
+      },
+      "renderingFrames": 0,
+      "animationCallbacks": 0,
+      "animationRequests": 0,
+      "frameDurationMs": {
+        "count": 0,
+        "min": null,
+        "mean": null,
+        "p95": null,
+        "max": null
+      },
+      "frameStartIntervalMs": {
+        "count": 0,
+        "min": null,
+        "mean": null,
+        "p95": null,
+        "max": null
+      },
+      "cpuPercent": {
+        "count": 50,
+        "min": 0,
+        "mean": 0.028,
+        "p95": 0.1,
+        "max": 1
+      },
+      "memoryMB": {
+        "count": 50,
+        "min": 192.2371,
+        "mean": 193.0851,
+        "p95": 193.941,
+        "max": 197.3325
+      }
+    },
+    {
+      "phase": "updated",
+      "size": "large",
+      "commit": "107ef7e5d74770401f46e5b924f53575aef93d13",
+      "recordingSeconds": 79.3732,
+      "rangeSeconds": {
+        "from": 10,
+        "to": 35
+      },
+      "renderingFrames": 0,
+      "animationCallbacks": 0,
+      "animationRequests": 0,
+      "frameDurationMs": {
+        "count": 0,
+        "min": null,
+        "mean": null,
+        "p95": null,
+        "max": null
+      },
+      "frameStartIntervalMs": {
+        "count": 0,
+        "min": null,
+        "mean": null,
+        "p95": null,
+        "max": null
+      },
+      "cpuPercent": {
+        "count": 50,
+        "min": 0,
+        "mean": 0.006,
+        "p95": 0,
+        "max": 0.2
+      },
+      "memoryMB": {
+        "count": 50,
+        "min": 204.9777,
+        "mean": 205.9653,
+        "p95": 206.9437,
+        "max": 210.1714
+      }
+    }
+  ]
+}

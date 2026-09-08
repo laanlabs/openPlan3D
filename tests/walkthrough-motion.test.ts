@@ -58,6 +58,21 @@ describe('walkthrough cadence', () => {
     expect(-camera.position.z).toBeCloseTo(9.0826823, 6);
   });
 
+  it('keeps fresh input when the first RAF timestamp precedes its event handler', () => {
+    const motion = new WalkthroughMotion(), camera = new PerspectiveCamera();
+    motion.setKey('ArrowUp', true); motion.startClock(100);
+    // RAF carries the frame's start time; input can arrive later in that frame.
+    motion.advance(96, camera, settings);
+    expect(motion.active).toBe(true);
+    expect(camera.position.z).toBe(0);
+    motion.advance(116, camera, settings);
+    expect(-camera.position.z).toBeCloseTo(80 * (0.016 + Math.expm1(-0.16) / 10), 10);
+    expect(motion.active).toBe(true);
+    // A genuinely backwards timestamp after animation starts still resets input.
+    motion.advance(110, camera, settings);
+    expect(motion.active).toBe(false);
+  });
+
   it('stops keyboard look immediately on release without inventing look momentum', () => {
     const motion = new WalkthroughMotion(), camera = new PerspectiveCamera();
     motion.setKey('KeyA', true); motion.startClock(0);

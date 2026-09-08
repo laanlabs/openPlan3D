@@ -179,6 +179,9 @@ test('stationary walkthrough sleeps and wakes for movement, mouse look, fields a
   await page.keyboard.down('ShiftRight'); await idle(); // sprint alone is stationary
   await page.keyboard.up('ShiftRight');
   await page.keyboard.down('ArrowUp');
+  // The first callback's shared timestamp may be older than the input handler.
+  // Neither an early nor equal-time callback may discard the fresh held key.
+  await step(page, -1, 1); await step(page, 1, 1);
   const moved = position(await step(page, 100, 4));
   expect(moved.distanceTo(initial)).toBeCloseTo(24.146525, 3); // no idle-time jump
   await page.keyboard.up('ArrowUp');
@@ -220,6 +223,8 @@ test('stationary walkthrough sleeps and wakes for movement, mouse look, fields a
   await idle();
   await page.getByRole('button', { name: '2D', exact: true }).click();
   expect((await gpu(page))[0].lost).toBe(true);
-  expect((await audit()).pending).toBe(0);
+  // The newly mounted 2D canvas schedules its own initial zoom-to-fit frames.
+  // Flush those, then require global silence and no further disposed-GPU draws.
+  await idle();
   expect(errors).toEqual([]);
 });
