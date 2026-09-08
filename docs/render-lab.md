@@ -88,3 +88,13 @@ GLB to the output directory as `demo.glb`. The hosted model is downloadable;
 a hard-to-guess preview URL is not access control. Full original scan bundles and
 capture photos must not be included. Hosting the viewer does not move rendering
 to Firebase: rendering still runs on each visitor's GPU.
+
+### Deployed standalone viewer
+
+September 8, 2026: viewer-only build deployed to
+https://openplan3d-render-lab.web.app in Firebase project `openplan3d`, on the
+separate Hosting site `openplan3d-render-lab`. It contains four static files
+(1,120,431 bytes before compression) and no private model or media. The main App
+Hosting app and the default Hosting site were not changed. Visitors choose a
+local GLB; rendering stays in their browser. Public distribution of the apartment
+model was not authorized and remains excluded.
