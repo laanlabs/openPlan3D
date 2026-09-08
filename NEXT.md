@@ -135,7 +135,9 @@ The [modal keyboard batch (#88)](https://github.com/laanlabs/openPlan3D/issues/8
 prevents editing shortcuts from changing a selected object behind an open dialog.
 Native dialogs provide focus and background inertness; keyboard guards also cover
 window/document listeners, elevation Escape and 3D input. Command actions execute
-after their palette closes. See [the report](docs/reviews/2026-09-08-modal-keyboard-safety.md)
+after their palette closes. Area Summary safely includes imported room categories
+it does not recognize and releases its subscriptions when closed.
+See [the report](docs/reviews/2026-09-08-modal-keyboard-safety.md)
 and PR checks for final browser, Safari and deployment verification.
 
 ## 2. Release and Firebase cost gates

@@ -35,6 +35,11 @@ or dependency changes are introduced.
 The Settings command's previously missing listener is also connected and cleaned
 up with the toolbar lifecycle.
 
+The broader dialog pass also reproduced an Area Summary crash on the saved import
+fixture's retained `roomType: "kitchen"`. The summary now groups unsupported values
+as Uncategorized, retaining room names, areas and original metadata. Store
+subscriptions end when the summary closes instead of accumulating on every open.
+
 ## Validation
 
 Local unit suite: **647 pass**. Production build passes; type checks report zero
@@ -60,6 +65,10 @@ The Settings modal layout was visually inspected on the local production build.
 Safari also retained elevation and 3D edit modes after Settings was closed with
 Escape. With a real captured walkthrough mouse, opening the palette released the
 mouse, focused command search and ended the locked walkthrough session as intended.
+The corrected Area Summary showed Kitchen & Dining and its 24.0 m² area under
+Uncategorized. Area Summary and keyboard help retained focus under Tab/Shift+Tab
+and left the plan unchanged after Delete and Escape. Safari also downloaded a
+valid PDF and displayed the floor plan in its native print sheet.
 
 Physical iPhone/iPad keyboard, touch and share-sheet testing remains part of the
 release backlog. This batch does not change the Firebase cost gates in #30.

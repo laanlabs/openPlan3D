@@ -51,6 +51,12 @@ for (const width of [1440, 390]) test(`modal focus and keys preserve the selecte
     if (name === 'Print Preview') await page.getByRole('button', { name: 'Save', exact: true }).press('ControlOrMeta+p');
     else await toolbar(page, name);
     const dialog = await focusInside(page, name);
+    if (name === 'Area Summary') {
+      // The fixture retains a historical roomType="kitchen" outside today's categories.
+      await expect(dialog).toContainText('Uncategorized');
+      await expect(dialog).toContainText('Kitchen & Dining');
+      await expect(dialog).toContainText('24.0 m²');
+    }
     // Playwright's role queries do not account for native modal inertness.
     // Test the browser's actual focus boundary instead of DOM accessibility heuristics.
     await page.getByLabel('Floor plan editor canvas', { exact: true }).evaluate((canvas: HTMLCanvasElement) => canvas.focus());
