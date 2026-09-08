@@ -1,0 +1,154 @@
+{
+  "baselineSelect": {
+    "recordingSeconds": 65.0207,
+    "rangeSeconds": {
+      "from": 10,
+      "to": 35
+    },
+    "renderingFrames": 1500,
+    "animationCallbacks": 1500,
+    "animationRequests": 1500,
+    "frameDurationMs": {
+      "count": 1500,
+      "min": 15.3207,
+      "mean": 16.6424,
+      "p95": 17.2891,
+      "max": 17.6759
+    },
+    "frameStartIntervalMs": {
+      "count": 1499,
+      "min": 15.3437,
+      "mean": 16.6664,
+      "p95": 17.3183,
+      "max": 17.6996
+    },
+    "cpuPercent": {
+      "count": 50,
+      "min": 1.5,
+      "mean": 1.68,
+      "p95": 1.9,
+      "max": 2
+    },
+    "memoryMB": {
+      "count": 50,
+      "min": 285.1118,
+      "mean": 285.6132,
+      "p95": 286.1932,
+      "max": 291.8129
+    }
+  },
+  "baselineMeasure": {
+    "recordingSeconds": 67.125,
+    "rangeSeconds": {
+      "from": 10,
+      "to": 35
+    },
+    "renderingFrames": 1500,
+    "animationCallbacks": 1500,
+    "animationRequests": 1500,
+    "frameDurationMs": {
+      "count": 1500,
+      "min": 14.8815,
+      "mean": 16.6407,
+      "p95": 17.2727,
+      "max": 19.0175
+    },
+    "frameStartIntervalMs": {
+      "count": 1499,
+      "min": 14.9078,
+      "mean": 16.6666,
+      "p95": 17.3111,
+      "max": 19.0417
+    },
+    "cpuPercent": {
+      "count": 50,
+      "min": 22.7,
+      "mean": 23.762,
+      "p95": 26.5,
+      "max": 27.2
+    },
+    "memoryMB": {
+      "count": 50,
+      "min": 259.5528,
+      "mean": 267.2175,
+      "p95": 275.8385,
+      "max": 333.7887
+    }
+  },
+  "updatedSelect": {
+    "recordingSeconds": 51.3737,
+    "rangeSeconds": {
+      "from": 10,
+      "to": 35
+    },
+    "renderingFrames": 0,
+    "animationCallbacks": 0,
+    "animationRequests": 0,
+    "frameDurationMs": {
+      "count": 0,
+      "min": null,
+      "mean": null,
+      "p95": null,
+      "max": null
+    },
+    "frameStartIntervalMs": {
+      "count": 0,
+      "min": null,
+      "mean": null,
+      "p95": null,
+      "max": null
+    },
+    "cpuPercent": {
+      "count": 50,
+      "min": 0,
+      "mean": 0,
+      "p95": 0,
+      "max": 0
+    },
+    "memoryMB": {
+      "count": 50,
+      "min": 108.6525,
+      "mean": 109.2152,
+      "p95": 110.5695,
+      "max": 110.5695
+    }
+  },
+  "updatedMeasure": {
+    "recordingSeconds": 64.5008,
+    "rangeSeconds": {
+      "from": 10,
+      "to": 35
+    },
+    "renderingFrames": 0,
+    "animationCallbacks": 0,
+    "animationRequests": 0,
+    "frameDurationMs": {
+      "count": 0,
+      "min": null,
+      "mean": null,
+      "p95": null,
+      "max": null
+    },
+    "frameStartIntervalMs": {
+      "count": 0,
+      "min": null,
+      "mean": null,
+      "p95": null,
+      "max": null
+    },
+    "cpuPercent": {
+      "count": 50,
+      "min": 0,
+      "mean": 0.002,
+      "p95": 0,
+      "max": 0.1
+    },
+    "memoryMB": {
+      "count": 50,
+      "min": 110.5531,
+      "mean": 110.5646,
+      "p95": 110.5859,
+      "max": 110.7333
+    }
+  }
+}

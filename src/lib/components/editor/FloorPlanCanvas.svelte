@@ -139,7 +139,7 @@
   let showStairs = $derived(layerVis.stairs);
   let showLayerPanel = $state(false);
   let showMinimap = $state(true);
-  let minimapCanvas: HTMLCanvasElement;
+  let minimapCanvas = $state<HTMLCanvasElement>();
   const RULER_SIZE = 24;
 
   // These local display controls also change outside canvas pointer handlers.
