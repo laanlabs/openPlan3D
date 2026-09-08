@@ -136,7 +136,9 @@ test('closing a dialog preserves elevation and 3D edit modes and print remains u
   const pending = page.waitForEvent('download'); await print.getByRole('button', { name: 'Download PDF', exact: true }).click();
   expect((await readFile((await (await pending).path())!)).subarray(0, 4).toString()).toBe('%PDF');
   await page.emulateMedia({ media: 'print' });
-  await expect(print.getByLabel('Floor plan print preview', { exact: true })).toBeVisible();
+  // Print hides the dialog chrome while explicitly showing its canvas descendant.
+  // A role query for the hidden dialog cannot locate the visible printed content.
+  await expect(page.getByLabel('Floor plan print preview', { exact: true })).toBeVisible();
   await page.emulateMedia({ media: 'screen' });
   await print.getByRole('button', { name: 'Close', exact: true }).click();
   check();
