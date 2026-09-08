@@ -6,6 +6,22 @@ companion. It supersedes the historical “next” sections in the
 Priorities below are proposed order, not release dates or a claim of complete
 Planner 5D parity.
 
+## Computer-switch handoff
+
+Start the next session with the native
+[new-computer handoff and copyable prompt](https://github.com/laanlabs/openplan3d-ios/blob/main/docs/new-computer-handoff.md).
+It records setup, tested state, local data that does not transfer through Git,
+and the next bounded implementation batch. The native repository is private and
+requires an authorized GitHub account.
+
+Rendering direction: **Blender Cycles on the Mac for finished renders; Three.js
+for interactive web previews/editing/walkthroughs**. Share the geometry, camera
+and texture preparation pipeline. Start with the full scan dataset and calibration
+validator, then the Blender path; keep the existing native preview and web
+renderer during that work. Browser path tracing is optional future scope. See
+[the rendering plan](https://github.com/laanlabs/openplan3d-ios/blob/main/docs/universal-app-and-rendering-plan.md).
+Keep full scans, photo textures, render jobs and outputs local by default.
+
 ## Current implementation baseline
 
 The user's new priority is a **universal iPhone/iPad/Mac app with local commands
