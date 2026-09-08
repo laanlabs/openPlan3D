@@ -1,5 +1,6 @@
 import type { Project, DetailKind } from '$lib/models/types';
 import { validateItemDetails, validateRetainedDetailState } from './itemDetails';
+import { refreshLegacyFurnitureCategories } from './legacyFurnitureCategories';
 
 /** Read untrusted native files without mutating their input or the active editor. */
 export function readProject(value: unknown): Project {
@@ -172,5 +173,6 @@ export function readProject(value: unknown): Project {
     if (!Number.isFinite(date.getTime())) fail(key, 'must be a valid date');
     project![key] = date;
   }
+  refreshLegacyFurnitureCategories(project! as Project);
   return project! as Project;
 }

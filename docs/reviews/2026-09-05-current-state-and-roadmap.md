@@ -507,3 +507,17 @@ phone-width gesture coverage. See [the 2D report](2026-09-08-2d-idle.md) and PR 
 for numerical Safari measurements and final CI/deployment verification. Active
 hardware/device measurements and #30 release/cost gates remain; no cloud writes,
 assets or dependencies are added.
+
+## Thirtieth batch: legacy saved furniture previews
+
+Issue #86 refreshes identifiable chair fallbacks when reading old saved package
+projects, JSON and history copies. The retained native category and original width
+choose the preview while local geometry edits, deliberate replacements, notes,
+photos and unknown fields survive. Normalization leaves raw library/history
+records intact, and unresolved identities remain recoverable. Local validation
+passes 645 unit tests and the production build, with zero type errors and the
+same 22 Svelte warnings. Three new browser workflows cover desktop/phone reopening,
+save/reload/export, bundled 3D models, retained bytes and quota recovery. See
+[the report](2026-09-08-legacy-furniture-previews.md) and PR checks for final browser,
+native Safari and deployment verification. The native format and iOS source are
+unchanged; this batch adds no cloud writes, assets or dependencies.

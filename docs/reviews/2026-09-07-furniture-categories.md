@@ -3,6 +3,10 @@
 Issue [#63](https://github.com/laanlabs/openPlan3D/issues/63) repairs native/web
 display mappings without changing the source furniture identity.
 
+Follow-up: [the September 8 legacy preview batch](2026-09-08-legacy-furniture-previews.md)
+also refreshes old saved previews on opening, superseding the export/re-import
+workaround described in this historical report.
+
 ## Behavior
 
 The web package and RoomPlan importers now share category rules. Exact catalog

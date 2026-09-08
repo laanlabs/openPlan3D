@@ -22,8 +22,9 @@ intercepting field editing, and preserves furniture dimensions while replacing
 empty/invalid drafts. See [the browser report](docs/reviews/2026-09-07-cross-browser-editing.md)
 and PR checks for final engine results and merge/release status.
 
-Local validation: **628 web unit tests, 53 XCTest tests**, production build and
-audit pass; type checks report zero errors and 22 remaining Svelte warnings.
+Local validation: **645 web unit tests**; native baseline **53 XCTest tests**
+(unchanged this batch). Production build and audit pass; type checks report zero
+errors and 22 remaining Svelte warnings.
 Desktop and phone-width browser checks cover labels, editing, persistence and
 3D. Native source availability remains separate from TestFlight/App Store release.
 
@@ -120,10 +121,15 @@ calibration and initial medium/large stationary walkthrough samples are complete
 repeated active-navigation measurements and physical phones remain. Keep category contract
 fixtures in both repositories synchronized when extending the catalog.
 
-Legacy saved package projects with chair fallbacks are protected on export and
-re-import. A later usability improvement can refresh those old local previews
-on opening while preserving recovery data; do not guess categories for old
-RoomPlan chair imports that have no retained source.
+The [legacy preview batch (#86)](https://github.com/laanlabs/openPlan3D/issues/86)
+refreshes identifiable old chair fallbacks on opening saved projects, JSON and
+history copies. Retained native categories determine presentation; edited geometry,
+explicit replacements, photos and unknown fields stay intact. Reading leaves raw
+library/history recovery bytes untouched, and normal saves retain the existing
+category marker. Unsupported or ambiguous retained data remains recoverable;
+RoomPlan chairs without a retained source are not guessed. See
+[the report](docs/reviews/2026-09-08-legacy-furniture-previews.md) and PR checks for
+final browser and deployment verification.
 
 ## 2. Release and Firebase cost gates
 
