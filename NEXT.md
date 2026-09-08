@@ -24,7 +24,7 @@ and PR checks for final engine results and merge/release status.
 
 Local validation: **647 web unit tests**; native baseline **53 XCTest tests**
 (unchanged this batch). Production build and audit pass; type checks report zero
-errors and nine remaining Svelte warnings.
+errors and seven remaining Svelte warnings.
 Desktop and phone-width browser checks cover labels, editing, persistence and
 3D. Native source availability remains separate from TestFlight/App Store release.
 
@@ -39,7 +39,10 @@ and 3D resource cleanup; repeatable furnished-home benchmarks and preservation o
 3D views during metadata edits; responsive top-down camera framing; onboarding
 hints that stay within resized viewports; idle 3D animation cleanup measured in
 native Safari; walkthrough timing, held-input recovery and stationary rendering cleanup;
-2D drawing on demand with explicit display/image wakeups. Earlier batches and pause hashes are recorded
+2D drawing on demand with explicit display/image wakeups; modal keyboard protection;
+keyboard-accessible library actions with explicit, recoverable rename/delete dialogs.
+See [the library actions report](docs/reviews/2026-09-08-library-actions.md) and PR checks
+for final browser CI and deployment verification. Earlier batches and pause hashes are recorded
 in the dated review log and git history.
 
 ## 1. Next engineering batch: device measurements and measured editor work
@@ -242,7 +245,7 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
   matrix. Refresh README counts/import features and add contributor guidance,
   fixture-oriented issue/PR templates and a release checklist. Historical review
   findings and original package metadata are not authoritative current status.
-- Reduce the nine remaining Svelte warnings with focused accessibility/component
+- Reduce the seven remaining Svelte warnings with focused accessibility/component
   changes. The CI artifact actions now use pinned Node 24 releases. Continue dependency
   auditing rather than treating the original resolved advisories as still open.
 - Decide whether to publish/license the currently private iOS repository, add a

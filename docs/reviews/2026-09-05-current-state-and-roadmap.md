@@ -534,3 +534,16 @@ remaining warnings. Eight new browser workflows cover desktop/phone keyboard
 protection, field edits, command execution, cancellation, mode preservation and
 printing. See [the report](2026-09-08-modal-keyboard-safety.md) and PR checks for
 final validation and deployment. This adds no Firebase writes or dependencies.
+
+## Thirty-second batch: project library action safety
+
+Issue #91 reproduces a library menu that ignores Escape and retains its armed
+Delete confirmation after dismissal. Actions now have keyboard navigation and
+focus restoration; rename/delete use explicit native dialogs with recoverable
+errors and pending-operation guards. Stable project card IDs preserve focus after
+sorting, and deletion supplies a remaining focus target. Local validation passes
+647 unit tests, the production build and type checking with zero errors and seven
+remaining warnings. Six new browser workflows cover desktop/phone interaction,
+cancellation, storage failure/retry and pending mutations; native Safari verifies
+the reproduced flows. See [the report](2026-09-08-library-actions.md) and PR checks
+for final browser CI and deployment verification. No cloud storage or iOS changes.

@@ -94,8 +94,8 @@ test('deleting a library project cannot be undone by an older editor autosave', 
   await expect(page.getByRole('application')).toContainText('1 room');
   await library.goto('/');
   await library.getByRole('button', { name: `Project actions for ${source.name}`, exact: true }).click();
-  await library.getByRole('button', { name: 'Delete', exact: true }).click();
-  await library.getByRole('button', { name: 'Yes', exact: true }).click();
+  await library.getByRole('menuitem', { name: 'Delete', exact: true }).click();
+  await library.getByRole('dialog', { name: 'Delete project', exact: true }).getByRole('button', { name: 'Delete project', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('deleted in another tab');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   expect(Object.keys(await saved(page))).toHaveLength(0);
