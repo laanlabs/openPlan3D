@@ -91,3 +91,10 @@ an actual stale body and 304 from the original no-cache-header check before it
 accepts the fixed checker. No routing, fetch mock, skipped engine or weakened
 cache assertion was introduced. The intermediate run with that known setup issue
 was cancelled; final checks run against the corrected commit.
+
+The next run reached the reload assertion but exposed a fixture initialization
+issue: visiting the home page first set the onboarding flag that had also guarded
+project seeding. The fixture now seeds before the first app navigation, uses its
+own one-time marker, and asserts the intended project is open. This preserves the
+unsaved-revision assertion instead of allowing the app's fallback blank project
+to stand in for the fixture. Application code was unchanged by these test fixes.

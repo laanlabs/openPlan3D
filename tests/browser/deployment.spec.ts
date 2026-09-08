@@ -8,9 +8,10 @@ async function seed(context: BrowserContext, id: string) {
   project.id = id;
   await context.addInitScript(project => {
     // Seed only once; reload must use the app's saved IndexedDB revision.
-    if (!localStorage.getItem('hasSeenWelcome')) {
+    if (!localStorage.getItem('qaDeploymentSeeded')) {
       localStorage.setItem('floorplan_projects', JSON.stringify({ [project.id]: JSON.stringify(project) }));
       localStorage.setItem('hasSeenWelcome', 'true');
+      localStorage.setItem('qaDeploymentSeeded', 'true');
     }
   }, project);
 }
@@ -34,6 +35,7 @@ test('real cached validators cannot create a false update or hide a later deploy
   try {
     const errors: string[] = [];
     page.on('pageerror', e => errors.push(e.message));
+    await seed(context, 'qa-deployment-cache');
     // Prime the fetch cache, not a JSON document navigation: engines can keep
     // those in separate cache entries. No Playwright routes or mocked fetches.
     server.serve(server.different);
@@ -50,10 +52,10 @@ test('real cached validators cannot create a false update or hide a later deploy
     expect(cached).toBe(server.different);
     expect(server.requests.at(-1)?.status).toBe(304);
 
-    await seed(context, 'qa-deployment-cache');
     await page.clock.install();
     await page.goto(`${server.url}/editor?id=qa-deployment-cache`);
     await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeVisible();
+    await expect(page.getByTitle('Click to rename', { exact: true })).toHaveText('QA Save Conflicts');
     await advanceCheck(page);
     expect(server.requests.at(-1)).toEqual({ status: 200, etag: undefined, modified: undefined });
     await expect(page.getByRole('button', { name: 'Save and reload', exact: true })).toHaveCount(0);
