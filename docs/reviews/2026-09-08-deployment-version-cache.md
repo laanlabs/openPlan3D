@@ -81,20 +81,23 @@ completion comment for final deployment and full CI evidence. Automated tests
 separately verify that an unsaved revision is persisted by the reload action and
 that failed writes prevent reload and retain JSON recovery.
 
-### Regression setup correction
+### Engine-specific cache controls
 
-The first CI run passed all Firefox workflows but found that Chromium and WebKit
-fetches did not reuse the version JSON's document-navigation cache entry in this
-setup. The test now explicitly primes the fetch cache with a reload-mode fetch
-from the same app origin before changing the server response. It still requires
-an actual stale body and 304 from the original no-cache-header check before it
-accepts the fixed checker. No routing, fetch mock, skipped engine or weakened
-cache assertion was introduced. The intermediate run with that known setup issue
-was cancelled; final checks run against the corrected commit.
+The cache fixture explicitly seeds the fetch cache with reload mode. Its positive
+control then uses `cache: 'no-cache'` and requires a stale body and an actual 304
+before the application check can pass. Header-only requests are not a portable
+positive control: direct interaction with a separate local HTTP harness in the
+in-app Chromium browser returned fresh data without validators for those headers,
+but explicit no-cache mode reproduced a stale conditional response. No-store mode
+then returned the new body without a validator. This explains why early CI runs
+could not prove the cache was warm in Chromium/WebKit using the header-only control.
+The native Safari document-navigation reproduction remains separate evidence.
 
-The next run reached the reload assertion but exposed a fixture initialization
-issue: visiting the home page first set the onboarding flag that had also guarded
-project seeding. The fixture now seeds before the first app navigation, uses its
-own one-time marker, and asserts the intended project is open. This preserves the
-unsaved-revision assertion instead of allowing the app's fallback blank project
-to stand in for the fixture. Application code was unchanged by these test fixes.
+No browser routing, mocked fetch, skipped engine or weakened stale-body/304
+assertion is used. The project fixture initializes before any app navigation,
+uses its own one-time marker, and asserts the intended project is open. The reload
+check also asserts the edited revision is still unsaved before the action. An
+initial onboarding-flag seed guard allowed a fallback blank project after visiting
+the home page; the explicit initialization corrects that test setup. Application
+code was unchanged by these test fixes. See PR checks for final results; known
+intermediate failures/cancelled runs are not counted as successful validation.

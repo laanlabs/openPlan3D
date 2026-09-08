@@ -45,9 +45,10 @@ test('real cached validators cannot create a false update or hide a later deploy
     })).json()).version);
     expect(primed).toBe(server.different);
     server.serve(server.current);
-    // Control: the original check's headers reproduce the stale 304/body.
+    // Positive control: explicitly request conditional revalidation. Header-only
+    // requests bypass the cache in some engines, so they cannot prove it is warm.
     const cached = await page.evaluate(async () => (await (await fetch('/_app/version.json', {
-      headers: { pragma: 'no-cache', 'cache-control': 'no-cache' },
+      cache: 'no-cache',
     })).json()).version);
     expect(cached).toBe(server.different);
     expect(server.requests.at(-1)?.status).toBe(304);
