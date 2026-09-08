@@ -70,5 +70,12 @@ Uncategorized. Area Summary and keyboard help retained focus under Tab/Shift+Tab
 and left the plan unchanged after Delete and Escape. Safari also downloaded a
 valid PDF and displayed the floor plan in its native print sheet.
 
+Automatic main CI also exposed an existing timing race in the large IndexedDB
+import test: the first Firefox trace reloaded while the UI still said Saving.
+The project title appears before the six-megabyte write commits. The persistence
+test now waits for the user-visible Saved confirmation before reloading; it still
+checks the entire retained payload after reload. This follow-up changes only
+validation and does not alter the deployed application or storage behavior.
+
 Physical iPhone/iPad keyboard, touch and share-sheet testing remains part of the
 release backlog. This batch does not change the Firebase cost gates in #30.

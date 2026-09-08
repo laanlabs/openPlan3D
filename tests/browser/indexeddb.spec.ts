@@ -37,6 +37,9 @@ test('legacy migration preserves images and history, then saves beyond the old q
   await page.getByRole('button', { name: 'Import JSON', exact: true }).click();
   await (await chooser).setFiles({ name: 'large.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(large)) });
   await expect(page.getByTitle('Click to rename', { exact: true })).toHaveText(large.name);
+  // The title updates before the large IndexedDB write commits. Test reload
+  // persistence after the same completion signal a user sees, not during Saving.
+  await expect(page.getByText('Saved ✓', { exact: true })).toBeVisible();
   await expect(page.getByRole('alert')).toHaveCount(0);
   await page.reload();
   await expect(page.getByTitle('Click to rename', { exact: true })).toHaveText(large.name);
