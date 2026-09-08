@@ -13,6 +13,7 @@
   import { getCatalogItem, getFurnitureSize, type FurnitureDef } from '$lib/utils/furnitureCatalog';
   import { drawFurnitureIcon } from '$lib/utils/furnitureIcons';
   import { handleGlobalShortcut, isEditingField } from '$lib/utils/shortcuts';
+  import { hasOpenModal } from '$lib/utils/modalDialog';
   import ContextMenu from './ContextMenu.svelte';
   import { roomPresets, placePreset } from '$lib/utils/roomPresets';
   import { getWallTextureCanvas, getFloorTextureCanvas, setTextureLoadCallback } from '$lib/utils/textureGenerator';
@@ -3110,6 +3111,7 @@
   }
 
   function onKeyDown(e: KeyboardEvent) {
+    if (hasOpenModal()) return;
     // This listener is on window, so field keystrokes reach it too. Keep every
     // canvas action (including Space, select/copy/paste and annotation deletion)
     // out of focused inputs; only the explicit Save shortcut is global there.

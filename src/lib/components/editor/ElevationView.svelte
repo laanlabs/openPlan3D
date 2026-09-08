@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { hasOpenModal } from '$lib/utils/modalDialog';
   /**
    * ElevationView — integrated face-on view + editor for a single wall.
    * Fills the canvas area (replaces the plan canvas while active — sidebars stay).
@@ -134,6 +135,7 @@
   $effect(() => {
     if (!$elevationWallId) return;
     const onKey = (e: KeyboardEvent) => {
+      if (hasOpenModal()) return;
       if (e.key === 'Escape') {
         e.preventDefault();
         e.stopImmediatePropagation();

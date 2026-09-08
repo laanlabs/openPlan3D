@@ -124,6 +124,18 @@ html.dark .hover\:border-blue-400:hover { border-color: #3b82f6 !important; }
 html.dark .hover\:bg-blue-50:hover { background-color: #1e3a5f !important; }
 html.dark .bg-blue-50 { background-color: #1e3a5f !important; }
 
+/* Full-viewport native modal surfaces retain each dialog's existing card layout. */
+dialog.modal-overlay {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  width: 100%;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+}
+dialog.modal-overlay::backdrop { background: transparent; }
+
 /* ── Print styles ─────────────────────────────────────────────── */
 @media print {
   body * { visibility: hidden !important; }

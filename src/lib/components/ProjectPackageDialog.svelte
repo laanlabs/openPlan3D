@@ -1,15 +1,14 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
+  import { onDestroy } from 'svelte';
+  import { modalDialog } from '$lib/utils/modalDialog';
   import { prepareProjectPackage } from '$lib/services/projectPackage';
   import { storageErrorMessage } from '$lib/services/datastore';
   let { onclose, onimported }: { onclose: () => void; onimported: () => Promise<void> } = $props();
-  let dialog: HTMLDialogElement;
   let input = $state<HTMLInputElement>();
   let preview = $state.raw<Awaited<ReturnType<typeof prepareProjectPackage>> | null>(null);
   let error = $state<string | null>(null), reading = $state(false), importing = $state(false), complete = $state(false);
   const lifetime = new AbortController();
   let request = 0;
-  onMount(() => dialog.showModal());
   onDestroy(() => { request++; lifetime.abort(); });
   async function choose(event: Event) {
     const file = (event.target as HTMLInputElement).files?.[0];
@@ -42,7 +41,7 @@
     const link = document.createElement('a'); link.href = url; link.download = 'openplan3d-original.zip'; link.click(); URL.revokeObjectURL(url);
   }
 </script>
-<dialog bind:this={dialog} aria-labelledby="package-title" aria-describedby="package-description"
+<dialog use:modalDialog aria-labelledby="package-title" aria-describedby="package-description"
   oncancel={(event) => { if (importing) event.preventDefault(); else onclose(); }}
   class="m-auto w-[36rem] max-w-[calc(100vw-2rem)] max-h-[85vh] rounded-2xl bg-white p-0 shadow-2xl backdrop:bg-black/50">
   <div class="flex max-h-[85vh] flex-col text-gray-800">

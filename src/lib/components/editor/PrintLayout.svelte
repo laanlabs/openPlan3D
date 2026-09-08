@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { modalDialog } from '$lib/utils/modalDialog';
   import { tick } from 'svelte';
   import { currentProject } from '$lib/stores/project';
   import { renderPrintPage, createPrintPDF } from '$lib/utils/scaledPrint';
@@ -8,7 +9,7 @@
   let pageSize = $state<PrintOptions['pageSize']>('letter');
   let orientation = $state<PrintOptions['orientation']>('landscape');
   let scale = $state<PrintOptions['scale']>(50);
-  let canvas: HTMLCanvasElement;
+  let canvas = $state<HTMLCanvasElement>();
   let layout = $state<ReturnType<typeof calculatePrintLayout> | null>(null);
   let error = $state('');
   let rendering = $state(false);
@@ -30,7 +31,7 @@
   });
 
   function downloadPDF() {
-    if (!$currentProject || !layout?.fits || rendering) return;
+    if (!$currentProject || !canvas || !layout?.fits || rendering) return;
     try { createPrintPDF(canvas, $currentProject, options).save(`${$currentProject.name || 'floorplan'}-${layout.scaleLabel.replaceAll(':', '-')}.pdf`); }
     catch (e) { error = e instanceof Error ? e.message : 'Unable to download PDF.'; }
   }
@@ -39,10 +40,9 @@
 <svelte:head>
   {#if open}<style>{`@page { size: ${pageSize === 'a4' ? 'A4' : 'letter'} ${orientation}; margin: 0; }`}</style>{/if}
 </svelte:head>
-<svelte:window onkeydown={(e) => { if (open && e.key === 'Escape') open = false; }} />
 
 {#if open}
-  <div class="fixed inset-0 bg-slate-950/70 z-[100] overflow-auto print-overlay-backdrop" role="dialog" aria-modal="true" aria-label="Print Preview" tabindex="-1">
+  <dialog use:modalDialog class="modal-overlay fixed inset-0 bg-slate-950/70 z-[100] overflow-auto print-overlay-backdrop" aria-label="Print Preview" oncancel={(e) => { e.preventDefault(); open = false; }}>
     <div class="sticky top-0 bg-slate-800 text-white p-3 flex flex-wrap items-center gap-3 z-[101] print-hide">
       <h2 class="font-semibold">Print Preview</h2>
       <label>Page: <select bind:value={pageSize} class="bg-slate-700 rounded p-1"><option value="letter">Letter</option><option value="a4">A4</option></select></label>
@@ -59,5 +59,5 @@
     <div class="print-page bg-white mx-auto my-6 shadow-xl" style:width={layout ? `${layout.pageWidth}mm` : '279.4mm'} style:max-width="100%">
       <canvas bind:this={canvas} class="block w-full h-auto" aria-label="Floor plan print preview"></canvas>
     </div>
-  </div>
+  </dialog>
 {/if}

@@ -22,9 +22,9 @@ intercepting field editing, and preserves furniture dimensions while replacing
 empty/invalid drafts. See [the browser report](docs/reviews/2026-09-07-cross-browser-editing.md)
 and PR checks for final engine results and merge/release status.
 
-Local validation: **645 web unit tests**; native baseline **53 XCTest tests**
+Local validation: **647 web unit tests**; native baseline **53 XCTest tests**
 (unchanged this batch). Production build and audit pass; type checks report zero
-errors and 22 remaining Svelte warnings.
+errors and nine remaining Svelte warnings.
 Desktop and phone-width browser checks cover labels, editing, persistence and
 3D. Native source availability remains separate from TestFlight/App Store release.
 
@@ -131,6 +131,13 @@ RoomPlan chairs without a retained source are not guessed. See
 [the report](docs/reviews/2026-09-08-legacy-furniture-previews.md) and PR checks for
 final browser and deployment verification.
 
+The [modal keyboard batch (#88)](https://github.com/laanlabs/openPlan3D/issues/88)
+prevents editing shortcuts from changing a selected object behind an open dialog.
+Native dialogs provide focus and background inertness; keyboard guards also cover
+window/document listeners, elevation Escape and 3D input. Command actions execute
+after their palette closes. See [the report](docs/reviews/2026-09-08-modal-keyboard-safety.md)
+and PR checks for final browser, Safari and deployment verification.
+
 ## 2. Release and Firebase cost gates
 
 Keep [#30](https://github.com/laanlabs/openPlan3D/issues/30) open until all three
@@ -233,7 +240,7 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
   matrix. Refresh README counts/import features and add contributor guidance,
   fixture-oriented issue/PR templates and a release checklist. Historical review
   findings and original package metadata are not authoritative current status.
-- Reduce the 22 remaining Svelte warnings with focused accessibility/component
+- Reduce the nine remaining Svelte warnings with focused accessibility/component
   changes. The CI artifact actions now use pinned Node 24 releases. Continue dependency
   auditing rather than treating the original resolved advisories as still open.
 - Decide whether to publish/license the currently private iOS repository, add a

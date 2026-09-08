@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { modalDialog } from '$lib/utils/modalDialog';
   import { onMount, onDestroy } from 'svelte';
   import { goto } from '$app/navigation';
   import { base } from '$app/paths';
@@ -293,11 +294,11 @@
 
   <!-- Template Modal -->
   {#if showTemplateModal}
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onclick={() => showTemplateModal = false}>
-      <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-xl w-full mx-4" onclick={(e) => e.stopPropagation()}>
+    <dialog use:modalDialog class="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" aria-label="Floor Plan Templates" onclick={(e) => { if (e.target === e.currentTarget) showTemplateModal = false; }} oncancel={(e) => { e.preventDefault(); showTemplateModal = false; }}>
+      <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-xl w-full mx-4 max-h-[85vh] overflow-auto">
         <div class="flex items-center justify-between mb-2">
           <h2 class="text-2xl font-bold text-gray-800">Floor Plan Templates</h2>
-          <button onclick={() => showTemplateModal = false} class="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+          <button aria-label="Close templates" onclick={() => showTemplateModal = false} class="text-gray-400 hover:text-gray-600 text-xl">✕</button>
         </div>
         <p class="text-sm text-gray-400 mb-6">Complete house layouts with walls, doors & windows</p>
         <div class="space-y-3">
@@ -316,6 +317,6 @@
           {/each}
         </div>
       </div>
-    </div>
+    </dialog>
   {/if}
 </div>

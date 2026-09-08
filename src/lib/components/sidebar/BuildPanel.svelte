@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { modalDialog } from '$lib/utils/modalDialog';
   import { openProject } from '$lib/services/projectOpening';
   import ImportError from '$lib/components/ImportError.svelte';
   import { onDestroy } from 'svelte';
@@ -769,8 +770,8 @@
 
 <!-- RoomPlan Import Options Dialog -->
 {#if showImportDialog}
-  <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" onclick={cancelImport}>
-    <div class="bg-white rounded-xl shadow-2xl w-80 p-5" onclick={(e) => e.stopPropagation()}>
+  <dialog use:modalDialog class="modal-overlay fixed inset-0 bg-black/50 z-50 flex items-center justify-center" aria-label="Import RoomPlan" onclick={(e) => { if (e.target === e.currentTarget) cancelImport(); }} oncancel={(e) => { e.preventDefault(); cancelImport(); }}>
+    <div class="bg-white rounded-xl shadow-2xl w-80 max-w-[calc(100vw-2rem)] max-h-[85vh] overflow-auto p-5">
       <h3 class="text-sm font-bold text-gray-800 mb-1">Import RoomPlan</h3>
       <p class="text-xs text-gray-400 mb-4">{importFileName}</p>
 
@@ -802,7 +803,7 @@
         <button onclick={confirmImport} class="flex-1 px-3 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors">Import</button>
       </div>
     </div>
-  </div>
+  </dialog>
 {/if}
 
 {#if importError}
