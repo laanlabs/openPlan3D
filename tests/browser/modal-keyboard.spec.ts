@@ -51,7 +51,10 @@ for (const width of [1440, 390]) test(`modal focus and keys preserve the selecte
     if (name === 'Print Preview') await page.getByRole('button', { name: 'Save', exact: true }).press('ControlOrMeta+p');
     else await toolbar(page, name);
     const dialog = await focusInside(page, name);
-    await expect(page.getByRole('application')).toHaveCount(0); // Background is inert.
+    // Playwright's role queries do not account for native modal inertness.
+    // Test the browser's actual focus boundary instead of DOM accessibility heuristics.
+    await page.getByLabel('Floor plan editor canvas', { exact: true }).evaluate((canvas: HTMLCanvasElement) => canvas.focus());
+    await focusInside(page, name);
     for (const key of ['Delete', 'Backspace', 'w', 'r', 'l', 'ControlOrMeta+z']) await page.keyboard.press(key);
     for (const key of ['Tab', 'Tab', 'Shift+Tab']) {
       await page.keyboard.press(key); await focusInside(page, name);
@@ -122,7 +125,7 @@ test('closing a dialog preserves elevation and 3D edit modes and print remains u
   await page.getByRole('button', { name: '2D', exact: true }).click();
   await page.getByRole('button', { name: 'Save', exact: true }).press('ControlOrMeta+p');
   const print = await focusInside(page, 'Print Preview');
-  await print.getByLabel('Scale:', { exact: true }).selectOption('fit');
+  await print.getByRole('combobox', { name: 'Scale:', exact: true }).selectOption('fit');
   await expect(print.getByRole('button', { name: 'Download PDF', exact: true })).toBeEnabled();
   const pending = page.waitForEvent('download'); await print.getByRole('button', { name: 'Download PDF', exact: true }).click();
   expect((await readFile((await (await pending).path())!)).subarray(0, 4).toString()).toBe('%PDF');

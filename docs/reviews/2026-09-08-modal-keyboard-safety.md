@@ -46,8 +46,9 @@ Eight new browser workflows run across Chromium, Firefox and WebKit. They cover
 desktop and 390-pixel dialog focus, Tab/Shift+Tab, selected-wall preservation,
 deletion/undo after closing, field edits, command search/execution, cancelled
 RoomPlan import, template focus restoration, elevation/3D mode preservation,
-PDF download and print-media canvas visibility. Each rejects page errors and
-external requests. Existing import/recovery and rendering workflows remain in the
+PDF download, print-media canvas visibility and walkthrough mouse release. Each
+rejects page errors; the dialog, command and import workflows also reject external
+requests. Existing import/recovery and rendering workflows remain in the
 full suite. Final CI, native Safari and deployment results are recorded on the
 issue and pull request; merge requires passing checks.
 
@@ -56,6 +57,9 @@ was open, Tab reached Restore, Shift+Tab returned to Close, and Escape retained
 the wall selection and dimensions. The command palette's Settings and Toggle Grid
 actions passed, and Print Preview focused its page control with PDF export enabled.
 The Settings modal layout was visually inspected on the local production build.
+Safari also retained elevation and 3D edit modes after Settings was closed with
+Escape. With a real captured walkthrough mouse, opening the palette released the
+mouse, focused command search and ended the locked walkthrough session as intended.
 
 Physical iPhone/iPad keyboard, touch and share-sheet testing remains part of the
 release backlog. This batch does not change the Firebase cost gates in #30.
