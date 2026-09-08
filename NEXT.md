@@ -22,6 +22,24 @@ renderer during that work. Browser path tracing is optional future scope. See
 [the rendering plan](https://github.com/laanlabs/openplan3d-ios/blob/main/docs/universal-app-and-rendering-plan.md).
 Keep full scans, photo textures, render jobs and outputs local by default.
 
+## Native full-scan v1 dataset slice
+
+The native continuation adds a normative v1 contract, bounded streamed local
+scan import/export, corruption/path-traversal regression coverage and explicit
+calibration/coordinate metadata. Complete Mac Catalyst and iPhone simulator
+suites each pass **82 tests**, including a transferred legacy real scan: all
+394 original files / 194 frame pairs retain identical bytes and hashes through
+export, independent import and re-export. Private scan content stays out of Git.
+See [the native validation report](https://github.com/laanlabs/openplan3d-ios/blob/main/docs/full-scan-v1-validation.md)
+and [contract](https://github.com/laanlabs/openplan3d-ios/blob/main/docs/full-scan-v1.md).
+
+All transferred frames remain `legacy-incomplete`. Physical capture with the new
+metadata and measured reprojection are still pending. Native issue #8 remains
+open for those gates, local render jobs, Blender execution and photo texturing.
+Rendering stays local: Blender Cycles for finished renders and Three.js for web
+previews with shared preparation. This batch changes no web runtime, Firebase
+storage/quotas, project-package format or rendering engine.
+
 ## Current implementation baseline
 
 The user's new priority is a **universal iPhone/iPad/Mac app with local commands
@@ -49,8 +67,8 @@ intercepting field editing, and preserves furniture dimensions while replacing
 empty/invalid drafts. See [the browser report](docs/reviews/2026-09-07-cross-browser-editing.md)
 and PR checks for final engine results and merge/release status.
 
-Local validation: **647 web unit tests**; native desktop work passes **62 XCTest
-tests on Mac and 62 on the iPhone simulator**. Production web build and audit pass; type checks report zero
+Local validation: **647 web unit tests**; native dataset work passes **82 XCTest
+tests on Mac and 82 on the iPhone simulator**. Production web build and audit pass; type checks report zero
 errors and seven remaining Svelte warnings.
 Desktop and phone-width browser checks cover labels, editing, persistence and
 3D. Native source availability remains separate from TestFlight/App Store release.
