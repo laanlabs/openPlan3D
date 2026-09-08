@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { modalDialog, hasOpenModal } from '$lib/utils/modalDialog';
   import { openProject } from '$lib/services/projectOpening';
   import { saveConflict, savingCopy, saveCurrentAsCopy } from '$lib/stores/saveStatus';
   import ImportError from '$lib/components/ImportError.svelte';
@@ -222,6 +223,8 @@
   onMount(() => {
     const stopAutoSave = initAutoSave();
     initVersionHistory();
+    const openSettings = () => { if (!hasOpenModal()) settingsOpen = true; };
+    window.addEventListener('open-settings', openSettings);
 
     // Update relative timestamp every 15s
     const interval = setInterval(updateLastSavedText, 15000);
@@ -238,6 +241,7 @@
       }
     }
     function handleKeydown(e: KeyboardEvent) {
+      if (hasOpenModal()) return;
       if (e.key !== 'Escape') return;
       if (exportOpen) exportOpen = false;
       if (e.key === 'Escape' && moreOpen) moreOpen = false;
@@ -248,6 +252,7 @@
     document.addEventListener('click', handleClickOutside, true);
     document.addEventListener('keydown', handleKeydown, true);
     return () => {
+      window.removeEventListener('open-settings', openSettings);
       if (get(saveState) === 'unsaved') void autoSave();
       stopAutoSave();
       stopVersionHistory();
@@ -619,19 +624,17 @@
 <VersionHistoryPanel bind:open={versionHistoryOpen} />
 
 {#if areaOpen}
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onclick={() => areaOpen = false} onkeydown={(e) => { if (e.key === 'Escape') areaOpen = false; }}>
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div class="bg-white rounded-xl shadow-2xl w-[420px] max-w-[calc(100vw-2rem)] max-h-[80vh] overflow-hidden" onclick={(e) => e.stopPropagation()}>
+<dialog use:modalDialog class="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/40" aria-label="Area Summary" onclick={(e) => { if (e.target === e.currentTarget) areaOpen = false; }} oncancel={(e) => { e.preventDefault(); areaOpen = false; }}>
+  <div class="bg-white rounded-xl shadow-2xl w-[420px] max-w-[calc(100vw-2rem)] max-h-[80vh] overflow-hidden">
     <div class="flex items-center justify-between px-5 py-3 border-b border-gray-200">
       <h2 class="text-base font-semibold text-gray-800">📐 Area Summary</h2>
-      <button onclick={() => areaOpen = false} class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+      <button aria-label="Close area summary" onclick={() => areaOpen = false} class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
     </div>
     <div class="overflow-y-auto max-h-[calc(80vh-52px)] p-1">
       <AreaSummaryPanel />
     </div>
   </div>
-</div>
+</dialog>
 {/if}
 
 {#if importError}

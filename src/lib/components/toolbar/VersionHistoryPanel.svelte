@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { modalDialog } from '$lib/utils/modalDialog';
   import { onDestroy } from 'svelte';
   import { snapshotError, downloadSnapshotBackup, snapshotsStore, refreshSnapshots, restoreSnapshot, deleteAllSnapshots, type Snapshot } from '$lib/stores/versionHistory';
   import { currentProject } from '$lib/stores/project';
@@ -46,10 +47,8 @@
 </script>
 
 {#if open}
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onclick={() => open = false} onkeydown={(e) => { if (e.key === 'Escape') open = false; }}>
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div role="dialog" aria-label="Version History" aria-modal="true" tabindex="-1" class="bg-white rounded-xl shadow-2xl w-96 max-w-[calc(100vw-2rem)] max-h-[70vh] flex flex-col" onclick={(e) => e.stopPropagation()} onkeydown={() => {}}>
+<dialog use:modalDialog class="modal-overlay fixed inset-0 bg-black/40 z-50 flex items-center justify-center" aria-label="Version History" onclick={(e) => { if (e.target === e.currentTarget) open = false; }} oncancel={(e) => { e.preventDefault(); open = false; }}>
+  <div class="bg-white rounded-xl shadow-2xl w-96 max-w-[calc(100vw-2rem)] max-h-[70vh] flex flex-col">
     <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
       <h2 class="text-sm font-semibold text-gray-800 flex items-center gap-2">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -98,5 +97,5 @@
       </div>
     {/if}
   </div>
-</div>
+</dialog>
 {/if}

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { tick } from 'svelte';
+  import { modalDialog } from '$lib/utils/modalDialog';
   import { furnitureCatalog } from '$lib/utils/furnitureCatalog';
   import { selectedTool, snapEnabled, placingFurnitureId, undo, redo, currentProject, viewMode } from '$lib/stores/project';
   import { exportAsPNG, exportAsJSON, exportAsSVG, exportPDF } from '$lib/utils/export';
@@ -75,8 +77,6 @@
     if (open) {
       query = '';
       selectedIndex = 0;
-      // Focus after mount
-      requestAnimationFrame(() => inputEl?.focus());
     }
   });
 
@@ -86,8 +86,10 @@
     selectedIndex = 0;
   });
 
-  function execute(item: ResultItem) {
+  async function execute(item: ResultItem) {
     open = false;
+    // Close the modal before commands dispatch editor shortcuts or open Settings.
+    await tick();
     item.action();
   }
 
@@ -109,20 +111,14 @@
 </script>
 
 {#if open}
-  <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-  <div
-    class="fixed inset-0 bg-black/40 z-[100] flex justify-center"
-    onclick={() => open = false}
-    onkeydown={(e) => { if (e.key === 'Escape') open = false; }}
-    role="dialog"
+  <dialog use:modalDialog
+    class="modal-overlay fixed inset-0 bg-black/40 z-[100] flex justify-center"
+    onclick={(e) => { if (e.target === e.currentTarget) open = false; }}
+    oncancel={(e) => { e.preventDefault(); open = false; }}
     aria-label="Command Palette"
   >
-    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
     <div
-      class="mt-[15vh] w-full max-w-lg h-fit bg-white rounded-xl shadow-2xl overflow-hidden"
-      onclick={(e) => e.stopPropagation()}
-      onkeydown={() => {}}
-      role="listbox"
+      class="mt-[15vh] mx-4 w-full max-w-lg h-fit bg-white rounded-xl shadow-2xl overflow-hidden"
     >
       <!-- Search input -->
       <div class="flex items-center gap-2 px-4 py-3 border-b border-gray-200">
@@ -135,32 +131,38 @@
           placeholder="Search furniture, tools, actions…"
           type="text"
           spellcheck="false"
+          role="combobox"
+          aria-label="Search commands"
+          aria-expanded="true"
+          aria-controls="command-results"
+          aria-autocomplete="list"
+          aria-activedescendant={results[selectedIndex] ? `command-result-${results[selectedIndex].id}` : undefined}
         />
         <kbd class="text-[10px] px-1.5 py-0.5 bg-gray-100 rounded border border-gray-200 text-gray-400">ESC</kbd>
       </div>
 
       <!-- Results -->
-      <div class="max-h-[50vh] overflow-y-auto">
+      <div id="command-results" role="listbox" aria-label="Commands" tabindex="-1" class="max-h-[50vh] overflow-y-auto">
         {#if results.length === 0}
           <div class="px-4 py-6 text-center text-sm text-gray-400">No results found</div>
         {:else}
           {#each results as item, i}
-            <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-            <div
-              class="flex items-center gap-3 px-4 py-2 cursor-pointer text-sm transition-colors"
+            <button
+              id={`command-result-${item.id}`}
+              tabindex="-1"
+              class="flex w-full text-left items-center gap-3 px-4 py-2 cursor-pointer text-sm transition-colors"
               class:bg-blue-50={i === selectedIndex}
               class:text-blue-700={i === selectedIndex}
               class:text-gray-700={i !== selectedIndex}
               onmouseenter={() => selectedIndex = i}
               onclick={() => execute(item)}
-              onkeydown={() => {}}
               role="option"
               aria-selected={i === selectedIndex}
             >
               <span class="text-base w-6 text-center flex-shrink-0">{item.icon}</span>
               <span class="flex-1 truncate">{item.name}</span>
               <span class="text-xs text-gray-400 flex-shrink-0">{item.categoryLabel}</span>
-            </div>
+            </button>
           {/each}
         {/if}
       </div>
@@ -172,5 +174,5 @@
         <span><kbd class="px-1 py-0.5 bg-gray-100 rounded border border-gray-200">esc</kbd> close</span>
       </div>
     </div>
-  </div>
+  </dialog>
 {/if}

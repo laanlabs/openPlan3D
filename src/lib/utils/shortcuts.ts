@@ -1,6 +1,7 @@
 import { selectedTool, activateMeasurementTool, undo, redo, viewMode, selectedElementId, selectedElementIds, removeElement, panMode, beginUndoGroup, endUndoGroup } from '$lib/stores/project';
 import { get } from 'svelte/store';
 import { manualSave } from '$lib/stores/saveStatus';
+import { hasOpenModal } from './modalDialog';
 
 export interface ShortcutContext {
   rotateFurniture?: () => void;
@@ -13,6 +14,7 @@ export function isEditingField(target: EventTarget | null): boolean {
 }
 
 export function handleGlobalShortcut(e: KeyboardEvent, ctx: ShortcutContext = {}): boolean {
+  if (hasOpenModal()) return false;
   const mod = e.metaKey || e.ctrlKey;
 
   // Save remains available while editing. Text selection, clipboard and undo

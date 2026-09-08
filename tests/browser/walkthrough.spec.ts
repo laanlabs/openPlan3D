@@ -237,3 +237,26 @@ test('stationary walkthrough sleeps and wakes for movement, mouse look, fields a
   expect((await gpu(page))[0].draws).toBe(disposedDraws);
   expect(errors).toEqual([]);
 });
+
+// Exercise the browser pointer-lock boundary with the real Three controls.
+test('opening a modal releases walkthrough mouse capture and stops held movement', async ({ page }) => {
+  const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
+  await openWalkthrough(page, true); await enter(page);
+  await page.keyboard.down('ArrowUp'); await step(page, 100, 3);
+  await page.keyboard.press('ControlOrMeta+k');
+  const dialog = page.getByRole('dialog', { name: 'Command Palette', exact: true });
+  await expect(dialog).toBeVisible();
+  await expect(page.getByRole('combobox', { name: 'Search commands', exact: true })).toBeFocused();
+  expect(await page.evaluate(() => document.pointerLockElement)).toBeNull();
+  const settled = await step(page, 100, 30);
+  await page.evaluate(() => document.dispatchEvent(new MouseEvent('mousemove', { movementX: 180, movementY: 45 })));
+  await page.keyboard.press('ArrowDown');
+  expect(await step(page, 100, 30)).toEqual(settled);
+  await page.keyboard.up('ArrowUp');
+  await page.keyboard.press('Escape'); await expect(dialog).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Enter Walkthrough Mode', exact: true })).toBeVisible();
+  await enter(page);
+  const restarted = await step(page, 100, 30);
+  expect(await step(page, 100, 30)).toEqual(restarted);
+  expect(errors).toEqual([]);
+});

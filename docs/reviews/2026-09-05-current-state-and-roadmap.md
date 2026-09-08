@@ -521,3 +521,16 @@ save/reload/export, bundled 3D models, retained bytes and quota recovery. See
 [the report](2026-09-08-legacy-furniture-previews.md) and PR checks for final browser,
 native Safari and deployment verification. The native format and iOS source are
 unchanged; this batch adds no cloud writes, assets or dependencies.
+
+## Thirty-first batch: modal keyboard safety
+
+Issue #88 reproduces Delete removing the selected QA bed behind Version History
+in production Safari. Eight overlay dialogs now use native modal focus/inertness;
+window/document editor shortcuts pause while a modal is open. Closing a dialog
+preserves elevation and 3D edit modes. Command palette semantics identify the
+active result, and actions dispatch after modal teardown. Local validation passes
+647 unit tests, the production build and type checks with zero errors and nine
+remaining warnings. Eight new browser workflows cover desktop/phone keyboard
+protection, field edits, command execution, cancellation, mode preservation and
+printing. See [the report](2026-09-08-modal-keyboard-safety.md) and PR checks for
+final validation and deployment. This adds no Firebase writes or dependencies.

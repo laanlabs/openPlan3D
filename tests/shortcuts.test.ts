@@ -1,4 +1,4 @@
-import { beforeEach, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { get } from 'svelte/store';
 import { activateMeasurementTool, selectedTool, placingFurnitureId, placingStair, placingColumn,
   placingEntourageId, calibrationMode, elevationPickMode, panMode } from '$lib/stores/project';
@@ -10,6 +10,30 @@ function keyEvent(key: string, extra = {}) {
   return { key, preventDefault: vi.fn(), target: { tagName: 'CANVAS' }, ...extra } as unknown as KeyboardEvent;
 }
 beforeEach(() => { selectedTool.set('select'); vi.mocked(manualSave).mockClear(); });
+afterEach(() => vi.unstubAllGlobals());
+
+it('leaves modal keystrokes alone even when a background canvas is the event target', () => {
+  vi.stubGlobal('document', { querySelector: () => ({ open: true }) });
+  selectedTool.set('wall');
+  for (const key of ['Delete', 'Backspace', 'Escape', 'Tab', 'v', 'm', 'n', 'r']) {
+    const event = keyEvent(key);
+    expect(handleGlobalShortcut(event)).toBe(false);
+    expect(event.preventDefault).not.toHaveBeenCalled();
+    expect(get(selectedTool)).toBe('wall');
+  }
+  expect(handleGlobalShortcut(keyEvent('s', { ctrlKey: true }))).toBe(false);
+  expect(manualSave).not.toHaveBeenCalled();
+});
+
+it('resumes editor shortcuts after the modal closes', () => {
+  let open = true;
+  vi.stubGlobal('document', { querySelector: () => open ? {} : null });
+  handleGlobalShortcut(keyEvent('w'));
+  expect(get(selectedTool)).toBe('select');
+  open = false;
+  expect(handleGlobalShortcut(keyEvent('w'))).toBe(true);
+  expect(get(selectedTool)).toBe('wall');
+});
 
 it.each(['measure', 'annotate'] as const)('activates %s and disarms conflicting placement modes', tool => {
   placingFurnitureId.set('chair'); placingStair.set(true); placingColumn.set(true);

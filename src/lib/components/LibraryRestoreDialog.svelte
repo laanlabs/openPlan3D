@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
+  import { onDestroy } from 'svelte';
+  import { modalDialog } from '$lib/utils/modalDialog';
   import { prepareLibraryRestore, type LibraryRestorePreview, type RestoreResult } from '$lib/services/libraryRestore';
   import { storageErrorMessage } from '$lib/services/datastore';
 
   let { onclose, onrestored }: { onclose: () => void; onrestored: () => Promise<void> } = $props();
-  let dialog: HTMLDialogElement;
   let input = $state<HTMLInputElement>();
   let preview = $state.raw<LibraryRestorePreview | null>(null);
   let result = $state.raw<RestoreResult | null>(null);
@@ -15,7 +15,6 @@
   let error = $state<string | null>(null);
   let readRequest = 0;
   const lifetime = new AbortController();
-  onMount(() => dialog.showModal());
   onDestroy(() => { readRequest++; lifetime.abort(); });
 
   async function selectFile(event: Event) {
@@ -58,7 +57,7 @@
   }
 </script>
 
-<dialog bind:this={dialog} aria-labelledby="library-restore-title" aria-describedby="library-restore-description"
+<dialog use:modalDialog aria-labelledby="library-restore-title" aria-describedby="library-restore-description"
   oncancel={(event) => { if (restoring) event.preventDefault(); else onclose(); }}
   class="m-auto w-[36rem] max-w-[calc(100vw-2rem)] max-h-[85vh] rounded-2xl bg-white p-0 shadow-2xl backdrop:bg-black/50">
   <div class="flex max-h-[85vh] flex-col text-gray-800">

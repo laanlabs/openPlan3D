@@ -1,15 +1,13 @@
 <script lang="ts">
   import { activeFloor, detectedRoomsStore } from '$lib/stores/project';
   import { projectSettings, formatArea, formatLength } from '$lib/stores/settings';
-  import type { Floor, Room, Wall, RoomCategory } from '$lib/models/types';
+  import type { Room, Wall, RoomCategory } from '$lib/models/types';
 
-  let floor = $state<Floor | null>(null);
-  let detectedRooms: Room[] = $state([]);
-  let settings = $state($projectSettings);
-
-  activeFloor.subscribe((f) => { floor = f; });
-  detectedRoomsStore.subscribe((r) => { detectedRooms = r; });
-  projectSettings.subscribe((s) => { settings = s; });
+  // Auto subscriptions end when the summary dialog closes.
+  let floor = $derived($activeFloor);
+  let detectedRooms = $derived($detectedRoomsStore);
+  let settings = $derived($projectSettings);
+  type SummaryCategory = RoomCategory | 'uncategorized';
 
   // Merge floor rooms + detected rooms (detected take precedence for dynamic data)
   let allRooms = $derived.by(() => {
@@ -22,19 +20,22 @@
   let totalArea = $derived(allRooms.reduce((sum: number, r: Room) => sum + r.area, 0));
 
   let roomsByCategory = $derived.by(() => {
-    const cats: Record<RoomCategory, Room[]> = { indoor: [], outdoor: [], garage: [], utility: [] };
+    const cats: Record<SummaryCategory, Room[]> = { indoor: [], outdoor: [], garage: [], utility: [], uncategorized: [] };
     for (const r of allRooms) {
       const cat = r.roomType ?? 'indoor';
-      cats[cat].push(r);
+      // Imported projects can retain category values outside the current model.
+      // Keep those rooms and their original metadata, without guessing a category.
+      if (cat === 'indoor' || cat === 'outdoor' || cat === 'garage' || cat === 'utility') cats[cat].push(r);
+      else cats.uncategorized.push(r);
     }
     return cats;
   });
 
   let categoryTotals = $derived.by(() => {
     const cats = roomsByCategory;
-    const result: { category: RoomCategory; label: string; area: number; count: number }[] = [];
-    const labels: Record<RoomCategory, string> = { indoor: '🏠 Indoor', outdoor: '🌳 Outdoor', garage: '🚗 Garage', utility: '🔧 Utility' };
-    for (const [cat, rooms] of Object.entries(cats) as [RoomCategory, Room[]][]) {
+    const result: { category: SummaryCategory; label: string; area: number; count: number }[] = [];
+    const labels: Record<SummaryCategory, string> = { indoor: '🏠 Indoor', outdoor: '🌳 Outdoor', garage: '🚗 Garage', utility: '🔧 Utility', uncategorized: 'Uncategorized' };
+    for (const [cat, rooms] of Object.entries(cats) as [SummaryCategory, Room[]][]) {
       if (rooms.length > 0) {
         result.push({ category: cat, label: labels[cat], area: rooms.reduce((s: number, r: Room) => s + r.area, 0), count: rooms.length });
       }

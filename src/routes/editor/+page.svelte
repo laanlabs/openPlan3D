@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { modalDialog, hasOpenModal } from '$lib/utils/modalDialog';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
   import { base } from '$app/paths';
@@ -190,6 +191,7 @@
     };
   });
   function onEditorKeydown(e: KeyboardEvent) {
+    if (hasOpenModal()) return;
     const target = e.target as HTMLElement | null;
     const typing = !!target && (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable);
     const mod = e.ctrlKey || e.metaKey;
@@ -297,9 +299,8 @@
   <!-- Shortcuts overlay -->
   {#if showHelp}
     {@const shortcutsCopied = { value: false }}
-    <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onclick={() => showHelp = false} onkeydown={(e) => { if (e.key === 'Escape') showHelp = false; }} role="dialog" tabindex="-1" aria-label="Keyboard Shortcuts">
-      <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-      <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[85vh] flex flex-col" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()} role="document">
+    <dialog use:modalDialog class="modal-overlay fixed inset-0 bg-black/50 flex items-center justify-center z-50" onclick={(e) => { if (e.target === e.currentTarget) showHelp = false; }} oncancel={(e) => { e.preventDefault(); showHelp = false; }} onkeydown={(e) => { if (e.key === '?') { e.preventDefault(); showHelp = false; } }} aria-label="Keyboard Shortcuts">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[85vh] flex flex-col">
         <!-- Header -->
         <div class="flex items-center justify-between px-6 pt-5 pb-3 border-b border-gray-100">
           <div class="flex items-center gap-2">
@@ -462,7 +463,7 @@
           <p class="text-xs text-gray-400">Press <kbd class="px-1 py-0.5 bg-gray-100 rounded text-xs font-mono border border-gray-200">?</kbd> or <kbd class="px-1 py-0.5 bg-gray-100 rounded text-xs font-mono border border-gray-200">Esc</kbd> to close</p>
         </div>
       </div>
-    </div>
+    </dialog>
   {/if}
 
   <CommandPalette bind:open={commandPaletteOpen} />

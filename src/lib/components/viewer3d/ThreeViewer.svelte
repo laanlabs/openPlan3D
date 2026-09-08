@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { hasOpenModal } from '$lib/utils/modalDialog';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
   import { openAISettings, setOpenAIModel } from '$lib/stores/aiKeys';
@@ -641,6 +642,7 @@
   }
 
   function onKeyDown(event: KeyboardEvent) {
+    if (hasOpenModal()) return;
     // ESC exits edit mode
     if (event.code === 'Escape' && editMode && !walkthroughMode) {
       if (furniturePlacementMode) {
@@ -691,7 +693,7 @@
   }
 
   function onWalkthroughFocus(event: FocusEvent) {
-    if (isWalkthroughField(event.target)) resetWalkthroughInput();
+    if (hasOpenModal() || isWalkthroughField(event.target)) resetWalkthroughInput();
   }
 
   function init() {
