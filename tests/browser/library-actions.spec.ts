@@ -5,6 +5,9 @@ import { failProjectWrites, savedProjects, storedRecords } from './storage';
 async function seed(page: Page) {
   const project = JSON.parse(await readFile('tests/fixtures/save-conflicts.openplan.json', 'utf8'));
   project.id = 'qa-library-actions'; project.name = 'QA Library Actions';
+  // Use the current door shape so geometry assertions isolate library actions
+  // from the existing legacy import default for flipSide.
+  for (const floor of project.floors) for (const door of floor.doors) door.flipSide ??= false;
   const second = { ...project, id: 'qa-library-second', name: 'Second project' };
   await page.addInitScript(projects => {
     if (!localStorage.getItem('qaLibraryActionsSeeded')) {
