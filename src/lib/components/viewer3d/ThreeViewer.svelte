@@ -16,6 +16,7 @@
   import { setFloorCameraPose } from '$lib/utils/floorCamera';
   import { frameScene } from '$lib/utils/frameScene';
   import { sceneSignature } from '$lib/utils/sceneSignature';
+  import { WalkthroughMotion } from '$lib/utils/walkthroughMotion';
   import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
   import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
   import MaterialPicker from './MaterialPicker.svelte';
@@ -74,21 +75,9 @@
   // Walkthrough mode
   let walkthroughMode = $state(false);
   let walkthroughMouseUnavailable = $state(false);
-  let moveForward = false;
-  let moveBackward = false;
-  let moveLeft = false;
-  let moveRight = false;
-  let lookLeft = false;
-  let lookRight = false;
-  let lookUp = false;
-  let lookDown = false;
-  let isShiftHeld = false;
-  const LOOK_SPEED = 2.0; // radians/s
-  let canJump = false;
-  let velocity = new THREE.Vector3();
-  const direction = new THREE.Vector3();
-  let moveSpeed = $state(800); // cm/s
-  let sprintSpeed = $state(1600); // cm/s
+  const walkthroughMotion = new WalkthroughMotion();
+  let moveSpeed = $state(800);
+  let sprintSpeed = $state(1600);
   let eyeHeight = $state(160); // cm
 
   // Lighting controls state
@@ -643,9 +632,7 @@
   function exitWalkthroughMode() {
     walkthroughMode = false;
     controls.enabled = true;
-    velocity.set(0, 0, 0);
-    moveForward = moveBackward = moveLeft = moveRight = false;
-    lookLeft = lookRight = lookUp = lookDown = false;
+    walkthroughMotion.reset();
     markSceneDirty();
 
     if (typeof document !== 'undefined' && document.pointerLockElement) {
@@ -673,39 +660,27 @@
       return;
     }
     if (!walkthroughMode) return;
-
-    switch (event.code) {
-      // Arrows = move
-      case 'ArrowUp': moveForward = true; break;
-      case 'ArrowDown': moveBackward = true; break;
-      case 'ArrowLeft': moveLeft = true; break;
-      case 'ArrowRight': moveRight = true; break;
-      // WASD = look
-      case 'KeyW': lookUp = true; break;
-      case 'KeyS': lookDown = true; break;
-      case 'KeyA': lookLeft = true; break;
-      case 'KeyD': lookRight = true; break;
-      case 'ShiftLeft':
-      case 'ShiftRight': isShiftHeld = true; break;
-      case 'Escape': exitWalkthroughMode(); break;
-    }
+    if (event.code === 'Escape') { exitWalkthroughMode(); return; }
+    if (event.defaultPrevented || event.isComposing || event.ctrlKey || event.metaKey || event.altKey
+      || isWalkthroughField(event.target)) return;
+    if (walkthroughMotion.setKey(event.code, true)) event.preventDefault();
   }
 
   function onKeyUp(event: KeyboardEvent) {
-    if (!walkthroughMode) return;
+    walkthroughMotion.setKey(event.code, false);
+  }
 
-    switch (event.code) {
-      case 'ArrowUp': moveForward = false; break;
-      case 'ArrowDown': moveBackward = false; break;
-      case 'ArrowLeft': moveLeft = false; break;
-      case 'ArrowRight': moveRight = false; break;
-      case 'KeyW': lookUp = false; break;
-      case 'KeyS': lookDown = false; break;
-      case 'KeyA': lookLeft = false; break;
-      case 'KeyD': lookRight = false; break;
-      case 'ShiftLeft':
-      case 'ShiftRight': isShiftHeld = false; break;
-    }
+  function resetWalkthroughInput() {
+    walkthroughMotion.reset();
+  }
+
+  function isWalkthroughField(target: EventTarget | null) {
+    return target instanceof HTMLElement && (target.isContentEditable
+      || Boolean(target.closest('input, textarea, select')));
+  }
+
+  function onWalkthroughFocus(event: FocusEvent) {
+    if (isWalkthroughField(event.target)) resetWalkthroughInput();
   }
 
   function init() {
@@ -948,6 +923,9 @@
     // Keyboard event listeners for walkthrough
     document.addEventListener('keydown', onKeyDown, false);
     document.addEventListener('keyup', onKeyUp, false);
+    window.addEventListener('blur', resetWalkthroughInput);
+    document.addEventListener('visibilitychange', resetWalkthroughInput);
+    document.addEventListener('focusin', onWalkthroughFocus);
 
     // ESC key to exit walkthrough mode
     pointerControls.addEventListener('unlock', () => {
@@ -1898,6 +1876,7 @@
     furniturePlacementMode = false;
     removeGhostPreview();
     walkthroughMode = true;
+    walkthroughMotion.reset();
     walkthroughMouseUnavailable = false;
     controls.enabled = false;
 
@@ -1953,35 +1932,11 @@
 
 
 
-  function animate() {
+  function animate(timestamp: number) {
     animId = undefined;
 
     if (walkthroughMode) {
-      const delta = 0.016; // Approximate 60fps
-      const speed = isShiftHeld ? sprintSpeed : moveSpeed;
-
-      velocity.x -= velocity.x * 10.0 * delta;
-      velocity.z -= velocity.z * 10.0 * delta;
-
-      direction.z = Number(moveForward) - Number(moveBackward);
-      direction.x = Number(moveRight) - Number(moveLeft);
-      direction.normalize();
-
-      if (moveForward || moveBackward) velocity.z -= direction.z * speed * delta;
-      if (moveLeft || moveRight) velocity.x -= direction.x * speed * delta;
-
-      pointerControls.moveRight(-velocity.x * delta);
-      pointerControls.moveForward(-velocity.z * delta);
-      camera.position.y = activeFloorElevation + eyeHeight;
-
-      if (lookLeft || lookRight) {
-        const yaw = ((lookLeft ? 1 : 0) - (lookRight ? 1 : 0)) * LOOK_SPEED * delta;
-        camera.rotation.y += yaw;
-      }
-      if (lookUp || lookDown) {
-        const pitch = ((lookUp ? 1 : 0) - (lookDown ? 1 : 0)) * LOOK_SPEED * delta;
-        camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x + pitch));
-      }
+      walkthroughMotion.advance(timestamp, camera, { moveSpeed, sprintSpeed, eyeHeight, floorElevation: activeFloorElevation });
       // Always render in walkthrough mode (camera constantly moving)
       renderer.render(scene, camera);
       requestRender();
@@ -2066,6 +2021,10 @@
       animId = undefined;
       document.removeEventListener('keydown', onKeyDown, false);
       document.removeEventListener('keyup', onKeyUp, false);
+      window.removeEventListener('blur', resetWalkthroughInput);
+      document.removeEventListener('visibilitychange', resetWalkthroughInput);
+      document.removeEventListener('focusin', onWalkthroughFocus);
+      walkthroughMotion.reset();
       releaseCameraPreview();
       wallHighlight.clear();
       removeGhostPreview();

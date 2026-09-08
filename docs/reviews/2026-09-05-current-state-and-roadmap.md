@@ -458,3 +458,15 @@ engines. See [the report and numeric metrics](2026-09-07-idle-rendering.md) for
 measurement limits and PR validation. Frame-rate-independent walkthrough motion
 is tracked in #77. Broader hardware budgets, physical devices and the #30
 release/cost gates remain; this batch adds no cloud writes or assets.
+
+## Twenty-sixth batch: walkthrough timing and input recovery
+
+Issue #77 replaces fixed per-callback movement with elapsed-time integration,
+consistent drag/coasting and short camera-motion substeps. It preserves the
+existing speed calibration, horizontal movement and floor-relative eye height.
+Blur, visibility and mode transitions clear held input and momentum; slider
+arrows and both Shift keys behave independently. Local validation passes 606 unit
+tests, with two new browser workflows for controlled cadence, rendered motion,
+pause recovery and field input. See [the timing report](2026-09-07-walkthrough-timing.md)
+for limits and PR validation. Hardware calibration, physical devices, native
+release and the #30 cost gates remain; this batch adds no cloud writes or assets.
