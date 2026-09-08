@@ -8,6 +8,17 @@ Planner 5D parity.
 
 ## Current implementation baseline
 
+The user's new priority is a **universal iPhone/iPad/Mac app with local commands
+and eventual photo-based RoomPlan rendering**. The native implementation plan is
+tracked in [native issue #8](https://github.com/laanlabs/openplan3d-ios/issues/8)
+and [the detailed roadmap](https://github.com/laanlabs/openplan3d-ios/blob/main/docs/universal-app-and-rendering-plan.md).
+Start with Catalyst and local saved-plan commands, then a portable full scan
+dataset with calibrated photographs, a separate local Blender worker, and
+measured photo projection/texturing. Native source is in the currently private
+companion repository; this is separate from web delivery or an App Store release.
+Keep scan photos, intermediate assets and rendering off Firebase by default.
+The existing 64 MiB project ZIP is not the full scan dataset format.
+
 The furniture category batch for [#63](https://github.com/laanlabs/openPlan3D/issues/63)
 is implemented in both repositories. Package/RoomPlan imports share category
 rules, native display aliases recognize web IDs, unknown categories remain
@@ -22,8 +33,8 @@ intercepting field editing, and preserves furniture dimensions while replacing
 empty/invalid drafts. See [the browser report](docs/reviews/2026-09-07-cross-browser-editing.md)
 and PR checks for final engine results and merge/release status.
 
-Local validation: **647 web unit tests**; native baseline **53 XCTest tests**
-(unchanged this batch). Production build and audit pass; type checks report zero
+Local validation: **647 web unit tests**; native desktop work passes **62 XCTest
+tests on Mac and 62 on the iPhone simulator**. Production web build and audit pass; type checks report zero
 errors and seven remaining Svelte warnings.
 Desktop and phone-width browser checks cover labels, editing, persistence and
 3D. Native source availability remains separate from TestFlight/App Store release.
