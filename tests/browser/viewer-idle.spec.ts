@@ -99,9 +99,12 @@ test('3D sleeps when idle and wakes for controls, scene changes and walkthrough'
   await expect.poll(async () => (await gpu(page))[0].draws).toBeGreaterThan((await gpu(page))[0].draws);
   before = await pixels();
   await page.keyboard.down('ArrowUp');
-  await page.waitForTimeout(250);
-  await page.keyboard.up('ArrowUp');
-  await expect.poll(pixels).not.toBe(before);
+  try {
+    // Hold through an actual rendered movement step, including slow CI GPUs.
+    await expect.poll(pixels, { timeout: 10_000 }).not.toBe(before);
+  } finally {
+    await page.keyboard.up('ArrowUp');
+  }
   await page.getByRole('button', { name: 'Top-Down View', exact: true }).click();
   await expect(page.getByText('Walkthrough Controls', { exact: true })).not.toBeVisible();
   await idle();
