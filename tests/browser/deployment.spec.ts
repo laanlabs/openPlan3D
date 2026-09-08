@@ -34,10 +34,14 @@ test('real cached validators cannot create a false update or hide a later deploy
   try {
     const errors: string[] = [];
     page.on('pageerror', e => errors.push(e.message));
-    // Prime the actual browser HTTP cache with an older representation.
+    // Prime the fetch cache, not a JSON document navigation: engines can keep
+    // those in separate cache entries. No Playwright routes or mocked fetches.
     server.serve(server.different);
-    await page.goto(`${server.url}/_app/version.json`);
-    await expect(page.locator('body')).toContainText(server.different);
+    await page.goto(server.url);
+    const primed = await page.evaluate(async () => (await (await fetch('/_app/version.json', {
+      cache: 'reload',
+    })).json()).version);
+    expect(primed).toBe(server.different);
     server.serve(server.current);
     // Control: the original check's headers reproduce the stale 304/body.
     const cached = await page.evaluate(async () => (await (await fetch('/_app/version.json', {

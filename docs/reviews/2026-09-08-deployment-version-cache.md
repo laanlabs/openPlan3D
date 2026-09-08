@@ -80,3 +80,14 @@ uses an editor opened before the actual GitHub/App Hosting rollout. See the PR's
 completion comment for final deployment and full CI evidence. Automated tests
 separately verify that an unsaved revision is persisted by the reload action and
 that failed writes prevent reload and retain JSON recovery.
+
+### Regression setup correction
+
+The first CI run passed all Firefox workflows but found that Chromium and WebKit
+fetches did not reuse the version JSON's document-navigation cache entry in this
+setup. The test now explicitly primes the fetch cache with a reload-mode fetch
+from the same app origin before changing the server response. It still requires
+an actual stale body and 304 from the original no-cache-header check before it
+accepts the fixed checker. No routing, fetch mock, skipped engine or weakened
+cache assertion was introduced. The intermediate run with that known setup issue
+was cancelled; final checks run against the corrected commit.
