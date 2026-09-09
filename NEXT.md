@@ -151,7 +151,12 @@ unmasked overlap, with correction/rejection reports and unchanged coverage/sourc
 labels. **94 renderer host tests passed with 16 delegated skips and no failures**,
 including actual corrected previews and reversed-order atlas equivalence. See native
 `docs/photo-normalization-validation.md`. Physical color validation, global alignment,
-seam blending and native integration remain open.
+seam handling and native integration remain open. Optional UV-island overlap blending
+now uses linear light and coverage feathering, preserves masks/neutral fallback and
+records all contributing sources. **98 renderer host tests passed with 16 delegated
+skips and no failures**, including normalization, mask preservation and reversed-order
+atlas equivalence. See native `docs/overlap-blending-validation.md`. Seam handling
+across islands, native integration and physical validation remain open.
 Rendering stays local: Blender Cycles for finished renders and Three.js for web
 previews with shared preparation. This batch changes no web runtime, Firebase
 storage/quotas, project-package format or rendering engine.
