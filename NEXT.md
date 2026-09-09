@@ -522,6 +522,17 @@ zero failures.** Live Mac overlay endpoints passed. See the native repository's
 `docs/camera-coverage-overlay-validation.md`. Confidence estimates, native masks,
 seams and physical/held-out accuracy remain open.
 
+
+Supervised projection jobs now accept camera-bound CLI masks, freeze their bytes,
+reserve their disk space and verify them before execution and recovery. Native
+review verifies the mask bindings and labels masked source cameras. **153 native
+tests per platform passed with one optional skip and zero failures.** Renderer
+validation covered 118 host tests with 17 delegated skips; two environment timeouts
+and a corrected recovery assertion passed isolated rechecks with unchanged limits.
+Live Mac review confirmed the excluded camera contributed zero samples. See the
+native repository's `docs/supervised-projection-masks-validation.md`. Native mask
+authoring/submission, confidence, seams and physical accuracy remain open.
+
 ## Local Three.js render test
 
 An isolated `/render-lab` route now supports local GLB loading, interactive
