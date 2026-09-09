@@ -134,8 +134,14 @@ wall/floor UV islands with per-texel occlusion checks, neutral fallback, UV padd
 coverage mask, packed Blender scene and preview. **84 renderer host tests passed
 with 13 delegated skips and no failures**, including actual Blender photo bakes and
 renders. See native `docs/photo-projection-prototype-validation.md`. Native queue and
-photo-conversion integration, multi-photo texture selection, masks, seam handling,
+photo-conversion integration, masks, seam handling,
 physical ranking validation, continuous heatmaps and measured calibration remain open.
+The prototype now combines up to eight calibrated photos using per-texel local
+quality, viewing angle and projected resolution, with source identities and a texel
+provenance map. **88 renderer host tests passed with 15 delegated skips and no
+failures**, including reversed-order atlas equivalence and actual Blender bakes.
+See native `docs/multi-photo-projection-validation.md`. Normalization/blending,
+semantic masks, native integration and physical validation remain open.
 Rendering stays local: Blender Cycles for finished renders and Three.js for web
 previews with shared preparation. This batch changes no web runtime, Firebase
 storage/quotas, project-package format or rendering engine.
