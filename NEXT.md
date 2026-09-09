@@ -464,6 +464,14 @@ See the native
 repository's `docs/native-projection-export-validation.md`. Supervised projection
 jobs, native result review/masks, inter-island seams and physical validation remain.
 
+The native photo prototype now samples diagonal triangle texels at their covered
+area's centroid, removing 144 unresolved edge samples in the exported QA scan.
+Neutral pixels in a fixed top-wall band fell from 539 to 3 while strict visibility
+and exclusion checks remain. **104 renderer host tests passed with 17 delegated
+skips and zero failures.** See the native repository's
+`docs/triangle-boundary-sampling-validation.md`. Broader seams, coarse atlas
+coverage boundaries and physical fidelity remain unverified.
+
 ## Local Three.js render test
 
 An isolated `/render-lab` route now supports local GLB loading, interactive
