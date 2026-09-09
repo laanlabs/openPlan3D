@@ -98,8 +98,12 @@ recovery. The full 76-case renderer run and final five-case coverage-job suite p
 See native `docs/coverage-only-queue-validation.md`. Native distinct receipts and
 verified batch summary/map review now work in mixed queues. **120 native tests ran
 per platform with one optional skip and zero failures**, plus live Mac checks.
-See native `docs/native-coverage-batch-review-validation.md`. Multi-frame submission
-and batch subset/quality review remain pending, along with
+See native `docs/native-coverage-batch-review-validation.md`. Native multi-frame
+submission now freezes cameras from one scan and records verified photo identities.
+**123 native tests ran per platform with one optional skip and zero failures**;
+a native → Blender → native job passed with unchanged photos. See native
+`docs/native-coverage-submission-validation.md`. Batch subset/quality review remains
+pending, along with
 physical suggestion validation, continuous heatmaps and measured calibration.
 Rendering stays local: Blender Cycles for finished renders and Three.js for web
 previews with shared preparation. This batch changes no web runtime, Firebase
