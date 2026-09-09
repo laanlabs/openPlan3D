@@ -117,8 +117,11 @@ and zero failures**, plus live ordering/cap/apply checks. See native
 photo detail/exposure at visible wall and floor samples, with explicit edge/proxy
 exclusions. **135 native tests ran per platform with one optional skip and zero
 failures**, plus live synthetic patch review. See native
-`docs/surface-photo-evaluation-validation.md`. These measurements do not yet drive
-camera selection or texture baking. Physical suggestion validation, masks,
+`docs/surface-photo-evaluation-validation.md`. Batch suggestions now weight each
+measured local patch and keep geometric coverage counts independent; absent patch
+scores never inherit global photo quality. **137 native tests ran per platform with
+one optional skip and zero failures**, plus live ordering/limit/apply checks. See
+native `docs/local-patch-suggestions-validation.md`. Texture baking remains open. Physical suggestion validation, masks,
 pixel-footprint ranking, continuous heatmaps and measured calibration remain open.
 Rendering stays local: Blender Cycles for finished renders and Three.js for web
 previews with shared preparation. This batch changes no web runtime, Firebase
