@@ -76,8 +76,12 @@ visibility, concave geometry and bounds. See native `docs/scene-coverage-validat
 native single-camera coverage summaries are now integrated with captured jobs
 and receipt-verified preview review. **106 native tests ran per platform with
 one optional skip and zero failures**; renderer tests and a fresh native/Blender
-UI job passed. See native `docs/native-coverage-review-validation.md`. Spatial
-overlays, multi-camera review and physical-photo validation remain pending.
+UI job passed. See native `docs/native-coverage-review-validation.md`. A native spatial
+sample map now adds verified locations, state/surface filters, rotation controls
+and a camera marker. **109 native tests ran per platform with one optional skip
+and zero failures**, plus renderer and live Mac map checks. See native
+`docs/coverage-sample-map-validation.md`. Continuous heatmaps, multi-camera review
+and physical-photo validation remain pending.
 Rendering stays local: Blender Cycles for finished renders and Three.js for web
 previews with shared preparation. This batch changes no web runtime, Firebase
 storage/quotas, project-package format or rendering engine.
