@@ -7,6 +7,17 @@ export function modalDialog(dialog: HTMLDialogElement) {
   if (document.pointerLockElement) document.exitPointerLock();
   dialog.showModal();
   function onKeydown(event: KeyboardEvent) {
+    // WebKit may interpret Backspace on a button as browser Back. A modal must
+    // retain the current document while text fields keep native deletion/undo.
+    if (event.key === 'Backspace') {
+      const target = event.target;
+      const editable = target instanceof HTMLElement && (target.isContentEditable ||
+        (target instanceof HTMLTextAreaElement && !target.readOnly && !target.disabled) ||
+        (target instanceof HTMLInputElement && !target.readOnly && !target.disabled &&
+          !['button', 'checkbox', 'radio', 'submit', 'reset', 'image', 'range', 'color', 'file', 'hidden'].includes(target.type)));
+      if (!editable) event.preventDefault();
+      return;
+    }
     if (event.key !== 'Tab' || event.ctrlKey || event.metaKey || event.altKey) return;
     // Safari's keyboard preference may otherwise skip buttons and leave the
     // document. Keep the dialog controls reachable in either direction.

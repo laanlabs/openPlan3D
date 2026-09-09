@@ -20,7 +20,6 @@
   import { WalkthroughMotion } from '$lib/utils/walkthroughMotion';
   import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
   import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
-  import MaterialPicker from './MaterialPicker.svelte';
   import { getCatalogItem, furnitureCatalog, furnitureCategories } from '$lib/utils/furnitureCatalog';
   import type { FurnitureDef } from '$lib/utils/furnitureCatalog';
   import { createWallHighlight } from '$lib/utils/wallHighlight';
@@ -62,9 +61,6 @@
 
   // 3D Edit mode — enables click-to-select
   let editMode = $state(false);
-  // Material picker state
-  let materialPickerPos = $state<{ x: number; y: number } | null>(null);
-  let materialPickerWall = $state<Wall | null>(null);
   // Wall transparency toggle
   let wallsTransparent = $state(false);
   // Multi-floor stacking
@@ -652,11 +648,6 @@
         removeGhostPreview();
         return;
       }
-      if (materialPickerWall) {
-        materialPickerWall = null;
-        materialPickerPos = null;
-        return;
-      }
       editMode = false;
       selectedElementId.set(null);
       return;
@@ -869,16 +860,6 @@
         }
       }
       selectedElementId.set(hitWallId);
-
-      // Show/hide material picker
-      if (hitWallId && currentFloor) {
-        const hitWall = currentFloor.walls.find(w => w.id === hitWallId) ?? null;
-        materialPickerWall = hitWall;
-        materialPickerPos = { x: e.clientX, y: e.clientY };
-      } else {
-        materialPickerWall = null;
-        materialPickerPos = null;
-      }
     });
 
     // Hover highlight in edit mode
@@ -2112,7 +2093,7 @@
 
     <!-- Edit Mode Toggle -->
     <button
-      onclick={() => { editMode = !editMode; if (editMode && walkthroughMode) { exitWalkthroughMode(); } if (!editMode) { selectedElementId.set(null); materialPickerWall = null; materialPickerPos = null; } }}
+      onclick={() => { editMode = !editMode; if (editMode && walkthroughMode) { exitWalkthroughMode(); } if (!editMode) { selectedElementId.set(null); } }}
       class="p-2 rounded-lg transition-colors {editMode ? 'bg-blue-600 text-white ring-2 ring-blue-300' : 'bg-black/70 text-white hover:bg-black/80'}"
       title={editMode ? 'Exit Edit Mode' : 'Edit Mode — click to select walls & change materials'}
       aria-label={editMode ? 'Exit Edit Mode' : 'Edit Mode'}
@@ -2440,7 +2421,7 @@
 
     <!-- Furniture Placement Toggle -->
     <button
-      onclick={() => { furniturePlacementMode = !furniturePlacementMode; if (!furniturePlacementMode) { removeGhostPreview(); selectedCatalogId = null; furniturePickerOpen = false; } else { furniturePickerOpen = true; materialPickerWall = null; materialPickerPos = null; } }}
+      onclick={() => { furniturePlacementMode = !furniturePlacementMode; if (!furniturePlacementMode) { removeGhostPreview(); selectedCatalogId = null; furniturePickerOpen = false; } else { furniturePickerOpen = true; } }}
       class="absolute top-16 right-28 z-50 p-2 rounded-lg transition-colors {furniturePlacementMode ? 'bg-green-600 text-white ring-2 ring-green-300' : 'bg-black/70 text-white hover:bg-black/80'}"
       title={furniturePlacementMode ? 'Exit Furniture Placement' : 'Place Furniture'}
       aria-label={furniturePlacementMode ? 'Exit Furniture Placement' : 'Place Furniture'}
@@ -2485,8 +2466,6 @@
       </div>
     {/if}
   {/if}
-
-  <!-- MaterialPicker removed — wall materials editable via Properties panel -->
 
   <!-- Lighting Controls Toggle Button -->
   <button

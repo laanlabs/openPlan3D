@@ -1,6 +1,6 @@
 # Next work and pause handoff
 
-Updated September 8, 2026. This is the current backlog for the web app and iPhone
+Updated September 9, 2026. This is the current backlog for the web app and iPhone
 companion. It supersedes the historical “next” sections in the
 [original review and batch log](docs/reviews/2026-09-05-current-state-and-roadmap.md).
 Priorities below are proposed order, not release dates or a claim of complete
@@ -40,7 +40,12 @@ and [contract](https://github.com/laanlabs/openplan3d-ios/blob/main/docs/full-sc
 
 All transferred frames remain `legacy-incomplete`. Physical capture with the new
 metadata and measured reprojection are still pending. Native issue #8 remains
-open for those gates, local render jobs, Blender execution and photo texturing.
+open for physical calibration, native queue integration and photo texturing.
+A separate local developer queue now implements pinned Blender execution, input
+validation, job states, budgets, cancellation and crash recovery; **34 Python
+checks pass**, including four real-Blender acceptance tests. See
+`docs/local-render-jobs-validation.md` in the native checkout for local results.
+The native queue/cleanup UI and command integration remain unfinished.
 Rendering stays local: Blender Cycles for finished renders and Three.js for web
 previews with shared preparation. This batch changes no web runtime, Firebase
 storage/quotas, project-package format or rendering engine.
@@ -72,9 +77,9 @@ intercepting field editing, and preserves furniture dimensions while replacing
 empty/invalid drafts. See [the browser report](docs/reviews/2026-09-07-cross-browser-editing.md)
 and PR checks for final engine results and merge/release status.
 
-Local validation: **647 web unit tests**; native dataset work passes **82 XCTest
+Local validation: **654 web unit tests**; native dataset work passes **82 XCTest
 tests on Mac and 82 on the iPhone simulator**. Production web build and audit pass; type checks report zero
-errors and seven remaining Svelte warnings.
+errors and zero Svelte warnings.
 Desktop and phone-width browser checks cover labels, editing, persistence and
 3D. Native source availability remains separate from TestFlight/App Store release.
 
@@ -295,9 +300,14 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
   matrix. Refresh README counts/import features and add contributor guidance,
   fixture-oriented issue/PR templates and a release checklist. Historical review
   findings and original package metadata are not authoritative current status.
-- Reduce the seven remaining Svelte warnings with focused accessibility/component
-  changes. The CI artifact actions now use pinned Node 24 releases. Continue dependency
-  auditing rather than treating the original resolved advisories as still open.
+- The seven remaining Svelte warnings are resolved in the local keyboard/component
+  cleanup batch: native favorite buttons, protected control activation/Tab, explicit
+  inline-editor focus, reactive menu bounds and removal of the retired material
+  picker. See [the validation report](docs/reviews/2026-09-09-editor-keyboard-cleanup.md).
+  Keep zero-warning type checks passing. The local WebKit modal failures were
+  traced to default Backspace navigation on buttons and are fixed; text deletion
+  remains native in editable fields. The CI artifact actions use pinned Node 24
+  releases; continue dependency auditing.
 - Decide whether to publish/license the currently private iOS repository, add a
   root contributor README, and clarify the two native targets/release branding.
   Review the current iOS 26.2 minimum before distribution; lowering it requires
@@ -331,8 +341,9 @@ An isolated `/render-lab` route now supports local GLB loading, interactive
 preview and progressive GPU path tracing with spatial noise reduction. A private
 Blender photo-study scene was exercised locally; its model and media remain out
 of this repository. See [setup, verified results and limits](docs/render-lab.md).
-653 unit tests pass, the production build succeeds and type checking has zero
-errors (seven existing warnings). Desktop camera presets, mode switching, pause
-and PNG export were exercised. This remains a test branch: finish material
-baking, browser/device qualification and shared scene integration before replacing
+The render-lab batch passed 653 unit tests and a production build. The subsequent
+keyboard cleanup passes 654 unit tests with zero type errors or Svelte warnings.
+Desktop camera presets, mode switching, pause and PNG export were exercised.
+This remains a test branch: finish material baking, browser/device qualification
+and shared scene integration before replacing
 any viewer. Physical-device capture and measured reprojection remain pending.

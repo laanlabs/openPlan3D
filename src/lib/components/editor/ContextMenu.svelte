@@ -25,7 +25,7 @@
 
   let { x, y, visible, targetType, targetId, targetWall, targetFurniture, targetRoom, clipboard, onclose, onaction }: Props = $props();
 
-  let menuEl: HTMLDivElement;
+  let menuEl = $state<HTMLDivElement>();
 
   // Adjust position to keep menu within viewport
   let adjustedX = $state(0);

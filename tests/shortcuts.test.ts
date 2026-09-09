@@ -84,3 +84,13 @@ it.each([
   }
   expect(manualSave).toHaveBeenCalledTimes(2);
 });
+
+it('leaves activation and Tab on focused controls to the browser', () => {
+  const closest = vi.fn().mockReturnValue({ tagName: 'BUTTON' });
+  for (const key of [' ', 'Enter', 'Tab']) {
+    const event = keyEvent(key, { target: { closest } });
+    expect(handleGlobalShortcut(event)).toBe(false);
+    expect(event.preventDefault).not.toHaveBeenCalled();
+  }
+  expect(closest).toHaveBeenCalled();
+});

@@ -629,27 +629,27 @@
             <h4 class="text-[10px] font-semibold text-gray-400 uppercase mb-1.5">Recent</h4>
             <div class="grid grid-cols-2 gap-2">
               {#each recentItems as item}
-                <button
-                  class="relative flex flex-col items-center gap-1 p-2.5 rounded-lg border-2 transition-colors cursor-grab active:cursor-grabbing {currentPlacing === item.id ? 'border-blue-400 bg-blue-50 ring-1 ring-blue-300' : 'border-gray-100 hover:border-blue-300 hover:bg-blue-50'}"
-                  onclick={() => onFurnitureClick(item)}
-                  draggable="true"
-                  ondragstart={(e) => { e.dataTransfer?.setData('application/o3d-type', 'furniture'); e.dataTransfer?.setData('application/o3d-id', item.id); }}
-                  onmouseenter={(e) => onItemMouseEnter(e, item)}
-                  onmousemove={onItemMouseMove}
-                  onmouseleave={onItemMouseLeave}
-                >
-                  <!-- svelte-ignore node_invalid_placement -->
-                  <span
-                    role="button"
-                    tabindex="0"
+                <div class="relative">
+                  <button
+                    class="w-full h-full flex flex-col items-center gap-1 p-2.5 rounded-lg border-2 transition-colors cursor-grab active:cursor-grabbing {currentPlacing === item.id ? 'border-blue-400 bg-blue-50 ring-1 ring-blue-300' : 'border-gray-100 hover:border-blue-300 hover:bg-blue-50'}"
+                    onclick={() => onFurnitureClick(item)}
+                    draggable="true"
+                    ondragstart={(e) => { e.dataTransfer?.setData('application/o3d-type', 'furniture'); e.dataTransfer?.setData('application/o3d-id', item.id); }}
+                    onmouseenter={(e) => onItemMouseEnter(e, item)}
+                    onmousemove={onItemMouseMove}
+                    onmouseleave={onItemMouseLeave}
+                  >
+                    <div class="w-10 h-10"><FurnitureThumbnail catalogId={item.id} name={item.name} color={item.color} /></div>
+                    <span class="text-[10px] font-medium text-gray-600 leading-tight text-center">{item.name}</span>
+                  </button>
+                  <button
                     class="absolute top-1 right-1 text-[12px] leading-none cursor-pointer {favoriteIds.includes(item.id) ? 'text-pink-500' : 'text-gray-300 hover:text-pink-400'}"
-                    onclick={(e: MouseEvent) => { e.stopPropagation(); e.preventDefault(); toggleFavorite(item.id); }}
-                    onkeydown={(e: KeyboardEvent) => { if (e.key === 'Enter') { e.stopPropagation(); toggleFavorite(item.id); } }}
+                    onclick={() => toggleFavorite(item.id)}
+                    aria-label={`${favoriteIds.includes(item.id) ? 'Remove' : 'Add'} ${item.name} ${favoriteIds.includes(item.id) ? 'from' : 'to'} favorites`}
+                    aria-pressed={favoriteIds.includes(item.id)}
                     title={favoriteIds.includes(item.id) ? 'Remove from favorites' : 'Add to favorites'}
-                  >{favoriteIds.includes(item.id) ? '♥' : '♡'}</span>
-                  <div class="w-10 h-10"><FurnitureThumbnail catalogId={item.id} name={item.name} color={item.color} /></div>
-                  <span class="text-[10px] font-medium text-gray-600 leading-tight text-center">{item.name}</span>
-                </button>
+                  >{favoriteIds.includes(item.id) ? '♥' : '♡'}</button>
+                </div>
               {/each}
             </div>
           </div>
@@ -660,33 +660,33 @@
         <div class="grid grid-cols-2 gap-2 mt-2">
           {#each filtered as item}
             {@const s = search.toLowerCase()}
-            <button
-              class="relative flex flex-col items-center gap-1 p-3 rounded-lg border-2 transition-colors cursor-grab active:cursor-grabbing {currentPlacing === item.id ? 'border-blue-400 bg-blue-50 ring-1 ring-blue-300' : 'border-gray-100 hover:border-blue-300 hover:bg-blue-50'}"
-              onclick={() => onFurnitureClick(item)}
-              draggable="true"
-              ondragstart={(e) => { e.dataTransfer?.setData('application/o3d-type', 'furniture'); e.dataTransfer?.setData('application/o3d-id', item.id); }}
-              onmouseenter={(e) => onItemMouseEnter(e, item)}
-              onmousemove={onItemMouseMove}
-              onmouseleave={onItemMouseLeave}
-            >
-              <!-- svelte-ignore node_invalid_placement -->
-              <span
-                role="button"
-                tabindex="0"
+            <div class="relative">
+              <button
+                class="w-full h-full flex flex-col items-center gap-1 p-3 rounded-lg border-2 transition-colors cursor-grab active:cursor-grabbing {currentPlacing === item.id ? 'border-blue-400 bg-blue-50 ring-1 ring-blue-300' : 'border-gray-100 hover:border-blue-300 hover:bg-blue-50'}"
+                onclick={() => onFurnitureClick(item)}
+                draggable="true"
+                ondragstart={(e) => { e.dataTransfer?.setData('application/o3d-type', 'furniture'); e.dataTransfer?.setData('application/o3d-id', item.id); }}
+                onmouseenter={(e) => onItemMouseEnter(e, item)}
+                onmousemove={onItemMouseMove}
+                onmouseleave={onItemMouseLeave}
+              >
+                <div class="w-12 h-12"><FurnitureThumbnail catalogId={item.id} name={item.name} color={item.color} /></div>
+                {#if s && item.name.toLowerCase().includes(s)}
+                  {@const idx = item.name.toLowerCase().indexOf(s)}
+                  <span class="text-xs font-medium text-gray-600">{item.name.slice(0, idx)}<mark class="bg-yellow-200 text-gray-800 rounded-sm px-0.5">{item.name.slice(idx, idx + s.length)}</mark>{item.name.slice(idx + s.length)}</span>
+                {:else}
+                  <span class="text-xs font-medium text-gray-600">{item.name}</span>
+                {/if}
+                <span class="text-[10px] text-gray-400">{item.width}×{item.depth}cm</span>
+              </button>
+              <button
                 class="absolute top-1 right-1 text-[12px] leading-none cursor-pointer {favoriteIds.includes(item.id) ? 'text-pink-500' : 'text-gray-300 hover:text-pink-400'}"
-                onclick={(e: MouseEvent) => { e.stopPropagation(); e.preventDefault(); toggleFavorite(item.id); }}
-                onkeydown={(e: KeyboardEvent) => { if (e.key === 'Enter') { e.stopPropagation(); toggleFavorite(item.id); } }}
+                onclick={() => toggleFavorite(item.id)}
+                aria-label={`${favoriteIds.includes(item.id) ? 'Remove' : 'Add'} ${item.name} ${favoriteIds.includes(item.id) ? 'from' : 'to'} favorites`}
+                aria-pressed={favoriteIds.includes(item.id)}
                 title={favoriteIds.includes(item.id) ? 'Remove from favorites' : 'Add to favorites'}
-              >{favoriteIds.includes(item.id) ? '♥' : '♡'}</span>
-              <div class="w-12 h-12"><FurnitureThumbnail catalogId={item.id} name={item.name} color={item.color} /></div>
-              {#if s && item.name.toLowerCase().includes(s)}
-                {@const idx = item.name.toLowerCase().indexOf(s)}
-                <span class="text-xs font-medium text-gray-600">{item.name.slice(0, idx)}<mark class="bg-yellow-200 text-gray-800 rounded-sm px-0.5">{item.name.slice(idx, idx + s.length)}</mark>{item.name.slice(idx + s.length)}</span>
-              {:else}
-                <span class="text-xs font-medium text-gray-600">{item.name}</span>
-              {/if}
-              <span class="text-[10px] text-gray-400">{item.width}×{item.depth}cm</span>
-            </button>
+              >{favoriteIds.includes(item.id) ? '♥' : '♡'}</button>
+            </div>
           {/each}
         </div>
 

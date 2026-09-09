@@ -62,7 +62,11 @@ for (const width of [1440, 390]) test(`modal focus and keys preserve the selecte
     // Test the browser's actual focus boundary instead of DOM accessibility heuristics.
     await page.getByLabel('Floor plan editor canvas', { exact: true }).evaluate((canvas: HTMLCanvasElement) => canvas.focus());
     await focusInside(page, name);
-    for (const key of ['Delete', 'Backspace', 'w', 'r', 'l', 'ControlOrMeta+z']) await page.keyboard.press(key);
+    for (const key of ['Delete', 'Backspace', 'w', 'r', 'l', 'ControlOrMeta+z']) {
+      await page.keyboard.press(key);
+      await focusInside(page, name); // Catch navigation at its triggering key.
+      await expect(page).toHaveURL(new RegExp(`/editor\\?id=${id}$`));
+    }
     for (const key of ['Tab', 'Tab', 'Shift+Tab']) {
       await page.keyboard.press(key); await focusInside(page, name);
     }
@@ -76,7 +80,8 @@ for (const width of [1440, 390]) test(`modal focus and keys preserve the selecte
     expect(await storedRecords(page)).toEqual(stored);
   }
   // Editor deletion and undo resume after the dialog has gone away.
-  await page.getByRole('button', { name: 'Save', exact: true }).press('Delete');
+  await page.getByRole('button', { name: 'Save', exact: true }).press('Backspace');
+  await expect(page).toHaveURL(new RegExp(`/editor\\?id=${id}$`));
   await expect(page.getByRole('application')).toContainText('3 walls');
   await page.getByRole('button', { name: 'Undo', exact: true }).click();
   await expect(page.getByRole('application')).toContainText('4 walls');
@@ -101,7 +106,10 @@ for (const width of [1440, 390]) test(`command palette and modal field editing r
   await save.press('ControlOrMeta+k'); await search.fill('settings'); await page.keyboard.press('Enter');
   const dialog = await focusInside(page, 'Settings');
   const name = dialog.getByRole('textbox', { name: 'Project Name', exact: true });
-  await name.fill('Keyboard-safe settings'); await name.press('Tab');
+  await name.fill('Keyboard-safe settings!');
+  await name.press('End'); await name.press('Backspace');
+  await expect(name).toHaveValue('Keyboard-safe settings');
+  await name.press('Tab');
   await dialog.getByRole('button', { name: 'Dimensions', exact: true }).click();
   await page.keyboard.press('Escape'); await expect(dialog).toHaveCount(0);
   await expect(page.getByTitle('Click to rename', { exact: true })).toHaveText('Keyboard-safe settings');

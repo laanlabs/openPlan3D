@@ -12,7 +12,7 @@
   import { snapFurnitureToWalls } from '$lib/utils/furnitureGeometry';
   import { getCatalogItem, getFurnitureSize, type FurnitureDef } from '$lib/utils/furnitureCatalog';
   import { drawFurnitureIcon } from '$lib/utils/furnitureIcons';
-  import { handleGlobalShortcut, isEditingField } from '$lib/utils/shortcuts';
+  import { handleGlobalShortcut, isEditingField, isControlKey } from '$lib/utils/shortcuts';
   import { hasOpenModal } from '$lib/utils/modalDialog';
   import ContextMenu from './ContextMenu.svelte';
   import { roomPresets, placePreset } from '$lib/utils/roomPresets';
@@ -101,7 +101,14 @@
     editingDimensionId = null;
   }
 
-  function focusDimensionLabel(node: HTMLInputElement) { node.focus(); }
+  function focusInlineEditor(node: HTMLInputElement) {
+    // Placement starts on mousedown. Focus after its default canvas focus has
+    // completed, and cancel pending focus when the inline editor is dismissed.
+    const frame = requestAnimationFrame(() => {
+      if (node.isConnected && !hasOpenModal()) node.focus({ preventScroll: true });
+    });
+    return { destroy: () => cancelAnimationFrame(frame) };
+  }
 
   // Text annotation tool
   let textAnnotationMode = $state(false);
@@ -3119,6 +3126,7 @@
       handleGlobalShortcut(e);
       return;
     }
+    if (isControlKey(e)) return;
     shiftDown = e.shiftKey;
     if (e.code === 'Space') { spaceDown = true; e.preventDefault(); return; }
 
@@ -3737,6 +3745,7 @@
       type="text"
       class="absolute bg-white border-2 border-blue-500 rounded px-2 py-1 text-sm text-center shadow-lg outline-none"
       style="left: {editingRoomPos.x}px; top: {editingRoomPos.y}px; transform: translate(-50%, -50%); z-index: 20; min-width: 100px;"
+      aria-label="Room name"
       value={editingRoomName}
       oninput={(e) => { editingRoomName = (e.target as HTMLInputElement).value; }}
       onkeydown={(e) => {
@@ -3755,7 +3764,7 @@
           editingRoomId = null;
         }
       }}
-      autofocus
+      use:focusInlineEditor
     />
   {/if}
   {#if editingDimensionId}
@@ -3766,7 +3775,7 @@
         class="mt-1 w-60 max-w-[70vw] rounded border border-gray-300 px-2 py-1 text-sm outline-blue-500"
         placeholder="Leave empty for measured distance"
         bind:value={dimensionLabel}
-        use:focusDimensionLabel
+        use:focusInlineEditor
         onkeydown={(event) => {
           if (event.key === 'Enter') { event.preventDefault(); finishDimensionLabel(); }
           if (event.key === 'Escape') { event.preventDefault(); editingDimensionId = null; }
@@ -3781,6 +3790,7 @@
       type="text"
       class="absolute bg-white border-2 border-blue-500 rounded px-2 py-1 text-sm text-center shadow-lg outline-none"
       style="left: {editingTextAnnotationPos.x}px; top: {editingTextAnnotationPos.y}px; transform: translate(-50%, -50%); z-index: 20; min-width: 120px;"
+      aria-label="Annotation text"
       value={editingTextAnnotationValue}
       oninput={(e) => { editingTextAnnotationValue = (e.target as HTMLInputElement).value; }}
       onkeydown={(e) => {
@@ -3819,7 +3829,7 @@
           editingTextAnnotationId = null;
         }
       }}
-      autofocus
+      use:focusInlineEditor
     />
   {/if}
   <!-- Empty state hint -->
