@@ -595,6 +595,14 @@ edges, so an overlap fixture is still required for seam comparisons. See the nat
 repository's `docs/projection-source-boundary-validation.md`. Seam correction,
 inter-island measurements, confidence and physical validation remain open.
 
+A calibrated synthetic overlap fixture now creates camera-source boundaries using
+the actual Blender bake. Four-texel blending reduced mean linear RGB difference
+across 42 boundary pairs from 0.497558 to 0, preserving 812 observed texels and
+source labels. PNG reports and captured-camera previews were checked. **13 tests
+passed, including four in pinned Blender, with no skips/failures**. See the native
+repository's `docs/overlap-seam-fixture-validation.md`. Textured overlap, partial
+FOV/mask edges, inter-island seams, confidence and physical validation remain open.
+
 ## Local Three.js render test
 
 An isolated `/render-lab` route now supports local GLB loading, interactive
