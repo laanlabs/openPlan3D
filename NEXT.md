@@ -612,6 +612,15 @@ seven inside pinned Blender, with no skips/failures**. See the native repository
 `docs/textured-overlap-validation.md`. Real photos, FOV/inter-island seams,
 confidence and physical/release qualification remain open.
 
+The overlap fixture now validates narrow camera fields of view against analytic
+wall/frustum intersections. Normalization preserves 641 observed samples while
+reducing reference error from 0.071994 to 0.001168; combined FOV/masks preserve
+615 samples and reduce error from 0.071347 to 0.001244. **17 tests passed, ten
+inside pinned Blender, with no skips/failures**. Independent PNG checks reproduced
+all four study reports. See the native repository's
+`docs/field-of-view-overlap-validation.md`. Real photos, inter-island seams,
+non-planar/occlusion cases, confidence and physical/release validation remain open.
+
 ## Local Three.js render test
 
 An isolated `/render-lab` route now supports local GLB loading, interactive
