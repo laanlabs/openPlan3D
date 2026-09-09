@@ -73,7 +73,11 @@ integrated coverage review remain open. A developer visibility stage now samples
 full-height geometry across captured cameras, reports occlusion and union coverage,
 and records geometric view candidates. Nine real-Blender acceptance cases cover
 visibility, concave geometry and bounds. See native `docs/scene-coverage-validation.md`;
-native coverage UI and physical-photo validation remain pending.
+native single-camera coverage summaries are now integrated with captured jobs
+and receipt-verified preview review. **106 native tests ran per platform with
+one optional skip and zero failures**; renderer tests and a fresh native/Blender
+UI job passed. See native `docs/native-coverage-review-validation.md`. Spatial
+overlays, multi-camera review and physical-photo validation remain pending.
 Rendering stays local: Blender Cycles for finished renders and Three.js for web
 previews with shared preparation. This batch changes no web runtime, Firebase
 storage/quotas, project-package format or rendering engine.
