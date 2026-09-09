@@ -569,6 +569,14 @@ with 2,336 projected samples and reopened in review. See the native repository's
 `docs/native-polygon-mask-validation.md`. Zoom/pan, automatic semantic masks,
 confidence, seams and physical/release validation remain open.
 
+Native mask editing now supports 1×–8× zoom, Move mode and Fit while preserving
+source-pixel alignment for brushes, saved masks and unfinished polygon outlines.
+**164 tests per native platform passed, one optional skip and zero failures**;
+independent worker decoding and live Mac checks covered coordinate alignment and
+saving/reopening. See the native repository's `docs/native-mask-zoom-validation.md`.
+Full-size image memory measurements, physical gestures/accessibility, automatic
+semantic masks, confidence, seams and physical/release validation remain open.
+
 ## Local Three.js render test
 
 An isolated `/render-lab` route now supports local GLB loading, interactive
