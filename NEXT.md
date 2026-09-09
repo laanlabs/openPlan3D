@@ -455,6 +455,15 @@ fixture also completed a pinned Blender bake; **99 renderer host tests passed wi
 `docs/native-projection-photo-validation.md`. Native export UI, supervised photo
 projection jobs and physical/held-out validation remain open.
 
+Native coverage review can now export selected cameras as a bounded, streaming
+projection ZIP. The Blender prototype accepts the extracted package, verifies all
+file identities and records original/derived provenance. A two-camera package
+saved through the isolated Mac QA app completed a real bake. **145 native tests per
+platform and 103 renderer host tests passed with expected skips and zero failures.**
+See the native
+repository's `docs/native-projection-export-validation.md`. Supervised projection
+jobs, native result review/masks, inter-island seams and physical validation remain.
+
 ## Local Three.js render test
 
 An isolated `/render-lab` route now supports local GLB loading, interactive
