@@ -586,6 +586,15 @@ byte-identical and pass worker decoding. See the native repository's
 maximum-image memory, physical input/accessibility, confidence, seams and release
 validation remain open.
 
+Verified projection diagnostics now measure color jumps at source-camera changes
+within UV islands, separately from same-source image edges. Reports include
+linear RGB metrics, frame identities and bounded atlas-coordinate examples;
+missing boundaries produce unavailable metrics. **20 renderer tests ran with four
+delegated skips and zero failures**. The native fixture lacks eligible source-change
+edges, so an overlap fixture is still required for seam comparisons. See the native
+repository's `docs/projection-source-boundary-validation.md`. Seam correction,
+inter-island measurements, confidence and physical validation remain open.
+
 ## Local Three.js render test
 
 An isolated `/render-lab` route now supports local GLB loading, interactive
