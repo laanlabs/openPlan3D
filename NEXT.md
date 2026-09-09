@@ -753,3 +753,19 @@ the stacked download rendered in Blender with verified scene/PNG hashes and
 visual inspection. See [validation](docs/crossing-room-boundaries-validation.md).
 Collinear overlaps, duplicate walls, ambiguous boundary-ID sets, courtyard/stair
 voids and native topology/area agreement remain open.
+
+
+### Duplicate and overlapping room boundaries — 2026-09-09
+
+Coincident split segments now form one derived graph edge retaining every source
+wall ID. Partial collinear overlaps and duplicate dividers preserve room polygons
+and source boundary identity across input order changes. Saved room metadata
+matches expanded aliases, so adding a duplicate/partial overlap retains names
+and finishes; ambiguous saved matches are left unmatched. Editable walls and
+viewer wall meshes remain intact.
+
+**677 unit tests, six Chromium/WebKit browser checks, Svelte checks and production
+build passed.** Browser exports preserve four room slabs on both floors across
+active-floor switches. See [validation](docs/overlapping-room-boundaries-validation.md).
+Repairing overlapping wall solids, ambiguous face identity, courtyard/stair voids,
+native topology/area agreement and device performance qualification remain open.

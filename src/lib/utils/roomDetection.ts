@@ -9,6 +9,7 @@ function ptEq(a: Point, b: Point): boolean {
 
 interface Edge {
   wallId: string;
+  wallIds?: string[];
   start: Point;
   end: Point;
 }
@@ -113,7 +114,17 @@ function splitWallsAtJunctions(walls: Wall[]): Edge[] {
     }
   }
 
-  return edges;
+  // A coincident segment is one graph edge with all of its source aliases.
+  // Endpoint splitting above also partitions partial collinear overlaps.
+  const unique: Edge[] = [];
+  for (const edge of edges) {
+    if (ptEq(edge.start, edge.end)) continue;
+    const existing = unique.find(e => (ptEq(e.start, edge.start) && ptEq(e.end, edge.end)) ||
+      (ptEq(e.start, edge.end) && ptEq(e.end, edge.start)));
+    if (existing) existing.wallIds = [...new Set([...(existing.wallIds ?? [existing.wallId]), edge.wallId])].sort();
+    else unique.push({ ...edge, wallIds: [edge.wallId] });
+  }
+  return unique;
 }
 
 /**
@@ -124,8 +135,10 @@ export function detectRooms(walls: Wall[]): Room[] {
   if (walls.length < 2) return [];
 
   // Split walls at T-junctions and crossings so shared-wall rooms are separated
-  const splitEdges = splitWallsAtJunctions(walls);
+  return detectSplitRooms(splitWallsAtJunctions(walls));
+}
 
+function detectSplitRooms(splitEdges: Edge[]): Room[] {
   // Build adjacency: collect unique vertices & edges
   const vertices: Point[] = [];
   const edges: Edge[] = [];
@@ -142,12 +155,12 @@ export function detectRooms(walls: Wall[]): Room[] {
     const si = findOrAddVertex(e.start);
     const ei = findOrAddVertex(e.end);
     if (si !== ei) {
-      edges.push({ wallId: e.wallId, start: vertices[si], end: vertices[ei] });
+      edges.push({ ...e, start: vertices[si], end: vertices[ei] });
     }
   }
 
   // Build adjacency list
-  const adj = new Map<number, { to: number; wallId: string; angle: number }[]>();
+  const adj = new Map<number, { to: number; wallIds: string[]; angle: number }[]>();
   for (const e of edges) {
     const si = findOrAddVertex(e.start);
     const ei = findOrAddVertex(e.end);
@@ -155,8 +168,8 @@ export function detectRooms(walls: Wall[]): Room[] {
     const angle2 = Math.atan2(e.start.y - e.end.y, e.start.x - e.end.x);
     if (!adj.has(si)) adj.set(si, []);
     if (!adj.has(ei)) adj.set(ei, []);
-    adj.get(si)!.push({ to: ei, wallId: e.wallId, angle: angle1 });
-    adj.get(ei)!.push({ to: si, wallId: e.wallId, angle: angle2 });
+    adj.get(si)!.push({ to: ei, wallIds: e.wallIds ?? [e.wallId], angle: angle1 });
+    adj.get(ei)!.push({ to: si, wallIds: e.wallIds ?? [e.wallId], angle: angle2 });
   }
 
   // Sort adjacency by angle for each vertex
@@ -195,7 +208,7 @@ export function detectRooms(walls: Wall[]): Room[] {
         // Find the wall for this edge
         const neighbors = adj.get(cur);
         const edgeInfo = neighbors?.find(n => n.to === next);
-        if (edgeInfo) wallIds.push(edgeInfo.wallId);
+        if (edgeInfo) wallIds.push(...edgeInfo.wallIds);
 
         if (next === from && cycle.length > 3) break; // closed
 
@@ -268,10 +281,30 @@ export function detectRooms(walls: Wall[]): Room[] {
 
 /** Recompute geometry while retaining user metadata by boundary identity, never name. */
 export function resolveRooms(floor: Pick<Floor, 'walls' | 'rooms'>, previousRooms: Room[] = []): Room[] {
-  const key = (room: Room) => JSON.stringify([...new Set(room.walls)].sort());
-  const saved = new Map((floor.rooms ?? []).map(room => [key(room), room]));
-  const previous = new Map(previousRooms.map(room => [key(room), room]));
-  return detectRooms(floor.walls).map(room => {
+  // Include coincident source aliases when matching saved boundaries. Adding a
+  // duplicate wall must not discard a room's name or finish. Ambiguous matches
+  // deliberately remain unmatched rather than picking arbitrary metadata.
+  const splitEdges = splitWallsAtJunctions(floor.walls);
+  const aliasEdges = splitEdges.filter(e => (e.wallIds?.length ?? 0) > 1);
+  const key = (room: Room) => {
+    const ids = new Set(room.walls);
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (const edge of aliasEdges) if (edge.wallIds!.some(id => ids.has(id))) {
+        for (const id of edge.wallIds!) if (!ids.has(id)) { ids.add(id); changed = true; }
+      }
+    }
+    return JSON.stringify([...ids].sort());
+  };
+  const indexed = (rooms: Room[]) => {
+    const result = new Map<string, Room | null>();
+    for (const room of rooms) { const k = key(room); result.set(k, result.has(k) ? null : room); }
+    return result;
+  };
+  const saved = indexed(floor.rooms ?? []);
+  const previous = indexed(previousRooms);
+  return (floor.walls.length < 2 ? [] : detectSplitRooms(splitEdges)).map(room => {
     const metadata = saved.get(key(room));
     if (metadata) return { ...room, ...metadata, walls: room.walls, area: room.area };
     // Only the transient ID survives. Falling back to old metadata would undo
@@ -301,7 +334,7 @@ export function getRoomPolygon(room: Room, walls: Wall[]): Point[] {
   const wallIds = new Set(room.walls);
   if (walls.filter(w => wallIds.has(w.id)).length < 2) return [];
 
-  let edges = splitWallsAtJunctions(walls).filter(e => wallIds.has(e.wallId));
+  let edges = splitWallsAtJunctions(walls).filter(e => (e.wallIds ?? [e.wallId]).some(id => wallIds.has(id)));
 
   // Iteratively prune dangling sub-segments (parts of split walls that extend
   // past the room and connect to nothing else on this room's boundary).
