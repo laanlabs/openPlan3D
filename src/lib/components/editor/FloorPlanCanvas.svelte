@@ -2009,6 +2009,12 @@
   let canvasGestureActive = false;
   let canvasPressPosition: Point = { x: 0, y: 0 };
   let furnitureGestureStarted = false;
+  let selectionPress: { floorId: string; x: number; y: number; world: Point } | null = null;
+
+  function sameSelectionPress(e: MouseEvent) {
+    return currentTool === 'select' && selectionPress !== null && selectionPress.floorId === currentFloor?.id &&
+      Math.hypot(e.clientX - selectionPress.x, e.clientY - selectionPress.y) <= 8;
+  }
 
   function finishCanvasGesture() {
     if (canvasGestureActive) onMouseUp(new MouseEvent('mouseup'));
@@ -2036,6 +2042,11 @@
     markDirty();
     if (e.button !== 0 && e.button !== 1) return;
     finishCanvasGesture();
+    // Native double-clicks belong to the original press even if selection opened
+    // a sidebar and resized the canvas. Do not select a second object underneath
+    // the now-shifted pixel before the dblclick handler runs.
+    if (e.button === 0 && e.detail >= 2 && sameSelectionPress(e)) return;
+    selectionPress = null;
     canvasGestureActive = true;
     canvasPressPosition = { x: e.clientX, y: e.clientY };
     if (e.button === 1 || (e.button === 0 && (spaceDown || $panMode || (e.shiftKey && currentTool === 'select')))) {
@@ -2049,6 +2060,9 @@
     const rect = canvas.getBoundingClientRect();
     const wp = screenToWorld(e.clientX - rect.left, e.clientY - rect.top);
     const tool = currentTool;
+    if (tool === 'select' && currentFloor && e.detail === 1) {
+      selectionPress = { floorId: currentFloor.id, x: e.clientX, y: e.clientY, world: wp };
+    }
 
     // Elevation pick mode: the next wall clicked opens its elevation view;
     // clicking empty canvas cancels. Consumes the click either way so the
@@ -2499,6 +2513,8 @@
     const sx = e.clientX - rect.left;
     const sy = e.clientY - rect.top;
     const R = RULER_SIZE;
+    const selectionPoint = e.detail >= 2 && sameSelectionPress(e) ? selectionPress!.world : screenToWorld(sx, sy);
+    selectionPress = null;
 
     // Double-click on horizontal ruler → add horizontal guide
     if (sy < R && sx > R) {
@@ -2515,7 +2531,7 @@
 
     // Double-click on a text annotation to edit it
     if (currentTool === 'select' && currentFloor) {
-      const wp = screenToWorld(sx, sy);
+      const wp = selectionPoint;
       const textHitId = hitTestTextAnnotation(wp, currentFloor);
       if (textHitId) {
         const ta = currentFloor.textAnnotations?.find(t => t.id === textHitId);
@@ -2533,7 +2549,7 @@
 
     // Double-click on a room to edit its name inline
     if (currentTool === 'select') {
-      const wp = screenToWorld(sx, sy);
+      const wp = selectionPoint;
       const room = findRoomAt(wp);
       if (room) {
         const poly = (roomPolygons.get(room.id) ?? []);
@@ -2549,7 +2565,7 @@
 
     // Double-click on a wall in select mode to split it
     if (currentTool === 'select') {
-      const wp = screenToWorld(sx, sy);
+      const wp = selectionPoint;
       const wall = findWallAt(wp);
       if (wall && !wall.curvePoint) {
         const t = positionOnWall(wp, wall);

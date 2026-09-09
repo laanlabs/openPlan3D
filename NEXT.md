@@ -797,5 +797,19 @@ production build passed.** See [validation](docs/canvas-room-polygon-reuse-valid
 A browser regression exposed a separate usability issue: selecting a room can
 open the properties panel and move the canvas between the two clicks of a direct
 double-click, causing the adjacent room to receive it in WebKit. Selection then
-rename at the updated position works and is covered. Fix that layout interaction;
+rename at the updated position works and is covered. The native mouse layout interaction is addressed in the subsequent double-click batch;
 active-editing/device measurements and broader performance qualification remain open.
+
+
+### Double-click target survives sidebar resizing — 2026-09-09
+
+Native Select-mode double-clicks now keep the first press's floor coordinates
+and skip second-press reselection after a sidebar moves the canvas. Room rename,
+text editing and wall splitting use that original point. Other drawing modes,
+ruler behavior and synthetic touch paths retain their existing handling.
+
+The direct Room 1,1 double-click that previously opened Room 2,1 in WebKit now
+passes without the preselection workaround. **680 unit tests, eight Chromium/WebKit
+browser checks, Svelte checks and production build passed.** See
+[validation](docs/room-double-click-validation.md). Physical double-tap/device
+qualification and broader active-editing performance work remain open.

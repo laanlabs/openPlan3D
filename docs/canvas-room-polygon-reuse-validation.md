@@ -38,3 +38,8 @@ This removes repeated geometry work from these paths, but no new browser FPS,
 active-editing latency or physical-device budget is claimed. See the earlier
 [room computation measurements](room-geometry-reuse-validation.md) for the cost
 of repeated graph construction in local Node fixtures.
+
+
+The subsequent [double-click fix](room-double-click-validation.md) removes this
+layout race for native mouse double-clicks. The browser rename regression now
+uses the direct gesture again, without selecting and relocating the pointer first.

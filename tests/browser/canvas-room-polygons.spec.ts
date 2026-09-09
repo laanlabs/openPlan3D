@@ -28,10 +28,6 @@ test('room hit polygons and names stay synchronized across floor switches', asyn
  async function edit(name: string, replacement: string) {
   const label = () => page.evaluate(name => (window as any).__roomLabels.find((p: any) => p.text === name), name);
   await expect.poll(label).toBeTruthy();
-  // Selection can open the properties panel and resize the canvas. Read the
-  // newly drawn label position after that layout change before double-clicking.
-  const first = await label(); await page.mouse.click(first.x, first.y);
-  await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
   const p = await label(); await page.mouse.dblclick(p.x, p.y);
   const editor = page.getByRole('textbox', { name: 'Room name', exact: true });
   await expect(editor).toHaveValue(name);
