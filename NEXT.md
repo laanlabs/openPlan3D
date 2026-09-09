@@ -140,8 +140,12 @@ The prototype now combines up to eight calibrated photos using per-texel local
 quality, viewing angle and projected resolution, with source identities and a texel
 provenance map. **88 renderer host tests passed with 15 delegated skips and no
 failures**, including reversed-order atlas equivalence and actual Blender bakes.
-See native `docs/multi-photo-projection-validation.md`. Normalization/blending,
-semantic masks, native integration and physical validation remain open.
+See native `docs/multi-photo-projection-validation.md`. Explicit per-photo keep masks
+now exclude marked regions with exact dimensions, a two-pixel guard band and recorded
+mask identities. **91 renderer host tests passed with 16 delegated skips and no
+failures**, plus a visual exclusion check. See native
+`docs/photo-exclusion-masks-validation.md`. Automatic semantic detection, mask-authoring
+UI, normalization/blending, native integration and physical validation remain open.
 Rendering stays local: Blender Cycles for finished renders and Three.js for web
 previews with shared preparation. This batch changes no web runtime, Firebase
 storage/quotas, project-package format or rendering engine.
