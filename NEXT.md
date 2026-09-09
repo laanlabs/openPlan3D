@@ -543,6 +543,16 @@ job completed in Blender and reopened in review. See the native repository's
 `docs/native-mask-submission-validation.md`. Brush/polygon mask authoring,
 confidence, seams and physical accuracy remain open.
 
+
+Native brush mask drawing now supports Exclude/Restore, adjustable diameter,
+Undo/Reset and editing selected masks over verified source photos. **156 native
+tests per platform executed with one optional skip and zero failures**; focused
+checks passed again after canonicalizing generated PNG metadata. A native-drawn
+mask passed the independent worker decoder, completed in Blender and reopened in
+native review with 2,398 projected samples. See the native repository's
+`docs/native-mask-drawing-validation.md`. Polygon tools, imported PNG metadata
+consistency, confidence, seams and physical validation remain open.
+
 ## Local Three.js render test
 
 An isolated `/render-lab` route now supports local GLB loading, interactive
