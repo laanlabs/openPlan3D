@@ -110,7 +110,10 @@ Local-command coverage submission now uses the native verification path with
 existing list/cancel/remove support. **128 native tests ran per platform with one
 optional skip and zero failures; six CLI tests passed**, plus live command/worker/UI
 validation. See native `docs/coverage-command-validation.md`. Quality-aware batch
-suggestions remain pending, along with
+suggestions now verify recorded photos, report coverage omissions and apply a
+review-only subset. **131 native tests ran per platform with one optional skip
+and zero failures**, plus live ordering/cap/apply checks. See native
+`docs/coverage-batch-quality-validation.md`. Remaining work includes
 physical suggestion validation, continuous heatmaps and measured calibration.
 Rendering stays local: Blender Cycles for finished renders and Three.js for web
 previews with shared preparation. This batch changes no web runtime, Firebase
