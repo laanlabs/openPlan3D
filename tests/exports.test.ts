@@ -16,12 +16,13 @@ vi.mock('jspdf', () => ({ default: class {
 
 let downloaded: Blob[];
 const canvasText = vi.fn();
+const canvasCurve = vi.fn();
 let canvas: HTMLCanvasElement;
 
 beforeEach(() => {
   downloaded = [];
-  canvasText.mockClear(); pdfText.mockClear(); pdfSave.mockClear();
-  const ctx = new Proxy({ fillText: canvasText, measureText: () => ({ width: 30 }) }, {
+  canvasText.mockClear(); canvasCurve.mockClear(); pdfText.mockClear(); pdfSave.mockClear();
+  const ctx = new Proxy({ fillText: canvasText, quadraticCurveTo: canvasCurve, measureText: () => ({ width: 30 }) }, {
     get: (target, key) => target[key as keyof typeof target] ?? (() => {}),
   });
   canvas = { width: 400, height: 300, getContext: () => ctx, toDataURL: () => 'data:image/png;base64,test',
@@ -81,7 +82,7 @@ it('preserves label offsets in SVG, DXF and raster drawing coordinates', async (
   project.floors[0].rooms[0].labelOffset = { x: 100, y: -50 };
   const before = JSON.stringify(project);
   exportAsSVG(project);
-  expect(await downloaded.at(-1)!.text()).toContain('<text x="350" y="150"');
+  expect(await downloaded.at(-1)!.text()).toContain('<text x="357.5" y="157.5"');
   exportDXF(project);
   const dxf = await downloaded.at(-1)!.text();
   const lines = dxf.trim().split(/\r?\n/).map(line => line.trim());
@@ -93,10 +94,10 @@ it('preserves label offsets in SVG, DXF and raster drawing coordinates', async (
   const label = entities.find(e => e['0'] === 'TEXT' && e['1'] === 'Kitchen & Dining <East>')!;
   expect(label['10']).toBe('300'); expect(label['20']).toBe('-100');
   exportAsPNG(canvas, project);
-  expect(canvasText).toHaveBeenCalledWith('Kitchen & Dining <East>', 380, 180);
+  expect(canvasText).toHaveBeenCalledWith('Kitchen & Dining <East>', 387.5, 187.5);
   canvasText.mockClear();
   exportPDF(project);
-  expect(canvasText).toHaveBeenCalledWith('Kitchen & Dining <East>', 380, 180);
+  expect(canvasText).toHaveBeenCalledWith('Kitchen & Dining <East>', 387.5, 187.5);
   expect(JSON.stringify(project)).toBe(before);
 });
 
@@ -113,4 +114,21 @@ it('frames labels moved outside the walls and bounds large raster allocations', 
   expect(Math.max(canvas.width, canvas.height)).toBeLessThanOrEqual(4096);
   exportPDF(project);
   expect(Math.max(canvas.width, canvas.height)).toBeLessThanOrEqual(4096);
+});
+
+it('draws curved wall paths in SVG and raster exports rather than endpoint chords', async () => {
+  const project = namedProject();
+  project.floors[0].walls[0].curvePoint = { x: 200, y: -600 };
+  exportAsSVG(project);
+  const svg = await downloaded.at(-1)!.text();
+  expect(svg).toContain('Q 257.5 -242.5 457.5 357.5');
+  exportAsPNG(canvas, project);
+  expect(canvasCurve).toHaveBeenCalledWith(287.5, -212.5, 487.5, 387.5);
+  const lengths = canvasText.mock.calls.map(c => String(c[0])).filter(s => /^\d+ cm$/.test(s)).map(Number.parseFloat);
+  expect(Math.max(...lengths)).toBeGreaterThan(740); expect(Math.max(...lengths)).toBeLessThan(760);
+  canvasCurve.mockClear(); exportPDF(project);
+  expect(canvasCurve).toHaveBeenCalledWith(287.5, -212.5, 487.5, 387.5);
+  exportDXF(project);
+  const dxf = await downloaded.at(-1)!.text();
+  expect((dxf.match(/\nLWPOLYLINE\n/g) ?? []).length).toBe(19); // 16 curve facets + 3 straight walls
 });

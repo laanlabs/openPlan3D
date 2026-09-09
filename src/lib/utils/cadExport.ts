@@ -1,4 +1,6 @@
 import Drawing from 'dxf-writer';
+import { wallPlanDimension } from './wallPlanGeometry';
+import { wallPathSpans } from './wallProfiles';
 import type { Project } from '$lib/models/types';
 import { getCatalogItem } from '$lib/utils/furnitureCatalog';
 import { resolveRooms, getRoomPolygon, roomLabelPosition } from '$lib/utils/roomDetection';
@@ -53,7 +55,8 @@ export function exportDXF(project: Project) {
 
   // Draw walls as thick rectangles (offset perpendicular to wall direction)
   d.setActiveLayer('WALLS');
-  for (const w of floor.walls) {
+  for (const source of floor.walls) for (const span of wallPathSpans(source)) {
+    const w = { ...source, start: span.start, end: span.end };
     const dx = w.end.x - w.start.x;
     const dy = w.end.y - w.start.y;
     const len = Math.hypot(dx, dy);
@@ -82,11 +85,11 @@ export function exportDXF(project: Project) {
   // Draw dimensions
   d.setActiveLayer('DIMENSIONS');
   for (const w of floor.walls) {
-    const len = Math.round(Math.hypot(w.end.x - w.start.x, w.end.y - w.start.y));
-    const mx = (w.start.x + w.end.x) / 2;
-    const my = -((w.start.y + w.end.y) / 2);
+    const { length: len, point: midpoint } = wallPlanDimension(w);
+    const mx = midpoint.x;
+    const my = -midpoint.y;
     const angle = Math.atan2(-(w.end.y - w.start.y), w.end.x - w.start.x) * (180 / Math.PI);
-    d.drawText(mx, my + 10, 5, angle, `${len} cm`, 'center', 'bottom');
+    d.drawText(mx, my, 5, angle, `${len} cm`, 'center', 'bottom');
   }
 
   // Draw doors as arcs + lines

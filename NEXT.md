@@ -844,3 +844,18 @@ coordinates and PDF serialization; the PNG was visually inspected. See
 [validation and limits](docs/export-room-label-validation.md). PDF page-layout
 qualification, curved geometry/export fidelity, native label conventions and
 physical-device downloads remain open.
+
+
+### Curved wall strokes and bounds in plan exports — 2026-09-09
+
+PNG/PDF/SVG now draw quadratic wall curves; DXF uses the viewer's 16 facets.
+Export bounds include exact quadratic extrema and wall thickness, preventing
+curves or thick strokes from clipping. Dimensions use path length and sit outside
+curved strokes. Source geometry remains unchanged.
+
+**685 unit tests, four Chromium/WebKit browser checks, Svelte checks and production
+build passed.** Pixel tests verify the curved stroke and empty former chord;
+SVG/DXF checks cover geometry and PDF downloads serialize. The final PNG was
+visually inspected, including the dimension placement. See
+[validation](docs/curved-wall-export-validation.md). Curved opening symbols/gaps,
+DXF facet joins, PDF layout and native/device export fidelity remain open.

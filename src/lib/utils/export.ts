@@ -1,3 +1,4 @@
+import { wallPlanBounds, wallPlanDimension } from './wallPlanGeometry';
 import type { Project, Floor } from '$lib/models/types';
 import { getCatalogItem } from '$lib/utils/furnitureCatalog';
 import { resolveRooms, getRoomPolygon, roomLabelPosition } from '$lib/utils/roomDetection';
@@ -96,9 +97,9 @@ export function exportAsPNG(canvas: HTMLCanvasElement, project?: Project) {
       // Compute bounds of all geometry
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
       for (const w of floor.walls) {
-        for (const p of [w.start, w.end]) {
-          minX = Math.min(minX, p.x); minY = Math.min(minY, p.y);
-          maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y);
+        for (const b of [wallPlanBounds(w)]) {
+          minX = Math.min(minX, b.minX); minY = Math.min(minY, b.minY);
+          maxX = Math.max(maxX, b.maxX); maxY = Math.max(maxY, b.maxY);
         }
       }
       for (const fi of floor.furniture) {
@@ -159,16 +160,17 @@ export function exportAsPNG(canvas: HTMLCanvasElement, project?: Project) {
         ctx.lineWidth = wall.thickness;
         ctx.beginPath();
         ctx.moveTo(wall.start.x - minX + pad, wall.start.y - minY + pad);
-        ctx.lineTo(wall.end.x - minX + pad, wall.end.y - minY + pad);
+        if (wall.curvePoint) ctx.quadraticCurveTo(wall.curvePoint.x - minX + pad, wall.curvePoint.y - minY + pad, wall.end.x - minX + pad, wall.end.y - minY + pad);
+        else ctx.lineTo(wall.end.x - minX + pad, wall.end.y - minY + pad);
         ctx.stroke();
         // Dimension label
-        const len = Math.round(Math.hypot(wall.end.x - wall.start.x, wall.end.y - wall.start.y));
-        const mx = (wall.start.x + wall.end.x) / 2 - minX + pad;
-        const my = (wall.start.y + wall.end.y) / 2 - minY + pad;
+        const { length: len, point: midpoint } = wallPlanDimension(wall);
+        const mx = midpoint.x - minX + pad;
+        const my = midpoint.y - minY + pad;
         ctx.fillStyle = '#666';
         ctx.font = '11px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(`${len} cm`, mx, my - 8);
+        ctx.fillText(`${len} cm`, mx, my);
       }
 
       // Entourage symbols (images may need a prior on-canvas render to be cached)
@@ -234,9 +236,9 @@ export function exportAsSVG(project: Project) {
 
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const w of floor.walls) {
-    for (const p of [w.start, w.end]) {
-      minX = Math.min(minX, p.x); minY = Math.min(minY, p.y);
-      maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y);
+    for (const b of [wallPlanBounds(w)]) {
+      minX = Math.min(minX, b.minX); minY = Math.min(minY, b.minY);
+      maxX = Math.max(maxX, b.maxX); maxY = Math.max(maxY, b.maxY);
     }
   }
   const svgBounds = { minX, minY, maxX, maxY };
@@ -271,12 +273,13 @@ export function exportAsSVG(project: Project) {
     const y1 = w.start.y - minY + pad;
     const x2 = w.end.x - minX + pad;
     const y2 = w.end.y - minY + pad;
-    paths += `  <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#333" stroke-width="${w.thickness}" stroke-linecap="round"/>\n`;
+    if (w.curvePoint) paths += `  <path d="M ${x1} ${y1} Q ${w.curvePoint.x - minX + pad} ${w.curvePoint.y - minY + pad} ${x2} ${y2}" fill="none" stroke="#333" stroke-width="${w.thickness}" stroke-linecap="round"/>\n`;
+    else paths += `  <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#333" stroke-width="${w.thickness}" stroke-linecap="round"/>\n`;
     // dimension label
-    const len = Math.round(Math.hypot(x2 - x1, y2 - y1));
-    const mx = (x1 + x2) / 2;
-    const my = (y1 + y2) / 2;
-    paths += `  <text x="${mx}" y="${my - 8}" text-anchor="middle" font-size="11" fill="#666" font-family="sans-serif">${len} cm</text>\n`;
+    const { length: len, point: midpoint } = wallPlanDimension(w);
+    const mx = midpoint.x - minX + pad;
+    const my = midpoint.y - minY + pad;
+    paths += `  <text x="${mx}" y="${my}" text-anchor="middle" font-size="11" fill="#666" font-family="sans-serif">${len} cm</text>\n`;
   }
 
   // Doors: wall gap + jambs + type-specific glyph (swing arc / panels)
@@ -565,9 +568,9 @@ export function exportPDF(project: Project) {
   // Render floor plan onto an offscreen canvas then embed as image
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const w of floor.walls) {
-    for (const p of [w.start, w.end]) {
-      minX = Math.min(minX, p.x); minY = Math.min(minY, p.y);
-      maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y);
+    for (const b of [wallPlanBounds(w)]) {
+      minX = Math.min(minX, b.minX); minY = Math.min(minY, b.minY);
+      maxX = Math.max(maxX, b.maxX); maxY = Math.max(maxY, b.maxY);
     }
   }
   for (const fi of floor.furniture) {
@@ -625,15 +628,16 @@ export function exportPDF(project: Project) {
     ctx.lineWidth = wall.thickness;
     ctx.beginPath();
     ctx.moveTo(wall.start.x - minX + pad, wall.start.y - minY + pad);
-    ctx.lineTo(wall.end.x - minX + pad, wall.end.y - minY + pad);
+    if (wall.curvePoint) ctx.quadraticCurveTo(wall.curvePoint.x - minX + pad, wall.curvePoint.y - minY + pad, wall.end.x - minX + pad, wall.end.y - minY + pad);
+        else ctx.lineTo(wall.end.x - minX + pad, wall.end.y - minY + pad);
     ctx.stroke();
-    const len = Math.round(Math.hypot(wall.end.x - wall.start.x, wall.end.y - wall.start.y));
-    const mx = (wall.start.x + wall.end.x) / 2 - minX + pad;
-    const my = (wall.start.y + wall.end.y) / 2 - minY + pad;
+    const { length: len, point: midpoint } = wallPlanDimension(wall);
+    const mx = midpoint.x - minX + pad;
+    const my = midpoint.y - minY + pad;
     ctx.fillStyle = '#666';
     ctx.font = '10px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(`${len} cm`, mx, my - 8);
+    ctx.fillText(`${len} cm`, mx, my);
   }
 
   // Entourage symbols
