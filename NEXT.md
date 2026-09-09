@@ -561,6 +561,14 @@ the prepared fixture. See the native repository's
 `docs/native-mask-compatibility-validation.md`. Polygon authoring, confidence,
 seams and physical/release validation remain open.
 
+Native polygon mask authoring now supports click/tap vertices, fill previews,
+Exclude/Restore, point undo/clear and mixed brush/polygon edits. **161 tests per
+native platform passed, with one optional skip and zero failures**. Independent
+worker decoding confirmed source coordinates; a native job completed in Blender
+with 2,336 projected samples and reopened in review. See the native repository's
+`docs/native-polygon-mask-validation.md`. Zoom/pan, automatic semantic masks,
+confidence, seams and physical/release validation remain open.
+
 ## Local Three.js render test
 
 An isolated `/render-lab` route now supports local GLB loading, interactive
