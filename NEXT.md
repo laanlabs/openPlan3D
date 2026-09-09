@@ -59,9 +59,12 @@ implemented with source-photo thumbnails, unavailable-frame reasons, frozen fram
 metadata and local-command support. **96 native tests ran on each platform with
 one optional skip and zero failures; 53 renderer checks and four CLI checks passed**.
 The native-selected camera completed a Blender render and its verified preview.
-See native `docs/native-frame-selection-validation.md`. Measured real-image
-calibration, frame ranking and photo/render overlays remain open; legacy metadata
-is never inferred.
+See native `docs/native-frame-selection-validation.md`. Photo/render comparison
+now adds verified source-photo and opacity-overlay previews while keeping PNG
+exports unchanged. **99 native tests ran on each platform with one optional skip
+and zero failures**; a fresh native Blender job and all comparison modes passed
+live Mac QA. See native `docs/photo-render-comparison-validation.md`. Measured
+real-image calibration and frame ranking remain open; legacy metadata is never inferred.
 Rendering stays local: Blender Cycles for finished renders and Three.js for web
 previews with shared preparation. This batch changes no web runtime, Firebase
 storage/quotas, project-package format or rendering engine.
