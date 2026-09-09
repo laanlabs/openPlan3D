@@ -553,6 +553,14 @@ native review with 2,398 projected samples. See the native repository's
 `docs/native-mask-drawing-validation.md`. Polygon tools, imported PNG metadata
 consistency, confidence, seams and physical validation remain open.
 
+Native imported and directly submitted masks now normalize to worker-compatible
+binary RGBA PNGs, removing unsupported metadata while preserving pixel positions.
+Rotated and animated masks are rejected. **158 native tests per platform passed,
+with one optional skip and zero failures**, plus independent worker decoding of
+the prepared fixture. See the native repository's
+`docs/native-mask-compatibility-validation.md`. Polygon authoring, confidence,
+seams and physical/release validation remain open.
+
 ## Local Three.js render test
 
 An isolated `/render-lab` route now supports local GLB loading, interactive
