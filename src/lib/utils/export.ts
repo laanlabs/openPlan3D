@@ -1,3 +1,4 @@
+import { planOpening } from './planOpening';
 import { wallPlanBounds, wallPlanDimension } from './wallPlanGeometry';
 import type { Project, Floor } from '$lib/models/types';
 import { getCatalogItem } from '$lib/utils/furnitureCatalog';
@@ -32,8 +33,10 @@ function extendBoundsForOpenings(
   for (const d of floor.doors) {
     const wall = floor.walls.find(w => w.id === d.wallId);
     if (!wall) continue;
-    const px = wall.start.x + (wall.end.x - wall.start.x) * d.position;
-    const py = wall.start.y + (wall.end.y - wall.start.y) * d.position;
+    const frame = planOpening(wall, d.position, d.width);
+    if (!frame) continue;
+    const px = frame.wall.start.x + (frame.wall.end.x - frame.wall.start.x) * frame.position;
+    const py = frame.wall.start.y + (frame.wall.end.y - frame.wall.start.y) * frame.position;
     bounds.minX = Math.min(bounds.minX, px - d.width);
     bounds.minY = Math.min(bounds.minY, py - d.width);
     bounds.maxX = Math.max(bounds.maxX, px + d.width);
@@ -73,13 +76,21 @@ function drawOpeningsOnCanvas(
   pad: number,
 ) {
   const cs: CanvasState = { ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY };
-  for (const d of floor.doors) {
-    const wall = floor.walls.find(w => w.id === d.wallId);
-    if (wall) drawDoorOnWall(cs, wall, d);
-  }
-  for (const win of floor.windows) {
-    const wall = floor.walls.find(w => w.id === win.wallId);
-    if (wall) drawWindowOnWall(cs, wall, win);
+  for (const opening of [...floor.doors, ...floor.windows]) {
+    const source = floor.walls.find(w => w.id === opening.wallId);
+    if (!source) continue;
+    const frame = planOpening(source, opening.position, opening.width);
+    if (!frame) continue;
+    if (frame.curve) {
+      const { start, control, end } = frame.curve;
+      ctx.save(); ctx.strokeStyle = '#fff'; ctx.lineWidth = source.thickness + 2; ctx.lineCap = 'butt';
+      ctx.beginPath(); ctx.moveTo(start.x-minX+pad, start.y-minY+pad);
+      ctx.quadraticCurveTo(control.x-minX+pad, control.y-minY+pad, end.x-minX+pad, end.y-minY+pad);
+      ctx.stroke(); ctx.restore();
+    }
+    const symbol = { ...opening, position: frame.position, width: frame.width };
+    if (floor.doors.includes(opening as typeof floor.doors[number])) drawDoorOnWall(cs, frame.wall, symbol as typeof floor.doors[number]);
+    else drawWindowOnWall(cs, frame.wall, symbol as typeof floor.windows[number]);
   }
 }
 
@@ -284,9 +295,16 @@ export function exportAsSVG(project: Project) {
 
   // Doors: wall gap + jambs + type-specific glyph (swing arc / panels)
   const n2 = (v: number) => v.toFixed(2);
-  for (const d of floor.doors) {
-    const wall = floor.walls.find(w => w.id === d.wallId);
-    if (!wall) continue;
+  for (const original of floor.doors) {
+    const source = floor.walls.find(w => w.id === original.wallId);
+    if (!source) continue;
+    const frame = planOpening(source, original.position, original.width);
+    if (!frame) continue;
+    const wall = frame.wall, d = { ...original, position: frame.position, width: frame.width };
+    if (frame.curve) {
+      const { start, control, end } = frame.curve;
+      paths += `  <path d="M ${start.x-minX+pad} ${start.y-minY+pad} Q ${control.x-minX+pad} ${control.y-minY+pad} ${end.x-minX+pad} ${end.y-minY+pad}" fill="none" stroke="white" stroke-width="${source.thickness+2}" stroke-linecap="butt"/>\n`;
+    }
     const wdx = wall.end.x - wall.start.x;
     const wdy = wall.end.y - wall.start.y;
     const wlen = Math.hypot(wdx, wdy) || 1;
@@ -386,9 +404,16 @@ export function exportAsSVG(project: Project) {
   }
 
   // Windows: wall gap + double-line glyph
-  for (const win of floor.windows) {
-    const wall = floor.walls.find(w => w.id === win.wallId);
-    if (!wall) continue;
+  for (const original of floor.windows) {
+    const source = floor.walls.find(w => w.id === original.wallId);
+    if (!source) continue;
+    const frame = planOpening(source, original.position, original.width);
+    if (!frame) continue;
+    const wall = frame.wall, win = { ...original, position: frame.position, width: frame.width };
+    if (frame.curve) {
+      const { start, control, end } = frame.curve;
+      paths += `  <path d="M ${start.x-minX+pad} ${start.y-minY+pad} Q ${control.x-minX+pad} ${control.y-minY+pad} ${end.x-minX+pad} ${end.y-minY+pad}" fill="none" stroke="white" stroke-width="${source.thickness+2}" stroke-linecap="butt"/>\n`;
+    }
     const wdx = wall.end.x - wall.start.x;
     const wdy = wall.end.y - wall.start.y;
     const wlen = Math.hypot(wdx, wdy) || 1;

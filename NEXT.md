@@ -859,3 +859,14 @@ SVG/DXF checks cover geometry and PDF downloads serialize. The final PNG was
 visually inspected, including the dimension placement. See
 [validation](docs/curved-wall-export-validation.md). Curved opening symbols/gaps,
 DXF facet joins, PDF layout and native/device export fidelity remain open.
+
+### Curved door/window plan exports — 2026-09-09
+
+PNG/PDF/SVG now clear the curved wall interval beneath doors and windows; symbols
+span the actual quadratic jambs and clip at curved wall ends. DXF cuts opening
+intervals from straight and faceted wall outlines. Saved dimensions are unchanged.
+
+**688 unit tests, six Chromium/WebKit browser checks, Svelte checks and production
+build passed.** The exported PNG was visually inspected. See
+[validation](docs/curved-opening-export-validation.md). DXF joins, PDF page layout,
+all-symbol overlap cases and native/physical-device export qualification remain open.

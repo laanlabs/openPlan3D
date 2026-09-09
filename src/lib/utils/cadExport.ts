@@ -1,6 +1,6 @@
+import { planOpening, planWallSpans } from './planOpening';
 import Drawing from 'dxf-writer';
 import { wallPlanDimension } from './wallPlanGeometry';
-import { wallPathSpans } from './wallProfiles';
 import type { Project } from '$lib/models/types';
 import { getCatalogItem } from '$lib/utils/furnitureCatalog';
 import { resolveRooms, getRoomPolygon, roomLabelPosition } from '$lib/utils/roomDetection';
@@ -55,7 +55,7 @@ export function exportDXF(project: Project) {
 
   // Draw walls as thick rectangles (offset perpendicular to wall direction)
   d.setActiveLayer('WALLS');
-  for (const source of floor.walls) for (const span of wallPathSpans(source)) {
+  for (const source of floor.walls) for (const span of planWallSpans(source, [...floor.doors, ...floor.windows].filter(o => o.wallId === source.id))) {
     const w = { ...source, start: span.start, end: span.end };
     const dx = w.end.x - w.start.x;
     const dy = w.end.y - w.start.y;
@@ -94,9 +94,12 @@ export function exportDXF(project: Project) {
 
   // Draw doors as arcs + lines
   d.setActiveLayer('DOORS');
-  for (const door of floor.doors) {
-    const wall = floor.walls.find(w => w.id === door.wallId);
-    if (!wall) continue;
+  for (const original of floor.doors) {
+    const source = floor.walls.find(w => w.id === original.wallId);
+    if (!source) continue;
+    const frame = planOpening(source, original.position, original.width);
+    if (!frame) continue;
+    const wall = frame.wall, door = { ...original, position: frame.position, width: frame.width };
 
     const wdx = wall.end.x - wall.start.x;
     const wdy = wall.end.y - wall.start.y;
@@ -143,9 +146,12 @@ export function exportDXF(project: Project) {
 
   // Draw windows as parallel lines
   d.setActiveLayer('WINDOWS');
-  for (const win of floor.windows) {
-    const wall = floor.walls.find(w => w.id === win.wallId);
-    if (!wall) continue;
+  for (const original of floor.windows) {
+    const source = floor.walls.find(w => w.id === original.wallId);
+    if (!source) continue;
+    const frame = planOpening(source, original.position, original.width);
+    if (!frame) continue;
+    const wall = frame.wall, win = { ...original, position: frame.position, width: frame.width };
 
     const wdx = wall.end.x - wall.start.x;
     const wdy = wall.end.y - wall.start.y;
