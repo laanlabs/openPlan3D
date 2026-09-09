@@ -487,6 +487,14 @@ skips and zero failures.** See the native repository's
 `docs/projection-queue-validation.md`. Native submission/result review, supervised
 masks, seams and physical validation remain open.
 
+Native coverage review now submits photo projection jobs directly, with selected
+cameras, texture detail and optional exposure matching/blending. A live Mac UI
+submission completed in the worker without ZIP export or CLI submission.
+**146 native tests per platform and 115 renderer host tests passed with expected
+skips and zero failures.** See the native repository's
+`docs/native-projection-submission-validation.md`. Native result/map review, masks,
+seams and physical validation remain open.
+
 ## Local Three.js render test
 
 An isolated `/render-lab` route now supports local GLB loading, interactive
