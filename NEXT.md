@@ -446,6 +446,15 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
    checks, verify deployment for application changes and remove merged branches.
    Browser QA projects are local browser data, not source-controlled project files.
 
+Native photo preparation now verifies completed coverage-job source bindings and
+converts JPEG/HEIC/PNG into sRGB projection inputs, preserving dimensions and raw
+camera precision with separate original/derived hashes. **145 native tests per
+platform passed with one optional skip and zero failures.** A native-generated
+fixture also completed a pinned Blender bake; **99 renderer host tests passed with
+16 delegated skips and zero failures**. See the native repository's
+`docs/native-projection-photo-validation.md`. Native export UI, supervised photo
+projection jobs and physical/held-out validation remain open.
+
 ## Local Three.js render test
 
 An isolated `/render-lab` route now supports local GLB loading, interactive
