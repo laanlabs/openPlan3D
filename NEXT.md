@@ -54,8 +54,14 @@ camera batch now supports validated captured-camera scene attachment, rectangula
 renders/native previews and explicit landmark-error reports. **51 renderer checks
 passed**, including seven real-Blender cases; synthetic numerical error was below
 0.001 px and actual raster-marker error below 0.14 px. See native
-`docs/captured-camera-validation.md`. Native captured-frame selection and measured
-real-image calibration are still pending; legacy metadata is never inferred.
+`docs/captured-camera-validation.md`. Native captured-frame selection is now
+implemented with source-photo thumbnails, unavailable-frame reasons, frozen frame
+metadata and local-command support. **96 native tests ran on each platform with
+one optional skip and zero failures; 53 renderer checks and four CLI checks passed**.
+The native-selected camera completed a Blender render and its verified preview.
+See native `docs/native-frame-selection-validation.md`. Measured real-image
+calibration, frame ranking and photo/render overlays remain open; legacy metadata
+is never inferred.
 Rendering stays local: Blender Cycles for finished renders and Three.js for web
 previews with shared preparation. This batch changes no web runtime, Firebase
 storage/quotas, project-package format or rendering engine.
