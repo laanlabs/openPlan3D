@@ -69,7 +69,11 @@ frame-quality analysis now adds cancellable detail/exposure/rotation/tracking
 hints and optional picker sorting. **103 native tests ran per platform with one
 optional skip and zero failures**, plus synthetic Mac UI validation. See native
 `docs/frame-quality-ranking-validation.md`. Real-scan ranking validation and
-spatial/occlusion coverage remain open.
+integrated coverage review remain open. A developer visibility stage now samples
+full-height geometry across captured cameras, reports occlusion and union coverage,
+and records geometric view candidates. Nine real-Blender acceptance cases cover
+visibility, concave geometry and bounds. See native `docs/scene-coverage-validation.md`;
+native coverage UI and physical-photo validation remain pending.
 Rendering stays local: Blender Cycles for finished renders and Three.js for web
 previews with shared preparation. This batch changes no web runtime, Firebase
 storage/quotas, project-package format or rendering engine.
