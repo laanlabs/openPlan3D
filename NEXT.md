@@ -121,7 +121,12 @@ failures**, plus live synthetic patch review. See native
 measured local patch and keep geometric coverage counts independent; absent patch
 scores never inherit global photo quality. **137 native tests ran per platform with
 one optional skip and zero failures**, plus live ordering/limit/apply checks. See
-native `docs/local-patch-suggestions-validation.md`. Texture baking remains open. Physical suggestion validation, masks,
+native `docs/local-patch-suggestions-validation.md`. New batches now preserve validated
+surface normals, and native photo review displays viewing angle and source pixel
+density. **140 native tests passed per platform with one optional skip; the pinned
+Blender renderer suite completed 78 host tests with 11 skips and no failures.** See
+native `docs/surface-projection-geometry-validation.md`. These geometric values are
+diagnostic; continuous geometric ranking and texture baking remain open. Physical suggestion validation, masks,
 pixel-footprint ranking, continuous heatmaps and measured calibration remain open.
 Rendering stays local: Blender Cycles for finished renders and Three.js for web
 previews with shared preparation. This batch changes no web runtime, Firebase
