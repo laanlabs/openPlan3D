@@ -621,6 +621,15 @@ all four study reports. See the native repository's
 `docs/field-of-view-overlap-validation.md`. Real photos, inter-island seams,
 non-planar/occlusion cases, confidence and physical/release validation remain open.
 
+Topology-based island diagnostics now pair observed samples across actual shared
+coplanar mesh edges in separate UV tiles. The study excludes creases, overlapping
+or disconnected geometry and missing coverage, and exports reproducible topology.
+Normalization reduces the fixture's shared-edge reference residual from 0.007316
+to 0.001659 with unchanged coverage. **16 tests passed, eleven inside pinned
+Blender, no skips/failures**. See the native repository's
+`docs/shared-island-boundary-validation.md`. Seam correction, cross-mesh matching,
+native topology/review integration, confidence and physical validation remain open.
+
 ## Local Three.js render test
 
 An isolated `/render-lab` route now supports local GLB loading, interactive
