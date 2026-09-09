@@ -5,7 +5,7 @@
   import { activeFloor, selectedTool, selectedElementId, selectedElementIds, selectedRoomId, addWall, addDoor, addWindow, updateWall, moveWallEndpoint, updateDoor, updateWindow, addFurniture, moveFurniture, transformFurnitureDuringDrag, commitFurnitureMove, rotateFurniture, setFurnitureRotation, scaleFurniture, removeElement, placingFurnitureId, placingRotation, placingDoorType, placingWindowType, detectedRoomsStore, duplicateDoor, duplicateWindow, duplicateFurniture, duplicateWall, moveWallParallel, splitWall, snapEnabled, placingStair, addStair, moveStair, updateStair, placingColumn, placingColumnShape, addColumn, moveColumn, updateColumn, calibrationMode, calibrationPoints, updateBackgroundImage, setBackgroundImage, canvasZoom, canvasCamX, canvasCamY, panMode, showFurnitureStore, addGuide, moveGuide, removeGuide, beginUndoGroup, endUndoGroup, layerVisibility, updateRoom, addMeasurement, removeMeasurement, addAnnotation, removeAnnotation, updateAnnotation, addTextAnnotation, removeTextAnnotation, updateTextAnnotation, moveTextAnnotation, toggleFurnitureLock, createGroup, ungroupElements, findGroupForElement, placingEntourageId, addEntourageItem, moveEntourage, resizeEntourage, currentProject, elevationWallId, elevationPickMode } from '$lib/stores/project';
   import type { Point, Wall, Door, Window as Win, FurnitureItem, Stair, Column, GuideLine, Measurement, Annotation, TextAnnotation, CustomEntourageDef } from '$lib/models/types';
   import type { Floor, Room } from '$lib/models/types';
-  import { resolveRooms, getRoomPolygon, roomCentroid } from '$lib/utils/roomDetection';
+  import { resolveRoomGeometry, roomCentroid } from '$lib/utils/roomDetection';
   import { getFloorBelow } from '$lib/utils/floors';
   import { detectOuterWalls } from '$lib/utils/outerWalls';
   import { getMaterial } from '$lib/utils/materials';
@@ -161,6 +161,7 @@
 
   // Detected rooms
   let detectedRooms: Room[] = $state([]);
+  let roomPolygons = new Map<string, Point[]>();
   let lastWallHash = '';
   let lastRoomFloorId = '';
   // Storey directly beneath the active one, drawn as a dim reference underlay.
@@ -793,7 +794,7 @@
 
   function drawRooms() {
     if (!currentFloor) return;
-    _drawRooms(getCS(), currentFloor, detectedRooms, currentSelectedRoomId, showRoomLabels, showDimensions, dimSettings);
+    _drawRooms(getCS(), currentFloor, detectedRooms, currentSelectedRoomId, showRoomLabels, showDimensions, dimSettings, roomPolygons);
   }
 
   function drawAngleGuides(start: Point) {
@@ -822,12 +823,21 @@
   }
 
   function updateDetectedRooms() {
-    if (!currentFloor) return;
+    if (!currentFloor) {
+      detectedRooms = [];
+      roomPolygons = new Map();
+      lastWallHash = '';
+      lastRoomFloorId = '';
+      detectedRoomsStore.set([]);
+      return;
+    }
     const hash = currentFloor.id + JSON.stringify([currentFloor.walls, currentFloor.rooms]);
     if (hash === lastWallHash) return;
     lastWallHash = hash;
     const previous = lastRoomFloorId === currentFloor.id ? detectedRooms : [];
-    const newRooms = resolveRooms(currentFloor, previous);
+    const geometry = resolveRoomGeometry(currentFloor, previous);
+    const newRooms = geometry.map(item => item.room);
+    roomPolygons = new Map(geometry.map(({ room, polygon }) => [room.id, polygon]));
     lastRoomFloorId = currentFloor.id;
     detectedRooms = newRooms;
     detectedRoomsStore.set(newRooms);
@@ -1175,7 +1185,7 @@
           // Find which room the furniture is in
           let furnitureRoom: Room | null = null;
           for (const room of detectedRooms) {
-            const poly = getRoomPolygon(room, floor.walls);
+            const poly = (roomPolygons.get(room.id) ?? []);
             if (pointInPolygon(selFurniture.position, poly)) {
               furnitureRoom = room;
               break;
@@ -1188,7 +1198,7 @@
           
           // --- Wall distances ---
           if (furnitureRoom) {
-            const poly = getRoomPolygon(furnitureRoom, floor.walls);
+            const poly = (roomPolygons.get(furnitureRoom.id) ?? []);
             let rMinX = Infinity, rMaxX = -Infinity, rMinY = Infinity, rMaxY = -Infinity;
             for (const pt of poly) {
               if (pt.x < rMinX) rMinX = pt.x;
@@ -1715,6 +1725,7 @@
         typedWallLength = '';
       }
       currentFloor = f;
+      updateDetectedRooms();
       markDirty();
       if (!initialFitDone && f && f.walls.length > 0) {
         initialFitDone = true;
@@ -1962,7 +1973,7 @@
   function findRoomLabelAt(p: Point): Room | null {
     if (!currentFloor || !showRoomLabels) return null;
     for (const room of detectedRooms) {
-      const poly = getRoomPolygon(room, currentFloor.walls);
+      const poly = (roomPolygons.get(room.id) ?? []);
       if (poly.length < 3) continue;
       const centroid = roomCentroid(poly);
       const lx = centroid.x + (room.labelOffset?.x ?? 0);
@@ -1989,7 +2000,7 @@
 
   function findRoomAt(p: Point): Room | null {
     if (!currentFloor) return null;
-    return _findRoomAt(p, detectedRooms, currentFloor.walls);
+    return _findRoomAt(p, detectedRooms, currentFloor.walls, roomPolygons);
   }
 
   // pointInPolygon, pointToSegmentDist, positionOnWall imported from hitTesting.ts
@@ -2525,7 +2536,7 @@
       const wp = screenToWorld(sx, sy);
       const room = findRoomAt(wp);
       if (room) {
-        const poly = getRoomPolygon(room, currentFloor!.walls);
+        const poly = (roomPolygons.get(room.id) ?? []);
         const centroid = roomCentroid(poly);
         const sc = worldToScreen(centroid.x, centroid.y);
         editingRoomId = room.id;
@@ -3612,7 +3623,7 @@
       case 'rename-room':
         if (ctxMenuRoom) {
           // Trigger inline rename via existing mechanism
-          const poly = getRoomPolygon(ctxMenuRoom, currentFloor.walls);
+          const poly = (roomPolygons.get(ctxMenuRoom.id) ?? []);
           const centroid = roomCentroid(poly);
           const sp = worldToScreen(centroid.x, centroid.y);
           editingRoomId = ctxMenuRoom.id;

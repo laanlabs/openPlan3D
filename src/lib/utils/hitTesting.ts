@@ -179,9 +179,9 @@ export function findWindowAt(p: Point, windows: Win[], walls: Wall[], zoom: numb
   return null;
 }
 
-export function findRoomAt(p: Point, rooms: Room[], walls: Wall[]): Room | null {
+export function findRoomAt(p: Point, rooms: Room[], walls: Wall[], polygons?: ReadonlyMap<string, Point[]>): Room | null {
   for (const room of rooms) {
-    const poly = getRoomPolygon(room, walls);
+    const poly = polygons?.get(room.id) ?? getRoomPolygon(room, walls);
     if (pointInPolygon(p, poly)) return room;
   }
   return null;

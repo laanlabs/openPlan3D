@@ -287,9 +287,9 @@ export function resolveRooms(floor: Pick<Floor, 'walls' | 'rooms'>, previousRoom
 /** Resolve all room polygons against one ephemeral graph for this floor build.
  * No identity cache is kept, so in-place wall edits cannot reuse stale geometry.
  */
-export function resolveRoomGeometry(floor: Pick<Floor, 'walls' | 'rooms'>) {
+export function resolveRoomGeometry(floor: Pick<Floor, 'walls' | 'rooms'>, previousRooms: Room[] = []) {
   const edges = splitWallsAtJunctions(floor.walls);
-  return resolveSplitRooms(floor, [], edges).map(room => ({ room, polygon: polygonFromEdges(room, edges) }));
+  return resolveSplitRooms(floor, previousRooms, edges).map(room => ({ room, polygon: polygonFromEdges(room, edges) }));
 }
 
 function resolveSplitRooms(floor: Pick<Floor, 'walls' | 'rooms'>, previousRooms: Room[], splitEdges: Edge[]): Room[] {

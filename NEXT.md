@@ -784,3 +784,18 @@ Chromium/WebKit browser checks, Svelte checks and production build passed.** See
 [method, limits and raw samples](docs/room-geometry-reuse-validation.md).
 This does not establish browser FPS or device budgets; representative active
 navigation, full scene construction, memory and phone measurements remain open.
+
+
+### 2D room polygon reuse — 2026-09-09
+
+The editor now shares detected room polygons across fills, labels, hit tests,
+rename placement and furniture-room dimensions. Floor/geometry changes refresh
+the polygons and room IDs together; unchanged redraws do not rebuild each room's
+graph. **680 unit tests, ten Chromium/WebKit browser checks, Svelte checks and
+production build passed.** See [validation](docs/canvas-room-polygon-reuse-validation.md).
+
+A browser regression exposed a separate usability issue: selecting a room can
+open the properties panel and move the canvas between the two clicks of a direct
+double-click, causing the adjacent room to receive it in WebKit. Selection then
+rename at the updated position works and is covered. Fix that layout interaction;
+active-editing/device measurements and broader performance qualification remain open.

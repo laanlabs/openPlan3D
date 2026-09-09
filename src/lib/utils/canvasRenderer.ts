@@ -1479,11 +1479,12 @@ export function drawRooms(
   showRoomLabels: boolean,
   showDimensions: boolean,
   dimSettings: ProjectSettings,
+  polygons?: ReadonlyMap<string, Point[]>,
 ): void {
   const { ctx, zoom } = cs;
   for (let ri = 0; ri < detectedRooms.length; ri++) {
     const room = detectedRooms[ri];
-    const poly = getRoomPolygon(room, floor.walls);
+    const poly = polygons?.get(room.id) ?? getRoomPolygon(room, floor.walls);
     if (poly.length < 3) continue;
     const screenPoly = poly.map(p => wts(cs, p.x, p.y));
     ctx.fillStyle = getRoomFill(room, ri);
