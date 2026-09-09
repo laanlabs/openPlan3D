@@ -40,12 +40,16 @@ and [contract](https://github.com/laanlabs/openplan3d-ios/blob/main/docs/full-sc
 
 All transferred frames remain `legacy-incomplete`. Physical capture with the new
 metadata and measured reprojection are still pending. Native issue #8 remains
-open for physical calibration, native queue integration and photo texturing.
-A separate local developer queue now implements pinned Blender execution, input
-validation, job states, budgets, cancellation and crash recovery; **34 Python
-checks pass**, including four real-Blender acceptance tests. See
-`docs/local-render-jobs-validation.md` in the native checkout for local results.
-The native queue/cleanup UI and command integration remain unfinished.
+open for physical calibration, captured-camera rendering and photo texturing.
+The native original-scan queue now includes status/cleanup/limits UI, verified
+image previews and save dialogs, plus submit/list/cancel/remove/export local
+commands. A separate pinned Blender worker supports continuous queue processing,
+immutable RoomPlan preparation, cancellation and crash recovery. **91 native tests
+ran on each platform with one optional skip and zero failures; 40 renderer checks
+and three CLI checks passed**, including real Blender and Swift/Python handoff.
+See `docs/native-render-queue-validation.md` in the native checkout. Full-scan
+exports also handle macOS ancestor path aliases correctly. Signed worker
+packaging, edited-plan adapters and measured photo projection remain open.
 Rendering stays local: Blender Cycles for finished renders and Three.js for web
 previews with shared preparation. This batch changes no web runtime, Firebase
 storage/quotas, project-package format or rendering engine.
