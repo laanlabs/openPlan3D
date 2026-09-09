@@ -577,6 +577,15 @@ saving/reopening. See the native repository's `docs/native-mask-zoom-validation.
 Full-size image memory measurements, physical gestures/accessibility, automatic
 semantic masks, confidence, seams and physical/release validation remain open.
 
+Native mask editing now checks the entire work budget before decoding or
+rasterizing. Oversized-polygon rejection dropped from 69.642s to 0.009s on Mac
+and 56.061s to 0.003s on iOS in local debug runs. **165 tests per native platform
+passed, one optional skip and zero failures**; representative output PNGs remain
+byte-identical and pass worker decoding. See the native repository's
+`docs/native-mask-work-preflight-validation.md`. Accepted-history performance,
+maximum-image memory, physical input/accessibility, confidence, seams and release
+validation remain open.
+
 ## Local Three.js render test
 
 An isolated `/render-lab` route now supports local GLB loading, interactive
