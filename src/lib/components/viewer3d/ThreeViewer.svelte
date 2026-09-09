@@ -16,6 +16,7 @@
   import { assembleFloorStack } from '$lib/utils/floorStack';
   import { setFloorCameraPose } from '$lib/utils/floorCamera';
   import { frameScene } from '$lib/utils/frameScene';
+  import { portableRenderSceneJSON } from '$lib/utils/portableRenderScene';
   import { sceneSignature } from '$lib/utils/sceneSignature';
   import { WalkthroughMotion } from '$lib/utils/walkthroughMotion';
   import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
@@ -38,6 +39,7 @@
 
   // Dirty flag — only render when scene changes or camera moves
   let sceneDirty = true;
+  let renderExportMessage = $state('');
   let viewerMounted = false;
   let animId: number | undefined;
   function requestRender() {
@@ -295,6 +297,7 @@
       wallGroup.remove(cameraHelper);
     }
     cameraHelper = new THREE.Group();
+    cameraHelper.userData.renderExclude = true;
     cameraHelper.name = 'interior_camera';
 
     // Camera body — small box
@@ -1478,6 +1481,7 @@
         for (const qy of [-1, 1]) {
           const gGeo = new THREE.BoxGeometry(halfW, halfH, 1);
           const gMesh = new THREE.Mesh(gGeo, glassMat);
+          gMesh.userData.renderExclude = true;
           const ox = qx * (halfW / 2 + mullionW / 2);
           gMesh.position.set(
             px + ox * Math.cos(angle),
@@ -1602,6 +1606,7 @@
 
       const mesh = new THREE.Mesh(geo, material);
       // Rotate to lie on XZ plane, slightly above base floor
+      mesh.userData.renderMaterial = 'floor';
       mesh.rotation.x = -Math.PI / 2;
       mesh.position.y = 1;
       mesh.receiveShadow = true;
@@ -1640,6 +1645,7 @@
         });
         const ceilGeo = new THREE.ShapeGeometry(shape);
         const ceilMesh = new THREE.Mesh(ceilGeo, ceilMat);
+        ceilMesh.userData.renderExclude = true;
         ceilMesh.rotation.x = -Math.PI / 2;
         ceilMesh.position.y = ceilingHeight;
         ceilMesh.receiveShadow = true;
@@ -1749,6 +1755,7 @@
             cy + localX * Math.sin(angle)
           );
           mesh.rotation.y = -angle;
+          mesh.userData.renderMaterial = 'wall';
           group.add(mesh);
         }
     }
@@ -1766,6 +1773,7 @@
       const slabGeo = new THREE.BoxGeometry(maxX - minX + 40, 5, maxZ - minZ + 40);
       const slabMat = transparentMat(0xcccccc, 0.95);
       const slab = new THREE.Mesh(slabGeo, slabMat);
+      slab.userData.renderMaterial = 'floor';
       slab.position.set((minX + maxX) / 2, yOffset, (minZ + maxZ) / 2);
       slab.receiveShadow = true;
       group.add(slab);
@@ -1970,6 +1978,21 @@
     link.click();
   }
 
+  function exportBlenderScene() {
+    try {
+      if (!wallGroup) throw new Error('The 3D scene is not ready.');
+      const json = portableRenderSceneJSON(wallGroup, showAllFloors ? 'stacked-floors' : 'active-floor');
+      const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
+      try {
+        const link = document.createElement('a');
+        link.href = url; link.download = 'openplan3d-render-scene.json'; link.click();
+      } finally { setTimeout(() => URL.revokeObjectURL(url), 1000); }
+      renderExportMessage = 'Exported neutral geometry for the local Blender worker. Textures and photo cameras are omitted.';
+    } catch (error) {
+      renderExportMessage = error instanceof Error ? error.message : 'Could not export the render scene.';
+    }
+  }
+
   onMount(() => {
     const stopAISettings = openAISettings.subscribe(config => {
       cancelAIRender();
@@ -2040,6 +2063,11 @@
 </script>
 
 <div bind:this={container} class="w-full h-full relative" role="region" aria-label="3D floor plan viewer">
+  <div class="absolute bottom-16 left-4 z-10 max-w-xs">
+    {#if renderExportMessage}<p role="status" class="mb-2 rounded bg-black/80 p-2 text-xs text-white">{renderExportMessage}</p>{/if}
+    <button class="rounded bg-black/70 px-3 py-2 text-sm text-white hover:bg-black/80" onclick={exportBlenderScene}
+      title="Export displayed floors as neutral geometry for the local Blender worker">Export Blender Scene</button>
+  </div>
   {#if showAllFloors && currentFloor}
     <div class="absolute bottom-4 right-4 z-10 rounded bg-black/70 px-3 py-2 text-xs text-white pointer-events-none">
       {currentFloor.name} · {activeFloorElevation} cm elevation

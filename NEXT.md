@@ -652,7 +652,7 @@ each of Mac Catalyst and the iOS simulator, with no failures or skips. A native
 fixture rendered successfully in pinned Blender and its input/output hashes and
 PNG were checked. See `openplan3d-ios/docs/edited-plan-render-export-validation.md`.
 
-The shared web adapter and source-to-edit camera alignment remain open. This does
+Source-to-edit camera alignment remains open. This does
 not qualify physical export interaction or real-photo accuracy.
 
 The follow-up slab correction now bounds native preview/export floors around full
@@ -674,3 +674,21 @@ Queue/geometry runs covered 33 tests per native platform with zero failures and
 one opt-in skip each. Final focused runs passed all five edited-floor queue tests
 on both platforms without skips, including disk/job budgets and verified external
 worker output with tamper rejection.
+
+## Portable web render scene — 2026-09-09
+
+The 3D viewer now offers **Export Blender Scene**, converting displayed active or
+stacked floor meshes into the shared metre/Y-up scene contract. It reuses viewer
+geometry, transforms and loaded furniture; neutral export omits window panes,
+ceilings, labels and camera helpers. Mesh/vertex/triangle/file budgets reject
+unsupported inputs with a visible message. See [validation and usage](docs/portable-render-scene.md).
+
+**660 unit tests, five browser checks, Svelte checks and the production build
+passed.** Desktop/phone exports in Chromium and WebKit were byte-identical. Both
+actual active/stacked downloads rendered in pinned Blender, with verified scene
+and PNG hashes and visually checked results. Editable backup dimensions stayed
+unchanged. Browser testing caught and fixed an overlap with Undo History.
+
+Next: direct browser-to-native queue handoff, material baking, curved opening and
+inactive-floor fidelity, camera alignment and physical/release qualification.
+This is a neutral snapshot adapter, not a completed replacement for either viewer.
