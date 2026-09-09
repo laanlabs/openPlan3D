@@ -512,6 +512,16 @@ opacity overlay. Native readers reverify the preview camera's photo before use;
 Mac UI checks cover source, projection and 0/50/100% opacity. This is a contributing
 camera comparison; held-out measurements and coverage/confidence overlays remain.
 
+
+New projection jobs now render a verified camera-space coverage pass, displayed
+in native review with an opacity slider. White denotes observed atlas samples;
+black denotes unobserved samples or proxies; background is transparent. The saved
+appearance scene is preserved. **152 native tests per platform passed with one
+optional skip; 116 renderer host tests passed with 17 delegated skips, all with
+zero failures.** Live Mac overlay endpoints passed. See the native repository's
+`docs/camera-coverage-overlay-validation.md`. Confidence estimates, native masks,
+seams and physical/held-out accuracy remain open.
+
 ## Local Three.js render test
 
 An isolated `/render-lab` route now supports local GLB loading, interactive
