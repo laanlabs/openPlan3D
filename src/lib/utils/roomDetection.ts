@@ -14,10 +14,10 @@ interface Edge {
 }
 
 /**
- * Find points where one wall's endpoint lands on another wall's interior (T-junctions).
+ * Find endpoint T-junctions and intersections between faceted wall segments.
  * Split such walls into sub-segments so the graph correctly represents all connections.
  */
-function splitWallsAtTJunctions(walls: Wall[]): Edge[] {
+function splitWallsAtJunctions(walls: Wall[]): Edge[] {
   // Collect all endpoints
   const endpoints: Point[] = [];
   for (const w of walls) {
@@ -70,6 +70,32 @@ function splitWallsAtTJunctions(walls: Wall[]): Edge[] {
     }
   }
 
+  // Interior crossings need a vertex on BOTH walls. Endpoint-only splitting
+  // otherwise leaves crossing dividers disconnected in the planar face graph.
+  for (let i = 0; i < splitWalls.length; i++) {
+    const a = splitWalls[i];
+    for (let j = i + 1; j < splitWalls.length; j++) {
+      const b = splitWalls[j];
+      if (a.wallId === b.wallId) continue;
+      if (Math.max(a.start.x, a.end.x) < Math.min(b.start.x, b.end.x) ||
+          Math.max(b.start.x, b.end.x) < Math.min(a.start.x, a.end.x) ||
+          Math.max(a.start.y, a.end.y) < Math.min(b.start.y, b.end.y) ||
+          Math.max(b.start.y, b.end.y) < Math.min(a.start.y, a.end.y)) continue;
+      const ax = a.end.x - a.start.x, ay = a.end.y - a.start.y;
+      const bx = b.end.x - b.start.x, by = b.end.y - b.start.y;
+      const cross = ax * by - ay * bx;
+      if (Math.abs(cross) <= 1e-10 * Math.hypot(ax, ay) * Math.hypot(bx, by)) continue;
+      const dx = b.start.x - a.start.x, dy = b.start.y - a.start.y;
+      const t = (dx * by - dy * bx) / cross, u = (dx * ay - dy * ax) / cross;
+      if (t < 0 || t > 1 || u < 0 || u > 1) continue;
+      const point = { x: a.start.x + t * ax, y: a.start.y + t * ay };
+      for (const [wall, position] of [[a, t], [b, u]] as const) {
+        if (ptEq(point, wall.start) || ptEq(point, wall.end) || wall.splitPoints.some(p => ptEq(p.point, point))) continue;
+        wall.splitPoints.push({ point, t: position });
+      }
+    }
+  }
+
   // Build edges: for walls with split points, create sub-segments
   const edges: Edge[] = [];
   for (const sw of splitWalls) {
@@ -97,8 +123,8 @@ function splitWallsAtTJunctions(walls: Wall[]): Edge[] {
 export function detectRooms(walls: Wall[]): Room[] {
   if (walls.length < 2) return [];
 
-  // Split walls at T-junctions so shared-wall rooms are properly separated
-  const splitEdges = splitWallsAtTJunctions(walls);
+  // Split walls at T-junctions and crossings so shared-wall rooms are separated
+  const splitEdges = splitWallsAtJunctions(walls);
 
   // Build adjacency: collect unique vertices & edges
   const vertices: Point[] = [];
@@ -266,7 +292,7 @@ function shoelace(pts: Point[]): number {
 /**
  * Get polygon vertices for a room from its walls.
  *
- * detectRooms() traces cycles over walls split at T-junctions, so a room may
+ * detectRooms() traces cycles over walls split at junctions, so a room may
  * border only a sub-segment of a wall. Chaining full wall segments here would
  * overshoot the room at such walls and break the loop (partial polygons with a
  * spurious diagonal closing edge), so we chain the same split edges instead.
@@ -275,7 +301,7 @@ export function getRoomPolygon(room: Room, walls: Wall[]): Point[] {
   const wallIds = new Set(room.walls);
   if (walls.filter(w => wallIds.has(w.id)).length < 2) return [];
 
-  let edges = splitWallsAtTJunctions(walls).filter(e => wallIds.has(e.wallId));
+  let edges = splitWallsAtJunctions(walls).filter(e => wallIds.has(e.wallId));
 
   // Iteratively prune dangling sub-segments (parts of split walls that extend
   // past the room and connect to nothing else on this room's boundary).

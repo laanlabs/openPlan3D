@@ -737,3 +737,19 @@ build passed.** The actual stacked download rendered in Blender with independent
 verified scene/PNG hashes and visual inspection. See [validation](docs/curved-room-boundaries-validation.md).
 Exact analytic/interior-face areas, crossing-wall topology, courtyard/stair voids,
 slab authoring and native curved-room fidelity remain open.
+
+
+### Crossing-wall room topology — 2026-09-09
+
+Room detection and polygon reconstruction now split nonparallel wall crossings
+in the derived graph, including intersections between curved wall facets and
+straight dividers. Source walls remain intact. Overhanging crossing dividers
+resolve four separate rooms and matching slabs, with names/finishes retained by
+source boundary IDs.
+
+**674 unit tests, six Chromium/WebKit browser checks, Svelte checks and production
+build passed.** Actual exported slab geometry passed both-floor switching checks;
+the stacked download rendered in Blender with verified scene/PNG hashes and
+visual inspection. See [validation](docs/crossing-room-boundaries-validation.md).
+Collinear overlaps, duplicate walls, ambiguous boundary-ID sets, courtyard/stair
+voids and native topology/area agreement remain open.
