@@ -98,3 +98,13 @@ separate Hosting site `openplan3d-render-lab`. It contains four static files
 Hosting app and the default Hosting site were not changed. Visitors choose a
 local GLB; rendering stays in their browser. Public distribution of the apartment
 model was not authorized and remains excluded.
+
+September 9 update: the user explicitly authorized making the latest derived
+`floorplan-full-walls-v4.glb` the automatic default on this site. The new build
+loads that public asset at startup; local file loading remains available. The
+five-file deployment includes the approved GLB, but no raw scan archive or full
+capture-photo collection. Rendering still runs in the browser. The model remains
+outside Git. The live model's SHA-256 matches the local source:
+`cf74c27ece38ed61c7969b7367f81adc12bda2fcc51a4e7455f11130762477aa`.
+See the [archive handoff](session-handoff-2026-09-09.md) for exact files,
+deployment reproduction and the separate native release status.

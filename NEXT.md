@@ -8,6 +8,11 @@ Planner 5D parity.
 
 ## Computer-switch handoff
 
+For the archived September 8–9 scan/render/video session, start with the
+[session handoff](docs/session-handoff-2026-09-09.md). It records the final video
+and Blender files, public default-model deployment, open experimental PRs and
+native release work that remains.
+
 Start the next session with the native
 [new-computer handoff and copyable prompt](https://github.com/laanlabs/openplan3d-ios/blob/main/docs/new-computer-handoff.md).
 It records setup, tested state, local data that does not transfer through Git,
