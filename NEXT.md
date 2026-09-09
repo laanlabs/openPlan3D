@@ -603,6 +603,15 @@ passed, including four in pinned Blender, with no skips/failures**. See the nati
 repository's `docs/overlap-seam-fixture-validation.md`. Textured overlap, partial
 FOV/mask edges, inter-island seams, confidence and physical validation remain open.
 
+The synthetic overlap study now includes known texture, exposure mismatch and
+partial/shared masks. Normalization reduced blended reference intensity error
+from 0.072231 to 0.002218 and boundary gradient residual from 0.018639 to 0.003201,
+with 781 observed texels preserved. Raw boundary contrast rose with restored
+texture, so it cannot serve as a standalone quality score. **13 tests passed,
+seven inside pinned Blender, with no skips/failures**. See the native repository's
+`docs/textured-overlap-validation.md`. Real photos, FOV/inter-island seams,
+confidence and physical/release qualification remain open.
+
 ## Local Three.js render test
 
 An isolated `/render-lab` route now supports local GLB loading, interactive
