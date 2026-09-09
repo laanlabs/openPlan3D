@@ -479,6 +479,14 @@ Blender scene. See the native repository's `docs/projection-result-verification.
 **109 renderer host tests passed with 17 delegated skips and zero failures.**
 Native projection queue/result review and physical fidelity remain open.
 
+Photo projection now runs through the shared serial queue with frozen packages,
+resource limits, cancellation, orphan-worker exit and independently verified
+publication/recovery. The native queue lists and cancels the distinct job kind.
+**146 native tests per platform and 114 renderer host tests passed with expected
+skips and zero failures.** See the native repository's
+`docs/projection-queue-validation.md`. Native submission/result review, supervised
+masks, seams and physical validation remain open.
+
 ## Local Three.js render test
 
 An isolated `/render-lab` route now supports local GLB loading, interactive
