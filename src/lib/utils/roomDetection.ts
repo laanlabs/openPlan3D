@@ -281,10 +281,21 @@ function detectSplitRooms(splitEdges: Edge[]): Room[] {
 
 /** Recompute geometry while retaining user metadata by boundary identity, never name. */
 export function resolveRooms(floor: Pick<Floor, 'walls' | 'rooms'>, previousRooms: Room[] = []): Room[] {
+  return resolveSplitRooms(floor, previousRooms, splitWallsAtJunctions(floor.walls));
+}
+
+/** Resolve all room polygons against one ephemeral graph for this floor build.
+ * No identity cache is kept, so in-place wall edits cannot reuse stale geometry.
+ */
+export function resolveRoomGeometry(floor: Pick<Floor, 'walls' | 'rooms'>) {
+  const edges = splitWallsAtJunctions(floor.walls);
+  return resolveSplitRooms(floor, [], edges).map(room => ({ room, polygon: polygonFromEdges(room, edges) }));
+}
+
+function resolveSplitRooms(floor: Pick<Floor, 'walls' | 'rooms'>, previousRooms: Room[], splitEdges: Edge[]): Room[] {
   // Include coincident source aliases when matching saved boundaries. Adding a
   // duplicate wall must not discard a room's name or finish. Ambiguous matches
   // deliberately remain unmatched rather than picking arbitrary metadata.
-  const splitEdges = splitWallsAtJunctions(floor.walls);
   const aliasEdges = splitEdges.filter(e => (e.wallIds?.length ?? 0) > 1);
   const key = (room: Room) => {
     const ids = new Set(room.walls);
@@ -334,7 +345,12 @@ export function getRoomPolygon(room: Room, walls: Wall[]): Point[] {
   const wallIds = new Set(room.walls);
   if (walls.filter(w => wallIds.has(w.id)).length < 2) return [];
 
-  let edges = splitWallsAtJunctions(walls).filter(e => (e.wallIds ?? [e.wallId]).some(id => wallIds.has(id)));
+  return polygonFromEdges(room, splitWallsAtJunctions(walls));
+}
+
+function polygonFromEdges(room: Room, splitEdges: Edge[]): Point[] {
+  const wallIds = new Set(room.walls);
+  let edges = splitEdges.filter(e => (e.wallIds ?? [e.wallId]).some(id => wallIds.has(id)));
 
   // Iteratively prune dangling sub-segments (parts of split walls that extend
   // past the room and connect to nothing else on this room's boundary).

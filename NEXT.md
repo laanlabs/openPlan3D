@@ -769,3 +769,18 @@ build passed.** Browser exports preserve four room slabs on both floors across
 active-floor switches. See [validation](docs/overlapping-room-boundaries-validation.md).
 Repairing overlapping wall solids, ambiguous face identity, courtyard/stair voids,
 native topology/area agreement and device performance qualification remain open.
+
+
+### Reuse derived room graphs during 3D builds — 2026-09-09
+
+Active and stacked 3D builders now resolve room metadata and polygons together,
+reusing one ephemeral graph per floor. The large furnished fixture previously
+rebuilt the same floor graphs 51 times per stack; it now builds them three times.
+No persistent cache is introduced, and in-place edits remain fresh.
+
+Local Node measurements reduced median large-fixture room computation from
+2.402 ms to 0.393 ms, about 84%, with matching output. **679 unit tests, six
+Chromium/WebKit browser checks, Svelte checks and production build passed.** See
+[method, limits and raw samples](docs/room-geometry-reuse-validation.md).
+This does not establish browser FPS or device budgets; representative active
+navigation, full scene construction, memory and phone measurements remain open.

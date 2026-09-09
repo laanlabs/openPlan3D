@@ -28,7 +28,7 @@
   import { disposeModel, ownTexture } from '$lib/utils/furnitureModelResources';
   import { createFurnitureModelWithGLB } from '$lib/utils/furnitureModelLoader';
   import { addFurniture } from '$lib/stores/project';
-  import { detectRooms, resolveRooms, getRoomPolygon, roomCentroid } from '$lib/utils/roomDetection';
+  import { detectRooms, resolveRoomGeometry, getRoomPolygon, roomCentroid } from '$lib/utils/roomDetection';
   import { getMaterial } from '$lib/utils/materials';
   import { getWallTextureCanvas, getFloorTextureCanvas, setTextureLoadCallback } from '$lib/utils/textureGenerator';
 
@@ -1515,10 +1515,9 @@
     // Room floors with materials + floating labels
     const FALLBACK_ROOM_COLORS = [0xbfdbfe, 0xfde68a, 0xbbf7d0, 0xfecaca, 0xddd6fe, 0xa5f3fc, 0xfed7aa];
     // Resolve labels and materials from this floor, including after a 3D floor switch.
-    const rooms = resolveRooms(floor);
+    const rooms = resolveRoomGeometry(floor);
     for (let ri = 0; ri < rooms.length; ri++) {
-      const room = rooms[ri];
-      const poly = getRoomPolygon(room, floor.walls);
+      const { room, polygon: poly } = rooms[ri];
       if (poly.length < 3) continue;
 
       const slabGeometry = createRoomSlabGeometry(poly);
@@ -1755,8 +1754,8 @@
 
     }
     // Match active-floor footprints instead of bridging recesses and separate rooms.
-    for (const room of resolveRooms(floor)) {
-      const geometry = createRoomSlabGeometry(getRoomPolygon(room, floor.walls));
+    for (const { polygon } of resolveRoomGeometry(floor)) {
+      const geometry = createRoomSlabGeometry(polygon);
       if (!geometry) continue;
       const slab = new THREE.Mesh(geometry, transparentMat(0xcccccc, 0.95));
       slab.userData.renderMaterial = 'floor';
