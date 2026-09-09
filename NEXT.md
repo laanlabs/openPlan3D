@@ -533,6 +533,16 @@ Live Mac review confirmed the excluded camera contributed zero samples. See the
 native repository's `docs/supervised-projection-masks-validation.md`. Native mask
 authoring/submission, confidence, seams and physical accuracy remain open.
 
+
+Native projection submission now supports per-camera PNG mask selection,
+validation, thumbnails, replacement/removal and frozen job submission. Updated
+workers advertise mask support; older connected workers are rejected for masked
+jobs. **154 native tests per platform passed with one optional skip and zero
+failures; 24 worker lifecycle/capability tests passed.** A native-created masked
+job completed in Blender and reopened in review. See the native repository's
+`docs/native-mask-submission-validation.md`. Brush/polygon mask authoring,
+confidence, seams and physical accuracy remain open.
+
 ## Local Three.js render test
 
 An isolated `/render-lab` route now supports local GLB loading, interactive
