@@ -472,6 +472,13 @@ skips and zero failures.** See the native repository's
 `docs/triangle-boundary-sampling-validation.md`. Broader seams, coarse atlas
 coverage boundaries and physical fidelity remain unverified.
 
+An independent photo-result verifier now binds native-package bakes to expected
+input identities/settings and validates artifact hashes, PNGs and map/count
+consistency. It emits a compact receipt for future supervision without opening the
+Blender scene. See the native repository's `docs/projection-result-verification.md`.
+**109 renderer host tests passed with 17 delegated skips and zero failures.**
+Native projection queue/result review and physical fidelity remain open.
+
 ## Local Three.js render test
 
 An isolated `/render-lab` route now supports local GLB loading, interactive
