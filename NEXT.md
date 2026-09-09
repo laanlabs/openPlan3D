@@ -106,7 +106,11 @@ a native → Blender → native job passed with unchanged photos. See native
 coverage-loss counts, recalculated contributions, selected maps and per-camera
 detail. **126 native tests ran per platform with one optional skip and zero failures**,
 plus live select/clear/restore checks. See native `docs/coverage-batch-subsets-validation.md`.
-Quality-aware batch suggestions and local-command batch submission remain pending, along with
+Local-command coverage submission now uses the native verification path with
+existing list/cancel/remove support. **128 native tests ran per platform with one
+optional skip and zero failures; six CLI tests passed**, plus live command/worker/UI
+validation. See native `docs/coverage-command-validation.md`. Quality-aware batch
+suggestions remain pending, along with
 physical suggestion validation, continuous heatmaps and measured calibration.
 Rendering stays local: Blender Cycles for finished renders and Three.js for web
 previews with shared preparation. This batch changes no web runtime, Firebase
