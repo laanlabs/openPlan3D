@@ -5,7 +5,7 @@
   import { activeFloor, selectedTool, selectedElementId, selectedElementIds, selectedRoomId, addWall, addDoor, addWindow, updateWall, moveWallEndpoint, updateDoor, updateWindow, addFurniture, moveFurniture, transformFurnitureDuringDrag, commitFurnitureMove, rotateFurniture, setFurnitureRotation, scaleFurniture, removeElement, placingFurnitureId, placingRotation, placingDoorType, placingWindowType, detectedRoomsStore, duplicateDoor, duplicateWindow, duplicateFurniture, duplicateWall, moveWallParallel, splitWall, snapEnabled, placingStair, addStair, moveStair, updateStair, placingColumn, placingColumnShape, addColumn, moveColumn, updateColumn, calibrationMode, calibrationPoints, updateBackgroundImage, setBackgroundImage, canvasZoom, canvasCamX, canvasCamY, panMode, showFurnitureStore, addGuide, moveGuide, removeGuide, beginUndoGroup, endUndoGroup, layerVisibility, updateRoom, addMeasurement, removeMeasurement, addAnnotation, removeAnnotation, updateAnnotation, addTextAnnotation, removeTextAnnotation, updateTextAnnotation, moveTextAnnotation, toggleFurnitureLock, createGroup, ungroupElements, findGroupForElement, placingEntourageId, addEntourageItem, moveEntourage, resizeEntourage, currentProject, elevationWallId, elevationPickMode } from '$lib/stores/project';
   import type { Point, Wall, Door, Window as Win, FurnitureItem, Stair, Column, GuideLine, Measurement, Annotation, TextAnnotation, CustomEntourageDef } from '$lib/models/types';
   import type { Floor, Room } from '$lib/models/types';
-  import { resolveRoomGeometry, roomCentroid } from '$lib/utils/roomDetection';
+  import { resolveRoomGeometry, roomLabelPosition } from '$lib/utils/roomDetection';
   import { getFloorBelow } from '$lib/utils/floors';
   import { detectOuterWalls } from '$lib/utils/outerWalls';
   import { getMaterial } from '$lib/utils/materials';
@@ -201,6 +201,8 @@
   let draggingRoomLabelId: string | null = $state(null);
   let roomLabelDragStart: Point = { x: 0, y: 0 };
   let roomLabelOrigOffset: Point = { x: 0, y: 0 };
+  let roomLabelDragZoom = 1;
+  let roomLabelDragOffset: Point | null = null;
 
   // Room drag state
   let draggingRoomId: string | null = $state(null);
@@ -1975,23 +1977,11 @@
     for (const room of detectedRooms) {
       const poly = (roomPolygons.get(room.id) ?? []);
       if (poly.length < 3) continue;
-      const centroid = roomCentroid(poly);
-      const lx = centroid.x + (room.labelOffset?.x ?? 0);
-      const ly = centroid.y + (room.labelOffset?.y ?? 0);
+      const { x: lx, y: ly } = roomLabelPosition(room, poly);
       // Check if click is within label area (approx 80x40 world units)
       const hitW = 80 / zoom;
       const hitH = 40 / zoom;
       if (Math.abs(p.x - lx) < hitW && Math.abs(p.y - ly) < hitH) {
-        // Check if clicking the reset icon
-        if (room.labelOffset && (room.labelOffset.x !== 0 || room.labelOffset.y !== 0)) {
-          const resetOffX = 50 / zoom; // approximate reset icon position
-          if (p.x > lx + resetOffX * 0.5 && Math.abs(p.y - ly) < 15 / zoom) {
-            // Reset label position
-            updateRoom(room.id, { labelOffset: undefined });
-            detectedRoomsStore.update(rooms => rooms.map(r => r.id === room.id ? { ...r, labelOffset: undefined } : r));
-            return null; // consumed click
-          }
-        }
         return room;
       }
     }
@@ -2462,14 +2452,16 @@
         const labelRoom = findRoomLabelAt(wp);
         if (labelRoom) {
           draggingRoomLabelId = labelRoom.id;
-          roomLabelDragStart = { x: wp.x, y: wp.y };
+          roomLabelDragStart = { x: e.clientX, y: e.clientY };
+          roomLabelDragZoom = zoom;
+          roomLabelDragOffset = null;
           roomLabelOrigOffset = { x: labelRoom.labelOffset?.x ?? 0, y: labelRoom.labelOffset?.y ?? 0 };
           selectedRoomId.set(labelRoom.id);
           selectedElementId.set(null);
           selectedElementIds.set(new Set());
           return;
         }
-        const room = findRoomAt(wp);
+        const room = findRoomLabelAt(wp) ?? findRoomAt(wp);
         if (room) {
           selectedRoomId.set(room.id);
           selectedElementId.set(null);
@@ -2550,10 +2542,10 @@
     // Double-click on a room to edit its name inline
     if (currentTool === 'select') {
       const wp = selectionPoint;
-      const room = findRoomAt(wp);
+      const room = findRoomLabelAt(wp) ?? findRoomAt(wp);
       if (room) {
         const poly = (roomPolygons.get(room.id) ?? []);
-        const centroid = roomCentroid(poly);
+        const centroid = roomLabelPosition(room, poly);
         const sc = worldToScreen(centroid.x, centroid.y);
         editingRoomId = room.id;
         editingRoomName = room.name;
@@ -2602,11 +2594,14 @@
       furnitureGestureStarted = true;
     }
 
-    // Drag room label
+    // Drag room label using screen deltas so sidebar layout changes cannot
+    // masquerade as pointer movement. A click must not create a drag history item.
     if (draggingRoomLabelId) {
-      const dx = mousePos.x - roomLabelDragStart.x;
-      const dy = mousePos.y - roomLabelDragStart.y;
-      const newOffset = { x: roomLabelOrigOffset.x + dx, y: roomLabelOrigOffset.y + dy };
+      const dx = e.clientX - roomLabelDragStart.x, dy = e.clientY - roomLabelDragStart.y;
+      if (!roomLabelDragOffset && Math.hypot(dx, dy) < 3) return;
+      if (!roomLabelDragOffset) beginUndoGroup();
+      const newOffset = { x: roomLabelOrigOffset.x + dx / roomLabelDragZoom, y: roomLabelOrigOffset.y + dy / roomLabelDragZoom };
+      roomLabelDragOffset = newOffset;
       detectedRoomsStore.update(rooms => rooms.map(r => r.id === draggingRoomLabelId ? { ...r, labelOffset: newOffset } : r));
       return;
     }
@@ -2862,14 +2857,14 @@
     isPanning = false;
     draggingGuideId = null;
 
-    // Finalize room label drag
+    // Finalize only actual label movement, never a selection click.
     if (draggingRoomLabelId) {
-      const dx = mousePos.x - roomLabelDragStart.x;
-      const dy = mousePos.y - roomLabelDragStart.y;
-      const newOffset = { x: roomLabelOrigOffset.x + dx, y: roomLabelOrigOffset.y + dy };
-      updateRoom(draggingRoomLabelId, { labelOffset: newOffset });
-      detectedRoomsStore.update(rooms => rooms.map(r => r.id === draggingRoomLabelId ? { ...r, labelOffset: newOffset } : r));
+      if (roomLabelDragOffset) {
+        updateRoom(draggingRoomLabelId, { labelOffset: roomLabelDragOffset });
+        endUndoGroup('Move room label');
+      }
       draggingRoomLabelId = null;
+      roomLabelDragOffset = null;
     }
 
     // Finalize marquee selection
@@ -3552,7 +3547,7 @@
             ctxMenuFurniture = null;
             ctxMenuRoom = null;
           } else {
-            const room = findRoomAt(wp);
+            const room = findRoomLabelAt(wp) ?? findRoomAt(wp);
             if (room) {
               selectedRoomId.set(room.id);
               ctxMenuTargetType = 'room';
@@ -3636,11 +3631,17 @@
         break;
 
       // Room actions
+      case 'reset-room-label':
+        if (ctxMenuRoom) {
+          updateRoom(ctxMenuRoom.id, { labelOffset: undefined });
+          detectedRoomsStore.update(rooms => rooms.map(room => room.id === ctxMenuRoom!.id ? { ...room, labelOffset: undefined } : room));
+        }
+        break;
       case 'rename-room':
         if (ctxMenuRoom) {
           // Trigger inline rename via existing mechanism
           const poly = (roomPolygons.get(ctxMenuRoom.id) ?? []);
-          const centroid = roomCentroid(poly);
+          const centroid = roomLabelPosition(ctxMenuRoom, poly);
           const sp = worldToScreen(centroid.x, centroid.y);
           editingRoomId = ctxMenuRoom.id;
           editingRoomName = ctxMenuRoom.name;

@@ -404,3 +404,9 @@ export function roomCentroid(polygon: Point[]): Point {
   const cy = polygon.reduce((s, p) => s + p.y, 0) / polygon.length;
   return { x: cx, y: cy };
 }
+
+/** Shared label anchor; room geometry and dimension annotations stay unshifted. */
+export function roomLabelPosition(room: Pick<Room, 'labelOffset'>, polygon: Point[]): Point {
+  const center = roomCentroid(polygon);
+  return { x: center.x + (room.labelOffset?.x ?? 0), y: center.y + (room.labelOffset?.y ?? 0) };
+}

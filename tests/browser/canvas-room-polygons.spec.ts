@@ -25,6 +25,8 @@ test('room hit polygons and names stay synchronized across floor switches', asyn
  const project = benchmarkProject('medium');
  await (await chooser).setFiles({ name: 'rooms.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(project)) });
  await page.waitForLoadState('networkidle');
+ await page.getByTitle('Zoom to Fit (F)', { exact: true }).first().press('Enter');
+ await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
  async function edit(name: string, replacement: string) {
   const label = () => page.evaluate(name => (window as any).__roomLabels.find((p: any) => p.text === name), name);
   await expect.poll(label).toBeTruthy();

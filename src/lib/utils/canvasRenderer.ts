@@ -10,7 +10,7 @@ import type { ProjectSettings } from '$lib/stores/settings';
 import { formatLength, formatArea } from '$lib/stores/settings';
 import { getCatalogItem } from '$lib/utils/furnitureCatalog';
 import { drawFurnitureIcon } from '$lib/utils/furnitureIcons';
-import { getRoomPolygon, roomCentroid } from '$lib/utils/roomDetection';
+import { getRoomPolygon, roomCentroid, roomLabelPosition } from '$lib/utils/roomDetection';
 import { getWallTextureCanvas, getFloorTextureCanvas } from '$lib/utils/textureGenerator';
 import { getEntourageDef } from '$lib/utils/entourageCatalog';
 import type { EntourageItem, CustomEntourageDef } from '$lib/models/types';
@@ -1507,7 +1507,9 @@ export function drawRooms(
       ctx.fillStyle = '#9ca3af';
       ctx.font = `${fontSize}px sans-serif`;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(`${room.name} (${formatArea(room.area, dimSettings.units)})`, sc.x, sc.y);
+      const anchor = roomLabelPosition(room, poly);
+      const label = wts(cs, anchor.x, anchor.y);
+      ctx.fillText(`${room.name} (${formatArea(room.area, dimSettings.units)})`, label.x, label.y);
     }
 
     if (showDimensions && dimSettings.showInternalDimensions && poly.length >= 3) {

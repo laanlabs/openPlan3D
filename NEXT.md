@@ -813,3 +813,19 @@ passes without the preselection workaround. **680 unit tests, eight Chromium/Web
 browser checks, Svelte checks and production build passed.** See
 [validation](docs/room-double-click-validation.md). Physical double-tap/device
 qualification and broader active-editing performance work remain open.
+
+
+### Room label placement, reset and undo — 2026-09-09
+
+The 2D renderer, hit testing and inline rename now share the saved label anchor.
+Dragging visibly moves the text; room geometry and dimension annotations stay
+fixed. An explicit Reset Label Position context-menu command replaces an invisible
+reset hit region. Clicks no longer commit offsets from stale pointer coordinates;
+actual drags use screen deltas and an independent undo group, preserving separate
+reset/drag undo steps even when performed quickly.
+
+**680 unit tests, ten Chromium/WebKit browser checks, Svelte checks and production
+build passed.** Tests verify saved offsets, reset, dragging, rename placement,
+undo, direct rename across floors, idle/wakeup and simulated touch. See
+[validation](docs/room-label-placement-validation.md). Physical touch/long-press,
+other export/viewer label conventions and active-editing budgets remain open.

@@ -132,6 +132,9 @@
       </button>
 
     {:else if targetType === 'room'}
+      <button class="ctx-item" role="menuitem" onclick={() => clickItem('reset-room-label')}>
+        <span class="ctx-icon">↺</span> Reset Label Position
+      </button>
       <button class="ctx-item" role="menuitem" onclick={() => clickItem('rename-room')}>
         <span class="ctx-icon">✏️</span> Rename Room
       </button>
