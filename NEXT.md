@@ -145,7 +145,13 @@ now exclude marked regions with exact dimensions, a two-pixel guard band and rec
 mask identities. **91 renderer host tests passed with 16 delegated skips and no
 failures**, plus a visual exclusion check. See native
 `docs/photo-exclusion-masks-validation.md`. Automatic semantic detection, mask-authoring
-UI, normalization/blending, native integration and physical validation remain open.
+UI, seam blending, native integration and physical validation remain open.
+Optional overlap normalization now estimates bounded linear RGB gains from valid
+unmasked overlap, with correction/rejection reports and unchanged coverage/source
+labels. **94 renderer host tests passed with 16 delegated skips and no failures**,
+including actual corrected previews and reversed-order atlas equivalence. See native
+`docs/photo-normalization-validation.md`. Physical color validation, global alignment,
+seam blending and native integration remain open.
 Rendering stays local: Blender Cycles for finished renders and Three.js for web
 previews with shared preparation. This batch changes no web runtime, Firebase
 storage/quotas, project-package format or rendering engine.
