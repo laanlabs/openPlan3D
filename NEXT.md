@@ -495,6 +495,16 @@ skips and zero failures.** See the native repository's
 `docs/native-projection-submission-validation.md`. Native result/map review, masks,
 seams and physical validation remain open.
 
+
+Native completed projections now have verified preview, atlas, coverage and colored
+source/contributor map review with frame legends. The reader binds frozen inputs,
+receipts and artifacts and recounts map pixels before displaying results.
+**151 native tests per platform passed with one optional skip and zero failures.**
+All five image choices and scrolling legends passed synthetic Mac UI review.
+Renderer code is unchanged at 115 host tests with 17 delegated skips. See the native
+repository's `docs/native-projection-review-validation.md`. Native masks/export,
+preview-space coverage/confidence overlays, seams and physical validation remain.
+
 ## Local Three.js render test
 
 An isolated `/render-lab` route now supports local GLB loading, interactive
