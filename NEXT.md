@@ -505,6 +505,13 @@ Renderer code is unchanged at 115 host tests with 17 delegated skips. See the na
 repository's `docs/native-projection-review-validation.md`. Native masks/export,
 preview-space coverage/confidence overlays, seams and physical validation remain.
 
+
+Projection preview review now includes a frozen source-photo comparison and
+opacity overlay. Native readers reverify the preview camera's photo before use;
+151 tests per platform pass with one optional skip and zero failures. Synthetic
+Mac UI checks cover source, projection and 0/50/100% opacity. This is a contributing
+camera comparison; held-out measurements and coverage/confidence overlays remain.
+
 ## Local Three.js render test
 
 An isolated `/render-lab` route now supports local GLB loading, interactive
