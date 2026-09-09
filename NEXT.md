@@ -49,7 +49,13 @@ ran on each platform with one optional skip and zero failures; 40 renderer check
 and three CLI checks passed**, including real Blender and Swift/Python handoff.
 See `docs/native-render-queue-validation.md` in the native checkout. Full-scan
 exports also handle macOS ancestor path aliases correctly. Signed worker
-packaging, edited-plan adapters and measured photo projection remain open.
+packaging, edited-plan adapters and measured photo projection remain open. The next
+camera batch now supports validated captured-camera scene attachment, rectangular
+renders/native previews and explicit landmark-error reports. **51 renderer checks
+passed**, including seven real-Blender cases; synthetic numerical error was below
+0.001 px and actual raster-marker error below 0.14 px. See native
+`docs/captured-camera-validation.md`. Native captured-frame selection and measured
+real-image calibration are still pending; legacy metadata is never inferred.
 Rendering stays local: Blender Cycles for finished renders and Three.js for web
 previews with shared preparation. This batch changes no web runtime, Firebase
 storage/quotas, project-package format or rendering engine.
