@@ -11,6 +11,7 @@
   import { wallColors, type WallColor } from '$lib/utils/materials';
   import { projectSettings, formatArea } from '$lib/stores/settings';
   import * as THREE from 'three';
+  import { createRoomSlabGeometry } from '$lib/utils/roomSlabGeometry';
   import { createSlopedBoxGeometry } from '$lib/utils/slopedWallGeometry';
   import { buildWallSegments, roomCeilingHeight, wallProfileSpans, wallPathProfile, pathOpening, doorPanelPose } from '$lib/utils/wallProfiles';
   import { assembleFloorStack } from '$lib/utils/floorStack';
@@ -1520,6 +1521,14 @@
       const poly = getRoomPolygon(room, floor.walls);
       if (poly.length < 3) continue;
 
+      const slabGeometry = createRoomSlabGeometry(poly);
+      if (slabGeometry) {
+        const slab = new THREE.Mesh(slabGeometry, new THREE.MeshStandardMaterial({ color: 0xcccccc, roughness: 0.9 }));
+        slab.userData.renderMaterial = 'floor';
+        slab.receiveShadow = true;
+        wallGroup.add(slab);
+      }
+
       // Triangulate the polygon using ear-clipping via THREE.ShapeGeometry
       const shape = new THREE.Shape();
       // Negate Y so that after -PI/2 X rotation, 2D Y maps to +Z (matching wall coords)
@@ -1745,20 +1754,13 @@
     }
 
     }
-    // Simple floor slab
-    if (floor.walls.length > 0) {
-      let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
-      for (const w of floor.walls) {
-        for (const p of [w.start, w.end]) {
-          minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
-          minZ = Math.min(minZ, p.y); maxZ = Math.max(maxZ, p.y);
-        }
-      }
-      const slabGeo = new THREE.BoxGeometry(maxX - minX + 40, 5, maxZ - minZ + 40);
-      const slabMat = transparentMat(0xcccccc, 0.95);
-      const slab = new THREE.Mesh(slabGeo, slabMat);
+    // Match active-floor footprints instead of bridging recesses and separate rooms.
+    for (const room of resolveRooms(floor)) {
+      const geometry = createRoomSlabGeometry(getRoomPolygon(room, floor.walls));
+      if (!geometry) continue;
+      const slab = new THREE.Mesh(geometry, transparentMat(0xcccccc, 0.95));
       slab.userData.renderMaterial = 'floor';
-      slab.position.set((minX + maxX) / 2, yOffset, (minZ + maxZ) / 2);
+      slab.position.y = yOffset;
       slab.receiveShadow = true;
       group.add(slab);
     }

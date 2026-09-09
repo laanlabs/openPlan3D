@@ -20,8 +20,9 @@ The file is labelled `edited-web-preview` and records its display scope and limi
 
 This is a snapshot of the viewer's current geometry, including currently loaded
 furniture or its displayed fallback. Curved wall openings now follow the faceted
-wall path; inactive floors retain simplified slabs and omit detailed trim. It is not a material bake, a
-structural slab model or an alignment of edited geometry to captured photos.
+wall path; active and inactive floors use room-shaped preview slabs, while
+inactive floors omit detailed trim. It is not a material bake, a
+configurable structural slab model or an alignment of edited geometry to captured photos.
 Skinned, actively morphed and instanced meshes are rejected explicitly. Invalid
 coordinates/indices and exports beyond 10,000 meshes, 300,000 vertices, 300,000
 triangles or 64 MiB fail with a visible message. Inputs are not mutated.

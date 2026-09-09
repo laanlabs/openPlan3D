@@ -706,3 +706,19 @@ build passed.** Actual active/stacked downloads rendered in pinned Blender with
 independently verified scene/PNG hashes and visually checked results. See
 [validation](docs/curved-wall-openings-validation.md). Facet joins, inactive slab
 and trim fidelity, native curves, material baking and queue handoff remain open.
+
+
+### Room-shaped web preview slabs — 2026-09-09
+
+Active and inactive floors now use shared closed 5 cm slabs under resolved room
+polygons. Stacked slabs preserve concave recesses and gaps between disconnected
+rooms instead of filling the wall bounding rectangle. Unenclosed walls no longer
+invent an upper-floor slab. Source dimensions and room finishes remain intact.
+
+**667 unit tests, eight Chromium/WebKit browser checks, Svelte checks and the
+production build passed.** Browser rays verify support and clear gaps through
+active-floor switches. The actual stacked export rendered in Blender with
+independently verified scene/PNG hashes and a visually checked result. See
+[validation](docs/room-slab-validation.md). Curved room boundaries, stair/courtyard
+voids, editable slab thickness, wall-face offsets and native slab fidelity remain
+open; the export's separate rectangular ground support is unchanged.
