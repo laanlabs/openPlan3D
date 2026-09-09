@@ -829,3 +829,18 @@ build passed.** Tests verify saved offsets, reset, dragging, rename placement,
 undo, direct rename across floors, idle/wakeup and simulated touch. See
 [validation](docs/room-label-placement-validation.md). Physical touch/long-press,
 other export/viewer label conventions and active-editing budgets remain open.
+
+
+### Room label offsets in plan exports — 2026-09-09
+
+PNG, SVG, PDF and DXF now preserve saved room label positions. Framed exports
+include name/area text bounds even outside the walls. PNG and the PDF plan raster
+retain up to 2x scale with a 4096-pixel longest-side cap, preventing distant labels
+from causing unbounded canvas allocations.
+
+**682 unit tests, two Chromium/WebKit browser checks, Svelte checks and production
+build passed.** Actual downloads verify SVG text bounds, PNG dimensions, DXF
+coordinates and PDF serialization; the PNG was visually inspected. See
+[validation and limits](docs/export-room-label-validation.md). PDF page-layout
+qualification, curved geometry/export fidelity, native label conventions and
+physical-device downloads remain open.

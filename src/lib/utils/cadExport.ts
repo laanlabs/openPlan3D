@@ -1,7 +1,7 @@
 import Drawing from 'dxf-writer';
 import type { Project } from '$lib/models/types';
 import { getCatalogItem } from '$lib/utils/furnitureCatalog';
-import { resolveRooms, getRoomPolygon, roomCentroid } from '$lib/utils/roomDetection';
+import { resolveRooms, getRoomPolygon, roomLabelPosition } from '$lib/utils/roomDetection';
 import { projectSettings, formatArea } from '$lib/stores/settings';
 import { get } from 'svelte/store';
 
@@ -45,7 +45,7 @@ export function exportDXF(project: Project) {
   for (const room of rooms) {
     const poly = getRoomPolygon(room, floor.walls);
     if (poly.length < 3) continue;
-    const c = roomCentroid(poly);
+    const c = roomLabelPosition(room, poly);
     // Y is flipped in screen coords vs CAD coords
     d.drawText(c.x, -c.y, 8, 0, room.name, 'center', 'middle');
     d.drawText(c.x, -c.y - 12, 5, 0, `${formatArea(room.area, get(projectSettings).units)}`, 'center', 'middle');

@@ -1,6 +1,6 @@
 import type { Project, Floor } from '$lib/models/types';
 import { getCatalogItem } from '$lib/utils/furnitureCatalog';
-import { resolveRooms, getRoomPolygon, roomCentroid } from '$lib/utils/roomDetection';
+import { resolveRooms, getRoomPolygon, roomLabelPosition } from '$lib/utils/roomDetection';
 import { drawDoorOnWall, drawWindowOnWall, drawEntourageItems } from '$lib/utils/canvasRenderer';
 import type { CanvasState } from '$lib/utils/canvasInteraction';
 import { projectSettings, formatArea } from '$lib/stores/settings';
@@ -37,6 +37,25 @@ function extendBoundsForOpenings(
     bounds.minY = Math.min(bounds.minY, py - d.width);
     bounds.maxX = Math.max(bounds.maxX, px + d.width);
     bounds.maxY = Math.max(bounds.maxY, py + d.width);
+  }
+}
+
+/** Include label ink, not just its anchor, before framing a plan export. */
+function extendBoundsForRoomLabels(floor: Floor, bounds: { minX: number; minY: number; maxX: number; maxY: number }) {
+  const ctx = document.createElement('canvas').getContext('2d');
+  if (!ctx) return;
+  for (const room of resolveRooms(floor)) {
+    const poly = getRoomPolygon(room, floor.walls);
+    if (poly.length < 3) continue;
+    const anchor = roomLabelPosition(room, poly);
+    ctx.font = 'bold 13px sans-serif';
+    const nameWidth = ctx.measureText(room.name).width;
+    ctx.font = '11px sans-serif';
+    const width = Math.max(nameWidth, ctx.measureText(formatArea(room.area, get(projectSettings).units)).width);
+    bounds.minX = Math.min(bounds.minX, anchor.x - width / 2);
+    bounds.maxX = Math.max(bounds.maxX, anchor.x + width / 2);
+    bounds.minY = Math.min(bounds.minY, anchor.y - 13);
+    bounds.maxY = Math.max(bounds.maxY, anchor.y + 18);
   }
 }
 
@@ -90,12 +109,13 @@ export function exportAsPNG(canvas: HTMLCanvasElement, project?: Project) {
       }
       const bounds = { minX, minY, maxX, maxY };
       extendBoundsForOpenings(floor, bounds);
+      extendBoundsForRoomLabels(floor, bounds);
       ({ minX, minY, maxX, maxY } = bounds);
       const pad = 80;
       const w = maxX - minX + pad * 2;
       const h = maxY - minY + pad * 2;
-      // Scale up for high-res (2x)
-      const scale = 2;
+      // Prefer 2x resolution, bounded to 4096 pixels per side.
+      const scale = Math.min(2, 4096 / Math.max(w, h));
       const offscreen = document.createElement('canvas');
       offscreen.width = w * scale;
       offscreen.height = h * scale;
@@ -122,7 +142,7 @@ export function exportAsPNG(canvas: HTMLCanvasElement, project?: Project) {
         ctx.fill();
         ctx.globalAlpha = 1;
         // Room label
-        const c = roomCentroid(poly);
+        const c = roomLabelPosition(room, poly);
         ctx.fillStyle = '#444';
         ctx.font = 'bold 12px sans-serif';
         ctx.textAlign = 'center';
@@ -221,6 +241,7 @@ export function exportAsSVG(project: Project) {
   }
   const svgBounds = { minX, minY, maxX, maxY };
   extendBoundsForOpenings(floor, svgBounds);
+  extendBoundsForRoomLabels(floor, svgBounds);
   ({ minX, minY, maxX, maxY } = svgBounds);
   const pad = 50;
   const vw = maxX - minX + pad * 2;
@@ -238,7 +259,7 @@ export function exportAsSVG(project: Project) {
     const pts = poly.map(p => `${p.x - minX + pad},${p.y - minY + pad}`).join(' ');
     const color = ROOM_COLORS_SVG[ri % ROOM_COLORS_SVG.length];
     paths += `  <polygon points="${pts}" fill="${color}" fill-opacity="0.4" stroke="none"/>\n`;
-    const c = roomCentroid(poly);
+    const c = roomLabelPosition(room, poly);
     const cx = c.x - minX + pad;
     const cy = c.y - minY + pad;
     paths += `  <text x="${cx}" y="${cy}" text-anchor="middle" font-size="12" fill="#444" font-family="sans-serif" font-weight="bold">${escapeXml(room.name)}</text>\n`;
@@ -557,12 +578,13 @@ export function exportPDF(project: Project) {
   }
   const pdfBounds = { minX, minY, maxX, maxY };
   extendBoundsForOpenings(floor, pdfBounds);
+  extendBoundsForRoomLabels(floor, pdfBounds);
   ({ minX, minY, maxX, maxY } = pdfBounds);
 
   const pad = 80;
   const planW = maxX - minX + pad * 2;
   const planH = maxY - minY + pad * 2;
-  const scale = 2;
+  const scale = Math.min(2, 4096 / Math.max(planW, planH));
   const offscreen = document.createElement('canvas');
   offscreen.width = planW * scale;
   offscreen.height = planH * scale;
@@ -586,7 +608,7 @@ export function exportPDF(project: Project) {
     ctx.closePath();
     ctx.fill();
     ctx.globalAlpha = 1;
-    const c = roomCentroid(poly);
+    const c = roomLabelPosition(room, poly);
     ctx.fillStyle = '#444';
     ctx.font = 'bold 13px sans-serif';
     ctx.textAlign = 'center';

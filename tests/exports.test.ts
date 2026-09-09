@@ -75,3 +75,42 @@ it('uses saved names and distinct textures for same-name rooms in the PDF schedu
   expect(text).not.toContain('Room 1');
   expect(pdfSave).toHaveBeenCalledOnce();
 });
+
+it('preserves label offsets in SVG, DXF and raster drawing coordinates', async () => {
+  const project = namedProject();
+  project.floors[0].rooms[0].labelOffset = { x: 100, y: -50 };
+  const before = JSON.stringify(project);
+  exportAsSVG(project);
+  expect(await downloaded.at(-1)!.text()).toContain('<text x="350" y="150"');
+  exportDXF(project);
+  const dxf = await downloaded.at(-1)!.text();
+  const lines = dxf.trim().split(/\r?\n/).map(line => line.trim());
+  const entities: Record<string, string>[] = []; let entity: Record<string, string> = {};
+  for (let i = 0; i < lines.length; i += 2) {
+    if (lines[i] === '0') { entity = {}; entities.push(entity); }
+    entity[lines[i]] = lines[i + 1];
+  }
+  const label = entities.find(e => e['0'] === 'TEXT' && e['1'] === 'Kitchen & Dining <East>')!;
+  expect(label['10']).toBe('300'); expect(label['20']).toBe('-100');
+  exportAsPNG(canvas, project);
+  expect(canvasText).toHaveBeenCalledWith('Kitchen & Dining <East>', 380, 180);
+  canvasText.mockClear();
+  exportPDF(project);
+  expect(canvasText).toHaveBeenCalledWith('Kitchen & Dining <East>', 380, 180);
+  expect(JSON.stringify(project)).toBe(before);
+});
+
+it('frames labels moved outside the walls and bounds large raster allocations', async () => {
+  const project = namedProject();
+  project.floors[0].rooms[0].labelOffset = { x: -1000, y: -1000 };
+  exportAsSVG(project);
+  const svg = await downloaded.at(-1)!.text();
+  expect(svg).toContain('<text x="65" y="63"'); // ink bounds plus 50 cm padding
+  exportAsPNG(canvas, project);
+  expect(canvasText).toHaveBeenCalledWith('Kitchen & Dining <East>', 95, 93);
+  project.floors[0].rooms[0].labelOffset = { x: 100000, y: 100000 };
+  exportAsPNG(canvas, project);
+  expect(Math.max(canvas.width, canvas.height)).toBeLessThanOrEqual(4096);
+  exportPDF(project);
+  expect(Math.max(canvas.width, canvas.height)).toBeLessThanOrEqual(4096);
+});
