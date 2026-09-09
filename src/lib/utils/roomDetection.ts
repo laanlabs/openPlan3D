@@ -1,4 +1,5 @@
 import type { Wall, Point, Room, Floor } from '$lib/models/types';
+import { wallPathSpans } from './wallProfiles';
 
 const EPSILON = 5; // snap distance for matching endpoints
 
@@ -31,15 +32,17 @@ function splitWallsAtTJunctions(walls: Wall[]): Edge[] {
     splitPoints: { point: Point; t: number }[];
   }
 
-  const splitWalls: SplitWall[] = walls.map(w => ({
+  // Use the same facets as the 3D wall mesh. Keep source IDs so room metadata
+  // continues to follow boundary identity rather than generated facet numbers.
+  const splitWalls: SplitWall[] = walls.flatMap(w => wallPathSpans(w).map(span => ({
     wallId: w.id,
-    start: w.start,
-    end: w.end,
+    start: span.start,
+    end: span.end,
     splitPoints: [],
-  }));
+  })));
 
-  for (let wi = 0; wi < walls.length; wi++) {
-    const w = walls[wi];
+  for (let wi = 0; wi < splitWalls.length; wi++) {
+    const w = splitWalls[wi];
     const dx = w.end.x - w.start.x;
     const dy = w.end.y - w.start.y;
     const lenSq = dx * dx + dy * dy;
@@ -92,7 +95,7 @@ function splitWallsAtTJunctions(walls: Wall[]): Edge[] {
  * Returns detected rooms with wall ids, centroid, and area.
  */
 export function detectRooms(walls: Wall[]): Room[] {
-  if (walls.length < 3) return [];
+  if (walls.length < 2) return [];
 
   // Split walls at T-junctions so shared-wall rooms are properly separated
   const splitEdges = splitWallsAtTJunctions(walls);
@@ -270,7 +273,7 @@ function shoelace(pts: Point[]): number {
  */
 export function getRoomPolygon(room: Room, walls: Wall[]): Point[] {
   const wallIds = new Set(room.walls);
-  if (walls.filter(w => wallIds.has(w.id)).length < 3) return [];
+  if (walls.filter(w => wallIds.has(w.id)).length < 2) return [];
 
   let edges = splitWallsAtTJunctions(walls).filter(e => wallIds.has(e.wallId));
 

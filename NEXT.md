@@ -722,3 +722,18 @@ independently verified scene/PNG hashes and a visually checked result. See
 [validation](docs/room-slab-validation.md). Curved room boundaries, stair/courtyard
 voids, editable slab thickness, wall-face offsets and native slab fidelity remain
 open; the export's separate rectangular ground support is unchanged.
+
+
+### Curved room boundaries and derived areas — 2026-09-09
+
+Room detection and polygons now follow the viewer's 16-facet quadratic wall path,
+so fills, floor finishes and slabs reach the curved boundary. Derived area uses
+that same centreline polygon. Source wall IDs retain room names and finishes;
+T-junction room splits and a room enclosed by a curve plus a straight wall are
+covered. Source dimensions remain unchanged.
+
+**671 unit tests, six Chromium/WebKit browser checks, Svelte checks and production
+build passed.** The actual stacked download rendered in Blender with independently
+verified scene/PNG hashes and visual inspection. See [validation](docs/curved-room-boundaries-validation.md).
+Exact analytic/interior-face areas, crossing-wall topology, courtyard/stair voids,
+slab authoring and native curved-room fidelity remain open.

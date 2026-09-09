@@ -41,3 +41,8 @@ the L-shaped footprint and remains separate from the detached room.
 
 These synthetic checks establish geometry correctness for the tested outlines,
 not physical-device qualification or a performance budget.
+
+
+Subsequent work now follows faceted curved room boundaries too; see
+[curved room validation](curved-room-boundaries-validation.md). The other slab
+authoring and boundary-convention limitations above remain open.
