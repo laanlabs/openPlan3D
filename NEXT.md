@@ -689,6 +689,20 @@ actual active/stacked downloads rendered in pinned Blender, with verified scene
 and PNG hashes and visually checked results. Editable backup dimensions stayed
 unchanged. Browser testing caught and fixed an overlap with Undo History.
 
-Next: direct browser-to-native queue handoff, material baking, curved opening and
+Next: direct browser-to-native queue handoff, material baking and further
 inactive-floor fidelity, camera alignment and physical/release qualification.
 This is a neutral snapshot adapter, not a completed replacement for either viewer.
+
+
+### Curved web wall openings — 2026-09-09
+
+Curved walls now cut door/window apertures in active and stacked floors. Active
+trim and glazing follow the curve; baseboards clear doorways. Saved dimensions
+remain unchanged. Exported-triangle testing also caught and fixed a rounding
+sliver that blocked a window at a facet join.
+
+**665 unit tests, six Chromium/WebKit browser checks, Svelte checks and production
+build passed.** Actual active/stacked downloads rendered in pinned Blender with
+independently verified scene/PNG hashes and visually checked results. See
+[validation](docs/curved-wall-openings-validation.md). Facet joins, inactive slab
+and trim fidelity, native curves, material baking and queue handoff remain open.

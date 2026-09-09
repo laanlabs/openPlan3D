@@ -12,7 +12,7 @@
   import { projectSettings, formatArea } from '$lib/stores/settings';
   import * as THREE from 'three';
   import { createSlopedBoxGeometry } from '$lib/utils/slopedWallGeometry';
-  import { buildWallSegments, openingOnWall, roomCeilingHeight, wallPathSpans, doorPanelPose } from '$lib/utils/wallProfiles';
+  import { buildWallSegments, roomCeilingHeight, wallProfileSpans, wallPathProfile, pathOpening, doorPanelPose } from '$lib/utils/wallProfiles';
   import { assembleFloorStack } from '$lib/utils/floorStack';
   import { setFloorCameraPose } from '$lib/utils/floorCamera';
   import { frameScene } from '$lib/utils/frameScene';
@@ -1166,17 +1166,22 @@
     group.clear();
   }
 
-  function addOpeningFrame(wall: Wall, position: number, width: number, bottom: number, height: number, depth: number, material: THREE.Material) {
-    const length = Math.hypot(wall.end.x - wall.start.x, wall.end.y - wall.start.y);
-    const rect = openingOnWall(length, getWallStartHeight(wall), getWallEndHeight(wall), position, width, bottom, height);
+  function addOpeningFrame(wall: Wall, position: number, width: number, bottom: number, height: number, depth: number, material: THREE.Material, excludeFromRender = false) {
+    const path = wallPathProfile(wall);
+    const rect = pathOpening(path, position * path.length, width, bottom, height);
     if (!rect) return;
-    const t = (rect.left + rect.right) / 2 / length;
-    const geo = new THREE.BoxGeometry(rect.right - rect.left, rect.top - rect.bottom, depth);
-    const mesh = new THREE.Mesh(geo, material);
-    mesh.position.set(wall.start.x + (wall.end.x - wall.start.x) * t, (rect.bottom + rect.top) / 2, wall.start.y + (wall.end.y - wall.start.y) * t);
-    mesh.rotation.y = -Math.atan2(wall.end.y - wall.start.y, wall.end.x - wall.start.x);
-    mesh.castShadow = true;
-    wallGroup.add(mesh);
+    for (const span of path.spans) {
+      const from = Math.max(span.from, rect.left), to = Math.min(span.to, rect.right);
+      if (to <= from) continue;
+      const center = path.sample((from + to) / 2).point;
+      const geo = new THREE.BoxGeometry(to - from, rect.top - rect.bottom, depth);
+      const mesh = new THREE.Mesh(geo, material);
+      mesh.position.set(center.x, (rect.bottom + rect.top) / 2, center.y);
+      mesh.rotation.y = -Math.atan2(span.end.y - span.start.y, span.end.x - span.start.x);
+      mesh.userData.renderExclude = excludeFromRender;
+      mesh.castShadow = !excludeFromRender;
+      wallGroup.add(mesh);
+    }
   }
 
   function buildWalls(floor: Floor) {
@@ -1240,40 +1245,31 @@
           interiorMat, interiorMat,
           interiorMat, exteriorMat,
         ];
-        for (const span of wallPathSpans(wall)) {
-          const p0x = span.start.x, p0y = span.start.y, p1x = span.end.x, p1y = span.end.y;
-          const segLen = Math.hypot(p1x - p0x, p1y - p0y);
-          if (segLen < 0.5) continue;
-          const segAngle = Math.atan2(p1y - p0y, p1x - p0x);
-          const segCx = (p0x + p1x) / 2;
-          const segCy = (p0y + p1y) / 2;
-          const segStartH = span.startHeight;
-          const segEndH = span.endHeight;
-          const geo = createSlopedBoxGeometry(segLen, t, 0, segStartH, segEndH);
-          const mesh = new THREE.Mesh(geo, materials);
-          mesh.castShadow = true;
-          mesh.receiveShadow = true;
-          mesh.position.set(segCx, 0, segCy);
-          mesh.rotation.y = -segAngle;
-          mesh.userData.wallId = wall.id;
-          wallMeshMap.set(mesh, wall.id);
-          wallGroup.add(mesh);
+        const doors = floor.doors.filter(d => d.wallId === wall.id);
+        const windows = floor.windows.filter(w => w.wallId === wall.id);
+        for (const span of wallProfileSpans(wall, doors, windows)) {
+          const angle = Math.atan2(span.end.y - span.start.y, span.end.x - span.start.x);
+          for (const segment of span.segments) {
+            const geo = createSlopedBoxGeometry(segment.width, t, segment.bottomY, segment.topYLeft, segment.topYRight);
+            const mesh = new THREE.Mesh(geo, materials);
+            mesh.castShadow = true; mesh.receiveShadow = true;
+            mesh.position.set(span.start.x + segment.offsetX * Math.cos(angle), 0, span.start.y + segment.offsetX * Math.sin(angle));
+            mesh.rotation.y = -angle; mesh.userData.wallId = wall.id;
+            wallMeshMap.set(mesh, wall.id); wallGroup.add(mesh);
+          }
         }
-        // Baseboard for curved wall
+        // The same cuts keep baseboards out of curved doorways.
         if (Math.min(startH, endH) >= BASEBOARD_HEIGHT) {
-            for (const span of wallPathSpans(wall)) {
-              const p0x = span.start.x, p0y = span.start.y, p1x = span.end.x, p1y = span.end.y;
-              const segLen = Math.hypot(p1x - p0x, p1y - p0y);
-              if (segLen < 0.5) continue;
-              const segAngle = Math.atan2(p1y - p0y, p1x - p0x);
-              const bbGeo = new THREE.BoxGeometry(segLen, BASEBOARD_HEIGHT, t + 2);
-              const bbMesh = new THREE.Mesh(bbGeo, baseboardMat);
-              bbMesh.position.set((p0x + p1x) / 2, BASEBOARD_HEIGHT / 2, (p0y + p1y) / 2);
-              bbMesh.rotation.y = -segAngle;
-              bbMesh.castShadow = true;
-              wallGroup.add(bbMesh);
+          const base = { ...wall, height: BASEBOARD_HEIGHT, startHeight: BASEBOARD_HEIGHT, endHeight: BASEBOARD_HEIGHT };
+          for (const span of wallProfileSpans(base, doors, windows)) {
+            const angle = Math.atan2(span.end.y - span.start.y, span.end.x - span.start.x);
+            for (const segment of span.segments) {
+              const mesh = new THREE.Mesh(createSlopedBoxGeometry(segment.width, t + 2, segment.bottomY, segment.topYLeft, segment.topYRight), baseboardMat);
+              mesh.position.set(span.start.x + segment.offsetX * Math.cos(angle), 0, span.start.y + segment.offsetX * Math.sin(angle));
+              mesh.rotation.y = -angle; mesh.castShadow = true; wallGroup.add(mesh);
             }
           }
+        }
           continue;
         }
 
@@ -1371,14 +1367,15 @@
     for (const sourceDoor of floor.doors) {
       const wall = floor.walls.find((w) => w.id === sourceDoor.wallId);
       if (!wall) continue;
-      const length = Math.hypot(wall.end.x - wall.start.x, wall.end.y - wall.start.y);
-      const opening = openingOnWall(length, getWallStartHeight(wall), getWallEndHeight(wall), sourceDoor.position, sourceDoor.width, 0, sourceDoor.height ?? 210);
+      const path = wallPathProfile(wall), length = path.length;
+      const opening = pathOpening(path, path.distanceAt(sourceDoor.position), sourceDoor.width, 0, sourceDoor.height ?? 210);
       if (!opening || opening.top < 6 || opening.right - opening.left <= 2) continue;
-      const door = { ...sourceDoor, width: opening.right - opening.left, position: (opening.left + opening.right) / 2 / length };
+      const left = path.sample(opening.left).point, right = path.sample(opening.right).point;
+      const door = { ...sourceDoor, width: Math.hypot(right.x - left.x, right.y - left.y), position: (opening.left + opening.right) / 2 / length };
+      if (door.width <= 2) continue;
       const t = door.position;
-      const px = wall.start.x + (wall.end.x - wall.start.x) * t;
-      const py = wall.start.y + (wall.end.y - wall.start.y) * t;
-      const angle = Math.atan2(wall.end.y - wall.start.y, wall.end.x - wall.start.x);
+      const px = (left.x + right.x) / 2, py = (left.y + right.y) / 2;
+      const angle = Math.atan2(right.y - left.y, right.x - left.x);
       const wt = Math.max(wall.thickness, WALL_THICKNESS);
 
       const frameMat = new THREE.MeshStandardMaterial({ color: 0x6b4423, roughness: 0.6 });
@@ -1388,7 +1385,7 @@
       // Clip jambs and header too when an opening reaches the wall profile.
       addOpeningFrame(wall, (opening.left - jamb / 2) / length, jamb, 0, doorHeight, wt + 2, frameMat);
       addOpeningFrame(wall, (opening.right + jamb / 2) / length, jamb, 0, doorHeight, wt + 2, frameMat);
-      addOpeningFrame(wall, t, door.width + jamb * 2, doorHeight, jamb, wt + 2, frameMat);
+      addOpeningFrame(wall, t, opening.right - opening.left + jamb * 2, doorHeight, jamb, wt + 2, frameMat);
 
       if (door.type === 'opening') {
         // Plain doorway — jambs and header only, no door leaf
@@ -1413,7 +1410,7 @@
         // Shift geometry so pivot is at left edge
         panelGeo.translate(door.width / 2 - 1, 0, 0);
         const panelMesh = new THREE.Mesh(panelGeo, panelMat);
-        const pose = doorPanelPose(wall, door);
+        const pose = doorPanelPose({ ...wall, start: left, end: right, curvePoint: undefined }, { ...door, position: 0.5 });
         panelMesh.position.set(pose.x, doorHeight / 2 - 2, pose.z);
         panelMesh.rotation.y = -pose.yaw;
         panelMesh.castShadow = true;
@@ -1440,14 +1437,11 @@
     for (const sourceWindow of floor.windows) {
       const wall = floor.walls.find((w) => w.id === sourceWindow.wallId);
       if (!wall) continue;
-      const length = Math.hypot(wall.end.x - wall.start.x, wall.end.y - wall.start.y);
-      const opening = openingOnWall(length, getWallStartHeight(wall), getWallEndHeight(wall), sourceWindow.position, sourceWindow.width, sourceWindow.sillHeight ?? 90, sourceWindow.height);
+      const path = wallPathProfile(wall), length = path.length;
+      const opening = pathOpening(path, path.distanceAt(sourceWindow.position), sourceWindow.width, sourceWindow.sillHeight ?? 90, sourceWindow.height);
       if (!opening || opening.top - opening.bottom <= 4 || opening.right - opening.left <= 4) continue;
       const win = { ...sourceWindow, width: opening.right - opening.left, position: (opening.left + opening.right) / 2 / length, sillHeight: opening.bottom };
       const t = win.position;
-      const px = wall.start.x + (wall.end.x - wall.start.x) * t;
-      const py = wall.start.y + (wall.end.y - wall.start.y) * t;
-      const angle = Math.atan2(wall.end.y - wall.start.y, wall.end.x - wall.start.x);
       const wt = Math.max(wall.thickness, WALL_THICKNESS);
       const effectiveWinH = opening.top - opening.bottom;
       const winCY = win.sillHeight + effectiveWinH / 2;
@@ -1479,17 +1473,9 @@
       const halfH = (effectiveWinH - mullionW) / 2;
       for (const qx of [-1, 1]) {
         for (const qy of [-1, 1]) {
-          const gGeo = new THREE.BoxGeometry(halfW, halfH, 1);
-          const gMesh = new THREE.Mesh(gGeo, glassMat);
-          gMesh.userData.renderExclude = true;
           const ox = qx * (halfW / 2 + mullionW / 2);
-          gMesh.position.set(
-            px + ox * Math.cos(angle),
-            winCY + qy * (halfH / 2 + mullionW / 2),
-            py + ox * Math.sin(angle)
-          );
-          gMesh.rotation.y = -angle;
-          wallGroup.add(gMesh);
+          const centerY = winCY + qy * (halfH / 2 + mullionW / 2);
+          addOpeningFrame(wall, t + ox / length, halfW, centerY - halfH / 2, halfH, 1, glassMat, true);
         }
       }
 
@@ -1719,7 +1705,7 @@
     const defaultExteriorMat = transparentMat(0xd4cfc9, 0.85);
 
     for (const sourceWall of floor.walls) {
-      for (const span of wallPathSpans(sourceWall)) {
+      for (const span of wallProfileSpans(sourceWall, floor.doors.filter(d => d.wallId === sourceWall.id), floor.windows.filter(w => w.wallId === sourceWall.id))) {
         const wall = { ...sourceWall, ...span };
         const dx = wall.end.x - wall.start.x;
         const dy = wall.end.y - wall.start.y;
@@ -1733,9 +1719,7 @@
         const cx = (wall.start.x + wall.end.x) / 2;
         const cy = (wall.start.y + wall.end.y) / 2;
 
-        const doorOpenings = sourceWall.curvePoint ? [] : floor.doors.filter((d) => d.wallId === wall.id);
-        const winOpenings = sourceWall.curvePoint ? [] : floor.windows.filter((w) => w.wallId === wall.id);
-        const segments = buildWallSegments(len, startH, endH, doorOpenings, winOpenings);
+        const segments = span.segments;
 
         const materials = [
           defaultExteriorMat, defaultExteriorMat,
