@@ -92,8 +92,12 @@ See native `docs/coverage-view-suggestions-validation.md`. Direct developer batc
 analysis now prepares RoomPlan once without rendering and preserves every camera
 state in a bounded report. All 72 renderer cases passed across host/Blender execution;
 synthetic batch output matched both prior single-camera reports. See native
-`docs/direct-coverage-batch-validation.md`. Native coverage-only queue integration,
-physical suggestion validation, continuous heatmaps and measured calibration remain pending.
+`docs/direct-coverage-batch-validation.md`. Monitored coverage-only queue jobs now
+add immutable multi-frame inputs, worker limits, cancellation and verified receipt
+recovery. The full 76-case renderer run and final five-case coverage-job suite passed.
+See native `docs/coverage-only-queue-validation.md`. Native receipt decoding,
+multi-frame submission and batch review remain pending, along with
+physical suggestion validation, continuous heatmaps and measured calibration.
 Rendering stays local: Blender Cycles for finished renders and Three.js for web
 previews with shared preparation. This batch changes no web runtime, Firebase
 storage/quotas, project-package format or rendering engine.
