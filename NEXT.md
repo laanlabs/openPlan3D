@@ -113,8 +113,13 @@ validation. See native `docs/coverage-command-validation.md`. Quality-aware batc
 suggestions now verify recorded photos, report coverage omissions and apply a
 review-only subset. **131 native tests ran per platform with one optional skip
 and zero failures**, plus live ordering/cap/apply checks. See native
-`docs/coverage-batch-quality-validation.md`. Remaining work includes
-physical suggestion validation, continuous heatmaps and measured calibration.
+`docs/coverage-batch-quality-validation.md`. Per-camera review now measures local
+photo detail/exposure at visible wall and floor samples, with explicit edge/proxy
+exclusions. **135 native tests ran per platform with one optional skip and zero
+failures**, plus live synthetic patch review. See native
+`docs/surface-photo-evaluation-validation.md`. These measurements do not yet drive
+camera selection or texture baking. Physical suggestion validation, masks,
+pixel-footprint ranking, continuous heatmaps and measured calibration remain open.
 Rendering stays local: Blender Cycles for finished renders and Three.js for web
 previews with shared preparation. This batch changes no web runtime, Firebase
 storage/quotas, project-package format or rendering engine.
