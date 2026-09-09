@@ -64,7 +64,12 @@ now adds verified source-photo and opacity-overlay previews while keeping PNG
 exports unchanged. **99 native tests ran on each platform with one optional skip
 and zero failures**; a fresh native Blender job and all comparison modes passed
 live Mac QA. See native `docs/photo-render-comparison-validation.md`. Measured
-real-image calibration and frame ranking remain open; legacy metadata is never inferred.
+real-image calibration remains open; legacy metadata is never inferred. Local
+frame-quality analysis now adds cancellable detail/exposure/rotation/tracking
+hints and optional picker sorting. **103 native tests ran per platform with one
+optional skip and zero failures**, plus synthetic Mac UI validation. See native
+`docs/frame-quality-ranking-validation.md`. Real-scan ranking validation and
+spatial/occlusion coverage remain open.
 Rendering stays local: Blender Cycles for finished renders and Three.js for web
 previews with shared preparation. This batch changes no web runtime, Firebase
 storage/quotas, project-package format or rendering engine.
