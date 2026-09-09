@@ -85,8 +85,11 @@ and zero failures**, plus renderer and live Mac map checks. See native
 unique contributions and a map with all selected camera markers. **112 native
 tests ran per platform with one optional skip and zero failures**; live two-camera
 results matched independent counts. See native `docs/combined-coverage-validation.md`.
-Direct batch analysis, quality-aware selection, continuous heatmaps and physical
-validation remain pending.
+Quality-aware suggestions now combine verified source-photo hints with coverage
+gains and offer a reviewable smaller selection. **115 native tests ran per platform
+with one optional skip and zero failures**, plus live ordering/cap/apply checks.
+See native `docs/coverage-view-suggestions-validation.md`. Direct batch analysis,
+physical suggestion validation, continuous heatmaps and measured calibration remain pending.
 Rendering stays local: Blender Cycles for finished renders and Three.js for web
 previews with shared preparation. This batch changes no web runtime, Firebase
 storage/quotas, project-package format or rendering engine.
