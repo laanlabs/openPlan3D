@@ -80,8 +80,13 @@ UI job passed. See native `docs/native-coverage-review-validation.md`. A native 
 sample map now adds verified locations, state/surface filters, rotation controls
 and a camera marker. **109 native tests ran per platform with one optional skip
 and zero failures**, plus renderer and live Mac map checks. See native
-`docs/coverage-sample-map-validation.md`. Continuous heatmaps, multi-camera review
-and physical-photo validation remain pending.
+`docs/coverage-sample-map-validation.md`. Native combined review now compares
+2–16 verified captured frames of the same unchanged scan, with union/overlap counts,
+unique contributions and a map with all selected camera markers. **112 native
+tests ran per platform with one optional skip and zero failures**; live two-camera
+results matched independent counts. See native `docs/combined-coverage-validation.md`.
+Direct batch analysis, quality-aware selection, continuous heatmaps and physical
+validation remain pending.
 Rendering stays local: Blender Cycles for finished renders and Three.js for web
 previews with shared preparation. This batch changes no web runtime, Firebase
 storage/quotas, project-package format or rendering engine.
