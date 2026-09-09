@@ -652,6 +652,13 @@ each of Mac Catalyst and the iOS simulator, with no failures or skips. A native
 fixture rendered successfully in pinned Blender and its input/output hashes and
 PNG were checked. See `openplan3d-ios/docs/edited-plan-render-export-validation.md`.
 
-Direct native queue submission of edits, the shared web adapter, full furniture
-footprint slab bounds and source-to-edit camera alignment remain open. This does
+Direct native queue submission of edits, the shared web adapter,
+and source-to-edit camera alignment remain open. This does
 not qualify physical export interaction or real-photo accuracy.
+
+The follow-up slab correction now bounds native preview/export floors around full
+transformed geometry, including rotated furniture and wall thickness. Labels no
+longer enlarge furniture-only slabs. Both regressions failed before the fix;
+seven edited-scene tests pass on each native platform after it, with zero failures
+or skips. A verified Blender render confirms full furniture support. These remain
+rectangular envelopes; room-outline and structural slab fidelity are still open.
