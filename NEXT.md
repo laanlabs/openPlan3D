@@ -129,8 +129,13 @@ native `docs/surface-projection-geometry-validation.md`. Batch suggestions now c
 local photo quality, incidence cosine and relative
 projected resolution, with explicit photo-only mode for older batches. **142 native
 tests ran per platform with one optional skip and zero failures**; see native
-`docs/geometric-camera-suggestions-validation.md`. Texture baking, masks, physical ranking validation, continuous heatmaps and measured
-calibration remain open.
+`docs/geometric-camera-suggestions-validation.md`. A separate developer photo-projection command now bakes a calibrated sRGB PNG into
+wall/floor UV islands with per-texel occlusion checks, neutral fallback, UV padding,
+coverage mask, packed Blender scene and preview. **84 renderer host tests passed
+with 13 delegated skips and no failures**, including actual Blender photo bakes and
+renders. See native `docs/photo-projection-prototype-validation.md`. Native queue and
+photo-conversion integration, multi-photo texture selection, masks, seam handling,
+physical ranking validation, continuous heatmaps and measured calibration remain open.
 Rendering stays local: Blender Cycles for finished renders and Three.js for web
 previews with shared preparation. This batch changes no web runtime, Firebase
 storage/quotas, project-package format or rendering engine.
