@@ -642,3 +642,16 @@ Desktop camera presets, mode switching, pause and PNG export were exercised.
 This remains a test branch: finish material baking, browser/device qualification
 and shared scene integration before replacing
 any viewer. Physical-device capture and measured reprojection remain pending.
+
+## Native edited-floor render export — 2026-09-09
+
+The native editor now exports its current floor as portable neutral scene JSON
+for the existing Blender CLI worker. Wall openings and transforms reuse the
+native preview; furniture is represented by boxes. Five targeted tests passed on
+each of Mac Catalyst and the iOS simulator, with no failures or skips. A native
+fixture rendered successfully in pinned Blender and its input/output hashes and
+PNG were checked. See `openplan3d-ios/docs/edited-plan-render-export-validation.md`.
+
+Direct native queue submission of edits, the shared web adapter, full furniture
+footprint slab bounds and source-to-edit camera alignment remain open. This does
+not qualify physical export interaction or real-photo accuracy.
