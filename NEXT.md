@@ -1987,3 +1987,12 @@ and all 45 selected tests passed. See
 `openplan3d-ios/docs/native-duplicate-area-validation.md`. Automatic boundary
 assignment, duplicate-label presentation, batch raster work, measurement parity,
 arbitrary cuts, ceiling coordination, and device QA remain open.
+
+### Native automatic boundary assignment — 2026-09-10
+
+New native room labels now receive boundary IDs when their walls reconstruct an
+unambiguous room; moving associated labels preserves those IDs. Catalyst build
+and all 47 selected tests passed, including nested/shared-wall rooms and JSON
+retention. See `openplan3d-ios/docs/native-boundary-assignment-validation.md`.
+Deliberate reassociation, ambiguous graphs, duplicate-label presentation, batch
+raster work, measurement parity, arbitrary cuts, and device QA remain open.
