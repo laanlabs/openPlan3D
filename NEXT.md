@@ -2562,3 +2562,9 @@ NEXT qualification remain open.
 Editor Close/Done now explicitly clear the presenting view's cover state.
 Catalyst build and fresh Draw a Plan → Done → library UI check passed.
 See `openplan3d-ios/docs/native-editor-dismissal.md`. Review/error/iOS paths and broader NEXT work remain open.
+
+### Native review-editor dismissal verification — 2026-09-10
+
+Both Close and Done returned a reopened editor to its saved-plan preview in
+the isolated Catalyst build, with unchanged element counts. See `openplan3d-ios/docs/native-editor-dismissal.md`.
+Error paths, iOS integration and broader NEXT qualification remain open.
