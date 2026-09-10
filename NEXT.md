@@ -2109,3 +2109,12 @@ The complete FloorPlanTests target passed on iPhone 17 Pro / iOS 26.5 simulator:
 complements the Catalyst run after the room/model/renderer changes. See `openplan3d-ios/docs/native-room-ios-integration-validation.md`.
 Physical gestures/capture, measured calibration, device performance, signed
 release validation, and the broader NEXT requirements remain open.
+
+### Native color-fill grid batching — 2026-09-10
+
+Renderer room fills now share a 10 cm wall grid per floor and a bounded cache
+of rectangles. Batch output matches individual fills and opening toggles refresh
+correctly. The full Catalyst target passed: 221 tests, two optional skips, zero
+failures. See `openplan3d-ios/docs/native-fill-grid-batch-validation.md`. SVG batching, shared
+component/run indexing, device performance, area parity, PDF visual checks, and
+remaining NEXT work stay open.
