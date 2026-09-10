@@ -1,0 +1,17 @@
+import { expect, it } from 'vitest';
+import { multiSelectionBounds } from '$lib/utils/multiSelectionBounds';
+import type { Floor } from '$lib/models/types';
+it('encloses selected extents and ignores distant unselected objects', () => {
+  const floor = { walls: [], doors: [], windows: [], furniture: [{ id:'ignored',position:{x:1e6,y:1e6},width:100,depth:100,rotation:0 }],
+    stairs: [{ id:'stair',position:{x:0,y:0},width:100,depth:600,rotation:0,stairType:'l-shaped' }],
+    columns: [{ id:'column',position:{x:-200,y:0},diameter:100,shape:'square',rotation:45 }] } as unknown as Floor;
+  const before = structuredClone(floor), b = multiSelectionBounds(floor,new Set(['stair','column']))!;
+  expect(b.maxX).toBe(370); expect(b.maxY).toBe(320);
+  expect(b.minX).toBeCloseTo(-200-Math.sqrt(2)*50-.5-20);
+  expect(floor).toEqual(before);
+  expect(multiSelectionBounds(floor,new Set(['stair']))).toBeNull();
+});
+it('includes curved wall extrema rather than only endpoints', () => {
+  const floor = { walls:[{id:'curve',start:{x:0,y:0},end:{x:200,y:0},curvePoint:{x:100,y:400},thickness:20}],furniture:[],doors:[],windows:[] } as unknown as Floor;
+  expect(multiSelectionBounds(floor,new Set(['curve','missing']))).toEqual({minX:-30,minY:-30,maxX:230,maxY:230});
+});

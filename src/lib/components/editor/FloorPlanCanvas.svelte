@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { multiSelectionBounds } from '$lib/utils/multiSelectionBounds';
   import { onMount, onDestroy } from 'svelte';
   import { get } from 'svelte/store';
   import { planContentBounds, hasPlanContent } from '$lib/utils/planContentBounds';
@@ -264,26 +265,7 @@
    * Compute bounding box of all multi-selected elements.
    */
   function getMultiSelectBBox(): { minX: number; minY: number; maxX: number; maxY: number } | null {
-    if (currentSelectedIds.size < 2 || !currentFloor) return null;
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-    let found = false;
-    function expand(x: number, y: number) { if (x < minX) minX = x; if (x > maxX) maxX = x; if (y < minY) minY = y; if (y > maxY) maxY = y; found = true; }
-    for (const id of currentSelectedIds) {
-      const wall = currentFloor!.walls.find(w => w.id === id);
-      if (wall) { expand(wall.start.x, wall.start.y); expand(wall.end.x, wall.end.y); continue; }
-      const fi = currentFloor!.furniture.find(f => f.id === id);
-      if (fi) { expand(fi.position.x, fi.position.y); continue; }
-      if (currentFloor!.stairs) { const st = currentFloor!.stairs.find(s => s.id === id); if (st) { expand(st.position.x, st.position.y); continue; } }
-      if (currentFloor!.columns) { const col = currentFloor!.columns.find(c => c.id === id); if (col) { expand(col.position.x, col.position.y); continue; } }
-      // doors/windows — compute position on wall
-      const door = currentFloor!.doors.find(d => d.id === id);
-      if (door) { const w = currentFloor!.walls.find(w => w.id === door.wallId); if (w) { const cx = w.start.x + (w.end.x - w.start.x) * door.position; const cy = w.start.y + (w.end.y - w.start.y) * door.position; expand(cx, cy); } continue; }
-      const win = currentFloor!.windows.find(w => w.id === id);
-      if (win) { const w = currentFloor!.walls.find(w => w.id === win.wallId); if (w) { const cx = w.start.x + (w.end.x - w.start.x) * win.position; const cy = w.start.y + (w.end.y - w.start.y) * win.position; expand(cx, cy); } continue; }
-    }
-    if (!found) return null;
-    const pad = 20;
-    return { minX: minX - pad, minY: minY - pad, maxX: maxX + pad, maxY: maxY + pad };
+    return currentFloor ? multiSelectionBounds(currentFloor, currentSelectedIds) : null;
   }
 
   /**
@@ -2980,7 +2962,8 @@
     if (draggingWallEndpoint) commitFurnitureMove();
     if (draggingWallParallel) commitFurnitureMove();
     if (draggingCurveHandle) commitFurnitureMove();
-    if (draggingMultiSelect) commitFurnitureMove();
+    // Group drags already snapshot once at pointer-down; a second snapshot
+    // here would make the first Undo restore the just-moved state.
     if (draggingRoomId) commitFurnitureMove();
     if (draggingStairId) commitFurnitureMove();
     if (draggingColumnId) commitFurnitureMove();

@@ -1248,3 +1248,15 @@ no longer distort its bounds. Reference stairs remain non-interactive.
 reference checks, Svelte checks and build passed.** Desktop/phone screenshots were
 reviewed. See [validation](docs/stair-ghost-validation.md). Stair exports,
 multi-selection framing, physical checks and broader native/geometry parity remain open.
+
+### Multi-selection geometry bounds and drag Undo — 2026-09-09
+
+Group boxes now enclose curved walls, rotated furniture/columns and actual stair
+footprints. Their drag region uses the same bounds. Removing a duplicate history
+snapshot at pointer-up makes a single Undo restore a group drag.
+
+**782 unit tests, eight stair regressions, four final Chromium/WebKit group-drag
+checks, final Svelte checks and build passed.** The fitted phone screenshot was
+reviewed. See [validation](docs/multi-selection-bounds-validation.md). Dedicated
+Fit Selection, opening symbol extents, entourage/annotation group operations,
+stair exports and physical/native qualification remain open.
