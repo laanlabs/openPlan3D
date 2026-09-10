@@ -2160,3 +2160,11 @@ Thirteen targeted tests passed; Letter, A4, and A3 long-title fixtures were
 rendered and visually checked without footer overlap. See `openplan3d-ios/docs/native-pdf-title-layout-validation.md`.
 Large-plan/device memory, physical sharing, actual print scale, and broader NEXT
 requirements remain open.
+
+### Native export canvas bounds — 2026-09-10
+
+PNG/PDF plan bitmaps now cap both axes at 2080 pixels, preventing extreme
+portrait aspect ratios from allocating unbounded-height images. PDF scale uses
+the actual fitted transform. All 14 targeted tests passed, including an actual
+4-by-3000 m PNG export at 920 by 2080 pixels. See `openplan3d-ios/docs/native-export-canvas-bounds-validation.md`.
+Total device memory, physical printing/sharing, and other NEXT work remain open.
