@@ -26,7 +26,7 @@
   import type { FurnitureDef } from '$lib/utils/furnitureCatalog';
   import { createWallHighlight } from '$lib/utils/wallHighlight';
   import { disposeModel, ownTexture } from '$lib/utils/furnitureModelResources';
-  import { createFurnitureModelWithGLB } from '$lib/utils/furnitureModelLoader';
+  import { createFurnitureModelWithGLB, createPlacedFurnitureModel } from '$lib/utils/furnitureModelLoader';
   import { addFurniture } from '$lib/stores/project';
   import { detectRooms, resolveRoomGeometry, getRoomPolygon, roomCentroid } from '$lib/utils/roomDetection';
   import { getMaterial } from '$lib/utils/materials';
@@ -1487,30 +1487,8 @@
 
     // Furniture
     for (const fi of floor.furniture) {
-      const cat = getCatalogItem(fi.catalogId);
-      if (!cat) continue;
-      // Skip 2D-only architectural symbols
-      if (cat.symbol) continue;
-      // Create modified catalog definition with overrides
-      const furnitureDef = {
-        ...cat,
-        color: fi.color ?? cat.color,
-        width: fi.width ?? cat.width,
-        depth: fi.depth ?? cat.depth,
-        height: fi.height ?? cat.height,
-      };
-      const model = createFurnitureModelWithGLB(fi.catalogId, furnitureDef, () => {
-        // Re-render when GLB model finishes loading
-        markSceneDirty();
-      }, { color: fi.color, material: fi.material });
-      model.position.set(fi.position.x, 1.5, fi.position.y);
-      model.rotation.y = -(fi.rotation * Math.PI) / 180;
-      // Note: fi.scale is 2D editor scale — don't override 3D model scaling from scaleToFit
-      if (fi.scale && (fi.scale.x !== 1 || fi.scale.y !== 1)) {
-        model.scale.x *= fi.scale.x;
-        model.scale.z *= fi.scale.y;
-      }
-      wallGroup.add(model);
+      const model = createPlacedFurnitureModel(fi, markSceneDirty);
+      if (model) wallGroup.add(model);
     }
 
     // Room floors with materials + floating labels

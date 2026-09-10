@@ -1561,3 +1561,19 @@ export bounds and real downloads; scaled PNG visual review passed. See
 [validation](docs/furniture-export-size-validation.md). Unknown-catalog 3D
 rendering, detailed furniture export symbols, opening-only group movement,
 annotation alignment/visibility, physical qualification and native parity remain open.
+
+### Missing-catalog furniture in 3D — 2026-09-10
+
+Saved furniture with unavailable catalog entries now reaches the existing box
+fallback in the main viewer. Saved dimensions/color or shared 50 cm/gray defaults
+are preserved, with rotation, signed plan scale and height-scale magnitude applied.
+Known 2D-only symbols remain excluded and saved data remains unchanged.
+
+**All 839 unit tests, Svelte checks and build passed.** Four new Chromium/WebKit
+desktop/phone rendering workflows and six existing resource workflows have passing
+results; screenshots confirm both saved-size and default-size objects are visible.
+The Chromium textured-resource test needed longer startup/total allowances for
+software rendering; the final full loop passed unchanged resource assertions. See
+[validation](docs/unknown-furniture-3d-validation.md) for those reruns. Detailed
+furniture export symbols, opening-only group movement, annotation alignment/
+visibility, physical qualification and broader native parity remain open.

@@ -120,3 +120,31 @@ it('uses existing shared catalog mappings and a procedural fireplace instead of 
   const model = createFurnitureModelWithGLB('fireplace', getCatalogItem('fireplace')!);
   await settle(); expect(load).not.toHaveBeenCalled(); expect(model.children[0].children.length).toBeGreaterThan(1);
 });
+
+
+it.each([false, true])('renders unknown saved furniture with exact world bounds (overrides=%s)', async overrides => {
+  const load = vi.spyOn(GLTFLoader.prototype, 'loadAsync');
+  const { createPlacedFurnitureModel } = await import('$lib/utils/furnitureModelLoader');
+  const item = { id: 'missing', catalogId: 'unavailable-model', position: { x: 100, y: -200 },
+    rotation: 30, scale: { x: -2, y: 0.5, z: 1.5 }, color: '#ff00ff',
+    ...(overrides ? { width: 160, depth: 80, height: 90 } : {}) };
+  const before = structuredClone(item), model = createPlacedFurnitureModel(item)!;
+  const width = overrides ? 320 : 100, depth = overrides ? 40 : 25, height = overrides ? 135 : 75;
+  const bounds = new THREE.Box3().setFromObject(model), size = bounds.getSize(new THREE.Vector3());
+  expect(size.x).toBeCloseTo(width*Math.cos(Math.PI/6) + depth*0.5);
+  expect(size.z).toBeCloseTo(width*0.5 + depth*Math.cos(Math.PI/6));
+  expect(size.y).toBeCloseTo(height);
+  expect(bounds.min.y).toBeCloseTo(1.5);
+  expect(bounds.getCenter(new THREE.Vector3()).x).toBeCloseTo(100);
+  expect(bounds.getCenter(new THREE.Vector3()).z).toBeCloseTo(-200);
+  expect(firstMaterial(model).color.getHexString()).toBe('ff00ff');
+  expect(firstMesh(model).castShadow).toBe(true);
+  expect(load).not.toHaveBeenCalled();
+  expect(item).toEqual(before);
+});
+
+it('continues omitting explicitly 2D-only catalog symbols from placed 3D furniture', async () => {
+  const { createPlacedFurnitureModel } = await import('$lib/utils/furnitureModelLoader');
+  const symbol = furnitureCatalog.find(item => item.symbol)!;
+  expect(createPlacedFurnitureModel({ id: 'symbol', catalogId: symbol.id, position: { x: 0, y: 0 }, rotation: 0, scale: { x: 1, y: 1, z: 1 } })).toBeNull();
+});

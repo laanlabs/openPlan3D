@@ -67,7 +67,8 @@ for (const width of [1440, 390]) test(`camera previews release resources across 
 
 
 test('textured scene rebuilds retain a bounded number of GPU resources', async ({ page }, testInfo) => {
-  test.setTimeout(120_000);
+  // Repeated textured frames under software rendering can exceed two minutes.
+  test.setTimeout(240_000);
   await observeGPU(page);
   const samples: any[] = [];
   try {
@@ -80,7 +81,9 @@ test('textured scene rebuilds retain a bounded number of GPU resources', async (
     await page.getByRole('button', { name: '─ Wall 1', exact: true }).click();
     await page.getByRole('button', { name: '3D', exact: true }).click();
     await page.waitForLoadState('networkidle');
-    await expect.poll(async () => (await gpu(page))[0]?.draws ?? 0).toBeGreaterThan(0);
+    // Software WebGL can spend more than 10 seconds compiling the first textured frame.
+    // This checks resource retention after warmup, not initial-render performance.
+    await expect.poll(async () => (await gpu(page))[0]?.draws ?? 0, { timeout: 30_000 }).toBeGreaterThan(0);
     await page.getByRole('button', { name: 'Edit Mode', exact: true }).click();
     const canvas = page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').last();
     const bounds = await canvas.boundingBox();
@@ -100,6 +103,7 @@ test('textured scene rebuilds retain a bounded number of GPU resources', async (
     for (let index = 0; index < 4; index++) samples.push({ phase: `rebuild-${index}`, live: await cycle() });
     expect(samples.at(-1).live).toEqual(baseline);
   } finally {
+    samples.push({ phase: 'final-contexts', contexts: await gpu(page) });
     await testInfo.attach('scene-resource-counts', { body: JSON.stringify(samples, null, 2), contentType: 'application/json' });
   }
 });

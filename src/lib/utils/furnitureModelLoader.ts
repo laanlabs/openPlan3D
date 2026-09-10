@@ -1,7 +1,8 @@
 /** Lazy GLB furniture with an immediate procedural fallback. */
 import * as THREE from 'three';
 import { createFurnitureModel } from './furnitureModels3d';
-import type { FurnitureDef } from './furnitureCatalog';
+import { getCatalogItem, type FurnitureDef } from './furnitureCatalog';
+import type { FurnitureItem } from '$lib/models/types';
 import { getModelFile } from './furnitureModelFiles';
 import { furnitureFinishes } from './furnitureFinishes';
 import { disposeModel, isModelDisposed, loadCatalogModel } from './furnitureModelResources';
@@ -72,4 +73,27 @@ export function createFurnitureModelWithGLB(
     onLoaded?.(container);
   }).catch(error => { console.warn(`[FurnitureLoader] Model unavailable for ${catalogId}:`, error); });
   return container;
+}
+
+
+/** Build a saved item even when its original catalog is unavailable. */
+export function createPlacedFurnitureModel(item: FurnitureItem, onLoaded?: (model: THREE.Group) => void): THREE.Group | null {
+  const catalog = getCatalogItem(item.catalogId);
+  if (catalog?.symbol) return null;
+  const definition: FurnitureDef = {
+    id: item.catalogId, name: 'Unknown furniture', category: 'Unknown', icon: '🪑',
+    ...catalog,
+    width: item.width ?? catalog?.width ?? 50,
+    depth: item.depth ?? catalog?.depth ?? 50,
+    height: item.height ?? catalog?.height ?? 50,
+    color: item.color ?? catalog?.color ?? '#888888',
+  };
+  const model = createFurnitureModelWithGLB(item.catalogId, definition, onLoaded, {
+    color: item.color, material: item.material,
+  });
+  model.position.set(item.position.x, 1.5, item.position.y);
+  model.rotation.y = -item.rotation * Math.PI / 180;
+  // The plan's Y scale is world Z; height uses the saved Z magnitude.
+  model.scale.set(item.scale?.x ?? 1, Math.abs(item.scale?.z ?? 1), item.scale?.y ?? 1);
+  return model;
 }
