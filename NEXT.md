@@ -1820,3 +1820,12 @@ two Chromium/WebKit package workflows and 21 native Catalyst tests passed. Nativ
 three-storey import/visual review passed. See
 [validation](docs/native-floor-stack-validation.md). Native elevation controls,
 room-shaped slabs, openings, curved/sloped walls and device qualification remain open.
+
+
+### Native floor elevation controls — 2026-09-10
+
+The native defaults sheet now edits per-floor elevations with fractional/negative
+input, validation, default reset and undo. Catalyst build and 22 tests passed;
+native UI/visual checks verified edits, invalid recovery, resets and undo. See
+`openplan3d-ios/docs/native-elevation-controls-validation.md`. Native room-shaped
+slabs, openings, curved/sloped walls and physical-device qualification remain open.
