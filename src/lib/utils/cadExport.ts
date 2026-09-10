@@ -5,6 +5,7 @@ import { textAnnotationLines } from './textAnnotationLayout';
 import { planOpening } from './planOpening';
 import { planWallOutlines } from './planWallOutline';
 import Drawing from 'dxf-writer';
+import { drawFurnitureDxf } from './furnitureDxf';
 import { wallPlanDimension } from './wallPlanGeometry';
 import type { Project } from '$lib/models/types';
 import { getCatalogItem, getFurnitureSize } from '$lib/utils/furnitureCatalog';
@@ -203,7 +204,9 @@ export function exportDXF(project: Project) {
     const fy = -fi.position.y;
     const rot = (fi.rotation || 0) * Math.PI / 180;
 
-    // Compute rotated rectangle corners
+    if (cat) drawFurnitureDxf(d, fi);
+    else {
+    // Unknown entries retain the simple CAD footprint.
     const hw = fw / 2, hd = fd / 2;
     const corners: [number, number][] = [
       [-hw, -hd], [hw, -hd], [hw, hd], [-hw, hd]
@@ -215,6 +218,7 @@ export function exportDXF(project: Project) {
     });
     rotated.push(rotated[0]); // close
     d.drawPolyline(rotated);
+    }
 
     // Label
     d.drawText(fx, fy, 4, 0, cat?.name ?? 'Unknown furniture', 'center', 'middle');

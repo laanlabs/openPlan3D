@@ -1668,3 +1668,14 @@ gallery visual review and export-bound regressions passed. See
 [validation](docs/furniture-svg-detail-validation.md). Detailed DXF furniture
 symbols, independent opening alignment, physical qualification and broader native
 parity remain open.
+
+### Detailed furniture linework in DXF — 2026-09-10
+
+DXF exports now reuse catalog furniture geometry as editable lines, quadratic
+splines and exact rational elliptical arcs, preserving scale, mirroring and
+rotation. Duplicate fill/stroke outlines are removed; unknown entries retain
+their rectangular footprint. Output uses the existing monochrome furniture layer.
+All 864 unit tests, six Chromium/WebKit workflows, Svelte checks and build passed;
+downloaded DXF geometry visual review and export-bound regressions passed. See
+[validation](docs/furniture-dxf-detail-validation.md). Independent opening alignment,
+physical qualification and broader native parity remain open.
