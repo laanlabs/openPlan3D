@@ -2273,3 +2273,12 @@ and area-help corrections: 232 tests, two optional skips, zero failures. The
 partial/unavailable/complete saved-plan regression passed. See `openplan3d-ios/docs/native-ios-preview-integration-validation.md`.
 Interactive/device checks, area parity, performance, release gates, and remaining
 NEXT requirements stay open.
+
+### Cross-platform area baseline — 2026-09-10
+
+Paired 4 × 3 m rectangle fixtures measured three wall thicknesses. At 20 cm,
+web reports 12.00 m², native 10.31 m², and exact interior faces give 10.64 m².
+This isolates centerline/interior convention differences and native raster error.
+Eleven native region tests and the web characterization test passed. See `openplan3d-ios/docs/area-convention-baseline.md`.
+Convention adoption, general geometry fixtures, numerical correction, and the
+remaining NEXT requirements stay open.
