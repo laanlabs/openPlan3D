@@ -229,11 +229,11 @@ it.each([false, true])('exports missing-catalog furniture with shared dimensions
   expect(svg).toContain(`width="${width}" height="${depth}"`);
   expect(svg).toContain('Unknown furniture');
   await exportAsPNG(canvas, project);
-  expect(canvasRect).toHaveBeenCalledWith(-width / 2, -depth / 2, width, depth);
+  expect(canvasCurve).toHaveBeenCalledWith(width/2,-depth/2,width/2,expect.any(Number));
   expect(canvasText.mock.calls.map(c => c[0])).toContain('Unknown furniture');
-  canvasRect.mockClear(); canvasText.mockClear();
+  canvasRect.mockClear(); canvasCurve.mockClear(); canvasText.mockClear();
   await exportPDF(project);
-  expect(canvasRect).toHaveBeenCalledWith(-width / 2, -depth / 2, width, depth);
+  expect(canvasCurve).toHaveBeenCalledWith(width/2,-depth/2,width/2,expect.any(Number));
   expect(canvasText.mock.calls.map(c => c[0])).toContain('Unknown furniture');
   exportDXF(project);
   const dxf = await downloaded.at(-1)!.text();
@@ -252,4 +252,19 @@ it.each([false, true])('exports missing-catalog furniture with shared dimensions
     expect(vertices[i].y).toBeCloseTo(-200 - x*Math.sin(angle)-y*Math.cos(angle));
   }
   expect(project).toEqual(before);
+});
+
+
+it('draws detailed catalog furniture in both raster exports with readable mirrored captions', async () => {
+  const project=roomProject(), floor=project.floors[0];
+  floor.walls=[];floor.rooms=[];floor.doors=[];floor.windows=[];
+  floor.furniture=[{id:'chair',catalogId:'chair',position:{x:100,y:200},rotation:30,scale:{x:-1,y:1,z:1}}];
+  const before=structuredClone(project);
+  for(const render of [()=>exportAsPNG(canvas,project),()=>exportPDF(project)]) {
+    canvasCurve.mockClear();canvasText.mockClear();
+    await render();
+    expect(canvasCurve.mock.calls.length).toBeGreaterThan(4); // back, seat and arms, not a single rectangle
+    expect(canvasText.mock.calls.map(call=>call[0])).toContain('Armchair');
+    expect(project).toEqual(before);
+  }
 });

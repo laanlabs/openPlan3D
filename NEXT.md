@@ -1645,3 +1645,14 @@ Two additional phone screenshot workflows passed; fitted visual review passed.
 See [validation](docs/opening-group-movement-validation.md). Independent opening
 alignment, detailed furniture exports, physical qualification and native parity
 remain open.
+
+### Furniture detail in PNG/PDF exports — 2026-09-10
+
+PNG/PDF exports now use the editor's catalog-specific furniture renderer, preserving
+symbol details, color, rotation and signed scale with readable mirrored captions.
+Unknown entries keep their fallback symbol, with no selection handles or project
+mutation. All 859 unit tests, six Chromium/WebKit workflows, Svelte checks and build
+passed. Gallery visual review and oversized furniture-bound regressions passed.
+See [validation](docs/furniture-raster-detail-validation.md). Detailed SVG/DXF
+furniture symbols, independent opening alignment, physical qualification and
+broader native parity remain open.

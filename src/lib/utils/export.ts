@@ -9,7 +9,7 @@ import { wallPlanBounds, wallPlanDimension } from './wallPlanGeometry';
 import type { Project, Floor } from '$lib/models/types';
 import { getCatalogItem, getFurnitureSize } from '$lib/utils/furnitureCatalog';
 import { resolveRooms, getRoomPolygon, roomLabelPosition } from '$lib/utils/roomDetection';
-import { drawColumn, drawDoorOnWall, drawWindowOnWall, drawEntourageItems, drawTextAnnotations, drawAnnotations, drawPersistedMeasurements } from '$lib/utils/canvasRenderer';
+import { drawFurnitureItem, drawColumn, drawDoorOnWall, drawWindowOnWall, drawEntourageItems, drawTextAnnotations, drawAnnotations, drawPersistedMeasurements } from '$lib/utils/canvasRenderer';
 import type { CanvasState } from '$lib/utils/canvasInteraction';
 import { projectSettings, formatArea, formatLength } from '$lib/stores/settings';
 import { get } from 'svelte/store';
@@ -249,32 +249,9 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
       // Draw doors and windows (shared full-fidelity renderer)
       drawOpeningsOnCanvas(ctx, floor, minX, minY, pad);
 
-      // Draw furniture
-      for (const fi of floor.furniture) {
-        const fx = fi.position.x - minX + pad;
-        const fy = fi.position.y - minY + pad;
-        const cat = getCatalogItem(fi.catalogId);
-        const { width: fw, depth: fd } = getFurnitureSize(fi);
-        const color = fi.color ?? (cat ? cat.color : '#888888');
-        const rot = (fi.rotation || 0) * Math.PI / 180;
-        ctx.save();
-        ctx.translate(fx, fy);
-        ctx.rotate(rot);
-        ctx.globalAlpha = 0.7;
-        ctx.fillStyle = color;
-        ctx.fillRect(-fw / 2, -fd / 2, fw, fd);
-        ctx.strokeStyle = '#555';
-        ctx.lineWidth = 0.5;
-        ctx.strokeRect(-fw / 2, -fd / 2, fw, fd);
-        ctx.globalAlpha = 1;
-        {
-          ctx.fillStyle = '#333';
-          ctx.font = '9px sans-serif';
-          ctx.textAlign = 'center';
-          ctx.fillText(cat?.name ?? 'Unknown furniture', 0, 4);
-        }
-        ctx.restore();
-      }
+      for (const item of floor.furniture) drawFurnitureItem({
+        ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY,
+      }, item, false);
 
       ctx.save();
       for (const column of floor.columns ?? []) drawColumn({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, column, false);
@@ -760,32 +737,9 @@ export function exportPDF(project: Project) {
   // Doors and windows (shared full-fidelity renderer)
   drawOpeningsOnCanvas(ctx, floor, minX, minY, pad);
 
-  // Furniture
-  for (const fi of floor.furniture) {
-    const fx = fi.position.x - minX + pad;
-    const fy = fi.position.y - minY + pad;
-    const cat = getCatalogItem(fi.catalogId);
-    const { width: fw, depth: fd } = getFurnitureSize(fi);
-    const color = fi.color ?? (cat ? cat.color : '#888888');
-    const rot = (fi.rotation || 0) * Math.PI / 180;
-    ctx.save();
-    ctx.translate(fx, fy);
-    ctx.rotate(rot);
-    ctx.globalAlpha = 0.7;
-    ctx.fillStyle = color;
-    ctx.fillRect(-fw / 2, -fd / 2, fw, fd);
-    ctx.strokeStyle = '#555';
-    ctx.lineWidth = 0.5;
-    ctx.strokeRect(-fw / 2, -fd / 2, fw, fd);
-    ctx.globalAlpha = 1;
-    {
-      ctx.fillStyle = '#333';
-      ctx.font = '9px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(cat?.name ?? 'Unknown furniture', 0, 4);
-    }
-    ctx.restore();
-  }
+  for (const item of floor.furniture) drawFurnitureItem({
+    ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY,
+  }, item, false);
 
   ctx.save();
   for (const column of floor.columns ?? []) drawColumn({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, column, false);
