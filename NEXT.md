@@ -2556,3 +2556,9 @@ app and reopening its editor. The persisted plan references its unique image
 file. See `openplan3d-ios/docs/native-trace-file-import.md`. Initial Draw a Plan's Done saved without
 navigating away; investigate that behavior. Export/write-failure and broader
 NEXT qualification remain open.
+
+### Native editor dismissal fix — 2026-09-10
+
+Editor Close/Done now explicitly clear the presenting view's cover state.
+Catalyst build and fresh Draw a Plan → Done → library UI check passed.
+See `openplan3d-ios/docs/native-editor-dismissal.md`. Review/error/iOS paths and broader NEXT work remain open.
