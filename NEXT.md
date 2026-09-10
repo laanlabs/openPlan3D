@@ -2497,3 +2497,9 @@ selecting a ground-floor wall. Temporary floor/geometry changes were undone.
 See `openplan3d-ios/docs/native-elevation-history.md`. Elevation counter numbering still spans all floors
 while cycling is floor-specific; align that counter in a follow-up. Broader
 iOS/device qualification and remaining NEXT requirements stay open.
+
+### Native floor-relative elevation counter — 2026-09-10
+
+The elevation title and previous/next controls now share the active floor's wall
+collection, so their index/total agree. Catalyst build passed. See `openplan3d-ios/docs/native-elevation-counter.md`.
+Fresh multi-floor UI verification and broader iOS/device work remain open.
