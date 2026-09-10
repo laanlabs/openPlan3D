@@ -637,9 +637,32 @@ export function exportAs3DPNG(renderer: { domElement: HTMLCanvasElement }) {
   });
 }
 
-export function exportPDF(project: Project) {
+export async function exportPDF(project: Project) {
+  const snapshot=structuredClone(project);
+  const floor=snapshot.floors.find(f=>f.id===snapshot.activeFloorId) ?? snapshot.floors[0];
+  const definitions=[...new Set((floor?.entourage ?? []).flatMap(item=>{
+    const def=getEntourageDef(item.defId)?undefined:snapshot.customEntourage?.find(d=>d.id===item.defId);
+    return def?[def]:[];
+  }))];
+  // Capture the optional main view before waiting, so it belongs to this snapshot.
+  const source=document.querySelector<HTMLCanvasElement>('canvas[data-plan3d-canvas="true"]');
+  const capture=source?{width:source.width,height:source.height,image:undefined as string|undefined}:null;
+  if(source && capture && capture.width>10 && capture.height>10) try {
+    const context=source.getContext('webgl2') || source.getContext('webgl');
+    if(context && !context.isContextLost()) capture.image=source.toDataURL('image/png');
+  } catch { /* The completed plan can still export without the optional view. */ }
+  const preparedImages=new Map(await Promise.all(definitions.map(async def=>[def.id,await prepareEntourageImage(def)] as const)));
+  return renderPDF(snapshot,preparedImages,capture);
+}
+
+function renderPDF(project: Project, preparedImages: ReadonlyMap<string,HTMLImageElement>, capture: {width:number;height:number;image?:string}|null) {
   const floor = project.floors.find(f => f.id === project.activeFloorId) ?? project.floors[0];
-  if (!floor || !hasPlanExportContent(floor)) return;
+  if (!floor) return;
+  const entourage=(floor.entourage ?? []).flatMap(item=>{
+    const def=getEntourageDef(item.defId),custom=def?undefined:project.customEntourage?.find(d=>d.id===item.defId);
+    return def || custom ? [{item,aspect:def?.aspect ?? custom!.aspect}] : [];
+  });
+  if (!hasPlanExportContent(floor) && !entourage.length) return;
 
   const settings = get(projectSettings);
   const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
@@ -715,6 +738,10 @@ export function exportPDF(project: Project) {
     pdfBounds.minX = Math.min(pdfBounds.minX, b.minX); pdfBounds.minY = Math.min(pdfBounds.minY, b.minY);
     pdfBounds.maxX = Math.max(pdfBounds.maxX, b.maxX); pdfBounds.maxY = Math.max(pdfBounds.maxY, b.maxY);
   }
+  for(const {item,aspect} of entourage){const b=entouragePlanBounds(item,aspect);
+    pdfBounds.minX=Math.min(pdfBounds.minX,b.minX-2);pdfBounds.minY=Math.min(pdfBounds.minY,b.minY-2);
+    pdfBounds.maxX=Math.max(pdfBounds.maxX,b.maxX+2);pdfBounds.maxY=Math.max(pdfBounds.maxY,b.maxY+2);
+  }
   extendBoundsForOpenings(floor, pdfBounds);
   extendBoundsForRoomLabels(floor, pdfBounds);
   extendBoundsForColumns(floor, pdfBounds);
@@ -782,7 +809,7 @@ export function exportPDF(project: Project) {
 
   // Entourage symbols
   if (floor.entourage?.length) {
-    drawEntourageItems({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, project.customEntourage);
+    drawEntourageItems({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, project.customEntourage, undefined, preparedImages);
   }
 
   // Doors and windows (shared full-fidelity renderer)
@@ -890,18 +917,12 @@ export function exportPDF(project: Project) {
     pdf.text(`${rooms.length} rooms  ·  ${floor.walls.length} walls  ·  ${floor.doors.length} doors  ·  ${floor.windows.length} windows  ·  ${floor.furniture.length} furniture items`, tX, tY + 18);
   }
 
-  // Only the main scene renderer may supply the optional 3D page.
-  // Probing arbitrary canvases can create contexts or select a thumbnail/2D view.
-  const threeDCanvas = document.querySelector<HTMLCanvasElement>('canvas[data-plan3d-canvas="true"]');
-
-  let omitted3D = Boolean(threeDCanvas);
-  if (threeDCanvas && threeDCanvas.width > 10 && threeDCanvas.height > 10) {
+  let omitted3D = Boolean(capture);
+  if (capture?.image && capture.width > 10 && capture.height > 10) {
     const completedPages = pdf.getNumberOfPages();
     try {
-      const context = threeDCanvas.getContext('webgl2') || threeDCanvas.getContext('webgl');
-      if (!context || context.isContextLost()) throw new Error('3D view unavailable');
-      const img3d = threeDCanvas.toDataURL('image/png');
-      if (img3d && img3d.length > 100) {
+      const img3d = capture.image;
+      if (img3d.length > 100) {
         pdf.addPage('a4', 'landscape');
         drawPageBorder();
 
@@ -912,7 +933,7 @@ export function exportPDF(project: Project) {
 
         const da3W = pw - margin * 2 - 4;
         const da3H = ph - margin * 2 - titleBlockH - 20;
-        const a3 = threeDCanvas.width / threeDCanvas.height;
+        const a3 = capture.width / capture.height;
         let w3 = da3W;
         let h3 = da3W / a3;
         if (h3 > da3H) { h3 = da3H; w3 = da3H * a3; }

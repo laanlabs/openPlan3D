@@ -1742,3 +1742,14 @@ passed, plus the final focused suite. Delayed-image and downloaded PNG visual
 checks passed. See [validation](docs/entourage-png-export-validation.md). PDF
 entourage framing/readiness, DXF entourage, physical qualification and native
 parity remain open.
+
+### Complete entourage PDF exports — 2026-09-10
+
+PDF now frames entourage-only plans and waits for custom images. The export keeps
+a plan/image snapshot and captures its optional main 3D view before waiting,
+preventing later viewport substitution. Async failures report through both export
+entry points without placeholder downloads. The full 894-test unit suite and
+expanded 32-test PDF/export suite passed, along with eight Chromium/WebKit
+workflows, final Svelte checks and build. PDF plan-image visual review passed.
+See [validation](docs/entourage-pdf-export-validation.md). DXF entourage, physical
+qualification and broader native parity remain open.

@@ -71,7 +71,7 @@ it('uses saved names and distinct textures for same-name rooms in the PDF schedu
   const floor = project.floors[0];
   floor.walls.push(...rectangleWalls('b', 600));
   floor.rooms = resolveRooms(floor).map((room, i) => ({ ...room, name: 'Bedroom', floorTexture: i ? 'tile' : 'carpet' }));
-  exportPDF(project);
+  await exportPDF(project);
   const text = pdfText.mock.calls.map(call => call[0]);
   expect(text.filter(value => value === 'Bedroom')).toHaveLength(2);
   expect(text).toContain('carpet');
@@ -99,7 +99,7 @@ it('preserves label offsets in SVG, DXF and raster drawing coordinates', async (
   await exportAsPNG(canvas, project);
   expect(canvasText).toHaveBeenCalledWith('Kitchen & Dining <East>', 387.5, 187.5);
   canvasText.mockClear();
-  exportPDF(project);
+  await exportPDF(project);
   expect(canvasText).toHaveBeenCalledWith('Kitchen & Dining <East>', 387.5, 187.5);
   expect(JSON.stringify(project)).toBe(before);
 });
@@ -115,7 +115,7 @@ it('frames labels moved outside the walls and bounds large raster allocations', 
   project.floors[0].rooms[0].labelOffset = { x: 100000, y: 100000 };
   await exportAsPNG(canvas, project);
   expect(Math.max(canvas.width, canvas.height)).toBeLessThanOrEqual(4096);
-  exportPDF(project);
+  await exportPDF(project);
   expect(Math.max(canvas.width, canvas.height)).toBeLessThanOrEqual(4096);
 });
 
@@ -129,7 +129,7 @@ it('draws curved wall paths in SVG and raster exports rather than endpoint chord
   expect(canvasCurve).toHaveBeenCalledWith(287.5, -212.5, 487.5, 387.5);
   const lengths = canvasText.mock.calls.map(c => String(c[0])).filter(s => /^\d+ cm$/.test(s)).map(Number.parseFloat);
   expect(Math.max(...lengths)).toBeGreaterThan(740); expect(Math.max(...lengths)).toBeLessThan(760);
-  canvasCurve.mockClear(); exportPDF(project);
+  canvasCurve.mockClear(); await exportPDF(project);
   expect(canvasCurve).toHaveBeenCalledWith(287.5, -212.5, 487.5, 387.5);
   exportDXF(project);
   const dxf = await downloaded.at(-1)!.text();
@@ -141,7 +141,7 @@ it('keeps large room schedules above the title block and repeats headings', asyn
   extra.walls.forEach(w => { w.start.x += 2200; w.end.x += 2200; });
   floor.walls.push(...extra.walls); floor.rooms.push(...extra.rooms);
   floor.rooms.forEach((room, i) => { room.name = `Suite ${i + 1}`; });
-  exportPDF(project);
+  await exportPDF(project);
   const rows = pdfText.mock.calls.filter(call => /^Suite /.test(call[0]));
   expect(rows).toHaveLength(32);
   expect(rows.every(call => call[2] >= 38 && call[2] < 174)).toBe(true);
@@ -153,14 +153,14 @@ it('keeps large room schedules above the title block and repeats headings', asyn
 it('does not probe unrelated canvases when exporting the optional 3D page', async () => {
   const unrelated = { getContext: vi.fn(() => { throw new Error('Must not probe'); }) };
   document.querySelectorAll = vi.fn(() => [unrelated]) as never;
-  exportPDF(namedProject());
+  await exportPDF(namedProject());
   expect(unrelated.getContext).not.toHaveBeenCalled();
   expect(pdfText.mock.calls.some(call => call[0] === '3D Perspective View')).toBe(false);
 });
 it('skips a lost main 3D context', async () => {
   const toDataURL = vi.fn();
   document.querySelector = vi.fn(() => ({width:100,height:100,getContext:()=>({isContextLost:()=>true}),toDataURL})) as never;
-  exportPDF(namedProject());
+  await exportPDF(namedProject());
   expect(toDataURL).not.toHaveBeenCalled();
   expect(pdfText.mock.calls.some(call => call[0] === '3D Perspective View')).toBe(false);
 });
@@ -175,14 +175,14 @@ it('frames an oversized rotated furniture symbol consistently in PNG and PDF', a
  const project=namedProject();project.floors[0].furniture=[{id:'large',catalogId:'unknown',position:{x:-600,y:-600},rotation:45,width:800,depth:300,scale:{x:1,y:1,z:1}}];
  await exportAsPNG(null,project);const size={width:canvas.width,height:canvas.height};
  expect(size.width).toBeGreaterThan(3000);
- exportPDF(project);expect({width:canvas.width,height:canvas.height}).toEqual(size);
+ await exportPDF(project);expect({width:canvas.width,height:canvas.height}).toEqual(size);
 });
 
 it('exports rotated multiline text annotations in all plan formats', async()=>{
  const project=namedProject(),floor=project.floors[0];
  floor.textAnnotations=[{id:'note',x:-800,y:-500,text:'Saved <note>\nSecond line',fontSize:24,color:'#123456',rotation:30}];
  await exportAsPNG(null,project);expect(canvasText.mock.calls.map(c=>c[0])).toContain('Saved <note>');
- canvasText.mockClear();exportPDF(project);expect(canvasText.mock.calls.map(c=>c[0])).toContain('Second line');
+ canvasText.mockClear();await exportPDF(project);expect(canvasText.mock.calls.map(c=>c[0])).toContain('Second line');
  exportAsSVG(project);const svg=await downloaded.at(-1)!.text();
  expect(svg).toContain('Saved &lt;note&gt;');expect(svg).toContain('<tspan');expect(svg).toContain('rotate(30');
  exportDXF(project);const dxf=await downloaded.at(-1)!.text();
@@ -192,14 +192,14 @@ it('exports rotated multiline text annotations in all plan formats', async()=>{
 it('includes saved dimension labels in PNG, PDF, SVG and DXF',async()=>{
  const project=namedProject();project.floors[0].annotations=[{id:'dim',x1:-600,y1:-400,x2:-200,y2:-400,offset:-200,label:'Saved dimension'}];
  await exportAsPNG(null,project);expect(canvasText.mock.calls.map(c=>c[0])).toContain('Saved dimension');
- canvasText.mockClear();exportPDF(project);expect(canvasText.mock.calls.map(c=>c[0])).toContain('Saved dimension');
+ canvasText.mockClear();await exportPDF(project);expect(canvasText.mock.calls.map(c=>c[0])).toContain('Saved dimension');
  exportAsSVG(project);expect(await downloaded.at(-1)!.text()).toContain('Saved dimension');
  exportDXF(project);expect(await downloaded.at(-1)!.text()).toContain('Saved dimension');
 });
 it('exports standalone measurement labels in all formats and frames outside endpoints',async()=>{
  const project=namedProject();project.floors[0].measurements=[{id:'measure',x1:-1000,y1:-600,x2:-600,y2:-600}];
  await exportAsPNG(null,project);expect(canvasText.mock.calls.map(c=>c[0])).toContain('4 m');expect(canvas.width).toBeGreaterThan(3000);
- canvasText.mockClear();exportPDF(project);expect(canvasText.mock.calls.map(c=>c[0])).toContain('4 m');
+ canvasText.mockClear();await exportPDF(project);expect(canvasText.mock.calls.map(c=>c[0])).toContain('4 m');
  exportAsSVG(project);const svg=await downloaded.at(-1)!.text();expect(svg).toContain('4 m</text>');expect(svg).toContain('<circle');
  exportDXF(project);const dxf=await downloaded.at(-1)!.text();expect(dxf).toContain('MEASUREMENTS');expect(dxf).toContain('4 m');
 });
@@ -209,7 +209,7 @@ it.each([[304.8, "10'"], [23.8*2.54, "2'"]])('uses imperial units for a %s cm me
   projectSettings.set({...previous,units:'imperial'});
   const project=namedProject();project.floors[0].measurements=[{id:'feet',x1:0,y1:0,x2:length as number,y2:0}];
   await exportAsPNG(null,project);expect(canvasText.mock.calls.map(c=>c[0])).toContain(label);
-  canvasText.mockClear();exportPDF(project);expect(canvasText.mock.calls.map(c=>c[0])).toContain(label);
+  canvasText.mockClear();await exportPDF(project);expect(canvasText.mock.calls.map(c=>c[0])).toContain(label);
   exportAsSVG(project);expect(await downloaded.at(-1)!.text()).toContain(String(label).replace("'", '&apos;')+'</text>');
   exportDXF(project);expect(await downloaded.at(-1)!.text()).toContain(label);
  } finally {projectSettings.set(previous);}
@@ -260,7 +260,7 @@ it('draws detailed catalog furniture in both raster exports with readable mirror
   floor.walls=[];floor.rooms=[];floor.doors=[];floor.windows=[];
   floor.furniture=[{id:'chair',catalogId:'chair',position:{x:100,y:200},rotation:30,scale:{x:-1,y:1,z:1}}];
   const before=structuredClone(project);
-  for(const render of [()=>exportAsPNG(canvas,project),()=>exportPDF(project)]) {
+  for(const render of [()=>exportAsPNG(canvas,project),async()=>await exportPDF(project)]) {
     canvasCurve.mockClear();canvasText.mockClear();
     await render();
     expect(canvasCurve.mock.calls.length).toBeGreaterThan(4); // back, seat and arms, not a single rectangle
@@ -279,7 +279,7 @@ it.each(['straight','l-shaped','u-shaped','spiral'] as const)('draws %s stairs i
   await exportAsPNG(canvas,project);
   expect(canvasText.mock.calls.map(c=>c[0])).toContain(label);expect(downloaded).toHaveLength(1);
   canvasText.mockClear();
-  exportPDF(project);
+  await exportPDF(project);
   expect(canvasText.mock.calls.map(c=>c[0])).toContain(label);expect(pdfSave).toHaveBeenCalledOnce();
   exportAsSVG(project);
   const svg=await downloaded.at(-1)!.text();
@@ -299,4 +299,16 @@ it('exports an entourage-only SVG with vector symbols and embedded custom images
  expect(svg).toContain('data-entourage="vector"');expect(svg).toContain('opacity="0.4"');expect(svg).toContain('rotate(30)');
  expect(svg).toContain('href="data:image/png;base64,AAAA"');expect(svg).toContain('width="200" height="400"');expect(svg).toContain('preserveAspectRatio="none"');
  expect(svg).not.toContain('data-entourage="missing"');expect(svg).not.toMatch(/NaN|Infinity/);expect(project).toEqual(before);
+});
+it('freezes PDF plan and optional 3D capture before awaiting a custom image',async()=>{
+ let image:EventTarget & {complete:boolean;naturalWidth:number};
+ vi.stubGlobal('Image',class extends EventTarget {complete=false;naturalWidth=0;constructor(){super();image=this;}});
+ const source={width:100,height:100,getContext:()=>({isContextLost:()=>false}),toDataURL:vi.fn(()=>'data:image/png;base64,'+'A'.repeat(200))};
+ document.querySelector=vi.fn(()=>source) as never;
+ const project=namedProject();project.customEntourage=[{id:'pdf-snapshot',name:'test',dataUrl:'data:image/png;base64,AAAA',aspect:1}];
+ project.floors[0].entourage=[{id:'e',defId:'pdf-snapshot',position:{x:1000,y:1000},width:100,rotation:0}];
+ const name=project.name,pending=exportPDF(project);expect(source.toDataURL).toHaveBeenCalledOnce();expect(pdfSave).not.toHaveBeenCalled();
+ project.name='Later edit';project.floors[0].entourage=[];
+ image!.naturalWidth=50;image!.dispatchEvent(new Event('load'));await pending;
+ expect(pdfSave).toHaveBeenCalledWith(`${name}.pdf`);expect(source.toDataURL).toHaveBeenCalledOnce();
 });

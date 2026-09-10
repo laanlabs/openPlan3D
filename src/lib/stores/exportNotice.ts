@@ -5,12 +5,12 @@ import { exportAsPNG, exportPDF } from '$lib/utils/export';
 export const exportNotice = writable<{ title: string; message: string } | null>(null);
 
 /** Both PDF entry points use the same outcome reporting. */
-export function exportPDFWithFeedback(project: Project) {
+export async function exportPDFWithFeedback(project: Project) {
   exportNotice.set(null);
   try {
-    const result = exportPDF(project);
+    const result = await exportPDF(project);
     if (!result) {
-      exportNotice.set({ title: "Couldn't export PDF", message: 'Add walls, furniture, stairs, columns, notes or measurements to the active floor before exporting a PDF.' });
+      exportNotice.set({ title: "Couldn't export PDF", message: 'Add walls, furniture, stairs, columns, entourage, notes or measurements to the active floor before exporting a PDF.' });
     } else if (result.omitted3D) {
       exportNotice.set({ title: 'PDF exported without the 3D view', message: 'The floor plan was exported. Reopen the 3D view and try again to include it.' });
     }

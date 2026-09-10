@@ -21,7 +21,7 @@ vi.mock('jspdf', async importOriginal => {
   };
 });
 
-it.each(['absent', 'tainted', 'invalid-image'] as const)('preserves a valid plan and schedule PDF when 3D is %s', failure => {
+it.each(['absent', 'tainted', 'invalid-image'] as const)('preserves a valid plan and schedule PDF when 3D is %s', async failure => {
   const context = new Proxy({ measureText: () => ({ width: 30 }) }, {
     get: (target, key) => target[key as keyof typeof target] ?? (() => {}),
   });
@@ -40,7 +40,7 @@ it.each(['absent', 'tainted', 'invalid-image'] as const)('preserves a valid plan
     },
   });
 
-  exportPDF(roomProject());
+  await exportPDF(roomProject());
 
   expect(result.filename).toBe('Regression plan.pdf');
   expect(result.pdf).toMatch(/^%PDF-1\.[0-9]/);
