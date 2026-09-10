@@ -2184,3 +2184,11 @@ Staging plus atomic publication preserves previous same-name exports on failure;
 PNG writes are atomic too. All 16 targeted tests passed, including failed-render
 byte preservation and successful retry. See `openplan3d-ios/docs/native-export-atomic-validation.md`.
 Disk/quota faults, device sharing, full/iOS revalidation, and other NEXT work remain.
+
+### Native iOS export integration — 2026-09-10
+
+The complete iPhone 17 Pro / iOS 26.5 simulator target passed: 226 tests, two
+optional worker-integration skips, zero failures. One title assertion was fixed
+to tolerate an observed line break; visual review confirmed the title was intact.
+See `openplan3d-ios/docs/native-ios-export-integration-validation.md`. Physical sharing, quota faults,
+device memory, printing/release qualification, and remaining NEXT work stay open.
