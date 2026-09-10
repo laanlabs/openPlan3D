@@ -993,3 +993,14 @@ browser checks, Svelte checks and build passed.** The exported PNG was visually
 reviewed. See [validation](docs/dimension-annotation-export-validation.md).
 Standalone measurements, all-object bounds, universal fonts, title layout,
 physical checks and native parity remain open.
+
+### Standalone measurement exports — 2026-09-09
+
+PNG/PDF and DXF now include saved measurement lines, endpoints and labels. SVG
+includes endpoint dots and uses selected units. Framed bounds include measurement
+geometry and labels outside the wall envelope.
+
+**19 targeted tests, four Chromium/WebKit checks, Svelte checks and production
+build passed.** Metric and imperial labels are covered; the PNG was visually
+reviewed. See [validation](docs/measurement-export-validation.md). All-object
+framing, fonts, physical/device qualification and native parity remain open.

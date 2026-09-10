@@ -99,6 +99,15 @@ export function exportDXF(project: Project) {
     d.drawText(g.center.x,-g.center.y+4,11,0,note.label || formatLength(g.length,get(projectSettings).units),'center','bottom');
   }
 
+  d.addLayer('MEASUREMENTS', 1, 'DASHED');
+  d.addLayer('MEASUREMENT_LABELS', 1, 'CONTINUOUS');
+  for (const m of floor.measurements ?? []) {
+    d.setActiveLayer('MEASUREMENTS'); d.drawLine(m.x1,-m.y1,m.x2,-m.y2);
+    d.setActiveLayer('MEASUREMENT_LABELS');
+    d.drawCircle(m.x1,-m.y1,3); d.drawCircle(m.x2,-m.y2,3);
+    d.drawText((m.x1+m.x2)/2,-(m.y1+m.y2)/2+6,12,0,formatLength(Math.hypot(m.x2-m.x1,m.y2-m.y1),get(projectSettings).units),'center','bottom');
+  }
+
   // Draw doors as arcs + lines
   d.setActiveLayer('DOORS');
   for (const original of floor.doors) {

@@ -7,7 +7,7 @@ import { wallPlanBounds, wallPlanDimension } from './wallPlanGeometry';
 import type { Project, Floor } from '$lib/models/types';
 import { getCatalogItem } from '$lib/utils/furnitureCatalog';
 import { resolveRooms, getRoomPolygon, roomLabelPosition } from '$lib/utils/roomDetection';
-import { drawDoorOnWall, drawWindowOnWall, drawEntourageItems, drawTextAnnotations, drawAnnotations } from '$lib/utils/canvasRenderer';
+import { drawDoorOnWall, drawWindowOnWall, drawEntourageItems, drawTextAnnotations, drawAnnotations, drawPersistedMeasurements } from '$lib/utils/canvasRenderer';
 import type { CanvasState } from '$lib/utils/canvasInteraction';
 import { projectSettings, formatArea, formatLength } from '$lib/stores/settings';
 import { get } from 'svelte/store';
@@ -64,6 +64,20 @@ function extendBoundsForRoomLabels(floor: Floor, bounds: { minX: number; minY: n
     bounds.maxX = Math.max(bounds.maxX, anchor.x + width / 2);
     bounds.minY = Math.min(bounds.minY, anchor.y - 13);
     bounds.maxY = Math.max(bounds.maxY, anchor.y + 18);
+  }
+}
+
+function extendBoundsForMeasurements(floor: Floor, bounds: { minX: number; minY: number; maxX: number; maxY: number }) {
+  const ctx = document.createElement('canvas').getContext('2d');
+  if (!ctx) return;
+  ctx.font = 'bold 12px sans-serif';
+  for (const m of floor.measurements ?? []) {
+    const width = ctx.measureText(formatLength(Math.hypot(m.x2-m.x1,m.y2-m.y1),get(projectSettings).units)).width;
+    const x=(m.x1+m.x2)/2,y=(m.y1+m.y2)/2;
+    bounds.minX=Math.min(bounds.minX,m.x1-3,m.x2-3,x-width/2-2);
+    bounds.maxX=Math.max(bounds.maxX,m.x1+3,m.x2+3,x+width/2+2);
+    bounds.minY=Math.min(bounds.minY,m.y1-3,m.y2-3,y-20);
+    bounds.maxY=Math.max(bounds.maxY,m.y1+3,m.y2+3,y+2);
   }
 }
 
@@ -153,6 +167,7 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
       extendBoundsForRoomLabels(floor, bounds);
       extendBoundsForText(floor, bounds);
       extendBoundsForDimensions(floor, bounds);
+      extendBoundsForMeasurements(floor, bounds);
       ({ minX, minY, maxX, maxY } = bounds);
       const pad = 80;
       const w = maxX - minX + pad * 2;
@@ -251,6 +266,9 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
         ctx.restore();
       }
 
+      ctx.save();
+      drawPersistedMeasurements({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, get(projectSettings));
+      ctx.restore();
       drawAnnotations({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, get(projectSettings));
       drawTextAnnotations({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, null);
 
@@ -295,6 +313,7 @@ export function exportAsSVG(project: Project) {
   extendBoundsForRoomLabels(floor, svgBounds);
   extendBoundsForText(floor, svgBounds);
   extendBoundsForDimensions(floor, svgBounds);
+  extendBoundsForMeasurements(floor, svgBounds);
   ({ minX, minY, maxX, maxY } = svgBounds);
   const pad = 50;
   const vw = maxX - minX + pad * 2;
@@ -503,9 +522,10 @@ export function exportAsSVG(project: Project) {
       const x1 = m.x1 - minX + pad, y1 = m.y1 - minY + pad;
       const x2 = m.x2 - minX + pad, y2 = m.y2 - minY + pad;
       paths += `  <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#ef4444" stroke-width="1" stroke-dasharray="6,3" stroke-linecap="round"/>\n`;
-      const dist = Math.round(Math.hypot(m.x2 - m.x1, m.y2 - m.y1));
+      paths += `  <circle cx="${x1}" cy="${y1}" r="3" fill="#ef4444"/><circle cx="${x2}" cy="${y2}" r="3" fill="#ef4444"/>\n`;
+      const label = formatLength(Math.hypot(m.x2-m.x1,m.y2-m.y1), get(projectSettings).units);
       const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
-      paths += `  <text x="${mx}" y="${my - 6}" text-anchor="middle" font-size="10" fill="#ef4444" font-family="sans-serif" font-weight="bold">${dist} cm</text>\n`;
+      paths += `  <text x="${mx}" y="${my - 6}" text-anchor="middle" font-size="12" fill="#ef4444" font-family="sans-serif" font-weight="bold">${escapeXml(label)}</text>\n`;
     }
   }
 
@@ -650,6 +670,7 @@ export function exportPDF(project: Project) {
   extendBoundsForRoomLabels(floor, pdfBounds);
   extendBoundsForText(floor, pdfBounds);
   extendBoundsForDimensions(floor, pdfBounds);
+  extendBoundsForMeasurements(floor, pdfBounds);
   ({ minX, minY, maxX, maxY } = pdfBounds);
 
   const pad = 80;
@@ -744,6 +765,9 @@ export function exportPDF(project: Project) {
     ctx.restore();
   }
 
+  ctx.save();
+  drawPersistedMeasurements({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, get(projectSettings));
+  ctx.restore();
   drawAnnotations({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, get(projectSettings));
   drawTextAnnotations({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, null);
 

@@ -195,3 +195,21 @@ it('includes saved dimension labels in PNG, PDF, SVG and DXF',async()=>{
  exportAsSVG(project);expect(await downloaded.at(-1)!.text()).toContain('Saved dimension');
  exportDXF(project);expect(await downloaded.at(-1)!.text()).toContain('Saved dimension');
 });
+it('exports standalone measurement labels in all formats and frames outside endpoints',async()=>{
+ const project=namedProject();project.floors[0].measurements=[{id:'measure',x1:-1000,y1:-600,x2:-600,y2:-600}];
+ await exportAsPNG(null,project);expect(canvasText.mock.calls.map(c=>c[0])).toContain('4 m');expect(canvas.width).toBeGreaterThan(3000);
+ canvasText.mockClear();exportPDF(project);expect(canvasText.mock.calls.map(c=>c[0])).toContain('4 m');
+ exportAsSVG(project);const svg=await downloaded.at(-1)!.text();expect(svg).toContain('4 m</text>');expect(svg).toContain('<circle');
+ exportDXF(project);const dxf=await downloaded.at(-1)!.text();expect(dxf).toContain('MEASUREMENTS');expect(dxf).toContain('4 m');
+});
+it('uses imperial units for standalone measurement labels',async()=>{
+ const {get}=await import('svelte/store');const {projectSettings}=await import('$lib/stores/settings');const previous=get(projectSettings);
+ try {
+  projectSettings.set({...previous,units:'imperial'});
+  const project=namedProject();project.floors[0].measurements=[{id:'feet',x1:0,y1:0,x2:304.8,y2:0}];
+  await exportAsPNG(null,project);expect(canvasText.mock.calls.map(c=>c[0])).toContain("10'");
+  canvasText.mockClear();exportPDF(project);expect(canvasText.mock.calls.map(c=>c[0])).toContain("10'");
+  exportAsSVG(project);expect(await downloaded.at(-1)!.text()).toContain('10&apos;</text>');
+  exportDXF(project);expect(await downloaded.at(-1)!.text()).toContain("10'");
+ } finally {projectSettings.set(previous);}
+});
