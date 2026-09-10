@@ -1,3 +1,4 @@
+import { prepareEntourageImage } from './entourageImages';
 import { getEntourageDef } from './entourageCatalog';
 import { entouragePlanBounds } from './entouragePlanBounds';
 import { planContentBounds } from './planContentBounds';
@@ -172,8 +173,14 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
   const name = project?.name || 'floorplan';
 
   if (project) {
-    const floor = project.floors.find(f => f.id === project.activeFloorId) ?? project.floors[0];
-    if (floor && hasPlanExportContent(floor)) {
+    const snapshot=structuredClone(project);
+    const floor = snapshot.floors.find(f => f.id === snapshot.activeFloorId) ?? snapshot.floors[0];
+    const entourage=(floor?.entourage ?? []).flatMap(item=>{
+      const def=getEntourageDef(item.defId),custom=def?undefined:snapshot.customEntourage?.find(d=>d.id===item.defId);
+      return def || custom ? [{item,custom,aspect:def?.aspect ?? custom!.aspect}] : [];
+    });
+    if (floor && (hasPlanExportContent(floor) || entourage.length)) {
+      const preparedImages=new Map(await Promise.all([...new Set(entourage.flatMap(e=>e.custom?[e.custom]:[]))].map(async def=>[def.id,await prepareEntourageImage(def)] as const)));
       // Compute bounds of all geometry
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
       for (const w of floor.walls) {
@@ -188,6 +195,10 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
         const b = furniturePlanBounds(item);
         bounds.minX = Math.min(bounds.minX, b.minX); bounds.minY = Math.min(bounds.minY, b.minY);
         bounds.maxX = Math.max(bounds.maxX, b.maxX); bounds.maxY = Math.max(bounds.maxY, b.maxY);
+      }
+      for(const {item,aspect} of entourage){const b=entouragePlanBounds(item,aspect);
+        bounds.minX=Math.min(bounds.minX,b.minX-2);bounds.minY=Math.min(bounds.minY,b.minY-2);
+        bounds.maxX=Math.max(bounds.maxX,b.maxX+2);bounds.maxY=Math.max(bounds.maxY,b.maxY+2);
       }
       extendBoundsForOpenings(floor, bounds);
       extendBoundsForRoomLabels(floor, bounds);
@@ -258,9 +269,9 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
         ctx.fillText(`${len} cm`, mx, my);
       }
 
-      // Entourage symbols (images may need a prior on-canvas render to be cached)
+      // Entourage images are ready before the export is drawn.
       if (floor.entourage?.length) {
-        drawEntourageItems({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, project.customEntourage);
+        drawEntourageItems({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, snapshot.customEntourage, undefined, preparedImages);
       }
 
       // Draw doors and windows (shared full-fidelity renderer)

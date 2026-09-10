@@ -1731,3 +1731,14 @@ Chromium/WebKit workflows, Svelte checks and build passed; decoded SVG image/pix
 checks, visual review and stair/furniture regressions passed. See
 [validation](docs/entourage-svg-export-validation.md). PNG/PDF entourage framing
 and image readiness, DXF entourage, physical qualification and native parity remain open.
+
+### Complete entourage PNG exports — 2026-09-10
+
+PNG now frames entourage-only plans and waits for custom images before drawing.
+Failures/timeouts report through export feedback; same-ID image replacements
+refresh the cache. Export snapshots retain their own prepared images during
+loading. All 894 unit tests, six Chromium/WebKit workflows, Svelte checks and build
+passed, plus the final focused suite. Delayed-image and downloaded PNG visual
+checks passed. See [validation](docs/entourage-png-export-validation.md). PDF
+entourage framing/readiness, DXF entourage, physical qualification and native
+parity remain open.

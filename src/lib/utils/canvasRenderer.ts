@@ -1,3 +1,4 @@
+import { getEntourageImage } from './entourageImages';
 import { stairLocalBounds } from './stairPlanGeometry';
 import { dimensionPlanGeometry } from './dimensionPlanGeometry';
 /**
@@ -1691,18 +1692,6 @@ function getEntouragePaths(defId: string): Path2D[] | null {
   return cached;
 }
 
-const entourageImageCache = new Map<string, HTMLImageElement>();
-function getEntourageImage(def: CustomEntourageDef, onLoad?: () => void): HTMLImageElement {
-  let img = entourageImageCache.get(def.id);
-  if (!img) {
-    img = new Image();
-    img.onload = () => onLoad?.();
-    img.src = def.dataUrl;
-    entourageImageCache.set(def.id, img);
-  }
-  return img;
-}
-
 /** height/width aspect for a built-in or custom entourage def */
 export function entourageAspect(defId: string, customDefs?: CustomEntourageDef[]): number {
   return getEntourageDef(defId)?.aspect ?? customDefs?.find((c) => c.id === defId)?.aspect ?? 1;
@@ -1714,6 +1703,7 @@ export function drawEntourageItem(
   customDefs: CustomEntourageDef[] | undefined,
   selected: boolean,
   onImageLoad?: () => void,
+  preparedImages?: ReadonlyMap<string,HTMLImageElement>,
 ): void {
   const { ctx, zoom } = cs;
   const s = wts(cs, item.position.x, item.position.y);
@@ -1743,7 +1733,7 @@ export function drawEntourageItem(
       ctx.restore();
     }
   } else if (custom) {
-    const img = getEntourageImage(custom, onImageLoad);
+    const img = preparedImages?.get(custom.id) ?? getEntourageImage(custom, onImageLoad);
     if (img.complete && img.naturalWidth > 0) {
       ctx.drawImage(img, -wPx / 2, -hPx / 2, wPx, hPx);
     } else {
@@ -1782,10 +1772,11 @@ export function drawEntourageItems(
   selectedId: string | null,
   customDefs?: CustomEntourageDef[],
   onImageLoad?: () => void,
+  preparedImages?: ReadonlyMap<string,HTMLImageElement>,
 ): void {
   if (!floor.entourage) return;
   for (const item of floor.entourage) {
-    drawEntourageItem(cs, item, customDefs, item.id === selectedId, onImageLoad);
+    drawEntourageItem(cs, item, customDefs, item.id === selectedId, onImageLoad, preparedImages);
   }
 }
 

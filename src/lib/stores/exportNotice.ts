@@ -22,7 +22,7 @@ export function exportPDFWithFeedback(project: Project) {
 export async function exportPNGWithFeedback(project: Project) {
   exportNotice.set(null);
   try {
-    if (!await exportAsPNG(null, project)) exportNotice.set({ title: "Couldn't export 2D PNG", message: 'Add walls, furniture, stairs, columns, notes or measurements to the active floor before exporting a PNG.' });
+    if (!await exportAsPNG(null, project)) exportNotice.set({ title: "Couldn't export 2D PNG", message: 'Add walls, furniture, stairs, columns, entourage, notes or measurements to the active floor before exporting a PNG.' });
   } catch {
     exportNotice.set({ title: "Couldn't export 2D PNG", message: 'The PNG could not be prepared. Try again, or export JSON to keep a copy of your plan.' });
   }
