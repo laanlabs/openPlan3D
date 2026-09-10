@@ -1942,3 +1942,12 @@ reuse existing wall identities. All 927 web unit tests, Svelte checks/build, and
 workflows also passed. See
 [validation](docs/native-floor-opening-metadata-validation.md). Native opening
 geometry/authoring, arbitrary holes, and ceiling coordination remain open.
+
+### Native nested slabs and opening geometry — 2026-09-10
+
+Native edited-plan previews and portable render exports now exclude nested room
+rings and honor floor-opening metadata. Catalyst build and all 36 selected tests
+passed, including watertight net volumes, floor coverage, multiple holes, input
+reversal, stacked floor isolation, and exported openings. See
+`openplan3d-ios/docs/native-nested-slabs-validation.md`. Native opening controls
+and 2D/area display, arbitrary cuts, ceiling coordination, and device QA remain open.

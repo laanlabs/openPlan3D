@@ -101,5 +101,6 @@ Unmatched explicit boundaries remain unassociated; old point-only labels use the
 smallest enclosing footprint. Both optional fields can be cleared on export.
 
 Native Codable documents and package merges retain these fields through edits.
-The web viewer honors the opening flag; native geometry/editing support is still
-pending. These additive optional fields do not change package format version 1.
+Web and native edited-plan 3D geometry honor the opening flag. Native authoring
+controls and 2D/area display support are still pending. These additive optional
+fields do not change package format version 1.
