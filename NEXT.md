@@ -1969,3 +1969,12 @@ now depend only on walls. Catalyst build and all 42 selected tests passed. See
 `openplan3d-ios/docs/native-room-regions-validation.md`. Automatic native boundary
 assignment, duplicate-label totals, batch performance, measurement parity,
 arbitrary cuts, ceiling coordination, and device/UI QA remain open.
+
+### Native room association batching — 2026-09-10
+
+Native canvas, statistics, Auto-Label, and SVG reuse floor association work across
+labels. Catalyst build and all 43 selected tests passed; a local 16-room fixture
+returned identical seeds in 0.315 s batched versus 5.915 s individually. See
+`openplan3d-ios/docs/native-room-batch-validation.md`. Per-region raster costs,
+automatic boundary assignment, duplicate-label totals, larger/device profiling,
+and measurement parity remain open.
