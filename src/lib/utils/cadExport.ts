@@ -1,4 +1,5 @@
-import { planOpening, planWallSpans } from './planOpening';
+import { planOpening } from './planOpening';
+import { planWallOutlines } from './planWallOutline';
 import Drawing from 'dxf-writer';
 import { wallPlanDimension } from './wallPlanGeometry';
 import type { Project } from '$lib/models/types';
@@ -53,33 +54,13 @@ export function exportDXF(project: Project) {
     d.drawText(c.x, -c.y - 12, 5, 0, `${formatArea(room.area, get(projectSettings).units)}`, 'center', 'middle');
   }
 
-  // Draw walls as thick rectangles (offset perpendicular to wall direction)
+  // One continuous outline per wall run, separated by openings.
   d.setActiveLayer('WALLS');
-  for (const source of floor.walls) for (const span of planWallSpans(source, [...floor.doors, ...floor.windows].filter(o => o.wallId === source.id))) {
-    const w = { ...source, start: span.start, end: span.end };
-    const dx = w.end.x - w.start.x;
-    const dy = w.end.y - w.start.y;
-    const len = Math.hypot(dx, dy);
-    if (len === 0) continue;
-
-    const half = w.thickness / 2;
-    // Perpendicular unit vector
-    const nx = -dy / len * half;
-    const ny = dx / len * half;
-
-    // Four corners of the wall rectangle (flipping Y)
-    const x1 = w.start.x + nx, y1 = -(w.start.y + ny);
-    const x2 = w.end.x + nx, y2 = -(w.end.y + ny);
-    const x3 = w.end.x - nx, y3 = -(w.end.y - ny);
-    const x4 = w.start.x - nx, y4 = -(w.start.y - ny);
-
-    d.drawPolyline([
-      [x1, y1],
-      [x2, y2],
-      [x3, y3],
-      [x4, y4],
-      [x1, y1],
-    ]);
+  for (const wall of floor.walls) {
+    const openings = [...floor.doors, ...floor.windows].filter(o => o.wallId === wall.id);
+    for (const outline of planWallOutlines(wall, openings)) {
+      d.drawPolyline([...outline, outline[0]].map(p => [p.x, -p.y]));
+    }
   }
 
   // Draw dimensions

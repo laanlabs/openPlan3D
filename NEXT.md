@@ -870,3 +870,15 @@ intervals from straight and faceted wall outlines. Saved dimensions are unchange
 build passed.** The exported PNG was visually inspected. See
 [validation](docs/curved-opening-export-validation.md). DXF joins, PDF page layout,
 all-symbol overlap cases and native/physical-device export qualification remain open.
+
+### Joined DXF curve facets — 2026-09-09
+
+DXF now emits a continuous wall outline between openings instead of separate
+rectangles for every curve facet. Offset-line intersections preserve thickness;
+bounded miter/bevel joins avoid sharp-bend spikes. Door/window intervals still
+split outlines, and saved geometry is unchanged.
+
+**691 unit tests, four Chromium/WebKit export checks, Svelte checks and production
+build passed.** See [validation](docs/dxf-wall-outline-validation.md).
+Joining separate source walls, self-overlap unions, third-party CAD qualification,
+PDF layout and native/device export parity remain open.

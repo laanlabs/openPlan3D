@@ -37,7 +37,7 @@ test('curved wall exports draw the arc, leave its chord empty and include the st
  expect(samples[0].slice(0,3).every(c=>c<100)).toBe(true);
  expect(samples[1].slice(0,3).every(c=>c>240)).toBe(true);
  const dxf=(await download('Export as DXF')).toString();
- expect((dxf.match(/\nLWPOLYLINE\n/g)??[]).length).toBe(16);
+ expect((dxf.match(/\nLWPOLYLINE\n/g)??[]).length).toBe(1);
  const pdf=await download('Export as PDF'); expect(pdf.subarray(0,5).toString()).toBe('%PDF-');
  await testInfo.attach('curved-wall.png',{body:png,contentType:'image/png'});
 });
@@ -78,7 +78,8 @@ test('curved door and window exports clear their wall intervals', async ({ page 
  expect(samples[0].slice(0,3).every(c=>c>240)).toBe(true);
  expect(samples[1].slice(0,3).every(c=>c<100)).toBe(true);
  const dxf=(await download('Export as DXF')).toString();
- expect(dxf).toContain('LWPOLYLINE'); expect(dxf).toContain('ARC');
+ expect((dxf.match(/\nLWPOLYLINE\n/g)??[]).length).toBe(3); // wall runs on either side of two openings
+ expect(dxf).toContain('ARC');
  const pdf=await download('Export as PDF');expect(pdf.subarray(0,5).toString()).toBe('%PDF-');
  await testInfo.attach('curved-openings.png',{body:png,contentType:'image/png'});
  await testInfo.attach('curved-openings.svg',{body:svg,contentType:'image/svg+xml'});

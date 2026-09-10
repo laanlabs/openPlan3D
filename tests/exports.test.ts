@@ -130,5 +130,5 @@ it('draws curved wall paths in SVG and raster exports rather than endpoint chord
   expect(canvasCurve).toHaveBeenCalledWith(287.5, -212.5, 487.5, 387.5);
   exportDXF(project);
   const dxf = await downloaded.at(-1)!.text();
-  expect((dxf.match(/\nLWPOLYLINE\n/g) ?? []).length).toBe(19); // 16 curve facets + 3 straight walls
+  expect((dxf.match(/\nLWPOLYLINE\n/g) ?? []).length).toBe(4); // one joined curve outline + 3 straight walls
 });
