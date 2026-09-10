@@ -2233,3 +2233,11 @@ areas mean outside labels. PDF footers identify measured subtotals and unmeasure
 counts. Twenty targeted tests and a focused rerun passed; the partial PDF footer
 was visually checked. See `openplan3d-ios/docs/native-partial-area-feedback-validation.md`. Exact failure
 diagnostics, interactive/device checks, area parity, and other NEXT work remain.
+
+### Native iOS wall/area integration — 2026-09-10
+
+The full iPhone 17 Pro / iOS 26.5 simulator target passed after wall defaults,
+raster guards, export write-failure checks, and partial-area feedback: 231 tests,
+two optional skips, zero failures. See `openplan3d-ios/docs/native-ios-wall-area-integration-validation.md`.
+Interactive/device qualification, quota faults, performance, printing, releases,
+and remaining NEXT requirements stay open.
