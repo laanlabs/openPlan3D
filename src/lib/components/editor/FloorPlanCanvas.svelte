@@ -2008,17 +2008,21 @@
     if (kind === 'text') selectedTextAnnotationId = id;
   }
 
+  function toggleSelectionTarget(id: string) {
+    const ids = new Set(currentSelectedIds);
+    for (const selected of [currentSelectedId, selectedMeasurementId, selectedAnnotationId, selectedTextAnnotationId]) {
+      if (selected) ids.add(selected);
+    }
+    if (ids.has(id)) ids.delete(id); else ids.add(id);
+    clearAuxiliarySelection();
+    selectedRoomId.set(null);
+    selectedElementIds.set(ids.size > 1 ? ids : new Set());
+    selectedElementId.set(ids.has(id) ? id : (ids.values().next().value ?? null));
+  }
+
   function selectAnnotationTarget(kind: 'measurement' | 'annotation' | 'text', id: string, e: MouseEvent, wp: Point): boolean {
     if (e.shiftKey) {
-      const ids = new Set(currentSelectedIds);
-      for (const selected of [currentSelectedId, selectedMeasurementId, selectedAnnotationId, selectedTextAnnotationId]) {
-        if (selected) ids.add(selected);
-      }
-      if (ids.has(id)) ids.delete(id); else ids.add(id);
-      clearAuxiliarySelection();
-      selectedRoomId.set(null);
-      selectedElementIds.set(ids.size > 1 ? ids : new Set());
-      selectedElementId.set(ids.has(id) ? id : (ids.values().next().value ?? null));
+      toggleSelectionTarget(id);
       return true;
     }
     const group = currentFloor && !e.ctrlKey && !e.metaKey ? findGroupForElement(currentFloor, id) : undefined;
@@ -2191,6 +2195,13 @@
       const id = measurement || note || dimension;
       if (id) {
         selectAnnotationTarget(measurement ? 'measurement' : note ? 'text' : 'annotation', id, e, wp);
+        return;
+      }
+      const object = findColumnAt(wp) || findStairAt(wp) || findFurnitureAt(wp) ||
+        findEntourageAt(wp, currentFloor.entourage, d => entourageAspect(d, customEntourageDefs)) ||
+        findDoorAt(wp) || findWindowAt(wp) || findWallAt(wp);
+      if (object) {
+        toggleSelectionTarget(object.id);
         return;
       }
     }
@@ -2487,14 +2498,7 @@
       // Helper: select an element (shift = add to multi-select)
       function selectElement(id: string, isShift: boolean, isCtrl: boolean = false) {
         if (isShift) {
-          selectedElementIds.update(ids => {
-            const next = new Set(ids);
-            // Also include the current single selection if any
-            if (currentSelectedId && currentSelectedId !== id) next.add(currentSelectedId);
-            if (next.has(id)) next.delete(id); else next.add(id);
-            return next;
-          });
-          selectedElementId.set(id);
+          toggleSelectionTarget(id);
         } else {
           // Group selection: if element is in a group and not ctrl-clicking, select all group members
           const group = currentFloor ? findGroupForElement(currentFloor, id) : undefined;

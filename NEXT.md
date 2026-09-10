@@ -1476,3 +1476,18 @@ assertions and application storage limits are unchanged. See
 [validation](docs/annotation-rotation-validation.md). Annotation alignment,
 visibility, wall/opening rotation, physical qualification and export/native parity
 remain open.
+
+### Object Shift-click selection — 2026-09-10
+
+Shift-click now toggles furniture, columns, stairs, entourage, doors, windows and
+walls before the Shift-pan handler intercepts the press. Objects share the
+annotation toggle path, keeping the remaining primary selection consistent.
+Shift-drag on empty canvas retains panning.
+
+**18 Chromium/WebKit workflows, Svelte checks and build passed.** The furniture
+fixture was corrected to use a rendered catalog chair and passed a focused rerun;
+the other sixteen checks passed in the main run. Exact floor exports verify no
+geometry changes during selection/panning, isolated deletion, and Undo restoration.
+See [validation](docs/object-shift-selection-validation.md). Ctrl/Cmd group isolation,
+unknown-catalog rendering/hit-testing, annotation alignment/visibility, physical
+qualification and export/native parity remain open.
