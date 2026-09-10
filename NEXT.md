@@ -2048,3 +2048,12 @@ search preserves text sizes and saved anchors. All 55 selected Catalyst tests
 passed, including a nine-label multi-column case. See
 `openplan3d-ios/docs/native-dense-label-validation.md`. Over-capacity layouts,
 oversized text, toolbar/other-object occlusion, and physical gestures remain open.
+
+### Native statistics floor isolation — 2026-09-10
+
+Statistics no longer uses a whole-document area fallback for unresolved rooms.
+An unenclosed upper room cannot borrow ground-floor area at the same position;
+ordinary unresolved rooms remain unknown and openings contribute zero. All 56
+selected Catalyst tests passed. See `openplan3d-ios/docs/native-statistics-floor-isolation-validation.md`.
+Raster batching, measurement parity, ambiguous graphs, PDF visual checks, and
+physical-device qualification remain open.
