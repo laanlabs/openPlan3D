@@ -78,6 +78,8 @@ test('nested rooms export one slab at each point on active and stacked floors', 
     await page.mouse.dblclick(anchor.x,anchor.y);
     const nameEditor=page.getByRole('textbox',{name:'Room name',exact:true});
     await expect(nameEditor).toHaveValue(`Nested room ${i}`);
+    await expect(page.getByText(`${[20,12,4][i]}.0 m²`,{exact:true})).toBeVisible();
+    await expect(page.getByText('999.0 m²',{exact:true})).toHaveCount(0);
     await nameEditor.press('Escape');
     await expect(nameEditor).not.toBeVisible();
   }

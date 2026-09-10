@@ -1,5 +1,6 @@
 <script lang="ts">
   import { furnitureFinishes } from '$lib/utils/furnitureFinishes';
+  import { resolveRooms } from '$lib/utils/roomDetection';
   import { onDestroy } from 'svelte';
   import ItemDetailsPanel from './ItemDetailsPanel.svelte';
   import type { DetailTarget } from '$lib/models/types';
@@ -49,7 +50,9 @@
   let selectedTextAnnotation = $derived(floor?.textAnnotations?.find(t => t.id === selId) ?? null);
   let selectedEntourage = $derived(floor?.entourage?.find(en => en.id === selId) ?? null);
   let hasBgImage = $derived(!!floor?.backgroundImage);
-  let selectedRoom = $derived(floor?.rooms?.find(r => r.id === selRoomId) ?? detectedRooms.find(r => r.id === selRoomId) ?? null);
+  let selectedRoom = $derived(floor && selRoomId
+    ? resolveRooms(floor, detectedRooms).find(r => r.id === selRoomId) ?? null
+    : null);
 
   // Helper to get the parent wall for selected door/window
   let selectedDoorWall = $derived((selectedDoor && floor?.walls?.find(w => w.id === selectedDoor.wallId)) ?? null);

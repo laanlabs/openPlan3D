@@ -1910,3 +1910,12 @@ browser regressions and two corrected Chromium/WebKit nested workflows passed.
 See [validation](docs/interior-room-label-validation.md) for the coordinate-test
 failure and rerun. Full text collision handling, stale Room Properties areas,
 explicit openings, native nesting, and physical qualification remain open.
+
+### Current areas in Room Properties — 2026-09-10
+
+Room Properties now resolves selected geometry instead of displaying stale saved
+areas, retaining boundary-matched names and finishes. The nested fixture verifies
+20/12/4 m² despite saved 999 m² values. All 923 unit tests, Svelte checks/build,
+five initial browser workflows, and one isolated Chromium timeout rerun passed.
+See [validation](docs/room-properties-area-validation.md). Explicit openings,
+native nesting, full text collisions, and physical qualification remain open.
