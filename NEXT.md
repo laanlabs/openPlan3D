@@ -1850,3 +1850,14 @@ retaining all rooms. Catalyst build and 28 tests passed, including dense rotated
 grids and snapping-boundary coverage. See
 `openplan3d-ios/docs/native-room-graph-performance.md`. Worst-case memory and
 physical-device profiling remain open alongside voids and area parity.
+
+### Native graph budgets and partition preprocessing — 2026-09-10
+
+Native preview/export now enforce graph and slab triangle budgets, with a
+localized preview error for excessive geometry. Dangling wall trees are removed
+from boundary tracing while preserving the original walls in the scene.
+Catalyst build and 32 selected tests passed, including pathological limits,
+branching partitions, and a 1,500-segment detached tree. See native
+`docs/native-room-graph-limits-validation.md` and
+`docs/native-partition-preprocessing-validation.md`. This does not complete
+nested boundaries, courtyard/stair holes, area parity, or device profiling.
