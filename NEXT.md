@@ -2683,3 +2683,10 @@ error without changing session files or adding history. Undo still restores
 the original red trace. QA directory permissions were restored and all four
 file hashes verified unchanged. See native `docs/native-trace-file-import.md`.
 Desktop export-dialog and live-device checks remain open.
+
+### Native trace Save-dialog verification — 2026-09-10
+
+Exported the saved trace project through the native Save dialog. ZIP integrity,
+complete plan value and exact original JPEG bytes passed independent checks.
+The options sheet required Escape before the queued export proceeded, so
+unassisted dismissal remains open. See native `docs/native-trace-file-import.md`.
