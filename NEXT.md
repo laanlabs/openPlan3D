@@ -2568,3 +2568,9 @@ See `openplan3d-ios/docs/native-editor-dismissal.md`. Review/error/iOS paths and
 Both Close and Done returned a reopened editor to its saved-plan preview in
 the isolated Catalyst build, with unchanged element counts. See `openplan3d-ios/docs/native-editor-dismissal.md`.
 Error paths, iOS integration and broader NEXT qualification remain open.
+
+### Native editor dismissal iOS integration — 2026-09-10
+
+The full iOS 26.5 target passed after explicit editor dismissal: 240 tests,
+two optional skips, zero failures. See `openplan3d-ios/docs/native-editor-dismissal.md`. Load/save-error UI
+and broader device/NEXT qualification remain open.
