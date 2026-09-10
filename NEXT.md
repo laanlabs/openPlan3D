@@ -1951,3 +1951,12 @@ passed, including watertight net volumes, floor coverage, multiple holes, input
 reversal, stacked floor isolation, and exported openings. See
 `openplan3d-ios/docs/native-nested-slabs-validation.md`. Native opening controls
 and 2D/area display, arbitrary cuts, ceiling coordination, and device QA remain open.
+
+### Native floor-opening controls and presentation — 2026-09-10
+
+Native Room Properties now edits floor-opening intent. Native room labels and
+statistics exclude opening area; canvas/SVG omit the marked room's color fill.
+Catalyst build and all 39 selected tests passed. See
+`openplan3d-ios/docs/native-opening-controls-validation.md`. Native boundary-aware
+raster association, duplicate-label totals, measurement parity, arbitrary cuts,
+ceiling coordination, and device/UI QA remain open.
