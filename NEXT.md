@@ -1271,5 +1271,18 @@ and groups curve mutations. Selection clicks do not start a geometry undo group.
 **782 unit tests, checks for seven individual drag types in both browser engines,
 desktop/phone group regressions, Svelte checks and build passed.** The final stair
 rerun waits for painted Fit to avoid a framing race. See
-[validation](docs/geometry-drag-undo-validation.md). Opening/guide/entourage history,
-physical gestures and broader export/native work remain open.
+[validation](docs/geometry-drag-undo-validation.md). Opening/guide/entourage history
+is addressed below; physical gestures and broader export/native work remain open.
+
+### Opening, guide and entourage drag Undo — 2026-09-10
+
+Doors, windows, guides, entourage movement and entourage resizing now use one
+undo group per drag, starting after three screen pixels of movement. Selection
+clicks no longer take entourage snapshots, and opening/guide movement no longer
+adds a snapshot for every update.
+
+**782 unit tests, all five drag paths in Chromium and WebKit, Svelte checks and
+production build passed.** The final door rerun compares against the imported
+plan and waits for canvas layout to settle. See
+[validation](docs/accessory-drag-undo-validation.md). Physical gestures, opening
+symbol bounds, entourage group operations and export/native parity remain open.

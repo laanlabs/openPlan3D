@@ -5,7 +5,7 @@
   import { planContentBounds, hasPlanContent } from '$lib/utils/planContentBounds';
   import { connectedWallEndpoints } from '$lib/utils/wallEditing';
   import { createDrawScheduler } from '$lib/utils/drawScheduler';
-  import { activeFloor, selectedTool, selectedElementId, selectedElementIds, selectedRoomId, addWall, addDoor, addWindow, updateWall, moveWallEndpoint, updateDoor, updateWindow, addFurniture, moveFurniture, transformFurnitureDuringDrag, commitFurnitureMove, rotateFurniture, setFurnitureRotation, scaleFurniture, removeElement, placingFurnitureId, placingRotation, placingDoorType, placingWindowType, detectedRoomsStore, duplicateDoor, duplicateWindow, duplicateFurniture, duplicateWall, moveWallParallel, splitWall, snapEnabled, placingStair, addStair, moveStair, updateStair, placingColumn, placingColumnShape, addColumn, moveColumn, updateColumn, calibrationMode, calibrationPoints, updateBackgroundImage, setBackgroundImage, canvasZoom, canvasMinimumZoom, canvasCamX, canvasCamY, panMode, showFurnitureStore, addGuide, moveGuide, removeGuide, beginUndoGroup, endUndoGroup, layerVisibility, updateRoom, addMeasurement, removeMeasurement, addAnnotation, removeAnnotation, updateAnnotation, addTextAnnotation, removeTextAnnotation, updateTextAnnotation, moveTextAnnotation, toggleFurnitureLock, createGroup, ungroupElements, findGroupForElement, placingEntourageId, addEntourageItem, moveEntourage, resizeEntourage, currentProject, elevationWallId, elevationPickMode } from '$lib/stores/project';
+  import { activeFloor, selectedTool, selectedElementId, selectedElementIds, selectedRoomId, addWall, addDoor, addWindow, updateWall, moveWallEndpoint, updateDoor, updateWindow, addFurniture, moveFurniture, transformFurnitureDuringDrag, rotateFurniture, setFurnitureRotation, scaleFurniture, removeElement, placingFurnitureId, placingRotation, placingDoorType, placingWindowType, detectedRoomsStore, duplicateDoor, duplicateWindow, duplicateFurniture, duplicateWall, moveWallParallel, splitWall, snapEnabled, placingStair, addStair, moveStair, updateStair, placingColumn, placingColumnShape, addColumn, moveColumn, updateColumn, calibrationMode, calibrationPoints, updateBackgroundImage, setBackgroundImage, canvasZoom, canvasMinimumZoom, canvasCamX, canvasCamY, panMode, showFurnitureStore, addGuide, moveGuide, removeGuide, beginUndoGroup, endUndoGroup, layerVisibility, updateRoom, addMeasurement, removeMeasurement, addAnnotation, removeAnnotation, updateAnnotation, addTextAnnotation, removeTextAnnotation, updateTextAnnotation, moveTextAnnotation, toggleFurnitureLock, createGroup, ungroupElements, findGroupForElement, placingEntourageId, addEntourageItem, moveEntourage, resizeEntourage, currentProject, elevationWallId, elevationPickMode } from '$lib/stores/project';
   import type { Point, Wall, Door, Window as Win, FurnitureItem, Stair, Column, GuideLine, Measurement, Annotation, TextAnnotation, CustomEntourageDef } from '$lib/models/types';
   import type { Floor, Room } from '$lib/models/types';
   import { resolveRoomGeometry, roomLabelPosition } from '$lib/utils/roomDetection';
@@ -2374,7 +2374,6 @@
         const hy = selEnt.position.y + lx * Math.sin(ea) + ly * Math.cos(ea);
         if (Math.hypot(wp.x - hx, wp.y - hy) < 12 / zoom) {
           resizingEntourageId = selEnt.id;
-          commitFurnitureMove(); // snapshot before resize for undo
           return;
         }
       }
@@ -2441,7 +2440,6 @@
         selectElement(ent.id, e.shiftKey);
         if (!e.shiftKey && !ent.locked) {
           draggingEntourageId = ent.id;
-          commitFurnitureMove(); // snapshot before drag for undo
           dragOffset = { x: wp.x - ent.position.x, y: wp.y - ent.position.y };
         }
         return;
@@ -2611,7 +2609,8 @@
     }
 
     if ((draggingWallEndpoint || draggingWallParallel || draggingCurveHandle || draggingRoomId
-      || draggingStairId || draggingColumnId || draggingTextAnnotationId || draggingMultiSelect) && !geometryGestureStarted) {
+      || draggingStairId || draggingColumnId || draggingTextAnnotationId || draggingMultiSelect
+      || draggingDoorId || draggingWindowId || draggingGuideId || draggingEntourageId || resizingEntourageId) && !geometryGestureStarted) {
       if (Math.hypot(e.clientX - canvasPressPosition.x, e.clientY - canvasPressPosition.y) < 3) return;
       beginUndoGroup();
       geometryGestureStarted = true;
