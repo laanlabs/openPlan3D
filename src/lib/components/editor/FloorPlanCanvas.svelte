@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
+  import { get } from 'svelte/store';
   import { planContentBounds, hasPlanContent } from '$lib/utils/planContentBounds';
   import { connectedWallEndpoints } from '$lib/utils/wallEditing';
   import { createDrawScheduler } from '$lib/utils/drawScheduler';
@@ -1716,6 +1717,8 @@
     const resizeObs = new ResizeObserver(resize);
     resizeObs.observe(canvas.parentElement!);
 
+    const floorViews = new Map<string, { x: number; y: number; zoom: number; fitted: boolean }>();
+    let activeViewKey: string | null = null;
     let initialFitDone = false;
     let initialFitPending = false;
     function queueInitialFit() {
@@ -1729,7 +1732,13 @@
       });
     }
     const unsub1 = activeFloor.subscribe((f) => {
-      if (f?.id !== currentFloor?.id) {
+      const viewKey = f ? JSON.stringify([get(currentProject)?.id, f.id]) : null;
+      if (viewKey !== activeViewKey) {
+        if (activeViewKey) floorViews.set(activeViewKey, { x: camX, y: camY, zoom, fitted: initialFitDone });
+        activeViewKey = viewKey;
+        const saved = viewKey ? floorViews.get(viewKey) : undefined;
+        camX = saved?.x ?? 0; camY = saved?.y ?? 0; zoom = saved?.zoom ?? 1;
+        initialFitDone = saved?.fitted ?? false;
         measureStart = null;
         measureEnd = null;
         annotationStart = null;

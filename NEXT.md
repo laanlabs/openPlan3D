@@ -1100,3 +1100,14 @@ hint. Phone minimap visibility is unchanged.
 passed, along with Svelte checks and build.** See
 [validation](docs/minimap-content-validation.md). Caption/room-label bounds,
 extreme zoom limits, floor-switch framing and physical device checks remain open.
+
+### Per-floor camera views — 2026-09-09
+
+First visits now frame each floor; returning restores its camera center and zoom
+for the current editor session. Views are keyed by project/floor and remain
+transient UI state. Same-floor edits retain the camera and stale tracing-image
+loads remain rejected.
+
+**Fourteen Chromium/WebKit desktop/phone-width checks, Svelte checks and build
+passed.** See [validation](docs/floor-view-validation.md). Caption/room-label
+bounds, extreme zoom limits, selection framing and physical device checks remain open.
