@@ -1881,3 +1881,12 @@ All 921 unit tests, 18 Chromium/WebKit slab/modal workflows, Svelte checks, and
 build passed. See [validation](docs/nested-room-area-validation.md). Nested 2D
 fills, explicit courtyard/stair openings, native nesting, interior-face areas,
 and physical measurement qualification remain open.
+
+### Nested 2D room fills and exports — 2026-09-10
+
+Parent room colors and floor patterns now clip around immediate nested rooms in
+the 2D editor. PNG/PDF plan images and SVG use compound paths, avoiding blended
+overlap colors. All 921 unit tests, four Chromium/WebKit slab workflows with
+downloaded-image color checks, Svelte checks, and build passed. See
+[validation](docs/nested-room-fills-validation.md). Explicit openings, nested
+label placement/selection, native nesting, and physical qualification remain open.

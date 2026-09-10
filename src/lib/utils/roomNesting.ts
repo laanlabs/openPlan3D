@@ -1,5 +1,18 @@
 import type { Point } from '$lib/models/types';
 
+/** Append separate closed rings to a fresh canvas path; fill/clip with evenodd. */
+export function traceRoomRings(ctx: Pick<CanvasRenderingContext2D, 'beginPath' | 'moveTo' | 'lineTo' | 'closePath'>,
+  polygon: Point[], holes: Point[][] = [], transform: (p: Point) => Point = p => p) {
+  ctx.beginPath();
+  for (const ring of [polygon, ...holes]) {
+    if (ring.length < 3) continue;
+    const first = transform(ring[0]);
+    ctx.moveTo(first.x, first.y);
+    for (const p of ring.slice(1)) { const q = transform(p); ctx.lineTo(q.x, q.y); }
+    ctx.closePath();
+  }
+}
+
 /** Immediate, strictly contained rings. Touching or crossing rings are not holes. */
 export function roomHoles(polygons: Point[][]): Point[][][] {
   const cross = (a: Point, b: Point, c: Point) => (b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);

@@ -1,4 +1,5 @@
 import { getEntourageImage } from './entourageImages';
+import { roomHoles, traceRoomRings } from './roomNesting';
 import { stairLocalBounds } from './stairPlanGeometry';
 import { dimensionPlanGeometry } from './dimensionPlanGeometry';
 /**
@@ -1407,7 +1408,7 @@ const ROOM_FLOOR_PATTERN: Record<string, FloorPatternType> = {
   'Garage': 'stone', 'Closet': 'none',
 };
 
-export function drawRoomFloorPattern(cs: CanvasState, room: Room, screenPoly: { x: number; y: number }[]): void {
+export function drawRoomFloorPattern(cs: CanvasState, room: Room, screenPoly: Point[], holes: Point[][] = []): void {
   const { ctx, zoom } = cs;
   // Solid-color floor: no texture, no fallback pattern — the fill from
   // getRoomFill is the floor.
@@ -1416,10 +1417,7 @@ export function drawRoomFloorPattern(cs: CanvasState, room: Room, screenPoly: { 
     const texCanvas = getFloorTextureCanvas(room.floorTexture);
     if (texCanvas) {
       ctx.save();
-      ctx.beginPath();
-      ctx.moveTo(screenPoly[0].x, screenPoly[0].y);
-      for (let i = 1; i < screenPoly.length; i++) ctx.lineTo(screenPoly[i].x, screenPoly[i].y);
-      ctx.closePath(); ctx.clip();
+      traceRoomRings(ctx, screenPoly, holes); ctx.clip('evenodd');
       ctx.globalAlpha = 0.5;
       const scale = zoom * 0.15;
       ctx.scale(scale, scale);
@@ -1439,10 +1437,7 @@ export function drawRoomFloorPattern(cs: CanvasState, room: Room, screenPoly: { 
   if (pattern === 'none' || zoom < 0.3) return;
 
   ctx.save();
-  ctx.beginPath();
-  ctx.moveTo(screenPoly[0].x, screenPoly[0].y);
-  for (let i = 1; i < screenPoly.length; i++) ctx.lineTo(screenPoly[i].x, screenPoly[i].y);
-  ctx.closePath(); ctx.clip();
+  traceRoomRings(ctx, screenPoly, holes); ctx.clip('evenodd');
 
   let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
   for (const p of screenPoly) { if (p.x < minX) minX = p.x; if (p.x > maxX) maxX = p.x; if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y; }
@@ -1493,21 +1488,22 @@ export function drawRooms(
   polygons?: ReadonlyMap<string, Point[]>,
 ): void {
   const { ctx, zoom } = cs;
+  const roomPolygons = detectedRooms.map(room => polygons?.get(room.id) ?? getRoomPolygon(room, floor.walls));
+  const holes = roomHoles(roomPolygons);
   for (let ri = 0; ri < detectedRooms.length; ri++) {
     const room = detectedRooms[ri];
-    const poly = polygons?.get(room.id) ?? getRoomPolygon(room, floor.walls);
+    const poly = roomPolygons[ri];
     if (poly.length < 3) continue;
     const screenPoly = poly.map(p => wts(cs, p.x, p.y));
+    const screenHoles = holes[ri].map(ring => ring.map(p => wts(cs, p.x, p.y)));
     ctx.fillStyle = getRoomFill(room, ri);
-    ctx.beginPath();
-    ctx.moveTo(screenPoly[0].x, screenPoly[0].y);
-    for (let i = 1; i < screenPoly.length; i++) ctx.lineTo(screenPoly[i].x, screenPoly[i].y);
-    ctx.closePath(); ctx.fill();
+    traceRoomRings(ctx, screenPoly, screenHoles); ctx.fill('evenodd');
 
-    drawRoomFloorPattern(cs, room, screenPoly);
+    drawRoomFloorPattern(cs, room, screenPoly, screenHoles);
 
     const isSelected = currentSelectedRoomId === room.id;
     if (isSelected) {
+      traceRoomRings(ctx, screenPoly, screenHoles);
       ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 2; ctx.setLineDash([5, 3]); ctx.stroke(); ctx.setLineDash([]);
     }
 

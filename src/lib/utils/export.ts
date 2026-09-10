@@ -1,4 +1,5 @@
 import { prepareEntourageImage } from './entourageImages';
+import { roomHoles, traceRoomRings } from './roomNesting';
 import { getEntourageDef } from './entourageCatalog';
 import { entouragePlanBounds } from './entouragePlanBounds';
 import { planContentBounds } from './planContentBounds';
@@ -224,19 +225,16 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
       // Draw room fills
       const ROOM_COLORS = ['#bfdbfe', '#fde68a', '#bbf7d0', '#fecaca', '#ddd6fe', '#a5f3fc', '#fed7aa'];
       const rooms = resolveRooms(floor);
+      const polygons = rooms.map(room => getRoomPolygon(room, floor.walls));
+      const holes = roomHoles(polygons);
       for (let ri = 0; ri < rooms.length; ri++) {
         const room = rooms[ri];
-        const poly = getRoomPolygon(room, floor.walls);
+        const poly = polygons[ri];
         if (poly.length < 3) continue;
         ctx.fillStyle = ROOM_COLORS[ri % ROOM_COLORS.length];
         ctx.globalAlpha = 0.4;
-        ctx.beginPath();
-        ctx.moveTo(poly[0].x - minX + pad, poly[0].y - minY + pad);
-        for (let i = 1; i < poly.length; i++) {
-          ctx.lineTo(poly[i].x - minX + pad, poly[i].y - minY + pad);
-        }
-        ctx.closePath();
-        ctx.fill();
+        traceRoomRings(ctx, poly, holes[ri], p => ({x:p.x-minX+pad,y:p.y-minY+pad}));
+        ctx.fill('evenodd');
         ctx.globalAlpha = 1;
         // Room label
         const c = roomLabelPosition(room, poly);
@@ -353,13 +351,18 @@ export function exportAsSVG(project: Project) {
   // Room fills
   const ROOM_COLORS_SVG = ['#bfdbfe', '#fde68a', '#bbf7d0', '#fecaca', '#ddd6fe', '#a5f3fc', '#fed7aa'];
   const rooms = resolveRooms(floor);
+  const polygons = rooms.map(room => getRoomPolygon(room, floor.walls));
+  const holes = roomHoles(polygons);
   for (let ri = 0; ri < rooms.length; ri++) {
     const room = rooms[ri];
-    const poly = getRoomPolygon(room, floor.walls);
+    const poly = polygons[ri];
     if (poly.length < 3) continue;
     const pts = poly.map(p => `${p.x - minX + pad},${p.y - minY + pad}`).join(' ');
     const color = ROOM_COLORS_SVG[ri % ROOM_COLORS_SVG.length];
-    paths += `  <polygon points="${pts}" fill="${color}" fill-opacity="0.4" stroke="none"/>\n`;
+    if (holes[ri].length) {
+      const d = [poly,...holes[ri]].map(ring => `M ${ring.map(p=>`${p.x-minX+pad},${p.y-minY+pad}`).join(' L ')} Z`).join(' ');
+      paths += `  <path d="${d}" fill="${color}" fill-rule="evenodd" fill-opacity="0.4" stroke="none"/>\n`;
+    } else paths += `  <polygon points="${pts}" fill="${color}" fill-opacity="0.4" stroke="none"/>\n`;
     const c = roomLabelPosition(room, poly);
     const cx = c.x - minX + pad;
     const cy = c.y - minY + pad;
@@ -766,17 +769,16 @@ function renderPDF(project: Project, preparedImages: ReadonlyMap<string,HTMLImag
   // Room fills
   const ROOM_COLORS = ['#bfdbfe', '#fde68a', '#bbf7d0', '#fecaca', '#ddd6fe', '#a5f3fc', '#fed7aa'];
   const rooms = resolveRooms(floor);
+  const polygons = rooms.map(room => getRoomPolygon(room, floor.walls));
+  const holes = roomHoles(polygons);
   for (let ri = 0; ri < rooms.length; ri++) {
     const room = rooms[ri];
-    const poly = getRoomPolygon(room, floor.walls);
+    const poly = polygons[ri];
     if (poly.length < 3) continue;
     ctx.fillStyle = ROOM_COLORS[ri % ROOM_COLORS.length];
     ctx.globalAlpha = 0.4;
-    ctx.beginPath();
-    ctx.moveTo(poly[0].x - minX + pad, poly[0].y - minY + pad);
-    for (let i = 1; i < poly.length; i++) ctx.lineTo(poly[i].x - minX + pad, poly[i].y - minY + pad);
-    ctx.closePath();
-    ctx.fill();
+    traceRoomRings(ctx, poly, holes[ri], p => ({x:p.x-minX+pad,y:p.y-minY+pad}));
+    ctx.fill('evenodd');
     ctx.globalAlpha = 1;
     const c = roomLabelPosition(room, poly);
     ctx.fillStyle = '#444';

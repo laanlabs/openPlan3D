@@ -26,6 +26,15 @@ function checkSlabs(scene: any, elevation: number, thickness = .05) {
 }
 
 test('nested rooms export one slab at each point on active and stacked floors', async ({ page }) => {
+  test.setTimeout(90_000);
+  await page.addInitScript(() => {
+    const encode=HTMLCanvasElement.prototype.toDataURL;
+    HTMLCanvasElement.prototype.toDataURL=function(...args) {
+      const result=encode.apply(this,args);
+      if ((window as any).__capturePDF && this.width>500) (window as any).__pdfImage=result;
+      return result;
+    };
+  });
   const project = JSON.parse(await readFile(resolve('tests/fixtures/room-slabs.openplan.json'), 'utf8'));
   for (const floor of project.floors) {
     floor.rooms = [];
@@ -47,6 +56,31 @@ test('nested rooms export one slab at each point on active and stacked floors', 
   for (const value of ['36.0 m²','20.0 m²','12.0 m²','4.0 m²','Nested room 0']) await expect(summary).toContainText(value);
   await expect(summary).not.toContainText('999');
   await page.getByRole('button',{name:'Close area summary',exact:true}).click();
+  for (const format of ['PNG','SVG','PDF']) {
+    await page.evaluate(capture=>(window as any).__capturePDF=capture,format==='PDF');
+    await page.getByRole('button',{name:'Export',exact:true}).click();
+    const download=page.waitForEvent('download');
+    await page.getByRole('button',{name:format==='PNG'?'Export 2D as PNG':`Export as ${format}`,exact:true}).click();
+    const bytes=await readFile((await (await download).path())!);
+    if (format==='SVG') expect(bytes.toString()).toContain('fill-rule="evenodd"');
+    if (format==='PDF') expect(bytes.subarray(0,5).toString()).toBe('%PDF-');
+    const url=format==='PDF' ? await page.evaluate(()=>(window as any).__pdfImage as string)
+      : `data:image/${format==='SVG'?'svg+xml':'png'};base64,${bytes.toString('base64')}`;
+    const counts=await page.evaluate(async url=> {
+      const image=new Image();
+      await new Promise<void>((resolve,reject)=>{image.onload=()=>resolve();image.onerror=reject;image.src=url;});
+      const canvas=document.createElement('canvas');canvas.width=image.width;canvas.height=image.height;
+      const ctx=canvas.getContext('2d')!;ctx.fillStyle='white';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(image,0,0);
+      const data=ctx.getImageData(0,0,canvas.width,canvas.height).data;
+      // Each palette color painted exactly once at 40% over white.
+      return [[191,219,254],[253,230,138],[187,247,208]].map(color=> {
+        const target=color.map(c=>Math.round(c*.4+255*.6));let count=0;
+        for(let i=0;i<data.length;i+=4) if(target.every((c,j)=>Math.abs(data[i+j]-c)<=1)) count++;
+        return count;
+      });
+    },url);
+    for (const count of counts) expect(count,`${format} unblended room color`).toBeGreaterThan(100);
+  }
   await page.getByRole('button', {name:'3D',exact:true}).click();
   await page.waitForLoadState('networkidle');
   const hint=page.getByRole('button',{name:'Got it',exact:true});
