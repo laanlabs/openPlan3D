@@ -18,12 +18,13 @@ vi.mock('jspdf', () => ({ default: class {
 let downloaded: Blob[];
 const canvasText = vi.fn();
 const canvasCurve = vi.fn();
+const canvasRect = vi.fn();
 let canvas: HTMLCanvasElement;
 
 beforeEach(() => {
   downloaded = [];
-  canvasText.mockClear(); canvasCurve.mockClear(); pdfText.mockClear(); pdfSave.mockClear();
-  const ctx = new Proxy({ fillText: canvasText, quadraticCurveTo: canvasCurve, measureText: () => ({ width: 30 }) }, {
+  canvasText.mockClear(); canvasCurve.mockClear(); canvasRect.mockClear(); pdfText.mockClear(); pdfSave.mockClear();
+  const ctx = new Proxy({ fillText: canvasText, fillRect: canvasRect, quadraticCurveTo: canvasCurve, measureText: () => ({ width: 30 }) }, {
     get: (target, key) => target[key as keyof typeof target] ?? (() => {}),
   });
   canvas = { width: 400, height: 300, getContext: () => ctx, toDataURL: () => 'data:image/png;base64,test',
@@ -212,4 +213,43 @@ it.each([[304.8, "10'"], [23.8*2.54, "2'"]])('uses imperial units for a %s cm me
   exportAsSVG(project);expect(await downloaded.at(-1)!.text()).toContain(String(label).replace("'", '&apos;')+'</text>');
   exportDXF(project);expect(await downloaded.at(-1)!.text()).toContain(label);
  } finally {projectSettings.set(previous);}
+});
+
+
+it.each([false, true])('exports missing-catalog furniture with shared dimensions (saved=%s)', async saved => {
+  const project = roomProject(), floor = project.floors[0];
+  floor.walls = []; floor.rooms = []; floor.doors = []; floor.windows = [];
+  floor.furniture = [{ id: 'missing', catalogId: 'unavailable-model', position: { x: 100, y: 200 },
+    rotation: 30, scale: { x: -2, y: 0.5, z: 1 },
+    ...(saved ? { width: 160, depth: 80 } : {}) }];
+  const before = structuredClone(project);
+  const width = saved ? 320 : 100, depth = saved ? 40 : 25;
+  exportAsSVG(project);
+  const svg = await downloaded.at(-1)!.text();
+  expect(svg).toContain(`width="${width}" height="${depth}"`);
+  expect(svg).toContain('Unknown furniture');
+  await exportAsPNG(canvas, project);
+  expect(canvasRect).toHaveBeenCalledWith(-width / 2, -depth / 2, width, depth);
+  expect(canvasText.mock.calls.map(c => c[0])).toContain('Unknown furniture');
+  canvasRect.mockClear(); canvasText.mockClear();
+  await exportPDF(project);
+  expect(canvasRect).toHaveBeenCalledWith(-width / 2, -depth / 2, width, depth);
+  expect(canvasText.mock.calls.map(c => c[0])).toContain('Unknown furniture');
+  exportDXF(project);
+  const dxf = await downloaded.at(-1)!.text();
+  expect(dxf).toContain('Unknown furniture');
+  const lines = dxf.trim().split(/\r?\n/);
+  const pairs = Array.from({ length: lines.length / 2 }, (_, i) => [lines[i*2].trim(), lines[i*2+1].trim()]);
+  const start = pairs.findIndex(([code, value]) => code === '0' && value === 'LWPOLYLINE');
+  expect(start).toBeGreaterThan(-1);
+  const vertices: { x: number; y: number }[] = [];
+  for (let i = start + 1; i < pairs.length && pairs[i][0] !== '0'; i++) {
+    if (pairs[i][0] === '10') vertices.push({ x: Number(pairs[i][1]), y: Number(pairs[i+1][1]) });
+  }
+  const angle = Math.PI / 6;
+  for (const [i, [x, y]] of [[-width/2,-depth/2],[width/2,-depth/2],[width/2,depth/2],[-width/2,depth/2]].entries()) {
+    expect(vertices[i].x).toBeCloseTo(100 + x*Math.cos(angle)-y*Math.sin(angle));
+    expect(vertices[i].y).toBeCloseTo(-200 - x*Math.sin(angle)-y*Math.cos(angle));
+  }
+  expect(project).toEqual(before);
 });

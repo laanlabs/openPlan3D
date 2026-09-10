@@ -1547,3 +1547,17 @@ Undo/Redo; phone screenshots cover saved mirrored dimensions and omitted default
 See [validation](docs/unknown-furniture-validation.md). Unknown-catalog 3D/export
 parity, opening-only group movement, annotation alignment/visibility, physical
 qualification and broader native parity remain open.
+
+### Furniture export dimensions and CAD rotation — 2026-09-10
+
+PNG/PDF/SVG/DXF furniture footprints now preserve nonuniform scale and share the
+editor's 50 cm missing-catalog fallback. Missing entries receive a readable label.
+DXF applies its vertical-axis inversion after rotating each corner, correcting
+previously reversed rectangle orientation. Saved project data is unchanged.
+
+**All 836 unit tests, four Chromium/WebKit workflows, Svelte checks and build
+passed.** Tests check all four formats, exact DXF corners, saved/default sizes,
+export bounds and real downloads; scaled PNG visual review passed. See
+[validation](docs/furniture-export-size-validation.md). Unknown-catalog 3D
+rendering, detailed furniture export symbols, opening-only group movement,
+annotation alignment/visibility, physical qualification and native parity remain open.

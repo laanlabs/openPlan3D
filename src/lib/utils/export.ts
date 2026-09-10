@@ -7,7 +7,7 @@ import { canvasPNG } from './canvasPNG';
 import { planOpening } from './planOpening';
 import { wallPlanBounds, wallPlanDimension } from './wallPlanGeometry';
 import type { Project, Floor } from '$lib/models/types';
-import { getCatalogItem } from '$lib/utils/furnitureCatalog';
+import { getCatalogItem, getFurnitureSize } from '$lib/utils/furnitureCatalog';
 import { resolveRooms, getRoomPolygon, roomLabelPosition } from '$lib/utils/roomDetection';
 import { drawColumn, drawDoorOnWall, drawWindowOnWall, drawEntourageItems, drawTextAnnotations, drawAnnotations, drawPersistedMeasurements } from '$lib/utils/canvasRenderer';
 import type { CanvasState } from '$lib/utils/canvasInteraction';
@@ -254,9 +254,8 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
         const fx = fi.position.x - minX + pad;
         const fy = fi.position.y - minY + pad;
         const cat = getCatalogItem(fi.catalogId);
-        const fw = fi.width ?? (cat ? cat.width : 30);
-        const fd = fi.depth ?? (cat ? cat.depth : 30);
-        const color = fi.color ?? (cat ? cat.color : '#a0c4e8');
+        const { width: fw, depth: fd } = getFurnitureSize(fi);
+        const color = fi.color ?? (cat ? cat.color : '#888888');
         const rot = (fi.rotation || 0) * Math.PI / 180;
         ctx.save();
         ctx.translate(fx, fy);
@@ -268,11 +267,11 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
         ctx.lineWidth = 0.5;
         ctx.strokeRect(-fw / 2, -fd / 2, fw, fd);
         ctx.globalAlpha = 1;
-        if (cat) {
+        {
           ctx.fillStyle = '#333';
           ctx.font = '9px sans-serif';
           ctx.textAlign = 'center';
-          ctx.fillText(cat.name, 0, 4);
+          ctx.fillText(cat?.name ?? 'Unknown furniture', 0, 4);
         }
         ctx.restore();
       }
@@ -517,14 +516,13 @@ export function exportAsSVG(project: Project) {
     const fx = fi.position.x - minX + pad;
     const fy = fi.position.y - minY + pad;
     const cat = getCatalogItem(fi.catalogId);
-    const fw = fi.width ?? (cat ? cat.width : 30);
-    const fd = fi.depth ?? (cat ? cat.depth : 30);
-    const color = fi.color ?? (cat ? cat.color : '#a0c4e8');
+    const { width: fw, depth: fd } = getFurnitureSize(fi);
+    const color = fi.color ?? (cat ? cat.color : '#888888');
     const rot = fi.rotation || 0;
     paths += `  <g transform="translate(${fx},${fy}) rotate(${rot})">\n`;
     paths += `    <rect x="${-fw / 2}" y="${-fd / 2}" width="${fw}" height="${fd}" fill="${color}" stroke="#555" stroke-width="0.5" rx="2" opacity="0.7"/>\n`;
-    if (cat) {
-      paths += `    <text x="0" y="4" text-anchor="middle" font-size="9" fill="#333" font-family="sans-serif">${escapeXml(cat.name)}</text>\n`;
+    {
+      paths += `    <text x="0" y="4" text-anchor="middle" font-size="9" fill="#333" font-family="sans-serif">${escapeXml(cat?.name ?? 'Unknown furniture')}</text>\n`;
     }
     paths += `  </g>\n`;
   }
@@ -767,9 +765,8 @@ export function exportPDF(project: Project) {
     const fx = fi.position.x - minX + pad;
     const fy = fi.position.y - minY + pad;
     const cat = getCatalogItem(fi.catalogId);
-    const fw = fi.width ?? (cat ? cat.width : 30);
-    const fd = fi.depth ?? (cat ? cat.depth : 30);
-    const color = fi.color ?? (cat ? cat.color : '#a0c4e8');
+    const { width: fw, depth: fd } = getFurnitureSize(fi);
+    const color = fi.color ?? (cat ? cat.color : '#888888');
     const rot = (fi.rotation || 0) * Math.PI / 180;
     ctx.save();
     ctx.translate(fx, fy);
@@ -781,11 +778,11 @@ export function exportPDF(project: Project) {
     ctx.lineWidth = 0.5;
     ctx.strokeRect(-fw / 2, -fd / 2, fw, fd);
     ctx.globalAlpha = 1;
-    if (cat) {
+    {
       ctx.fillStyle = '#333';
       ctx.font = '9px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(cat.name, 0, 4);
+      ctx.fillText(cat?.name ?? 'Unknown furniture', 0, 4);
     }
     ctx.restore();
   }

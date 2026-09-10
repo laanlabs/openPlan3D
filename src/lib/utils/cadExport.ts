@@ -7,7 +7,7 @@ import { planWallOutlines } from './planWallOutline';
 import Drawing from 'dxf-writer';
 import { wallPlanDimension } from './wallPlanGeometry';
 import type { Project } from '$lib/models/types';
-import { getCatalogItem } from '$lib/utils/furnitureCatalog';
+import { getCatalogItem, getFurnitureSize } from '$lib/utils/furnitureCatalog';
 import { resolveRooms, getRoomPolygon, roomLabelPosition } from '$lib/utils/roomDetection';
 import { projectSettings, formatArea, formatLength } from '$lib/stores/settings';
 import { get } from 'svelte/store';
@@ -198,8 +198,7 @@ export function exportDXF(project: Project) {
   d.setActiveLayer('FURNITURE');
   for (const fi of floor.furniture) {
     const cat = getCatalogItem(fi.catalogId);
-    const fw = fi.width ?? (cat ? cat.width : 30);
-    const fd = fi.depth ?? (cat ? cat.depth : 30);
+    const { width: fw, depth: fd } = getFurnitureSize(fi);
     const fx = fi.position.x;
     const fy = -fi.position.y;
     const rot = (fi.rotation || 0) * Math.PI / 180;
@@ -212,15 +211,13 @@ export function exportDXF(project: Project) {
     const rotated = corners.map(([cx, cy]) => {
       const rx = cx * Math.cos(rot) - cy * Math.sin(rot);
       const ry = cx * Math.sin(rot) + cy * Math.cos(rot);
-      return [fx + rx, fy + ry] as [number, number];
+      return [fx + rx, fy - ry] as [number, number];
     });
     rotated.push(rotated[0]); // close
     d.drawPolyline(rotated);
 
     // Label
-    if (cat) {
-      d.drawText(fx, fy, 4, 0, cat.name, 'center', 'middle');
-    }
+    d.drawText(fx, fy, 4, 0, cat?.name ?? 'Unknown furniture', 'center', 'middle');
   }
 
   d.addLayer('COLUMNS', 7, 'CONTINUOUS');
