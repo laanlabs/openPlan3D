@@ -1224,3 +1224,15 @@ checks/build passed, and unobstructed phone screenshots were reviewed. See
 [validation](docs/stair-footprint-validation.md). Stair exports, multi-selection
 framing, below-floor ghosts, L/U direction indicators, physical checks and native
 parity remain open.
+
+### Stair direction arrows — 2026-09-09
+
+L-shaped and U-shaped arrows now reverse with Direction. Spiral arrows reverse
+their arc and endpoint, and their heads now point along the travel direction.
+Existing saved geometry and undo/redo semantics are preserved.
+
+**780 unit tests, eight Chromium/WebKit behavior checks, four final phone QA
+checks, Svelte checks and build passed.** L/U/spiral phone screenshots were
+reviewed. See [validation](docs/stair-direction-validation.md). Stair exports,
+below-floor ghosts, multi-selection framing, physical checks and native parity
+remain open.

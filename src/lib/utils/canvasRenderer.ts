@@ -1067,9 +1067,11 @@ export function drawStair(cs: CanvasState, stair: Stair, selected: boolean): voi
     const t2 = run2W / run2Risers;
     for (let i = 1; i < run2Risers; i++) { const x = w / 2 + i * t2; ctx.beginPath(); ctx.moveTo(x, -w / 2); ctx.lineTo(x, w / 2); ctx.stroke(); }
     ctx.fillStyle = selected ? '#3b82f6' : '#555'; ctx.strokeStyle = selected ? '#3b82f6' : '#555'; ctx.lineWidth = 1.5;
-    const ay = run1D * 0.7;
-    ctx.beginPath(); ctx.moveTo(0, ay); ctx.lineTo(0, ay - run1D * 0.3); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(0, ay - run1D * 0.3); ctx.lineTo(-w * 0.08, ay - run1D * 0.22); ctx.lineTo(w * 0.08, ay - run1D * 0.22); ctx.closePath(); ctx.fill();
+    const up = stair.direction === 'up';
+    const tailY = run1D * (up ? .7 : .4), tipY = run1D * (up ? .4 : .7);
+    const baseY = tipY + run1D * (up ? .08 : -.08);
+    ctx.beginPath(); ctx.moveTo(0, tailY); ctx.lineTo(0, tipY); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, tipY); ctx.lineTo(-w * .08, baseY); ctx.lineTo(w * .08, baseY); ctx.closePath(); ctx.fill();
     drawStairLabelLocal();
 
   } else if (type === 'u-shaped') {
@@ -1089,12 +1091,13 @@ export function drawStair(cs: CanvasState, stair: Stair, selected: boolean): voi
     ctx.fillStyle = fillCol; ctx.strokeStyle = strokeCol; ctx.lineWidth = selected ? 2 : 1;
     ctx.fillRect(-w / 2, -d / 2 - w * 0.1, w, w * 0.1); ctx.strokeRect(-w / 2, -d / 2 - w * 0.1, w, w * 0.1);
     ctx.fillStyle = selected ? '#3b82f6' : '#555'; ctx.strokeStyle = selected ? '#3b82f6' : '#555'; ctx.lineWidth = 1.5;
-    const lx = -w / 2 + runW / 2;
-    ctx.beginPath(); ctx.moveTo(lx, 0); ctx.lineTo(lx, -d * 0.2); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(lx, -d * 0.2); ctx.lineTo(lx - runW * 0.15, -d * 0.14); ctx.lineTo(lx + runW * 0.15, -d * 0.14); ctx.closePath(); ctx.fill();
-    const rx = w / 2 - runW / 2;
-    ctx.beginPath(); ctx.moveTo(rx, 0); ctx.lineTo(rx, d * 0.2); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(rx, d * 0.2); ctx.lineTo(rx - runW * 0.15, d * 0.14); ctx.lineTo(rx + runW * 0.15, d * 0.14); ctx.closePath(); ctx.fill();
+    const sign = stair.direction === 'up' ? 1 : -1;
+    for (const [x, direction] of [[-w / 2 + runW / 2, -sign], [w / 2 - runW / 2, sign]]) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, direction * d * .2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x, direction * d * .2);
+      ctx.lineTo(x - runW * .15, direction * d * .14); ctx.lineTo(x + runW * .15, direction * d * .14);
+      ctx.closePath(); ctx.fill();
+    }
     drawStairLabelLocal();
 
   } else if (type === 'spiral') {
@@ -1112,14 +1115,16 @@ export function drawStair(cs: CanvasState, stair: Stair, selected: boolean): voi
     }
     ctx.strokeStyle = selected ? '#3b82f6' : '#555'; ctx.fillStyle = selected ? '#3b82f6' : '#555'; ctx.lineWidth = 1.5;
     const arrowR = r * 0.7;
-    const aEnd = startAngle + totalAngle * 0.85;
-    ctx.beginPath(); ctx.arc(0, 0, arrowR, startAngle + totalAngle * 0.15, aEnd, false); ctx.stroke();
+    const up = stair.direction === 'up';
+    const aStart = startAngle + totalAngle * (up ? .15 : .85);
+    const aEnd = startAngle + totalAngle * (up ? .85 : .15);
+    ctx.beginPath(); ctx.arc(0, 0, arrowR, aStart, aEnd, !up); ctx.stroke();
     const ax2 = arrowR * Math.cos(aEnd);
     const ay2 = arrowR * Math.sin(aEnd);
-    const tangent = aEnd + Math.PI / 2;
+    const tangent = aEnd + (up ? 1 : -1) * Math.PI / 2;
     ctx.beginPath(); ctx.moveTo(ax2, ay2);
-    ctx.lineTo(ax2 + 6 * Math.cos(tangent + 0.4), ay2 + 6 * Math.sin(tangent + 0.4));
-    ctx.lineTo(ax2 + 6 * Math.cos(tangent - 0.4), ay2 + 6 * Math.sin(tangent - 0.4));
+    ctx.lineTo(ax2 - 6 * Math.cos(tangent + 0.4), ay2 - 6 * Math.sin(tangent + 0.4));
+    ctx.lineTo(ax2 - 6 * Math.cos(tangent - 0.4), ay2 - 6 * Math.sin(tangent - 0.4));
     ctx.closePath(); ctx.fill();
     ctx.fillStyle = '#374151'; ctx.font = `${Math.max(8, 10 * zoom)}px sans-serif`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
