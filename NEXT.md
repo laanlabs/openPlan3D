@@ -2200,3 +2200,12 @@ export fails, preserves existing contents, cleans PDF staging, and succeeds on
 retry after the obstruction is removed. All 17 targeted Catalyst tests passed.
 See `openplan3d-ios/docs/native-export-write-failure-validation.md`. Full-disk/quota/permission faults,
 process crashes, physical share sheets, and other NEXT work remain open.
+
+### Native wall defaults in rendering and measurements — 2026-09-10
+
+Statistics, raster regions, canvas/SVG strokes, and native 3D walls now honor
+document height/thickness defaults while preserving per-wall overrides. Renderer
+caches refresh when defaults change. The full Catalyst target passed: 228 tests,
+two optional skips, zero failures. See `openplan3d-ios/docs/native-wall-defaults-validation.md`.
+Exterior-wall inference, UI/iOS checks, area parity, device measurement, and other
+NEXT requirements remain open.
