@@ -958,3 +958,14 @@ production build passed.** Browser coverage includes 2D export while 3D is open,
 failed encoding through both entry points, and curved wall/opening regressions.
 See [validation](docs/png-2d-feedback-validation.md). All-object bounds/typography,
 asset readiness, physical downloads and native parity remain open.
+
+### Furniture footprint export bounds — 2026-09-09
+
+PNG, SVG and PDF now frame furniture using rotated symbol dimensions and stroke
+width, replacing fixed extents or missing furniture bounds. Oversized items
+outside the walls remain visible; saved furniture and raster caps are unchanged.
+
+**14 final geometry/export tests, three real-jsPDF tests, six Chromium/WebKit
+checks, Svelte checks and production build passed.** The actual PNG was visually
+reviewed. See [validation](docs/furniture-export-bounds-validation.md). Long symbol
+labels, other object categories, title text and native parity remain open.

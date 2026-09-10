@@ -1,3 +1,4 @@
+import { furniturePlanBounds } from './furniturePlanBounds';
 import { canvasPNG } from './canvasPNG';
 import { planOpening } from './planOpening';
 import { wallPlanBounds, wallPlanDimension } from './wallPlanGeometry';
@@ -114,13 +115,13 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
           maxX = Math.max(maxX, b.maxX); maxY = Math.max(maxY, b.maxY);
         }
       }
-      for (const fi of floor.furniture) {
-        minX = Math.min(minX, fi.position.x - 50);
-        minY = Math.min(minY, fi.position.y - 50);
-        maxX = Math.max(maxX, fi.position.x + 50);
-        maxY = Math.max(maxY, fi.position.y + 50);
-      }
+
       const bounds = { minX, minY, maxX, maxY };
+      for (const item of floor.furniture) {
+        const b = furniturePlanBounds(item);
+        bounds.minX = Math.min(bounds.minX, b.minX); bounds.minY = Math.min(bounds.minY, b.minY);
+        bounds.maxX = Math.max(bounds.maxX, b.maxX); bounds.maxY = Math.max(bounds.maxY, b.maxY);
+      }
       extendBoundsForOpenings(floor, bounds);
       extendBoundsForRoomLabels(floor, bounds);
       ({ minX, minY, maxX, maxY } = bounds);
@@ -253,6 +254,11 @@ export function exportAsSVG(project: Project) {
     }
   }
   const svgBounds = { minX, minY, maxX, maxY };
+  for (const item of floor.furniture) {
+    const b = furniturePlanBounds(item);
+    svgBounds.minX = Math.min(svgBounds.minX, b.minX); svgBounds.minY = Math.min(svgBounds.minY, b.minY);
+    svgBounds.maxX = Math.max(svgBounds.maxX, b.maxX); svgBounds.maxY = Math.max(svgBounds.maxY, b.maxY);
+  }
   extendBoundsForOpenings(floor, svgBounds);
   extendBoundsForRoomLabels(floor, svgBounds);
   ({ minX, minY, maxX, maxY } = svgBounds);
@@ -598,13 +604,13 @@ export function exportPDF(project: Project) {
       maxX = Math.max(maxX, b.maxX); maxY = Math.max(maxY, b.maxY);
     }
   }
-  for (const fi of floor.furniture) {
-    minX = Math.min(minX, fi.position.x - 60);
-    minY = Math.min(minY, fi.position.y - 60);
-    maxX = Math.max(maxX, fi.position.x + 60);
-    maxY = Math.max(maxY, fi.position.y + 60);
-  }
+
   const pdfBounds = { minX, minY, maxX, maxY };
+  for (const item of floor.furniture) {
+    const b = furniturePlanBounds(item);
+    pdfBounds.minX = Math.min(pdfBounds.minX, b.minX); pdfBounds.minY = Math.min(pdfBounds.minY, b.minY);
+    pdfBounds.maxX = Math.max(pdfBounds.maxX, b.maxX); pdfBounds.maxY = Math.max(pdfBounds.maxY, b.maxY);
+  }
   extendBoundsForOpenings(floor, pdfBounds);
   extendBoundsForRoomLabels(floor, pdfBounds);
   ({ minX, minY, maxX, maxY } = pdfBounds);

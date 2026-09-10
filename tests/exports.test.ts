@@ -169,3 +169,10 @@ it('does not capture a viewport for an empty project floor', async () => {
  expect(await exportAsPNG(canvas, project)).toBe(false);
  expect(downloaded).toHaveLength(0);
 });
+
+it('frames an oversized rotated furniture symbol consistently in PNG and PDF', async()=>{
+ const project=namedProject();project.floors[0].furniture=[{id:'large',catalogId:'unknown',position:{x:-600,y:-600},rotation:45,width:800,depth:300,scale:{x:1,y:1,z:1}}];
+ await exportAsPNG(null,project);const size={width:canvas.width,height:canvas.height};
+ expect(size.width).toBeGreaterThan(3000);
+ exportPDF(project);expect({width:canvas.width,height:canvas.height}).toEqual(size);
+});
