@@ -6,7 +6,7 @@
   import { planContentBounds, hasPlanContent } from '$lib/utils/planContentBounds';
   import { connectedWallEndpoints } from '$lib/utils/wallEditing';
   import { createDrawScheduler } from '$lib/utils/drawScheduler';
-  import { activeFloor, selectedTool, selectedElementId, selectedElementIds, selectedRoomId, addWall, addDoor, addWindow, updateWall, moveWallEndpoint, updateDoor, updateWindow, addFurniture, moveFurniture, transformFurnitureDuringDrag, rotateFurniture, rotateSelection, setFurnitureRotation, scaleFurniture, removeElement, placingFurnitureId, placingRotation, placingDoorType, placingWindowType, detectedRoomsStore, duplicateDoor, duplicateWindow, duplicateFurniture, duplicateSelection, pasteSelection, moveWallParallel, splitWall, snapEnabled, placingStair, addStair, moveStair, updateStair, placingColumn, placingColumnShape, addColumn, moveColumn, updateColumn, calibrationMode, calibrationPoints, updateBackgroundImage, setBackgroundImage, canvasZoom, canvasMinimumZoom, canvasCamX, canvasCamY, panMode, showFurnitureStore, addGuide, moveGuide, removeGuide, beginUndoGroup, endUndoGroup, layerVisibility, updateRoom, addMeasurement, updateMeasurement, removeMeasurement, addAnnotation, removeAnnotation, updateAnnotation, addTextAnnotation, removeTextAnnotation, updateTextAnnotation, moveTextAnnotation, toggleFurnitureLock, toggleSelectionLock, createGroup, ungroupElements, findGroupForElement, placingEntourageId, addEntourageItem, moveEntourage, resizeEntourage, currentProject, elevationWallId, elevationPickMode } from '$lib/stores/project';
+  import { activeFloor, selectedTool, selectedElementId, selectedElementIds, selectedRoomId, addWall, addDoor, addWindow, updateWall, moveWallEndpoint, moveWallGeometryDuringDrag, updateDoor, updateWindow, addFurniture, moveFurniture, transformFurnitureDuringDrag, rotateFurniture, rotateSelection, setFurnitureRotation, scaleFurniture, removeElement, placingFurnitureId, placingRotation, placingDoorType, placingWindowType, detectedRoomsStore, duplicateDoor, duplicateWindow, duplicateFurniture, duplicateSelection, pasteSelection, moveWallParallel, splitWall, snapEnabled, placingStair, addStair, moveStair, updateStair, placingColumn, placingColumnShape, addColumn, moveColumn, updateColumn, calibrationMode, calibrationPoints, updateBackgroundImage, setBackgroundImage, canvasZoom, canvasMinimumZoom, canvasCamX, canvasCamY, panMode, showFurnitureStore, addGuide, moveGuide, removeGuide, beginUndoGroup, endUndoGroup, layerVisibility, updateRoom, addMeasurement, updateMeasurement, removeMeasurement, addAnnotation, removeAnnotation, updateAnnotation, addTextAnnotation, removeTextAnnotation, updateTextAnnotation, moveTextAnnotation, toggleFurnitureLock, toggleSelectionLock, createGroup, ungroupElements, findGroupForElement, placingEntourageId, addEntourageItem, moveEntourage, resizeEntourage, currentProject, elevationWallId, elevationPickMode } from '$lib/stores/project';
   import type { Point, Wall, Door, Window as Win, FurnitureItem, Stair, Column, GuideLine, Measurement, Annotation, TextAnnotation, CustomEntourageDef } from '$lib/models/types';
   import type { Floor, Room } from '$lib/models/types';
   import { resolveRoomGeometry, roomLabelPosition } from '$lib/utils/roomDetection';
@@ -248,7 +248,7 @@
   let currentSelectedIds: Set<string> = $state(new Set());
 
   // Multi-select drag state
-  let draggingMultiSelect: { startMousePos: Point; origPositions: Map<string, { start?: Point; end?: Point; position?: Point }> } | null = $state(null);
+  let draggingMultiSelect: { startMousePos: Point; origPositions: Map<string, { start?: Point; end?: Point; curvePoint?: Point; position?: Point }> } | null = $state(null);
 
   // Clipboard for copy/paste (Ctrl+C / Ctrl+V)
   let clipboard: { floor: Floor; ids: string[]; step: number; projectId: string } | null = $state.raw(null);
@@ -267,10 +267,10 @@
     if (currentSelectedIds.size >= 2 && currentFloor) {
       const bbox = getMultiSelectBBox();
       if (bbox && wp.x >= bbox.minX && wp.x <= bbox.maxX && wp.y >= bbox.minY && wp.y <= bbox.maxY) {
-        const origPositions = new Map<string, { start?: Point; end?: Point; position?: Point }>();
+        const origPositions = new Map<string, { start?: Point; end?: Point; curvePoint?: Point; position?: Point }>();
         for (const id of currentSelectedIds) {
           const w = currentFloor.walls.find(w => w.id === id);
-          if (w) { origPositions.set(id, { start: { ...w.start }, end: { ...w.end } }); continue; }
+          if (w) { origPositions.set(id, { start: { ...w.start }, end: { ...w.end }, curvePoint: w.curvePoint ? { ...w.curvePoint } : undefined }); continue; }
           const note = currentFloor.textAnnotations?.find(item => item.id === id);
           if (note) { origPositions.set(id, { position: { x: note.x, y: note.y } }); continue; }
           const dimension = [...currentFloor.measurements ?? [], ...currentFloor.annotations ?? []].find(item => item.id === id);
@@ -2817,9 +2817,11 @@
           const endpoints = { x1: orig.start.x + dx, y1: orig.start.y + dy, x2: orig.end.x + dx, y2: orig.end.y + dy };
           if (currentFloor.measurements?.some(item => item.id === id)) { updateMeasurement(id, endpoints); continue; }
           if (currentFloor.annotations?.some(item => item.id === id)) { updateAnnotation(id, endpoints); continue; }
-          // Wall — move both endpoints
-          moveWallEndpoint(id, 'start', { x: orig.start.x + dx, y: orig.start.y + dy });
-          moveWallEndpoint(id, 'end', { x: orig.end.x + dx, y: orig.end.y + dy });
+          moveWallGeometryDuringDrag(id, {
+            start: { x: orig.start.x + dx, y: orig.start.y + dy },
+            end: { x: orig.end.x + dx, y: orig.end.y + dy },
+            curvePoint: orig.curvePoint ? { x: orig.curvePoint.x + dx, y: orig.curvePoint.y + dy } : undefined,
+          });
         } else if (orig.position) {
           // Furniture, stair, column, or entourage
           const newPos = { x: orig.position.x + dx, y: orig.position.y + dy };

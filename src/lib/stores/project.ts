@@ -602,6 +602,20 @@ export function moveWallEndpoint(id: string, endpoint: 'start' | 'end', position
   }
 }
 
+/** Translate wall geometry during a drag; the canvas owns the Undo group. */
+export function moveWallGeometryDuringDrag(id: string, geometry: Pick<Wall, 'start' | 'end' | 'curvePoint'>) {
+  if (!finitePoint(geometry.start) || !finitePoint(geometry.end) ||
+    (geometry.curvePoint !== undefined && !finitePoint(geometry.curvePoint))) return;
+  const project = get(currentProject);
+  const wall = project?.floors.find(floor => floor.id === project.activeFloorId)?.walls.find(wall => wall.id === id);
+  if (!project || !wall) return;
+  wall.start = { ...geometry.start };
+  wall.end = { ...geometry.end };
+  if (geometry.curvePoint) wall.curvePoint = { ...geometry.curvePoint };
+  project.updatedAt = new Date();
+  currentProject.set({ ...project });
+}
+
 /** Resize joined corners atomically. Openings keep their normalized wall positions. */
 export function resizeWallLength(id: string, length: number, fixed: WallEndpoint = 'start'): string | null {
   const floor = get(activeFloor);

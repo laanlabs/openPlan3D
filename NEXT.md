@@ -1518,3 +1518,18 @@ members and opening positions, full Undo/Redo, and retained Ctrl/Cmd isolation.
 See [validation](docs/saved-group-drag-validation.md). Opening-only group movement,
 curved-wall group translation, unknown-catalog rendering/hit-testing, annotation
 alignment/visibility, physical qualification and export/native parity remain open.
+
+### Curved-wall group translation — 2026-09-10
+
+Group dragging now translates curved-wall control points with both endpoints,
+preserving curve shape. A dedicated geometry update applies the move together
+without normalizing unrelated height fields, and validates points before mutation.
+The existing shared drag retains one Undo/Redo step.
+
+**All 829 unit tests, eight Chromium/WebKit workflows, Svelte checks and build
+passed.** Opposite curves, attached openings, grouped annotations, locked members
+and an unselected curved wall are covered with exact exported-floor comparisons;
+straight-wall dragging and Ctrl/Cmd isolation also pass. See
+[validation](docs/curved-group-translation-validation.md). Opening-only group
+movement, unknown-catalog handling, annotation alignment/visibility, physical
+qualification and export/native parity remain open.
