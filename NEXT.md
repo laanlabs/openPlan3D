@@ -2433,3 +2433,10 @@ A sandboxed UI check moved furniture beyond the original walls; Fit included
 the new extent. One Undo restored the edit, and refitting restored the original
 view without extra history. See `openplan3d-ios/docs/native-fit-current-floor-validation.md`. Multi-floor, zoom/iOS/device
 checks and remaining NEXT requirements stay open.
+
+### Native iOS Fit integration — 2026-09-10
+
+The full iPhone 17 Pro / iOS 26.5 test target passed with Fit Current Floor:
+240 tests, two optional skips, zero failures. See `openplan3d-ios/docs/native-fit-current-floor-validation.md`.
+This covers compilation and regressions; multi-floor, zoom recovery, iOS UI
+and physical-device checks remain open alongside the remaining NEXT work.
