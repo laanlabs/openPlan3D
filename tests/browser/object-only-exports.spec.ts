@@ -1,11 +1,12 @@
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
-for (const kind of ['furniture', 'text', 'measurement', 'dimension']) {
+for (const kind of ['furniture', 'text', 'measurement', 'dimension', 'column-round', 'column-square']) {
   test(`${kind}-only floors export PNG PDF SVG and DXF`, async ({ page }, testInfo) => {
     const plan = JSON.parse(await readFile('tests/fixtures/connected-dimensions.openplan.json', 'utf8'));
     const floor = plan.floors[0];
-    for (const key of ['walls', 'doors', 'windows', 'rooms', 'furniture', 'textAnnotations', 'measurements', 'annotations']) floor[key] = [];
+    for (const key of ['columns', 'walls', 'doors', 'windows', 'rooms', 'furniture', 'textAnnotations', 'measurements', 'annotations']) floor[key] = [];
+    if (kind.startsWith('column-')) floor.columns = [{ id: 'column', position: { x: 9000, y: -8000 }, rotation: 35, shape: kind.slice(7), diameter: 120, height: 300, color: '#cc22cc' }];
     if (kind === 'furniture') floor.furniture = [{ id: 'f', catalogId: 'unknown', position: { x: 9000, y: -8000 }, rotation: 35, width: 160, depth: 90, color: '#cc22cc' }];
     if (kind === 'text') floor.textAnnotations = [{ id: 't', x: 9000, y: -8000, rotation: 25, fontSize: 20, text: 'Standalone note', color: '#cc22cc' }];
     if (kind === 'measurement') floor.measurements = [{ id: 'm', x1: 9000, y1: -8000, x2: 9200, y2: -7950 }];
@@ -29,6 +30,16 @@ for (const kind of ['furniture', 'text', 'measurement', 'dimension']) {
     if (kind === 'dimension') expect(svg).toContain('Standalone dimension');
     if (kind === 'furniture') expect(svg).toContain('#cc22cc');
     if (kind === 'measurement') expect(svg).toContain('#ef4444');
+    if (kind.startsWith('column-')) {
+      const geometry = await page.evaluate(svg => {
+        const doc = new DOMParser().parseFromString(svg, 'image/svg+xml');
+        const group = doc.querySelector('[data-column="column"]')!;
+        return { transform: group.getAttribute('transform'), circle: !!group.querySelector('circle'), rect: !!group.querySelector('rect') };
+      }, svg);
+      expect(geometry.circle).toBe(kind === 'column-round');
+      expect(geometry.rect).toBe(kind === 'column-square');
+      expect(geometry.transform).toContain(kind === 'column-round' ? 'rotate(0)' : 'rotate(35)');
+    }
     const png = await download('Export 2D as PNG');
     const pixels = await page.evaluate(async data => {
       const img = new Image(); img.src = data; await img.decode();
@@ -45,6 +56,10 @@ for (const kind of ['furniture', 'text', 'measurement', 'dimension']) {
     const dxf = (await download('Export as DXF')).toString();
     expect(dxf).not.toMatch(/NaN|Infinity/);
     expect(dxf).toContain(kind === 'text' ? 'Standalone note' : kind === 'dimension' ? 'Standalone dimension' : 'ENTITIES');
+    if (kind.startsWith('column-')) {
+      expect(dxf).toContain('COLUMNS');
+      expect(dxf).toContain(kind === 'column-round' ? 'CIRCLE' : 'POLYLINE');
+    }
     const pdf = await download('Export as PDF');
     expect(pdf.subarray(0, 5).toString()).toBe('%PDF-');
     await testInfo.attach(`${kind}-only.pdf`, { body: pdf, contentType: 'application/pdf' });

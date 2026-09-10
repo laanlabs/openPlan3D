@@ -1,3 +1,4 @@
+import { columnPlanCorners } from './columnPlanGeometry';
 import { hasPlanExportContent } from './planExportContent';
 import { dimensionPlanGeometry } from './dimensionPlanGeometry';
 import { textAnnotationLines } from './textAnnotationLayout';
@@ -220,6 +221,15 @@ export function exportDXF(project: Project) {
     if (cat) {
       d.drawText(fx, fy, 4, 0, cat.name, 'center', 'middle');
     }
+  }
+
+  d.addLayer('COLUMNS', 7, 'CONTINUOUS');
+  d.setActiveLayer('COLUMNS');
+  for (const column of floor.columns ?? []) {
+    const points = columnPlanCorners(column);
+    if (column.shape === 'round') d.drawCircle(column.position.x, -column.position.y, column.diameter / 2);
+    else d.drawPolyline([...points, points[0]].map(p => [p.x, -p.y]));
+    for (const [a, b] of [[points[0], points[2]], [points[1], points[3]]]) d.drawLine(a.x, -a.y, b.x, -b.y);
   }
 
   const dxfString = d.toDxfString();

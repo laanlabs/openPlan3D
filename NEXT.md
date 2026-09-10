@@ -1198,3 +1198,15 @@ checks, Svelte checks and build passed.** All four object-only PDF pages were
 rendered and visually reviewed. See [validation](docs/object-only-export-validation.md).
 Tracing images, stairs, columns and entourage still need consistent export
 coverage; broader layout, physical-scale and native parity work remains open.
+
+### Column plan exports — 2026-09-09
+
+Round and rotated square columns now appear in PNG/PDF/SVG/DXF exports, with
+diagonal markers and bounds that include stroke width. Column-only floors qualify
+for export. Raster outputs reuse the editor renderer; SVG retains fill color;
+DXF uses circle/closed-outline primitives on a COLUMNS layer.
+
+**The 770-test suite, two new geometry tests, twelve Chromium/WebKit checks,
+Svelte checks and build passed.** Both column PDF pages were rendered and visually
+reviewed. See [validation](docs/column-export-validation.md). Tracing images,
+stairs, entourage, CAD fill styling, physical-scale and native parity work remain open.

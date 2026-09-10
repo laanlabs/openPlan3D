@@ -10,7 +10,7 @@ export function exportPDFWithFeedback(project: Project) {
   try {
     const result = exportPDF(project);
     if (!result) {
-      exportNotice.set({ title: "Couldn't export PDF", message: 'Add walls, furniture, notes or measurements to the active floor before exporting a PDF.' });
+      exportNotice.set({ title: "Couldn't export PDF", message: 'Add walls, furniture, columns, notes or measurements to the active floor before exporting a PDF.' });
     } else if (result.omitted3D) {
       exportNotice.set({ title: 'PDF exported without the 3D view', message: 'The floor plan was exported. Reopen the 3D view and try again to include it.' });
     }
@@ -22,7 +22,7 @@ export function exportPDFWithFeedback(project: Project) {
 export async function exportPNGWithFeedback(project: Project) {
   exportNotice.set(null);
   try {
-    if (!await exportAsPNG(null, project)) exportNotice.set({ title: "Couldn't export 2D PNG", message: 'Add walls, furniture, notes or measurements to the active floor before exporting a PNG.' });
+    if (!await exportAsPNG(null, project)) exportNotice.set({ title: "Couldn't export 2D PNG", message: 'Add walls, furniture, columns, notes or measurements to the active floor before exporting a PNG.' });
   } catch {
     exportNotice.set({ title: "Couldn't export 2D PNG", message: 'The PNG could not be prepared. Try again, or export JSON to keep a copy of your plan.' });
   }

@@ -1,3 +1,4 @@
+import { columnPlanBounds } from './columnPlanGeometry';
 import { hasPlanExportContent } from './planExportContent';
 import { dimensionPlanGeometry } from './dimensionPlanGeometry';
 import { textAnnotationBounds, textAnnotationLines } from './textAnnotationLayout';
@@ -8,7 +9,7 @@ import { wallPlanBounds, wallPlanDimension } from './wallPlanGeometry';
 import type { Project, Floor } from '$lib/models/types';
 import { getCatalogItem } from '$lib/utils/furnitureCatalog';
 import { resolveRooms, getRoomPolygon, roomLabelPosition } from '$lib/utils/roomDetection';
-import { drawDoorOnWall, drawWindowOnWall, drawEntourageItems, drawTextAnnotations, drawAnnotations, drawPersistedMeasurements } from '$lib/utils/canvasRenderer';
+import { drawColumn, drawDoorOnWall, drawWindowOnWall, drawEntourageItems, drawTextAnnotations, drawAnnotations, drawPersistedMeasurements } from '$lib/utils/canvasRenderer';
 import type { CanvasState } from '$lib/utils/canvasInteraction';
 import { projectSettings, formatArea, formatLength } from '$lib/stores/settings';
 import { get } from 'svelte/store';
@@ -97,6 +98,14 @@ function extendBoundsForDimensions(floor: Floor, bounds: { minX: number; minY: n
   }
 }
 
+function extendBoundsForColumns(floor: Floor, bounds: { minX: number; minY: number; maxX: number; maxY: number }) {
+  for (const column of floor.columns ?? []) {
+    const b = columnPlanBounds(column);
+    bounds.minX = Math.min(bounds.minX, b.minX); bounds.minY = Math.min(bounds.minY, b.minY);
+    bounds.maxX = Math.max(bounds.maxX, b.maxX); bounds.maxY = Math.max(bounds.maxY, b.maxY);
+  }
+}
+
 function extendBoundsForText(floor: Floor, bounds: { minX: number; minY: number; maxX: number; maxY: number }) {
   const ctx = document.createElement('canvas').getContext('2d');
   if (!ctx) return;
@@ -166,6 +175,7 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
       }
       extendBoundsForOpenings(floor, bounds);
       extendBoundsForRoomLabels(floor, bounds);
+      extendBoundsForColumns(floor, bounds);
       extendBoundsForText(floor, bounds);
       extendBoundsForDimensions(floor, bounds);
       extendBoundsForMeasurements(floor, bounds);
@@ -268,6 +278,7 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
       }
 
       ctx.save();
+      for (const column of floor.columns ?? []) drawColumn({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, column, false);
       drawPersistedMeasurements({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, get(projectSettings));
       ctx.restore();
       drawAnnotations({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, get(projectSettings));
@@ -312,6 +323,7 @@ export function exportAsSVG(project: Project) {
   }
   extendBoundsForOpenings(floor, svgBounds);
   extendBoundsForRoomLabels(floor, svgBounds);
+  extendBoundsForColumns(floor, svgBounds);
   extendBoundsForText(floor, svgBounds);
   extendBoundsForDimensions(floor, svgBounds);
   extendBoundsForMeasurements(floor, svgBounds);
@@ -517,6 +529,17 @@ export function exportAsSVG(project: Project) {
     paths += `  </g>\n`;
   }
 
+  for (const column of floor.columns ?? []) {
+    const x = column.position.x - minX + pad, y = column.position.y - minY + pad;
+    const r = column.diameter / 2, rotation = column.shape === 'square' ? column.rotation : 0;
+    paths += `  <g data-column="${escapeXml(column.id)}" transform="translate(${x},${y}) rotate(${rotation})">\n`;
+    const style = `fill="${escapeXml(column.color)}" stroke="#555" stroke-width="1"`;
+    paths += column.shape === 'round'
+      ? `    <circle r="${r}" ${style}/>\n`
+      : `    <rect x="${-r}" y="${-r}" width="${column.diameter}" height="${column.diameter}" ${style}/>\n`;
+    paths += `    <path d="M ${-r} ${-r} L ${r} ${r} M ${-r} ${r} L ${r} ${-r}" fill="none" stroke="#888" stroke-opacity="0.5" stroke-width="0.5"/>\n  </g>\n`;
+  }
+
   // Measurements
   if (floor.measurements) {
     for (const m of floor.measurements) {
@@ -669,6 +692,7 @@ export function exportPDF(project: Project) {
   }
   extendBoundsForOpenings(floor, pdfBounds);
   extendBoundsForRoomLabels(floor, pdfBounds);
+  extendBoundsForColumns(floor, pdfBounds);
   extendBoundsForText(floor, pdfBounds);
   extendBoundsForDimensions(floor, pdfBounds);
   extendBoundsForMeasurements(floor, pdfBounds);
@@ -767,6 +791,7 @@ export function exportPDF(project: Project) {
   }
 
   ctx.save();
+  for (const column of floor.columns ?? []) drawColumn({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, column, false);
   drawPersistedMeasurements({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, get(projectSettings));
   ctx.restore();
   drawAnnotations({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, get(projectSettings));
