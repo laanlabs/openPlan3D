@@ -2005,3 +2005,12 @@ Catalyst build and all 49 selected tests passed. See
 `openplan3d-ios/docs/native-room-reassignment-validation.md`. Ambiguous graphs,
 duplicate-label presentation, batch raster work, measurement parity, arbitrary
 cuts, ceiling coordination, and device/UI QA remain open.
+
+### Native room controls UI check — 2026-09-10
+
+Interactive Catalyst QA verified opening/reassignment controls, Undo/Redo, and
+save/reopen. Stale selection-bar area and duplicate preview/PDF summary totals
+were corrected; final UI showed 0 ft² for the selected opening and 319 ft² for
+the saved QA plan. All 49 selected tests passed. See
+`openplan3d-ios/docs/native-room-ui-validation.md`. Duplicate-label overlap/fills,
+PDF visual checks, ambiguous graphs, raster batching, and device QA remain open.
