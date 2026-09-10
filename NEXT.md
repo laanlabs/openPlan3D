@@ -2529,3 +2529,10 @@ Direct two-image Undo/Redo UI and broader device/NEXT qualification remain open.
 Mac Trace Image now opens a local image file picker. File and Photos imports
 share the same history-preserving save path; Catalyst build passed. See `openplan3d-ios/docs/native-trace-file-import.md`.
 Live picker/two-image history checks and iOS integration remain pending.
+
+### Native two-image trace history UI — 2026-09-10
+
+The desktop file picker imported synthetic red/blue traces. Undo restored red
+after removing it and importing blue; Redo restored blue. Temporary changes
+were undone. See `openplan3d-ios/docs/native-trace-file-import.md`. Cancel/error, reopen/export and iOS
+checks remain open with broader NEXT requirements.
