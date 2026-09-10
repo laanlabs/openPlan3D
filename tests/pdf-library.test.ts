@@ -30,6 +30,7 @@ it('generates a real PDF with the plan image and room schedule using the install
   vi.stubGlobal('document', {
     createElement: () => ({ width: 1, height: 1, getContext: () => context, toDataURL: () => png }),
     querySelectorAll: () => [],
+    querySelector: () => null,
   });
 
   exportPDF(roomProject());

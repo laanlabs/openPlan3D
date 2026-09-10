@@ -791,24 +791,14 @@ export function exportPDF(project: Project) {
     pdf.text(`${rooms.length} rooms  ·  ${floor.walls.length} walls  ·  ${floor.doors.length} doors  ·  ${floor.windows.length} windows  ·  ${floor.furniture.length} furniture items`, tX, tY + 18);
   }
 
-  // ── Page 3: 3D View (if a 3D canvas exists) ──
-  const canvases = document.querySelectorAll('canvas');
-  // Look for a WebGL canvas (the 3D renderer) — typically the second canvas or one with a webgl context
-  let threeDCanvas: HTMLCanvasElement | null = null;
-  canvases.forEach(c => {
-    try {
-      if (c.getContext('webgl2') || c.getContext('webgl')) {
-        threeDCanvas = c;
-      }
-    } catch { /* ignore */ }
-  });
-  // Alternative: grab data attribute or just use last canvas if multiple
-  if (!threeDCanvas && canvases.length > 1) {
-    threeDCanvas = canvases[canvases.length - 1];
-  }
+  // Only the main scene renderer may supply the optional 3D page.
+  // Probing arbitrary canvases can create contexts or select a thumbnail/2D view.
+  const threeDCanvas = document.querySelector<HTMLCanvasElement>('canvas[data-plan3d-canvas="true"]');
 
   if (threeDCanvas && threeDCanvas.width > 10 && threeDCanvas.height > 10) {
     try {
+      const context = threeDCanvas.getContext('webgl2') || threeDCanvas.getContext('webgl');
+      if (!context || context.isContextLost()) throw new Error('3D view unavailable');
       const img3d = threeDCanvas.toDataURL('image/png');
       if (img3d && img3d.length > 100) {
         pdf.addPage('a4', 'landscape');

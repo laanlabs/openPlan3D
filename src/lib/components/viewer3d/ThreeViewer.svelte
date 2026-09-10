@@ -777,6 +777,7 @@
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.2;
+    renderer.domElement.dataset.plan3dCanvas = 'true';
     container.appendChild(renderer.domElement);
 
     controls = new OrbitControls(camera, renderer.domElement);

@@ -31,6 +31,7 @@ beforeEach(() => {
   vi.stubGlobal('document', {
     createElement: (tag: string) => tag === 'canvas' ? canvas : { click: vi.fn() },
     querySelectorAll: () => [],
+    querySelector: () => null,
   });
   vi.spyOn(URL, 'createObjectURL').mockImplementation(blob => { downloaded.push(blob as Blob); return 'blob:test'; });
   vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
@@ -146,4 +147,19 @@ it('keeps large room schedules above the title block and repeats headings', () =
   expect(pdfText.mock.calls.filter(call => call[0] === 'Room Schedule')).toHaveLength(3);
   const total = pdfText.mock.calls.find(call => call[0] === 'TOTAL')!;
   expect(total[2]).toBeLessThan(174);
+});
+
+it('does not probe unrelated canvases when exporting the optional 3D page', () => {
+  const unrelated = { getContext: vi.fn(() => { throw new Error('Must not probe'); }) };
+  document.querySelectorAll = vi.fn(() => [unrelated]) as never;
+  exportPDF(namedProject());
+  expect(unrelated.getContext).not.toHaveBeenCalled();
+  expect(pdfText.mock.calls.some(call => call[0] === '3D Perspective View')).toBe(false);
+});
+it('skips a lost main 3D context', () => {
+  const toDataURL = vi.fn();
+  document.querySelector = vi.fn(() => ({width:100,height:100,getContext:()=>({isContextLost:()=>true}),toDataURL})) as never;
+  exportPDF(namedProject());
+  expect(toDataURL).not.toHaveBeenCalled();
+  expect(pdfText.mock.calls.some(call => call[0] === '3D Perspective View')).toBe(false);
 });

@@ -896,3 +896,15 @@ visually reviewed; text/geometry inspection verified complete names and footer
 clearance. See [validation](docs/pdf-schedule-validation.md). Long title-block
 metadata, Unicode fonts, extreme-plan readability, optional 3D layout and physical
 printing remain open.
+
+### PDF main 3D canvas selection — 2026-09-09
+
+PDF export now selects the explicitly marked main ThreeViewer canvas, skips lost
+WebGL contexts, and no longer probes unrelated canvases or substitutes the last
+2D canvas. This prevents misleading optional 3D pages.
+
+**Four Chromium/WebKit checks, Svelte checks and production build passed.**
+694 unit tests were covered across the full run and the corrected document-stub
+rerun. The exported 3D page was rendered and visually checked. See
+[validation](docs/pdf-3d-source-validation.md). Blank-frame detection, serialization
+failure handling, extreme aspect ratios and broader PDF/native fidelity remain open.
