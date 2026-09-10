@@ -1521,6 +1521,7 @@ export function drawRooms(
       if (roomW > 0.1 && roomD > 0.1) {
         const dimFontSize = Math.max(9, 10 * zoom);
         ctx.fillStyle = '#b0b8c4'; ctx.font = `${dimFontSize}px sans-serif`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(`${formatLength(roomW * 100, dimSettings.units)} × ${formatLength(roomD * 100, dimSettings.units)}`, sc.x, sc.y + fontSize + 2);
       }
     }

@@ -1908,6 +1908,13 @@
   function boundsForFloor(floor: Floor, fittedZoom = 1) {
       return planContentBounds(floor, {
         context: ctx,
+        automaticDimensions: {
+          external: floor === currentFloor && layerVis.walls && showDimensions && dimSettings.showExternalDimensions,
+          internal: floor === currentFloor && showDimensions && dimSettings.showInternalDimensions,
+          edge: dimSettings.wallMeasureMode === 'edge',
+        },
+        dimensionRooms: floor === currentFloor && showDimensions && dimSettings.showInternalDimensions
+          ? detectedRooms.map(room => ({ room, polygon: roomPolygons.get(room.id) ?? [] })) : undefined,
         measurementsVisible: floor === currentFloor && layerVis.measurements,
         dimensionsVisible: floor === currentFloor && layerVis.annotations,
         roomLabels: floor === currentFloor && showRoomLabels

@@ -1,5 +1,6 @@
 import { formatArea, formatLength } from '$lib/stores/settings';
-import { roomLabelPosition } from './roomDetection';
+import { wallLength, wallPointAt, wallTangentAt, wallEdgeInsets } from './canvasRenderer';
+import { roomCentroid, roomLabelPosition } from './roomDetection';
 import type { Room, Point } from '$lib/models/types';
 import type { Floor } from '$lib/models/types';
 import { wallPlanBounds } from './wallPlanGeometry';
@@ -22,6 +23,8 @@ export function planContentBounds(floor: Floor, options: {
   entourageAspect: (id: string) => number;
   measurementsVisible?: boolean;
   dimensionsVisible?: boolean;
+  automaticDimensions?: { external: boolean; internal: boolean; edge: boolean };
+  dimensionRooms?: { room: Room; polygon: Point[] }[];
   roomLabels?: { room: Room; polygon: Point[] }[];
   units?: 'metric' | 'imperial';
   zoom?: number;
@@ -60,6 +63,48 @@ export function planContentBounds(floor: Floor, options: {
       const m = ctx.measureText(text);
       point(x - (m.actualBoundingBoxLeft ?? m.width / 2) / scale, y - (m.actualBoundingBoxAscent ?? size) / scale);
       point(x + (m.actualBoundingBoxRight ?? m.width / 2) / scale, y + (m.actualBoundingBoxDescent ?? (bottom ? 0 : size)) / scale);
+    }
+    if (options.automaticDimensions?.external) for (const wall of floor.walls) {
+      const length = wallLength(wall);
+      if (length < 10) continue;
+      const tangent = wallTangentAt(wall, .5), normal = { x: -tangent.y, y: tangent.x };
+      const halfThickness = Math.max(wall.thickness * scale, 4) / (2 * scale);
+      const size = Math.max(10, 11 * scale);
+      if (wall.curvePoint) {
+        const middle = wallPointAt(wall, .5), offset = halfThickness + 16 / scale;
+        caption(formatLength(length, options.units ?? 'metric'), middle.x + normal.x * offset,
+          middle.y + normal.y * offset, `${size}px sans-serif`, size);
+        continue;
+      }
+      const inset = options.automaticDimensions.edge ? wallEdgeInsets(wall, floor.walls) : { start: 0, end: 0 };
+      const start = { x: wall.start.x + tangent.x * inset.start, y: wall.start.y + tangent.y * inset.start };
+      const end = { x: wall.end.x - tangent.x * inset.end, y: wall.end.y - tangent.y * inset.end };
+      const text = formatLength(Math.max(0, length - inset.start - inset.end), options.units ?? 'metric');
+      const offset = halfThickness + 20 / scale, tick = Math.max(4, 5 * scale) / scale;
+      // Rendering may flip the dimension side near the viewport edge. Include both
+      // sides so Fit does not depend on the camera it is replacing.
+      for (const side of [-1, 1]) {
+        const middle = { x: (start.x + end.x) / 2 + normal.x * offset * side,
+          y: (start.y + end.y) / 2 + normal.y * offset * side };
+        caption(text, middle.x, middle.y, `${size}px sans-serif`, size);
+        const gap = (ctx.measureText(text).width / 2 + 4) / scale;
+        for (const dir of [-1, 1]) point(middle.x + tangent.x * gap * dir, middle.y + tangent.y * gap * dir);
+        for (const p of [start, end]) {
+          const x = p.x + normal.x * offset * side, y = p.y + normal.y * offset * side;
+          for (const dir of [-1, 1]) point(x + (tangent.x + normal.x * side) * tick * dir,
+            y + (tangent.y + normal.y * side) * tick * dir);
+          point(x + normal.x * 4 / scale * side, y + normal.y * 4 / scale * side);
+        }
+      }
+    }
+    if (options.automaticDimensions?.internal) for (const { polygon } of options.dimensionRooms ?? []) {
+      if (polygon.length < 3) continue;
+      const width = Math.max(...polygon.map(p => p.x)) - Math.min(...polygon.map(p => p.x));
+      const depth = Math.max(...polygon.map(p => p.y)) - Math.min(...polygon.map(p => p.y));
+      if (width <= 10 || depth <= 10) continue;
+      const center = roomCentroid(polygon), size = Math.max(9, 10 * scale);
+      caption(`${formatLength(width, options.units ?? 'metric')} × ${formatLength(depth, options.units ?? 'metric')}`,
+        center.x, center.y + (Math.max(11, 13 * scale) + 2) / scale, `${size}px sans-serif`, size);
     }
     if (options.measurementsVisible !== false) for (const m of floor.measurements ?? []) {
       for (const [x, y] of [[m.x1, m.y1], [m.x2, m.y2]]) rectangle(x, y, 6 / scale, 6 / scale, 0);

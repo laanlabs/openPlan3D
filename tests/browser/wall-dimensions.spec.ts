@@ -127,7 +127,8 @@ for (const width of [1440, 390]) {
     await expect(page.getByRole('application')).toContainText('1 room');
     expect((await exportPlan(page)).floors).toEqual(saved.floors);
     await page.getByRole('button', { name: '3D', exact: true }).click();
-    await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible();
+    // Lazy viewer loading and software WebGL initialization can exceed the default assertion timeout.
+    await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible({ timeout: 30_000 });
     await testInfo.attach(`resized-3d-${width}`, { body: await page.screenshot(), contentType: 'image/png' });
     expect(errors).toEqual([]); expect(external).toEqual([]);
   });

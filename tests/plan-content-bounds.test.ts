@@ -75,3 +75,25 @@ it('includes long dimension captions at their minimum screen size', () => {
   const small = planContentBounds(floor, { ...options, zoom: .01 })!;
   expect(small.maxX - small.minX).toBeGreaterThan((normal.maxX - normal.minX) * 50);
 });
+
+it('includes automatic wall dimensions on both possible display sides at low zoom', () => {
+  const floor = empty();
+  floor.walls = [{ id: 'wall', start: { x: 0, y: 0 }, end: { x: 100, y: 0 }, thickness: 20 }] as Floor['walls'];
+  const before = structuredClone(floor);
+  const hidden = planContentBounds(floor, options)!;
+  const shown = planContentBounds(floor, { ...options, zoom: .01,
+    automaticDimensions: { external: true, internal: false, edge: false } })!;
+  expect(shown.minY).toBeLessThan(-2000); expect(shown.maxY).toBeGreaterThan(2000);
+  expect(shown.minX).toBeLessThan(hidden.minX); expect(shown.maxX).toBeGreaterThan(hidden.maxX);
+  expect(floor).toEqual(before);
+});
+
+it('includes internal room dimensions independently of room-name labels', () => {
+  const polygon = [{ x: 0, y: 0 }, { x: 100, y: 0 }, { x: 100, y: 100 }, { x: 0, y: 100 }];
+  const floor = empty();
+  const bounds = planContentBounds(floor, { ...options, zoom: .01,
+    automaticDimensions: { external: false, internal: true, edge: false },
+    dimensionRooms: [{ room: {} as any, polygon }] })!;
+  expect(bounds.maxY).toBeGreaterThan(1300);
+  expect(bounds.maxX - bounds.minX).toBeGreaterThan(1000);
+});

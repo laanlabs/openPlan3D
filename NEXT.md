@@ -1169,3 +1169,18 @@ Desktop/phone caption framing, hidden measurements, object-only minimap behavior
 and export regressions are covered; the phone screenshot was reviewed. See
 [validation](docs/caption-fit-validation.md). Overwide text, automatic wall/internal
 room dimension labels, selection framing and physical checks remain open.
+
+### Fit automatic wall and room dimensions — 2026-09-09
+
+Fit includes automatic wall caption ink, offset lines/ticks and internal room
+width/depth captions at their rendered screen sizes. Curves and clear-span wall
+insets use the renderer's geometry helpers. Both possible wall dimension sides
+are bounded; hidden dimensions are excluded. Internal room text now explicitly
+sets its alignment when room-name labels are hidden.
+
+**The 767-test suite, 11 final bounds tests, eight framing checks and four final
+wall-editing checks passed.** Svelte checks/build passed; phone QA was reviewed.
+The wall regression's lazy 3D readiness assertion now allows 30 seconds after
+initial Chromium timeouts. See [validation](docs/automatic-dimension-fit-validation.md).
+Overwide text, selection framing, selected-opening distance annotations and
+physical device qualification remain open, alongside the broader backlog.
