@@ -1798,3 +1798,13 @@ test timeout during native compilation; its six-test file passed in isolation.
 See [validation](docs/native-slab-thickness-validation.md). Native controls,
 room-shaped slabs, stair/courtyard openings, stacked native preview/elevations and
 physical qualification remain open.
+
+
+### Native slab editing controls — 2026-09-10
+
+The native Statistics & Defaults sheet now edits each floor's slab depth, with
+fractional unit-aware input, validation, default reset and snapshot undo. Final
+Catalyst build and 17 tests passed. Native UI/visual checks verified imperial
+editing, invalid recovery, reset and undo. See
+`openplan3d-ios/docs/native-slab-controls-validation.md`. Native room-shaped slabs,
+openings, stacked preview/elevations and physical-device qualification remain open.
