@@ -2468,3 +2468,10 @@ Reproduced an old-floor elevation remaining visible after selecting an empty
 upper floor. Floor changes now clear mismatched elevation targets and return
 to Plan; the canvas also requires matching floor ownership. Catalyst build
 passed. See `openplan3d-ios/docs/native-elevation-floor-switch.md`; post-fix UI/iOS checks remain pending.
+
+### Native elevation floor validation — 2026-09-10
+
+Fresh Catalyst UI confirmed floor switching clears the old elevation and restores
+Plan tools. The full iOS 26.5 target passed: 240 tests, two optional skips, zero
+failures. See `openplan3d-ios/docs/native-elevation-floor-switch.md`. Same-floor wall history, iOS interaction
+and broader device/NEXT qualification remain open.
