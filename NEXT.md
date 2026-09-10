@@ -2643,3 +2643,10 @@ Measured dismissal at 95.0 s after wall dragging versus 0.54 s with no edit
 and 0.53 s after tool selection only. A pan-only drag also delayed completion
 (>18.8 s), so geometry changes are not required. See `openplan3d-ios/docs/native-editor-dismissal.md`.
 Investigate canvas gesture lifecycle and distinguish app from input effects.
+
+### Native drag completion instrumentation — 2026-09-10
+
+Pan onEnded cleared its operation, gesture activity reset, and Save observed
+no active drag/frozen viewport with gesture zoom 1.0. See `openplan3d-ios/docs/native-editor-dismissal.md`.
+Temporary logging was removed; investigate lower-level presentation/input
+behavior rather than resetting already-cleared app flags.
