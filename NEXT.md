@@ -1446,3 +1446,17 @@ the one image-storage timeout passed with its 19-case file on an isolated retry.
 Phone screenshot review passed. See [validation](docs/annotation-group-validation.md).
 Saved-group re-selection, Shift-click annotations, rotation/alignment, note
 visibility, physical qualification and export/native parity remain open.
+
+### Saved annotation groups and Shift-click — 2026-09-10
+
+Canvas clicks on notes, measurements and dimensions now reopen saved groups and
+can immediately drag the group. Ctrl/Cmd-click isolates an annotation; Shift-click
+adds or removes one member and keeps primary selection consistent. Deleting the
+last remaining selected member clears selection fully.
+
+**All 16 Chromium/WebKit workflows, Svelte checks and build passed.** Desktop
+and phone cases reopen groups through every annotation type, check group drag
+and Undo, toggle members, and verify isolated deletion against exported data.
+See [validation](docs/annotation-reselection-validation.md). Annotation rotation/
+alignment, note visibility, wider object modifier consistency, physical checks
+and export/native parity remain open.

@@ -263,6 +263,33 @@
   let ctxMenuFurniture: FurnitureItem | null = $state(null);
   let ctxMenuRoom: Room | null = $state(null);
 
+  function startMultiSelectionDrag(wp: Point): boolean {
+    if (currentSelectedIds.size >= 2 && currentFloor) {
+      const bbox = getMultiSelectBBox();
+      if (bbox && wp.x >= bbox.minX && wp.x <= bbox.maxX && wp.y >= bbox.minY && wp.y <= bbox.maxY) {
+        const origPositions = new Map<string, { start?: Point; end?: Point; position?: Point }>();
+        for (const id of currentSelectedIds) {
+          const w = currentFloor.walls.find(w => w.id === id);
+          if (w) { origPositions.set(id, { start: { ...w.start }, end: { ...w.end } }); continue; }
+          const note = currentFloor.textAnnotations?.find(item => item.id === id);
+          if (note) { origPositions.set(id, { position: { x: note.x, y: note.y } }); continue; }
+          const dimension = [...currentFloor.measurements ?? [], ...currentFloor.annotations ?? []].find(item => item.id === id);
+          if (dimension) { origPositions.set(id, { start: { x: dimension.x1, y: dimension.y1 }, end: { x: dimension.x2, y: dimension.y2 } }); continue; }
+          const fi = currentFloor.furniture.find(f => f.id === id);
+          if (fi) { if (!fi.locked) origPositions.set(id, { position: { ...fi.position } }); continue; }
+          if (currentFloor.stairs) { const st = currentFloor.stairs.find(s => s.id === id); if (st) { origPositions.set(id, { position: { ...st.position } }); continue; } }
+          if (currentFloor.columns) { const col = currentFloor.columns.find(c => c.id === id); if (col) { origPositions.set(id, { position: { ...col.position } }); continue; } }
+        }
+        for (const item of currentFloor.entourage ?? []) {
+          if (currentSelectedIds.has(item.id) && !item.locked) origPositions.set(item.id, { position: { ...item.position } });
+        }
+        if (origPositions.size) draggingMultiSelect = { startMousePos: { ...wp }, origPositions };
+        return true;
+      }
+    }
+    return false;
+  }
+
   function selectAllPlanElements() {
     if (!currentFloor) return;
     const ids = new Set<string>();
@@ -1981,6 +2008,32 @@
     if (kind === 'text') selectedTextAnnotationId = id;
   }
 
+  function selectAnnotationTarget(kind: 'measurement' | 'annotation' | 'text', id: string, e: MouseEvent, wp: Point): boolean {
+    if (e.shiftKey) {
+      const ids = new Set(currentSelectedIds);
+      for (const selected of [currentSelectedId, selectedMeasurementId, selectedAnnotationId, selectedTextAnnotationId]) {
+        if (selected) ids.add(selected);
+      }
+      if (ids.has(id)) ids.delete(id); else ids.add(id);
+      clearAuxiliarySelection();
+      selectedRoomId.set(null);
+      selectedElementIds.set(ids.size > 1 ? ids : new Set());
+      selectedElementId.set(ids.has(id) ? id : (ids.values().next().value ?? null));
+      return true;
+    }
+    const group = currentFloor && !e.ctrlKey && !e.metaKey ? findGroupForElement(currentFloor, id) : undefined;
+    if (group) {
+      clearAuxiliarySelection();
+      selectedRoomId.set(null);
+      selectedElementIds.set(new Set(group.elementIds));
+      selectedElementId.set(id);
+      startMultiSelectionDrag(wp);
+      return true;
+    }
+    selectAuxiliary(kind, id);
+    return false;
+  }
+
   function fitSelectionIds() {
     const ids = new Set(currentSelectedIds);
     for (const id of [currentSelectedId,selectedMeasurementId,selectedAnnotationId,selectedTextAnnotationId,currentSelectedRoomId]) if (id) ids.add(id);
@@ -2129,6 +2182,18 @@
     selectionPress = null;
     canvasGestureActive = true;
     canvasPressPosition = { x: e.clientX, y: e.clientY };
+    if (e.button === 0 && e.shiftKey && currentTool === 'select' && currentFloor && !spaceDown && !$panMode) {
+      const rect = canvas.getBoundingClientRect();
+      const wp = screenToWorld(e.clientX - rect.left, e.clientY - rect.top);
+      const measurement = hitTestMeasurement(wp, currentFloor);
+      const note = measurement ? null : hitTestTextAnnotation(wp, currentFloor);
+      const dimension = measurement || note ? null : hitTestAnnotation(wp, currentFloor);
+      const id = measurement || note || dimension;
+      if (id) {
+        selectAnnotationTarget(measurement ? 'measurement' : note ? 'text' : 'annotation', id, e, wp);
+        return;
+      }
+    }
     if (e.button === 1 || (e.button === 0 && (spaceDown || $panMode || (e.shiftKey && currentTool === 'select')))) {
       isPanning = true;
       panStartX = e.clientX;
@@ -2260,8 +2325,8 @@
     // Measurement click detection (select)
     if (tool === 'select' && currentFloor) {
       const hitId = hitTestMeasurement(wp, currentFloor);
-      if (hitId && !(currentSelectedIds.size >= 2 && currentSelectedIds.has(hitId))) {
-        selectAuxiliary('measurement',hitId);
+      if (hitId && (e.ctrlKey || e.metaKey || !(currentSelectedIds.size >= 2 && currentSelectedIds.has(hitId)))) {
+        selectAnnotationTarget('measurement',hitId,e,wp);
         return;
       }
       selectedMeasurementId = null;
@@ -2270,8 +2335,8 @@
     // Text annotation click detection (select + drag)
     if (tool === 'select' && currentFloor) {
       const textHitId = hitTestTextAnnotation(wp, currentFloor);
-      if (textHitId && !(currentSelectedIds.size >= 2 && currentSelectedIds.has(textHitId))) {
-        selectAuxiliary('text',textHitId);
+      if (textHitId && (e.ctrlKey || e.metaKey || !(currentSelectedIds.size >= 2 && currentSelectedIds.has(textHitId)))) {
+        if (selectAnnotationTarget('text',textHitId,e,wp)) return;
         const ta = currentFloor.textAnnotations?.find(t => t.id === textHitId);
         if (ta) {
           draggingTextAnnotationId = textHitId;
@@ -2285,8 +2350,8 @@
     // Annotation click detection (select)
     if (tool === 'select' && currentFloor) {
       const hitId = hitTestAnnotation(wp, currentFloor);
-      if (hitId && !(currentSelectedIds.size >= 2 && currentSelectedIds.has(hitId))) {
-        selectAuxiliary('annotation',hitId);
+      if (hitId && (e.ctrlKey || e.metaKey || !(currentSelectedIds.size >= 2 && currentSelectedIds.has(hitId)))) {
+        selectAnnotationTarget('annotation',hitId,e,wp);
         return;
       }
       selectedAnnotationId = null;
@@ -2347,30 +2412,7 @@
         }
       }
     } else if (tool === 'select') {
-      // Multi-select bounding box drag — check FIRST before individual elements
-      if (currentSelectedIds.size >= 2 && currentFloor) {
-        const bbox = getMultiSelectBBox();
-        if (bbox && wp.x >= bbox.minX && wp.x <= bbox.maxX && wp.y >= bbox.minY && wp.y <= bbox.maxY) {
-          const origPositions = new Map<string, { start?: Point; end?: Point; position?: Point }>();
-          for (const id of currentSelectedIds) {
-            const w = currentFloor.walls.find(w => w.id === id);
-            if (w) { origPositions.set(id, { start: { ...w.start }, end: { ...w.end } }); continue; }
-            const note = currentFloor.textAnnotations?.find(item => item.id === id);
-            if (note) { origPositions.set(id, { position: { x: note.x, y: note.y } }); continue; }
-            const dimension = [...currentFloor.measurements ?? [], ...currentFloor.annotations ?? []].find(item => item.id === id);
-            if (dimension) { origPositions.set(id, { start: { x: dimension.x1, y: dimension.y1 }, end: { x: dimension.x2, y: dimension.y2 } }); continue; }
-            const fi = currentFloor.furniture.find(f => f.id === id);
-            if (fi) { if (!fi.locked) origPositions.set(id, { position: { ...fi.position } }); continue; }
-            if (currentFloor.stairs) { const st = currentFloor.stairs.find(s => s.id === id); if (st) { origPositions.set(id, { position: { ...st.position } }); continue; } }
-            if (currentFloor.columns) { const col = currentFloor.columns.find(c => c.id === id); if (col) { origPositions.set(id, { position: { ...col.position } }); continue; } }
-          }
-          for (const item of currentFloor.entourage ?? []) {
-            if (currentSelectedIds.has(item.id) && !item.locked) origPositions.set(item.id, { position: { ...item.position } });
-          }
-          if (origPositions.size) draggingMultiSelect = { startMousePos: { ...wp }, origPositions };
-          return;
-        }
-      }
+      if (startMultiSelectionDrag(wp)) return;
       // Check wall endpoint handles first (drag-to-resize walls)
       if (currentSelectedId && currentFloor) {
         const selWall = currentFloor.walls.find(w => w.id === currentSelectedId);
