@@ -2241,3 +2241,11 @@ raster guards, export write-failure checks, and partial-area feedback: 231 tests
 two optional skips, zero failures. See `openplan3d-ios/docs/native-ios-wall-area-integration-validation.md`.
 Interactive/device qualification, quota faults, performance, printing, releases,
 and remaining NEXT requirements stay open.
+
+### Native preview partial-area notice — 2026-09-10
+
+The preview marks partial or unavailable area and reports unmeasured-room
+counts. Saved-plan reload coverage verifies partial, all-unresolved, and
+resolved-plus-opening states. Catalyst build and all 31 selected tests passed.
+See `openplan3d-ios/docs/native-preview-partial-area-validation.md`. Interactive/device qualification,
+failure diagnostics, area parity, and remaining NEXT requirements stay open.
