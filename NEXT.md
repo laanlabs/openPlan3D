@@ -1721,3 +1721,13 @@ All 889 unit tests, four Chromium/WebKit workflows, Svelte checks and build pass
 downloaded CAD geometry visual review and furniture regressions passed. See
 [validation](docs/stair-dxf-export-validation.md). Physical qualification, stair
 voids and broader native parity remain open.
+
+### Entourage symbols in SVG — 2026-09-10
+
+SVG exports now include built-in entourage as editable paths and custom symbols
+as embedded images, preserving aspect ratio, rotation and opacity. Entourage-only
+plans are accepted and rotated symbols are fully framed. All 890 unit tests, six
+Chromium/WebKit workflows, Svelte checks and build passed; decoded SVG image/pixel
+checks, visual review and stair/furniture regressions passed. See
+[validation](docs/entourage-svg-export-validation.md). PNG/PDF entourage framing
+and image readiness, DXF entourage, physical qualification and native parity remain open.

@@ -290,3 +290,13 @@ it.each(['straight','l-shaped','u-shaped','spiral'] as const)('draws %s stairs i
   expect(dxf).not.toMatch(/NaN|Infinity/);
   expect(project).toEqual(before);
 });
+
+it('exports an entourage-only SVG with vector symbols and embedded custom images',async()=>{
+ const project=roomProject(),floor=project.floors[0];floor.walls=[];floor.rooms=[];floor.furniture=[];floor.doors=[];floor.windows=[];
+ project.customEntourage=[{id:'custom',name:'Custom',dataUrl:'data:image/png;base64,AAAA',aspect:2}];
+ floor.entourage=[{id:'vector',defId:'car-sedan',position:{x:-1000,y:-1000},width:460,rotation:30,opacity:.4},{id:'image',defId:'custom',position:{x:1000,y:1000},width:200,rotation:-45,opacity:.7},{id:'missing',defId:'unknown',position:{x:0,y:0},width:50,rotation:0}];
+ const before=structuredClone(project);exportAsSVG(project);const svg=await downloaded[0].text();
+ expect(svg).toContain('data-entourage="vector"');expect(svg).toContain('opacity="0.4"');expect(svg).toContain('rotate(30)');
+ expect(svg).toContain('href="data:image/png;base64,AAAA"');expect(svg).toContain('width="200" height="400"');expect(svg).toContain('preserveAspectRatio="none"');
+ expect(svg).not.toContain('data-entourage="missing"');expect(svg).not.toMatch(/NaN|Infinity/);expect(project).toEqual(before);
+});

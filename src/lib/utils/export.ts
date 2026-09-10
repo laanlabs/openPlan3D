@@ -1,3 +1,5 @@
+import { getEntourageDef } from './entourageCatalog';
+import { entouragePlanBounds } from './entouragePlanBounds';
 import { planContentBounds } from './planContentBounds';
 import { columnPlanBounds } from './columnPlanGeometry';
 import { hasPlanExportContent } from './planExportContent';
@@ -298,7 +300,12 @@ export { downloadProjectJSON as exportAsJSON } from './projectBackup';
 
 export function exportAsSVG(project: Project) {
   const floor = project.floors.find(f => f.id === project.activeFloorId) ?? project.floors[0];
-  if (!floor || !hasPlanExportContent(floor)) return;
+  if (!floor) return;
+  const entourage=(floor.entourage ?? []).flatMap(item=>{
+    const def=getEntourageDef(item.defId), custom=def?undefined:project.customEntourage?.find(d=>d.id===item.defId);
+    return def || custom ? [{item,def,custom,aspect:def?.aspect ?? custom!.aspect}] : [];
+  });
+  if (!hasPlanExportContent(floor) && !entourage.length) return;
 
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const w of floor.walls) {
@@ -312,6 +319,11 @@ export function exportAsSVG(project: Project) {
     const b = furniturePlanBounds(item);
     svgBounds.minX = Math.min(svgBounds.minX, b.minX); svgBounds.minY = Math.min(svgBounds.minY, b.minY);
     svgBounds.maxX = Math.max(svgBounds.maxX, b.maxX); svgBounds.maxY = Math.max(svgBounds.maxY, b.maxY);
+  }
+  for (const {item,aspect} of entourage) {
+    const b=entouragePlanBounds(item,aspect);
+    svgBounds.minX=Math.min(svgBounds.minX,b.minX-2);svgBounds.minY=Math.min(svgBounds.minY,b.minY-2);
+    svgBounds.maxX=Math.max(svgBounds.maxX,b.maxX+2);svgBounds.maxY=Math.max(svgBounds.maxY,b.maxY+2);
   }
   extendBoundsForOpenings(floor, svgBounds);
   extendBoundsForRoomLabels(floor, svgBounds);
@@ -356,6 +368,17 @@ export function exportAsSVG(project: Project) {
     const mx = midpoint.x - minX + pad;
     const my = midpoint.y - minY + pad;
     paths += `  <text x="${mx}" y="${my}" text-anchor="middle" font-size="11" fill="#666" font-family="sans-serif">${len} cm</text>\n`;
+  }
+
+  for (const {item,def,custom,aspect} of entourage) {
+    const width=item.width,height=width*aspect,scale=width/100;
+    paths+=`<g data-entourage="${escapeXml(item.id)}" transform="translate(${item.position.x-minX+pad},${item.position.y-minY+pad}) rotate(${item.rotation || 0})" opacity="${item.opacity ?? 1}">`;
+    if (def && scale>.01) {
+      paths+=`<g transform="scale(${scale}) translate(-50,${-50*aspect})" fill="none" stroke="#4b5563" stroke-width="${Math.min(1.6/scale,4)}" stroke-linejoin="round" stroke-linecap="round">`;
+      for (const path of def.paths) paths+=`<path d="${escapeXml(path)}"/>`;
+      paths+='</g>';
+    } else if (custom) paths+=`<image href="${escapeXml(custom.dataUrl)}" x="${-width/2}" y="${-height/2}" width="${width}" height="${height}" preserveAspectRatio="none"/>`;
+    paths+='</g>\n';
   }
 
   // Doors: wall gap + jambs + type-specific glyph (swing arc / panels)
