@@ -1617,3 +1617,17 @@ reveal; existing auxiliary selection checks also pass. See
 [validation](docs/annotation-visibility-validation.md). Walls/openings alignment,
 opening-only group movement, detailed furniture exports, physical qualification
 and broader native parity remain open.
+
+### Straight and curved wall alignment — 2026-09-10
+
+Walls now participate in all eight alignment/distribution operations, using bounds
+that include thickness and quadratic curve extrema. Each move translates both
+endpoints and the curve control point together, preserving height profiles and
+metadata. Attached openings follow their host without changing normalized data.
+Only selected walls move; unselected neighboring walls remain unchanged.
+
+**All 856 unit tests, 16 Chromium/WebKit workflows, Svelte checks and build passed.**
+Tests verify all operations, curve shape, hosted openings, no-op history and exact
+Undo/Redo; phone visual review passed. See [validation](docs/wall-alignment-validation.md).
+Independent opening alignment, opening-only group movement, detailed furniture
+exports, physical qualification and broader native parity remain open.

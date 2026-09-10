@@ -78,3 +78,30 @@ it.each(['align-left','align-right','align-top','align-bottom','align-center-h',
   undo();expect(get(currentProject)!.floors[0]).toEqual(before);
   redo();expect(get(currentProject)!.floors[0]).toEqual(moved);
 });
+
+it.each(['align-left','align-right','align-top','align-bottom','align-center-h','align-center-v','distribute-h','distribute-v'] as AlignmentOp[])('%s preserves wall curves, heights and hosted openings',async op=>{
+  const {wallPlanBounds}=await import('$lib/utils/wallPlanGeometry');
+  const project=createDefaultProject(),floor=project.floors[0];
+  floor.walls=[
+    {id:'a',start:{x:0,y:0},end:{x:200,y:0},height:250,thickness:20,color:'#123456'},
+    {id:'b',start:{x:350,y:200},end:{x:550,y:220},curvePoint:{x:480,y:340},height:260,startHeight:240,endHeight:280,thickness:30,color:'#234567'},
+    {id:'c',start:{x:900,y:500},end:{x:1200,y:540},curvePoint:{x:1000,y:380},height:270,thickness:10,color:'#345678'},
+  ];
+  floor.doors=[{id:'door',wallId:'b',position:0.2,width:60,height:200,type:'single',swingDirection:'left',flipSide:false}];
+  floor.windows=[{id:'window',wallId:'c',position:0.6,width:80,height:120,sillHeight:90,type:'standard'}];
+  loadProject(project);const before=structuredClone(get(currentProject)!.floors[0]);
+  alignElements(new Set(['a','b','c']),op,annotationContext);
+  const after=structuredClone(get(currentProject)!.floors[0]);expect(after).not.toEqual(before);
+  expect(after.doors).toEqual(before.doors);expect(after.windows).toEqual(before.windows);
+  after.walls.forEach((wall,i)=>{
+    const a=before.walls[i],dx=wall.start.x-a.start.x,dy=wall.start.y-a.start.y;
+    expect(wall.end.x-a.end.x).toBeCloseTo(dx);expect(wall.end.y-a.end.y).toBeCloseTo(dy);
+    if(a.curvePoint) {expect(wall.curvePoint!.x-a.curvePoint.x).toBeCloseTo(dx);expect(wall.curvePoint!.y-a.curvePoint.y).toBeCloseTo(dy);}
+    expect({...wall,start:a.start,end:a.end,...(a.curvePoint?{curvePoint:a.curvePoint}:{})}).toEqual(a);
+  });
+  const values=after.walls.map(wallPlanBounds).map(b=>op==='align-left'?b.minX:op==='align-right'?b.maxX:op==='align-top'?b.minY:op==='align-bottom'?b.maxY:['align-center-h','distribute-h'].includes(op)?(b.minX+b.maxX)/2:(b.minY+b.maxY)/2);
+  if(op.startsWith('distribute')){values.sort((a,b)=>a-b);expect(values[1]-values[0]).toBeCloseTo(values[2]-values[1]);}
+  else for(const v of values)expect(v).toBeCloseTo(values[0]);
+  alignElements(new Set(['a','b','c']),op,annotationContext);undo();expect(get(currentProject)!.floors[0]).toEqual(before);
+  redo();expect(get(currentProject)!.floors[0]).toEqual(after);
+});

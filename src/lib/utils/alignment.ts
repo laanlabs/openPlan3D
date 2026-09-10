@@ -1,5 +1,6 @@
 import { get } from 'svelte/store';
 import { activeFloor, currentProject, beginUndoGroup, endUndoGroup } from '$lib/stores/project';
+import { wallPlanBounds } from './wallPlanGeometry';
 import { furniturePlanBounds } from './furniturePlanBounds';
 import { stairPlanBounds } from './stairPlanGeometry';
 import { columnPlanBounds } from './columnPlanGeometry';
@@ -13,13 +14,13 @@ export type AlignmentOp = 'align-left' | 'align-right' | 'align-top' | 'align-bo
   | 'align-center-h' | 'align-center-v' | 'distribute-h' | 'distribute-v';
 
 export function alignmentItems(floor: Floor, ids: ReadonlySet<string>) {
-  return [...floor.furniture, ...floor.stairs ?? [], ...floor.columns ?? [], ...floor.entourage ?? [], ...floor.textAnnotations ?? [], ...floor.measurements ?? [], ...floor.annotations ?? []].filter(item => ids.has(item.id));
+  return [...floor.walls, ...floor.furniture, ...floor.stairs ?? [], ...floor.columns ?? [], ...floor.entourage ?? [], ...floor.textAnnotations ?? [], ...floor.measurements ?? [], ...floor.annotations ?? []].filter(item => ids.has(item.id));
 }
 
 /** Position updates based on rendered extents; locked items act as fixed anchors. */
 export function planAlignment(floor: Floor, ids: ReadonlySet<string>, op: AlignmentOp, customDefs?: CustomEntourageDef[], context?: CanvasRenderingContext2D, units: 'metric' | 'imperial' = 'metric'): Map<string, Point> {
   const annotationRects = context ? alignmentItems(floor, ids).flatMap(item => {
-    if ('position' in item) return [];
+    if ('position' in item || 'start' in item) return [];
     const bounds = planContentBounds({ ...floor, walls: [], doors: [], windows: [], furniture: [],
       stairs: [], columns: [], entourage: [], backgroundImage: undefined,
       textAnnotations: (floor.textAnnotations ?? []).filter(n => n.id === item.id),
@@ -31,6 +32,7 @@ export function planAlignment(floor: Floor, ids: ReadonlySet<string>, op: Alignm
   }) : [];
   const rects = [
     ...annotationRects,
+    ...floor.walls.map(wall => ({item:{id:wall.id,position:wall.start},bounds:wallPlanBounds(wall)})),
     ...floor.furniture.map(item => ({item,bounds:furniturePlanBounds(item)})),
     ...(floor.stairs ?? []).map(item => ({item,bounds:stairPlanBounds(item)})),
     ...(floor.columns ?? []).map(item => ({item,bounds:columnPlanBounds(item)})),
@@ -73,7 +75,11 @@ export function alignElements(ids: Set<string>, op: AlignmentOp, context?: Canva
     const pos = updates.get(item.id);
     if (!pos) continue;
     if ('position' in item) item.position = pos;
-    else if ('x1' in item) {
+    else if ('start' in item) {
+      const dx=pos.x-item.start.x, dy=pos.y-item.start.y;
+      item.start={...pos}; item.end={x:item.end.x+dx,y:item.end.y+dy};
+      if (item.curvePoint) item.curvePoint={x:item.curvePoint.x+dx,y:item.curvePoint.y+dy};
+    } else if ('x1' in item) {
       const dx=pos.x-(item.x1+item.x2)/2, dy=pos.y-(item.y1+item.y2)/2;
       item.x1+=dx; item.x2+=dx; item.y1+=dy; item.y2+=dy;
     } else { item.x=pos.x; item.y=pos.y; }
