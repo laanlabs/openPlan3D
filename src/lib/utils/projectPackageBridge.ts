@@ -62,6 +62,7 @@ export function validatePackagePlan(plan: any): ObjectMap {
         if (item.type != null && !['livingRoom', 'bedroom', 'kitchen', 'bathroom', 'diningRoom', 'laundryRoom', 'office', 'hallway', 'garage', 'closet', 'pantry', 'entryway'].includes(item.type)) fail();
       }
       if (kind === 'notes') { xy(item.position); if (typeof item.text !== 'string') fail(); }
+      if (kind === 'levels' && item.elevation != null) { num(item.elevation); if (Math.abs(item.elevation) > 10_000) fail(); }
       if (kind === 'levels' && item.slabThickness != null) { num(item.slabThickness, 0, true); if (item.slabThickness > 10_000) fail(); }
       if (kind === 'levels' && (typeof item.name !== 'string' || !Number.isSafeInteger(item.index) || Math.abs(item.index) > 1000)) fail();
     }
@@ -121,6 +122,7 @@ export function nativeToWeb(plan: ObjectMap, mapping: PackageMapping, title: str
     const meta = plan.levels.find((l: any) => l.index === level), floor = createDefaultFloor(level);
     floor.id = meta ? mapped(meta.id) : `native-floor-${level}`;
     floor.slabThickness = cm(meta?.slabThickness ?? 0.1);
+    if (meta?.elevation != null) floor.elevation = cm(meta.elevation);
     floor.name = meta?.name ?? (level === 0 ? 'Ground Floor' : `Floor ${level}`);
     floor.walls = plan.walls.filter((w: any) => (w.level ?? 0) === level).map((w: any) => ({ details: nativeItemDetails(w, 'walls'), id: mapped(w.id), start: point(w.start), end: point(w.end), thickness: cm(w.thickness ?? plan.defaults?.interiorWallThickness ?? 0.12), height: cm(w.height ?? plan.defaults?.ceilingHeight ?? 2.4), color: '#8e8e93' }));
     const wallIds = new Set(plan.walls.filter((w: any) => (w.level ?? 0) === level).map((w: any) => key(w.id)));
@@ -163,6 +165,9 @@ export function applyNativeEdits(source: Project, before: Project, after: Projec
     const target: any = result.floors[index < 0 ? result.floors.length - 1 : index];
     if (!previous || previous.name !== next.name) target.name = next.name;
     if (!previous || previous.level !== next.level) target.level = next.level;
+    if (!previous || previous.elevation !== next.elevation) {
+      if (next.elevation === undefined) delete target.elevation; else target.elevation = next.elevation;
+    }
     if (!previous || previous.slabThickness !== next.slabThickness) target.slabThickness = next.slabThickness;
     for (const kind of ['walls', 'doors', 'windows', 'furniture', 'rooms', 'textAnnotations'] as const) {
       const old = new Map((previous?.[kind] ?? []).map(item => [item.id, item]));
@@ -206,6 +211,7 @@ export function webToNative(project: Project, original: ObjectMap | undefined, p
     const oldLevel = nativeOriginal('levels', floorId);
     const nativeLevel: ObjectMap = { ...oldLevel, id: floorId, index: level, name: floor.name, slabThickness: (floor.slabThickness ?? 5) / 100 };
     if (oldLevel.slabThickness == null && nativeLevel.slabThickness === .1) delete nativeLevel.slabThickness;
+    if (floor.elevation === undefined) delete nativeLevel.elevation; else nativeLevel.elevation = floor.elevation / 100;
     plan.levels.push(nativeLevel);
     const walls = new Map<string, string>();
     for (const wall of floor.walls) {

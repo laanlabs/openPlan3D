@@ -174,7 +174,12 @@ test('slab thickness edits reach the native package in metres', async ({ page })
   await expect(depth).toHaveValue('10');
   await depth.fill('32.5'); await depth.press('Tab');
   await page.getByRole('button', { name: 'Close settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  const elevation = page.getByRole('spinbutton', { name: 'Entry elevation (cm)', exact: true });
+  await elevation.fill('-52.5'); await elevation.press('Tab');
+  await page.getByRole('button', { name: 'Close settings', exact: true }).click();
   const files = await packageDownload(page), plan = packageJSON(files['plan.json']);
+  expect(plan.levels[0].elevation).toBe(-.525);
   expect(plan.levels[0].slabThickness).toBe(.325);
   expect(plan.levels[1]).not.toHaveProperty('slabThickness');
   check();

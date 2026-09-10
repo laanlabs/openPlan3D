@@ -1808,3 +1808,15 @@ Catalyst build and 17 tests passed. Native UI/visual checks verified imperial
 editing, invalid recovery, reset and undo. See
 `openplan3d-ios/docs/native-slab-controls-validation.md`. Native room-shaped slabs,
 openings, stacked preview/elevations and physical-device qualification remain open.
+
+
+### Native stacked floor preview — 2026-09-10
+
+Native edited-plan previews now separate populated floors by saved elevation,
+using legacy 3 m level spacing and per-floor slab depths. Elevations cross the
+package bridge with unit conversion and reset/validation support. Single-floor
+portable exports remain at local zero. All 916 web tests, Svelte checks/build,
+two Chromium/WebKit package workflows and 21 native Catalyst tests passed. Native
+three-storey import/visual review passed. See
+[validation](docs/native-floor-stack-validation.md). Native elevation controls,
+room-shaped slabs, openings, curved/sloped walls and device qualification remain open.

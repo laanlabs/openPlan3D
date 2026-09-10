@@ -25,3 +25,22 @@ it('preserves the distinct legacy defaults when crossing platforms', () => {
   delete plan.levels[0].slabThickness;
   expect(nativeToWeb(plan, mapping, source.name).floors[0].slabThickness).toBe(10);
 });
+
+
+it('carries floor elevations through native packages, edits and default resets', () => {
+  const source = roomProject(); source.floors[0].elevation = -52.5;
+  const { plan, mapping } = webToNative(source, undefined);
+  expect(plan.levels[0].elevation).toBe(-.525);
+  const before = nativeToWeb(plan, mapping, source.name);
+  expect(before.floors[0].elevation).toBe(-52.5);
+  const edited = structuredClone(plan); edited.levels[0].elevation = 4.25;
+  expect(applyNativeEdits(source, before, nativeToWeb(edited, mapping, source.name)).floors[0].elevation).toBe(425);
+  delete edited.levels[0].elevation;
+  expect(applyNativeEdits(source, before, nativeToWeb(edited, mapping, source.name)).floors[0]).not.toHaveProperty('elevation');
+  delete source.floors[0].elevation;
+  expect(webToNative(source, plan, mapping).plan.levels[0]).not.toHaveProperty('elevation');
+  for (const value of [NaN, Infinity, 10001, -10001, '4']) {
+    edited.levels[0].elevation = value;
+    expect(() => validatePackagePlan(edited)).toThrow();
+  }
+});
