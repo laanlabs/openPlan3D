@@ -1381,3 +1381,16 @@ checks and build passed.** Phone screenshot review passed. See
 [validation](docs/opening-bounds-validation.md). Fit Selection remains next;
 selected-opening dimension labels, annotation group operations, physical gestures
 and export/native parity remain open.
+
+### Fit Selection and accessible phone zoom controls — 2026-09-10
+
+The zoom toolbar now offers Fit Selection (Shift+F), using selected geometry and
+zoom-aware bounds while F fits the full plan. Opening hosts do not enlarge an
+opening-only selection; selected rooms include their walls even with hidden labels.
+Zoom controls sit above an overlapping phone properties sheet. Choosing a Layers
+item clears the old multi-selection so unrelated geometry is not included.
+
+**821 unit tests, three final focused cases, twelve final Chromium/WebKit framing
+checks, Svelte checks and build passed.** Phone screenshot review passed. See
+[validation](docs/fit-selection-validation.md). Selected-opening dimension labels,
+annotation group editing, physical gestures and export/native parity remain open.

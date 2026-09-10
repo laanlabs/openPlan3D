@@ -5,7 +5,7 @@ import { formatArea, formatLength } from '$lib/stores/settings';
 import { wallLength, wallPointAt, wallTangentAt, wallEdgeInsets } from './canvasRenderer';
 import { roomCentroid, roomLabelPosition } from './roomDetection';
 import type { Room, Point } from '$lib/models/types';
-import type { Floor } from '$lib/models/types';
+import type { Floor, Wall } from '$lib/models/types';
 import { wallPlanBounds } from './wallPlanGeometry';
 import { furniturePlanBounds } from './furniturePlanBounds';
 import { textAnnotationBounds } from './textAnnotationLayout';
@@ -23,6 +23,7 @@ export function hasPlanContent(floor: Floor): boolean {
 /** Finite plan geometry used by Fit, including floors without walls. */
 export function planContentBounds(floor: Floor, options: {
   context: CanvasRenderingContext2D;
+  openingWalls?: Wall[];
   entourageAspect: (id: string) => number;
   measurementsVisible?: boolean;
   dimensionsVisible?: boolean;
@@ -52,7 +53,7 @@ export function planContentBounds(floor: Floor, options: {
   for (const wall of floor.walls) add(wallPlanBounds(wall));
   for (const [kind, openings] of [['door',floor.doors ?? []],['window',floor.windows ?? []]] as const) {
     for (const opening of openings) {
-      const wall = floor.walls.find(item => item.id === opening.wallId);
+      const wall = (options.openingWalls ?? floor.walls).find(item => item.id === opening.wallId);
       if (wall) add(openingPlanBounds(wall,opening,kind,options.zoom ?? 1));
     }
   }

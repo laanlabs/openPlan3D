@@ -2,6 +2,7 @@
   import { multiSelectionBounds } from '$lib/utils/multiSelectionBounds';
   import { onMount, onDestroy } from 'svelte';
   import { get } from 'svelte/store';
+  import { selectionContentBounds } from '$lib/utils/selectionContentBounds';
   import { planContentBounds, hasPlanContent } from '$lib/utils/planContentBounds';
   import { connectedWallEndpoints } from '$lib/utils/wallEditing';
   import { createDrawScheduler } from '$lib/utils/drawScheduler';
@@ -31,6 +32,7 @@
   let ctx: CanvasRenderingContext2D;
   let width = $state(800);
   let height = $state(600);
+  let zoomControlsBottom = $state(12);
 
   // Camera
   let camX = $state(0);
@@ -1063,6 +1065,7 @@
 
 
   function draw() {
+    if (canvas) updateZoomControlsPosition();
     if (!ctx) return;
     ctx.clearRect(0, 0, width, height);
     ctx.fillStyle = '#f8f9fa';
@@ -1888,8 +1891,8 @@
     camY = bbox.minY + (my - oy) / scale;
   }
 
-  function boundsForFloor(floor: Floor, fittedZoom = 1) {
-      return planContentBounds(floor, {
+  function boundsForFloor(floor: Floor, fittedZoom = 1, ids?: ReadonlySet<string>) {
+      const options: Parameters<typeof planContentBounds>[1] = {
         context: ctx,
         automaticDimensions: {
           external: floor === currentFloor && layerVis.walls && showDimensions && dimSettings.showExternalDimensions,
@@ -1906,7 +1909,8 @@
         zoom: fittedZoom,
         entourageAspect: id => entourageAspect(id, customEntourageDefs) || 1,
         backgroundSize: floor === currentFloor && bgImage ? bgImage : undefined,
-      });
+      };
+      return ids ? selectionContentBounds(floor,ids,options,detectedRooms) : planContentBounds(floor,options);
   }
 
   function getFitBounds(fittedZoom = 1) {
@@ -1917,13 +1921,7 @@
       }, fittedZoom));
   }
 
-  function zoomToFit() {
-    const bounds = getFitBounds();
-    if (!bounds) { camX = 0; camY = 0; zoom = 1; minimumZoom = 0.1; markDirty(); return; }
-    let { minX, minY, maxX, maxY } = bounds;
-    const padding = 80;
-    // On phones the properties sheet overlays the lower canvas. Fit into the
-    // visible area, then compensate for the renderer's full-canvas origin.
+  function visibleCanvasHeight() {
     const canvasRect = canvas.getBoundingClientRect();
     const sheet = document.querySelector<HTMLElement>('[data-plan-properties]');
     const sheetRect = sheet?.getBoundingClientRect();
@@ -1933,6 +1931,32 @@
     const visibleHeight = coversBottom
       ? Math.max(1, Math.min(height, (sheetRect.top - canvasRect.top) * height / canvasRect.height))
       : height;
+    return visibleHeight;
+  }
+
+  function updateZoomControlsPosition() {
+    const visibleHeight = visibleCanvasHeight();
+    zoomControlsBottom = 12 + (height-visibleHeight) * canvas.getBoundingClientRect().height / Math.max(1,height);
+  }
+
+  function fitSelectionIds() {
+    const ids = new Set(currentSelectedIds);
+    for (const id of [currentSelectedId,selectedMeasurementId,selectedAnnotationId,selectedTextAnnotationId,currentSelectedRoomId]) if (id) ids.add(id);
+    return ids;
+  }
+
+  function zoomToFit(selectionOnly = false) {
+    const ids = fitSelectionIds();
+    const boundsAt = (scale = 1) => selectionOnly
+      ? (currentFloor ? boundsForFloor(currentFloor,scale,ids) : null) : getFitBounds(scale);
+    const bounds = boundsAt();
+    if (!bounds && selectionOnly) return;
+    if (!bounds) { camX = 0; camY = 0; zoom = 1; minimumZoom = 0.1; markDirty(); return; }
+    let { minX, minY, maxX, maxY } = bounds;
+    const padding = 80;
+    // On phones the properties sheet overlays the lower canvas. Fit into the
+    // visible area, then compensate for the renderer's full-canvas origin.
+    const visibleHeight = visibleCanvasHeight();
     const availableWidth = Math.max(1, width - 80), availableHeight = Math.max(1, visibleHeight - 80);
     const initialZoom = Math.min(availableWidth / (maxX - minX + padding * 2),
       availableHeight / (maxY - minY + padding * 2), 3);
@@ -1941,7 +1965,7 @@
     let lower = 0, upper = initialZoom, fittedBounds = bounds;
     for (let pass = 0; pass < 33; pass++) {
       const candidate = pass === 0 ? initialZoom : (lower + upper) / 2;
-      const refined = getFitBounds(candidate);
+      const refined = boundsAt(candidate);
       if (!refined) break;
       const fits = (refined.maxX - refined.minX + padding * 2) * candidate <= availableWidth + 1e-6
         && (refined.maxY - refined.minY + padding * 2) * candidate <= availableHeight + 1e-6;
@@ -3357,8 +3381,9 @@
     if (e.key === 'g' || e.key === 'G') {
       showGrid = !showGrid;
     }
-    if (e.key === 'f' || e.key === 'F') {
-      zoomToFit();
+    if ((e.key === 'f' || e.key === 'F') && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      e.preventDefault();
+      zoomToFit(e.shiftKey);
     }
     // 'C' to close wall loop back to first point (but not Ctrl+C)
     if ((e.key === 'c' || e.key === 'C') && !e.ctrlKey && !e.metaKey && wallStart && wallSequenceFirst) {
@@ -4066,7 +4091,7 @@
   {/if}
 
   <!-- Zoom Controls (bottom-left) -->
-  <div class="absolute bottom-3 left-3 max-md:left-20 z-20 flex items-center gap-1 bg-white rounded-lg shadow-lg border border-gray-200 px-1 py-0.5">
+  <div style:bottom={`${zoomControlsBottom}px`} class="absolute left-3 max-md:left-20 z-20 flex items-center gap-1 bg-white rounded-lg shadow-lg border border-gray-200 px-1 py-0.5">
     <button
       class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-600 hover:text-gray-800 font-bold text-lg"
       title="Zoom Out (−)"
@@ -4103,6 +4128,13 @@
       aria-label="Zoom to fit"
       onclick={() => zoomToFit()}
     >⊞</button>
+    <button
+      class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700 text-sm disabled:opacity-30 disabled:cursor-not-allowed"
+      title="Fit Selection (Shift+F)"
+      aria-label="Fit selection"
+      disabled={fitSelectionIds().size === 0}
+      onclick={() => zoomToFit(true)}
+    >⊡</button>
   </div>
 
   <!-- Context Menu -->

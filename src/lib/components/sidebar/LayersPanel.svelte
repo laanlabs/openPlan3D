@@ -26,6 +26,7 @@
   }
 
   function select(id: string) {
+    selectedElementIds.set(new Set());
     selectedRoomId.set(null);
     selectedElementId.set(id);
   }
