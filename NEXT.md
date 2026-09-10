@@ -2265,3 +2265,11 @@ label. Statistics describes distinct measured regions, opening exclusions, and
 the approximate half-wall-footprint formula. Catalyst build passed; see `openplan3d-ios/docs/native-area-help-validation.md`.
 Interactive/device qualification, exact diagnostics, area parity, and remaining
 NEXT requirements stay open.
+
+### Native iOS preview integration — 2026-09-10
+
+The full iPhone 17 Pro / iOS 26.5 simulator target passed after preview notices
+and area-help corrections: 232 tests, two optional skips, zero failures. The
+partial/unavailable/complete saved-plan regression passed. See `openplan3d-ios/docs/native-ios-preview-integration-validation.md`.
+Interactive/device checks, area parity, performance, release gates, and remaining
+NEXT requirements stay open.
