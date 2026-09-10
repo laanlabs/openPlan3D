@@ -2217,3 +2217,11 @@ export validates those same dimensions and retains explicit override precedence.
 Catalyst build and all 30 selected tests passed. See `openplan3d-ios/docs/native-wall-default-consumers-validation.md`.
 Interactive UI/iOS qualification, exterior inference, area parity, and remaining
 NEXT requirements stay open.
+
+### Native raster thickness/work bounds — 2026-09-10
+
+Rasterization validates effective thickness and caps candidate-cell stamping
+work before integer conversion, returning unknown regions on invalid/over-budget
+input. Full Catalyst validation passed: 230 tests, two optional skips, zero
+failures. See `openplan3d-ios/docs/native-raster-thickness-budget-validation.md`. Device latency, resource-limit
+UI feedback, area parity, and remaining NEXT requirements stay open.
