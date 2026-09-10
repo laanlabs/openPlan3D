@@ -2361,3 +2361,10 @@ Document bounds include rotated furniture footprints, correcting center-only
 fitting of furniture-only plans and outlying objects. Full Catalyst validation:
 240 tests, two skips, zero failures. See `openplan3d-ios/docs/native-furniture-fit-validation.md`. Visual/iOS/device
 checks, decorative/text extents and remaining NEXT requirements stay open.
+
+### Native furniture-only export check — 2026-09-10
+
+The rotated-table fixture now exercises actual PNG export. The focused test
+passed and visual inspection showed the entire table/chair details with margins.
+See `openplan3d-ios/docs/native-furniture-export-validation.md`. Broader categories/formats, device checks and remaining
+NEXT requirements stay open.
