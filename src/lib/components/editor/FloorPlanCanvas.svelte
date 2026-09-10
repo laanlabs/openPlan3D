@@ -1928,7 +1928,10 @@
 
   function getFitBounds(fittedZoom = 1) {
     return (currentFloor && boundsForFloor(currentFloor, fittedZoom))
-      || (layerVis.floorBelow && floorBelow && boundsForFloor(floorBelow));
+      || (layerVis.floorBelow && floorBelow && boundsForFloor({
+        ...floorBelow, furniture: [], doors: [], windows: [], columns: [], entourage: [],
+        measurements: [], annotations: [], textAnnotations: [], backgroundImage: undefined,
+      }, fittedZoom));
   }
 
   function zoomToFit() {

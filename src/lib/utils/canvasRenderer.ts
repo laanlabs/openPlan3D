@@ -1808,7 +1808,6 @@ export function drawEntourageGhost(
 /** Envelope walls of the floor below; everything else there is a partition. */
 const GHOST_OUTER_FILL = 'rgba(100, 116, 139, 0.30)';
 const GHOST_INNER_FILL = 'rgba(100, 116, 139, 0.14)';
-const GHOST_STAIR_STROKE = 'rgba(100, 116, 139, 0.55)';
 
 /** Screen-space outline of a wall's footprint band, following its curve if it has one. */
 function wallBandPath(cs: CanvasState, w: Wall): { x: number; y: number }[] {
@@ -1871,7 +1870,7 @@ function tracePolygon(ctx: CanvasRenderingContext2D, pts: { x: number; y: number
  * room detection, which is far too costly to repeat on every animation frame.
  */
 export function drawFloorBelowGhost(cs: CanvasState, floor: Floor, outerWallIds: Set<string>): void {
-  const { ctx, zoom } = cs;
+  const { ctx } = cs;
   ctx.save();
 
   for (const w of floor.walls) {
@@ -1880,29 +1879,10 @@ export function drawFloorBelowGhost(cs: CanvasState, floor: Floor, outerWallIds:
     ctx.fill();
   }
 
-  for (const stair of floor.stairs ?? []) {
-    const s = wts(cs, stair.position.x, stair.position.y);
-    const w = stair.width * zoom;
-    const d = stair.depth * zoom;
-    ctx.save();
-    ctx.translate(s.x, s.y);
-    ctx.rotate((stair.rotation * Math.PI) / 180);
-    ctx.strokeStyle = GHOST_STAIR_STROKE;
-    ctx.lineWidth = 1;
-    ctx.setLineDash([5, 4]);
-    ctx.strokeRect(-w / 2, -d / 2, w, d);
-    ctx.setLineDash([]);
-    // A few treads, enough to read as a stair without competing with this floor.
-    const treads = 4;
-    ctx.beginPath();
-    for (let i = 1; i < treads; i++) {
-      const y = -d / 2 + (d * i) / treads;
-      ctx.moveTo(-w / 2, y);
-      ctx.lineTo(w / 2, y);
-    }
-    ctx.stroke();
-    ctx.restore();
-  }
+  // Use the same footprints, treads and direction indicators as the edited floor.
+  // Alpha keeps the reference subdued without replacing its geometry.
+  ctx.globalAlpha *= .45;
+  for (const stair of floor.stairs ?? []) drawStair(cs, stair, false);
 
   ctx.restore();
 }

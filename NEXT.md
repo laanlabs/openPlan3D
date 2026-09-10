@@ -1236,3 +1236,15 @@ checks, Svelte checks and build passed.** L/U/spiral phone screenshots were
 reviewed. See [validation](docs/stair-direction-validation.md). Stair exports,
 below-floor ghosts, multi-selection framing, physical checks and native parity
 remain open.
+
+### Below-floor stair reference fidelity — 2026-09-09
+
+The reference floor now uses the shared stair renderer at reduced opacity,
+preserving shapes, treads, labels and direction arrows. Empty-floor fallback Fit
+includes only the walls/stairs actually displayed; invisible lower-floor objects
+no longer distort its bounds. Reference stairs remain non-interactive.
+
+**780 unit tests, twelve delayed-image regressions, four final Chromium/WebKit
+reference checks, Svelte checks and build passed.** Desktop/phone screenshots were
+reviewed. See [validation](docs/stair-ghost-validation.md). Stair exports,
+multi-selection framing, physical checks and broader native/geometry parity remain open.
