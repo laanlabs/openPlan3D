@@ -963,7 +963,7 @@
       </h3>
       <label class="block">
         <span class="text-xs text-gray-500">Text</span>
-        <input type="text" value={selectedTextAnnotation.text} oninput={(e) => updateTextAnnotation(selectedTextAnnotation!.id, { text: (e.target as HTMLInputElement).value })} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
+        <textarea rows="3" value={selectedTextAnnotation.text} oninput={(e) => updateTextAnnotation(selectedTextAnnotation!.id, { text: (e.target as HTMLTextAreaElement).value })} class="w-full px-2 py-1 border border-gray-200 rounded text-sm resize-y"></textarea>
       </label>
       <label class="block">
         <span class="text-xs text-gray-500">Font Size</span>

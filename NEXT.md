@@ -1592,3 +1592,14 @@ and both unrelated timeout files passed in isolation. Phone visual review passed
 See [validation](docs/annotation-alignment-validation.md). Walls/openings alignment,
 annotation visibility and multiline property editing, opening-only group movement,
 detailed furniture exports, physical qualification and native parity remain open.
+
+### Multiline text-note properties — 2026-09-10
+
+The note text field now uses a resizable textarea, preserving imported line breaks
+and blank lines and supporting Enter during editing. Exact exported data verifies
+text-only changes, unchanged note metadata and Undo/Redo; typing shortcut letters
+in the field does not trigger plan actions. All 15 focused unit tests, six
+Chromium/WebKit workflows, Svelte checks and build passed. Phone visual review
+passed. See [validation](docs/multiline-note-properties-validation.md). Annotation
+visibility, walls/openings alignment, opening-only group movement, detailed
+exports, physical qualification and native parity remain open.
