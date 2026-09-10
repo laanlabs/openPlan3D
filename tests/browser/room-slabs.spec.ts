@@ -34,12 +34,19 @@ test('nested rooms export one slab at each point on active and stacked floors', 
       return points.map(([x,y],i) => ({id:`${floor.id}-${ring}-${i}`,start:{x,y},
         end:{x:points[(i+1)%4][0],y:points[(i+1)%4][1]},thickness:20,height:280,color:'#94a3b8'}));
     });
+    floor.rooms = [0,1,2].map(ring=>({id:`saved-${floor.id}-${ring}`,name:`Nested room ${ring}`,
+      walls:[0,1,2,3].map(i=>`${floor.id}-${ring}-${i}`),floorTexture:'tile',area:999}));
   }
   await page.goto('/editor');
   await page.getByRole('button', {name:'Export',exact:true}).click();
   const chooser=page.waitForEvent('filechooser');
   await page.getByRole('button', {name:'Import JSON',exact:true}).click();
   await (await chooser).setFiles({name:'nested.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(project))});
+  await page.getByRole('button',{name:'Area Summary',exact:true}).click();
+  const summary=page.getByRole('dialog',{name:'Area Summary',exact:true});
+  for (const value of ['36.0 m²','20.0 m²','12.0 m²','4.0 m²','Nested room 0']) await expect(summary).toContainText(value);
+  await expect(summary).not.toContainText('999');
+  await page.getByRole('button',{name:'Close area summary',exact:true}).click();
   await page.getByRole('button', {name:'3D',exact:true}).click();
   await page.waitForLoadState('networkidle');
   const hint=page.getByRole('button',{name:'Got it',exact:true});

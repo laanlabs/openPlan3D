@@ -1,5 +1,6 @@
 import type { Wall, Point, Room, Floor } from '$lib/models/types';
 import { wallPathSpans } from './wallProfiles';
+import { roomHoles } from './roomNesting';
 
 const EPSILON = 5; // snap distance for matching endpoints
 
@@ -180,6 +181,7 @@ function detectSplitRooms(splitEdges: Edge[]): Room[] {
   // Find minimal cycles using "next edge" (leftmost turn) traversal
   const usedDirected = new Set<string>();
   const rooms: Room[] = [];
+  const polygons: Point[][] = [];
   let roomCount = 0;
 
   // A cycle cannot visit more edges than exist in the graph.
@@ -266,6 +268,7 @@ function detectSplitRooms(splitEdges: Edge[]): Room[] {
       if (dup) continue;
 
       roomCount++;
+      polygons.push(poly);
       rooms.push({
         id: `room-${roomCount}-${Date.now()}`,
         name: `Room ${roomCount}`,
@@ -276,7 +279,13 @@ function detectSplitRooms(splitEdges: Edge[]): Room[] {
     }
   }
 
-  return rooms;
+  // Deduct only immediate children using unrounded geometry. A grandchild is
+  // already included in its parent's footprint and must not be deducted twice.
+  const holes = roomHoles(polygons);
+  return rooms.map((room, i) => ({ ...room,
+    area: Math.round((Math.abs(shoelace(polygons[i])) -
+      holes[i].reduce((sum, ring) => sum + Math.abs(shoelace(ring)), 0)) / 100) / 100,
+  }));
 }
 
 /** Recompute geometry while retaining user metadata by boundary identity, never name. */

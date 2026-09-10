@@ -2,6 +2,7 @@
   import { activeFloor, detectedRoomsStore } from '$lib/stores/project';
   import { projectSettings, formatArea, formatLength } from '$lib/stores/settings';
   import type { Room, Wall, RoomCategory } from '$lib/models/types';
+  import { resolveRooms } from '$lib/utils/roomDetection';
 
   // Auto subscriptions end when the summary dialog closes.
   let floor = $derived($activeFloor);
@@ -9,13 +10,8 @@
   let settings = $derived($projectSettings);
   type SummaryCategory = RoomCategory | 'uncategorized';
 
-  // Merge floor rooms + detected rooms (detected take precedence for dynamic data)
-  let allRooms = $derived.by(() => {
-    const floorRooms = floor?.rooms ?? [];
-    const floorRoomIds = new Set(floorRooms.map(r => r.id));
-    const extra = detectedRooms.filter(r => !floorRoomIds.has(r.id));
-    return [...floorRooms, ...extra];
-  });
+  // Geometry supplies current areas; saved boundaries supply names/categories.
+  let allRooms = $derived(floor ? resolveRooms(floor, detectedRooms) : []);
 
   let totalArea = $derived(allRooms.reduce((sum: number, r: Room) => sum + r.area, 0));
 

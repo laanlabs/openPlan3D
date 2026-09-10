@@ -2,7 +2,33 @@ import { expect, it } from 'vitest';
 import { DoubleSide, Mesh, MeshBasicMaterial, Raycaster, Vector3 } from 'three';
 import { roomHoles } from '$lib/utils/roomNesting';
 import { createRoomSlabGeometry } from '$lib/utils/roomSlabGeometry';
+import { detectRooms, resolveRoomGeometry, resolveRooms } from '$lib/utils/roomDetection';
+import type { Wall } from '$lib/models/types';
 const box = (a:number,b:number,c:number,d:number) => [{x:a,y:b},{x:c,y:b},{x:c,y:d},{x:a,y:d}];
+const wallsFor = (rings: ReturnType<typeof box>[]): Wall[] => rings.flatMap((ring,ri) =>
+  ring.map((start,i)=>({id:`${ri}-${i}`,start,end:ring[(i+1)%ring.length],thickness:20,height:280,color:'#fff'})));
+
+it('nested room areas partition the footprint and recompute without losing saved metadata', () => {
+  const walls=wallsFor([box(0,0,600,600),box(100,100,500,500),box(200,200,400,400)]);
+  const before=JSON.stringify(walls);
+  const rooms=detectRooms(walls);
+  expect(rooms.map(r=>r.area).sort((a,b)=>a-b)).toEqual([4,12,20]);
+  expect(rooms.reduce((sum,r)=>sum+r.area,0)).toBe(36);
+  const saved=rooms.map((r,i)=>({...r,id:`saved-${i}`,name:`Suite ${i}`,floorTexture:'tile',area:999}));
+  const resolved=resolveRooms({walls,rooms:saved});
+  expect(resolved.map(r=>r.area)).toEqual(rooms.map(r=>r.area));
+  expect(resolved.map(({id,name,floorTexture})=>({id,name,floorTexture})))
+    .toEqual(saved.map(({id,name,floorTexture})=>({id,name,floorTexture})));
+  expect(resolveRoomGeometry({walls,rooms:saved}).map(r=>r.room.area)).toEqual(rooms.map(r=>r.area));
+  const moved=walls.map(w=>w.id.startsWith('2-') ? {...w,start:{x:w.start.x+1000,y:w.start.y},end:{x:w.end.x+1000,y:w.end.y}} : w);
+  expect(resolveRooms({walls:moved,rooms:saved}).map(r=>r.area).sort((a,b)=>a-b)).toEqual([4,16,20]);
+  expect(JSON.stringify(walls)).toBe(before);
+});
+
+it('subtracts unrounded child footprints before rounding a net area', () => {
+  const rooms=detectRooms(wallsFor([box(0,0,600.05,600.05),box(100,100,200.1,200.1)]));
+  expect(rooms.map(r=>r.area).sort((a,b)=>a-b)).toEqual([1,35]);
+});
 
 it('assigns only immediate children independent of ring order and winding', () => {
   const outer=box(0,0,100,100), middle=box(10,10,90,90), inner=box(20,20,30,30), other=box(200,0,210,10);

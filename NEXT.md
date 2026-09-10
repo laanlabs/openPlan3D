@@ -1871,3 +1871,13 @@ tests, four Chromium/WebKit slab workflows, Svelte diagnostics, and build passed
 See [validation](docs/nested-room-slabs-validation.md). Explicit courtyard/stair
 voids, nested 2D fills/area accounting, native nesting, and wall-face areas remain
 open.
+
+### Nested room net areas — 2026-09-10
+
+Room detection now subtracts immediate nested footprints before rounding; area
+labels and summaries no longer double-count contained rooms. Area Summary uses
+current resolved geometry instead of stale saved areas, preserving room metadata.
+All 921 unit tests, 18 Chromium/WebKit slab/modal workflows, Svelte checks, and
+build passed. See [validation](docs/nested-room-area-validation.md). Nested 2D
+fills, explicit courtyard/stair openings, native nesting, interior-face areas,
+and physical measurement qualification remain open.
