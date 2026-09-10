@@ -2503,3 +2503,10 @@ iOS/device qualification and remaining NEXT requirements stay open.
 The elevation title and previous/next controls now share the active floor's wall
 collection, so their index/total agree. Catalyst build passed. See `openplan3d-ios/docs/native-elevation-counter.md`.
 Fresh multi-floor UI verification and broader iOS/device work remain open.
+
+### Native elevation counter UI verification — 2026-09-10
+
+Live Catalyst checks showed upper-floor counts of 1/1 and 2/2, with forward/back
+wrap between 1/2 and 2/2 and matching lengths, excluding ground-floor walls.
+Temporary edits were undone. See `openplan3d-ios/docs/native-elevation-counter.md`. Broader iOS/device
+and remaining NEXT qualification stay open.
