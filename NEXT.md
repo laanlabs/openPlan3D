@@ -2066,3 +2066,12 @@ All 57 selected Catalyst tests passed, retaining duplicate/opening and floor
 isolation behavior. See `openplan3d-ios/docs/native-statistics-batch-validation.md`.
 Renderer fill batching, device performance qualification, measurement parity,
 PDF visual checks, and other NEXT work remain open.
+
+### Native fill-owner raster batching — 2026-09-10
+
+Canvas/SVG fill ownership now shares Statistics’ per-floor batch measurement
+helper, preserving first-colored-label ownership and opening suppression. All
+58 selected Catalyst tests passed, including distinct rooms with duplicate
+labels and an opening. See `openplan3d-ios/docs/native-fill-owner-batch-validation.md`.
+Fill-rectangle batching, renderer area queries, device performance qualification,
+measurement parity, PDF visual checks, and other NEXT work remain open.
