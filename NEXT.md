@@ -2347,3 +2347,10 @@ Read-only Plan now fits between measured top/bottom safe-area content. Fresh
 Catalyst QA showed the complete fixture and unavailable-area label above the
 card; switching to 3D remained normal. Build passed; see `openplan3d-ios/docs/native-preview-safearea-validation.md`.
 Device, Dynamic Type, full-screen and remaining NEXT checks stay open.
+
+### Native iOS label/framing integration — 2026-09-10
+
+The full iPhone 17 Pro / iOS 26.5 target passed after geometry references,
+split/merge, unavailable labels and preview/editor framing: 239 tests, two
+optional skips, zero failures. See `openplan3d-ios/docs/native-ios-label-framing-validation.md`. Physical-device/layout
+qualification, area parity, release gates and remaining NEXT work stay open.
