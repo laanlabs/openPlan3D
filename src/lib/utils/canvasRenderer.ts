@@ -1,3 +1,4 @@
+import { dimensionPlanGeometry } from './dimensionPlanGeometry';
 /**
  * Canvas rendering functions for the floor plan editor.
  * All functions are pure — they take canvas context + data and render.
@@ -1617,17 +1618,38 @@ export function drawMinimap(
 
   for (const fi of floor.furniture) {
     const cat = getCatalogItem(fi.catalogId);
-    if (!cat) continue;
     const p = toMini(fi.position.x, fi.position.y);
-    const fw = Math.max(2, (fi.width ?? cat.width) * scale);
-    const fd = Math.max(2, (fi.depth ?? cat.depth) * scale);
-    mctx.fillStyle = (fi.color ?? cat.color) + 'aa';
+    const fw = Math.max(2, (fi.width ?? cat?.width ?? 30) * scale);
+    const fd = Math.max(2, (fi.depth ?? cat?.depth ?? 30) * scale);
+    mctx.fillStyle = fi.color ?? cat?.color ?? '#94a3b8';
     mctx.save();
     mctx.translate(p.x, p.y);
     mctx.rotate((fi.rotation * Math.PI) / 180);
     mctx.fillRect(-fw / 2, -fd / 2, fw, fd);
     mctx.restore();
   }
+
+  // Small navigation markers remain legible when full symbols would be subpixel.
+  const marker = (x: number, y: number, color: string) => {
+    const p = toMini(x, y);
+    mctx.fillStyle = color; mctx.fillRect(p.x - 2, p.y - 2, 4, 4);
+  }
+  const line = (x1: number, y1: number, x2: number, y2: number) => {
+    const a = toMini(x1, y1), b = toMini(x2, y2);
+    mctx.strokeStyle = '#64748b'; mctx.lineWidth = 1;
+    mctx.beginPath(); mctx.moveTo(a.x, a.y); mctx.lineTo(b.x, b.y); mctx.stroke();
+  }
+  for (const item of floor.stairs ?? []) marker(item.position.x, item.position.y, '#64748b');
+  for (const item of floor.columns ?? []) marker(item.position.x, item.position.y, item.color || '#64748b');
+  for (const item of floor.entourage ?? []) marker(item.position.x, item.position.y, '#16a34a');
+  for (const item of floor.textAnnotations ?? []) marker(item.x, item.y, item.color || '#1e293b');
+  for (const item of floor.measurements ?? []) line(item.x1, item.y1, item.x2, item.y2);
+  for (const item of floor.annotations ?? []) {
+    line(item.x1, item.y1, item.x2, item.y2);
+    const g = dimensionPlanGeometry(item);
+    if (g) line(g.start.x, g.start.y, g.end.x, g.end.y);
+  }
+  if (floor.backgroundImage) marker(floor.backgroundImage.position.x, floor.backgroundImage.position.y, '#a855f7');
 
   const { width, height, zoom, camX, camY } = cs;
   const vpTL = { x: (0 - width / 2) / zoom + camX, y: (0 - height / 2) / zoom + camY };

@@ -38,9 +38,28 @@ for (const width of [1440, 390]) {
     })).toBe(true);
     await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
     const point = await page.evaluate(() => (window as any).__notePoint);
+    await page.evaluate(x => { (window as any).__fitOriginalX = x; }, point.x);
     expect(point.x).toBeGreaterThan(20); expect(point.x).toBeLessThan(width - 20);
     expect(point.y).toBeGreaterThan(80); expect(point.y).toBeLessThan(850);
-    await page.mouse.click(point.x, point.y);
+    await expect(page.getByText('Start building your floor plan', { exact: true })).toHaveCount(0);
+    if (width >= 768) {
+      const minimap = page.getByLabel('Floor plan minimap', { exact: true });
+      await expect(minimap).toBeVisible();
+      const pixels = await minimap.evaluate((node: HTMLCanvasElement) => {
+        const data = node.getContext('2d')!.getImageData(0, 0, node.width, node.height).data;
+        let dark = 0;
+        for (let i = 0; i < data.length; i += 4) if (data[i] < 80 && data[i+1] < 110 && data[i+2] < 140 && data[i+3] > 0) dark++;
+        return dark;
+      });
+      expect(pixels).toBeGreaterThan(5);
+      // Panning away then clicking the mini-map center returns to the note.
+      await page.mouse.move(500, 300); await page.mouse.down({ button: 'middle' });
+      await page.mouse.move(650, 300); await page.mouse.up({ button: 'middle' });
+      await minimap.click({ position: { x: 90, y: 60 } });
+      await expect.poll(() => page.evaluate(() => Math.abs((window as any).__notePoint.x - (window as any).__fitOriginalX))).toBeLessThan(8);
+    }
+    const selectedPoint = await page.evaluate(() => (window as any).__notePoint);
+    await page.mouse.click(selectedPoint.x, selectedPoint.y);
     await expect(page.getByRole('spinbutton', { name: 'X', exact: true })).toHaveValue('4000.125');
     expect((await exportFloor(page)).textAnnotations).toEqual(floor.textAnnotations);
     await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => resolve())));

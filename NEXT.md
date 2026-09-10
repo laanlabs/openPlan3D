@@ -1088,3 +1088,15 @@ attempts. After the initial fit, subsequent edits retain the camera.
 See [validation](docs/initial-content-fit-validation.md). Per-floor/selection
 reframing, caption/room-label bounds, minimap parity and extreme zoom limits
 remain open.
+
+### Minimap for object-only content — 2026-09-09
+
+The desktop minimap now uses shared content bounds for drawing and navigation,
+includes omitted objects/annotations as navigation markers and lines, and handles
+unknown furniture footprints. Object-only floors no longer show the empty-plan
+hint. Phone minimap visibility is unchanged.
+
+**764 unit tests, eight content browser checks and six canvas-idle regressions
+passed, along with Svelte checks and build.** See
+[validation](docs/minimap-content-validation.md). Caption/room-label bounds,
+extreme zoom limits, floor-switch framing and physical device checks remain open.

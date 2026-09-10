@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import { planContentBounds } from '$lib/utils/planContentBounds';
+  import { planContentBounds, hasPlanContent } from '$lib/utils/planContentBounds';
   import { connectedWallEndpoints } from '$lib/utils/wallEditing';
   import { createDrawScheduler } from '$lib/utils/drawScheduler';
   import { activeFloor, selectedTool, selectedElementId, selectedElementIds, selectedRoomId, addWall, addDoor, addWindow, updateWall, moveWallEndpoint, updateDoor, updateWindow, addFurniture, moveFurniture, transformFurnitureDuringDrag, commitFurnitureMove, rotateFurniture, setFurnitureRotation, scaleFurniture, removeElement, placingFurnitureId, placingRotation, placingDoorType, placingWindowType, detectedRoomsStore, duplicateDoor, duplicateWindow, duplicateFurniture, duplicateWall, moveWallParallel, splitWall, snapEnabled, placingStair, addStair, moveStair, updateStair, placingColumn, placingColumnShape, addColumn, moveColumn, updateColumn, calibrationMode, calibrationPoints, updateBackgroundImage, setBackgroundImage, canvasZoom, canvasCamX, canvasCamY, panMode, showFurnitureStore, addGuide, moveGuide, removeGuide, beginUndoGroup, endUndoGroup, layerVisibility, updateRoom, addMeasurement, removeMeasurement, addAnnotation, removeAnnotation, updateAnnotation, addTextAnnotation, removeTextAnnotation, updateTextAnnotation, moveTextAnnotation, toggleFurnitureLock, createGroup, ungroupElements, findGroupForElement, placingEntourageId, addEntourageItem, moveEntourage, resizeEntourage, currentProject, elevationWallId, elevationPickMode } from '$lib/stores/project';
@@ -1841,16 +1841,11 @@
   /** Compute world bounding box of all elements */
   function getWorldBBox(): { minX: number; minY: number; maxX: number; maxY: number } | null {
     if (!currentFloor) return null;
-    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-    let found = false;
-    function expand(x: number, y: number) { if (x < minX) minX = x; if (x > maxX) maxX = x; if (y < minY) minY = y; if (y > maxY) maxY = y; found = true; }
-    for (const w of currentFloor.walls) { expand(w.start.x, w.start.y); expand(w.end.x, w.end.y); if (w.curvePoint) expand(w.curvePoint.x, w.curvePoint.y); }
-    for (const fi of currentFloor.furniture) { const cat = getCatalogItem(fi.catalogId); if (!cat) continue; const r = Math.hypot((fi.width ?? cat.width) / 2, (fi.depth ?? cat.depth) / 2); expand(fi.position.x - r, fi.position.y - r); expand(fi.position.x + r, fi.position.y + r); }
-    if (currentFloor.stairs) for (const st of currentFloor.stairs) { expand(st.position.x - st.width / 2, st.position.y - st.depth / 2); expand(st.position.x + st.width / 2, st.position.y + st.depth / 2); }
-    if (currentFloor.columns) for (const col of currentFloor.columns) { const r = col.diameter / 2; expand(col.position.x - r, col.position.y - r); expand(col.position.x + r, col.position.y + r); }
-    if (!found) return null;
+    const bounds = boundsForFloor(currentFloor);
+    if (!bounds) return null;
     const pad = 50;
-    return { minX: minX - pad, minY: minY - pad, maxX: maxX + pad, maxY: maxY + pad };
+    return { minX: bounds.minX - pad, minY: bounds.minY - pad,
+      maxX: bounds.maxX + pad, maxY: bounds.maxY + pad };
   }
 
   function drawMinimap() {
@@ -1880,16 +1875,17 @@
     camY = bbox.minY + (my - oy) / scale;
   }
 
-  function getFitBounds() {
-    function boundsFor(floor: Floor) {
+  function boundsForFloor(floor: Floor) {
       return planContentBounds(floor, {
         context: ctx,
         entourageAspect: id => entourageAspect(id, customEntourageDefs) || 1,
         backgroundSize: floor === currentFloor && bgImage ? bgImage : undefined,
       });
-    }
-    return (currentFloor && boundsFor(currentFloor))
-      || (layerVis.floorBelow && floorBelow && boundsFor(floorBelow));
+  }
+
+  function getFitBounds() {
+    return (currentFloor && boundsForFloor(currentFloor))
+      || (layerVis.floorBelow && floorBelow && boundsForFloor(floorBelow));
   }
 
   function zoomToFit() {
@@ -3842,7 +3838,7 @@
     />
   {/if}
   <!-- Empty state hint -->
-  {#if currentFloor && currentFloor.walls.length === 0 && currentFloor.furniture.length === 0 && currentFloor.doors.length === 0 && !(layerVis.floorBelow && floorBelow?.walls.length)}
+  {#if currentFloor && !hasPlanContent(currentFloor) && !(layerVis.floorBelow && floorBelow && hasPlanContent(floorBelow))}
     <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
       <div class="text-center opacity-60">
         <div class="text-5xl mb-3">🏠</div>
@@ -3852,9 +3848,10 @@
     </div>
   {/if}
   <!-- Mini-map -->
-  {#if showMinimap && currentFloor && currentFloor.walls.length > 0}
+  {#if showMinimap && currentFloor && hasPlanContent(currentFloor)}
     <canvas
       bind:this={minimapCanvas}
+      aria-label="Floor plan minimap"
       width="180"
       height="120"
       class="absolute bottom-10 right-2 rounded-lg shadow-lg border border-gray-300 cursor-crosshair bg-white max-md:hidden"

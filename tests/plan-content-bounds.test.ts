@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { planContentBounds } from '$lib/utils/planContentBounds';
+import { planContentBounds, hasPlanContent } from '$lib/utils/planContentBounds';
 import type { Floor } from '$lib/models/types';
 
 const context = { save() {}, restore() {}, measureText(text: string) { return { width: text.length * 10 }; } } as unknown as CanvasRenderingContext2D;
@@ -39,4 +39,14 @@ it('includes text-only floors and loaded rotated backgrounds', () => {
   floor.backgroundImage = { position: { x: 10, y: 20 }, scale: 2, rotation: 90 } as Floor['backgroundImage'];
   const b = planContentBounds(floor, { ...options, backgroundSize: { width: 100, height: 200 } })!;
   expect(b.minX).toBeCloseTo(-190); expect(b.maxY).toBeCloseTo(120);
+});
+
+it('recognizes non-wall content for empty-state and minimap visibility', () => {
+  expect(hasPlanContent(empty())).toBe(false);
+  for (const key of ['stairs', 'columns', 'entourage', 'measurements', 'annotations', 'textAnnotations'] as const) {
+    const floor = empty();
+    (floor as any)[key] = [{}];
+    expect(hasPlanContent(floor)).toBe(true);
+  }
+  expect(hasPlanContent({ ...empty(), backgroundImage: {} } as Floor)).toBe(true);
 });

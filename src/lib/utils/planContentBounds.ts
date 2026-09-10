@@ -6,6 +6,13 @@ import { dimensionPlanGeometry } from './dimensionPlanGeometry';
 
 type Bounds = { minX: number; minY: number; maxX: number; maxY: number };
 
+/** Content that can be displayed, even before a tracing image finishes loading. */
+export function hasPlanContent(floor: Floor): boolean {
+  return !!floor.backgroundImage || [floor.walls, floor.furniture, floor.stairs,
+    floor.columns, floor.entourage, floor.measurements, floor.annotations,
+    floor.textAnnotations].some(items => !!items?.length);
+}
+
 /** Finite plan geometry used by Fit, including floors without walls. */
 export function planContentBounds(floor: Floor, options: {
   context: CanvasRenderingContext2D;
