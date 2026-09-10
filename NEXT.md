@@ -2548,3 +2548,11 @@ Invalid-file/write-failure, reopen/export and broader device checks remain open.
 The desktop picker rejected a synthetic corrupt PNG with an import error.
 Dismissing it preserved disabled Undo and available Redo. See `openplan3d-ios/docs/native-trace-file-import.md`.
 Write-failure, reopen/export and broader device/NEXT checks remain open.
+
+### Native trace save/relaunch verification — 2026-09-10
+
+A saved synthetic trace reappeared after quitting/relaunching the isolated QA
+app and reopening its editor. The persisted plan references its unique image
+file. See `openplan3d-ios/docs/native-trace-file-import.md`. Initial Draw a Plan's Done saved without
+navigating away; investigate that behavior. Export/write-failure and broader
+NEXT qualification remain open.
