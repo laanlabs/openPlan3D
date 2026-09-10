@@ -2581,3 +2581,10 @@ A controlled invalid destination in the isolated QA session kept the editor
 open with an error. Restoring the original file preserved its hash; retry
 succeeded and returned to preview. See `openplan3d-ios/docs/native-editor-dismissal.md`. Load-error UI,
 full-disk/unsaved-edit cases and broader NEXT qualification remain open.
+
+### Native load-error Close verification — 2026-09-10
+
+A truncated QA plan showed recovery controls instead of an editable fallback.
+Error-screen Close returned to preview; restoring the original preserved its
+hash and allowed a normal reopen. See `openplan3d-ios/docs/native-editor-dismissal.md`. Broader recovery
+and device/NEXT qualification remain open.
