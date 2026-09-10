@@ -2595,3 +2595,9 @@ A new storage regression verifies unique trace reference/placement/scale and
 exact JPEG bytes through export, independent import, reload and re-export.
 All ten package tests passed on Catalyst. See `openplan3d-ios/docs/native-trace-file-import.md`. Export-dialog,
 write-failure and broader device/NEXT checks remain open.
+
+### Native iOS trace-package validation — 2026-09-10
+
+All ten package tests passed on iOS 26.5, including unique trace reference and
+JPEG preservation through export/import/re-export. See `openplan3d-ios/docs/native-trace-file-import.md`.
+This focused run does not replace full-suite or device/UI qualification.
