@@ -9,7 +9,7 @@ async function exportFloor(page: Page) {
 }
 
 for (const width of [1440, 390]) {
-  test(`presentation property drafts preserve geometry at ${width}px`, async ({ page }) => {
+  test(`presentation property drafts preserve geometry at ${width}px`, async ({ page }, testInfo) => {
     test.setTimeout(90_000);
     await page.setViewportSize({ width, height: 900 });
     await page.addInitScript(() => {
@@ -65,13 +65,13 @@ for (const width of [1440, 390]) {
     await page.getByRole('button', { name: 'Save', exact: true }).press('l');
     await page.getByTitle('Zoom to Fit (F)', { exact: true }).first().press('Enter');
     await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
-    if (width < 768) {
-      // The mobile properties sheet covers the lower canvas; pan the note above it.
-      await page.mouse.move(180, 300); await page.mouse.down({ button: 'middle' });
-      await page.mouse.move(180, 100, { steps: 5 }); await page.mouse.up({ button: 'middle' });
-      await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => resolve())));
-    }
     const point = await page.evaluate(() => (window as any).__notePoint);
+    if (width < 768) {
+      const sheet = await page.locator('[data-plan-properties]').boundingBox();
+      expect(point.y).toBeLessThan(sheet!.y - 8);
+      expect(point.y).toBeGreaterThan(72);
+    }
+    await testInfo.attach(`fit-properties-${width}`, { body: await page.screenshot(), contentType: 'image/png' });
     await page.mouse.click(point.x, point.y);
     for (const [name, value] of [['X', '100.125'], ['Y', '300.125'], ['Rotation (°)', '5.125'], ['Font Size', '20.5']]) {
       await expect(await edit(name, '')).toHaveValue(value);

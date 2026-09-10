@@ -1053,3 +1053,15 @@ passed.** See [validation](docs/property-draft-validation.md). The phone check
 also exposed a remaining usability issue: fit-to-view can place content behind
 the open properties sheet; panning reveals it. Fit framing, physical touch
 qualification and native parity remain open.
+
+### Mobile fit above properties sheet — 2026-09-09
+
+Fit-to-view now measures the visible canvas above an overlapping properties
+sheet and centers the plan there. The prior phone panning workaround is removed
+from the regression: the painted note is above the sheet and directly selectable.
+Desktop sidebars continue using their existing layout space.
+
+**Eight Chromium/WebKit desktop/phone-width checks, Svelte checks and build
+passed; the phone screenshot was visually reviewed.** See
+[validation](docs/mobile-fit-viewport-validation.md). All-object fit bounds,
+automatic reframing on selection and physical touch qualification remain open.

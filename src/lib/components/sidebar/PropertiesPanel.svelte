@@ -352,7 +352,7 @@
 </script>
 
 <!-- Right sidebar on md+; slides up as a bottom sheet on phones -->
-<div class="{is3D ? 'w-80' : 'w-64'} shrink-0 bg-white border-l border-gray-200 flex flex-col overflow-y-auto p-3 fixed md:static right-0 top-12 bottom-9 z-40 shadow-lg max-md:top-auto max-md:bottom-0 max-md:left-0 max-md:w-full max-md:max-h-[45vh] max-md:border-l-0 max-md:border-t max-md:rounded-t-xl max-md:shadow-2xl" class:hidden={!hasSelection}>
+<div data-plan-properties class="{is3D ? 'w-80' : 'w-64'} shrink-0 bg-white border-l border-gray-200 flex flex-col overflow-y-auto p-3 fixed md:static right-0 top-12 bottom-9 z-40 shadow-lg max-md:top-auto max-md:bottom-0 max-md:left-0 max-md:w-full max-md:max-h-[45vh] max-md:border-l-0 max-md:border-t max-md:rounded-t-xl max-md:shadow-2xl" class:hidden={!hasSelection}>
   {#if selectedWall}
     <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
       <span class="w-6 h-6 bg-gray-200 rounded flex items-center justify-center text-xs">▭</span>

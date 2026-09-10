@@ -1928,10 +1928,20 @@
     const padding = 80;
     const contentW = maxX - minX + padding * 2;
     const contentH = maxY - minY + padding * 2;
+    // On phones the properties sheet overlays the lower canvas. Fit into the
+    // visible area, then compensate for the renderer's full-canvas origin.
+    const canvasRect = canvas.getBoundingClientRect();
+    const sheet = document.querySelector<HTMLElement>('[data-plan-properties]');
+    const sheetRect = sheet?.getBoundingClientRect();
+    const coversBottom = sheetRect && sheetRect.width > 0 && sheetRect.height > 0
+      && sheetRect.left < canvasRect.right && sheetRect.right > canvasRect.left
+      && sheetRect.top < canvasRect.bottom && sheetRect.bottom >= canvasRect.bottom;
+    const visibleHeight = coversBottom
+      ? Math.max(1, Math.min(height, (sheetRect.top - canvasRect.top) * height / canvasRect.height))
+      : height;
+    zoom = Math.max(0.1, Math.min(width / contentW, visibleHeight / contentH, 3));
     camX = (minX + maxX) / 2;
-    camY = (minY + maxY) / 2;
-    zoom = Math.min(width / contentW, height / contentH, 3);
-    zoom = Math.max(zoom, 0.1);
+    camY = (minY + maxY) / 2 + (height - visibleHeight) / (2 * zoom);
     markDirty();
   }
 
