@@ -105,3 +105,54 @@ it.each(['align-left','align-right','align-top','align-bottom','align-center-h',
   alignElements(new Set(['a','b','c']),op,annotationContext);undo();expect(get(currentProject)!.floors[0]).toEqual(before);
   redo();expect(get(currentProject)!.floors[0]).toEqual(after);
 });
+
+it.each(['align-left','align-right','align-top','align-bottom','align-center-h','align-center-v','distribute-h','distribute-v'] as AlignmentOp[])('%s aligns independent openings along their hosts with one history step', async op=>{
+  const {openingPlanBounds}=await import('$lib/utils/openingPlanBounds');
+  const project=createDefaultProject(),floor=project.floors[0];
+  floor.walls=[{id:'host',start:{x:0,y:0},end:{x:1000,y:1000},thickness:20,height:250,color:'#123456'}];
+  floor.windows=[.2,.35,.8].map((position,i)=>({id:`o${i}`,wallId:'host',position,width:60,height:120,sillHeight:90,type:'standard'}));
+  const ids=new Set(floor.windows.map(w=>w.id));loadProject(project);
+  const before=structuredClone(get(currentProject)!.floors[0]);alignElements(ids,op);
+  const after=structuredClone(get(currentProject)!.floors[0]);expect(after).not.toEqual(before);
+  expect(after.walls).toEqual(before.walls);
+  const values=after.windows.map(w=>openingPlanBounds(after.walls[0],w,'window')).map(b=>op==='align-left'?b.minX:op==='align-right'?b.maxX:op==='align-top'?b.minY:op==='align-bottom'?b.maxY:['align-center-h','distribute-h'].includes(op)?(b.minX+b.maxX)/2:(b.minY+b.maxY)/2);
+  if(op.startsWith('distribute'))expect(values[1]-values[0]).toBeCloseTo(values[2]-values[1],5);
+  else for(const v of values)expect(v).toBeCloseTo(values[0],5);
+  after.windows.forEach((w,i)=>expect({...w,position:before.windows[i].position}).toEqual(before.windows[i]));
+  alignElements(ids,op);undo();expect(get(currentProject)!.floors[0]).toEqual(before);redo();expect(get(currentProject)!.floors[0]).toEqual(after);
+});
+it('solves curved opening alignment without rehosting and keeps unreachable perpendicular targets fixed',async()=>{
+ const {openingAlignmentPosition}=await import('$lib/utils/openingAlignment');
+ const {openingPlanBounds}=await import('$lib/utils/openingPlanBounds');
+ const wall={id:'w',start:{x:0,y:0},end:{x:1000,y:0},curvePoint:{x:500,y:500},thickness:20,height:250,color:'#123456'};
+ const opening={id:'d',wallId:'w',position:.2,width:60,height:200,type:'single' as const,swingDirection:'left' as const,flipSide:false};
+ const value=(b:ReturnType<typeof openingPlanBounds>)=>b.minX;
+ const target=value(openingPlanBounds(wall,{...opening,position:.63},'door'));
+ const pos=openingAlignmentPosition(wall,opening,'door',value,target);
+ expect(pos).toBeCloseTo(.63,6);
+ const centerY=(b:ReturnType<typeof openingPlanBounds>)=>(b.minY+b.maxY)/2;
+ const verticalTarget=centerY(openingPlanBounds(wall,{...opening,position:.7},'door'));
+ expect(openingAlignmentPosition(wall,opening,'door',centerY,verticalTarget)).toBeCloseTo(.3,6);
+ expect(openingAlignmentPosition({...wall,curvePoint:undefined},opening,'door',b=>b.minY,500)).toBe(.2);
+ expect(openingAlignmentPosition({...wall,curvePoint:undefined},opening,'door',value,5000)).toBeCloseTo(.9,6);
+});
+it('selected hosts carry openings once and orphan openings do not enable alignment',async()=>{
+ const {alignmentItems}=await import('$lib/utils/alignment');
+ const project=createDefaultProject(),floor=project.floors[0];
+ floor.walls=[{id:'w',start:{x:0,y:0},end:{x:1000,y:0},thickness:20,height:250,color:'#123456'}];
+ floor.windows=[{id:'o',wallId:'w',position:.2,width:60,height:120,sillHeight:90,type:'standard'},{id:'orphan',wallId:'missing',position:.5,width:60,height:120,sillHeight:90,type:'standard'}];
+ expect(alignmentItems(floor,new Set(['w','o','orphan'])).map(i=>i.id)).toEqual(['w']);
+});
+it('aligns an opening to a locked furniture anchor without changing unrelated data',()=>{
+ const project=createDefaultProject(),floor=project.floors[0];
+ floor.walls=[{id:'host',start:{x:0,y:0},end:{x:1000,y:0},thickness:20,height:250,color:'#123456'}];
+ floor.windows=[{id:'o',wallId:'host',position:.2,width:60,height:120,sillHeight:90,type:'standard'}];
+ floor.furniture=[{id:'anchor',catalogId:'chair',position:{x:700,y:0},rotation:0,width:60,depth:60,locked:true}];
+ loadProject(project);const before=structuredClone(get(currentProject)!.floors[0]);
+ alignElements(new Set(['o','anchor']),'align-right');
+ const after=structuredClone(get(currentProject)!.floors[0]);
+ // Furniture maxX=730.25 including its outline; the window envelope extends 36 units past its center.
+ expect(after.windows[0].position).toBeCloseTo(.69425,6);
+ expect({...after,windows:before.windows}).toEqual(before);
+ undo();expect(get(currentProject)!.floors[0]).toEqual(before);
+});

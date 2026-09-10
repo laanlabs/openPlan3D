@@ -1679,3 +1679,15 @@ All 864 unit tests, six Chromium/WebKit workflows, Svelte checks and build passe
 downloaded DXF geometry visual review and export-bound regressions passed. See
 [validation](docs/furniture-dxf-detail-validation.md). Independent opening alignment,
 physical qualification and broader native parity remain open.
+
+### Independent door/window alignment — 2026-09-10
+
+Openings now support all eight alignment/distribution operations along their host
+walls, using complete symbol bounds and curved-wall tangents. The closest reachable
+position is used when a target cannot be met; hosts are preserved, and selecting
+a host carries its openings once. Mixed object selections and one-step Undo/Redo
+are covered. The full 874-test unit suite and expanded 37-test alignment suite
+passed, along with 16 Chromium/WebKit workflows, Svelte checks and build. Phone
+controls were visually reviewed. See [validation](docs/opening-alignment-validation.md)
+for constraints and evidence. Physical qualification and broader native parity
+remain open.

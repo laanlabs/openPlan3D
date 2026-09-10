@@ -1,5 +1,8 @@
 import { get } from 'svelte/store';
 import { activeFloor, currentProject, beginUndoGroup, endUndoGroup } from '$lib/stores/project';
+import { openingAlignmentPosition } from './openingAlignment';
+import { openingPlanBounds } from './openingPlanBounds';
+import { wallPointAt } from './canvasRenderer';
 import { wallPlanBounds } from './wallPlanGeometry';
 import { furniturePlanBounds } from './furniturePlanBounds';
 import { stairPlanBounds } from './stairPlanGeometry';
@@ -14,11 +17,11 @@ export type AlignmentOp = 'align-left' | 'align-right' | 'align-top' | 'align-bo
   | 'align-center-h' | 'align-center-v' | 'distribute-h' | 'distribute-v';
 
 export function alignmentItems(floor: Floor, ids: ReadonlySet<string>) {
-  return [...floor.walls, ...floor.furniture, ...floor.stairs ?? [], ...floor.columns ?? [], ...floor.entourage ?? [], ...floor.textAnnotations ?? [], ...floor.measurements ?? [], ...floor.annotations ?? []].filter(item => ids.has(item.id));
+  return [...floor.walls, ...[...floor.doors, ...floor.windows].filter(item => !ids.has(item.wallId) && floor.walls.some(wall => wall.id === item.wallId)), ...floor.furniture, ...floor.stairs ?? [], ...floor.columns ?? [], ...floor.entourage ?? [], ...floor.textAnnotations ?? [], ...floor.measurements ?? [], ...floor.annotations ?? []].filter(item => ids.has(item.id));
 }
 
 /** Position updates based on rendered extents; locked items act as fixed anchors. */
-export function planAlignment(floor: Floor, ids: ReadonlySet<string>, op: AlignmentOp, customDefs?: CustomEntourageDef[], context?: CanvasRenderingContext2D, units: 'metric' | 'imperial' = 'metric'): Map<string, Point> {
+export function planAlignment(floor: Floor, ids: ReadonlySet<string>, op: AlignmentOp, customDefs?: CustomEntourageDef[], context?: CanvasRenderingContext2D, units: 'metric' | 'imperial' = 'metric'): Map<string, Point & { openingPosition?: number }> {
   const annotationRects = context ? alignmentItems(floor, ids).flatMap(item => {
     if ('position' in item || 'start' in item) return [];
     const bounds = planContentBounds({ ...floor, walls: [], doors: [], windows: [], furniture: [],
@@ -32,13 +35,17 @@ export function planAlignment(floor: Floor, ids: ReadonlySet<string>, op: Alignm
   }) : [];
   const rects = [
     ...annotationRects,
+    ...(['door','window'] as const).flatMap(kind => (kind === 'door' ? floor.doors : floor.windows).flatMap(opening => {
+      const wall = floor.walls.find(w => w.id === opening.wallId);
+      return !wall || ids.has(wall.id) ? [] : [{ item: { id:opening.id, position:wallPointAt(wall,opening.position) }, bounds:openingPlanBounds(wall,opening,kind) }];
+    })),
     ...floor.walls.map(wall => ({item:{id:wall.id,position:wall.start},bounds:wallPlanBounds(wall)})),
     ...floor.furniture.map(item => ({item,bounds:furniturePlanBounds(item)})),
     ...(floor.stairs ?? []).map(item => ({item,bounds:stairPlanBounds(item)})),
     ...(floor.columns ?? []).map(item => ({item,bounds:columnPlanBounds(item)})),
     ...(floor.entourage ?? []).map(item => ({item,bounds:entouragePlanBounds(item,entourageAspect(item.defId,customDefs))})),
   ].filter(r => ids.has(r.item.id)).map(r => ({...r, locked:'locked' in r.item && !!r.item.locked}));
-  const updates = new Map<string, Point>();
+  const updates = new Map<string, Point & { openingPosition?: number }>();
   const distributing = op.startsWith('distribute');
   if (rects.length < (distributing ? 3 : 2)) return updates;
   const horizontal = ['align-left','align-right','align-center-h','distribute-h'].includes(op);
@@ -46,6 +53,16 @@ export function planAlignment(floor: Floor, ids: ReadonlySet<string>, op: Alignm
   const center = (r: typeof rects[number]) => (r.bounds[minKey]+r.bounds[maxKey])/2;
   function shift(r: typeof rects[number], delta: number) {
     if (r.locked || Math.abs(delta) < 1e-8) return;
+    const opening = [...floor.doors, ...floor.windows].find(item => item.id === r.item.id);
+    if (opening) {
+      const wall = floor.walls.find(w => w.id === opening.wallId)!;
+      const kind = floor.doors.some(d => d.id === opening.id) ? 'door' : 'window';
+      const leading = op === 'align-left' || op === 'align-top', trailing = op === 'align-right' || op === 'align-bottom';
+      const value = (bounds: typeof r.bounds) => leading ? bounds[minKey] : trailing ? bounds[maxKey] : (bounds[minKey]+bounds[maxKey])/2;
+      const position = openingAlignmentPosition(wall,opening,kind,value,value(r.bounds)+delta);
+      if (Math.abs(position-opening.position) > 1e-8) updates.set(opening.id,{...wallPointAt(wall,position),openingPosition:position});
+      return;
+    }
     updates.set(r.item.id,{x:r.item.position.x+(horizontal?delta:0),y:r.item.position.y+(horizontal?0:delta)});
   }
   if (distributing) {
@@ -74,7 +91,8 @@ export function alignElements(ids: Set<string>, op: AlignmentOp, context?: Canva
   for (const item of alignmentItems(floor,ids)) {
     const pos = updates.get(item.id);
     if (!pos) continue;
-    if ('position' in item) item.position = pos;
+    if ('wallId' in item) { if (pos.openingPosition !== undefined) item.position = pos.openingPosition; }
+    else if ('position' in item) item.position = pos;
     else if ('start' in item) {
       const dx=pos.x-item.start.x, dy=pos.y-item.start.y;
       item.start={...pos}; item.end={x:item.end.x+dx,y:item.end.y+dy};
