@@ -1343,3 +1343,16 @@ phone toolbar workflows, Svelte checks and build passed.** See
 [validation](docs/alignment-validation.md). Wall/opening and annotation alignment,
 cross-project clipboard assets, opening bounds, physical gestures and export/native
 parity remain open.
+
+### Atomic selection locking and locked rotation — 2026-09-10
+
+Ctrl/Cmd+L now locks selected furniture and entourage together when any is
+unlocked, or unlocks them together when all are locked, with one Undo step.
+Unselected/unsupported objects are unaffected. The R shortcut ignores locked
+furniture without adding a history entry.
+
+**799 unit tests, the final focused fixture check, four Chromium/WebKit desktop/
+phone shortcut workflows, Svelte checks and build passed.** See
+[validation](docs/selection-lock-validation.md). Broader rotation/group transforms,
+annotation selection, opening bounds, physical gestures and export/native parity
+remain open.
