@@ -1356,3 +1356,15 @@ phone shortcut workflows, Svelte checks and build passed.** See
 [validation](docs/selection-lock-validation.md). Broader rotation/group transforms,
 annotation selection, opening bounds, physical gestures and export/native parity
 remain open.
+
+### Group object rotation shortcut — 2026-09-10
+
+R now rotates selected furniture, stairs, columns and entourage by 15 degrees
+around their movable bounds center, updating positions and orientations together.
+Locked objects stay fixed and do not affect the pivot. A single movable object
+rotates in place; the operation has one Undo step and skips no-op history.
+
+**805 unit tests, eight Chromium/WebKit rotation/lock workflows, Svelte checks
+and build passed.** See [validation](docs/selection-rotation-validation.md).
+Wall/opening and annotation transforms, cross-project assets, opening bounds,
+physical gestures and export/native parity remain open.

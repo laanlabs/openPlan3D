@@ -1,3 +1,4 @@
+import { selectionRotation } from '$lib/utils/selectionRotation';
 import { duplicatePlanSelection, pastePlanSelection } from '$lib/utils/duplicateSelection';
 import { writable, derived, get } from 'svelte/store';
 import type { Project, Floor, Wall, Door, Window as Win, FurnitureItem, Point, Stair, Column, BackgroundImage, GuideLine, ElementGroup, EntourageItem } from '$lib/models/types';
@@ -349,6 +350,20 @@ export function transformFurnitureDuringDrag(id: string, updates: Partial<Pick<F
  *  Alias for beginDrag() for backward compatibility. */
 export function commitFurnitureMove() {
   snapshot('Moved furniture');
+}
+
+/** Rotate supported unlocked objects around their collective bounds center. */
+export function rotateSelection(ids: ReadonlySet<string>, degrees = 15) {
+  const project = get(currentProject), floor = get(activeFloor);
+  if (!project || !floor) return;
+  const updates = selectionRotation(floor,ids,degrees,project.customEntourage);
+  if (!updates.size) return;
+  mutate(f => {
+    for (const item of [...f.furniture,...f.stairs ?? [],...f.columns ?? [],...f.entourage ?? []]) {
+      const update = updates.get(item.id);
+      if (update) Object.assign(item,update);
+    }
+  }, 'Rotated selection');
 }
 
 export function rotateFurniture(id: string, angle: number) {
