@@ -69,12 +69,13 @@ export const projectSettings = createSettingsStore();
 /** Convert cm to display string based on current units */
 export function formatLength(cm: number, units: 'metric' | 'imperial'): string {
   if (units === 'imperial') {
-    const totalInches = cm / 2.54;
+    const totalInches = Math.round(Math.abs(cm) / 2.54);
     const feet = Math.floor(totalInches / 12);
-    const inches = Math.round(totalInches % 12);
-    if (feet === 0) return `${inches}"`;
-    if (inches === 0) return `${feet}'`;
-    return `${feet}'${inches}"`;
+    const inches = totalInches % 12;
+    const sign = cm < 0 && totalInches > 0 ? '-' : '';
+    if (feet === 0) return `${sign}${inches}"`;
+    if (inches === 0) return `${sign}${feet}'`;
+    return `${sign}${feet}'${inches}"`;
   }
   // Metric
   if (cm >= 100) {
@@ -88,11 +89,12 @@ export function formatLength(cm: number, units: 'metric' | 'imperial'): string {
 /** Convert cm to display with full precision */
 export function formatLengthPrecise(cm: number, units: 'metric' | 'imperial'): string {
   if (units === 'imperial') {
-    const totalInches = cm / 2.54;
-    const feet = Math.floor(totalInches / 12);
-    const inches = totalInches % 12;
-    if (feet === 0) return `${inches.toFixed(1)}"`;
-    return `${feet}'${inches.toFixed(1)}"`;
+    const totalTenths = Math.round(Math.abs(cm) / 2.54 * 10);
+    const feet = Math.floor(totalTenths / 120);
+    const inches = (totalTenths % 120) / 10;
+    const sign = cm < 0 && totalTenths > 0 ? '-' : '';
+    if (feet === 0) return `${sign}${inches.toFixed(1)}"`;
+    return `${sign}${feet}'${inches.toFixed(1)}"`;
   }
   if (cm >= 100) {
     return `${(cm / 100).toFixed(2)} m`;

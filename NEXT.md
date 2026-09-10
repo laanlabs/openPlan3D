@@ -1004,3 +1004,15 @@ geometry and labels outside the wall envelope.
 build passed.** Metric and imperial labels are covered; the PNG was visually
 reviewed. See [validation](docs/measurement-export-validation.md). All-object
 framing, fonts, physical/device qualification and native parity remain open.
+
+### Imperial length rounding — 2026-09-09
+
+Shared length formatters now round total inches before splitting feet/remainders,
+preventing labels such as `1'12"`. Precise tenths carry correctly as well; negative
+values use a single leading sign without negative zero. Metric formatting and
+saved geometry are unchanged.
+
+**738 unit tests across 59 files, Svelte checks and production build passed.**
+Export checks include carried imperial measurement labels in PNG/PDF/SVG/DXF.
+See [validation](docs/imperial-length-rounding-validation.md). Input parsing,
+physical scale/device checks and native unit parity remain open.
