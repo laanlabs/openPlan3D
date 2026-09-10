@@ -2312,3 +2312,10 @@ A candidate-loop shortcut passed 14 region tests but showed no reliable timing
 improvement in the debug sample; it was removed. See `openplan3d-ios/docs/native-raster-reuse-experiment.md`.
 Repeated release measurements/profiling are needed before another optimization;
 production geometry and the remaining NEXT requirements are unchanged.
+
+### Native Release room measurements — 2026-09-10
+
+Three optimized M1 Max runs passed the 16-room batch/individual agreement check.
+Median batch times: association 12.94 ms, area 6.54 ms, fills 1.85 ms. See `openplan3d-ios/docs/native-release-room-measurement.md`.
+Local test signing required hardened runtime disabled by command-line override;
+release packaging, active-editor/device budgets and other NEXT work remain open.
