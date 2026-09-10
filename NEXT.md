@@ -2032,3 +2032,11 @@ All 53 selected Catalyst tests passed; native visual QA confirmed three formerly
 overlapping labels are readable. See
 `openplan3d-ios/docs/native-label-layout-validation.md`. Viewport edges, dense
 layouts, other-object collisions, and pointer/touch/device qualification remain open.
+
+### Native label viewport edges — 2026-09-10
+
+Native canvas/SVG label placement moves fitting labels inward at viewport edges
+and tries upward stacking near the bottom. Selection shares those bounds. All 54
+selected Catalyst tests passed. See
+`openplan3d-ios/docs/native-label-edges-validation.md`. Dense/oversized labels,
+toolbar/other-object collisions, and physical gesture qualification remain open.
