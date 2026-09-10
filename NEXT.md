@@ -2666,3 +2666,12 @@ pinch recognizers removed (over 32 seconds after Home close). Removing pinch
 alone also did not resolve it. Production source was restored; investigate
 presentation and pointer-input behavior, not speculative drag-state resets.
 See native `docs/native-editor-dismissal.md` for measured controls.
+
+### Native dismissal scheduling controls — 2026-09-10
+
+Transition logging plus a delayed diagnostic inspection produced prompt
+dismissal in three controls, including a saved fifth wall. A fresh uninstrumented
+build still showed the editor after saving; dispatching close asynchronously
+also did not demonstrate a fix and was reverted. This remains timing-sensitive
+and unresolved; see native `docs/native-editor-dismissal.md`. No production
+gesture or scheduling workaround has been retained.
