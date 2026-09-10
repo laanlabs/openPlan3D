@@ -113,24 +113,20 @@ export function formatArea(m2: number, units: 'metric' | 'imperial'): string {
 
 /** Parse user input back to cm */
 export function parseLengthInput(input: string, units: 'metric' | 'imperial'): number | null {
-  if (units === 'imperial') {
-    // Try ft'in" format
-    const match = input.match(/^(\d+(?:\.\d+)?)'?\s*(\d+(?:\.\d+)?)?"?$/);
-    if (match) {
-      const feet = parseFloat(match[1]) || 0;
-      const inches = parseFloat(match[2]) || 0;
-      return (feet * 12 + inches) * 2.54;
-    }
-    // Try just inches
-    const inMatch = input.match(/^(\d+(?:\.\d+)?)"?$/);
-    if (inMatch) return parseFloat(inMatch[1]) * 2.54;
-    // Try just feet
-    const ftMatch = input.match(/^(\d+(?:\.\d+)?)'$/);
-    if (ftMatch) return parseFloat(ftMatch[1]) * 12 * 2.54;
+  const text = input.trim().toLowerCase().replace(/[′’]/g, "'").replace(/[″“”]/g, '"');
+  const number = '[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:e[+-]?\\d+)?';
+  const magnitude = '(?:\\d+(?:\\.\\d*)?|\\.\\d+)';
+  const feet = text.match(new RegExp(`^(${number})\\s*(?:'|ft|feet|foot)(?:\\s*(${magnitude})\\s*(?:"|in|inches|inch)?)?$`));
+  let cm: number;
+  if (feet) {
+    const sign = feet[1].startsWith('-') ? -1 : 1;
+    cm = sign * (Math.abs(Number(feet[1])) * 12 + Number(feet[2] || 0)) * 2.54;
+  } else {
+    const value = text.match(new RegExp(`^(${number})\\s*(mm|cm|m|"|in|inches|inch)?$`));
+    if (!value) return null;
+    const suffix = value[2];
+    const factor = suffix === 'm' ? 100 : suffix === 'mm' ? .1 : suffix === 'cm' ? 1 : suffix ? 2.54 : units === 'imperial' ? 2.54 : 1;
+    cm = Number(value[1]) * factor;
   }
-  // Metric — try m then cm
-  const mMatch = input.match(/^(\d+(?:\.\d+)?)\s*m$/);
-  if (mMatch) return parseFloat(mMatch[1]) * 100;
-  const num = parseFloat(input);
-  return isNaN(num) ? null : num;
+  return Number.isFinite(cm) ? cm : null;
 }

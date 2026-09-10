@@ -9,7 +9,7 @@ async function exportPlan(page: Page) {
   return JSON.parse(await readFile((await (await pending).path())!, 'utf8'));
 }
 async function edit(page: Page, name: string, value: string) {
-  const input = page.getByRole('spinbutton', { name, exact: true });
+  const input = page.getByLabel(name, { exact: true });
   await input.fill(value); await input.press('Tab');
 }
 
@@ -31,7 +31,7 @@ for (const width of [1440, 390]) {
     // L is the existing layers shortcut, available on desktop and compact layouts.
     await page.getByRole('button', { name: 'Save', exact: true }).press('l');
     await page.getByRole('button', { name: '─ Wall 1', exact: true }).click();
-    const length = page.getByRole('spinbutton', { name: 'Length (cm)', exact: true });
+    const length = page.getByLabel('Length (cm)', { exact: true });
     await expect(length).toHaveValue('600.5');
     await edit(page, 'Length (cm)', '650.25');
     await expect(length).toHaveValue('650.25');
@@ -50,7 +50,7 @@ for (const width of [1440, 390]) {
     await page.getByRole('combobox', { name: 'Keep fixed', exact: true }).selectOption('end');
     await edit(page, 'Length (cm)', '700.75');
     await expect(length).toHaveValue('700.75');
-    for (const value of ['', '0', '-10']) {
+    for (const value of ['', '0', '-10', '700 cm extra']) {
       await edit(page, 'Length (cm)', value);
       await expect(length).toHaveValue('700.75');
       await expect(page.getByRole('alert')).toContainText('at least 1 cm');
@@ -101,13 +101,21 @@ for (const width of [1440, 390]) {
     await page.getByRole('button', { name: 'ft, inch', exact: true }).click();
     await page.getByRole('button', { name: 'Close settings', exact: true }).click();
     const beforeFocus = (await exportPlan(page)).floors;
-    const inches = page.getByRole('spinbutton', { name: 'Length (in)', exact: true });
+    const inches = page.getByLabel('Length (in)', { exact: true });
     await expect(inches).toHaveValue('275.9');
     for (const name of ['Length (in)', 'Thickness (in)', 'Start Height (in)', 'End Height (in)']) {
-      const input = page.getByRole('spinbutton', { name, exact: true });
+      const input = page.getByLabel(name, { exact: true });
       await input.click(); await input.press('Tab');
     }
     expect((await exportPlan(page)).floors).toEqual(beforeFocus);
+    // Explicit units override the display preference, and undo restores full precision.
+    for (const [draft, expected] of [['12\"', 30.48], ["5'6\"", 167.64], ['2.5 m', 250]] as const) {
+      await edit(page, 'Length (in)', draft);
+      const changed = (await exportPlan(page)).floors[0].walls;
+      expect(Math.hypot(changed[0].end.x - changed[0].start.x, changed[0].end.y - changed[0].start.y)).toBeCloseTo(expected);
+      await page.getByRole('button', { name: 'Undo', exact: true }).click();
+      expect((await exportPlan(page)).floors).toEqual(beforeFocus);
+    }
     await edit(page, 'Length (in)', '300.25');
     await page.getByRole('button', { name: 'Save', exact: true }).click();
     const saved = await exportPlan(page); walls = saved.floors[0].walls;

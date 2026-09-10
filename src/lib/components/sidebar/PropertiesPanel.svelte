@@ -11,7 +11,7 @@
   import { getEntourageDef } from '$lib/utils/entourageCatalog';
   import { floorMaterials, wallColors } from '$lib/utils/materials';
   import { getCatalogItem } from '$lib/utils/furnitureCatalog';
-  import { projectSettings, formatLength, formatArea } from '$lib/stores/settings';
+  import { projectSettings, formatLength, formatArea, parseLengthInput } from '$lib/stores/settings';
     import type { Floor, Wall, Door, Window as Win, Room, FurnitureItem, Stair, Column, RoomCategory, TextAnnotation } from '$lib/models/types';
   import { getWallStartHeight, getWallEndHeight } from '$lib/models/types';
 
@@ -72,10 +72,11 @@
     if (!selectedWall) return;
     const input = e.target as HTMLInputElement;
     const current = calcWallLength(selectedWall);
-    if (!input.value.trim() || !input.validity.valid || !Number.isFinite(input.valueAsNumber)) {
+    const parsed = parseLengthInput(input.value, settings.units);
+    if (parsed === null || parsed < MIN_WALL_LENGTH) {
       wallLengthError = 'Enter a wall length of at least 1 cm.';
-    } else if (input.valueAsNumber !== displayValue(current)) {
-      wallLengthError = resizeWallLength(selectedWall.id, inputToCm(input.valueAsNumber), fixedEndpoint);
+    } else if (input.value.trim() !== String(displayValue(current))) {
+      wallLengthError = resizeWallLength(selectedWall.id, parsed, fixedEndpoint);
     } else { wallLengthError = null; }
     input.value = String(displayValue(calcWallLength(selectedWall)));
   }
@@ -335,8 +336,9 @@
     <div class="space-y-3">
       <label class="block">
         <span class="text-xs text-gray-500">Length ({unitLabel()})</span>
-        <input type="number" value={displayValue(wallLength)} onblur={onWallLength} onkeydown={(event) => { if (event.key === 'Enter') event.currentTarget.blur(); }} min={settings.units === 'imperial' ? MIN_WALL_LENGTH / 2.54 : MIN_WALL_LENGTH} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
+        <input type="text" value={displayValue(wallLength)} onblur={onWallLength} onkeydown={(event) => { if (event.key === 'Enter') event.currentTarget.blur(); }} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
+      <p class="text-xs text-gray-500">Enter {unitLabel()}, or include units such as 2.5 m, 12&quot; or 5&apos;6&quot;.</p>
       <label class="block">
         <span class="text-xs text-gray-500">Keep fixed</span>
         <select bind:value={fixedEndpoint} class="w-full px-2 py-1 border border-gray-200 rounded text-sm">
