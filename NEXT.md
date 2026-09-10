@@ -2319,3 +2319,10 @@ Three optimized M1 Max runs passed the 16-room batch/individual agreement check.
 Median batch times: association 12.94 ms, area 6.54 ms, fills 1.85 ms. See `openplan3d-ios/docs/native-release-room-measurement.md`.
 Local test signing required hardened runtime disabled by command-line override;
 release packaging, active-editor/device budgets and other NEXT work remain open.
+
+### Native split/merge identity regression — 2026-09-10
+
+Split/merge coverage verifies stale-boundary detection, deliberate reassociation,
+ID/note preservation, JSON reload, snapshot restoration and deduplicated merged
+area. All 15 Catalyst region tests passed. See `openplan3d-ios/docs/native-split-merge-identity-validation.md`. Interactive
+undo/usability, schedule behavior, area parity and other NEXT work remain open.
