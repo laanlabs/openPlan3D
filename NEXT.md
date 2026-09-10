@@ -2608,3 +2608,10 @@ A newly drawn wall survived a controlled save failure and was written on retry.
 The editor remained open after this changed-document save, unlike the prior
 unchanged-document check. See `openplan3d-ios/docs/native-editor-dismissal.md`. Investigate preview-refresh/
 dismissal ordering; changed-document dismissal remains unresolved.
+
+### Native deferred-refresh experiment — 2026-09-10
+
+Moving preview refresh after dismissal did not fix the changed-document editor
+remaining open. The experiment was fully reverted. A fresh QA run reproduced
+the issue without save-failure injection; five walls were saved. See `openplan3d-ios/docs/native-editor-dismissal.md`.
+Changed-document dismissal remains unresolved.
