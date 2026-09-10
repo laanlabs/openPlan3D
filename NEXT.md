@@ -2375,3 +2375,10 @@ Full iPhone 17 Pro / iOS 26.5 validation passed after rotated furniture bounds
 and actual PNG export coverage: 240 tests, two optional skips, zero failures.
 See `openplan3d-ios/docs/native-ios-furniture-fit-validation.md`. Broader visuals, physical-device checks, release gates
 and remaining NEXT work stay open.
+
+### Native measured toolbar framing — 2026-09-10
+
+Editor fit uses measured top/bottom control stacks, including context actions,
+with a stable viewport during a drag. Catalyst build passed; see `openplan3d-ios/docs/native-adaptive-toolbar-framing.md`.
+Expanded-control/cancelled-gesture/Dynamic Type/iOS interactive checks and the
+remaining NEXT requirements stay open.
