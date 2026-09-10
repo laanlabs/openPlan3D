@@ -1978,3 +1978,12 @@ returned identical seeds in 0.315 s batched versus 5.915 s individually. See
 `openplan3d-ios/docs/native-room-batch-validation.md`. Per-region raster costs,
 automatic boundary assignment, duplicate-label totals, larger/device profiling,
 and measurement parity remain open.
+
+### Native duplicate-label area totals — 2026-09-10
+
+Native statistics now count each labelled raster region once per floor and
+exclude regions marked open even when duplicate labels disagree. Catalyst build
+and all 45 selected tests passed. See
+`openplan3d-ios/docs/native-duplicate-area-validation.md`. Automatic boundary
+assignment, duplicate-label presentation, batch raster work, measurement parity,
+arbitrary cuts, ceiling coordination, and device QA remain open.
