@@ -103,6 +103,7 @@ smallest enclosing footprint. Both optional fields can be cleared on export.
 Native Codable documents and package merges retain these fields through edits.
 Web and native edited-plan 3D geometry honor the opening flag. Native Room
 Properties can edit it; native labels/statistics report zero usable area and
-canvas/SVG omit the marked room's fill. Ordinary native room areas and fills
-still follow raster label seeds, including their nested-label limitations.
+canvas/SVG omit the marked room's fill. Native areas/fills use a raster seed
+inside an explicitly associated boundary, excluding nested faces, independently
+of the label position. Legacy labels without boundary IDs still use their center.
 These additive optional fields do not change package format version 1.

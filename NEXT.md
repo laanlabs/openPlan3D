@@ -1960,3 +1960,12 @@ Catalyst build and all 39 selected tests passed. See
 `openplan3d-ios/docs/native-opening-controls-validation.md`. Native boundary-aware
 raster association, duplicate-label totals, measurement parity, arbitrary cuts,
 ceiling coordination, and device/UI QA remain open.
+
+### Native boundary-associated raster regions — 2026-09-10
+
+Native rooms with explicit boundary IDs retain area/fill association when labels
+move or share centers. Auto-Label recognizes those regions, and raster bounds
+now depend only on walls. Catalyst build and all 42 selected tests passed. See
+`openplan3d-ios/docs/native-room-regions-validation.md`. Automatic native boundary
+assignment, duplicate-label totals, batch performance, measurement parity,
+arbitrary cuts, ceiling coordination, and device/UI QA remain open.
