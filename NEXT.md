@@ -1763,3 +1763,13 @@ tests, six Chromium/WebKit workflows, Svelte checks and build passed. Downloaded
 CAD visual review and furniture/stair regressions passed. See
 [validation](docs/entourage-dxf-export-validation.md). Custom raster DXF entourage,
 partial CAD transparency, physical qualification and native parity remain open.
+
+### Entourage opacity in DXF — 2026-09-10
+
+Built-in entourage now writes saved partial opacity as native DXF transparency
+attributes on its own entities. Other geometry is unaffected, and repeated
+serialization does not duplicate tags. All 911 unit tests, six Chromium/WebKit
+workflows, Svelte checks and build passed; downloaded opacity preview and
+furniture/stair regressions passed. See
+[validation](docs/entourage-cad-opacity-validation.md). Custom raster DXF entourage,
+physical CAD/plot qualification and broader native parity remain open.

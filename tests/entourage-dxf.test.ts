@@ -19,3 +19,16 @@ it('omits invisible and unresolved definitions without fabricating a symbol',()=
   const d=new Drawing(),line=vi.spyOn(d,'drawLine');drawEntourageDxf(d,{...item,position:{x:0,y:0},width:100,rotation:0});expect(line).not.toHaveBeenCalled();expect(d.toDxfString()).not.toContain('\nSPLINE\n');
  }
 });
+
+it('writes opacity only on the new symbol entities in the common entity subclass',()=>{
+ const d=new Drawing();d.drawLine(0,0,10,0);
+ drawEntourageDxf(d,{id:'faded',defId:'car-sedan',position:{x:0,y:0},width:100,rotation:0,opacity:.25});
+ drawEntourageDxf(d,{id:'solid',defId:'person',position:{x:300,y:0},width:100,rotation:0});
+ const result=d.toDxfString(),lines=result.split('\n'),records:string[]=[];
+ for(let i=0;i<lines.length;i+=2){if(lines[i]==='0')records.push(lines[i+1]+'\n');else records[records.length-1]+=lines[i]+'\n'+lines[i+1]+'\n';}
+ const entities=records.filter(s=>s.startsWith('LINE\n')||s.startsWith('SPLINE\n'));
+ expect(entities[0]).not.toContain('\n440\n');
+ const faded=entities.filter(e=>e.includes('\n440\n'));expect(faded.length).toBeGreaterThan(5);
+ for(const entity of faded)expect(entity).toContain('100\nAcDbEntity\n440\n33554496\n100\n');
+ expect(entities.at(-1)).not.toContain('\n440\n');expect((d.toDxfString().match(/\n440\n/g) ?? []).length).toBe(faded.length);
+});
