@@ -2209,3 +2209,11 @@ caches refresh when defaults change. The full Catalyst target passed: 228 tests,
 two optional skips, zero failures. See `openplan3d-ios/docs/native-wall-defaults-validation.md`.
 Exterior-wall inference, UI/iOS checks, area parity, device measurement, and other
 NEXT requirements remain open.
+
+### Native wall-default editor/export consumers — 2026-09-10
+
+Properties and Elevation now display effective wall defaults. Edited-render
+export validates those same dimensions and retains explicit override precedence.
+Catalyst build and all 30 selected tests passed. See `openplan3d-ios/docs/native-wall-default-consumers-validation.md`.
+Interactive UI/iOS qualification, exterior inference, area parity, and remaining
+NEXT requirements stay open.
