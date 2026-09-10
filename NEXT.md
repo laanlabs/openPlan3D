@@ -2014,3 +2014,12 @@ were corrected; final UI showed 0 ft² for the selected opening and 319 ft² for
 the saved QA plan. All 49 selected tests passed. See
 `openplan3d-ios/docs/native-room-ui-validation.md`. Duplicate-label overlap/fills,
 PDF visual checks, ambiguous graphs, raster batching, and device QA remain open.
+
+### Native duplicate-room fills — 2026-09-10
+
+Native canvas/SVG paint each labelled region once and omit it when any duplicate
+marks it open. All 51 selected tests passed; interactive QA confirmed the inner
+opening lost its stale green fill while retaining the outer fill and area total.
+See `openplan3d-ios/docs/native-duplicate-fills-validation.md`. Duplicate text
+overlap, raster batching, measurement parity, ambiguous graphs, and device QA
+remain open.
