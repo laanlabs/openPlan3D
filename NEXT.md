@@ -2152,3 +2152,11 @@ Both pages of a metric Letter fixture were visually reviewed: ground fill/area
 and upper opening with zero label area are correct. See `openplan3d-ios/docs/native-pdf-floor-summary-validation.md`.
 Long titles, paper-size/large-plan coverage, device memory/share sheets, print
 scale, and broader NEXT requirements remain open.
+
+### Native PDF long-title layout — 2026-09-10
+
+PDF notes, up-to-two-line titles, and statistics now occupy separate footer rows.
+Thirteen targeted tests passed; Letter, A4, and A3 long-title fixtures were
+rendered and visually checked without footer overlap. See `openplan3d-ios/docs/native-pdf-title-layout-validation.md`.
+Large-plan/device memory, physical sharing, actual print scale, and broader NEXT
+requirements remain open.
