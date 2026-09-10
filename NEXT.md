@@ -1133,3 +1133,15 @@ the wait and permits that fallback; stale image callbacks remain rejected.
 **Eighteen Chromium/WebKit desktop/phone-width checks, Svelte checks and build
 passed.** See [validation](docs/delayed-image-fit-validation.md). Caption/
 room-label bounds, selection framing and physical device checks remain open.
+
+### Fit moved room-label ink — 2026-09-09
+
+Fit includes the combined room-name/area text at its saved offset, using actual
+screen font measurements and a bounded scale search. Hidden labels are excluded;
+geometry and offsets remain unchanged. Shared minimap world bounds include labels.
+
+**The 765-test suite, eight final bounds tests, four final label browser checks
+and eight large-plan/property regressions passed.** Final Svelte checks/build
+passed, and the phone screenshot was reviewed. See
+[validation](docs/room-label-fit-validation.md). Overwide single-line labels,
+other annotation captions, selection framing and physical checks remain open.

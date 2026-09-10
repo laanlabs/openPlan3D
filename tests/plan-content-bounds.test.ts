@@ -50,3 +50,17 @@ it('recognizes non-wall content for empty-state and minimap visibility', () => {
   }
   expect(hasPlanContent({ ...empty(), backgroundImage: {} } as Floor)).toBe(true);
 });
+
+it('includes moved room labels and their minimum screen-size height only when supplied', () => {
+  const floor = empty();
+  const room = { id: 'room', name: 'Moved room', area: 1, labelOffset: { x: 3000, y: -2000 } } as any;
+  const polygon = [{ x: 0, y: 0 }, { x: 100, y: 0 }, { x: 100, y: 100 }, { x: 0, y: 100 }];
+  const before = structuredClone(room);
+  expect(planContentBounds(floor, options)).toBeNull();
+  const normal = planContentBounds(floor, { ...options, roomLabels: [{ room, polygon }], zoom: 1 })!;
+  const distant = planContentBounds(floor, { ...options, roomLabels: [{ room, polygon }], zoom: .1 })!;
+  expect(normal.minX).toBeLessThan(3050); expect(normal.maxX).toBeGreaterThan(3050);
+  expect(normal.maxY).toBeLessThan(-1900);
+  expect(distant.maxY - distant.minY).toBeGreaterThan(normal.maxY - normal.minY);
+  expect(room).toEqual(before);
+});

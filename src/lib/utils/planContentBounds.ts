@@ -1,3 +1,6 @@
+import { formatArea } from '$lib/stores/settings';
+import { roomLabelPosition } from './roomDetection';
+import type { Room, Point } from '$lib/models/types';
 import type { Floor } from '$lib/models/types';
 import { wallPlanBounds } from './wallPlanGeometry';
 import { furniturePlanBounds } from './furniturePlanBounds';
@@ -17,6 +20,9 @@ export function hasPlanContent(floor: Floor): boolean {
 export function planContentBounds(floor: Floor, options: {
   context: CanvasRenderingContext2D;
   entourageAspect: (id: string) => number;
+  roomLabels?: { room: Room; polygon: Point[] }[];
+  units?: 'metric' | 'imperial';
+  zoom?: number;
   backgroundSize?: { width: number; height: number };
 }): Bounds | null {
   let bounds: Bounds | null = null;
@@ -53,6 +59,16 @@ export function planContentBounds(floor: Floor, options: {
   options.context.save();
   try {
     for (const note of floor.textAnnotations ?? []) add(textAnnotationBounds(note, options.context));
+    for (const { room, polygon } of options.roomLabels ?? []) {
+      if (polygon.length < 3) continue;
+      const anchor = roomLabelPosition(room, polygon), ctx = options.context;
+      const scale = options.zoom ?? 1;
+      const fontSize = Math.max(11, 13 * scale);
+      ctx.font = `${fontSize}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      const m = ctx.measureText(`${room.name} (${formatArea(room.area, options.units ?? 'metric')})`);
+      point(anchor.x - (m.actualBoundingBoxLeft ?? m.width / 2) / scale, anchor.y - (m.actualBoundingBoxAscent ?? fontSize) / scale);
+      point(anchor.x + (m.actualBoundingBoxRight ?? m.width / 2) / scale, anchor.y + (m.actualBoundingBoxDescent ?? fontSize) / scale);
+    }
   } finally { options.context.restore(); }
   if (floor.backgroundImage && options.backgroundSize) {
     const bg = floor.backgroundImage;

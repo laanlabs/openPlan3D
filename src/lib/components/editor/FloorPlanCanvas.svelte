@@ -1905,26 +1905,28 @@
     camY = bbox.minY + (my - oy) / scale;
   }
 
-  function boundsForFloor(floor: Floor) {
+  function boundsForFloor(floor: Floor, fittedZoom = 1) {
       return planContentBounds(floor, {
         context: ctx,
+        roomLabels: floor === currentFloor && showRoomLabels
+          ? detectedRooms.map(room => ({ room, polygon: roomPolygons.get(room.id) ?? [] })) : undefined,
+        units: dimSettings.units,
+        zoom: fittedZoom,
         entourageAspect: id => entourageAspect(id, customEntourageDefs) || 1,
         backgroundSize: floor === currentFloor && bgImage ? bgImage : undefined,
       });
   }
 
-  function getFitBounds() {
-    return (currentFloor && boundsForFloor(currentFloor))
+  function getFitBounds(fittedZoom = 1) {
+    return (currentFloor && boundsForFloor(currentFloor, fittedZoom))
       || (layerVis.floorBelow && floorBelow && boundsForFloor(floorBelow));
   }
 
   function zoomToFit() {
     const bounds = getFitBounds();
     if (!bounds) { camX = 0; camY = 0; zoom = 1; minimumZoom = 0.1; markDirty(); return; }
-    const { minX, minY, maxX, maxY } = bounds;
+    let { minX, minY, maxX, maxY } = bounds;
     const padding = 80;
-    const contentW = maxX - minX + padding * 2;
-    const contentH = maxY - minY + padding * 2;
     // On phones the properties sheet overlays the lower canvas. Fit into the
     // visible area, then compensate for the renderer's full-canvas origin.
     const canvasRect = canvas.getBoundingClientRect();
@@ -1936,7 +1938,25 @@
     const visibleHeight = coversBottom
       ? Math.max(1, Math.min(height, (sheetRect.top - canvasRect.top) * height / canvasRect.height))
       : height;
-    zoom = Math.min(Math.max(1, width - 80) / contentW, Math.max(1, visibleHeight - 80) / contentH, 3);
+    const availableWidth = Math.max(1, width - 80), availableHeight = Math.max(1, visibleHeight - 80);
+    const initialZoom = Math.min(availableWidth / (maxX - minX + padding * 2),
+      availableHeight / (maxY - minY + padding * 2), 3);
+    // Minimum screen fonts make text bounds scale-dependent. Find the largest
+    // feasible scale; if a label alone exceeds the viewport, retain the initial fit.
+    let lower = 0, upper = initialZoom, fittedBounds = bounds;
+    for (let pass = 0; pass < 33; pass++) {
+      const candidate = pass === 0 ? initialZoom : (lower + upper) / 2;
+      const refined = getFitBounds(candidate);
+      if (!refined) break;
+      const fits = (refined.maxX - refined.minX + padding * 2) * candidate <= availableWidth + 1e-6
+        && (refined.maxY - refined.minY + padding * 2) * candidate <= availableHeight + 1e-6;
+      if (fits) {
+        lower = candidate; fittedBounds = refined;
+        if (pass === 0) break;
+      } else upper = candidate;
+    }
+    zoom = lower || initialZoom;
+    ({ minX, minY, maxX, maxY } = fittedBounds);
     minimumZoom = Math.min(0.1, zoom / 4);
     camX = (minX + maxX) / 2;
     camY = (minY + maxY) / 2 + (height - visibleHeight) / (2 * zoom);
