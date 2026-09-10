@@ -2623,3 +2623,9 @@ clicks. Treat the issue as delayed dismissal; latency is unmeasured. A two-secon
 process sample during a new occurrence showed an idle main event loop, and
 clearing selection did not immediately resolve it. See `openplan3d-ios/docs/native-editor-dismissal.md`.
 Presentation timing remains under investigation.
+
+### Native nonanimated-dismissal experiment — 2026-09-10
+
+Disabling close-transition animations did not establish prompt dismissal after
+a wall edit. The experiment was reverted. See `openplan3d-ios/docs/native-editor-dismissal.md`. Instrument
+callback/state timing before choosing another fix; dismissal delay remains open.
