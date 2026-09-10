@@ -1861,3 +1861,13 @@ branching partitions, and a 1,500-segment detached tree. See native
 `docs/native-room-graph-limits-validation.md` and
 `docs/native-partition-preprocessing-validation.md`. This does not complete
 nested boundaries, courtyard/stair holes, area parity, or device profiling.
+
+### Nested web room slabs and finishes — 2026-09-10
+
+Nested room rings now partition active/stacked slab geometry and active finishes
+without overlapping the child room. Strict containment excludes touching and
+crossing rings; portable scene exports retain the hole geometry. All 919 unit
+tests, four Chromium/WebKit slab workflows, Svelte diagnostics, and build passed.
+See [validation](docs/nested-room-slabs-validation.md). Explicit courtyard/stair
+voids, nested 2D fills/area accounting, native nesting, and wall-face areas remain
+open.

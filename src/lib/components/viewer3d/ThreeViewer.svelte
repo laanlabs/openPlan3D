@@ -12,6 +12,7 @@
   import { projectSettings, formatArea } from '$lib/stores/settings';
   import * as THREE from 'three';
   import { createRoomSlabGeometry } from '$lib/utils/roomSlabGeometry';
+  import { roomHoles } from '$lib/utils/roomNesting';
   import { createSlopedBoxGeometry } from '$lib/utils/slopedWallGeometry';
   import { buildWallSegments, roomCeilingHeight, wallProfileSpans, wallPathProfile, pathOpening, doorPanelPose } from '$lib/utils/wallProfiles';
   import { assembleFloorStack } from '$lib/utils/floorStack';
@@ -1495,11 +1496,12 @@
     const FALLBACK_ROOM_COLORS = [0xbfdbfe, 0xfde68a, 0xbbf7d0, 0xfecaca, 0xddd6fe, 0xa5f3fc, 0xfed7aa];
     // Resolve labels and materials from this floor, including after a 3D floor switch.
     const rooms = resolveRoomGeometry(floor);
+    const holes = roomHoles(rooms.map(r => r.polygon));
     for (let ri = 0; ri < rooms.length; ri++) {
       const { room, polygon: poly } = rooms[ri];
       if (poly.length < 3) continue;
 
-      const slabGeometry = createRoomSlabGeometry(poly, floor.slabThickness);
+      const slabGeometry = createRoomSlabGeometry(poly, floor.slabThickness, holes[ri]);
       if (slabGeometry) {
         const slab = new THREE.Mesh(slabGeometry, new THREE.MeshStandardMaterial({ color: 0xcccccc, roughness: 0.9 }));
         slab.userData.renderMaterial = 'floor';
@@ -1513,6 +1515,14 @@
       shape.moveTo(poly[0].x, -poly[0].y);
       for (let i = 1; i < poly.length; i++) shape.lineTo(poly[i].x, -poly[i].y);
       shape.closePath();
+
+      for (const hole of holes[ri]) {
+        const path = new THREE.Path();
+        path.moveTo(hole[0].x,-hole[0].y);
+        for (const p of hole.slice(1)) path.lineTo(p.x,-p.y);
+        path.closePath();
+        shape.holes.push(path);
+      }
 
       const geo = new THREE.ShapeGeometry(shape);
 
@@ -1733,8 +1743,10 @@
 
     }
     // Match active-floor footprints instead of bridging recesses and separate rooms.
-    for (const { polygon } of resolveRoomGeometry(floor)) {
-      const geometry = createRoomSlabGeometry(polygon, floor.slabThickness);
+    const rooms = resolveRoomGeometry(floor);
+    const holes = roomHoles(rooms.map(r => r.polygon));
+    for (const [index, { polygon }] of rooms.entries()) {
+      const geometry = createRoomSlabGeometry(polygon, floor.slabThickness, holes[index]);
       if (!geometry) continue;
       const slab = new THREE.Mesh(geometry, transparentMat(0xcccccc, 0.95));
       slab.userData.renderMaterial = 'floor';

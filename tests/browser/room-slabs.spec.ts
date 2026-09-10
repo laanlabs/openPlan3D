@@ -25,6 +25,49 @@ function checkSlabs(scene: any, elevation: number, thickness = .05) {
   root.traverse(node => { if (node instanceof Mesh) node.geometry.dispose(); }); material.dispose();
 }
 
+test('nested rooms export one slab at each point on active and stacked floors', async ({ page }) => {
+  const project = JSON.parse(await readFile(resolve('tests/fixtures/room-slabs.openplan.json'), 'utf8'));
+  for (const floor of project.floors) {
+    floor.rooms = [];
+    floor.walls = [0,100,200].flatMap((inset,ring) => {
+      const points = [[inset,inset],[600-inset,inset],[600-inset,600-inset],[inset,600-inset]];
+      return points.map(([x,y],i) => ({id:`${floor.id}-${ring}-${i}`,start:{x,y},
+        end:{x:points[(i+1)%4][0],y:points[(i+1)%4][1]},thickness:20,height:280,color:'#94a3b8'}));
+    });
+  }
+  await page.goto('/editor');
+  await page.getByRole('button', {name:'Export',exact:true}).click();
+  const chooser=page.waitForEvent('filechooser');
+  await page.getByRole('button', {name:'Import JSON',exact:true}).click();
+  await (await chooser).setFiles({name:'nested.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(project))});
+  await page.getByRole('button', {name:'3D',exact:true}).click();
+  await page.waitForLoadState('networkidle');
+  const hint=page.getByRole('button',{name:'Got it',exact:true});
+  if (await hint.isVisible()) await hint.click();
+  for (const stacked of [false,true]) {
+    if (stacked) await page.getByRole('button',{name:'Show All Floors Stacked',exact:true}).click();
+    const pending=page.waitForEvent('download');
+    await page.getByRole('button',{name:'Export Blender Scene',exact:true}).click();
+    const scene=JSON.parse(await readFile((await (await pending).path())!,'utf8'));
+    for (const elevation of stacked ? [0,4] : [0]) {
+      const slabs=scene.meshes.filter((m:any)=>m.material==='floor' &&
+        Math.abs(Math.max(...m.vertices.map((p:number[])=>p[1]))-elevation)<1e-5 &&
+        Math.abs(Math.min(...m.vertices.map((p:number[])=>p[1]))-elevation+.05)<1e-5);
+      expect(slabs).toHaveLength(3);
+      const material=new MeshBasicMaterial({side:DoubleSide});
+      const meshes=slabs.map((m:any)=> {
+        const g=new BufferGeometry(); g.setAttribute('position',new Float32BufferAttribute(m.vertices.flat(),3));
+        g.setIndex(m.faces.flat()); return new Mesh(g,material);
+      });
+      for (const p of [.5,1.5,2.5]) {
+        const ray=new Raycaster(new Vector3(p,elevation+.1,p),new Vector3(0,-1,0),0,.2);
+        expect(meshes.filter((m:Mesh)=>ray.intersectObject(m).length>0)).toHaveLength(1);
+      }
+      meshes.forEach((m:Mesh)=>m.geometry.dispose()); material.dispose();
+    }
+  }
+});
+
 test('room slabs preserve recesses and separate rooms across active-floor switches', async ({ page }, testInfo) => {
   const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
   await page.goto('/editor');
