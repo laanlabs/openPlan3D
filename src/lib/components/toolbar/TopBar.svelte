@@ -1,6 +1,7 @@
 <script lang="ts">
+  import { captureMain3DPNG } from '$lib/utils/captureMain3D';
   import ExportNotice from '$lib/components/ExportNotice.svelte';
-  import { exportPDFWithFeedback as exportPDF } from '$lib/stores/exportNotice';
+  import { exportNotice, exportPDFWithFeedback as exportPDF } from '$lib/stores/exportNotice';
   import { modalDialog, hasOpenModal } from '$lib/utils/modalDialog';
   import { openProject } from '$lib/services/projectOpening';
   import { saveConflict, savingCopy, saveCurrentAsCopy } from '$lib/stores/saveStatus';
@@ -138,27 +139,28 @@
     exportOpen = false;
   }
 
-  function onExport3DPNG() {
-    const p = get(currentProject);
-    const name = p?.name || 'floorplan';
-    // Switch to 3D, wait a tick, then screenshot
+  let exporting3D = $state(false);
+  async function onExport3DPNG() {
+    if (exporting3D) return;
+    const project = get(currentProject);
     const oldMode = mode;
+    exporting3D = true; exportOpen = false; exportNotice.set(null);
     viewMode.set('3d');
-    setTimeout(() => {
-      const c = document.querySelector('.w-full.h-full canvas, div canvas') as HTMLCanvasElement;
-      if (c) {
-        c.toBlob((blob) => {
-          if (blob) {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url; a.download = `${name}-3d.png`; a.click();
-            URL.revokeObjectURL(url);
-          }
-        });
-      }
-      if (oldMode === '2d') viewMode.set('2d');
-    }, 500);
-    exportOpen = false;
+    try {
+      const blob = await captureMain3DPNG(openingLifetime.signal);
+      const current = get(currentProject);
+      if (current?.id !== project?.id || current?.activeFloorId !== project?.activeFloorId) return;
+      const url = URL.createObjectURL(blob);
+      try {
+        const link = document.createElement('a');
+        link.href = url; link.download = `${project?.name || 'floorplan'}-3d.png`; link.click();
+      } finally { URL.revokeObjectURL(url); }
+    } catch {
+      if (!openingLifetime.signal.aborted) exportNotice.set({ title: "Couldn't export 3D PNG", message: 'The 3D view could not be captured. Reopen the 3D view and try again.' });
+    } finally {
+      exporting3D = false;
+      if (!openingLifetime.signal.aborted && oldMode === '2d' && get(viewMode) === '3d') viewMode.set('2d');
+    }
   }
 
   function onExportJSON() {
@@ -554,7 +556,7 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
           Export 2D as PNG
         </button>
-        <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left flex items-center gap-2" onclick={onExport3DPNG}>
+        <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left flex items-center gap-2" onclick={onExport3DPNG} disabled={exporting3D}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
           Export 3D as PNG
         </button>

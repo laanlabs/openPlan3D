@@ -933,3 +933,15 @@ production build passed.** Both export entry points were tested with a forced
 plan-image failure and no download. See
 [validation](docs/pdf-export-notice-validation.md). Blank-frame detection, remaining
 PDF typography/layout, native feedback and non-PDF error handling remain open.
+
+### Main-view 3D PNG capture — 2026-09-09
+
+Toolbar 3D PNG export now waits for the main viewer's first rendered frame,
+encodes only that canvas, and reports failure. Readiness and encoding use separate
+bounded waits; duplicate requests are disabled. Automatic 2D switches restore 2D
+after success or failure, and stale project/floor downloads are prevented.
+
+**Eight capture tests, two Chromium/WebKit checks, Svelte checks and production
+build passed.** The actual PNG was visually reviewed. See
+[validation](docs/png-3d-capture-validation.md). Full asynchronous asset readiness,
+blank-frame checks and broader device/camera qualification remain open.

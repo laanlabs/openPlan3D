@@ -1930,6 +1930,7 @@
       if (sceneDirty || moving) {
         sceneDirty = false;
         renderer.render(scene, camera);
+        renderer.domElement.dataset.rendered = 'true';
       }
       if (walkthroughMotion.active) requestRender();
       else walkthroughMotion.stopClock();
@@ -1940,6 +1941,7 @@
       if (sceneDirty) {
         sceneDirty = false;
         renderer.render(scene, camera);
+        renderer.domElement.dataset.rendered = 'true';
       }
     }
   }
@@ -1957,6 +1959,7 @@
   function takeScreenshot() {
     if (!renderer || !scene || !camera) return;
     renderer.render(scene, camera);
+    renderer.domElement.dataset.rendered = 'true';
     const dataUrl = renderer.domElement.toDataURL('image/png');
     const link = document.createElement('a');
     link.download = 'floorplan-3d.png';
