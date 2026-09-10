@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
+  import { planContentBounds } from '$lib/utils/planContentBounds';
   import { connectedWallEndpoints } from '$lib/utils/wallEditing';
   import { createDrawScheduler } from '$lib/utils/drawScheduler';
   import { activeFloor, selectedTool, selectedElementId, selectedElementIds, selectedRoomId, addWall, addDoor, addWindow, updateWall, moveWallEndpoint, updateDoor, updateWindow, addFurniture, moveFurniture, transformFurnitureDuringDrag, commitFurnitureMove, rotateFurniture, setFurnitureRotation, scaleFurniture, removeElement, placingFurnitureId, placingRotation, placingDoorType, placingWindowType, detectedRoomsStore, duplicateDoor, duplicateWindow, duplicateFurniture, duplicateWall, moveWallParallel, splitWall, snapEnabled, placingStair, addStair, moveStair, updateStair, placingColumn, placingColumnShape, addColumn, moveColumn, updateColumn, calibrationMode, calibrationPoints, updateBackgroundImage, setBackgroundImage, canvasZoom, canvasCamX, canvasCamY, panMode, showFurnitureStore, addGuide, moveGuide, removeGuide, beginUndoGroup, endUndoGroup, layerVisibility, updateRoom, addMeasurement, removeMeasurement, addAnnotation, removeAnnotation, updateAnnotation, addTextAnnotation, removeTextAnnotation, updateTextAnnotation, moveTextAnnotation, toggleFurnitureLock, createGroup, ungroupElements, findGroupForElement, placingEntourageId, addEntourageItem, moveEntourage, resizeEntourage, currentProject, elevationWallId, elevationPickMode } from '$lib/stores/project';
@@ -1873,58 +1874,17 @@
   }
 
   function zoomToFit() {
-    const fitFloor = currentFloor && (currentFloor.walls.length || currentFloor.furniture.length)
-      ? currentFloor : layerVis.floorBelow && floorBelow ? floorBelow : currentFloor;
-    if (!fitFloor || (fitFloor.walls.length === 0 && fitFloor.furniture.length === 0)) {
-      camX = 0; camY = 0; zoom = 1;
-      return;
+    function boundsFor(floor: Floor) {
+      return planContentBounds(floor, {
+        context: ctx,
+        entourageAspect: id => entourageAspect(id, customEntourageDefs) || 1,
+        backgroundSize: floor === currentFloor && bgImage ? bgImage : undefined,
+      });
     }
-    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-    function expand(x: number, y: number) {
-      if (x < minX) minX = x; if (x > maxX) maxX = x;
-      if (y < minY) minY = y; if (y > maxY) maxY = y;
-    }
-    // Walls (including curve control points)
-    for (const w of fitFloor.walls) {
-      expand(w.start.x, w.start.y);
-      expand(w.end.x, w.end.y);
-      if (w.curvePoint) expand(w.curvePoint.x, w.curvePoint.y);
-    }
-    // Furniture
-    for (const fi of fitFloor.furniture) {
-      const cat = getCatalogItem(fi.catalogId);
-      if (!cat) continue;
-      const hw = (fi.width ?? cat.width) / 2;
-      const hd = (fi.depth ?? cat.depth) / 2;
-      const r = Math.hypot(hw, hd); // conservative radius for rotated items
-      expand(fi.position.x - r, fi.position.y - r);
-      expand(fi.position.x + r, fi.position.y + r);
-    }
-    // Doors & windows (position on their parent wall)
-    for (const d of fitFloor.doors) {
-      const w = fitFloor.walls.find(wl => wl.id === d.wallId);
-      if (w) { const pt = wallPointAt(w, d.position); expand(pt.x, pt.y); }
-    }
-    for (const win of fitFloor.windows) {
-      const w = fitFloor.walls.find(wl => wl.id === win.wallId);
-      if (w) { const pt = wallPointAt(w, win.position); expand(pt.x, pt.y); }
-    }
-    // Stairs
-    if (fitFloor.stairs) {
-      for (const st of fitFloor.stairs) {
-        expand(st.position.x - st.width / 2, st.position.y - st.depth / 2);
-        expand(st.position.x + st.width / 2, st.position.y + st.depth / 2);
-      }
-    }
-    // Columns
-    if (fitFloor.columns) {
-      for (const col of fitFloor.columns) {
-        const r = col.diameter / 2;
-        expand(col.position.x - r, col.position.y - r);
-        expand(col.position.x + r, col.position.y + r);
-      }
-    }
-    if (minX === Infinity) { camX = 0; camY = 0; zoom = 1; return; }
+    const bounds = (currentFloor && boundsFor(currentFloor))
+      || (layerVis.floorBelow && floorBelow && boundsFor(floorBelow));
+    if (!bounds) { camX = 0; camY = 0; zoom = 1; markDirty(); return; }
+    const { minX, minY, maxX, maxY } = bounds;
     const padding = 80;
     const contentW = maxX - minX + padding * 2;
     const contentH = maxY - minY + padding * 2;

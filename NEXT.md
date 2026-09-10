@@ -1065,3 +1065,15 @@ Desktop sidebars continue using their existing layout space.
 passed; the phone screenshot was visually reviewed.** See
 [validation](docs/mobile-fit-viewport-validation.md). All-object fit bounds,
 automatic reframing on selection and physical touch qualification remain open.
+
+### Fit object-only floor content — 2026-09-09
+
+Fit now uses shared geometry bounds for walls, furniture (including unknown
+catalog fallbacks), rotated stairs/columns, entourage, measurement/dimension
+geometry, text and loaded tracing images. Floors without walls can be fitted;
+current-floor content takes precedence over the floor-below fallback.
+
+**763 unit tests, four final note-only browser checks and four property-editor
+regressions passed, along with Svelte checks and build.** See
+[validation](docs/content-fit-validation.md). Caption/room-label bounds, minimap
+parity, initial automatic fitting and extreme zoom limits remain open.
