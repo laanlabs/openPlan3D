@@ -2636,3 +2636,10 @@ Temporary instrumentation measured save/write/close callbacks completing in
 9.3 ms, including Home setting its cover item to nil. No cover onDismiss event
 appeared within the next 52.4 seconds. See `openplan3d-ios/docs/native-editor-dismissal.md`. Instrumentation
 was removed; investigate state application/cover lifecycle next.
+
+### Native dismissal timing controls — 2026-09-10
+
+Measured dismissal at 95.0 s after wall dragging versus 0.54 s with no edit
+and 0.53 s after tool selection only. A pan-only drag also delayed completion
+(>18.8 s), so geometry changes are not required. See `openplan3d-ios/docs/native-editor-dismissal.md`.
+Investigate canvas gesture lifecycle and distinguish app from input effects.
