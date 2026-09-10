@@ -2118,3 +2118,11 @@ correctly. The full Catalyst target passed: 221 tests, two optional skips, zero
 failures. See `openplan3d-ios/docs/native-fill-grid-batch-validation.md`. SVG batching, shared
 component/run indexing, device performance, area parity, PDF visual checks, and
 remaining NEXT work stay open.
+
+### Native SVG room batching — 2026-09-10
+
+SVG label areas and fill ownership share batch region measurements, and room
+color paths share one fill grid per floor. Existing geometry and presentation
+conventions remain. Catalyst build and all 25 selected tests passed. See
+`openplan3d-ios/docs/native-svg-batch-validation.md`. Shared fill-component indexing,
+device performance, area parity, PDF visual checks, and other NEXT work remain.
