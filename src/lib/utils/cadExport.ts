@@ -1,3 +1,4 @@
+import { hasPlanExportContent } from './planExportContent';
 import { dimensionPlanGeometry } from './dimensionPlanGeometry';
 import { textAnnotationLines } from './textAnnotationLayout';
 import { planOpening } from './planOpening';
@@ -31,7 +32,7 @@ const LAYER_COLORS = {
 
 export function exportDXF(project: Project) {
   const floor = project.floors.find(f => f.id === project.activeFloorId) ?? project.floors[0];
-  if (!floor || floor.walls.length === 0) return;
+  if (!floor || !hasPlanExportContent(floor)) return;
 
   const d = new Drawing();
   d.setUnits('Centimeters');
@@ -230,7 +231,7 @@ export function exportDWG(project: Project) {
   // DWG is a proprietary binary format. No good JS library exists.
   // Export as DXF — virtually all CAD software (AutoCAD, SketchUp, etc.) opens DXF natively.
   const floor = project.floors.find(f => f.id === project.activeFloorId) ?? project.floors[0];
-  if (!floor || floor.walls.length === 0) return;
+  if (!floor || !hasPlanExportContent(floor)) return;
 
   alert('DWG is a proprietary binary format. Exporting as DXF instead — all major CAD tools (AutoCAD, SketchUp, FreeCAD) can open DXF files directly.');
   exportDXF(project);

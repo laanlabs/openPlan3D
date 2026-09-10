@@ -1,3 +1,4 @@
+import { hasPlanExportContent } from './planExportContent';
 import { dimensionPlanGeometry } from './dimensionPlanGeometry';
 import { textAnnotationBounds, textAnnotationLines } from './textAnnotationLayout';
 import { furniturePlanBounds } from './furniturePlanBounds';
@@ -147,7 +148,7 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
 
   if (project) {
     const floor = project.floors.find(f => f.id === project.activeFloorId) ?? project.floors[0];
-    if (floor && floor.walls.length > 0) {
+    if (floor && hasPlanExportContent(floor)) {
       // Compute bounds of all geometry
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
       for (const w of floor.walls) {
@@ -294,7 +295,7 @@ export { downloadProjectJSON as exportAsJSON } from './projectBackup';
 
 export function exportAsSVG(project: Project) {
   const floor = project.floors.find(f => f.id === project.activeFloorId) ?? project.floors[0];
-  if (!floor || floor.walls.length === 0) return;
+  if (!floor || !hasPlanExportContent(floor)) return;
 
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const w of floor.walls) {
@@ -590,7 +591,7 @@ export function exportAs3DPNG(renderer: { domElement: HTMLCanvasElement }) {
 
 export function exportPDF(project: Project) {
   const floor = project.floors.find(f => f.id === project.activeFloorId) ?? project.floors[0];
-  if (!floor || floor.walls.length === 0) return;
+  if (!floor || !hasPlanExportContent(floor)) return;
 
   const settings = get(projectSettings);
   const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });

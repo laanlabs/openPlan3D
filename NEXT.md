@@ -1184,3 +1184,17 @@ The wall regression's lazy 3D readiness assertion now allows 30 seconds after
 initial Chromium timeouts. See [validation](docs/automatic-dimension-fit-validation.md).
 Overwide text, selection framing, selected-opening distance annotations and
 physical device qualification remain open, alongside the broader backlog.
+
+### Object-only plan exports — 2026-09-09
+
+PNG, PDF, SVG and DXF now accept furniture, notes, measurements and dimension
+annotations without requiring walls. Their existing rendering/bounds logic frames
+that content, including distant and rotated objects. Empty/blank/degenerate-only
+floors remain excluded, with updated PNG/PDF messages. DWG's DXF fallback shares
+the eligibility rule.
+
+**769 existing unit tests plus the new eligibility test, ten Chromium/WebKit
+checks, Svelte checks and build passed.** All four object-only PDF pages were
+rendered and visually reviewed. See [validation](docs/object-only-export-validation.md).
+Tracing images, stairs, columns and entourage still need consistent export
+coverage; broader layout, physical-scale and native parity work remains open.
