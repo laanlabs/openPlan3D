@@ -2093,3 +2093,11 @@ including invalid inputs across single and batch queries and valid interiors.
 See `openplan3d-ios/docs/native-raster-seed-validation.md`. Fill-rectangle batching, device
 performance qualification, measurement parity, PDF visual checks, and remaining
 NEXT work are still open.
+
+### Native full-target integration check — 2026-09-10
+
+The complete Catalyst FloorPlanTests target passed after the room/model/renderer
+changes: 220 tests executed, two optional worker-integration skips, zero failures.
+The available private-scan byte-preservation test also passed. See `openplan3d-ios/docs/native-room-full-integration-validation.md`.
+Fresh simulator, interactive and physical-device checks, worker integration,
+signed release validation, and the broader NEXT requirements remain open.
