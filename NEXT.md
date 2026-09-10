@@ -2629,3 +2629,10 @@ Presentation timing remains under investigation.
 Disabling close-transition animations did not establish prompt dismissal after
 a wall edit. The experiment was reverted. See `openplan3d-ios/docs/native-editor-dismissal.md`. Instrument
 callback/state timing before choosing another fix; dismissal delay remains open.
+
+### Native dismissal callback timing — 2026-09-10
+
+Temporary instrumentation measured save/write/close callbacks completing in
+9.3 ms, including Home setting its cover item to nil. No cover onDismiss event
+appeared within the next 52.4 seconds. See `openplan3d-ios/docs/native-editor-dismissal.md`. Instrumentation
+was removed; investigate state application/cover lifecycle next.
