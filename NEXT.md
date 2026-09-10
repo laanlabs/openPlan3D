@@ -2057,3 +2057,12 @@ ordinary unresolved rooms remain unknown and openings contribute zero. All 56
 selected Catalyst tests passed. See `openplan3d-ios/docs/native-statistics-floor-isolation-validation.md`.
 Raster batching, measurement parity, ambiguous graphs, PDF visual checks, and
 physical-device qualification remain open.
+
+### Native Statistics raster batching — 2026-09-10
+
+Statistics now rasterizes once per floor and visits each requested component
+once, reusing results for duplicate labels and unresolved exterior regions.
+All 57 selected Catalyst tests passed, retaining duplicate/opening and floor
+isolation behavior. See `openplan3d-ios/docs/native-statistics-batch-validation.md`.
+Renderer fill batching, device performance qualification, measurement parity,
+PDF visual checks, and other NEXT work remain open.
