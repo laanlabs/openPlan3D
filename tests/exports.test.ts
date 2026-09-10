@@ -270,7 +270,7 @@ it('draws detailed catalog furniture in both raster exports with readable mirror
 });
 
 
-it.each(['straight','l-shaped','u-shaped','spiral'] as const)('draws %s stairs in PNG, PDF and SVG even without walls', async stairType => {
+it.each(['straight','l-shaped','u-shaped','spiral'] as const)('draws %s stairs in all plan formats even without walls', async stairType => {
   const project=roomProject(),floor=project.floors[0];
   floor.walls=[];floor.rooms=[];floor.furniture=[];floor.doors=[];floor.windows=[];
   floor.stairs=[{id:'stair',position:{x:-600,y:700},width:120,depth:300,rotation:37,stairType,riserCount:15,direction:'down'}];
@@ -285,5 +285,8 @@ it.each(['straight','l-shaped','u-shaped','spiral'] as const)('draws %s stairs i
   const svg=await downloaded.at(-1)!.text();
   expect(svg).toContain('data-stair="stair"');expect(svg).toContain(label);
   expect(svg).toContain('rotate(37)');expect(svg).not.toMatch(/NaN|Infinity|<image/);
+  exportDXF(project);
+  const dxf=await downloaded.at(-1)!.text();expect(dxf).toContain('STAIRS');expect(dxf).toContain(label);
+  expect(dxf).not.toMatch(/NaN|Infinity/);
   expect(project).toEqual(before);
 });

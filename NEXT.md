@@ -1711,3 +1711,13 @@ are supported. All 884 unit tests, four Chromium/WebKit workflows, Svelte checks
 and build passed; downloaded SVG visual review and furniture regressions passed.
 See [validation](docs/stair-svg-export-validation.md). DXF stairs, physical
 qualification and broader native parity remain open.
+
+### Editable stair geometry in DXF — 2026-09-10
+
+DXF now shares the stair renderer through a CAD symbol adapter, retaining all four
+shapes, treads, arrows, labels and rotation as native lines, exact curve splines
+and text on a STAIRS layer. Stair-only plans now work across all four plan formats.
+All 889 unit tests, four Chromium/WebKit workflows, Svelte checks and build passed;
+downloaded CAD geometry visual review and furniture regressions passed. See
+[validation](docs/stair-dxf-export-validation.md). Physical qualification, stair
+voids and broader native parity remain open.

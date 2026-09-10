@@ -10,5 +10,6 @@ it('requires content that the plan exporters can draw', () => {
   expect(hasPlanExportContent({ ...floor, textAnnotations: [{ text: 'Note' }] } as Floor)).toBe(true);
   expect(hasPlanExportContent({ ...floor, annotations: [{ x1: 0, x2: 10, y1: 0, y2: 0 }] } as Floor)).toBe(true);
   expect(hasPlanExportContent({ ...floor, furniture: [{}] } as Floor)).toBe(true);
+  expect(hasPlanExportContent({ ...floor, stairs: [{}] } as Floor)).toBe(true);
   expect(hasPlanExportContent({ ...floor, measurements: [{}] } as Floor)).toBe(true);
 });

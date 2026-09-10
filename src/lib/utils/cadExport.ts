@@ -1,3 +1,5 @@
+import { canvasSymbolDxf } from './canvasSymbolDxf';
+import { drawStair } from './canvasRenderer';
 import { columnPlanCorners } from './columnPlanGeometry';
 import { hasPlanExportContent } from './planExportContent';
 import { dimensionPlanGeometry } from './dimensionPlanGeometry';
@@ -223,6 +225,10 @@ export function exportDXF(project: Project) {
     // Label
     d.drawText(fx, fy, 4, 0, cat?.name ?? 'Unknown furniture', 'center', 'middle');
   }
+
+  d.addLayer('STAIRS', 8, 'CONTINUOUS');
+  d.setActiveLayer('STAIRS');
+  for (const stair of floor.stairs ?? []) canvasSymbolDxf(d,ctx=>drawStair({ctx,width:0,height:0,zoom:1,camX:0,camY:0},stair,false));
 
   d.addLayer('COLUMNS', 7, 'CONTINUOUS');
   d.setActiveLayer('COLUMNS');
