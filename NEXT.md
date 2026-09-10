@@ -882,3 +882,17 @@ split outlines, and saved geometry is unchanged.
 build passed.** See [validation](docs/dxf-wall-outline-validation.md).
 Joining separate source walls, self-overlap unions, third-party CAD qualification,
 PDF layout and native/device export parity remain open.
+
+### PDF room schedule pagination — 2026-09-09
+
+Room schedules now wrap text to column widths and add pages before reaching the
+footer. New pages repeat headings; totals and summary stay together. This fixes
+large schedules running off-page and names silently truncated at 30 characters.
+
+**Two Chromium/WebKit export checks, eight export unit tests, Svelte checks and
+production build passed.** The full unit run had one unrelated timeout, which
+passed separately. All four schedule pages in the 32-room PDF were rendered and
+visually reviewed; text/geometry inspection verified complete names and footer
+clearance. See [validation](docs/pdf-schedule-validation.md). Long title-block
+metadata, Unicode fonts, extreme-plan readability, optional 3D layout and physical
+printing remain open.

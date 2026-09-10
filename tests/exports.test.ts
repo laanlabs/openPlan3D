@@ -2,13 +2,14 @@ import { beforeEach, expect, it, vi } from 'vitest';
 import { exportAsSVG, exportAsPNG, exportPDF } from '$lib/utils/export';
 import { exportDXF } from '$lib/utils/cadExport';
 import { resolveRooms } from '$lib/utils/roomDetection';
+import { benchmarkProject } from './fixtures/render-benchmark';
 import { rectangleWalls, roomProject } from './fixtures/project';
 
 const { pdfText, pdfSave } = vi.hoisted(() => ({ pdfText: vi.fn(), pdfSave: vi.fn() }));
 vi.mock('jspdf', () => ({ default: class {
   constructor() {
     return new Proxy({
-      text: pdfText, save: pdfSave,
+      text: pdfText, save: pdfSave, splitTextToSize: (value: string) => [value],
       internal: { pageSize: { getWidth: () => 297, getHeight: () => 210 } },
     }, { get: (target, key) => target[key as keyof typeof target] ?? (() => {}) });
   }
@@ -131,4 +132,18 @@ it('draws curved wall paths in SVG and raster exports rather than endpoint chord
   exportDXF(project);
   const dxf = await downloaded.at(-1)!.text();
   expect((dxf.match(/\nLWPOLYLINE\n/g) ?? []).length).toBe(4); // one joined curve outline + 3 straight walls
+});
+
+it('keeps large room schedules above the title block and repeats headings', () => {
+  const project = benchmarkProject('large'), floor = project.floors[0], extra = project.floors[1];
+  extra.walls.forEach(w => { w.start.x += 2200; w.end.x += 2200; });
+  floor.walls.push(...extra.walls); floor.rooms.push(...extra.rooms);
+  floor.rooms.forEach((room, i) => { room.name = `Suite ${i + 1}`; });
+  exportPDF(project);
+  const rows = pdfText.mock.calls.filter(call => /^Suite /.test(call[0]));
+  expect(rows).toHaveLength(32);
+  expect(rows.every(call => call[2] >= 38 && call[2] < 174)).toBe(true);
+  expect(pdfText.mock.calls.filter(call => call[0] === 'Room Schedule')).toHaveLength(3);
+  const total = pdfText.mock.calls.find(call => call[0] === 'TOTAL')!;
+  expect(total[2]).toBeLessThan(174);
 });

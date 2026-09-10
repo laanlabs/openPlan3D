@@ -715,88 +715,80 @@ export function exportPDF(project: Project) {
 
   drawTitleBlock();
 
-  // ── Page 2: Room Schedule ──
+  // Room schedule: repeat headings and reserve the title block on every page.
   if (rooms.length > 0) {
-    pdf.addPage('a4', 'landscape');
-    drawPageBorder();
-
-    pdf.setFontSize(14);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('Room Schedule', margin + 6, margin + 12);
-    pdf.setDrawColor(60);
-
-    // Table setup
     const tX = margin + 6;
-    let tY = margin + 20;
-    const colWidths = [12, 70, 45, 55, 65]; // #, Name, Type, Area, Floor Texture
+    const colWidths = [12, 70, 45, 55, 65];
     const headers = ['#', 'Room Name', 'Type', 'Area', 'Floor Texture'];
-    const rowH = 8;
     const tableW = colWidths.reduce((a, b) => a + b, 0);
-
-    // Header row
-    pdf.setFillColor(50, 50, 60);
-    pdf.rect(tX, tY, tableW, rowH, 'F');
-    pdf.setTextColor(255, 255, 255);
-    pdf.setFontSize(9);
-    pdf.setFont('helvetica', 'bold');
-    let cx = tX;
-    for (let i = 0; i < headers.length; i++) {
-      pdf.text(headers[i], cx + 3, tY + 5.5);
-      cx += colWidths[i];
-    }
-    tY += rowH;
-
-    // Data rows
-    pdf.setTextColor(40, 40, 40);
-    pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(9);
+    const bottom = ph - margin - titleBlockH - 4;
+    let tY = 0;
+    const beginSchedulePage = () => {
+      pdf.addPage('a4', 'landscape');
+      drawPageBorder();
+      drawTitleBlock();
+      pdf.setTextColor(40);
+      pdf.setFontSize(14);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Room Schedule', tX, margin + 12);
+      tY = margin + 20;
+      pdf.setFillColor(50, 50, 60);
+      pdf.rect(tX, tY, tableW, 8, 'F');
+      pdf.setTextColor(255);
+      pdf.setFontSize(9);
+      let x = tX;
+      headers.forEach((header, i) => { pdf.text(header, x + 3, tY + 5.5); x += colWidths[i]; });
+      tY += 8;
+      pdf.setTextColor(40);
+      pdf.setFont('helvetica', 'normal');
+    };
+    beginSchedulePage();
     let totalArea = 0;
     for (let ri = 0; ri < rooms.length; ri++) {
       const room = rooms[ri];
       totalArea += room.area;
-
-      // Alternating row background
-      if (ri % 2 === 0) {
-        pdf.setFillColor(245, 245, 250);
-        pdf.rect(tX, tY, tableW, rowH, 'F');
+      const values = [String(ri + 1), room.name, room.roomType || 'indoor',
+        formatArea(room.area, settings.units), room.floorTexture || '-'];
+      const cells: string[][] = values.map((value, i) => pdf.splitTextToSize(value, colWidths[i] - 6));
+      const lineCount = Math.max(1, ...cells.map(cell => cell.length));
+      let offset = 0;
+      while (offset < lineCount) {
+        // Four millimetres per line plus four millimetres of row padding.
+        let capacity = Math.floor((bottom - tY - 4) / 4);
+        const remaining = lineCount - offset;
+        const fullPageCapacity = Math.floor((bottom - (margin + 28) - 4) / 4);
+        if (capacity < 1 || (remaining > capacity && remaining <= fullPageCapacity)) {
+          beginSchedulePage();
+          capacity = fullPageCapacity;
+        }
+        const count = Math.min(remaining, capacity), height = count * 4 + 4;
+        if (ri % 2 === 0) {
+          pdf.setFillColor(245, 245, 250);
+          pdf.rect(tX, tY, tableW, height, 'F');
+        }
+        pdf.setDrawColor(200);
+        pdf.setLineWidth(0.15);
+        pdf.rect(tX, tY, tableW, height);
+        let x = tX;
+        cells.forEach((cell, i) => {
+          cell.slice(offset, offset + count).forEach((line, li) => pdf.text(line, x + 3, tY + 5 + li * 4));
+          x += colWidths[i];
+        });
+        tY += height;
+        offset += count;
       }
-      // Row border
-      pdf.setDrawColor(200);
-      pdf.setLineWidth(0.15);
-      pdf.rect(tX, tY, tableW, rowH);
-
-      cx = tX;
-      const rowData = [
-        String(ri + 1),
-        room.name,
-        room.roomType || 'indoor',
-        formatArea(room.area, settings.units),
-        room.floorTexture || '—'
-      ];
-      for (let i = 0; i < rowData.length; i++) {
-        pdf.text(rowData[i].substring(0, 30), cx + 3, tY + 5.5);
-        cx += colWidths[i];
-      }
-      tY += rowH;
     }
-
-    // Total row
+    // Keep the total and summary together, clear of the footer.
+    if (tY + 22 > bottom) beginSchedulePage();
     pdf.setFillColor(50, 50, 60);
-    pdf.rect(tX, tY, tableW, rowH, 'F');
-    pdf.setTextColor(255, 255, 255);
+    pdf.rect(tX, tY, tableW, 8, 'F');
+    pdf.setTextColor(255);
     pdf.setFont('helvetica', 'bold');
     pdf.text('TOTAL', tX + colWidths[0] + 3, tY + 5.5);
     pdf.text(formatArea(totalArea, settings.units), tX + colWidths[0] + colWidths[1] + colWidths[2] + 3, tY + 5.5);
-    pdf.setTextColor(0);
-
-    // Summary stats below table
-    tY += rowH + 10;
     pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(9);
     pdf.setTextColor(80);
-    pdf.text(`${rooms.length} rooms  ·  ${floor.walls.length} walls  ·  ${floor.doors.length} doors  ·  ${floor.windows.length} windows  ·  ${floor.furniture.length} furniture items`, tX, tY);
-
-    drawTitleBlock();
+    pdf.text(`${rooms.length} rooms  ·  ${floor.walls.length} walls  ·  ${floor.doors.length} doors  ·  ${floor.windows.length} windows  ·  ${floor.furniture.length} furniture items`, tX, tY + 18);
   }
 
   // ── Page 3: 3D View (if a 3D canvas exists) ──
