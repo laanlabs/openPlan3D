@@ -1300,3 +1300,18 @@ locks and one-step Undo; phone screenshot review passed. See
 [validation](docs/entourage-group-validation.md). Other entourage group operations,
 annotation selection, opening bounds, physical gestures and export/native parity
 remain open.
+
+### Complete selection duplication and group cleanup — 2026-09-10
+
+Canvas Duplicate now copies all selected supported objects, including stairs,
+columns and entourage, in one history action. Copied curved walls carry translated
+control points and correctly remapped openings; complete saved groups are copied.
+The contextual toolbar now supports stairs, columns and entourage. Deleting
+objects cleans saved group references, including openings removed with a wall.
+
+**The 785-test suite and three final focused unit cases passed; all four final
+Chromium/WebKit mixed/entourage Duplicate–Undo–Redo–Delete–Undo checks, Svelte
+checks and build passed.** See [validation](docs/selection-copy-validation.md).
+Clipboard copy/paste remains on older ID-based paths. Alignment/distribution,
+annotation selection, opening bounds, physical gestures and export/native parity
+remain open.

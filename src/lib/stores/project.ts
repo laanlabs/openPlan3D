@@ -1,3 +1,4 @@
+import { duplicatePlanSelection } from '$lib/utils/duplicateSelection';
 import { writable, derived, get } from 'svelte/store';
 import type { Project, Floor, Wall, Door, Window as Win, FurnitureItem, Point, Stair, Column, BackgroundImage, GuideLine, ElementGroup, EntourageItem } from '$lib/models/types';
 import { planWallResize, finitePoint, validPositiveDimension, validOpeningPosition, type WallEndpoint } from '$lib/utils/wallEditing';
@@ -541,6 +542,10 @@ export function removeElement(id: string) {
   mutate((f) => {
     // Check if the element being removed is a wall — if so, also remove associated doors/windows
     const isWall = f.walls.some((w) => w.id === id);
+    const removedIds = new Set([id]);
+    if (isWall) for (const opening of [...f.doors, ...f.windows]) {
+      if (opening.wallId === id) removedIds.add(opening.id);
+    }
     f.walls = f.walls.filter((w) => w.id !== id);
     if (isWall) {
       // Cascade delete: remove doors and windows attached to this wall
@@ -554,6 +559,7 @@ export function removeElement(id: string) {
     if (f.columns) f.columns = f.columns.filter((c) => c.id !== id);
     if (f.textAnnotations) f.textAnnotations = f.textAnnotations.filter((t) => t.id !== id);
     if (f.entourage) f.entourage = f.entourage.filter((e) => e.id !== id);
+    if (f.groups) f.groups = f.groups.map(group => ({ ...group, elementIds: group.elementIds.filter(itemId => !removedIds.has(itemId)) })).filter(group => group.elementIds.length >= 2);
   }, 'Deleted element');
 }
 
@@ -877,6 +883,16 @@ export function duplicateWindow(id: string): string | null {
     f.windows.push({ ...w, id: newId, position: newPos });
   });
   return newId;
+}
+
+/** Duplicate the full canvas selection in one history action. */
+export function duplicateSelection(ids: ReadonlySet<string>): string[] {
+  const floor = get(activeFloor);
+  if (!floor || !ids.size) return [];
+  const copy = structuredClone(floor);
+  const newIds = duplicatePlanSelection(copy, ids, uid);
+  if (newIds.length) mutate(f => Object.assign(f, copy), 'Duplicated selection');
+  return newIds;
 }
 
 /** Duplicate furniture */
