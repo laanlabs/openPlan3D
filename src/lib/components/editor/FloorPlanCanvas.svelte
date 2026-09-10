@@ -265,7 +265,7 @@
    * Compute bounding box of all multi-selected elements.
    */
   function getMultiSelectBBox(): { minX: number; minY: number; maxX: number; maxY: number } | null {
-    return currentFloor ? multiSelectionBounds(currentFloor, currentSelectedIds) : null;
+    return currentFloor ? multiSelectionBounds(currentFloor, currentSelectedIds, customEntourageDefs) : null;
   }
 
   /**
@@ -2298,11 +2298,14 @@
             const w = currentFloor.walls.find(w => w.id === id);
             if (w) { origPositions.set(id, { start: { ...w.start }, end: { ...w.end } }); continue; }
             const fi = currentFloor.furniture.find(f => f.id === id);
-            if (fi) { origPositions.set(id, { position: { ...fi.position } }); continue; }
+            if (fi) { if (!fi.locked) origPositions.set(id, { position: { ...fi.position } }); continue; }
             if (currentFloor.stairs) { const st = currentFloor.stairs.find(s => s.id === id); if (st) { origPositions.set(id, { position: { ...st.position } }); continue; } }
             if (currentFloor.columns) { const col = currentFloor.columns.find(c => c.id === id); if (col) { origPositions.set(id, { position: { ...col.position } }); continue; } }
           }
-          draggingMultiSelect = { startMousePos: { ...wp }, origPositions };
+          for (const item of currentFloor.entourage ?? []) {
+            if (currentSelectedIds.has(item.id) && !item.locked) origPositions.set(item.id, { position: { ...item.position } });
+          }
+          if (origPositions.size) draggingMultiSelect = { startMousePos: { ...wp }, origPositions };
           return;
         }
       }
@@ -2703,12 +2706,13 @@
           moveWallEndpoint(id, 'start', { x: orig.start.x + dx, y: orig.start.y + dy });
           moveWallEndpoint(id, 'end', { x: orig.end.x + dx, y: orig.end.y + dy });
         } else if (orig.position) {
-          // Furniture, stair, or column
+          // Furniture, stair, column, or entourage
           const newPos = { x: orig.position.x + dx, y: orig.position.y + dy };
           const fi = currentFloor.furniture.find(f => f.id === id);
           if (fi) { moveFurniture(id, newPos); continue; }
           if (currentFloor.stairs) { const st = currentFloor.stairs.find(s => s.id === id); if (st) { moveStair(id, newPos); continue; } }
           if (currentFloor.columns) { const col = currentFloor.columns.find(c => c.id === id); if (col) { moveColumn(id, newPos); continue; } }
+          if (currentFloor.entourage?.some(item => item.id === id)) moveEntourage(id, newPos);
         }
       }
     }
@@ -2942,6 +2946,10 @@
           for (const col of currentFloor.columns) {
             if (ptInRect(col.position)) ids.add(col.id);
           }
+        }
+
+        for (const item of currentFloor.entourage ?? []) {
+          if (ptInRect(item.position)) ids.add(item.id);
         }
 
         if (ids.size > 0) {

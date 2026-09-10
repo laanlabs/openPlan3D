@@ -1286,3 +1286,17 @@ production build passed.** The final door rerun compares against the imported
 plan and waits for canvas layout to settle. See
 [validation](docs/accessory-drag-undo-validation.md). Physical gestures, opening
 symbol bounds, entourage group operations and export/native parity remain open.
+
+### Entourage group selection and locked movement — 2026-09-10
+
+Group bounds now include rotated built-in and custom entourage, marquee selection
+includes entourage, and group dragging moves unlocked entourage with the other
+objects. Locked furniture and entourage stay stationary. Selection and Fit share
+the entourage bounds calculation.
+
+**783 unit tests, four final Chromium/WebKit desktop/phone cases, Svelte checks
+and build passed.** The browser checks cover marquee selection, equal movement,
+locks and one-step Undo; phone screenshot review passed. See
+[validation](docs/entourage-group-validation.md). Other entourage group operations,
+annotation selection, opening bounds, physical gestures and export/native parity
+remain open.

@@ -15,3 +15,14 @@ it('includes curved wall extrema rather than only endpoints', () => {
   const floor = { walls:[{id:'curve',start:{x:0,y:0},end:{x:200,y:0},curvePoint:{x:100,y:400},thickness:20}],furniture:[],doors:[],windows:[] } as unknown as Floor;
   expect(multiSelectionBounds(floor,new Set(['curve','missing']))).toEqual({minX:-30,minY:-30,maxX:230,maxY:230});
 });
+
+it('includes rotated custom entourage and locked symbols in the selection bounds', () => {
+  const floor = { walls:[], furniture:[], doors:[], windows:[], entourage:[
+    {id:'custom',defId:'banner',position:{x:100,y:200},width:100,rotation:90},
+    {id:'locked',defId:'person',position:{x:-300,y:0},width:100,rotation:0,locked:true},
+    {id:'ignored',defId:'person',position:{x:1e6,y:1e6},width:100,rotation:0}
+  ] } as unknown as Floor;
+  const b = multiSelectionBounds(floor,new Set(['custom','locked']),[{id:'banner',name:'Banner',dataUrl:'',aspect:4}])!;
+  expect(b.minX).toBeCloseTo(-370); expect(b.maxX).toBeCloseTo(320);
+  expect(b.minY).toBeCloseTo(-50); expect(b.maxY).toBeCloseTo(270);
+});

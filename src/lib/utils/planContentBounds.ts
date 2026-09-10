@@ -1,3 +1,4 @@
+import { entouragePlanBounds } from './entouragePlanBounds';
 import { stairPlanBounds } from './stairPlanGeometry';
 import { formatArea, formatLength } from '$lib/stores/settings';
 import { wallLength, wallPointAt, wallTangentAt, wallEdgeInsets } from './canvasRenderer';
@@ -51,7 +52,7 @@ export function planContentBounds(floor: Floor, options: {
   for (const item of floor.furniture) add(furniturePlanBounds(item));
   for (const stair of floor.stairs ?? []) add(stairPlanBounds(stair));
   for (const col of floor.columns ?? []) rectangle(col.position.x, col.position.y, col.diameter, col.diameter, col.shape === 'square' ? col.rotation : 0);
-  for (const item of floor.entourage ?? []) rectangle(item.position.x, item.position.y, item.width, item.width * options.entourageAspect(item.defId), item.rotation);
+  for (const item of floor.entourage ?? []) add(entouragePlanBounds(item, options.entourageAspect(item.defId)));
   options.context.save();
   try {
     const ctx = options.context, scale = options.zoom ?? 1;
