@@ -9,7 +9,7 @@ async function exportFloor(page: Page) {
 }
 
 for (const width of [1440, 390]) {
-  test(`fit selects a distant note on a wall-free floor at ${width}px`, async ({ page }) => {
+  test(`initial framing selects a distant note on a wall-free floor at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.addInitScript(() => {
       const fill = CanvasRenderingContext2D.prototype.fillText;
@@ -32,13 +32,23 @@ for (const width of [1440, 390]) {
     await page.getByRole('button', { name: 'Import JSON', exact: true }).click();
     await (await chooser).setFiles({ name: 'drafts.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(plan)) });
     await expect.poll(() => page.evaluate(() => !!(window as any).__notePoint)).toBe(true);
-    await page.getByTitle('Zoom to Fit (F)', { exact: true }).first().press('Enter');
+    await expect.poll(() => page.evaluate(() => {
+      const p = (window as any).__notePoint;
+      return p && p.x > 20 && p.x < window.innerWidth - 20 && p.y > 80 && p.y < 850;
+    })).toBe(true);
     await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
     const point = await page.evaluate(() => (window as any).__notePoint);
     expect(point.x).toBeGreaterThan(20); expect(point.x).toBeLessThan(width - 20);
     expect(point.y).toBeGreaterThan(80); expect(point.y).toBeLessThan(850);
     await page.mouse.click(point.x, point.y);
     await expect(page.getByRole('spinbutton', { name: 'X', exact: true })).toHaveValue('4000.125');
+    expect((await exportFloor(page)).textAnnotations).toEqual(floor.textAnnotations);
+    await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => resolve())));
+    const beforeEdit = await page.evaluate(() => (window as any).__notePoint.x);
+    const xInput = page.getByRole('spinbutton', { name: 'X', exact: true });
+    await xInput.fill('4100.125'); await xInput.press('Tab');
+    await expect.poll(() => page.evaluate(() => (window as any).__notePoint.x)).toBeGreaterThan(beforeEdit + 20);
+    await page.getByRole('button', { name: 'Undo', exact: true }).click();
     expect((await exportFloor(page)).textAnnotations).toEqual(floor.textAnnotations);
   });
 }

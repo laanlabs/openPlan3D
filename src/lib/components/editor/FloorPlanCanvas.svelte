@@ -1717,6 +1717,17 @@
     resizeObs.observe(canvas.parentElement!);
 
     let initialFitDone = false;
+    let initialFitPending = false;
+    function queueInitialFit() {
+      if (initialFitDone || initialFitPending) return;
+      initialFitPending = true;
+      requestAnimationFrame(() => {
+        initialFitPending = false;
+        if (!mounted || initialFitDone || !getFitBounds()) return;
+        initialFitDone = true;
+        zoomToFit();
+      });
+    }
     const unsub1 = activeFloor.subscribe((f) => {
       if (f?.id !== currentFloor?.id) {
         measureStart = null;
@@ -1730,11 +1741,7 @@
       currentFloor = f;
       updateDetectedRooms();
       markDirty();
-      if (!initialFitDone && f && f.walls.length > 0) {
-        initialFitDone = true;
-        // Delay slightly to ensure canvas is sized
-        requestAnimationFrame(() => { if (mounted) zoomToFit(); });
-      }
+      queueInitialFit();
     });
     const unsub2 = selectedElementId.subscribe((id) => { currentSelectedId = id; markDirty(); });
     const unsub3 = selectedRoomId.subscribe((id) => { currentSelectedRoomId = id; markDirty(); });
@@ -1766,10 +1773,7 @@
     const unsubEnt2 = currentProject.subscribe((pr) => {
       customEntourageDefs = pr?.customEntourage;
       floorBelow = getFloorBelow(pr);
-      if (!initialFitDone && floorBelow?.walls.length && layerVis.floorBelow) {
-        initialFitDone = true;
-        requestAnimationFrame(() => { if (mounted) zoomToFit(); });
-      }
+      queueInitialFit();
       markDirty();
     });
     const unsub_layers = layerVisibility.subscribe((v) => { layerVis = v; markDirty(); });
@@ -1789,7 +1793,10 @@
       if (source) {
         const img = new Image();
         img.onload = () => {
-          if (mounted && backgroundSource === source) bgImage = img;
+          if (mounted && backgroundSource === source) {
+            bgImage = img;
+            queueInitialFit();
+          }
         };
         img.src = source;
       }
@@ -1873,7 +1880,7 @@
     camY = bbox.minY + (my - oy) / scale;
   }
 
-  function zoomToFit() {
+  function getFitBounds() {
     function boundsFor(floor: Floor) {
       return planContentBounds(floor, {
         context: ctx,
@@ -1881,8 +1888,12 @@
         backgroundSize: floor === currentFloor && bgImage ? bgImage : undefined,
       });
     }
-    const bounds = (currentFloor && boundsFor(currentFloor))
+    return (currentFloor && boundsFor(currentFloor))
       || (layerVis.floorBelow && floorBelow && boundsFor(floorBelow));
+  }
+
+  function zoomToFit() {
+    const bounds = getFitBounds();
     if (!bounds) { camX = 0; camY = 0; zoom = 1; markDirty(); return; }
     const { minX, minY, maxX, maxY } = bounds;
     const padding = 80;

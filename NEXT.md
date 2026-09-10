@@ -1077,3 +1077,14 @@ current-floor content takes precedence over the floor-below fallback.
 regressions passed, along with Svelte checks and build.** See
 [validation](docs/content-fit-validation.md). Caption/room-label bounds, minimap
 parity, initial automatic fitting and extreme zoom limits remain open.
+
+### Initial framing without walls — 2026-09-09
+
+Initial framing now uses shared content bounds instead of requiring walls. It
+waits for tracing-image dimensions on image-only floors and coalesces pending
+attempts. After the initial fit, subsequent edits retain the camera.
+
+**12 Chromium/WebKit desktop/phone-width checks, Svelte checks and build passed.**
+See [validation](docs/initial-content-fit-validation.md). Per-floor/selection
+reframing, caption/room-label bounds, minimap parity and extreme zoom limits
+remain open.
