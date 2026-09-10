@@ -792,6 +792,12 @@
         <p class="text-sm text-gray-700">{formatArea(selectedRoom.area, settings.units)}</p>
       </div>
       <!-- Room Color -->
+      <label class="flex items-center gap-2 text-sm text-gray-700">
+        <input type="checkbox" checked={selectedRoom.floorOpening ?? false}
+          onchange={(e) => { if (selectedRoom) updateRoom(selectedRoom.id, { floorOpening: e.currentTarget.checked }); }} />
+        Open to floor below
+      </label>
+      <p class="text-xs text-gray-500">Removes the floor slab inside these walls and excludes it from floor area.</p>
       <div>
         <span class="text-xs text-gray-500 mb-1.5 block">Room Color{selectedRoom.floorTexture === 'none' ? ' (used as floor color)' : ''}</span>
         <div class="grid grid-cols-5 gap-1.5 mb-2">

@@ -127,6 +127,7 @@ export function readProject(value: unknown): Project {
       choice(item.shape, ['round', 'square'], `${path}.shape`); defaults(item, { color: '#cccccc' }); text(item.color, `${path}.color`);
     });
     elements('rooms', (item, path) => {
+      booleans(item, ['floorOpening'], path);
       // Saved room/group memberships may outlive deleted walls/objects. Preserve metadata.
       ids(item.walls, `${path}.walls`); defaults(item, { name: '', floorTexture: 'light-oak', area: 0 });
       strings(item, ['name', 'floorTexture', 'color', 'roomType'], path); number(item.area, `${path}.area`, 0);

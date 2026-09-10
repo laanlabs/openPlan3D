@@ -1919,3 +1919,15 @@ areas, retaining boundary-matched names and finishes. The nested fixture verifie
 five initial browser workflows, and one isolated Chromium timeout rerun passed.
 See [validation](docs/room-properties-area-validation.md). Explicit openings,
 native nesting, full text collisions, and physical qualification remain open.
+
+### Enclosed floor opening authoring — 2026-09-10
+
+Room Properties now provides Open to floor below. The saved room flag removes
+its active/stacked slab and finish, leaves the surrounding nested hole intact,
+and excludes its area. Editor and image/vector fills leave the opening empty.
+Undo/redo, JSON reimport, and web metadata preservation through native package
+returns are covered. All 926 unit tests, checks/build, and four final Chromium/
+WebKit workflows passed. See [validation](docs/floor-opening-validation.md),
+including the onboarding-test race correction. Arbitrary/stair-derived holes,
+inter-floor ceiling coordination, native opening authoring/rendering, and
+physical qualification remain open.

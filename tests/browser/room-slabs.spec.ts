@@ -3,6 +3,12 @@ import { resolve } from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { BufferGeometry, DoubleSide, Float32BufferAttribute, Group, Mesh, MeshBasicMaterial, Raycaster, Vector3 } from 'three';
 
+test.beforeEach(async ({page}) => {
+  // Geometry tests do not exercise transient onboarding hints. Seed their
+  // supported seen state instead of racing the hint's automatic dismissal.
+  await page.addInitScript(()=>localStorage.setItem('o3d_tips_seen',JSON.stringify(['first-3d','first-export'])));
+});
+
 function checkSlabs(scene: any, elevation: number, thickness = .05) {
   const slabs = scene.meshes.filter((mesh: any) => {
     const ys = mesh.vertices.map((p: number[]) => p[1]);
@@ -26,7 +32,7 @@ function checkSlabs(scene: any, elevation: number, thickness = .05) {
 }
 
 test('nested rooms export one slab at each point on active and stacked floors', async ({ page }) => {
-  test.setTimeout(90_000);
+  test.setTimeout(180_000);
   await page.addInitScript(() => {
     const fill=CanvasRenderingContext2D.prototype.fillText;
     CanvasRenderingContext2D.prototype.fillText=function(text,x,y,maxWidth) {
@@ -115,10 +121,30 @@ test('nested rooms export one slab at each point on active and stacked floors', 
     },url);
     for (const count of counts) expect(count,`${format} unblended room color`).toBeGreaterThan(100);
   }
+  const inner=(await anchors())['Nested room 2'];
+  await page.mouse.dblclick(inner.x,inner.y);
+  await page.getByRole('textbox',{name:'Room name',exact:true}).press('Escape');
+  const opening=page.getByRole('checkbox',{name:'Open to floor below',exact:true});
+  await opening.check();await expect(page.getByText('0.0 m²',{exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Undo',exact:true}).click();await expect(opening).not.toBeChecked();
+  await page.getByRole('button',{name:'Redo',exact:true}).click();await expect(opening).toBeChecked();
+  await page.getByRole('button',{name:'Export',exact:true}).click();
+  const openingSVG=page.waitForEvent('download');
+  await page.getByRole('button',{name:'Export as SVG',exact:true}).click();
+  const svg=await readFile((await (await openingSVG).path())!,'utf8');
+  expect(svg).not.toContain('fill="#bbf7d0"');
+  expect(svg).toContain('fill-rule="evenodd"');
+  await page.getByRole('button',{name:'Export',exact:true}).click();
+  const saved=page.waitForEvent('download');
+  await page.getByRole('button',{name:'Download JSON',exact:true}).click();
+  const savedBytes=await readFile((await (await saved).path())!);
+  expect(JSON.parse(savedBytes.toString()).floors[0].rooms.find((r:any)=>r.name==='Nested room 2').floorOpening).toBe(true);
+  await page.getByRole('button',{name:'Export',exact:true}).click();
+  const reload=page.waitForEvent('filechooser');
+  await page.getByRole('button',{name:'Import JSON',exact:true}).click();
+  await (await reload).setFiles({name:'opening.json',mimeType:'application/json',buffer:savedBytes});
   await page.getByRole('button', {name:'3D',exact:true}).click();
   await page.waitForLoadState('networkidle');
-  const hint=page.getByRole('button',{name:'Got it',exact:true});
-  if (await hint.isVisible()) await hint.click();
   for (const stacked of [false,true]) {
     if (stacked) await page.getByRole('button',{name:'Show All Floors Stacked',exact:true}).click();
     const pending=page.waitForEvent('download');
@@ -128,7 +154,7 @@ test('nested rooms export one slab at each point on active and stacked floors', 
       const slabs=scene.meshes.filter((m:any)=>m.material==='floor' &&
         Math.abs(Math.max(...m.vertices.map((p:number[])=>p[1]))-elevation)<1e-5 &&
         Math.abs(Math.min(...m.vertices.map((p:number[])=>p[1]))-elevation+.05)<1e-5);
-      expect(slabs).toHaveLength(3);
+      expect(slabs).toHaveLength(elevation===0 ? 2 : 3);
       const material=new MeshBasicMaterial({side:DoubleSide});
       const meshes=slabs.map((m:any)=> {
         const g=new BufferGeometry(); g.setAttribute('position',new Float32BufferAttribute(m.vertices.flat(),3));
@@ -136,7 +162,7 @@ test('nested rooms export one slab at each point on active and stacked floors', 
       });
       for (const p of [.5,1.5,2.5]) {
         const ray=new Raycaster(new Vector3(p,elevation+.1,p),new Vector3(0,-1,0),0,.2);
-        expect(meshes.filter((m:Mesh)=>ray.intersectObject(m).length>0)).toHaveLength(1);
+        expect(meshes.filter((m:Mesh)=>ray.intersectObject(m).length>0)).toHaveLength(elevation===0 && p===2.5 ? 0 : 1);
       }
       meshes.forEach((m:Mesh)=>m.geometry.dispose()); material.dispose();
     }
@@ -168,8 +194,6 @@ test('room slabs preserve recesses and separate rooms across active-floor switch
   await (await reload).setFiles({ name: 'slabs.json', mimeType: 'application/json', buffer: await readFile(savedPath) });
   await page.getByRole('button', { name: '3D', exact: true }).click();
   await page.waitForLoadState('networkidle');
-  const hint = page.getByRole('button', { name: 'Got it', exact: true });
-  if (await hint.isVisible()) await hint.click();
   async function exported() {
     const pending = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Export Blender Scene', exact: true }).click();

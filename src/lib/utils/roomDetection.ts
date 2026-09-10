@@ -326,7 +326,7 @@ function resolveSplitRooms(floor: Pick<Floor, 'walls' | 'rooms'>, previousRooms:
   const previous = indexed(previousRooms);
   return (floor.walls.length < 2 ? [] : detectSplitRooms(splitEdges)).map(room => {
     const metadata = saved.get(key(room));
-    if (metadata) return { ...room, ...metadata, walls: room.walls, area: room.area };
+    if (metadata) return { ...room, ...metadata, walls: room.walls, area: metadata.floorOpening ? 0 : room.area };
     // Only the transient ID survives. Falling back to old metadata would undo
     // an intentional metadata removal (e.g. undoing a room rename).
     return { ...room, id: previous.get(key(room))?.id ?? room.id };

@@ -65,6 +65,8 @@ export function getWallHeightAt(wall: Wall, t: number): number {
 export type RoomCategory = 'indoor' | 'outdoor' | 'garage' | 'utility';
 
 export interface Room {
+  /** Enclosed opening through this floor's slab; excluded from usable floor area. */
+  floorOpening?: boolean;
   details?: ItemDetails;
   id: string;
   name: string;

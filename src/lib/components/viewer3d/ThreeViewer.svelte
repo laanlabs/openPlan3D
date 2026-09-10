@@ -1501,7 +1501,7 @@
       const { room, polygon: poly } = rooms[ri];
       if (poly.length < 3) continue;
 
-      const slabGeometry = createRoomSlabGeometry(poly, floor.slabThickness, holes[ri]);
+      const slabGeometry = room.floorOpening ? null : createRoomSlabGeometry(poly, floor.slabThickness, holes[ri]);
       if (slabGeometry) {
         const slab = new THREE.Mesh(slabGeometry, new THREE.MeshStandardMaterial({ color: 0xcccccc, roughness: 0.9 }));
         slab.userData.renderMaterial = 'floor';
@@ -1593,7 +1593,8 @@
       mesh.rotation.x = -Math.PI / 2;
       mesh.position.y = 1;
       mesh.receiveShadow = true;
-      wallGroup.add(mesh);
+      if (room.floorOpening) { geo.dispose(); material.dispose(); }
+      else wallGroup.add(mesh);
 
       // Floating room label using sprite
       const centroid = roomLabelPosition(room, poly, holes[ri]);
@@ -1745,7 +1746,8 @@
     // Match active-floor footprints instead of bridging recesses and separate rooms.
     const rooms = resolveRoomGeometry(floor);
     const holes = roomHoles(rooms.map(r => r.polygon));
-    for (const [index, { polygon }] of rooms.entries()) {
+    for (const [index, { room, polygon }] of rooms.entries()) {
+      if (room.floorOpening) continue;
       const geometry = createRoomSlabGeometry(polygon, floor.slabThickness, holes[index]);
       if (!geometry) continue;
       const slab = new THREE.Mesh(geometry, transparentMat(0xcccccc, 0.95));

@@ -1497,9 +1497,11 @@ export function drawRooms(
     const screenPoly = poly.map(p => wts(cs, p.x, p.y));
     const screenHoles = holes[ri].map(ring => ring.map(p => wts(cs, p.x, p.y)));
     ctx.fillStyle = getRoomFill(room, ri);
-    traceRoomRings(ctx, screenPoly, screenHoles); ctx.fill('evenodd');
+    traceRoomRings(ctx, screenPoly, screenHoles);
+    if (!room.floorOpening) ctx.fill('evenodd');
+    else { ctx.strokeStyle='#64748b'; ctx.lineWidth=1; ctx.setLineDash([4,4]); ctx.stroke(); ctx.setLineDash([]); }
 
-    drawRoomFloorPattern(cs, room, screenPoly, screenHoles);
+    if (!room.floorOpening) drawRoomFloorPattern(cs, room, screenPoly, screenHoles);
 
     const isSelected = currentSelectedRoomId === room.id;
     if (isSelected) {

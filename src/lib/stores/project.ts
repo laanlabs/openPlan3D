@@ -749,7 +749,7 @@ export function updateItemDetails(target: DetailTarget, patch: ItemDetails) {
   commitItemDetails(project, next, 'Changed item details', coalesceKeyFor(`details:${target.floorId}:${target.kind}`, target.id, { ...patch }));
 }
 
-export function updateRoom(id: string, updates: Partial<{ name: string; floorTexture: string; color: string; roomType: import('$lib/models/types').RoomCategory; labelOffset: import('$lib/models/types').Point | undefined }>) {
+export function updateRoom(id: string, updates: Partial<{ name: string; floorTexture: string; floorOpening: boolean; color: string; roomType: import('$lib/models/types').RoomCategory; labelOffset: import('$lib/models/types').Point | undefined }>) {
   mutate((f) => {
     let r = f.rooms.find((r) => r.id === id);
     if (r) {

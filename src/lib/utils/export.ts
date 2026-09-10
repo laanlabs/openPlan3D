@@ -236,7 +236,7 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
         ctx.fillStyle = ROOM_COLORS[ri % ROOM_COLORS.length];
         ctx.globalAlpha = 0.4;
         traceRoomRings(ctx, poly, holes[ri], p => ({x:p.x-minX+pad,y:p.y-minY+pad}));
-        ctx.fill('evenodd');
+        if (!room.floorOpening) ctx.fill('evenodd');
         ctx.globalAlpha = 1;
         // Room label
         const c = roomLabelPosition(room, poly, holes[ri]);
@@ -360,7 +360,7 @@ export function exportAsSVG(project: Project) {
     const poly = polygons[ri];
     if (poly.length < 3) continue;
     const pts = poly.map(p => `${p.x - minX + pad},${p.y - minY + pad}`).join(' ');
-    const color = ROOM_COLORS_SVG[ri % ROOM_COLORS_SVG.length];
+    const color = room.floorOpening ? 'none' : ROOM_COLORS_SVG[ri % ROOM_COLORS_SVG.length];
     if (holes[ri].length) {
       const d = [poly,...holes[ri]].map(ring => `M ${ring.map(p=>`${p.x-minX+pad},${p.y-minY+pad}`).join(' L ')} Z`).join(' ');
       paths += `  <path d="${d}" fill="${color}" fill-rule="evenodd" fill-opacity="0.4" stroke="none"/>\n`;
@@ -780,7 +780,7 @@ function renderPDF(project: Project, preparedImages: ReadonlyMap<string,HTMLImag
     ctx.fillStyle = ROOM_COLORS[ri % ROOM_COLORS.length];
     ctx.globalAlpha = 0.4;
     traceRoomRings(ctx, poly, holes[ri], p => ({x:p.x-minX+pad,y:p.y-minY+pad}));
-    ctx.fill('evenodd');
+    if (!room.floorOpening) ctx.fill('evenodd');
     ctx.globalAlpha = 1;
     const c = roomLabelPosition(room, poly, holes[ri]);
     ctx.fillStyle = '#444';
