@@ -844,6 +844,19 @@ export function updateFloorElevation(floorId: string, elevation?: number) {
   currentProject.set({ ...p });
 }
 
+/** Omission restores the legacy 5 cm slab. */
+export function updateFloorSlabThickness(floorId: string, thickness?: number) {
+  const p = get(currentProject);
+  if (!p || (thickness !== undefined && (typeof thickness !== 'number' || !Number.isFinite(thickness) || thickness <= 0))) return;
+  const floor = p.floors.find(f => f.id === floorId);
+  if (!floor || (thickness === undefined ? floor.slabThickness === undefined : (floor.slabThickness ?? 5) === thickness)) return;
+  snapshot('Changed slab thickness', `floor-slab:${floorId}`);
+  if (thickness === undefined) delete floor.slabThickness;
+  else floor.slabThickness = thickness;
+  p.updatedAt = new Date();
+  currentProject.set({ ...p });
+}
+
 export function updateProjectName(name: string) {
   const p = get(currentProject);
   if (!p) return;

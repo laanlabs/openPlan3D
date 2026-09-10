@@ -1773,3 +1773,15 @@ workflows, Svelte checks and build passed; downloaded opacity preview and
 furniture/stair regressions passed. See
 [validation](docs/entourage-cad-opacity-validation.md). Custom raster DXF entourage,
 physical CAD/plot qualification and broader native parity remain open.
+
+
+### Editable room slab thickness — 2026-09-10
+
+Floor settings now support a positive slab thickness per floor, with a 5 cm legacy
+default, reset, input validation and undo/redo. Active and stacked 3D use the saved
+depth below the existing surface. JSON save/reimport and actual exported mesh
+bounds passed in Chromium and WebKit; visual review passed. All 913 unit tests,
+Svelte checks and production build passed. See
+[validation](docs/slab-thickness-validation.md), including the initial Chromium
+screenshot timeout and passing rerun. Stair/courtyard openings, wall-face offsets,
+native slab authoring/rendering and physical qualification remain open.

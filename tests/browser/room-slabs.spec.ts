@@ -3,10 +3,10 @@ import { resolve } from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { BufferGeometry, DoubleSide, Float32BufferAttribute, Group, Mesh, MeshBasicMaterial, Raycaster, Vector3 } from 'three';
 
-function checkSlabs(scene: any, elevation: number) {
+function checkSlabs(scene: any, elevation: number, thickness = .05) {
   const slabs = scene.meshes.filter((mesh: any) => {
     const ys = mesh.vertices.map((p: number[]) => p[1]);
-    return mesh.material === 'floor' && Math.abs(Math.min(...ys) - (elevation - .05)) < 1e-5 && Math.abs(Math.max(...ys) - elevation) < 1e-5;
+    return mesh.material === 'floor' && Math.abs(Math.min(...ys) - (elevation - thickness)) < 1e-5 && Math.abs(Math.max(...ys) - elevation) < 1e-5;
   });
   expect(slabs).toHaveLength(2); // two enclosed rooms, no bounding rectangle
   const root = new Group(), material = new MeshBasicMaterial({ side: DoubleSide });
@@ -32,6 +32,22 @@ test('room slabs preserve recesses and separate rooms across active-floor switch
   const chooser = page.waitForEvent('filechooser');
   await page.getByRole('button', { name: 'Import JSON', exact: true }).click();
   await (await chooser).setFiles(resolve('tests/fixtures/room-slabs.openplan.json'));
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  const thickness = page.getByRole('spinbutton', { name: 'Slab Floor 1 slab thickness (cm)', exact: true });
+  await expect(thickness).toHaveValue('5');
+  await thickness.fill('32.5'); await thickness.press('Tab');
+  await thickness.fill('0'); await thickness.press('Tab');
+  await expect(thickness).toHaveValue('32.5');
+  await page.getByRole('button', { name: 'Close settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Export', exact: true }).click();
+  const saved = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Download JSON', exact: true }).click();
+  const savedPath = (await (await saved).path())!;
+  expect(JSON.parse(await readFile(savedPath, 'utf8')).floors[1].slabThickness).toBe(32.5);
+  await page.getByRole('button', { name: 'Export', exact: true }).click();
+  const reload = page.waitForEvent('filechooser');
+  await page.getByRole('button', { name: 'Import JSON', exact: true }).click();
+  await (await reload).setFiles({ name: 'slabs.json', mimeType: 'application/json', buffer: await readFile(savedPath) });
   await page.getByRole('button', { name: '3D', exact: true }).click();
   await page.waitForLoadState('networkidle');
   const hint = page.getByRole('button', { name: 'Got it', exact: true });
@@ -43,9 +59,10 @@ test('room slabs preserve recesses and separate rooms across active-floor switch
   }
   checkSlabs(await exported(), 0);
   await page.getByRole('button', { name: 'Show All Floors Stacked', exact: true }).click();
-  const stacked = await exported(); checkSlabs(stacked, 0); checkSlabs(stacked, 4);
+  const stacked = await exported(); checkSlabs(stacked, 0); checkSlabs(stacked, 4, .325);
   await testInfo.attach('room-slabs-stacked.json', { body: JSON.stringify(stacked), contentType: 'application/json' });
   await page.getByRole('combobox', { name: 'Current floor', exact: true }).selectOption('slab-floor-1');
-  const switched = await exported(); checkSlabs(switched, 0); checkSlabs(switched, 4);
+  const switched = await exported(); checkSlabs(switched, 0); checkSlabs(switched, 4, .325);
+  await testInfo.attach('custom-slab-thickness', { body: await page.screenshot(), contentType: 'image/png' });
   expect(errors).toEqual([]);
 });

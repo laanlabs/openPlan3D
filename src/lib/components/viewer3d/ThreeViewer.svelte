@@ -1499,7 +1499,7 @@
       const { room, polygon: poly } = rooms[ri];
       if (poly.length < 3) continue;
 
-      const slabGeometry = createRoomSlabGeometry(poly);
+      const slabGeometry = createRoomSlabGeometry(poly, floor.slabThickness);
       if (slabGeometry) {
         const slab = new THREE.Mesh(slabGeometry, new THREE.MeshStandardMaterial({ color: 0xcccccc, roughness: 0.9 }));
         slab.userData.renderMaterial = 'floor';
@@ -1734,7 +1734,7 @@
     }
     // Match active-floor footprints instead of bridging recesses and separate rooms.
     for (const { polygon } of resolveRoomGeometry(floor)) {
-      const geometry = createRoomSlabGeometry(polygon);
+      const geometry = createRoomSlabGeometry(polygon, floor.slabThickness);
       if (!geometry) continue;
       const slab = new THREE.Mesh(geometry, transparentMat(0xcccccc, 0.95));
       slab.userData.renderMaterial = 'floor';

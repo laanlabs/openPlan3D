@@ -42,3 +42,23 @@ it('rejects empty, degenerate and nonfinite outlines and invalid thickness', () 
   }
   for (const depth of [0, -5, NaN, Infinity]) expect(createRoomSlabGeometry(outline, depth)).toBeNull();
 });
+
+
+it('preserves custom slab depth on import and extrudes below an unchanged surface', async () => {
+  const { readProject } = await import('$lib/utils/projectValidation');
+  const { roomProject } = await import('./fixtures/project');
+  const project = roomProject();
+  project.floors[0].slabThickness = 32.5;
+  const restored = readProject(JSON.parse(JSON.stringify(project)));
+  const geometry = createRoomSlabGeometry(outline, restored.floors[0].slabThickness)!;
+  geometry.computeBoundingBox();
+  expect(geometry.boundingBox!.min.y).toBeCloseTo(-32.5);
+  expect(geometry.boundingBox!.max.y).toBeCloseTo(0);
+  geometry.dispose();
+  for (const value of [0, -1, Infinity, NaN, '20', null]) {
+    project.floors[0].slabThickness = value as number;
+    expect(() => readProject(project)).toThrow(/slabThickness/);
+  }
+  delete project.floors[0].slabThickness;
+  expect(readProject(project).floors[0]).not.toHaveProperty('slabThickness');
+});
