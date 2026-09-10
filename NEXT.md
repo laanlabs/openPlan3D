@@ -2176,3 +2176,11 @@ truncated titles, preserving full document/export content. Fifteen targeted
 tests passed, including actual long CJK/emoji PNG and SVG exports. See
 `openplan3d-ios/docs/native-export-filenames-validation.md`. Physical sharing/storage recovery,
 device memory, and broader NEXT requirements remain open.
+
+### Native PDF failure and atomic publication — 2026-09-10
+
+PDF page-render failure now fails the export rather than skipping a page.
+Staging plus atomic publication preserves previous same-name exports on failure;
+PNG writes are atomic too. All 16 targeted tests passed, including failed-render
+byte preservation and successful retry. See `openplan3d-ios/docs/native-export-atomic-validation.md`.
+Disk/quota faults, device sharing, full/iOS revalidation, and other NEXT work remain.
