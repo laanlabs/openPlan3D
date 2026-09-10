@@ -2340,3 +2340,10 @@ Initial editor fit now reserves vertical space for floating tools. A previously
 hidden unmeasured-room label is visible above the toolbar in fresh Catalyst QA;
 22 presentation tests passed. See `openplan3d-ios/docs/native-editor-toolbar-fit-validation.md`. Read-only preview framing,
 adaptive toolbar sizes, device checks and remaining NEXT work stay open.
+
+### Native preview safe-area framing — 2026-09-10
+
+Read-only Plan now fits between measured top/bottom safe-area content. Fresh
+Catalyst QA showed the complete fixture and unavailable-area label above the
+card; switching to 3D remained normal. Build passed; see `openplan3d-ios/docs/native-preview-safearea-validation.md`.
+Device, Dynamic Type, full-screen and remaining NEXT checks stay open.
