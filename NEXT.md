@@ -1631,3 +1631,17 @@ Tests verify all operations, curve shape, hosted openings, no-op history and exa
 Undo/Redo; phone visual review passed. See [validation](docs/wall-alignment-validation.md).
 Independent opening alignment, opening-only group movement, detailed furniture
 exports, physical qualification and broader native parity remain open.
+
+### Opening-only group movement — 2026-09-10
+
+Saved door/window groups now move on the first drag even when their host walls
+are outside the selection. Each original center is translated then projected onto
+its own host using existing wall constraints. Openings on selected hosts are not
+moved twice. Host geometry and opening metadata remain intact with one Undo/Redo
+step. Curved or differently oriented hosts constrain movement independently.
+
+**All 858 unit tests, 12 Chromium/WebKit workflows, Svelte checks and build passed.**
+Two additional phone screenshot workflows passed; fitted visual review passed.
+See [validation](docs/opening-group-movement-validation.md). Independent opening
+alignment, detailed furniture exports, physical qualification and native parity
+remain open.

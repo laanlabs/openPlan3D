@@ -26,6 +26,7 @@
   import { resizeFurnitureFromHandle, type CanvasState } from '$lib/utils/canvasInteraction';
   import { drawWall as _drawWall, drawDoorOnWall as _drawDoorOnWall, drawWindowOnWall as _drawWindowOnWall, drawDoorDistanceDimensions as _drawDoorDistanceDimensions, drawWindowDistanceDimensions as _drawWindowDistanceDimensions, drawFurnitureItem, drawStair as _drawStair, drawColumn as _drawColumn, drawGuides as _drawGuides, drawPersistedMeasurements as _drawPersistedMeasurements, drawTextAnnotations as _drawTextAnnotations, drawAnnotation as _drawAnnotation, drawAnnotations as _drawAnnotations, drawRooms as _drawRooms, drawWallJoints as _drawWallJoints, drawSnapPoints as _drawSnapPoints, drawMinimap as _drawMinimap, drawEntourageItems as _drawEntourageItems, drawEntourageGhost as _drawEntourageGhost, drawFloorBelowGhost as _drawFloorBelowGhost, entourageAspect } from '$lib/utils/canvasRenderer';
   import { getEntourageDef } from '$lib/utils/entourageCatalog';
+  import { translatedOpeningPosition } from '$lib/utils/openingTranslation';
   import { pointInPolygon, positionOnWall, findWallAt as _findWallAt, findHandleAt as _findHandleAt, findFurnitureAt as _findFurnitureAt, findColumnAt as _findColumnAt, findStairAt as _findStairAt, findDoorAt as _findDoorAt, findWindowAt as _findWindowAt, findRoomAt as _findRoomAt, hitTestMeasurement as _hitTestMeasurement, hitTestAnnotation as _hitTestAnnotation, hitTestTextAnnotation as _hitTestTextAnnotation, findEntourageAt } from '$lib/utils/hitTesting';
 
   let canvas: HTMLCanvasElement;
@@ -248,7 +249,7 @@
   let currentSelectedIds: Set<string> = $state(new Set());
 
   // Multi-select drag state
-  let draggingMultiSelect: { startMousePos: Point; origPositions: Map<string, { start?: Point; end?: Point; curvePoint?: Point; position?: Point }> } | null = $state(null);
+  let draggingMultiSelect: { startMousePos: Point; origPositions: Map<string, { start?: Point; end?: Point; curvePoint?: Point; position?: Point; opening?: { wallId: string; position: number; kind: 'door' | 'window' } }> } | null = $state(null);
 
   // Clipboard for copy/paste (Ctrl+C / Ctrl+V)
   let clipboard: { floor: Floor; ids: string[]; step: number; projectId: string } | null = $state.raw(null);
@@ -267,10 +268,18 @@
     if (currentSelectedIds.size >= 2 && currentFloor) {
       const bbox = getMultiSelectBBox();
       if (bbox && wp.x >= bbox.minX && wp.x <= bbox.maxX && wp.y >= bbox.minY && wp.y <= bbox.maxY) {
-        const origPositions = new Map<string, { start?: Point; end?: Point; curvePoint?: Point; position?: Point }>();
+        const origPositions = new Map<string, { start?: Point; end?: Point; curvePoint?: Point; position?: Point; opening?: { wallId: string; position: number; kind: 'door' | 'window' } }>();
         for (const id of currentSelectedIds) {
           const w = currentFloor.walls.find(w => w.id === id);
           if (w) { origPositions.set(id, { start: { ...w.start }, end: { ...w.end }, curvePoint: w.curvePoint ? { ...w.curvePoint } : undefined }); continue; }
+          const door = currentFloor.doors.find(item => item.id === id);
+          const opening = door ?? currentFloor.windows.find(item => item.id === id);
+          if (opening) {
+            if (!currentSelectedIds.has(opening.wallId)) origPositions.set(id, { opening: {
+              wallId:opening.wallId, position:opening.position, kind:door ? 'door' : 'window',
+            } });
+            continue;
+          }
           const note = currentFloor.textAnnotations?.find(item => item.id === id);
           if (note) { origPositions.set(id, { position: { x: note.x, y: note.y } }); continue; }
           const dimension = [...currentFloor.measurements ?? [], ...currentFloor.annotations ?? []].find(item => item.id === id);
@@ -2830,7 +2839,14 @@
       const dx = Math.round((mousePos.x - draggingMultiSelect.startMousePos.x) / mSnapStep) * mSnapStep;
       const dy = Math.round((mousePos.y - draggingMultiSelect.startMousePos.y) / mSnapStep) * mSnapStep;
       for (const [id, orig] of draggingMultiSelect.origPositions) {
-        if (orig.start && orig.end) {
+        if (orig.opening) {
+          const wall=currentFloor.walls.find(item => item.id === orig.opening!.wallId);
+          if (wall) {
+            const position=translatedOpeningPosition(wall,orig.opening.position,{x:dx,y:dy});
+            if (orig.opening.kind === 'door') updateDoor(id,{position});
+            else updateWindow(id,{position});
+          }
+        } else if (orig.start && orig.end) {
           const endpoints = { x1: orig.start.x + dx, y1: orig.start.y + dy, x2: orig.end.x + dx, y2: orig.end.y + dy };
           if (currentFloor.measurements?.some(item => item.id === id)) { updateMeasurement(id, endpoints); continue; }
           if (currentFloor.annotations?.some(item => item.id === id)) { updateAnnotation(id, endpoints); continue; }
