@@ -2405,3 +2405,10 @@ synthetic import completed. Fresh UI checks confirmed adaptive context-toolbar
 fitting, a completed label drag and undo restoration. See `openplan3d-ios/docs/native-sandbox-qa-validation.md`.
 Use OpenPlan3D-Sandbox-QA.app for new checks. Actual cancellation, pinch/device
 interaction and remaining NEXT requirements stay open.
+
+### Native iOS adaptive editor integration — 2026-09-10
+
+The full iPhone 17 Pro / iOS 26.5 target passed after measured toolbars and
+pending-drag cancellation: 240 tests, two optional skips, zero failures. See
+`openplan3d-ios/docs/native-ios-adaptive-editor-validation.md`. This does not simulate interrupted gestures; cancellation,
+pinch/device checks and remaining NEXT requirements stay open.
