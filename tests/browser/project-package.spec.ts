@@ -159,3 +159,23 @@ test('package cancellation, invalid file and quota retry preserve the existing l
   expect(Object.keys(await storedRecords(page))).toHaveLength(Object.keys(before).length + 1);
   check();
 });
+
+test('slab thickness edits reach the native package in metres', async ({ page }) => {
+  const check = observe(page);
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Import a project package', exact: true }).click();
+  await choose(page);
+  await page.getByRole('button', { name: 'Import as copy', exact: true }).click();
+  await expect(page.getByRole('dialog').getByRole('status')).toContainText('Project imported.');
+  await page.getByRole('button', { name: 'Done', exact: true }).click();
+  await page.getByRole('link', { name: 'QA Project Package (Imported copy)', exact: true }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  const depth = page.getByRole('spinbutton', { name: 'Entry slab thickness (cm)', exact: true });
+  await expect(depth).toHaveValue('10');
+  await depth.fill('32.5'); await depth.press('Tab');
+  await page.getByRole('button', { name: 'Close settings', exact: true }).click();
+  const files = await packageDownload(page), plan = packageJSON(files['plan.json']);
+  expect(plan.levels[0].slabThickness).toBe(.325);
+  expect(plan.levels[1]).not.toHaveProperty('slabThickness');
+  check();
+});

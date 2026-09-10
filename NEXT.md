@@ -1785,3 +1785,16 @@ Svelte checks and production build passed. See
 [validation](docs/slab-thickness-validation.md), including the initial Chromium
 screenshot timeout and passing rerun. Stair/courtyard openings, wall-face offsets,
 native slab authoring/rendering and physical qualification remain open.
+
+
+### Native slab thickness package/render support — 2026-09-10
+
+Per-floor slab depth now crosses project packages in centimetres/metres, preserving
+legacy web/native defaults. Native decoding and package merging retain/validate
+the value; selected-floor render exports and single-storey previews use the saved
+depth below zero. Native Catalyst build and 16 tests passed, as did Svelte checks,
+web build and two Chromium/WebKit workflows. The 915-test web run had one stress
+test timeout during native compilation; its six-test file passed in isolation.
+See [validation](docs/native-slab-thickness-validation.md). Native controls,
+room-shaped slabs, stair/courtyard openings, stacked native preview/elevations and
+physical qualification remain open.
