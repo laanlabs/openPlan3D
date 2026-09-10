@@ -2126,3 +2126,11 @@ color paths share one fill grid per floor. Existing geometry and presentation
 conventions remain. Catalyst build and all 25 selected tests passed. See
 `openplan3d-ios/docs/native-svg-batch-validation.md`. Shared fill-component indexing,
 device performance, area parity, PDF visual checks, and other NEXT work remain.
+
+### Native room batch measurements — 2026-09-10
+
+The 16-room fixture now verifies exact batch/individual area and fill output.
+A local Catalyst run measured areas at 0.075 s batch / 0.867 s individual and
+fills at 0.175 s / 0.525 s. All ten room-region tests passed. See `openplan3d-ios/docs/native-room-batch-measurement.md`.
+These are single-run debug measurements, not device budgets. Shared fill indexing,
+active-editing/device measurements, area parity, PDF QA, and other NEXT work remain.
