@@ -1,3 +1,5 @@
+import { drawEntourageDxf } from './entourageDxf';
+import { getEntourageDef } from './entourageCatalog';
 import { canvasSymbolDxf } from './canvasSymbolDxf';
 import { drawStair } from './canvasRenderer';
 import { columnPlanCorners } from './columnPlanGeometry';
@@ -36,7 +38,7 @@ const LAYER_COLORS = {
 
 export function exportDXF(project: Project) {
   const floor = project.floors.find(f => f.id === project.activeFloorId) ?? project.floors[0];
-  if (!floor || !hasPlanExportContent(floor)) return;
+  if (!floor || !hasPlanExportContent(floor) && !(floor.entourage ?? []).some(e=>getEntourageDef(e.defId) && e.opacity!==0)) return;
 
   const d = new Drawing();
   d.setUnits('Centimeters');
@@ -226,6 +228,10 @@ export function exportDXF(project: Project) {
     d.drawText(fx, fy, 4, 0, cat?.name ?? 'Unknown furniture', 'center', 'middle');
   }
 
+  d.addLayer('ENTOURAGE', 8, 'CONTINUOUS');
+  d.setActiveLayer('ENTOURAGE');
+  for(const item of floor.entourage ?? []) drawEntourageDxf(d,item);
+
   d.addLayer('STAIRS', 8, 'CONTINUOUS');
   d.setActiveLayer('STAIRS');
   for (const stair of floor.stairs ?? []) canvasSymbolDxf(d,ctx=>drawStair({ctx,width:0,height:0,zoom:1,camX:0,camY:0},stair,false));
@@ -248,7 +254,7 @@ export function exportDWG(project: Project) {
   // DWG is a proprietary binary format. No good JS library exists.
   // Export as DXF — virtually all CAD software (AutoCAD, SketchUp, etc.) opens DXF natively.
   const floor = project.floors.find(f => f.id === project.activeFloorId) ?? project.floors[0];
-  if (!floor || !hasPlanExportContent(floor)) return;
+  if (!floor || !hasPlanExportContent(floor) && !(floor.entourage ?? []).some(e=>getEntourageDef(e.defId) && e.opacity!==0)) return;
 
   alert('DWG is a proprietary binary format. Exporting as DXF instead — all major CAD tools (AutoCAD, SketchUp, FreeCAD) can open DXF files directly.');
   exportDXF(project);

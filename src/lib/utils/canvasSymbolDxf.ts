@@ -14,7 +14,7 @@ export function canvasSymbolDxf(drawing: Drawing, draw: (context: CanvasRenderin
     const points=segment.points.map(world),key=JSON.stringify([points,segment.weights]);
     if(emitted.has(key))return;emitted.add(key);
     if(points.length===2)drawing.drawLine(...points[0],...points[1]);
-    else (drawing as SplineDrawing).drawSpline(points,2,undefined,segment.weights);
+    else (drawing as SplineDrawing).drawSpline(points,points.length-1,undefined,segment.weights);
   };
   const context={
     fillStyle:'#000',strokeStyle:'#000',lineWidth:1,font:'10px sans-serif',textAlign:'start',textBaseline:'alphabetic',
@@ -27,6 +27,7 @@ export function canvasSymbolDxf(drawing: Drawing, draw: (context: CanvasRenderin
     moveTo(x:number,y:number){paths.push({start:[x,y],end:[x,y],segments:[]});},
     lineTo(x:number,y:number){const p=paths.at(-1);if(!p){this.moveTo(x,y);return;}p.segments.push({points:[p.end,[x,y]]});p.end=[x,y];},
     quadraticCurveTo(cx:number,cy:number,x:number,y:number){const p=paths.at(-1)!;p.segments.push({points:[p.end,[cx,cy],[x,y]]});p.end=[x,y];},
+    bezierCurveTo(x1:number,y1:number,x2:number,y2:number,x:number,y:number){const p=paths.at(-1)!;p.segments.push({points:[p.end,[x1,y1],[x2,y2],[x,y]]});p.end=[x,y];},
     closePath(){const p=paths.at(-1);if(p)this.lineTo(...p.start);},
     stroke(){for(const p of paths)for(const segment of p.segments)emit(segment);},
     fill(){this.stroke();for(const p of paths)if(p.end[0]!==p.start[0]||p.end[1]!==p.start[1])emit({points:[p.end,p.start]});},

@@ -1753,3 +1753,13 @@ expanded 32-test PDF/export suite passed, along with eight Chromium/WebKit
 workflows, final Svelte checks and build. PDF plan-image visual review passed.
 See [validation](docs/entourage-pdf-export-validation.md). DXF entourage, physical
 qualification and broader native parity remain open.
+
+### Built-in entourage in DXF — 2026-09-10
+
+DXF now exports built-in entourage as native lines and exact curve splines on an
+ENTOURAGE layer, preserving position, width/aspect and rotation. Built-in
+entourage-only plans are accepted; invisible symbols are omitted. All 910 unit
+tests, six Chromium/WebKit workflows, Svelte checks and build passed. Downloaded
+CAD visual review and furniture/stair regressions passed. See
+[validation](docs/entourage-dxf-export-validation.md). Custom raster DXF entourage,
+partial CAD transparency, physical qualification and native parity remain open.

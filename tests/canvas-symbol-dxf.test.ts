@@ -17,3 +17,8 @@ it.each(['straight','l-shaped','u-shaped','spiral'] as const)('exports %s stairs
  const result=drawing.toDxfString();expect(result).not.toMatch(/NaN|Infinity|undefined/);expect(result).toContain(direction==='up'?'UP':'DN');return result;});
  expect(results[0]).not.toEqual(results[1]);
 });
+it('retains cubic controls as a degree-three native spline',()=>{
+ const drawing=new Drawing() as SplineDrawing,spline=vi.spyOn(drawing,'drawSpline');
+ canvasSymbolDxf(drawing,ctx=>{ctx.beginPath();ctx.moveTo(0,0);ctx.bezierCurveTo(10,20,30,40,50,60);ctx.stroke();});
+ expect(spline).toHaveBeenCalledWith([[0,-0],[10,-20],[30,-40],[50,-60]],3,undefined,undefined);
+});
