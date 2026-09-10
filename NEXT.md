@@ -2412,3 +2412,10 @@ The full iPhone 17 Pro / iOS 26.5 target passed after measured toolbars and
 pending-drag cancellation: 240 tests, two optional skips, zero failures. See
 `openplan3d-ios/docs/native-ios-adaptive-editor-validation.md`. This does not simulate interrupted gestures; cancellation,
 pinch/device checks and remaining NEXT requirements stay open.
+
+### Reproducible sandboxed QA helper — 2026-09-10
+
+A checked-in helper creates a distinct QA app while preserving sandbox
+entitlements and refusing existing destinations. Syntax, signing, entitlement
+equality and overwrite-refusal checks passed. See `openplan3d-ios/docs/sandbox-qa-helper.md`.
+Runtime/device qualification, signed releases and remaining NEXT work stay open.
