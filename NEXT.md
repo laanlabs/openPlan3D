@@ -2282,3 +2282,12 @@ This isolates centerline/interior convention differences and native raster error
 Eleven native region tests and the web characterization test passed. See `openplan3d-ios/docs/area-convention-baseline.md`.
 Convention adoption, general geometry fixtures, numerical correction, and the
 remaining NEXT requirements stay open.
+
+### Native raster footprint correction — 2026-09-10
+
+Wall cells now use footprint containment instead of filled square stamps. All
+three rectangle references match exact interior areas; rotated/translated rooms
+pass a bounded-error regression. Full Catalyst: 233 tests, two skips, zero failures;
+then all 12 region tests passed. See `openplan3d-ios/docs/native-raster-footprint-validation.md`.
+Fresh iOS/UI checks, runtime budgets, general geometry and web area parity remain
+open alongside the other NEXT requirements.
