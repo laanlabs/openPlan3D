@@ -2419,3 +2419,10 @@ A checked-in helper creates a distinct QA app while preserving sandbox
 entitlements and refusing existing destinations. Syntax, signing, entitlement
 equality and overwrite-refusal checks passed. See `openplan3d-ios/docs/sandbox-qa-helper.md`.
 Runtime/device qualification, signed releases and remaining NEXT work stay open.
+
+### Native Fit Current Floor action — 2026-09-10
+
+A new accessible editor action recomputes current-floor bounds and resets pan/
+zoom. Build and sandboxed Catalyst UI checks passed: a cropped, panned sample
+returned fully into view without an undo entry. See `openplan3d-ios/docs/native-fit-current-floor-validation.md`.
+Multi-floor/changed-geometry/zoom/device checks and remaining NEXT work stay open.
