@@ -2040,3 +2040,11 @@ and tries upward stacking near the bottom. Selection shares those bounds. All 54
 selected Catalyst tests passed. See
 `openplan3d-ios/docs/native-label-edges-validation.md`. Dense/oversized labels,
 toolbar/other-object collisions, and physical gesture qualification remain open.
+
+### Native dense-label column fallback — 2026-09-10
+
+Native labels use nearby columns when vertical stacking cannot fit. The bounded
+search preserves text sizes and saved anchors. All 55 selected Catalyst tests
+passed, including a nine-label multi-column case. See
+`openplan3d-ios/docs/native-dense-label-validation.md`. Over-capacity layouts,
+oversized text, toolbar/other-object occlusion, and physical gestures remain open.
