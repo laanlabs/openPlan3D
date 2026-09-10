@@ -2542,3 +2542,9 @@ checks remain open with broader NEXT requirements.
 Native Cancel returned without error or history changes. The full iOS 26.5
 target passed: 240 tests, two optional skips, zero failures. See `openplan3d-ios/docs/native-trace-file-import.md`.
 Invalid-file/write-failure, reopen/export and broader device checks remain open.
+
+### Native corrupt trace rejection — 2026-09-10
+
+The desktop picker rejected a synthetic corrupt PNG with an import error.
+Dismissing it preserved disabled Undo and available Redo. See `openplan3d-ios/docs/native-trace-file-import.md`.
+Write-failure, reopen/export and broader device/NEXT checks remain open.
