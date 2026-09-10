@@ -1750,7 +1750,17 @@
       markDirty();
       queueInitialFit();
     });
-    const unsub2 = selectedElementId.subscribe((id) => { currentSelectedId = id; markDirty(); });
+    const unsub2 = selectedElementId.subscribe((id) => {
+      currentSelectedId = id;
+      if (id) {
+        clearAuxiliarySelection();
+        if (currentFloor?.guides?.some(item => item.id === id)) selectedGuideId = id;
+        if (currentFloor?.measurements?.some(item => item.id === id)) selectedMeasurementId = id;
+        if (currentFloor?.annotations?.some(item => item.id === id)) selectedAnnotationId = id;
+        if (currentFloor?.textAnnotations?.some(item => item.id === id)) selectedTextAnnotationId = id;
+      }
+      markDirty();
+    });
     const unsub3 = selectedRoomId.subscribe((id) => { currentSelectedRoomId = id; markDirty(); });
     const unsub4 = placingFurnitureId.subscribe((id) => { currentPlacingId = id; markDirty(); });
     const unsub5 = placingRotation.subscribe((r) => { currentPlacingRotation = r; markDirty(); });
@@ -1937,6 +1947,24 @@
   function updateZoomControlsPosition() {
     const visibleHeight = visibleCanvasHeight();
     zoomControlsBottom = 12 + (height-visibleHeight) * canvas.getBoundingClientRect().height / Math.max(1,height);
+  }
+
+  function clearAuxiliarySelection() {
+    selectedGuideId = null;
+    selectedMeasurementId = null;
+    selectedAnnotationId = null;
+    selectedTextAnnotationId = null;
+  }
+
+  function selectAuxiliary(kind: 'guide' | 'measurement' | 'annotation' | 'text', id: string) {
+    clearAuxiliarySelection();
+    selectedElementIds.set(new Set());
+    selectedRoomId.set(null);
+    selectedElementId.set(kind === 'text' ? id : null);
+    if (kind === 'guide') selectedGuideId = id;
+    if (kind === 'measurement') selectedMeasurementId = id;
+    if (kind === 'annotation') selectedAnnotationId = id;
+    if (kind === 'text') selectedTextAnnotationId = id;
   }
 
   function fitSelectionIds() {
@@ -2201,15 +2229,13 @@
       const GUIDE_HIT = 6 / zoom; // 6px tolerance in world units
       for (const g of currentFloor.guides) {
         if (g.orientation === 'horizontal' && Math.abs(wp.y - g.position) < GUIDE_HIT) {
-          selectedGuideId = g.id;
+          selectAuxiliary('guide',g.id);
           draggingGuideId = g.id;
-          selectedElementId.set(null);
           return;
         }
         if (g.orientation === 'vertical' && Math.abs(wp.x - g.position) < GUIDE_HIT) {
-          selectedGuideId = g.id;
+          selectAuxiliary('guide',g.id);
           draggingGuideId = g.id;
-          selectedElementId.set(null);
           return;
         }
       }
@@ -2221,9 +2247,7 @@
     if (tool === 'select' && currentFloor) {
       const hitId = hitTestMeasurement(wp, currentFloor);
       if (hitId) {
-        selectedMeasurementId = hitId;
-        selectedAnnotationId = null;
-        selectedElementId.set(null);
+        selectAuxiliary('measurement',hitId);
         return;
       }
       selectedMeasurementId = null;
@@ -2233,10 +2257,7 @@
     if (tool === 'select' && currentFloor) {
       const textHitId = hitTestTextAnnotation(wp, currentFloor);
       if (textHitId) {
-        selectedTextAnnotationId = textHitId;
-        selectedAnnotationId = null;
-        selectedMeasurementId = null;
-        selectedElementId.set(textHitId);
+        selectAuxiliary('text',textHitId);
         const ta = currentFloor.textAnnotations?.find(t => t.id === textHitId);
         if (ta) {
           draggingTextAnnotationId = textHitId;
@@ -2251,9 +2272,7 @@
     if (tool === 'select' && currentFloor) {
       const hitId = hitTestAnnotation(wp, currentFloor);
       if (hitId) {
-        selectedAnnotationId = hitId;
-        selectedMeasurementId = null;
-        selectedElementId.set(null);
+        selectAuxiliary('annotation',hitId);
         return;
       }
       selectedAnnotationId = null;
@@ -3235,6 +3254,7 @@
     if ((e.key === 'Delete' || e.key === 'Backspace') && selectedGuideId) {
       removeGuide(selectedGuideId);
       selectedGuideId = null;
+      selectedElementId.set(null);
       e.preventDefault();
       return;
     }
@@ -3243,6 +3263,7 @@
     if ((e.key === 'Delete' || e.key === 'Backspace') && selectedMeasurementId) {
       removeMeasurement(selectedMeasurementId);
       selectedMeasurementId = null;
+      selectedElementId.set(null);
       e.preventDefault();
       return;
     }
@@ -3260,6 +3281,7 @@
     if ((e.key === 'Delete' || e.key === 'Backspace') && selectedAnnotationId) {
       removeAnnotation(selectedAnnotationId);
       selectedAnnotationId = null;
+      selectedElementId.set(null);
       e.preventDefault();
       return;
     }
@@ -3267,6 +3289,8 @@
     // Canvas-specific Escape handling (before global shortcut eats it)
     if (e.code === 'Escape') {
       finishCanvasGesture();
+      clearAuxiliarySelection();
+      selectedRoomId.set(null);
       elevationPickMode.set(false);
       wallStart = null; wallSequenceFirst = null; typedWallLength = '';
       placingFurnitureId.set(null);

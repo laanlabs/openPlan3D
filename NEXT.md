@@ -1394,3 +1394,15 @@ item clears the old multi-selection so unrelated geometry is not included.
 checks, Svelte checks and build passed.** Phone screenshot review passed. See
 [validation](docs/fit-selection-validation.md). Selected-opening dimension labels,
 annotation group editing, physical gestures and export/native parity remain open.
+
+### Guide/annotation selection cleanup — 2026-09-10
+
+Guide, measurement, dimension and text clicks clear stale group/room and auxiliary
+selection. Layers selection activates the corresponding canvas target, enabling
+correct deletion. Escape clears auxiliary and room selection so a later Delete
+cannot act on an invisible old target. Deletion also clears primary selection.
+
+**Sixteen Chromium/WebKit selection and drag/Undo checks, Svelte checks and build
+passed.** See [validation](docs/auxiliary-selection-validation.md). Annotation
+group transforms and clipboard support, selected-opening labels, physical gestures
+and export/native parity remain open.
