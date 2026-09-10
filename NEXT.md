@@ -2397,3 +2397,11 @@ check inconclusive. A uniquely identified QA copy now launches; its synthetic
 fixture import was still pending at last observation. See `openplan3d-ios/docs/native-isolated-ui-qa.md`.
 Inspect that same import before retrying. Gesture/layout qualification and all
 remaining NEXT requirements stay open.
+
+### Sandboxed QA adaptive-layout/drag check — 2026-09-10
+
+Preserving original sandbox entitlements fixed the isolated QA setup; its
+synthetic import completed. Fresh UI checks confirmed adaptive context-toolbar
+fitting, a completed label drag and undo restoration. See `openplan3d-ios/docs/native-sandbox-qa-validation.md`.
+Use OpenPlan3D-Sandbox-QA.app for new checks. Actual cancellation, pinch/device
+interaction and remaining NEXT requirements stay open.
