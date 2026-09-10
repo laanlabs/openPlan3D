@@ -2489,3 +2489,11 @@ Live Catalyst Redo removal restored Plan controls from the removed wall's
 elevation. Full iOS integration passed: 240 tests, two optional skips, zero
 failures. See `openplan3d-ios/docs/native-elevation-history.md`. Cross-floor direct deletion and broader
 iOS/device/NEXT qualification remain open.
+
+### Native cross-floor elevation deletion check — 2026-09-10
+
+Deleting the upper floor's sole wall from elevation returned to Plan without
+selecting a ground-floor wall. Temporary floor/geometry changes were undone.
+See `openplan3d-ios/docs/native-elevation-history.md`. Elevation counter numbering still spans all floors
+while cycling is floor-specific; align that counter in a follow-up. Broader
+iOS/device qualification and remaining NEXT requirements stay open.
