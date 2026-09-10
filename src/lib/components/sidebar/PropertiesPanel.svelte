@@ -89,6 +89,31 @@
     if (valid && input.valueAsNumber !== displayValue(current)) save(value);
     else if (!valid && e.type === 'blur') input.value = String(displayValue(current));
   }
+  function scalarInput(e: Event, current: number, save: (value: number) => void) {
+    const input = e.target as HTMLInputElement;
+    const value = input.valueAsNumber;
+    const valid = input.value.trim() && input.validity.valid && Number.isFinite(value);
+    if (valid && value !== current) save(value);
+    else if (!valid && e.type === 'blur') input.value = String(current);
+  }
+  function onStairWidth(e: Event) {
+    if (selectedStair) dimensionInput(e, selectedStair.width, value => updateStair(selectedStair!.id, { width: value }));
+  }
+  function onStairDepth(e: Event) {
+    if (selectedStair) dimensionInput(e, selectedStair.depth, value => updateStair(selectedStair!.id, { depth: value }));
+  }
+  function onStairRisers(e: Event) {
+    if (selectedStair) scalarInput(e, selectedStair.riserCount, value => updateStair(selectedStair!.id, { riserCount: value }));
+  }
+  function onStairRotation(e: Event) {
+    if (selectedStair) scalarInput(e, selectedStair.rotation, value => updateStair(selectedStair!.id, { rotation: value }));
+  }
+  function onColumnDiameter(e: Event) {
+    if (selectedColumn) dimensionInput(e, selectedColumn.diameter, value => updateColumn(selectedColumn!.id, { diameter: value }));
+  }
+  function onColumnHeight(e: Event) {
+    if (selectedColumn) dimensionInput(e, selectedColumn.height, value => updateColumn(selectedColumn!.id, { height: value }));
+  }
   function onWallThickness(e: Event) {
     if (selectedWall) dimensionInput(e, selectedWall.thickness, value => updateWall(selectedWall!.id, { thickness: value }));
   }
@@ -863,15 +888,15 @@
       </label>
       <label class="block">
         <span class="text-xs text-gray-500">Width ({unitLabel()})</span>
-        <input type="number" value={displayValue(selectedStair.width)} oninput={(e) => updateStair(selectedStair!.id, { width: inputToCm(Number((e.target as HTMLInputElement).value)) })} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
+        <input type="number" value={displayValue(selectedStair.width)} oninput={onStairWidth} onblur={onStairWidth} min="0" step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
         <span class="text-xs text-gray-500">Depth ({unitLabel()})</span>
-        <input type="number" value={displayValue(selectedStair.depth)} oninput={(e) => updateStair(selectedStair!.id, { depth: inputToCm(Number((e.target as HTMLInputElement).value)) })} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
+        <input type="number" value={displayValue(selectedStair.depth)} oninput={onStairDepth} onblur={onStairDepth} min="0" step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
         <span class="text-xs text-gray-500">Risers</span>
-        <input type="number" value={selectedStair.riserCount} min="3" max="30" oninput={(e) => updateStair(selectedStair!.id, { riserCount: Number((e.target as HTMLInputElement).value) })} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
+        <input type="number" value={selectedStair.riserCount} min="3" max="30" step="1" oninput={onStairRisers} onblur={onStairRisers} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
         <span class="text-xs text-gray-500">Direction</span>
@@ -882,7 +907,7 @@
       </label>
       <label class="block">
         <span class="text-xs text-gray-500">Rotation (degrees)</span>
-        <input type="number" value={selectedStair.rotation} oninput={(e) => updateStair(selectedStair!.id, { rotation: Number((e.target as HTMLInputElement).value) })} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
+        <input type="number" value={selectedStair.rotation} step="any" oninput={onStairRotation} onblur={onStairRotation} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
     </div>
   {:else if selectedColumn}
@@ -900,11 +925,11 @@
       </label>
       <label class="block">
         <span class="text-xs text-gray-500">{selectedColumn.shape === 'round' ? 'Diameter' : 'Side Length'} ({unitLabel()})</span>
-        <input type="number" value={displayValue(selectedColumn.diameter)} min="10" max="200" oninput={(e) => updateColumn(selectedColumn!.id, { diameter: inputToCm(Number((e.target as HTMLInputElement).value)) })} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
+        <input type="number" value={displayValue(selectedColumn.diameter)} min={settings.units === 'imperial' ? 10 / 2.54 : 10} max={settings.units === 'imperial' ? 200 / 2.54 : 200} step="any" oninput={onColumnDiameter} onblur={onColumnDiameter} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
         <span class="text-xs text-gray-500">Height ({unitLabel()})</span>
-        <input type="number" value={displayValue(selectedColumn.height)} min="50" max="1000" oninput={(e) => updateColumn(selectedColumn!.id, { height: inputToCm(Number((e.target as HTMLInputElement).value)) })} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
+        <input type="number" value={displayValue(selectedColumn.height)} min={settings.units === 'imperial' ? 50 / 2.54 : 50} max={settings.units === 'imperial' ? 1000 / 2.54 : 1000} step="any" oninput={onColumnHeight} onblur={onColumnHeight} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <div>
         <span class="text-xs text-gray-500 mb-1.5 block">Color</span>

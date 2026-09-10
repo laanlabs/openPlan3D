@@ -1028,3 +1028,15 @@ and undo history; unchanged rounded displays retain full stored precision.
 checks, Svelte checks and production build passed.** See
 [validation](docs/length-input-validation.md). Fractional notation, other numeric
 property fields, native unit parity and physical device checks remain open.
+
+### Stair and column dimension drafts — 2026-09-09
+
+Clearing a stair dimension previously saved zero. Stair and column fields now
+preserve saved geometry for invalid drafts, honor existing riser/column ranges,
+accept fractional dimensions and retain precision on unchanged blur. Column
+limits convert to the selected units.
+
+**Four final structural and four wall/opening regression checks passed in
+Chromium/WebKit at desktop/phone widths; Svelte checks and build passed.** See
+[validation](docs/structural-dimension-input-validation.md). Other property
+editors, native parity and physical device qualification remain open.
