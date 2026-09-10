@@ -2168,3 +2168,11 @@ portrait aspect ratios from allocating unbounded-height images. PDF scale uses
 the actual fitted transform. All 14 targeted tests passed, including an actual
 4-by-3000 m PNG export at 920 by 2080 pixels. See `openplan3d-ios/docs/native-export-canvas-bounds-validation.md`.
 Total device memory, physical printing/sharing, and other NEXT work remain open.
+
+### Native export filenames — 2026-09-10
+
+PNG/PDF/SVG share UTF-8-bounded filename sanitization with a hash suffix for
+truncated titles, preserving full document/export content. Fifteen targeted
+tests passed, including actual long CJK/emoji PNG and SVG exports. See
+`openplan3d-ios/docs/native-export-filenames-validation.md`. Physical sharing/storage recovery,
+device memory, and broader NEXT requirements remain open.
