@@ -1,3 +1,4 @@
+import { stairPlanBounds } from './stairPlanGeometry';
 import { formatArea, formatLength } from '$lib/stores/settings';
 import { wallLength, wallPointAt, wallTangentAt, wallEdgeInsets } from './canvasRenderer';
 import { roomCentroid, roomLabelPosition } from './roomDetection';
@@ -48,11 +49,7 @@ export function planContentBounds(floor: Floor, options: {
   }
   for (const wall of floor.walls) add(wallPlanBounds(wall));
   for (const item of floor.furniture) add(furniturePlanBounds(item));
-  for (const stair of floor.stairs ?? []) {
-    const w = stair.stairType === 'spiral' ? Math.min(stair.width, stair.depth) : stair.width;
-    const d = stair.stairType === 'spiral' ? w : stair.depth;
-    rectangle(stair.position.x, stair.position.y, w, d, stair.rotation);
-  }
+  for (const stair of floor.stairs ?? []) add(stairPlanBounds(stair));
   for (const col of floor.columns ?? []) rectangle(col.position.x, col.position.y, col.diameter, col.diameter, col.shape === 'square' ? col.rotation : 0);
   for (const item of floor.entourage ?? []) rectangle(item.position.x, item.position.y, item.width, item.width * options.entourageAspect(item.defId), item.rotation);
   options.context.save();
@@ -63,6 +60,18 @@ export function planContentBounds(floor: Floor, options: {
       const m = ctx.measureText(text);
       point(x - (m.actualBoundingBoxLeft ?? m.width / 2) / scale, y - (m.actualBoundingBoxAscent ?? size) / scale);
       point(x + (m.actualBoundingBoxRight ?? m.width / 2) / scale, y + (m.actualBoundingBoxDescent ?? (bottom ? 0 : size)) / scale);
+    }
+    for (const stair of floor.stairs ?? []) {
+      const type = stair.stairType || 'straight', spiral = type === 'spiral';
+      const label = (stair.direction === 'up' ? 'UP' : 'DN') + (!spiral && type !== 'straight' ? ` (${type})` : '');
+      const localY = spiral ? Math.min(stair.width, stair.depth) / 2 + 12 : 0;
+      const angle = stair.rotation * Math.PI / 180;
+      add(textAnnotationBounds({ id: stair.id, text: label, fontSize: 10, color: '#374151', rotation: stair.rotation,
+        x: stair.position.x - localY * Math.sin(angle), y: stair.position.y + localY * Math.cos(angle) }, ctx, scale));
+      if (spiral) {
+        const r = Math.min(stair.width, stair.depth) / 2 + 6 / scale;
+        rectangle(stair.position.x, stair.position.y, r * 2, r * 2, 0);
+      }
     }
     if (options.automaticDimensions?.external) for (const wall of floor.walls) {
       const length = wallLength(wall);

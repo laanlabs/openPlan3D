@@ -1,3 +1,4 @@
+import { stairContainsLocalPoint } from './stairPlanGeometry';
 /**
  * Hit-testing utilities for the floor plan canvas.
  * All functions are pure — they take data and return results.
@@ -142,7 +143,7 @@ export function findStairAt(p: Point, stairs: Stair[] | undefined): Stair | null
     const angle = -(stair.rotation * Math.PI) / 180;
     const rx = dx * Math.cos(angle) - dy * Math.sin(angle);
     const ry = dx * Math.sin(angle) + dy * Math.cos(angle);
-    if (Math.abs(rx) < stair.width / 2 && Math.abs(ry) < stair.depth / 2) return stair;
+    if (stairContainsLocalPoint(stair, rx, ry)) return stair;
   }
   return null;
 }

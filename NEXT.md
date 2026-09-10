@@ -1210,3 +1210,17 @@ DXF uses circle/closed-outline primitives on a COLUMNS layer.
 Svelte checks and build passed.** Both column PDF pages were rendered and visually
 reviewed. See [validation](docs/column-export-validation.md). Tracing images,
 stairs, entourage, CAD fill styling, physical-scale and native parity work remain open.
+
+### Shape-aware stair framing and hit testing — 2026-09-09
+
+Fit and single-stair selection outlines now include L-shaped outer runs and
+U-shaped landings. Hit testing uses the filled footprint, excludes empty corners
+and the U void, and uses a circle for spiral stairs. Fit includes stair caption
+ink; straight UP/DN arrows now remain inside their footprint.
+
+**772 existing unit tests, four new geometry tests, eight final footprint browser
+checks, four structural regressions and two phone QA checks passed.** Svelte
+checks/build passed, and unobstructed phone screenshots were reviewed. See
+[validation](docs/stair-footprint-validation.md). Stair exports, multi-selection
+framing, below-floor ghosts, L/U direction indicators, physical checks and native
+parity remain open.

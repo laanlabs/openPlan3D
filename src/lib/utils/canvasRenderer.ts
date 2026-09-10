@@ -1,3 +1,4 @@
+import { stairLocalBounds } from './stairPlanGeometry';
 import { dimensionPlanGeometry } from './dimensionPlanGeometry';
 /**
  * Canvas rendering functions for the floor plan editor.
@@ -1012,13 +1013,13 @@ export function drawStair(cs: CanvasState, stair: Stair, selected: boolean): voi
     const arrowY = direction === 'up' ? -d / 2 + d * 0.15 : d / 2 - d * 0.15;
     const arrowDir = direction === 'up' ? -1 : 1;
     ctx.beginPath();
-    ctx.moveTo(0, arrowY + arrowDir * d * 0.3);
+    ctx.moveTo(0, arrowY - arrowDir * d * 0.3);
     ctx.lineTo(0, arrowY);
     ctx.stroke();
     ctx.beginPath();
     ctx.moveTo(0, arrowY);
-    ctx.lineTo(-w * 0.1, arrowY + arrowDir * d * 0.08);
-    ctx.lineTo(w * 0.1, arrowY + arrowDir * d * 0.08);
+    ctx.lineTo(-w * 0.1, arrowY - arrowDir * d * 0.08);
+    ctx.lineTo(w * 0.1, arrowY - arrowDir * d * 0.08);
     ctx.closePath();
     ctx.fill();
   }
@@ -1127,9 +1128,8 @@ export function drawStair(cs: CanvasState, stair: Stair, selected: boolean): voi
 
   if (selected) {
     ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 1; ctx.setLineDash([4, 3]);
-    const bw = type === 'spiral' ? Math.min(w, d) : w;
-    const bd = type === 'spiral' ? Math.min(w, d) : d;
-    ctx.strokeRect(-bw / 2 - 2, -bd / 2 - 2, bw + 4, bd + 4);
+    const b = stairLocalBounds(stair);
+    ctx.strokeRect(b.minX * zoom - 2, b.minY * zoom - 2, (b.maxX - b.minX) * zoom + 4, (b.maxY - b.minY) * zoom + 4);
     ctx.setLineDash([]);
   }
 
