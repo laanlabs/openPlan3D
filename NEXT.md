@@ -2523,3 +2523,9 @@ history and iOS integration remain pending with the broader NEXT backlog.
 The full iOS 26.5 target passed after trace-history preservation and elevation
 counter changes: 240 tests, two optional skips, zero failures. See `openplan3d-ios/docs/native-trace-history.md`.
 Direct two-image Undo/Redo UI and broader device/NEXT qualification remain open.
+
+### Native desktop trace file import — 2026-09-10
+
+Mac Trace Image now opens a local image file picker. File and Photos imports
+share the same history-preserving save path; Catalyst build passed. See `openplan3d-ios/docs/native-trace-file-import.md`.
+Live picker/two-image history checks and iOS integration remain pending.
