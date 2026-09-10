@@ -1829,3 +1829,14 @@ input, validation, default reset and undo. Catalyst build and 22 tests passed;
 native UI/visual checks verified edits, invalid recovery, resets and undo. See
 `openplan3d-ios/docs/native-elevation-controls-validation.md`. Native room-shaped
 slabs, openings, curved/sloped walls and physical-device qualification remain open.
+
+
+### Room-shaped native slabs — 2026-09-10
+
+Native previews/render exports now use closed straight-wall room faces, preserving
+concave recesses and disconnected-room gaps with saved slab depth/elevation.
+Crossings, T-junctions and duplicate edges are handled; open walls/furniture alone
+create no slab. Catalyst build and 25 tests plus native visual QA passed. See
+`openplan3d-ios/docs/native-room-slabs-validation.md`. Courtyard/stair voids,
+interior-face area agreement, curves, large-graph performance and device gates
+remain open.
