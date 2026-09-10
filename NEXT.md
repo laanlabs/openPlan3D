@@ -2101,3 +2101,11 @@ changes: 220 tests executed, two optional worker-integration skips, zero failure
 The available private-scan byte-preservation test also passed. See `openplan3d-ios/docs/native-room-full-integration-validation.md`.
 Fresh simulator, interactive and physical-device checks, worker integration,
 signed release validation, and the broader NEXT requirements remain open.
+
+### Native iOS full-target integration check — 2026-09-10
+
+The complete FloorPlanTests target passed on iPhone 17 Pro / iOS 26.5 simulator:
+220 tests executed, two optional worker-integration skips, zero failures. This
+complements the Catalyst run after the room/model/renderer changes. See `openplan3d-ios/docs/native-room-ios-integration-validation.md`.
+Physical gestures/capture, measured calibration, device performance, signed
+release validation, and the broader NEXT requirements remain open.
