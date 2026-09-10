@@ -2454,3 +2454,10 @@ Undoing creation of the active floor no longer leaves a nonexistent floor
 selected. The editor selects an existing floor and refits without adding history.
 Catalyst build and before/after UI checks passed; see `openplan3d-ios/docs/native-floor-undo-recovery.md`.
 Broader history, multi-floor and iOS/device qualification remain open.
+
+### Native iOS floor-history integration — 2026-09-10
+
+The full iPhone 17 Pro / iOS 26.5 target passed after automatic floor fitting
+and removed-floor recovery: 240 tests, two optional skips, zero failures.
+See `openplan3d-ios/docs/native-floor-undo-recovery.md`. iOS UI, broader history/navigation sequences
+and physical-device qualification remain open with the wider NEXT backlog.
