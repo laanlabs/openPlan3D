@@ -147,7 +147,7 @@ it('aligns an opening to a locked furniture anchor without changing unrelated da
  const project=createDefaultProject(),floor=project.floors[0];
  floor.walls=[{id:'host',start:{x:0,y:0},end:{x:1000,y:0},thickness:20,height:250,color:'#123456'}];
  floor.windows=[{id:'o',wallId:'host',position:.2,width:60,height:120,sillHeight:90,type:'standard'}];
- floor.furniture=[{id:'anchor',catalogId:'chair',position:{x:700,y:0},rotation:0,width:60,depth:60,locked:true}];
+ floor.furniture=[{id:'anchor',catalogId:'chair',position:{x:700,y:0},rotation:0,width:60,depth:60,scale:{x:1,y:1,z:1},locked:true}];
  loadProject(project);const before=structuredClone(get(currentProject)!.floors[0]);
  alignElements(new Set(['o','anchor']),'align-right');
  const after=structuredClone(get(currentProject)!.floors[0]);

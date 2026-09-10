@@ -1,3 +1,4 @@
+import { planContentBounds } from './planContentBounds';
 import { columnPlanBounds } from './columnPlanGeometry';
 import { hasPlanExportContent } from './planExportContent';
 import { dimensionPlanGeometry } from './dimensionPlanGeometry';
@@ -10,7 +11,7 @@ import { wallPlanBounds, wallPlanDimension } from './wallPlanGeometry';
 import type { Project, Floor } from '$lib/models/types';
 import { getCatalogItem, getFurnitureSize } from '$lib/utils/furnitureCatalog';
 import { resolveRooms, getRoomPolygon, roomLabelPosition } from '$lib/utils/roomDetection';
-import { drawFurnitureItem, drawColumn, drawDoorOnWall, drawWindowOnWall, drawEntourageItems, drawTextAnnotations, drawAnnotations, drawPersistedMeasurements } from '$lib/utils/canvasRenderer';
+import { drawStair, drawFurnitureItem, drawColumn, drawDoorOnWall, drawWindowOnWall, drawEntourageItems, drawTextAnnotations, drawAnnotations, drawPersistedMeasurements } from '$lib/utils/canvasRenderer';
 import type { CanvasState } from '$lib/utils/canvasInteraction';
 import { projectSettings, formatArea, formatLength } from '$lib/stores/settings';
 import { get } from 'svelte/store';
@@ -99,6 +100,17 @@ function extendBoundsForDimensions(floor: Floor, bounds: { minX: number; minY: n
   }
 }
 
+/** Reuse the editor's complete stair footprint and rotated caption bounds. */
+function extendBoundsForStairs(floor: Floor, bounds: { minX: number; minY: number; maxX: number; maxY: number }) {
+  if (!floor.stairs?.length) return;
+  const context=document.createElement('canvas').getContext('2d');
+  if (!context) return;
+  const b=planContentBounds({...floor,walls:[],doors:[],windows:[],rooms:[],furniture:[],columns:[],entourage:[],measurements:[],annotations:[],textAnnotations:[],backgroundImage:undefined}, {context,entourageAspect:()=>1});
+  if (!b) return;
+  bounds.minX=Math.min(bounds.minX,b.minX); bounds.minY=Math.min(bounds.minY,b.minY);
+  bounds.maxX=Math.max(bounds.maxX,b.maxX); bounds.maxY=Math.max(bounds.maxY,b.maxY);
+}
+
 function extendBoundsForColumns(floor: Floor, bounds: { minX: number; minY: number; maxX: number; maxY: number }) {
   for (const column of floor.columns ?? []) {
     const b = columnPlanBounds(column);
@@ -158,7 +170,7 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
 
   if (project) {
     const floor = project.floors.find(f => f.id === project.activeFloorId) ?? project.floors[0];
-    if (floor && hasPlanExportContent(floor)) {
+    if (floor && (hasPlanExportContent(floor) || floor.stairs?.length)) {
       // Compute bounds of all geometry
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
       for (const w of floor.walls) {
@@ -177,6 +189,7 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
       extendBoundsForOpenings(floor, bounds);
       extendBoundsForRoomLabels(floor, bounds);
       extendBoundsForColumns(floor, bounds);
+      extendBoundsForStairs(floor, bounds);
       extendBoundsForText(floor, bounds);
       extendBoundsForDimensions(floor, bounds);
       extendBoundsForMeasurements(floor, bounds);
@@ -255,6 +268,7 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
       }, item, false);
 
       ctx.save();
+      for (const stair of floor.stairs ?? []) drawStair({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, stair, false);
       for (const column of floor.columns ?? []) drawColumn({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, column, false);
       drawPersistedMeasurements({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, get(projectSettings));
       ctx.restore();
@@ -586,7 +600,7 @@ export function exportAs3DPNG(renderer: { domElement: HTMLCanvasElement }) {
 
 export function exportPDF(project: Project) {
   const floor = project.floors.find(f => f.id === project.activeFloorId) ?? project.floors[0];
-  if (!floor || !hasPlanExportContent(floor)) return;
+  if (!floor || (!hasPlanExportContent(floor) && !floor.stairs?.length)) return;
 
   const settings = get(projectSettings);
   const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
@@ -665,6 +679,7 @@ export function exportPDF(project: Project) {
   extendBoundsForOpenings(floor, pdfBounds);
   extendBoundsForRoomLabels(floor, pdfBounds);
   extendBoundsForColumns(floor, pdfBounds);
+  extendBoundsForStairs(floor, pdfBounds);
   extendBoundsForText(floor, pdfBounds);
   extendBoundsForDimensions(floor, pdfBounds);
   extendBoundsForMeasurements(floor, pdfBounds);
@@ -739,6 +754,7 @@ export function exportPDF(project: Project) {
   }, item, false);
 
   ctx.save();
+  for (const stair of floor.stairs ?? []) drawStair({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, stair, false);
   for (const column of floor.columns ?? []) drawColumn({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, column, false);
   drawPersistedMeasurements({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, get(projectSettings));
   ctx.restore();

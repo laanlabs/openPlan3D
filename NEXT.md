@@ -1691,3 +1691,13 @@ passed, along with 16 Chromium/WebKit workflows, Svelte checks and build. Phone
 controls were visually reviewed. See [validation](docs/opening-alignment-validation.md)
 for constraints and evidence. Physical qualification and broader native parity
 remain open.
+
+### Stair geometry in PNG/PDF exports — 2026-09-10
+
+PNG/PDF plans now draw all four stair shapes with the shared editor renderer,
+including treads, rotation, direction arrows and captions. Stair-only plans are
+accepted, and shared footprint/caption bounds prevent clipping. All 879 unit tests,
+four Chromium/WebKit workflows, Svelte checks and build passed. Downloaded PNG and
+PDF plan-image visual reviews passed. See
+[validation](docs/stair-raster-export-validation.md). SVG/DXF stair symbols,
+physical qualification and broader native parity remain open.

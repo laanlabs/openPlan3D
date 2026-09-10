@@ -268,3 +268,18 @@ it('draws detailed catalog furniture in both raster exports with readable mirror
     expect(project).toEqual(before);
   }
 });
+
+
+it.each(['straight','l-shaped','u-shaped','spiral'] as const)('draws %s stairs in PNG and PDF even without walls', async stairType => {
+  const project=roomProject(),floor=project.floors[0];
+  floor.walls=[];floor.rooms=[];floor.furniture=[];floor.doors=[];floor.windows=[];
+  floor.stairs=[{id:'stair',position:{x:-600,y:700},width:120,depth:300,rotation:37,stairType,riserCount:15,direction:'down'}];
+  const before=structuredClone(project);
+  const label=stairType==='straight'||stairType==='spiral'?'DN':`DN (${stairType})`;
+  await exportAsPNG(canvas,project);
+  expect(canvasText.mock.calls.map(c=>c[0])).toContain(label);expect(downloaded).toHaveLength(1);
+  canvasText.mockClear();
+  exportPDF(project);
+  expect(canvasText.mock.calls.map(c=>c[0])).toContain(label);expect(pdfSave).toHaveBeenCalledOnce();
+  expect(project).toEqual(before);
+});
