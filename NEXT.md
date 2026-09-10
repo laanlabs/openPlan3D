@@ -2192,3 +2192,11 @@ optional worker-integration skips, zero failures. One title assertion was fixed
 to tolerate an observed line break; visual review confirmed the title was intact.
 See `openplan3d-ios/docs/native-ios-export-integration-validation.md`. Physical sharing, quota faults,
 device memory, printing/release qualification, and remaining NEXT work stay open.
+
+### Native export write-failure recovery — 2026-09-10
+
+Actual PDF/PNG/SVG destination-directory collisions now have regression coverage:
+export fails, preserves existing contents, cleans PDF staging, and succeeds on
+retry after the obstruction is removed. All 17 targeted Catalyst tests passed.
+See `openplan3d-ios/docs/native-export-write-failure-validation.md`. Full-disk/quota/permission faults,
+process crashes, physical share sheets, and other NEXT work remain open.
