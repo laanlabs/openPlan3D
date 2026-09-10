@@ -2475,3 +2475,10 @@ Fresh Catalyst UI confirmed floor switching clears the old elevation and restore
 Plan tools. The full iOS 26.5 target passed: 240 tests, two optional skips, zero
 failures. See `openplan3d-ios/docs/native-elevation-floor-switch.md`. Same-floor wall history, iOS interaction
 and broader device/NEXT qualification remain open.
+
+### Native elevation history recovery — 2026-09-10
+
+Undo/Redo now leave elevation when its wall disappears; direct deletion chooses
+a replacement only on the active floor. Catalyst build and a drawn-wall Undo UI
+check passed. See `openplan3d-ios/docs/native-elevation-history.md`. Redo/deletion, iOS/device and wider
+NEXT qualification remain open.
