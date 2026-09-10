@@ -2510,3 +2510,10 @@ Live Catalyst checks showed upper-floor counts of 1/1 and 2/2, with forward/back
 wrap between 1/2 and 2/2 and matching lengths, excluding ground-floor walls.
 Temporary edits were undone. See `openplan3d-ios/docs/native-elevation-counter.md`. Broader iOS/device
 and remaining NEXT qualification stay open.
+
+### Native trace-image history preservation — 2026-09-10
+
+New tracing imports use unique filenames, preserving prior image bytes for
+Undo. The displayed cache now follows the restored filename. Catalyst build
+and nine package regressions passed. See `openplan3d-ios/docs/native-trace-history.md`. Live two-image
+history and iOS integration remain pending with the broader NEXT backlog.
