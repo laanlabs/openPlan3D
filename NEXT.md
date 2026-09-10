@@ -2225,3 +2225,11 @@ work before integer conversion, returning unknown regions on invalid/over-budget
 input. Full Catalyst validation passed: 230 tests, two optional skips, zero
 failures. See `openplan3d-ios/docs/native-raster-thickness-budget-validation.md`. Device latency, resource-limit
 UI feedback, area parity, and remaining NEXT requirements stay open.
+
+### Native partial-area feedback — 2026-09-10
+
+Statistics marks incomplete totals as partial and no longer assumes all missing
+areas mean outside labels. PDF footers identify measured subtotals and unmeasured
+counts. Twenty targeted tests and a focused rerun passed; the partial PDF footer
+was visually checked. See `openplan3d-ios/docs/native-partial-area-feedback-validation.md`. Exact failure
+diagnostics, interactive/device checks, area parity, and other NEXT work remain.
