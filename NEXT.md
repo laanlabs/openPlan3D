@@ -2426,3 +2426,10 @@ A new accessible editor action recomputes current-floor bounds and resets pan/
 zoom. Build and sandboxed Catalyst UI checks passed: a cropped, panned sample
 returned fully into view without an undo entry. See `openplan3d-ios/docs/native-fit-current-floor-validation.md`.
 Multi-floor/changed-geometry/zoom/device checks and remaining NEXT work stay open.
+
+### Native refit after geometry changes — 2026-09-10
+
+A sandboxed UI check moved furniture beyond the original walls; Fit included
+the new extent. One Undo restored the edit, and refitting restored the original
+view without extra history. See `openplan3d-ios/docs/native-fit-current-floor-validation.md`. Multi-floor, zoom/iOS/device
+checks and remaining NEXT requirements stay open.
