@@ -2305,3 +2305,10 @@ Concave L, shared-partition and nested-room measurements match independent
 interior-face references; an inner floor opening correctly removes only its area.
 All 14 Catalyst region tests passed. See `openplan3d-ios/docs/native-interior-shapes-validation.md`. General geometry,
 area parity, device/performance checks and remaining NEXT work stay open.
+
+### Native raster reuse experiment — 2026-09-10
+
+A candidate-loop shortcut passed 14 region tests but showed no reliable timing
+improvement in the debug sample; it was removed. See `openplan3d-ios/docs/native-raster-reuse-experiment.md`.
+Repeated release measurements/profiling are needed before another optimization;
+production geometry and the remaining NEXT requirements are unchanged.
