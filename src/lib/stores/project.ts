@@ -1163,6 +1163,7 @@ export const elevationPickMode = writable<boolean>(false);
 
 // Zoom store for 2D canvas — shared between FloorPlanCanvas and TopBar
 export const canvasZoom = writable<number>(1);
+export const canvasMinimumZoom = writable<number>(0.1);
 // Camera position stores for 2D canvas — used to compute viewport center
 export const canvasCamX = writable<number>(0);
 export const canvasCamY = writable<number>(0);

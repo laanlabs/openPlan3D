@@ -4,7 +4,7 @@
   import { planContentBounds, hasPlanContent } from '$lib/utils/planContentBounds';
   import { connectedWallEndpoints } from '$lib/utils/wallEditing';
   import { createDrawScheduler } from '$lib/utils/drawScheduler';
-  import { activeFloor, selectedTool, selectedElementId, selectedElementIds, selectedRoomId, addWall, addDoor, addWindow, updateWall, moveWallEndpoint, updateDoor, updateWindow, addFurniture, moveFurniture, transformFurnitureDuringDrag, commitFurnitureMove, rotateFurniture, setFurnitureRotation, scaleFurniture, removeElement, placingFurnitureId, placingRotation, placingDoorType, placingWindowType, detectedRoomsStore, duplicateDoor, duplicateWindow, duplicateFurniture, duplicateWall, moveWallParallel, splitWall, snapEnabled, placingStair, addStair, moveStair, updateStair, placingColumn, placingColumnShape, addColumn, moveColumn, updateColumn, calibrationMode, calibrationPoints, updateBackgroundImage, setBackgroundImage, canvasZoom, canvasCamX, canvasCamY, panMode, showFurnitureStore, addGuide, moveGuide, removeGuide, beginUndoGroup, endUndoGroup, layerVisibility, updateRoom, addMeasurement, removeMeasurement, addAnnotation, removeAnnotation, updateAnnotation, addTextAnnotation, removeTextAnnotation, updateTextAnnotation, moveTextAnnotation, toggleFurnitureLock, createGroup, ungroupElements, findGroupForElement, placingEntourageId, addEntourageItem, moveEntourage, resizeEntourage, currentProject, elevationWallId, elevationPickMode } from '$lib/stores/project';
+  import { activeFloor, selectedTool, selectedElementId, selectedElementIds, selectedRoomId, addWall, addDoor, addWindow, updateWall, moveWallEndpoint, updateDoor, updateWindow, addFurniture, moveFurniture, transformFurnitureDuringDrag, commitFurnitureMove, rotateFurniture, setFurnitureRotation, scaleFurniture, removeElement, placingFurnitureId, placingRotation, placingDoorType, placingWindowType, detectedRoomsStore, duplicateDoor, duplicateWindow, duplicateFurniture, duplicateWall, moveWallParallel, splitWall, snapEnabled, placingStair, addStair, moveStair, updateStair, placingColumn, placingColumnShape, addColumn, moveColumn, updateColumn, calibrationMode, calibrationPoints, updateBackgroundImage, setBackgroundImage, canvasZoom, canvasMinimumZoom, canvasCamX, canvasCamY, panMode, showFurnitureStore, addGuide, moveGuide, removeGuide, beginUndoGroup, endUndoGroup, layerVisibility, updateRoom, addMeasurement, removeMeasurement, addAnnotation, removeAnnotation, updateAnnotation, addTextAnnotation, removeTextAnnotation, updateTextAnnotation, moveTextAnnotation, toggleFurnitureLock, createGroup, ungroupElements, findGroupForElement, placingEntourageId, addEntourageItem, moveEntourage, resizeEntourage, currentProject, elevationWallId, elevationPickMode } from '$lib/stores/project';
   import type { Point, Wall, Door, Window as Win, FurnitureItem, Stair, Column, GuideLine, Measurement, Annotation, TextAnnotation, CustomEntourageDef } from '$lib/models/types';
   import type { Floor, Room } from '$lib/models/types';
   import { resolveRoomGeometry, roomLabelPosition } from '$lib/utils/roomDetection';
@@ -35,6 +35,7 @@
   let camX = $state(0);
   let camY = $state(0);
   let zoom = $state(1);
+  let minimumZoom = $state(0.1);
 
   // Events and subscriptions coalesce into one frame; no idle polling.
   let drawing: ReturnType<typeof createDrawScheduler> | undefined;
@@ -43,6 +44,7 @@
   // Sync zoom with shared store
   onDestroy(canvasZoom.subscribe(v => { zoom = v; }));
   $effect(() => { canvasZoom.set(zoom); });
+  $effect(() => { canvasMinimumZoom.set(minimumZoom); });
   $effect(() => { canvasCamX.set(camX); });
   $effect(() => { canvasCamY.set(camY); });
 
@@ -915,6 +917,12 @@
       minorStep = tickStep / minorDiv;
     }
 
+    // Extend the largest preset at low fitted zooms, keeping tick counts bounded.
+    if (tickStep * zoom < 40) {
+      tickStep *= 10 ** Math.ceil(Math.log10(40 / (tickStep * zoom)));
+      minorStep = tickStep / minorDiv;
+    }
+
     // --- Horizontal ruler (top) ---
     ctx.fillStyle = '#f1f3f5';
     ctx.fillRect(R, 0, width - R, R);
@@ -1717,7 +1725,7 @@
     const resizeObs = new ResizeObserver(resize);
     resizeObs.observe(canvas.parentElement!);
 
-    const floorViews = new Map<string, { x: number; y: number; zoom: number; fitted: boolean }>();
+    const floorViews = new Map<string, { x: number; y: number; zoom: number; minimumZoom: number; fitted: boolean }>();
     let activeViewKey: string | null = null;
     let initialFitDone = false;
     let initialFitPending = false;
@@ -1734,10 +1742,11 @@
     const unsub1 = activeFloor.subscribe((f) => {
       const viewKey = f ? JSON.stringify([get(currentProject)?.id, f.id]) : null;
       if (viewKey !== activeViewKey) {
-        if (activeViewKey) floorViews.set(activeViewKey, { x: camX, y: camY, zoom, fitted: initialFitDone });
+        if (activeViewKey) floorViews.set(activeViewKey, { x: camX, y: camY, zoom, minimumZoom, fitted: initialFitDone });
         activeViewKey = viewKey;
         const saved = viewKey ? floorViews.get(viewKey) : undefined;
         camX = saved?.x ?? 0; camY = saved?.y ?? 0; zoom = saved?.zoom ?? 1;
+        minimumZoom = saved?.minimumZoom ?? 0.1;
         initialFitDone = saved?.fitted ?? false;
         measureStart = null;
         measureEnd = null;
@@ -1899,7 +1908,7 @@
 
   function zoomToFit() {
     const bounds = getFitBounds();
-    if (!bounds) { camX = 0; camY = 0; zoom = 1; markDirty(); return; }
+    if (!bounds) { camX = 0; camY = 0; zoom = 1; minimumZoom = 0.1; markDirty(); return; }
     const { minX, minY, maxX, maxY } = bounds;
     const padding = 80;
     const contentW = maxX - minX + padding * 2;
@@ -1915,7 +1924,8 @@
     const visibleHeight = coversBottom
       ? Math.max(1, Math.min(height, (sheetRect.top - canvasRect.top) * height / canvasRect.height))
       : height;
-    zoom = Math.max(0.1, Math.min(width / contentW, visibleHeight / contentH, 3));
+    zoom = Math.min(Math.max(1, width - 80) / contentW, Math.max(1, visibleHeight - 80) / contentH, 3);
+    minimumZoom = Math.min(0.1, zoom / 4);
     camX = (minX + maxX) / 2;
     camY = (minY + maxY) / 2 + (height - visibleHeight) / (2 * zoom);
     markDirty();
@@ -2967,7 +2977,7 @@
     if (e.ctrlKey) {
       // Pinch-to-zoom on trackpad (or Ctrl+scroll)
       const factor = e.deltaY > 0 ? 0.95 : 1.05;
-      const newZoom = Math.max(0.1, Math.min(10, zoom * factor));
+      const newZoom = Math.max(minimumZoom, Math.min(10, zoom * factor));
       // Zoom towards cursor position
       const worldX = (sx - width / 2) / zoom + camX;
       const worldY = (sy - height / 2) / zoom + camY;
@@ -2981,7 +2991,7 @@
     } else {
       // Regular scroll wheel: zoom towards cursor
       const factor = e.deltaY > 0 ? 0.9 : 1.1;
-      const newZoom = Math.max(0.1, Math.min(10, zoom * factor));
+      const newZoom = Math.max(minimumZoom, Math.min(10, zoom * factor));
       // Zoom towards cursor position
       const worldX = (sx - width / 2) / zoom + camX;
       const worldY = (sy - height / 2) / zoom + camY;
@@ -3044,7 +3054,7 @@
       const rect = canvas.getBoundingClientRect();
       const sx = cx - rect.left, sy = cy - rect.top;
       // Zoom about the pinch midpoint (same math as onWheel)
-      const newZoom = Math.max(0.1, Math.min(10, zoom * (dist / (pinchState.dist || dist))));
+      const newZoom = Math.max(minimumZoom, Math.min(10, zoom * (dist / (pinchState.dist || dist))));
       const worldX = (sx - width / 2) / zoom + camX;
       const worldY = (sy - height / 2) / zoom + camY;
       camX = worldX - (sx - width / 2) / newZoom;
@@ -4066,13 +4076,13 @@
   {/if}
 
   <!-- Zoom Controls (bottom-left) -->
-  <div class="absolute bottom-3 left-3 z-20 flex items-center gap-1 bg-white rounded-lg shadow-lg border border-gray-200 px-1 py-0.5">
+  <div class="absolute bottom-3 left-3 max-md:left-20 z-20 flex items-center gap-1 bg-white rounded-lg shadow-lg border border-gray-200 px-1 py-0.5">
     <button
       class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-600 hover:text-gray-800 font-bold text-lg"
       title="Zoom Out (−)"
       aria-label="Zoom out"
       onclick={() => {
-        const newZoom = Math.max(0.1, zoom * 0.8);
+        const newZoom = Math.max(minimumZoom, zoom * 0.8);
         // Zoom towards canvas center
         const worldCX = (width / 2 - width / 2) / zoom + camX;
         const worldCY = (height / 2 - height / 2) / zoom + camY;
@@ -4086,7 +4096,7 @@
       title="Reset to 100%"
       aria-label="Zoom to 100%"
       onclick={() => { zoom = 1; }}
-    >{Math.round(zoom * 100)}%</button>
+    >{zoom < 0.01 ? (zoom * 100).toPrecision(2) : Math.round(zoom * 100)}%</button>
     <button
       class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-600 hover:text-gray-800 font-bold text-lg"
       title="Zoom In (+)"

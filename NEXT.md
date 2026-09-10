@@ -1111,3 +1111,15 @@ loads remain rejected.
 **Fourteen Chromium/WebKit desktop/phone-width checks, Svelte checks and build
 passed.** See [validation](docs/floor-view-validation.md). Caption/room-label
 bounds, extreme zoom limits, selection framing and physical device checks remain open.
+
+### Large-plan zoom and phone controls — 2026-09-09
+
+Fit can now go below 10%, with a per-floor lower limit at one-quarter of its
+fitted scale. Canvas and mobile overflow controls share that limit. Rulers extend
+their spacing at small scales, percentages remain nonzero, and a screen margin
+keeps short labels clear of rulers. Phone zoom controls now sit beside Tools.
+
+**764 unit tests, four final large-plan browser checks and eight floor/property
+regressions passed; Svelte checks and final build passed.** The phone screenshot
+was reviewed. See [validation](docs/large-plan-zoom-validation.md). Caption/
+room-label bounds, selection framing and physical device checks remain open.
