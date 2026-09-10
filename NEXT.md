@@ -2389,3 +2389,11 @@ Gesture-state reset now restores a cancelled pending edit/pan and releases its
 frozen fitting viewport. Normal completion keeps its undo behavior. Catalyst
 build passed; see `openplan3d-ios/docs/native-drag-cancellation.md`. Runtime gesture ordering, interruption,
 pinch/device checks and remaining NEXT requirements stay open.
+
+### Native isolated UI QA setup — 2026-09-10
+
+Multiple running builds shared one bundle identifier, making the adaptive UI
+check inconclusive. A uniquely identified QA copy now launches; its synthetic
+fixture import was still pending at last observation. See `openplan3d-ios/docs/native-isolated-ui-qa.md`.
+Inspect that same import before retrying. Gesture/layout qualification and all
+remaining NEXT requirements stay open.
