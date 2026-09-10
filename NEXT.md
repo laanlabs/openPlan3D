@@ -2536,3 +2536,9 @@ The desktop file picker imported synthetic red/blue traces. Undo restored red
 after removing it and importing blue; Redo restored blue. Temporary changes
 were undone. See `openplan3d-ios/docs/native-trace-file-import.md`. Cancel/error, reopen/export and iOS
 checks remain open with broader NEXT requirements.
+
+### Native trace picker cancellation/iOS — 2026-09-10
+
+Native Cancel returned without error or history changes. The full iOS 26.5
+target passed: 240 tests, two optional skips, zero failures. See `openplan3d-ios/docs/native-trace-file-import.md`.
+Invalid-file/write-failure, reopen/export and broader device checks remain open.
