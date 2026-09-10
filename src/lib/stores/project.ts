@@ -363,6 +363,14 @@ export function rotateSelection(ids: ReadonlySet<string>, degrees = 15) {
       const update = updates.get(item.id);
       if (update) Object.assign(item,update);
     }
+    for (const item of f.textAnnotations ?? []) {
+      const update = updates.get(item.id);
+      if (update) Object.assign(item, { x:update.position.x,y:update.position.y,rotation:update.rotation });
+    }
+    for (const item of [...f.measurements ?? [],...f.annotations ?? []]) {
+      const update = updates.get(item.id);
+      if (update?.endpoints) Object.assign(item,update.endpoints);
+    }
   }, 'Rotated selection');
 }
 

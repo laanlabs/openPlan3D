@@ -3460,8 +3460,8 @@
       rotateFurniture: () => {
         if (currentPlacingId) {
           placingRotation.update(r => (r + 15) % 360);
-        } else if (currentSelectedId && currentFloor) {
-          rotateSelection(currentSelectedIds.size ? currentSelectedIds : new Set([currentSelectedId]));
+        } else if (currentFloor) {
+          rotateSelection(fitSelectionIds());
         }
       }
     });

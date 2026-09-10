@@ -1460,3 +1460,19 @@ and Undo, toggle members, and verify isolated deletion against exported data.
 See [validation](docs/annotation-reselection-validation.md). Annotation rotation/
 alignment, note visibility, wider object modifier consistency, physical checks
 and export/native parity remain open.
+
+### Annotation rotation — 2026-09-10
+
+R now rotates notes, measurements and dimensions, including canvas-local
+selection. Single notes rotate in place; single dimensions rotate around their
+endpoint midpoint. Mixed selections share a zoom-independent geometric pivot,
+preserving annotation metadata and lengths while respecting object locks.
+The entire rotation remains one Undo step.
+
+**All 827 unit tests, 12 Chromium/WebKit rotation workflows, Svelte checks and
+build passed.** Phone screenshot review passed. The multi-megabyte quota test
+now has a targeted 15-second timeout after repeated five-second timeouts; its
+assertions and application storage limits are unchanged. See
+[validation](docs/annotation-rotation-validation.md). Annotation alignment,
+visibility, wall/opening rotation, physical qualification and export/native parity
+remain open.
