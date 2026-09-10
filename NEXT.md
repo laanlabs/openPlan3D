@@ -1577,3 +1577,18 @@ software rendering; the final full loop passed unchanged resource assertions. Se
 [validation](docs/unknown-furniture-3d-validation.md) for those reruns. Detailed
 furniture export symbols, opening-only group movement, annotation alignment/
 visibility, physical qualification and broader native parity remain open.
+
+### Annotation alignment and distribution — 2026-09-10
+
+Notes, measurements and offset dimensions now participate in all eight alignment/
+distribution operations using measured bounds at a fixed world scale. Endpoint
+vectors and annotation metadata remain intact, locked object anchors retain their
+existing behavior, and each operation is one Undo/Redo step with repeated no-ops
+excluded from history.
+
+**All 16 final Chromium/WebKit workflows, Svelte checks and build passed.** Unit
+coverage adds all eight annotation operations; the full run passed 845/847 tests
+and both unrelated timeout files passed in isolation. Phone visual review passed.
+See [validation](docs/annotation-alignment-validation.md). Walls/openings alignment,
+annotation visibility and multiline property editing, opening-only group movement,
+detailed furniture exports, physical qualification and native parity remain open.

@@ -46,3 +46,35 @@ it('aligns in one undoable action without adding history for an insufficient sel
   alignElements(new Set(['f']),'align-left');undo();expect(get(currentProject)!.floors[0]).toEqual(before);
   redo();expect(get(currentProject)!.floors[0]).toEqual(moved);
 });
+
+const annotationContext = { save() {}, restore() {}, measureText(text: string) { return { width: text.length*8 }; } } as unknown as CanvasRenderingContext2D;
+function annotationFixture() {
+  const project=createDefaultProject(), floor=project.floors[0];
+  floor.textAnnotations=[{id:'note',x:100,y:50,text:'Two\nlines',fontSize:16,rotation:30,color:'#123456'}];
+  floor.measurements=[{id:'measure',x1:250,y1:200,x2:350,y2:240}];
+  floor.annotations=[{id:'dimension',x1:500,y1:300,x2:700,y2:340,offset:40,label:'Dimension'}];
+  return project;
+}
+it.each(['align-left','align-right','align-top','align-bottom','align-center-h','align-center-v','distribute-h','distribute-v'] as AlignmentOp[])('%s moves annotation geometry together and is one undoable action', async op => {
+  const { planContentBounds } = await import('$lib/utils/planContentBounds');
+  const project=annotationFixture(), ids=new Set(['note','measure','dimension']);
+  loadProject(project); const before=structuredClone(get(currentProject)!.floors[0]);
+  alignElements(ids,op,annotationContext);
+  const moved=structuredClone(get(currentProject)!.floors[0]);
+  expect(moved).not.toEqual(before);
+  for(const key of ['measurements','annotations'] as const) {
+    const a=before[key]![0], b=moved[key]![0];
+    expect(b.x2-b.x1).toBeCloseTo(a.x2-a.x1); expect(b.y2-b.y1).toBeCloseTo(a.y2-a.y1);
+    expect({...b,x1:a.x1,x2:a.x2,y1:a.y1,y2:a.y2}).toEqual(a);
+  }
+  expect({...moved.textAnnotations![0],x:before.textAnnotations![0].x,y:before.textAnnotations![0].y}).toEqual(before.textAnnotations![0]);
+  const boxes=['textAnnotations','measurements','annotations'].map(key=>planContentBounds({...moved,
+    textAnnotations:key==='textAnnotations'?moved.textAnnotations:[],measurements:key==='measurements'?moved.measurements:[],annotations:key==='annotations'?moved.annotations:[],
+  },{context:annotationContext,entourageAspect:()=>1})!);
+  const values=boxes.map(b=>op==='align-left'?b.minX:op==='align-right'?b.maxX:op==='align-top'?b.minY:op==='align-bottom'?b.maxY:['align-center-h','distribute-h'].includes(op)?(b.minX+b.maxX)/2:(b.minY+b.maxY)/2);
+  if(op.startsWith('distribute')) { values.sort((a,b)=>a-b);expect(values[1]-values[0]).toBeCloseTo(values[2]-values[1]); }
+  else for(const value of values)expect(value).toBeCloseTo(values[0]);
+  alignElements(ids,op,annotationContext); // no extra history for a repeated operation
+  undo();expect(get(currentProject)!.floors[0]).toEqual(before);
+  redo();expect(get(currentProject)!.floors[0]).toEqual(moved);
+});

@@ -4,6 +4,8 @@ import { furniturePlanBounds } from './furniturePlanBounds';
 import { stairPlanBounds } from './stairPlanGeometry';
 import { columnPlanBounds } from './columnPlanGeometry';
 import { entouragePlanBounds } from './entouragePlanBounds';
+import { planContentBounds } from './planContentBounds';
+import { projectSettings } from '$lib/stores/settings';
 import { entourageAspect } from './canvasRenderer';
 import type { Floor, CustomEntourageDef, Point } from '$lib/models/types';
 
@@ -11,12 +13,24 @@ export type AlignmentOp = 'align-left' | 'align-right' | 'align-top' | 'align-bo
   | 'align-center-h' | 'align-center-v' | 'distribute-h' | 'distribute-v';
 
 export function alignmentItems(floor: Floor, ids: ReadonlySet<string>) {
-  return [...floor.furniture, ...floor.stairs ?? [], ...floor.columns ?? [], ...floor.entourage ?? []].filter(item => ids.has(item.id));
+  return [...floor.furniture, ...floor.stairs ?? [], ...floor.columns ?? [], ...floor.entourage ?? [], ...floor.textAnnotations ?? [], ...floor.measurements ?? [], ...floor.annotations ?? []].filter(item => ids.has(item.id));
 }
 
 /** Position updates based on rendered extents; locked items act as fixed anchors. */
-export function planAlignment(floor: Floor, ids: ReadonlySet<string>, op: AlignmentOp, customDefs?: CustomEntourageDef[]): Map<string, Point> {
+export function planAlignment(floor: Floor, ids: ReadonlySet<string>, op: AlignmentOp, customDefs?: CustomEntourageDef[], context?: CanvasRenderingContext2D, units: 'metric' | 'imperial' = 'metric'): Map<string, Point> {
+  const annotationRects = context ? alignmentItems(floor, ids).flatMap(item => {
+    if ('position' in item) return [];
+    const bounds = planContentBounds({ ...floor, walls: [], doors: [], windows: [], furniture: [],
+      stairs: [], columns: [], entourage: [], backgroundImage: undefined,
+      textAnnotations: (floor.textAnnotations ?? []).filter(n => n.id === item.id),
+      measurements: (floor.measurements ?? []).filter(n => n.id === item.id),
+      annotations: (floor.annotations ?? []).filter(n => n.id === item.id),
+    }, { context, units, zoom: 1, entourageAspect: () => 1 });
+    const position = 'x1' in item ? { x:(item.x1+item.x2)/2, y:(item.y1+item.y2)/2 } : { x:item.x, y:item.y };
+    return bounds ? [{ item: { id:item.id, position }, bounds }] : [];
+  }) : [];
   const rects = [
+    ...annotationRects,
     ...floor.furniture.map(item => ({item,bounds:furniturePlanBounds(item)})),
     ...(floor.stairs ?? []).map(item => ({item,bounds:stairPlanBounds(item)})),
     ...(floor.columns ?? []).map(item => ({item,bounds:columnPlanBounds(item)})),
@@ -47,15 +61,22 @@ export function planAlignment(floor: Floor, ids: ReadonlySet<string>, op: Alignm
   return updates;
 }
 
-export function alignElements(ids: Set<string>, op: AlignmentOp) {
+export function alignElements(ids: Set<string>, op: AlignmentOp, context?: CanvasRenderingContext2D) {
   const p = get(currentProject), floor = get(activeFloor);
   if (!p || !floor) return;
-  const updates = planAlignment(floor,ids,op,p.customEntourage);
+  // Measure at one pixel per world unit so alignment does not change with zoom.
+  const measurementContext = context ?? (typeof document !== 'undefined' ? document.createElement('canvas').getContext('2d') ?? undefined : undefined);
+  const updates = planAlignment(floor,ids,op,p.customEntourage,measurementContext,get(projectSettings).units);
   if (!updates.size) return;
   beginUndoGroup();
   for (const item of alignmentItems(floor,ids)) {
     const pos = updates.get(item.id);
-    if (pos) item.position = pos;
+    if (!pos) continue;
+    if ('position' in item) item.position = pos;
+    else if ('x1' in item) {
+      const dx=pos.x-(item.x1+item.x2)/2, dy=pos.y-(item.y1+item.y2)/2;
+      item.x1+=dx; item.x2+=dx; item.y1+=dy; item.y2+=dy;
+    } else { item.x=pos.x; item.y=pos.y; }
   }
   p.updatedAt = new Date();
   currentProject.set({...p});
