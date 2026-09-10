@@ -2368,3 +2368,10 @@ The rotated-table fixture now exercises actual PNG export. The focused test
 passed and visual inspection showed the entire table/chair details with margins.
 See `openplan3d-ios/docs/native-furniture-export-validation.md`. Broader categories/formats, device checks and remaining
 NEXT requirements stay open.
+
+### Native iOS furniture framing integration — 2026-09-10
+
+Full iPhone 17 Pro / iOS 26.5 validation passed after rotated furniture bounds
+and actual PNG export coverage: 240 tests, two optional skips, zero failures.
+See `openplan3d-ios/docs/native-ios-furniture-fit-validation.md`. Broader visuals, physical-device checks, release gates
+and remaining NEXT work stay open.
