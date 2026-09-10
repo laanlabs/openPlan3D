@@ -1260,3 +1260,16 @@ checks, final Svelte checks and build passed.** The fitted phone screenshot was
 reviewed. See [validation](docs/multi-selection-bounds-validation.md). Dedicated
 Fit Selection, opening symbol extents, entourage/annotation group operations,
 stair exports and physical/native qualification remain open.
+
+### One-step geometry drag Undo — 2026-09-09
+
+Wall endpoint/parallel/curve, room, stair, column, text and group drags now own
+one undo group, starting after actual pointer movement and ending on release.
+This removes duplicate final snapshots, preserves the pre-drag state for rooms,
+and groups curve mutations. Selection clicks do not start a geometry undo group.
+
+**782 unit tests, checks for seven individual drag types in both browser engines,
+desktop/phone group regressions, Svelte checks and build passed.** The final stair
+rerun waits for painted Fit to avoid a framing race. See
+[validation](docs/geometry-drag-undo-validation.md). Opening/guide/entourage history,
+physical gestures and broader export/native work remain open.

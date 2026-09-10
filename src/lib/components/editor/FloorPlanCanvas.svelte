@@ -2021,6 +2021,7 @@
   let canvasGestureActive = false;
   let canvasPressPosition: Point = { x: 0, y: 0 };
   let furnitureGestureStarted = false;
+  let geometryGestureStarted = false;
   let selectionPress: { floorId: string; x: number; y: number; world: Point } | null = null;
 
   function sameSelectionPress(e: MouseEvent) {
@@ -2215,7 +2216,6 @@
         if (ta) {
           draggingTextAnnotationId = textHitId;
           textAnnotationDragOffset = { x: wp.x - ta.x, y: wp.y - ta.y };
-          commitFurnitureMove();
         }
         return;
       }
@@ -2303,7 +2303,6 @@
             if (currentFloor.columns) { const col = currentFloor.columns.find(c => c.id === id); if (col) { origPositions.set(id, { position: { ...col.position } }); continue; } }
           }
           draggingMultiSelect = { startMousePos: { ...wp }, origPositions };
-          commitFurnitureMove();
           return;
         }
       }
@@ -2315,13 +2314,11 @@
           if (Math.hypot(wp.x - selWall.start.x, wp.y - selWall.start.y) < epThreshold) {
             draggingWallEndpoint = { wallId: selWall.id, endpoint: 'start' };
             draggingConnectedEndpoints = findConnectedEndpoints(selWall.start, selWall.id);
-            commitFurnitureMove(); // uses same undo snapshot mechanism
             return;
           }
           if (Math.hypot(wp.x - selWall.end.x, wp.y - selWall.end.y) < epThreshold) {
             draggingWallEndpoint = { wallId: selWall.id, endpoint: 'end' };
             draggingConnectedEndpoints = findConnectedEndpoints(selWall.end, selWall.id);
-            commitFurnitureMove();
             return;
           }
           // Check midpoint handle: Alt+drag = curve, normal drag = parallel move
@@ -2345,7 +2342,6 @@
               // For curved walls, midpoint handle still curves
               draggingCurveHandle = selWall.id;
             }
-            commitFurnitureMove();
             return;
           }
         }
@@ -2414,7 +2410,6 @@
         if (!e.shiftKey) {
           draggingColumnId = col.id;
           columnDragOffset = { x: wp.x - col.position.x, y: wp.y - col.position.y };
-          commitFurnitureMove(); // snapshot before drag for undo
         }
         return;
       }
@@ -2425,7 +2420,6 @@
         if (!e.shiftKey) {
           draggingStairId = stair.id;
           stairDragOffset = { x: wp.x - stair.position.x, y: wp.y - stair.position.y };
-          commitFurnitureMove(); // snapshot before drag for undo
         }
         return;
       }
@@ -2614,6 +2608,13 @@
       if (Math.hypot(e.clientX - canvasPressPosition.x, e.clientY - canvasPressPosition.y) < 3) return;
       beginUndoGroup();
       furnitureGestureStarted = true;
+    }
+
+    if ((draggingWallEndpoint || draggingWallParallel || draggingCurveHandle || draggingRoomId
+      || draggingStairId || draggingColumnId || draggingTextAnnotationId || draggingMultiSelect) && !geometryGestureStarted) {
+      if (Math.hypot(e.clientX - canvasPressPosition.x, e.clientY - canvasPressPosition.y) < 3) return;
+      beginUndoGroup();
+      geometryGestureStarted = true;
     }
 
     // Drag room label using screen deltas so sidebar layout changes cannot
@@ -2959,15 +2960,10 @@
       endUndoGroup(draggingHandle === 'rotate' ? 'Rotated furniture' : draggingHandle ? 'Resized furniture' : 'Moved furniture');
       furnitureGestureStarted = false;
     }
-    if (draggingWallEndpoint) commitFurnitureMove();
-    if (draggingWallParallel) commitFurnitureMove();
-    if (draggingCurveHandle) commitFurnitureMove();
-    // Group drags already snapshot once at pointer-down; a second snapshot
-    // here would make the first Undo restore the just-moved state.
-    if (draggingRoomId) commitFurnitureMove();
-    if (draggingStairId) commitFurnitureMove();
-    if (draggingColumnId) commitFurnitureMove();
-    if (draggingTextAnnotationId) commitFurnitureMove();
+    if (geometryGestureStarted) {
+      endUndoGroup('Moved plan geometry');
+      geometryGestureStarted = false;
+    }
     draggingTextAnnotationId = null;
     draggingRoomId = null;
     roomDragStartPositions.clear();
