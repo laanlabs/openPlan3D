@@ -2601,3 +2601,10 @@ write-failure and broader device/NEXT checks remain open.
 All ten package tests passed on iOS 26.5, including unique trace reference and
 JPEG preservation through export/import/re-export. See `openplan3d-ios/docs/native-trace-file-import.md`.
 This focused run does not replace full-suite or device/UI qualification.
+
+### Native unsaved edit save-retry evidence — 2026-09-10
+
+A newly drawn wall survived a controlled save failure and was written on retry.
+The editor remained open after this changed-document save, unlike the prior
+unchanged-document check. See `openplan3d-ios/docs/native-editor-dismissal.md`. Investigate preview-refresh/
+dismissal ordering; changed-document dismissal remains unresolved.
