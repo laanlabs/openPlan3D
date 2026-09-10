@@ -27,6 +27,7 @@ export function planContentBounds(floor: Floor, options: {
   entourageAspect: (id: string) => number;
   measurementsVisible?: boolean;
   dimensionsVisible?: boolean;
+  textAnnotationsVisible?: boolean;
   automaticDimensions?: { external: boolean; internal: boolean; edge: boolean };
   dimensionRooms?: { room: Room; polygon: Point[] }[];
   roomLabels?: { room: Room; polygon: Point[] }[];
@@ -138,7 +139,7 @@ export function planContentBounds(floor: Floor, options: {
       const size = Math.max(10, 11 * scale);
       caption(a.label || formatLength(g.length, options.units ?? 'metric'), g.center.x, g.center.y, `${size}px sans-serif`, size);
     }
-    for (const note of floor.textAnnotations ?? []) add(textAnnotationBounds(note, options.context, options.zoom ?? 1));
+    if (options.textAnnotationsVisible !== false) for (const note of floor.textAnnotations ?? []) add(textAnnotationBounds(note, options.context, options.zoom ?? 1));
     for (const { room, polygon } of options.roomLabels ?? []) {
       if (polygon.length < 3) continue;
       const anchor = roomLabelPosition(room, polygon), ctx = options.context;

@@ -97,3 +97,13 @@ it('includes internal room dimensions independently of room-name labels', () => 
   expect(bounds.maxY).toBeGreaterThan(1300);
   expect(bounds.maxX - bounds.minX).toBeGreaterThan(1000);
 });
+
+it('omits hidden note bounds without modifying the note or the default export bounds', () => {
+  const floor=empty();
+  floor.textAnnotations=[{id:'note',x:8000,y:-9000,text:'Hidden\nnote',fontSize:16,rotation:30,color:'#123456'}];
+  const before=structuredClone(floor), visible=planContentBounds(floor,options);
+  expect(visible).not.toBeNull();
+  expect(planContentBounds(floor,{...options,textAnnotationsVisible:false})).toBeNull();
+  expect(planContentBounds(floor,options)).toEqual(visible);
+  expect(floor).toEqual(before);
+});

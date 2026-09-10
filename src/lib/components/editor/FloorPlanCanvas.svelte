@@ -133,7 +133,7 @@
   let showRulers = $state(true);
 
   // Layer visibility toggles
-  let layerVis = $state({ walls: true, doors: true, windows: true, furniture: true, stairs: true, columns: true, guides: true, measurements: true, annotations: true, entourage: true, floorBelow: true });
+  let layerVis = $state({ walls: true, doors: true, windows: true, furniture: true, stairs: true, columns: true, guides: true, measurements: true, annotations: true, textAnnotations: true, entourage: true, floorBelow: true });
   // Sync showFurnitureStore ↔ layerVisibility.furniture
   let showFurniture = $derived(layerVis.furniture);
   $effect(() => { showFurnitureStore.set(layerVis.furniture); });
@@ -295,7 +295,8 @@
     const ids = new Set<string>();
     for (const items of [currentFloor.walls, currentFloor.furniture, currentFloor.doors,
       currentFloor.windows, currentFloor.stairs, currentFloor.columns, currentFloor.entourage,
-      currentFloor.textAnnotations, currentFloor.measurements, currentFloor.annotations]) {
+      layerVis.textAnnotations ? currentFloor.textAnnotations : [],
+      layerVis.measurements ? currentFloor.measurements : [], layerVis.annotations ? currentFloor.annotations : []]) {
       for (const item of items ?? []) ids.add(item.id);
     }
     clearAuxiliarySelection();
@@ -737,7 +738,7 @@
   }
 
   function hitTestMeasurement(wp: Point, floor: Floor): string | null {
-    return _hitTestMeasurement(wp, floor, zoom);
+    return layerVis.measurements ? _hitTestMeasurement(wp, floor, zoom) : null;
   }
 
   function drawAnnotation(a: Annotation, selected: boolean) {
@@ -804,7 +805,7 @@
   }
 
   function hitTestAnnotation(wp: Point, floor: Floor): string | null {
-    return _hitTestAnnotation(wp, floor, zoom);
+    return layerVis.annotations ? _hitTestAnnotation(wp, floor, zoom) : null;
   }
 
   function drawTextAnnotations(floor: Floor) {
@@ -812,7 +813,7 @@
   }
 
   function hitTestTextAnnotation(wp: Point, floor: Floor): string | null {
-    return _hitTestTextAnnotation(wp, floor, ctx, zoom);
+    return layerVis.textAnnotations ? _hitTestTextAnnotation(wp, floor, ctx, zoom) : null;
   }
 
   function drawWallJoints(floor: Floor, selId: string | null) {
@@ -1686,7 +1687,7 @@
     // Annotation preview
     if (annotating && annotationStart) drawAnnotationPreview();
     // Text annotations
-    if (floor) drawTextAnnotations(floor);
+    if (layerVis.textAnnotations && floor) drawTextAnnotations(floor);
 
     // Rotation angle tooltip while dragging rotation handle
     if (draggingHandle === 'rotate' && currentSelectedId && currentFloor) {
@@ -1835,7 +1836,22 @@
       queueInitialFit();
       markDirty();
     });
-    const unsub_layers = layerVisibility.subscribe((v) => { layerVis = v; markDirty(); });
+    const unsub_layers = layerVisibility.subscribe((v) => {
+      layerVis = v;
+      const hiddenIds = new Set([
+        ...(!v.textAnnotations ? currentFloor?.textAnnotations ?? [] : []),
+        ...(!v.measurements ? currentFloor?.measurements ?? [] : []),
+        ...(!v.annotations ? currentFloor?.annotations ?? [] : []),
+      ].map(item => item.id));
+      if (hiddenIds.size) {
+        if (hiddenIds.has(selectedTextAnnotationId ?? '')) selectedTextAnnotationId = null;
+        if (hiddenIds.has(selectedMeasurementId ?? '')) selectedMeasurementId = null;
+        if (hiddenIds.has(selectedAnnotationId ?? '')) selectedAnnotationId = null;
+        if (hiddenIds.has(currentSelectedId ?? '')) selectedElementId.set(null);
+        if ([...currentSelectedIds].some(id => hiddenIds.has(id))) selectedElementIds.set(new Set([...currentSelectedIds].filter(id => !hiddenIds.has(id))));
+      }
+      markDirty();
+    });
     const unsub_col = placingColumn.subscribe((v) => { isPlacingColumn = v; markDirty(); });
     const unsub_cols = placingColumnShape.subscribe((v) => { placingColShape = v; markDirty(); });
     const unsub12 = calibrationMode.subscribe((v) => { isCalibrating = v; markDirty(); });
@@ -1954,6 +1970,7 @@
           ? detectedRooms.map(room => ({ room, polygon: roomPolygons.get(room.id) ?? [] })) : undefined,
         measurementsVisible: floor === currentFloor && layerVis.measurements,
         dimensionsVisible: floor === currentFloor && layerVis.annotations,
+        textAnnotationsVisible: floor === currentFloor && layerVis.textAnnotations,
         roomLabels: floor === currentFloor && showRoomLabels
           ? detectedRooms.map(room => ({ room, polygon: roomPolygons.get(room.id) ?? [] })) : undefined,
         units: dimSettings.units,
@@ -3070,10 +3087,10 @@
           if (ptInRect(item.position)) ids.add(item.id);
         }
 
-        for (const item of currentFloor.textAnnotations ?? []) {
+        if (layerVis.textAnnotations) for (const item of currentFloor.textAnnotations ?? []) {
           if (ptInRect(item)) ids.add(item.id);
         }
-        for (const item of [...currentFloor.measurements ?? [], ...currentFloor.annotations ?? []]) {
+        for (const item of [...(layerVis.measurements ? currentFloor.measurements ?? [] : []), ...(layerVis.annotations ? currentFloor.annotations ?? [] : [])]) {
           if (ptInRect({ x: item.x1, y: item.y1 }) && ptInRect({ x: item.x2, y: item.y2 })) ids.add(item.id);
         }
 
@@ -4032,7 +4049,7 @@
   {#if showLayerPanel}
     <div class="absolute bottom-12 right-2 z-20 bg-white rounded-lg shadow-lg border border-gray-200 p-3 text-xs min-w-[160px]">
       <div class="font-semibold text-gray-700 mb-2">Layers</div>
-      {#each [['walls','Walls'],['doors','Doors'],['windows','Windows'],['furniture','Furniture'],['stairs','Stairs'],['columns','Columns'],['guides','Guides'],['measurements','Measurements']] as [key, label]}
+      {#each [['walls','Walls'],['doors','Doors'],['windows','Windows'],['furniture','Furniture'],['stairs','Stairs'],['columns','Columns'],['guides','Guides'],['measurements','Measurements'],['annotations','Dimensions'],['textAnnotations','Text notes']] as [key, label]}
         <label class="flex items-center gap-2 py-0.5 cursor-pointer hover:bg-gray-50 rounded px-1">
           <input type="checkbox" checked={(layerVis as Record<string, boolean>)[key]} onchange={() => layerVisibility.update(v => ({ ...v, [key]: !(v as Record<string, boolean>)[key] }))} class="accent-blue-500" />
           <span>{label}</span>

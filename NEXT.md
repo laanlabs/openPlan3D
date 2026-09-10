@@ -1603,3 +1603,17 @@ Chromium/WebKit workflows, Svelte checks and build passed. Phone visual review
 passed. See [validation](docs/multiline-note-properties-validation.md). Annotation
 visibility, walls/openings alignment, opening-only group movement, detailed
 exports, physical qualification and native parity remain open.
+
+### Annotation layer visibility — 2026-09-10
+
+Text notes now have visibility controls, and all three annotation types respect
+hidden state in drawing, hit testing, marquee and Select All. Hiding clears their
+active selection; explicit selection in Layers reveals the category. Hidden notes
+are omitted from Fit/minimap while saved data and exports remain intact.
+
+**All 848 unit tests, 14 Chromium/WebKit workflows, Svelte checks and build passed.**
+Exact exports verify hidden-item protection from Delete/Select All, Undo and
+reveal; existing auxiliary selection checks also pass. See
+[validation](docs/annotation-visibility-validation.md). Walls/openings alignment,
+opening-only group movement, detailed furniture exports, physical qualification
+and broader native parity remain open.

@@ -11,7 +11,7 @@
   let selId: string | null = $state(null);
   onDestroy(selectedElementId.subscribe(id => { selId = id; }));
 
-  let vis = $state({ walls: true, doors: true, windows: true, furniture: true, stairs: true, columns: true, guides: true, measurements: true, annotations: true, entourage: true, floorBelow: true });
+  let vis = $state({ walls: true, doors: true, windows: true, furniture: true, stairs: true, columns: true, guides: true, measurements: true, annotations: true, textAnnotations: true, entourage: true, floorBelow: true });
   onDestroy(layerVisibility.subscribe(v => { vis = v; }));
 
   // Collapsed state per category
@@ -22,11 +22,11 @@
   }
 
   function toggleVisibility(cat: Category['key']) {
-    if (cat === 'textAnnotations') return;
     layerVisibility.update(v => ({ ...v, [cat]: !v[cat] }));
   }
 
-  function select(id: string) {
+  function select(id: string, category: Category['key']) {
+    if (!vis[category]) layerVisibility.update(v => ({ ...v, [category]: true }));
     selectedElementIds.set(new Set());
     selectedRoomId.set(null);
     selectedElementId.set(id);
@@ -39,7 +39,7 @@
   });
 
   interface Category {
-    key: keyof typeof vis | 'textAnnotations';
+    key: keyof typeof vis;
     label: string;
     icon: string;
     items: { id: string; label: string; icon: string }[];
@@ -155,7 +155,6 @@
           <span class="text-gray-400 mr-1">{cat.items.length}</span>
         </button>
         <!-- Visibility toggle (outside button to avoid nesting) -->
-        {#if cat.key !== 'textAnnotations'}
         <span
           role="button"
           tabindex="0"
@@ -165,7 +164,6 @@
           onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleVisibility(cat.key); } }}
           title={vis[cat.key] ? `Hide ${cat.label}` : `Show ${cat.label}`}
         >👁</span>
-        {/if}
         <!-- Items -->
         {#if !collapsed[cat.key]}
           {#each cat.items as item}
@@ -173,8 +171,8 @@
               class="w-full flex items-center gap-1.5 pl-7 pr-2 py-1 hover:bg-blue-50 text-left transition-colors"
               class:bg-blue-100={selId === item.id}
               class:text-blue-700={selId === item.id}
-              class:opacity-40={cat.key !== 'textAnnotations' && !vis[cat.key]}
-              onclick={() => select(item.id)}
+              class:opacity-40={!vis[cat.key]}
+              onclick={() => select(item.id, cat.key)}
             >
               <span class="text-[10px]">{item.icon}</span>
               <span class="truncate flex-1">{item.label}</span>
