@@ -1040,3 +1040,16 @@ limits convert to the selected units.
 Chromium/WebKit at desktop/phone widths; Svelte checks and build passed.** See
 [validation](docs/structural-dimension-input-validation.md). Other property
 editors, native parity and physical device qualification remain open.
+
+### Presentation property drafts — 2026-09-09
+
+Entourage width/rotation, furniture/column rotation, text font size/position/
+rotation and background-image rotation now preserve saved values for invalid
+numeric drafts. Fractional values remain visible and editable; entourage minimum
+width converts to inches correctly.
+
+**Four Chromium/WebKit desktop/phone-width checks, Svelte checks and build
+passed.** See [validation](docs/property-draft-validation.md). The phone check
+also exposed a remaining usability issue: fit-to-view can place content behind
+the open properties sheet; panning reveals it. Fit framing, physical touch
+qualification and native parity remain open.

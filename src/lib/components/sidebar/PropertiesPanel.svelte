@@ -204,7 +204,7 @@
   }
   function onFurnitureRotation(e: Event) {
     if (!selectedFurniture) return;
-    updateFurniture(selectedFurniture.id, { rotation: Number((e.target as HTMLInputElement).value) });
+    scalarInput(e, selectedFurniture.rotation, value => updateFurniture(selectedFurniture!.id, { rotation: value }));
   }
   function resetFurnitureDefaults() {
     if (!selectedFurniture) return;
@@ -716,8 +716,8 @@
         <span class="text-xs text-gray-500">Rotation (degrees)</span>
         <input 
           type="number" 
-          value={Math.round(selectedFurniture.rotation * 100) / 100} 
-          oninput={onFurnitureRotation} 
+          value={selectedFurniture.rotation}
+          oninput={onFurnitureRotation} onblur={onFurnitureRotation} step="any"
           class="w-full px-2 py-1 border border-gray-200 rounded text-sm" 
         />
       </label>
@@ -855,11 +855,11 @@
       </div>
       <label class="block">
         <span class="text-xs text-gray-500">Width ({unitLabel()})</span>
-        <input type="number" value={displayValue(Math.round(selectedEntourage.width))} oninput={(e) => { if (selectedEntourage) updateEntourageItem(selectedEntourage.id, { width: Math.max(1, inputToCm(Number((e.target as HTMLInputElement).value)) || 1) }); }} min="1" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
+        <input type="number" value={displayValue(selectedEntourage.width)} oninput={(e) => dimensionInput(e, selectedEntourage!.width, value => updateEntourageItem(selectedEntourage!.id, { width: value }))} onblur={(e) => dimensionInput(e, selectedEntourage!.width, value => updateEntourageItem(selectedEntourage!.id, { width: value }))} min={settings.units === 'imperial' ? 1 / 2.54 : 1} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
         <span class="text-xs text-gray-500">Rotation (°)</span>
-        <input type="number" value={Math.round(selectedEntourage.rotation || 0)} oninput={(e) => { if (selectedEntourage) updateEntourageItem(selectedEntourage.id, { rotation: Number((e.target as HTMLInputElement).value) || 0 }); }} step="15" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
+        <input type="number" value={selectedEntourage.rotation} oninput={(e) => scalarInput(e, selectedEntourage!.rotation, value => updateEntourageItem(selectedEntourage!.id, { rotation: value }))} onblur={(e) => scalarInput(e, selectedEntourage!.rotation, value => updateEntourageItem(selectedEntourage!.id, { rotation: value }))} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
         <span class="text-xs text-gray-500">Opacity ({Math.round((selectedEntourage.opacity ?? 1) * 100)}%)</span>
@@ -951,7 +951,7 @@
       {#if selectedColumn.shape === 'square'}
         <label class="block">
           <span class="text-xs text-gray-500">Rotation (degrees)</span>
-          <input type="number" value={selectedColumn.rotation} oninput={(e) => updateColumn(selectedColumn!.id, { rotation: Number((e.target as HTMLInputElement).value) })} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
+          <input type="number" value={selectedColumn.rotation} oninput={(e) => scalarInput(e, selectedColumn!.rotation, value => updateColumn(selectedColumn!.id, { rotation: value }))} onblur={(e) => scalarInput(e, selectedColumn!.rotation, value => updateColumn(selectedColumn!.id, { rotation: value }))} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
         </label>
       {/if}
     </div>
@@ -967,7 +967,7 @@
       </label>
       <label class="block">
         <span class="text-xs text-gray-500">Font Size</span>
-        <input type="number" value={selectedTextAnnotation.fontSize} min="8" max="72" oninput={(e) => updateTextAnnotation(selectedTextAnnotation!.id, { fontSize: Number((e.target as HTMLInputElement).value) })} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
+        <input type="number" value={selectedTextAnnotation.fontSize} min="8" max="72" oninput={(e) => scalarInput(e, selectedTextAnnotation!.fontSize, value => updateTextAnnotation(selectedTextAnnotation!.id, { fontSize: value }))} onblur={(e) => scalarInput(e, selectedTextAnnotation!.fontSize, value => updateTextAnnotation(selectedTextAnnotation!.id, { fontSize: value }))} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
         <span class="text-xs text-gray-500">Color</span>
@@ -978,15 +978,15 @@
       </label>
       <label class="block">
         <span class="text-xs text-gray-500">Rotation (°)</span>
-        <input type="number" value={selectedTextAnnotation.rotation} oninput={(e) => updateTextAnnotation(selectedTextAnnotation!.id, { rotation: Number((e.target as HTMLInputElement).value) })} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
+        <input type="number" value={selectedTextAnnotation.rotation} oninput={(e) => scalarInput(e, selectedTextAnnotation!.rotation, value => updateTextAnnotation(selectedTextAnnotation!.id, { rotation: value }))} onblur={(e) => scalarInput(e, selectedTextAnnotation!.rotation, value => updateTextAnnotation(selectedTextAnnotation!.id, { rotation: value }))} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
         <span class="text-xs text-gray-500">X</span>
-        <input type="number" value={Math.round(selectedTextAnnotation.x)} oninput={(e) => updateTextAnnotation(selectedTextAnnotation!.id, { x: Number((e.target as HTMLInputElement).value) })} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
+        <input type="number" value={selectedTextAnnotation.x} oninput={(e) => scalarInput(e, selectedTextAnnotation!.x, value => updateTextAnnotation(selectedTextAnnotation!.id, { x: value }))} onblur={(e) => scalarInput(e, selectedTextAnnotation!.x, value => updateTextAnnotation(selectedTextAnnotation!.id, { x: value }))} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
         <span class="text-xs text-gray-500">Y</span>
-        <input type="number" value={Math.round(selectedTextAnnotation.y)} oninput={(e) => updateTextAnnotation(selectedTextAnnotation!.id, { y: Number((e.target as HTMLInputElement).value) })} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
+        <input type="number" value={selectedTextAnnotation.y} oninput={(e) => scalarInput(e, selectedTextAnnotation!.y, value => updateTextAnnotation(selectedTextAnnotation!.id, { y: value }))} onblur={(e) => scalarInput(e, selectedTextAnnotation!.y, value => updateTextAnnotation(selectedTextAnnotation!.id, { y: value }))} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
     </div>
   {/if}
@@ -1015,7 +1015,7 @@
         </label>
         <label class="block">
           <span class="text-xs text-gray-500">Rotation</span>
-          <input type="number" value={floor.backgroundImage.rotation} oninput={(e) => updateBackgroundImage({ rotation: Number((e.target as HTMLInputElement).value) })} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
+          <input type="number" value={floor.backgroundImage.rotation} oninput={(e) => scalarInput(e, floor!.backgroundImage!.rotation, value => updateBackgroundImage({ rotation: value }))} onblur={(e) => scalarInput(e, floor!.backgroundImage!.rotation, value => updateBackgroundImage({ rotation: value }))} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
         </label>
         <div class="flex gap-2">
           <button
