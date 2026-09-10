@@ -26,5 +26,6 @@ Validation on 2026-09-09:
 - pdfplumber verified all 32 complete names and schedule rectangles above the
   footer across four schedule pages. Totals may occupy a separate schedule page.
 - All schedule pages were visually inspected using macOS CoreGraphics/PDFKit
-  rendering. Bundled Poppler had a font-configuration problem and did not produce
-  review images; its local render process was stopped after the fallback review.
+  rendering. Bundled Poppler initially had a font-configuration problem. A run
+  with its explicit bundled font configuration completed successfully afterward;
+  its continuation-page rendering was also inspected without clipping.
