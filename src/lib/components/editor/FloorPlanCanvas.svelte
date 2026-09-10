@@ -1880,7 +1880,7 @@
 
   function drawMinimap() {
     if (!showMinimap || !minimapCanvas || !currentFloor) return;
-    _drawMinimap(getCS(), minimapCanvas, currentFloor, getWorldBBox);
+    _drawMinimap(getCS(), minimapCanvas, currentFloor, getWorldBBox, layerVis);
   }
 
   function onMinimapClick(e: MouseEvent) {
@@ -1908,6 +1908,8 @@
   function boundsForFloor(floor: Floor, fittedZoom = 1) {
       return planContentBounds(floor, {
         context: ctx,
+        measurementsVisible: floor === currentFloor && layerVis.measurements,
+        dimensionsVisible: floor === currentFloor && layerVis.annotations,
         roomLabels: floor === currentFloor && showRoomLabels
           ? detectedRooms.map(room => ({ room, polygon: roomPolygons.get(room.id) ?? [] })) : undefined,
         units: dimSettings.units,

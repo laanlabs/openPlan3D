@@ -1,4 +1,4 @@
-import { formatArea } from '$lib/stores/settings';
+import { formatArea, formatLength } from '$lib/stores/settings';
 import { roomLabelPosition } from './roomDetection';
 import type { Room, Point } from '$lib/models/types';
 import type { Floor } from '$lib/models/types';
@@ -20,6 +20,8 @@ export function hasPlanContent(floor: Floor): boolean {
 export function planContentBounds(floor: Floor, options: {
   context: CanvasRenderingContext2D;
   entourageAspect: (id: string) => number;
+  measurementsVisible?: boolean;
+  dimensionsVisible?: boolean;
   roomLabels?: { room: Room; polygon: Point[] }[];
   units?: 'metric' | 'imperial';
   zoom?: number;
@@ -50,14 +52,29 @@ export function planContentBounds(floor: Floor, options: {
   }
   for (const col of floor.columns ?? []) rectangle(col.position.x, col.position.y, col.diameter, col.diameter, col.shape === 'square' ? col.rotation : 0);
   for (const item of floor.entourage ?? []) rectangle(item.position.x, item.position.y, item.width, item.width * options.entourageAspect(item.defId), item.rotation);
-  for (const m of floor.measurements ?? []) { point(m.x1, m.y1); point(m.x2, m.y2); }
-  for (const a of floor.annotations ?? []) {
-    point(a.x1, a.y1); point(a.x2, a.y2);
-    const g = dimensionPlanGeometry(a);
-    if (g) { point(g.start.x, g.start.y); point(g.end.x, g.end.y); }
-  }
   options.context.save();
   try {
+    const ctx = options.context, scale = options.zoom ?? 1;
+    function caption(text: string, x: number, y: number, font: string, size: number, bottom = false) {
+      ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = bottom ? 'bottom' : 'middle';
+      const m = ctx.measureText(text);
+      point(x - (m.actualBoundingBoxLeft ?? m.width / 2) / scale, y - (m.actualBoundingBoxAscent ?? size) / scale);
+      point(x + (m.actualBoundingBoxRight ?? m.width / 2) / scale, y + (m.actualBoundingBoxDescent ?? (bottom ? 0 : size)) / scale);
+    }
+    if (options.measurementsVisible !== false) for (const m of floor.measurements ?? []) {
+      for (const [x, y] of [[m.x1, m.y1], [m.x2, m.y2]]) rectangle(x, y, 6 / scale, 6 / scale, 0);
+      caption(formatLength(Math.hypot(m.x2 - m.x1, m.y2 - m.y1), options.units ?? 'metric'),
+        (m.x1 + m.x2) / 2, (m.y1 + m.y2) / 2 - 6 / scale, 'bold 12px sans-serif', 12, true);
+    }
+    if (options.dimensionsVisible !== false) for (const a of floor.annotations ?? []) {
+      const g = dimensionPlanGeometry(a);
+      if (!g) continue;
+      point(a.x1, a.y1); point(a.x2, a.y2);
+      const arrowExtent = (Math.max(6, 7 * scale) + Math.max(2.5, 3 * scale)) / scale;
+      for (const p of [g.start, g.end]) rectangle(p.x, p.y, Math.max(4, arrowExtent) * 2, Math.max(4, arrowExtent) * 2, 0);
+      const size = Math.max(10, 11 * scale);
+      caption(a.label || formatLength(g.length, options.units ?? 'metric'), g.center.x, g.center.y, `${size}px sans-serif`, size);
+    }
     for (const note of floor.textAnnotations ?? []) add(textAnnotationBounds(note, options.context, options.zoom ?? 1));
     for (const { room, polygon } of options.roomLabels ?? []) {
       if (polygon.length < 3) continue;

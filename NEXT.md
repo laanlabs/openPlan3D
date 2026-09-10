@@ -1156,3 +1156,16 @@ to world coordinates. The default export bounds behavior is preserved.
 Longer note ink and export regressions are covered; the phone screenshot was
 reviewed. See [validation](docs/text-note-fit-validation.md). Overwide text,
 measurement/dimension captions, selection framing and physical checks remain open.
+
+### Fit measurement and dimension captions — 2026-09-09
+
+Fit measures saved measurement and dimension captions at their rendered screen
+font sizes and includes endpoint dots, arrows and leader extensions. Hidden
+measurement/annotation layers are excluded from these bounds and minimap lines.
+Saved geometry and labels remain unchanged.
+
+**767 unit tests, twelve Chromium/WebKit checks, Svelte checks and build passed.**
+Desktop/phone caption framing, hidden measurements, object-only minimap behavior
+and export regressions are covered; the phone screenshot was reviewed. See
+[validation](docs/caption-fit-validation.md). Overwide text, automatic wall/internal
+room dimension labels, selection framing and physical checks remain open.

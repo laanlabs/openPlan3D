@@ -29,7 +29,10 @@ it('includes measurement and offset dimension endpoints', () => {
   const floor = empty();
   floor.measurements = [{ x1: -100, y1: -200, x2: 0, y2: 0 }] as Floor['measurements'];
   floor.annotations = [{ x1: 0, y1: 0, x2: 100, y2: 0, offset: 500 }] as Floor['annotations'];
-  expect(planContentBounds(floor, options)).toEqual({ minX: -100, maxX: 100, minY: -200, maxY: 500 });
+  const bounds = planContentBounds(floor, options)!;
+  expect(bounds.minX).toBeLessThan(-100); expect(bounds.maxX).toBeGreaterThan(100);
+  expect(bounds.minY).toBeLessThan(-200); expect(bounds.maxY).toBeGreaterThan(500);
+  expect(planContentBounds(floor, { ...options, measurementsVisible: false, dimensionsVisible: false })).toBeNull();
 });
 it('includes text-only floors and loaded rotated backgrounds', () => {
   const floor = empty();
@@ -63,4 +66,12 @@ it('includes moved room labels and their minimum screen-size height only when su
   expect(normal.maxY).toBeLessThan(-1900);
   expect(distant.maxY - distant.minY).toBeGreaterThan(normal.maxY - normal.minY);
   expect(room).toEqual(before);
+});
+
+it('includes long dimension captions at their minimum screen size', () => {
+  const floor = empty();
+  floor.annotations = [{ x1: 0, y1: 0, x2: 100, y2: 0, offset: 0, label: 'Long dimension caption' }] as Floor['annotations'];
+  const normal = planContentBounds(floor, options)!;
+  const small = planContentBounds(floor, { ...options, zoom: .01 })!;
+  expect(small.maxX - small.minX).toBeGreaterThan((normal.maxX - normal.minX) * 50);
 });

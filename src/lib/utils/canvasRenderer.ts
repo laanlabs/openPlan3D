@@ -1578,6 +1578,7 @@ export function drawMinimap(
   minimapCanvas: HTMLCanvasElement,
   floor: Floor,
   getWorldBBox: () => { minX: number; minY: number; maxX: number; maxY: number } | null,
+  visibility: { measurements?: boolean; annotations?: boolean } = {},
 ): void {
   const mctx = minimapCanvas.getContext('2d');
   if (!mctx) return;
@@ -1643,8 +1644,8 @@ export function drawMinimap(
   for (const item of floor.columns ?? []) marker(item.position.x, item.position.y, item.color || '#64748b');
   for (const item of floor.entourage ?? []) marker(item.position.x, item.position.y, '#16a34a');
   for (const item of floor.textAnnotations ?? []) marker(item.x, item.y, item.color || '#1e293b');
-  for (const item of floor.measurements ?? []) line(item.x1, item.y1, item.x2, item.y2);
-  for (const item of floor.annotations ?? []) {
+  if (visibility.measurements !== false) for (const item of floor.measurements ?? []) line(item.x1, item.y1, item.x2, item.y2);
+  if (visibility.annotations !== false) for (const item of floor.annotations ?? []) {
     line(item.x1, item.y1, item.x2, item.y2);
     const g = dimensionPlanGeometry(item);
     if (g) line(g.start.x, g.start.y, g.end.x, g.end.y);
