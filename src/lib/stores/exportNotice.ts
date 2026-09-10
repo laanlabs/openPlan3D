@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
 import type { Project } from '$lib/models/types';
-import { exportPDF } from '$lib/utils/export';
+import { exportAsPNG, exportPDF } from '$lib/utils/export';
 
 export const exportNotice = writable<{ title: string; message: string } | null>(null);
 
@@ -16,5 +16,14 @@ export function exportPDFWithFeedback(project: Project) {
     }
   } catch {
     exportNotice.set({ title: "Couldn't export PDF", message: 'The PDF could not be prepared. Try again, or export JSON to keep a copy of your plan.' });
+  }
+}
+
+export async function exportPNGWithFeedback(project: Project) {
+  exportNotice.set(null);
+  try {
+    if (!await exportAsPNG(null, project)) exportNotice.set({ title: "Couldn't export 2D PNG", message: 'Add walls to the active floor before exporting a PNG.' });
+  } catch {
+    exportNotice.set({ title: "Couldn't export 2D PNG", message: 'The PNG could not be prepared. Try again, or export JSON to keep a copy of your plan.' });
   }
 }

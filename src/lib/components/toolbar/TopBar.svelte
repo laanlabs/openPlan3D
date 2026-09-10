@@ -1,7 +1,7 @@
 <script lang="ts">
   import { captureMain3DPNG } from '$lib/utils/captureMain3D';
   import ExportNotice from '$lib/components/ExportNotice.svelte';
-  import { exportNotice, exportPDFWithFeedback as exportPDF } from '$lib/stores/exportNotice';
+  import { exportNotice, exportPNGWithFeedback, exportPDFWithFeedback as exportPDF } from '$lib/stores/exportNotice';
   import { modalDialog, hasOpenModal } from '$lib/utils/modalDialog';
   import { openProject } from '$lib/services/projectOpening';
   import { saveConflict, savingCopy, saveCurrentAsCopy } from '$lib/stores/saveStatus';
@@ -13,7 +13,7 @@
   import { currentProject, viewMode, undo, redo, addFloor, removeFloor, setActiveFloor, updateProjectName, createDefaultProject, snapEnabled, canvasZoom, panMode, showFurnitureStore, layerVisibility, activeFloor, selectedElementId, elevationWallId, elevationPickMode } from '$lib/stores/project';
   import { get } from 'svelte/store';
   import type { Floor } from '$lib/models/types';
-  import { exportAsPNG, exportAsJSON, exportAsSVG } from '$lib/utils/export';
+  import { exportAsJSON, exportAsSVG } from '$lib/utils/export';
   import { exportDXF, exportDWG } from '$lib/utils/cadExport';
   import { createProjectFromRoomPlan, extractRoomJsonFromZip, isRoomPlanJson } from '$lib/utils/roomplanImport';
   import SettingsDialog from './SettingsDialog.svelte';
@@ -134,8 +134,7 @@
 
   function onExport2DPNG() {
     const p = get(currentProject);
-    const canvas = document.querySelector('canvas') as HTMLCanvasElement;
-    if (canvas) exportAsPNG(canvas, p ?? undefined);
+    if (p) void exportPNGWithFeedback(p);
     exportOpen = false;
   }
 

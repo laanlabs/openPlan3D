@@ -1,3 +1,4 @@
+import { canvasPNG } from './canvasPNG';
 import { planOpening } from './planOpening';
 import { wallPlanBounds, wallPlanDimension } from './wallPlanGeometry';
 import type { Project, Floor } from '$lib/models/types';
@@ -99,7 +100,7 @@ function drawOpeningsOnCanvas(
  * Renders all walls/rooms/doors/furniture onto an offscreen canvas
  * so the export isn't limited to the current viewport.
  */
-export function exportAsPNG(canvas: HTMLCanvasElement, project?: Project) {
+export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Project) {
   const name = project?.name || 'floorplan';
 
   if (project) {
@@ -226,17 +227,16 @@ export function exportAsPNG(canvas: HTMLCanvasElement, project?: Project) {
       ctx.textAlign = 'left';
       ctx.fillText(`${name} — ${floor.name}`, 20, 24);
 
-      offscreen.toBlob((blob) => {
-        if (blob) download(blob, `${name}.png`);
-      });
-      return;
+      download(await canvasPNG(offscreen), `${name}.png`);
+      return true;
     }
   }
 
-  // Fallback: just capture the viewport canvas
-  canvas.toBlob((blob) => {
-    if (blob) download(blob, `${name}-2d.png`);
-  });
+  // Project exports never substitute an unrelated viewport for an empty floor.
+  if (project) return false;
+  if (!canvas) throw new Error('No viewport available');
+  download(await canvasPNG(canvas), `${name}-2d.png`);
+  return true;
 }
 
 export { downloadProjectJSON as exportAsJSON } from './projectBackup';

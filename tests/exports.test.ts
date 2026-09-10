@@ -60,12 +60,12 @@ it('writes the saved room name into a real DXF download', async () => {
   expect(dxf).not.toContain('Room 1');
 });
 
-it('uses the saved name when drawing the PNG export', () => {
-  exportAsPNG(canvas, namedProject());
+it('uses the saved name when drawing the PNG export', async () => {
+  await exportAsPNG(canvas, namedProject());
   expect(canvasText.mock.calls.map(call => call[0])).toContain('Kitchen & Dining <East>');
 });
 
-it('uses saved names and distinct textures for same-name rooms in the PDF schedule', () => {
+it('uses saved names and distinct textures for same-name rooms in the PDF schedule', async () => {
   const project = roomProject();
   const floor = project.floors[0];
   floor.walls.push(...rectangleWalls('b', 600));
@@ -95,7 +95,7 @@ it('preserves label offsets in SVG, DXF and raster drawing coordinates', async (
   }
   const label = entities.find(e => e['0'] === 'TEXT' && e['1'] === 'Kitchen & Dining <East>')!;
   expect(label['10']).toBe('300'); expect(label['20']).toBe('-100');
-  exportAsPNG(canvas, project);
+  await exportAsPNG(canvas, project);
   expect(canvasText).toHaveBeenCalledWith('Kitchen & Dining <East>', 387.5, 187.5);
   canvasText.mockClear();
   exportPDF(project);
@@ -109,10 +109,10 @@ it('frames labels moved outside the walls and bounds large raster allocations', 
   exportAsSVG(project);
   const svg = await downloaded.at(-1)!.text();
   expect(svg).toContain('<text x="65" y="63"'); // ink bounds plus 50 cm padding
-  exportAsPNG(canvas, project);
+  await exportAsPNG(canvas, project);
   expect(canvasText).toHaveBeenCalledWith('Kitchen & Dining <East>', 95, 93);
   project.floors[0].rooms[0].labelOffset = { x: 100000, y: 100000 };
-  exportAsPNG(canvas, project);
+  await exportAsPNG(canvas, project);
   expect(Math.max(canvas.width, canvas.height)).toBeLessThanOrEqual(4096);
   exportPDF(project);
   expect(Math.max(canvas.width, canvas.height)).toBeLessThanOrEqual(4096);
@@ -124,7 +124,7 @@ it('draws curved wall paths in SVG and raster exports rather than endpoint chord
   exportAsSVG(project);
   const svg = await downloaded.at(-1)!.text();
   expect(svg).toContain('Q 257.5 -242.5 457.5 357.5');
-  exportAsPNG(canvas, project);
+  await exportAsPNG(canvas, project);
   expect(canvasCurve).toHaveBeenCalledWith(287.5, -212.5, 487.5, 387.5);
   const lengths = canvasText.mock.calls.map(c => String(c[0])).filter(s => /^\d+ cm$/.test(s)).map(Number.parseFloat);
   expect(Math.max(...lengths)).toBeGreaterThan(740); expect(Math.max(...lengths)).toBeLessThan(760);
@@ -135,7 +135,7 @@ it('draws curved wall paths in SVG and raster exports rather than endpoint chord
   expect((dxf.match(/\nLWPOLYLINE\n/g) ?? []).length).toBe(4); // one joined curve outline + 3 straight walls
 });
 
-it('keeps large room schedules above the title block and repeats headings', () => {
+it('keeps large room schedules above the title block and repeats headings', async () => {
   const project = benchmarkProject('large'), floor = project.floors[0], extra = project.floors[1];
   extra.walls.forEach(w => { w.start.x += 2200; w.end.x += 2200; });
   floor.walls.push(...extra.walls); floor.rooms.push(...extra.rooms);
@@ -149,17 +149,23 @@ it('keeps large room schedules above the title block and repeats headings', () =
   expect(total[2]).toBeLessThan(174);
 });
 
-it('does not probe unrelated canvases when exporting the optional 3D page', () => {
+it('does not probe unrelated canvases when exporting the optional 3D page', async () => {
   const unrelated = { getContext: vi.fn(() => { throw new Error('Must not probe'); }) };
   document.querySelectorAll = vi.fn(() => [unrelated]) as never;
   exportPDF(namedProject());
   expect(unrelated.getContext).not.toHaveBeenCalled();
   expect(pdfText.mock.calls.some(call => call[0] === '3D Perspective View')).toBe(false);
 });
-it('skips a lost main 3D context', () => {
+it('skips a lost main 3D context', async () => {
   const toDataURL = vi.fn();
   document.querySelector = vi.fn(() => ({width:100,height:100,getContext:()=>({isContextLost:()=>true}),toDataURL})) as never;
   exportPDF(namedProject());
   expect(toDataURL).not.toHaveBeenCalled();
   expect(pdfText.mock.calls.some(call => call[0] === '3D Perspective View')).toBe(false);
+});
+
+it('does not capture a viewport for an empty project floor', async () => {
+ const project=namedProject(); project.floors[0].walls=[];
+ expect(await exportAsPNG(canvas, project)).toBe(false);
+ expect(downloaded).toHaveLength(0);
 });

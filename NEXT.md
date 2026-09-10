@@ -945,3 +945,16 @@ after success or failure, and stale project/floor downloads are prevented.
 build passed.** The actual PNG was visually reviewed. See
 [validation](docs/png-3d-capture-validation.md). Full asynchronous asset readiness,
 blank-frame checks and broader device/camera qualification remain open.
+
+### 2D PNG source and failure feedback — 2026-09-09
+
+Project PNG export now uses the full-floor renderer without querying an on-screen
+canvas. Empty floors never substitute another viewport. Null blobs, thrown errors
+and encoding timeouts are reported through the shared notice from both toolbar
+and command palette; complete exports clear prior notices.
+
+**21 targeted tests, six Chromium/WebKit browser checks, Svelte checks and
+production build passed.** Browser coverage includes 2D export while 3D is open,
+failed encoding through both entry points, and curved wall/opening regressions.
+See [validation](docs/png-2d-feedback-validation.md). All-object bounds/typography,
+asset readiness, physical downloads and native parity remain open.
