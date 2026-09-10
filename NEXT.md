@@ -2333,3 +2333,10 @@ SVG and full-detail plan labels explicitly show unavailable area; low-zoom
 labels stay compact and floor openings show zero. All 21 Catalyst presentation
 tests passed, including clearing the notice after resolution. See `openplan3d-ios/docs/native-unresolved-labels-validation.md`.
 Dense-plan visual/device checks, exact diagnostics and remaining NEXT work stay open.
+
+### Native editor toolbar framing — 2026-09-10
+
+Initial editor fit now reserves vertical space for floating tools. A previously
+hidden unmeasured-room label is visible above the toolbar in fresh Catalyst QA;
+22 presentation tests passed. See `openplan3d-ios/docs/native-editor-toolbar-fit-validation.md`. Read-only preview framing,
+adaptive toolbar sizes, device checks and remaining NEXT work stay open.
