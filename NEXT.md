@@ -2382,3 +2382,10 @@ Editor fit uses measured top/bottom control stacks, including context actions,
 with a stable viewport during a drag. Catalyst build passed; see `openplan3d-ios/docs/native-adaptive-toolbar-framing.md`.
 Expanded-control/cancelled-gesture/Dynamic Type/iOS interactive checks and the
 remaining NEXT requirements stay open.
+
+### Native pending drag cancellation — 2026-09-10
+
+Gesture-state reset now restores a cancelled pending edit/pan and releases its
+frozen fitting viewport. Normal completion keeps its undo behavior. Catalyst
+build passed; see `openplan3d-ios/docs/native-drag-cancellation.md`. Runtime gesture ordering, interruption,
+pinch/device checks and remaining NEXT requirements stay open.
