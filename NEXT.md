@@ -1315,3 +1315,17 @@ checks and build passed.** See [validation](docs/selection-copy-validation.md).
 Clipboard copy/paste remains on older ID-based paths. Alignment/distribution,
 annotation selection, opening bounds, physical gestures and export/native parity
 remain open.
+
+### Snapshot-based plan clipboard — 2026-09-10
+
+Copy/Paste now uses captured geometry instead of looking up live source IDs.
+Walls, openings, furniture, stairs, columns, entourage and saved groups remain
+pasteable after source edits/deletion. Successive pastes use fresh IDs and offsets,
+with one Undo per paste. Openings require a valid destination wall. The clipboard
+persists between floors and clears on project changes to keep custom assets valid.
+
+**788 unit tests, four Duplicate regressions, four final Chromium/WebKit clipboard
+workflows, Svelte checks and build passed.** The final browser rerun verifies the
+plain-store snapshot fix. See [validation](docs/selection-clipboard-validation.md).
+Cross-project custom assets, annotation clipboard support, alignment/distribution,
+opening bounds, physical gestures and export/native parity remain open.

@@ -2,7 +2,7 @@ import { get } from 'svelte/store';
 import { createDefaultProject, loadProject, currentProject, removeElement, undo } from '$lib/stores/project';
 import { expect, it } from 'vitest';
 import type { Floor } from '$lib/models/types';
-import { duplicatePlanSelection } from '$lib/utils/duplicateSelection';
+import { duplicatePlanSelection, pastePlanSelection } from '$lib/utils/duplicateSelection';
 
 it('copies mixed geometry, carried openings and complete groups without aliasing originals', () => {
   const floor = { walls:[{id:'w',start:{x:0,y:0},end:{x:200,y:0},curvePoint:{x:100,y:80}}],
@@ -30,7 +30,7 @@ it('copies mixed geometry, carried openings and complete groups without aliasing
 });
 
 it('keeps standalone openings on their wall and skips missing selections and partial groups', () => {
-  const floor = {walls:[],furniture:[],doors:[{id:'d',wallId:'w',position:.95}],windows:[],groups:[{id:'g',elementIds:['d','missing']}]} as unknown as Floor;
+  const floor = {walls:[{id:'w',start:{x:0,y:0},end:{x:200,y:0}}],furniture:[],doors:[{id:'d',wallId:'w',position:.95}],windows:[],groups:[{id:'g',elementIds:['d','missing']}]} as unknown as Floor;
   expect(duplicatePlanSelection(floor,new Set(['d','missing']),()=> 'copy')).toEqual(['copy']);
   expect(floor.doors[1]).toMatchObject({wallId:'w',position:1});
   expect(floor.groups).toHaveLength(1);
@@ -53,4 +53,26 @@ it('deletion removes carried opening references and undo restores complete group
   undo();
   expect(get(currentProject)!.floors[0].groups).toEqual([{id:'g',elementIds:['w','d','e']}]);
   expect(get(currentProject)!.floors[0].doors).toHaveLength(1);
+});
+
+it('pastes immutable saved geometry after source deletion with independent successive offsets', () => {
+  const source = {walls:[],doors:[],windows:[],furniture:[],entourage:[{id:'e',defId:'person',position:{x:10,y:20},width:50,rotation:35}]} as unknown as Floor;
+  const captured = structuredClone(source);
+  source.entourage![0].width = 200;
+  source.entourage = [];
+  let i = 0;
+  pastePlanSelection(captured,source,new Set(['e']),()=>`copy-${++i}`);
+  pastePlanSelection(captured,source,new Set(['e']),()=>`copy-${++i}`,2);
+  expect(source.entourage).toMatchObject([
+    {id:'copy-1',width:50,position:{x:40,y:50},rotation:35},
+    {id:'copy-2',width:50,position:{x:70,y:80},rotation:35}
+  ]);
+  expect(captured.entourage![0].position).toEqual({x:10,y:20});
+});
+
+it('does not create orphan standalone openings on a different floor', () => {
+  const source = {walls:[],doors:[{id:'d',wallId:'missing',position:.5}],windows:[],furniture:[]} as unknown as Floor;
+  const target = {walls:[],doors:[],windows:[],furniture:[]} as unknown as Floor;
+  expect(pastePlanSelection(source,target,new Set(['d']),()=> 'unused')).toEqual([]);
+  expect(target.doors).toEqual([]);
 });

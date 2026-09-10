@@ -1,4 +1,4 @@
-import { duplicatePlanSelection } from '$lib/utils/duplicateSelection';
+import { duplicatePlanSelection, pastePlanSelection } from '$lib/utils/duplicateSelection';
 import { writable, derived, get } from 'svelte/store';
 import type { Project, Floor, Wall, Door, Window as Win, FurnitureItem, Point, Stair, Column, BackgroundImage, GuideLine, ElementGroup, EntourageItem } from '$lib/models/types';
 import { planWallResize, finitePoint, validPositiveDimension, validOpeningPosition, type WallEndpoint } from '$lib/utils/wallEditing';
@@ -892,6 +892,16 @@ export function duplicateSelection(ids: ReadonlySet<string>): string[] {
   const copy = structuredClone(floor);
   const newIds = duplicatePlanSelection(copy, ids, uid);
   if (newIds.length) mutate(f => Object.assign(f, copy), 'Duplicated selection');
+  return newIds;
+}
+
+/** Paste a captured selection, with one history entry and no dependence on source IDs. */
+export function pasteSelection(source: Floor, ids: ReadonlySet<string>, step = 1): string[] {
+  const floor = get(activeFloor);
+  if (!floor) return [];
+  const copy = structuredClone(floor);
+  const newIds = pastePlanSelection(source, copy, ids, uid, step);
+  if (newIds.length) mutate(f => Object.assign(f, copy), 'Pasted selection');
   return newIds;
 }
 

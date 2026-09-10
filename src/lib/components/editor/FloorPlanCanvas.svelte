@@ -5,7 +5,7 @@
   import { planContentBounds, hasPlanContent } from '$lib/utils/planContentBounds';
   import { connectedWallEndpoints } from '$lib/utils/wallEditing';
   import { createDrawScheduler } from '$lib/utils/drawScheduler';
-  import { activeFloor, selectedTool, selectedElementId, selectedElementIds, selectedRoomId, addWall, addDoor, addWindow, updateWall, moveWallEndpoint, updateDoor, updateWindow, addFurniture, moveFurniture, transformFurnitureDuringDrag, rotateFurniture, setFurnitureRotation, scaleFurniture, removeElement, placingFurnitureId, placingRotation, placingDoorType, placingWindowType, detectedRoomsStore, duplicateDoor, duplicateWindow, duplicateFurniture, duplicateSelection, moveWallParallel, splitWall, snapEnabled, placingStair, addStair, moveStair, updateStair, placingColumn, placingColumnShape, addColumn, moveColumn, updateColumn, calibrationMode, calibrationPoints, updateBackgroundImage, setBackgroundImage, canvasZoom, canvasMinimumZoom, canvasCamX, canvasCamY, panMode, showFurnitureStore, addGuide, moveGuide, removeGuide, beginUndoGroup, endUndoGroup, layerVisibility, updateRoom, addMeasurement, removeMeasurement, addAnnotation, removeAnnotation, updateAnnotation, addTextAnnotation, removeTextAnnotation, updateTextAnnotation, moveTextAnnotation, toggleFurnitureLock, createGroup, ungroupElements, findGroupForElement, placingEntourageId, addEntourageItem, moveEntourage, resizeEntourage, currentProject, elevationWallId, elevationPickMode } from '$lib/stores/project';
+  import { activeFloor, selectedTool, selectedElementId, selectedElementIds, selectedRoomId, addWall, addDoor, addWindow, updateWall, moveWallEndpoint, updateDoor, updateWindow, addFurniture, moveFurniture, transformFurnitureDuringDrag, rotateFurniture, setFurnitureRotation, scaleFurniture, removeElement, placingFurnitureId, placingRotation, placingDoorType, placingWindowType, detectedRoomsStore, duplicateDoor, duplicateWindow, duplicateFurniture, duplicateSelection, pasteSelection, moveWallParallel, splitWall, snapEnabled, placingStair, addStair, moveStair, updateStair, placingColumn, placingColumnShape, addColumn, moveColumn, updateColumn, calibrationMode, calibrationPoints, updateBackgroundImage, setBackgroundImage, canvasZoom, canvasMinimumZoom, canvasCamX, canvasCamY, panMode, showFurnitureStore, addGuide, moveGuide, removeGuide, beginUndoGroup, endUndoGroup, layerVisibility, updateRoom, addMeasurement, removeMeasurement, addAnnotation, removeAnnotation, updateAnnotation, addTextAnnotation, removeTextAnnotation, updateTextAnnotation, moveTextAnnotation, toggleFurnitureLock, createGroup, ungroupElements, findGroupForElement, placingEntourageId, addEntourageItem, moveEntourage, resizeEntourage, currentProject, elevationWallId, elevationPickMode } from '$lib/stores/project';
   import type { Point, Wall, Door, Window as Win, FurnitureItem, Stair, Column, GuideLine, Measurement, Annotation, TextAnnotation, CustomEntourageDef } from '$lib/models/types';
   import type { Floor, Room } from '$lib/models/types';
   import { resolveRoomGeometry, roomLabelPosition } from '$lib/utils/roomDetection';
@@ -249,7 +249,7 @@
   let draggingMultiSelect: { startMousePos: Point; origPositions: Map<string, { start?: Point; end?: Point; position?: Point }> } | null = $state(null);
 
   // Clipboard for copy/paste (Ctrl+C / Ctrl+V)
-  let clipboard: { items: Array<{ type: 'furniture' | 'door' | 'window'; data: any }> } | null = $state(null);
+  let clipboard: { floor: Floor; ids: string[]; step: number; projectId: string } | null = $state.raw(null);
 
   // Context menu state
   let ctxMenuVisible = $state(false);
@@ -1775,6 +1775,7 @@
     const unsub11 = placingStair.subscribe((v) => { isPlacingStair = v; markDirty(); });
     const unsubEnt1 = placingEntourageId.subscribe((id) => { currentEntourageDefId = id; markDirty(); });
     const unsubEnt2 = currentProject.subscribe((pr) => {
+      if (clipboard && clipboard.projectId !== pr?.id) clipboard = null;
       customEntourageDefs = pr?.customEntourage;
       floorBelow = getFloorBelow(pr);
       queueInitialFit();
@@ -1814,10 +1815,10 @@
       }
     });
 
-    // Clipboard image paste handler — only if no internal furniture clipboard
+    // Clipboard image paste handler — only if no internal plan clipboard
     function handlePaste(e: ClipboardEvent) {
       if (!e.clipboardData) return;
-      if (clipboard && clipboard.items.length > 0) return; // internal clipboard takes priority
+      if (clipboard && clipboard.ids.length > 0) return; // internal clipboard takes priority
       const files = e.clipboardData.files;
       for (let i = 0; i < files.length; i++) {
         if (files[i].type.startsWith('image/')) {
@@ -3318,18 +3319,9 @@
     // Copy (Ctrl+C / Cmd+C)
     if ((e.ctrlKey || e.metaKey) && e.key === 'c' && !e.shiftKey) {
       if (currentFloor) {
-        const items: Array<{ type: 'furniture' | 'door' | 'window'; data: any }> = [];
-        const idsToCheck = currentSelectedIds.size > 0 ? currentSelectedIds : (currentSelectedId ? new Set([currentSelectedId]) : new Set<string>());
-        for (const id of idsToCheck) {
-          const fi = currentFloor.furniture.find(f => f.id === id);
-          if (fi) { items.push({ type: 'furniture', data: { ...fi } }); continue; }
-          const door = currentFloor.doors.find(d => d.id === id);
-          if (door) { items.push({ type: 'door', data: { ...door } }); continue; }
-          const win = currentFloor.windows.find(w => w.id === id);
-          if (win) { items.push({ type: 'window', data: { ...win } }); continue; }
-        }
-        if (items.length > 0) {
-          clipboard = { items };
+        const ids = [...(currentSelectedIds.size ? currentSelectedIds : currentSelectedId ? new Set([currentSelectedId]) : new Set<string>())];
+        if (ids.length) {
+          clipboard = { floor: structuredClone(get(activeFloor)!), ids, step: 1, projectId: get(currentProject)!.id };
           e.preventDefault();
           return;
         }
@@ -3338,46 +3330,16 @@
 
     // Paste (Ctrl+V / Cmd+V)
     if ((e.ctrlKey || e.metaKey) && e.key === 'v' && !e.shiftKey) {
-      if (clipboard && clipboard.items.length > 0 && currentFloor) {
+      if (clipboard && clipboard.ids.length && currentFloor) {
         e.preventDefault();
-        beginUndoGroup();
-        const newIds: string[] = [];
-        // We need to duplicate each clipboard item by its stored ID
-        // For successive pastes, update clipboard to point to the new IDs
-        const newItems: Array<{ type: 'furniture' | 'door' | 'window'; data: any }> = [];
-        for (const item of clipboard.items) {
-          let newId: string | null = null;
-          if (item.type === 'furniture') {
-            newId = duplicateFurniture(item.data.id);
-          } else if (item.type === 'door') {
-            newId = duplicateDoor(item.data.id);
-          } else if (item.type === 'window') {
-            newId = duplicateWindow(item.data.id);
-          }
-          if (newId) {
-            newIds.push(newId);
-            // Update clipboard to reference the newly created element for successive pastes
-            const newData = item.type === 'furniture'
-              ? currentFloor.furniture.find(f => f.id === newId)
-              : item.type === 'door'
-              ? currentFloor.doors.find(d => d.id === newId)
-              : currentFloor.windows.find(w => w.id === newId);
-            newItems.push({ type: item.type, data: newData ? { ...newData } : { ...item.data, id: newId } });
-          }
-        }
-        // Update clipboard for successive pastes
-        if (newItems.length > 0) clipboard = { items: newItems };
-        endUndoGroup();
-        if (newIds.length === 1) {
-          selectedElementId.set(newIds[0]);
-          selectedElementIds.set(new Set());
-        } else if (newIds.length > 1) {
+        const newIds = pasteSelection(clipboard.floor, new Set(clipboard.ids), clipboard.step);
+        if (newIds.length) {
+          clipboard = { ...clipboard, step: clipboard.step + 1 };
           selectedElementIds.set(new Set(newIds));
           selectedElementId.set(newIds[0]);
         }
         return;
       }
-
     }
 
     // Global shortcuts
