@@ -207,7 +207,7 @@ export function hitTestAnnotation(wp: Point, floor: Floor, zoom: number): string
   if (!floor.annotations) return null;
   const threshold = 10 / zoom;
   for (const a of floor.annotations) {
-    const offset = a.offset || 40;
+    const offset = a.offset ?? 40;
     const dx = a.x2 - a.x1, dy = a.y2 - a.y1;
     const len = Math.hypot(dx, dy);
     if (len < 1) continue;

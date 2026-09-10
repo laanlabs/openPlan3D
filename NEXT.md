@@ -980,3 +980,16 @@ include rotated measured text bounds, preserving notes outside the wall envelope
 build passed.** The exported PNG was visually reviewed. See
 [validation](docs/text-annotation-export-validation.md). Universal font coverage,
 title-block text, dimension annotations, other objects and native parity remain open.
+
+### Saved dimension annotation exports — 2026-09-09
+
+PNG/PDF now draw dimension callouts; PNG/SVG/PDF bounds include offset geometry
+and labels. SVG default labels use selected units; DXF includes callout primitives.
+Zero offsets now survive rendering and hit testing. Canvas zoom scaling and
+long-label gaps are corrected without changing saved annotations.
+
+**21 targeted tests, six text/curve browser regressions, two final dimension
+browser checks, Svelte checks and build passed.** The exported PNG was visually
+reviewed. See [validation](docs/dimension-annotation-export-validation.md).
+Standalone measurements, all-object bounds, universal fonts, title layout,
+physical checks and native parity remain open.

@@ -1,3 +1,4 @@
+import { dimensionPlanGeometry } from './dimensionPlanGeometry';
 import { textAnnotationLines } from './textAnnotationLayout';
 import { planOpening } from './planOpening';
 import { planWallOutlines } from './planWallOutline';
@@ -6,7 +7,7 @@ import { wallPlanDimension } from './wallPlanGeometry';
 import type { Project } from '$lib/models/types';
 import { getCatalogItem } from '$lib/utils/furnitureCatalog';
 import { resolveRooms, getRoomPolygon, roomLabelPosition } from '$lib/utils/roomDetection';
-import { projectSettings, formatArea } from '$lib/stores/settings';
+import { projectSettings, formatArea, formatLength } from '$lib/stores/settings';
 import { get } from 'svelte/store';
 
 function download(blob: Blob, filename: string) {
@@ -85,6 +86,17 @@ export function exportDXF(project: Project) {
     const my = -midpoint.y;
     const angle = Math.atan2(-(w.end.y - w.start.y), w.end.x - w.start.x) * (180 / Math.PI);
     d.drawText(mx, my, 5, angle, `${len} cm`, 'center', 'bottom');
+  }
+
+  for (const note of floor.annotations ?? []) {
+    const g = dimensionPlanGeometry(note); if (!g) continue;
+    d.drawLine(note.x1,-note.y1,g.start.x,-g.start.y);
+    d.drawLine(note.x2,-note.y2,g.end.x,-g.end.y);
+    d.drawLine(g.start.x,-g.start.y,g.end.x,-g.end.y);
+    for (const [point, sign] of [[g.start,1],[g.end,-1]] as const) {
+      for (const side of [-1,1]) d.drawLine(point.x,-point.y,point.x+g.ux*7*sign+g.nx*3*side,-(point.y+g.uy*7*sign+g.ny*3*side));
+    }
+    d.drawText(g.center.x,-g.center.y+4,11,0,note.label || formatLength(g.length,get(projectSettings).units),'center','bottom');
   }
 
   // Draw doors as arcs + lines

@@ -188,3 +188,10 @@ it('exports rotated multiline text annotations in all plan formats', async()=>{
  expect(dxf).toContain('Saved <note>');expect(dxf).toContain('Second line');expect(dxf).toContain('TEXT_123456');
  expect(dxf).toMatch(/\n420\n1193046\n/);
 });
+it('includes saved dimension labels in PNG, PDF, SVG and DXF',async()=>{
+ const project=namedProject();project.floors[0].annotations=[{id:'dim',x1:-600,y1:-400,x2:-200,y2:-400,offset:-200,label:'Saved dimension'}];
+ await exportAsPNG(null,project);expect(canvasText.mock.calls.map(c=>c[0])).toContain('Saved dimension');
+ canvasText.mockClear();exportPDF(project);expect(canvasText.mock.calls.map(c=>c[0])).toContain('Saved dimension');
+ exportAsSVG(project);expect(await downloaded.at(-1)!.text()).toContain('Saved dimension');
+ exportDXF(project);expect(await downloaded.at(-1)!.text()).toContain('Saved dimension');
+});

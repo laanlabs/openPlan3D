@@ -1280,7 +1280,7 @@ export function drawTextAnnotations(cs: CanvasState, floor: Floor, selectedTextA
 
 export function drawAnnotation(cs: CanvasState, a: Annotation, selected: boolean, dimSettings: ProjectSettings): void {
   const { ctx, zoom } = cs;
-  const offset = a.offset || 40;
+  const offset = a.offset ?? 40;
   const dx = a.x2 - a.x1, dy = a.y2 - a.y1;
   const len = Math.hypot(dx, dy);
   if (len < 1) return;
@@ -1301,8 +1301,8 @@ export function drawAnnotation(cs: CanvasState, a: Annotation, selected: boolean
   ctx.strokeStyle = color; ctx.lineWidth = 0.75;
   const extBeyond = 4 * zoom;
   ctx.beginPath();
-  ctx.moveTo(s1.x, s1.y); ctx.lineTo(sd1.x + nx * extBeyond * zoom, sd1.y + ny * extBeyond * zoom);
-  ctx.moveTo(s2.x, s2.y); ctx.lineTo(sd2.x + nx * extBeyond * zoom, sd2.y + ny * extBeyond * zoom);
+  ctx.moveTo(s1.x, s1.y); ctx.lineTo(sd1.x + nx * extBeyond, sd1.y + ny * extBeyond);
+  ctx.moveTo(s2.x, s2.y); ctx.lineTo(sd2.x + nx * extBeyond, sd2.y + ny * extBeyond);
   ctx.stroke();
 
   const dimMx = (sd1.x + sd2.x) / 2;
@@ -1314,7 +1314,7 @@ export function drawAnnotation(cs: CanvasState, a: Annotation, selected: boolean
   ctx.font = `${fontSize}px sans-serif`;
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   const textW = ctx.measureText(label).width;
-  const halfGap = textW / 2 + 4;
+  const halfGap = Math.min(textW / 2 + 4, Math.hypot(sd2.x-sd1.x,sd2.y-sd1.y)/2);
 
   ctx.strokeStyle = color; ctx.lineWidth = selected ? 1.5 : 1;
   const sux = (sd2.x - sd1.x) / Math.hypot(sd2.x - sd1.x, sd2.y - sd1.y) || 0;

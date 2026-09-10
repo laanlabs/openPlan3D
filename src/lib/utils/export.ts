@@ -1,3 +1,4 @@
+import { dimensionPlanGeometry } from './dimensionPlanGeometry';
 import { textAnnotationBounds, textAnnotationLines } from './textAnnotationLayout';
 import { furniturePlanBounds } from './furniturePlanBounds';
 import { canvasPNG } from './canvasPNG';
@@ -6,9 +7,9 @@ import { wallPlanBounds, wallPlanDimension } from './wallPlanGeometry';
 import type { Project, Floor } from '$lib/models/types';
 import { getCatalogItem } from '$lib/utils/furnitureCatalog';
 import { resolveRooms, getRoomPolygon, roomLabelPosition } from '$lib/utils/roomDetection';
-import { drawDoorOnWall, drawWindowOnWall, drawEntourageItems, drawTextAnnotations } from '$lib/utils/canvasRenderer';
+import { drawDoorOnWall, drawWindowOnWall, drawEntourageItems, drawTextAnnotations, drawAnnotations } from '$lib/utils/canvasRenderer';
 import type { CanvasState } from '$lib/utils/canvasInteraction';
-import { projectSettings, formatArea } from '$lib/stores/settings';
+import { projectSettings, formatArea, formatLength } from '$lib/stores/settings';
 import { get } from 'svelte/store';
 import jsPDF from 'jspdf';
 
@@ -63,6 +64,21 @@ function extendBoundsForRoomLabels(floor: Floor, bounds: { minX: number; minY: n
     bounds.maxX = Math.max(bounds.maxX, anchor.x + width / 2);
     bounds.minY = Math.min(bounds.minY, anchor.y - 13);
     bounds.maxY = Math.max(bounds.maxY, anchor.y + 18);
+  }
+}
+
+function extendBoundsForDimensions(floor: Floor, bounds: { minX: number; minY: number; maxX: number; maxY: number }) {
+  const ctx = document.createElement('canvas').getContext('2d');
+  if (!ctx) return;
+  ctx.font = '11px sans-serif';
+  for (const note of floor.annotations ?? []) {
+    const g = dimensionPlanGeometry(note);
+    if (!g) continue;
+    const width = ctx.measureText(note.label || formatLength(g.length, get(projectSettings).units)).width;
+    const points = [{x:note.x1,y:note.y1},{x:note.x2,y:note.y2},g.start,g.end,
+      {x:g.center.x-width/2,y:g.center.y-11},{x:g.center.x+width/2,y:g.center.y+11}];
+    bounds.minX=Math.min(bounds.minX,...points.map(p=>p.x-8)); bounds.minY=Math.min(bounds.minY,...points.map(p=>p.y-8));
+    bounds.maxX=Math.max(bounds.maxX,...points.map(p=>p.x+8)); bounds.maxY=Math.max(bounds.maxY,...points.map(p=>p.y+8));
   }
 }
 
@@ -136,6 +152,7 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
       extendBoundsForOpenings(floor, bounds);
       extendBoundsForRoomLabels(floor, bounds);
       extendBoundsForText(floor, bounds);
+      extendBoundsForDimensions(floor, bounds);
       ({ minX, minY, maxX, maxY } = bounds);
       const pad = 80;
       const w = maxX - minX + pad * 2;
@@ -234,6 +251,7 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
         ctx.restore();
       }
 
+      drawAnnotations({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, get(projectSettings));
       drawTextAnnotations({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, null);
 
       // Title
@@ -276,6 +294,7 @@ export function exportAsSVG(project: Project) {
   extendBoundsForOpenings(floor, svgBounds);
   extendBoundsForRoomLabels(floor, svgBounds);
   extendBoundsForText(floor, svgBounds);
+  extendBoundsForDimensions(floor, svgBounds);
   ({ minX, minY, maxX, maxY } = svgBounds);
   const pad = 50;
   const vw = maxX - minX + pad * 2;
@@ -500,7 +519,7 @@ export function exportAsSVG(project: Project) {
       if (len < 1) continue;
       const ux = dx / len, uy = dy / len;
       const nx = -uy, ny = ux;
-      const offset = a.offset || 40;
+      const offset = a.offset ?? 40;
       const d1x = ax1 + nx * offset, d1y = ay1 + ny * offset;
       const d2x = ax2 + nx * offset, d2y = ay2 + ny * offset;
       // Leader lines
@@ -517,7 +536,7 @@ export function exportAsSVG(project: Project) {
       }
       // Label
       const dist = Math.round(Math.hypot(a.x2 - a.x1, a.y2 - a.y1));
-      const label = a.label || `${dist} cm`;
+      const label = a.label || formatLength(Math.hypot(a.x2-a.x1,a.y2-a.y1), get(projectSettings).units);
       const mx = (d1x + d2x) / 2, my = (d1y + d2y) / 2;
       paths += `  <text x="${mx}" y="${my - 4}" text-anchor="middle" font-size="10" fill="#6366f1" font-family="sans-serif">${escapeXml(label)}</text>\n`;
     }
@@ -630,6 +649,7 @@ export function exportPDF(project: Project) {
   extendBoundsForOpenings(floor, pdfBounds);
   extendBoundsForRoomLabels(floor, pdfBounds);
   extendBoundsForText(floor, pdfBounds);
+  extendBoundsForDimensions(floor, pdfBounds);
   ({ minX, minY, maxX, maxY } = pdfBounds);
 
   const pad = 80;
@@ -724,6 +744,7 @@ export function exportPDF(project: Project) {
     ctx.restore();
   }
 
+  drawAnnotations({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, get(projectSettings));
   drawTextAnnotations({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, null);
 
   // Embed rendered plan into PDF
