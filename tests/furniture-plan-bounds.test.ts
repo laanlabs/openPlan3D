@@ -15,5 +15,5 @@ it('contains all transformed stroke corners without changing the source',()=>{
  expect(JSON.stringify(item)).toBe(before);
 });
 it('uses the existing unknown-catalog fallback',()=>{
- expect(furniturePlanBounds({...item,rotation:0,width:undefined,depth:undefined})).toEqual({minX:-615.25,maxX:-584.75,minY:784.75,maxY:815.25});
+ expect(furniturePlanBounds({...item,rotation:0,width:undefined,depth:undefined})).toEqual({minX:-625.25,maxX:-574.75,minY:774.75,maxY:825.25});
 });

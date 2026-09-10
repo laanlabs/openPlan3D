@@ -10,7 +10,7 @@ import type { Room } from '$lib/models/types';
 import type { CanvasState } from '$lib/utils/canvasInteraction';
 import type { ProjectSettings } from '$lib/stores/settings';
 import { formatLength, formatArea } from '$lib/stores/settings';
-import { getCatalogItem } from '$lib/utils/furnitureCatalog';
+import { getCatalogItem, getFurnitureSize } from '$lib/utils/furnitureCatalog';
 import { drawFurnitureIcon } from '$lib/utils/furnitureIcons';
 import { getRoomPolygon, roomCentroid, roomLabelPosition } from '$lib/utils/roomDetection';
 import { getWallTextureCanvas, getFloorTextureCanvas } from '$lib/utils/textureGenerator';
@@ -908,12 +908,12 @@ export function drawWindowDistanceDimensions(cs: CanvasState, wall: Wall, window
 export function drawFurnitureItem(cs: CanvasState, item: FurnitureItem, selected: boolean): void {
   const { ctx, zoom } = cs;
   const cat = getCatalogItem(item.catalogId);
-  if (!cat) return;
   const s = wts(cs, item.position.x, item.position.y);
   const sx = item.scale?.x ?? 1;
   const sy = item.scale?.y ?? 1;
-  const w = (item.width ?? cat.width) * Math.abs(sx) * zoom;
-  const d = (item.depth ?? cat.depth) * Math.abs(sy) * zoom;
+  const size = getFurnitureSize(item);
+  const w = size.width * zoom;
+  const d = size.depth * zoom;
   const angle = (item.rotation * Math.PI) / 180;
 
   ctx.save();
@@ -921,18 +921,22 @@ export function drawFurnitureItem(cs: CanvasState, item: FurnitureItem, selected
   ctx.rotate(angle);
   ctx.scale(Math.sign(sx) || 1, Math.sign(sy) || 1);
 
-  const itemColor = item.color ?? cat.color;
+  const itemColor = item.color ?? cat?.color ?? '#888888';
   const strokeColor = selected ? '#3b82f6' : itemColor;
   ctx.lineWidth = selected ? 2 : 1;
   drawFurnitureIcon(ctx, item.catalogId, w, d, itemColor, strokeColor);
 
   const fontSize = Math.max(8, Math.min(12, Math.min(w, d) * 0.2));
   if (Math.min(w, d) > 20) {
+    ctx.save();
+    // Mirror the symbol, while keeping its caption readable.
+    ctx.scale(Math.sign(sx) || 1, Math.sign(sy) || 1);
     ctx.fillStyle = '#374151';
     ctx.font = `${fontSize * 0.7}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(cat.name, 0, d / 2 + fontSize * 0.8);
+    ctx.fillText(cat?.name ?? 'Unknown furniture', 0, d / 2 + fontSize * 0.8);
+    ctx.restore();
   }
 
   if (selected) {
@@ -1626,8 +1630,9 @@ export function drawMinimap(
   for (const fi of floor.furniture) {
     const cat = getCatalogItem(fi.catalogId);
     const p = toMini(fi.position.x, fi.position.y);
-    const fw = Math.max(2, (fi.width ?? cat?.width ?? 30) * scale);
-    const fd = Math.max(2, (fi.depth ?? cat?.depth ?? 30) * scale);
+    const size = getFurnitureSize(fi);
+    const fw = Math.max(2, size.width * scale);
+    const fd = Math.max(2, size.depth * scale);
     mctx.fillStyle = fi.color ?? cat?.color ?? '#94a3b8';
     mctx.save();
     mctx.translate(p.x, p.y);

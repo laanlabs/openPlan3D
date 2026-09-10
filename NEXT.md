@@ -1533,3 +1533,17 @@ straight-wall dragging and Ctrl/Cmd isolation also pass. See
 [validation](docs/curved-group-translation-validation.md). Opening-only group
 movement, unknown-catalog handling, annotation alignment/visibility, physical
 qualification and export/native parity remain open.
+
+### Unknown-catalog furniture in the 2D editor — 2026-09-10
+
+Furniture with an unavailable catalog entry now renders a generic labeled symbol
+and supports selection, movement, rotation, resizing and deletion. Drawing, hit
+testing, bounds, minimap and property defaults agree on saved dimensions or the
+shared 50 cm fallback. Mirrored furniture captions remain readable.
+
+**All 834 unit tests, six Chromium/WebKit workflows, Svelte checks and build
+passed.** Exact exports verify preserved catalog identity and metadata plus
+Undo/Redo; phone screenshots cover saved mirrored dimensions and omitted defaults.
+See [validation](docs/unknown-furniture-validation.md). Unknown-catalog 3D/export
+parity, opening-only group movement, annotation alignment/visibility, physical
+qualification and broader native parity remain open.

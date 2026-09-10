@@ -6,7 +6,7 @@ import { stairContainsLocalPoint } from './stairPlanGeometry';
  */
 import type { Point, Wall, Door, Window as Win, FurnitureItem, Stair, Column, Floor, Measurement, Annotation, TextAnnotation, EntourageItem } from '$lib/models/types';
 import type { Room } from '$lib/models/types';
-import { getCatalogItem, getFurnitureSize } from '$lib/utils/furnitureCatalog';
+import { getFurnitureSize } from '$lib/utils/furnitureCatalog';
 import { getRoomPolygon } from '$lib/utils/roomDetection';
 import { wallPointAt, wallTangentAt } from '$lib/utils/canvasRenderer';
 import type { HandleType } from '$lib/utils/canvasInteraction';
@@ -72,8 +72,6 @@ export function findHandleAt(
   if (!selectedId) return null;
   const fi = furniture.find(f => f.id === selectedId);
   if (!fi) return null;
-  const cat = getCatalogItem(fi.catalogId);
-  if (!cat) return null;
   const dx = p.x - fi.position.x;
   const dy = p.y - fi.position.y;
   const angle = -(fi.rotation * Math.PI) / 180;
@@ -103,8 +101,6 @@ export function findHandleAt(
 
 export function findFurnitureAt(p: Point, furniture: FurnitureItem[]): FurnitureItem | null {
   for (const fi of [...furniture].reverse()) {
-    const cat = getCatalogItem(fi.catalogId);
-    if (!cat) continue;
     const dx = p.x - fi.position.x;
     const dy = p.y - fi.position.y;
     const angle = -(fi.rotation * Math.PI) / 180;
