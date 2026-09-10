@@ -2675,3 +2675,11 @@ build still showed the editor after saving; dispatching close asynchronously
 also did not demonstrate a fix and was reverted. This remains timing-sensitive
 and unresolved; see native `docs/native-editor-dismissal.md`. No production
 gesture or scheduling workaround has been retained.
+
+### Native trace write-failure qualification — 2026-09-10
+
+A real permission-denied image write through the desktop picker reports an
+error without changing session files or adding history. Undo still restores
+the original red trace. QA directory permissions were restored and all four
+file hashes verified unchanged. See native `docs/native-trace-file-import.md`.
+Desktop export-dialog and live-device checks remain open.
