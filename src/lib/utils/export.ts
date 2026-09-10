@@ -61,10 +61,12 @@ function extendBoundsForOpenings(
 function extendBoundsForRoomLabels(floor: Floor, bounds: { minX: number; minY: number; maxX: number; maxY: number }) {
   const ctx = document.createElement('canvas').getContext('2d');
   if (!ctx) return;
-  for (const room of resolveRooms(floor)) {
-    const poly = getRoomPolygon(room, floor.walls);
+  const rooms = resolveRooms(floor), polygons = rooms.map(room=>getRoomPolygon(room,floor.walls));
+  const holes = roomHoles(polygons);
+  for (const [index,room] of rooms.entries()) {
+    const poly = polygons[index];
     if (poly.length < 3) continue;
-    const anchor = roomLabelPosition(room, poly);
+    const anchor = roomLabelPosition(room, poly, holes[index]);
     ctx.font = 'bold 13px sans-serif';
     const nameWidth = ctx.measureText(room.name).width;
     ctx.font = '11px sans-serif';
@@ -237,7 +239,7 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
         ctx.fill('evenodd');
         ctx.globalAlpha = 1;
         // Room label
-        const c = roomLabelPosition(room, poly);
+        const c = roomLabelPosition(room, poly, holes[ri]);
         ctx.fillStyle = '#444';
         ctx.font = 'bold 12px sans-serif';
         ctx.textAlign = 'center';
@@ -363,7 +365,7 @@ export function exportAsSVG(project: Project) {
       const d = [poly,...holes[ri]].map(ring => `M ${ring.map(p=>`${p.x-minX+pad},${p.y-minY+pad}`).join(' L ')} Z`).join(' ');
       paths += `  <path d="${d}" fill="${color}" fill-rule="evenodd" fill-opacity="0.4" stroke="none"/>\n`;
     } else paths += `  <polygon points="${pts}" fill="${color}" fill-opacity="0.4" stroke="none"/>\n`;
-    const c = roomLabelPosition(room, poly);
+    const c = roomLabelPosition(room, poly, holes[ri]);
     const cx = c.x - minX + pad;
     const cy = c.y - minY + pad;
     paths += `  <text x="${cx}" y="${cy}" text-anchor="middle" font-size="12" fill="#444" font-family="sans-serif" font-weight="bold">${escapeXml(room.name)}</text>\n`;
@@ -780,7 +782,7 @@ function renderPDF(project: Project, preparedImages: ReadonlyMap<string,HTMLImag
     traceRoomRings(ctx, poly, holes[ri], p => ({x:p.x-minX+pad,y:p.y-minY+pad}));
     ctx.fill('evenodd');
     ctx.globalAlpha = 1;
-    const c = roomLabelPosition(room, poly);
+    const c = roomLabelPosition(room, poly, holes[ri]);
     ctx.fillStyle = '#444';
     ctx.font = 'bold 13px sans-serif';
     ctx.textAlign = 'center';

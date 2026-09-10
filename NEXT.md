@@ -1899,3 +1899,14 @@ for coincident anchors; moved labels retain their saved positions. All 922 unit
 tests, six Chromium/WebKit label/slab workflows, Svelte checks, and build passed.
 See [validation](docs/nested-room-selection-validation.md). Automatic label
 placement, explicit openings, native nesting, and physical gestures remain open.
+
+### Interior default room labels — 2026-09-10
+
+Default label anchors now lie inside concave/nested visible floors, shared across
+2D/3D, hit testing, Fit, and image/vector/CAD export labels. Saved offsets retain
+their coordinate convention; dragging starts at the displayed anchor and undo
+restores automatic placement. All 923 unit tests, Svelte checks/build, eight
+browser regressions and two corrected Chromium/WebKit nested workflows passed.
+See [validation](docs/interior-room-label-validation.md) for the coordinate-test
+failure and rerun. Full text collision handling, stale Room Properties areas,
+explicit openings, native nesting, and physical qualification remain open.

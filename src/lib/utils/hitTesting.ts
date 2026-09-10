@@ -1,4 +1,5 @@
 import { stairContainsLocalPoint } from './stairPlanGeometry';
+import { roomHoles } from './roomNesting';
 /**
  * Hit-testing utilities for the floor plan canvas.
  * All functions are pure — they take data and return results.
@@ -203,10 +204,12 @@ function footprintArea(poly: Point[]): number {
 export function findRoomLabelAt(p: Point, rooms: Room[], walls: Wall[], zoom: number,
   polygons?: ReadonlyMap<string, Point[]>): Room | null {
   let selected: Room | null = null, nearest = Infinity, smallest = Infinity;
-  for (const room of rooms) {
-    const poly=polygons?.get(room.id) ?? getRoomPolygon(room,walls);
+  const rings=rooms.map(room=>polygons?.get(room.id) ?? getRoomPolygon(room,walls));
+  const holes=roomHoles(rings);
+  for (const [index, room] of rooms.entries()) {
+    const poly=rings[index];
     if (poly.length<3) continue;
-    const anchor=roomLabelPosition(room,poly), dx=p.x-anchor.x, dy=p.y-anchor.y;
+    const anchor=roomLabelPosition(room,poly,holes[index]), dx=p.x-anchor.x, dy=p.y-anchor.y;
     if (Math.abs(dx)>=80/zoom || Math.abs(dy)>=40/zoom) continue;
     const distance=dx*dx+dy*dy, area=footprintArea(poly);
     if (distance<nearest || (distance===nearest && area<smallest)) {

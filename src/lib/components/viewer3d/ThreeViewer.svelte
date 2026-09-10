@@ -29,7 +29,7 @@
   import { disposeModel, ownTexture } from '$lib/utils/furnitureModelResources';
   import { createFurnitureModelWithGLB, createPlacedFurnitureModel } from '$lib/utils/furnitureModelLoader';
   import { addFurniture } from '$lib/stores/project';
-  import { detectRooms, resolveRoomGeometry, getRoomPolygon, roomCentroid } from '$lib/utils/roomDetection';
+  import { detectRooms, resolveRoomGeometry, getRoomPolygon, roomCentroid, roomLabelPosition } from '$lib/utils/roomDetection';
   import { getMaterial } from '$lib/utils/materials';
   import { getWallTextureCanvas, getFloorTextureCanvas, setTextureLoadCallback } from '$lib/utils/textureGenerator';
 
@@ -1596,7 +1596,7 @@
       wallGroup.add(mesh);
 
       // Floating room label using sprite
-      const centroid = roomCentroid(poly);
+      const centroid = roomLabelPosition(room, poly, holes[ri]);
       const canvas = document.createElement('canvas');
       canvas.width = 256; canvas.height = 64;
       const ctx2 = canvas.getContext('2d')!;

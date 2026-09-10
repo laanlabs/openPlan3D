@@ -9,7 +9,8 @@
   import { activeFloor, selectedTool, selectedElementId, selectedElementIds, selectedRoomId, addWall, addDoor, addWindow, updateWall, moveWallEndpoint, moveWallGeometryDuringDrag, updateDoor, updateWindow, addFurniture, moveFurniture, transformFurnitureDuringDrag, rotateFurniture, rotateSelection, setFurnitureRotation, scaleFurniture, removeElement, placingFurnitureId, placingRotation, placingDoorType, placingWindowType, detectedRoomsStore, duplicateDoor, duplicateWindow, duplicateFurniture, duplicateSelection, pasteSelection, moveWallParallel, splitWall, snapEnabled, placingStair, addStair, moveStair, updateStair, placingColumn, placingColumnShape, addColumn, moveColumn, updateColumn, calibrationMode, calibrationPoints, updateBackgroundImage, setBackgroundImage, canvasZoom, canvasMinimumZoom, canvasCamX, canvasCamY, panMode, showFurnitureStore, addGuide, moveGuide, removeGuide, beginUndoGroup, endUndoGroup, layerVisibility, updateRoom, addMeasurement, updateMeasurement, removeMeasurement, addAnnotation, removeAnnotation, updateAnnotation, addTextAnnotation, removeTextAnnotation, updateTextAnnotation, moveTextAnnotation, toggleFurnitureLock, toggleSelectionLock, createGroup, ungroupElements, findGroupForElement, placingEntourageId, addEntourageItem, moveEntourage, resizeEntourage, currentProject, elevationWallId, elevationPickMode } from '$lib/stores/project';
   import type { Point, Wall, Door, Window as Win, FurnitureItem, Stair, Column, GuideLine, Measurement, Annotation, TextAnnotation, CustomEntourageDef } from '$lib/models/types';
   import type { Floor, Room } from '$lib/models/types';
-  import { resolveRoomGeometry, roomLabelPosition } from '$lib/utils/roomDetection';
+  import { resolveRoomGeometry, roomLabelPosition, roomCentroid } from '$lib/utils/roomDetection';
+  import { roomHoles } from '$lib/utils/roomNesting';
   import { getFloorBelow } from '$lib/utils/floors';
   import { detectOuterWalls } from '$lib/utils/outerWalls';
   import { getMaterial } from '$lib/utils/materials';
@@ -170,6 +171,7 @@
   // Detected rooms
   let detectedRooms: Room[] = $state([]);
   let roomPolygons = new Map<string, Point[]>();
+  let roomHolePolygons = new Map<string, Point[][]>();
   let lastWallHash = '';
   let lastRoomFloorId = '';
   // Storey directly beneath the active one, drawn as a dim reference underlay.
@@ -868,6 +870,7 @@
     if (!currentFloor) {
       detectedRooms = [];
       roomPolygons = new Map();
+      roomHolePolygons = new Map();
       lastWallHash = '';
       lastRoomFloorId = '';
       detectedRoomsStore.set([]);
@@ -880,6 +883,8 @@
     const geometry = resolveRoomGeometry(currentFloor, previous);
     const newRooms = geometry.map(item => item.room);
     roomPolygons = new Map(geometry.map(({ room, polygon }) => [room.id, polygon]));
+    const holes = roomHoles(geometry.map(g => g.polygon));
+    roomHolePolygons = new Map(geometry.map((g,i) => [g.room.id,holes[i]]));
     lastRoomFloorId = currentFloor.id;
     detectedRooms = newRooms;
     detectedRoomsStore.set(newRooms);
@@ -2592,7 +2597,10 @@
           roomLabelDragStart = { x: e.clientX, y: e.clientY };
           roomLabelDragZoom = zoom;
           roomLabelDragOffset = null;
-          roomLabelOrigOffset = { x: labelRoom.labelOffset?.x ?? 0, y: labelRoom.labelOffset?.y ?? 0 };
+          const polygon = roomPolygons.get(labelRoom.id) ?? [];
+          const anchor = roomLabelPosition(labelRoom, polygon, roomHolePolygons.get(labelRoom.id));
+          const center = roomCentroid(polygon);
+          roomLabelOrigOffset = { x: anchor.x-center.x, y: anchor.y-center.y };
           selectedRoomId.set(labelRoom.id);
           selectedElementId.set(null);
           selectedElementIds.set(new Set());
@@ -2682,7 +2690,7 @@
       const room = findRoomLabelAt(wp) ?? findRoomAt(wp);
       if (room) {
         const poly = (roomPolygons.get(room.id) ?? []);
-        const centroid = roomLabelPosition(room, poly);
+        const centroid = roomLabelPosition(room, poly, roomHolePolygons.get(room.id));
         const sc = worldToScreen(centroid.x, centroid.y);
         editingRoomId = room.id;
         editingRoomName = room.name;
@@ -3767,7 +3775,7 @@
         if (ctxMenuRoom) {
           // Trigger inline rename via existing mechanism
           const poly = (roomPolygons.get(ctxMenuRoom.id) ?? []);
-          const centroid = roomLabelPosition(ctxMenuRoom, poly);
+          const centroid = roomLabelPosition(ctxMenuRoom, poly, roomHolePolygons.get(ctxMenuRoom.id));
           const sp = worldToScreen(centroid.x, centroid.y);
           editingRoomId = ctxMenuRoom.id;
           editingRoomName = ctxMenuRoom.name;

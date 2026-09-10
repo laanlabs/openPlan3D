@@ -2,9 +2,9 @@ import { expect, it } from 'vitest';
 import { DoubleSide, Mesh, MeshBasicMaterial, Raycaster, Vector3 } from 'three';
 import { roomHoles } from '$lib/utils/roomNesting';
 import { createRoomSlabGeometry } from '$lib/utils/roomSlabGeometry';
-import { detectRooms, resolveRoomGeometry, resolveRooms } from '$lib/utils/roomDetection';
+import { detectRooms, resolveRoomGeometry, resolveRooms, roomLabelPosition } from '$lib/utils/roomDetection';
 import type { Wall } from '$lib/models/types';
-import { findRoomAt, findRoomLabelAt } from '$lib/utils/hitTesting';
+import { findRoomAt, findRoomLabelAt, pointInPolygon } from '$lib/utils/hitTesting';
 const box = (a:number,b:number,c:number,d:number) => [{x:a,y:b},{x:c,y:b},{x:c,y:d},{x:a,y:d}];
 const wallsFor = (rings: ReturnType<typeof box>[]): Wall[] => rings.flatMap((ring,ri) =>
   ring.map((start,i)=>({id:`${ri}-${i}`,start,end:ring[(i+1)%ring.length],thickness:20,height:280,color:'#fff'})));
@@ -31,6 +31,21 @@ it('subtracts unrounded child footprints before rounding a net area', () => {
   expect(rooms.map(r=>r.area).sort((a,b)=>a-b)).toEqual([1,35]);
 });
 
+it('places default labels in their own nested or concave floor while preserving manual offsets', () => {
+  const rings=[box(0,0,600,600),box(100,100,500,500),box(200,200,400,400)];
+  const holes=roomHoles(rings);
+  const anchors=rings.map((r,i)=>roomLabelPosition({},r,holes[i]));
+  anchors.forEach((p,i)=> {
+    expect(pointInPolygon(p,rings[i])).toBe(true);
+    expect(holes[i].some(h=>pointInPolygon(p,h))).toBe(false);
+    expect(roomLabelPosition({},[...rings[i]].reverse(),holes[i].map(h=>[...h].reverse()))).toEqual(p);
+  });
+  expect(new Set(anchors.map(p=>JSON.stringify(p))).size).toBe(3);
+  expect(roomLabelPosition({labelOffset:{x:25,y:-10}},rings[0],holes[0])).toEqual({x:325,y:290});
+  const concave=[[0,0],[600,0],[600,200],[200,200],[200,600],[0,600]].map(([x,y])=>({x,y}));
+  expect(pointInPolygon(roomLabelPosition({},concave),concave)).toBe(true);
+});
+
 it('selects the innermost footprint regardless of ordering or saved net area', () => {
   const walls=wallsFor([box(0,0,600,600),box(20,20,580,580),box(200,200,400,400)]);
   const resolved=resolveRoomGeometry({walls,rooms:[]});
@@ -42,7 +57,8 @@ it('selects the innermost footprint regardless of ordering or saved net area', (
       expect(findRoomAt(p,ordered,walls)?.id).toBe(expected[i].id);
     }
     expect(findRoomAt({x:700,y:700},ordered,walls,polygons)).toBeNull();
-    expect(findRoomLabelAt({x:300,y:300},ordered,walls,1,polygons)?.id).toBe(expected[2].id);
+    const coincident=ordered.map(room=>({...room,labelOffset:{x:0,y:0}}));
+    expect(findRoomLabelAt({x:300,y:300},coincident,walls,1,polygons)?.id).toBe(expected[2].id);
   }
   // An intentionally moved parent label remains selectable on its own.
   const moved=rooms.map(r=>r.id===expected[0].id ? {...r,labelOffset:{x:-250,y:0}} : r);

@@ -1,4 +1,5 @@
 import { openingPlanBounds } from './openingPlanBounds';
+import { roomHoles } from './roomNesting';
 import { entouragePlanBounds } from './entouragePlanBounds';
 import { stairPlanBounds } from './stairPlanGeometry';
 import { formatArea, formatLength } from '$lib/stores/settings';
@@ -140,9 +141,10 @@ export function planContentBounds(floor: Floor, options: {
       caption(a.label || formatLength(g.length, options.units ?? 'metric'), g.center.x, g.center.y, `${size}px sans-serif`, size);
     }
     if (options.textAnnotationsVisible !== false) for (const note of floor.textAnnotations ?? []) add(textAnnotationBounds(note, options.context, options.zoom ?? 1));
-    for (const { room, polygon } of options.roomLabels ?? []) {
+    const labels=options.roomLabels ?? [], holes=roomHoles(labels.map(r=>r.polygon));
+    for (const [index, { room, polygon }] of labels.entries()) {
       if (polygon.length < 3) continue;
-      const anchor = roomLabelPosition(room, polygon), ctx = options.context;
+      const anchor = roomLabelPosition(room, polygon, holes[index]), ctx = options.context;
       const scale = options.zoom ?? 1;
       const fontSize = Math.max(11, 13 * scale);
       ctx.font = `${fontSize}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';

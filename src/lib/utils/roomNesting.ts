@@ -1,5 +1,42 @@
 import type { Point } from '$lib/models/types';
 
+/** Keep a valid centroid; otherwise choose an interior scanline midpoint with
+ * the greatest boundary clearance. Rings may have either winding. */
+export function roomInteriorPoint(polygon: Point[], holes: Point[][] = []): Point {
+  if (!polygon.length) return {x:0,y:0};
+  const center={x:polygon.reduce((s,p)=>s+p.x,0)/polygon.length,y:polygon.reduce((s,p)=>s+p.y,0)/polygon.length};
+  const rings=[polygon,...holes];
+  function clearance(p: Point): number {
+    let inside=false, distance=Infinity;
+    for(const ring of rings) for(let i=0,j=ring.length-1;i<ring.length;j=i++) {
+      const a=ring[j],b=ring[i], dx=b.x-a.x,dy=b.y-a.y;
+      const t=Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.y-a.y)*dy)/(dx*dx+dy*dy||1)));
+      distance=Math.min(distance,Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy));
+      if((a.y>p.y)!==(b.y>p.y) && p.x<(b.x-a.x)*(p.y-a.y)/(b.y-a.y)+a.x) inside=!inside;
+    }
+    return inside ? distance : -distance;
+  }
+  if(clearance(center)>1e-7) return center;
+  let best=center, bestDistance=-Infinity;
+  for(const swapped of [false,true]) {
+    const mapped=rings.map(r=>r.map(p=>swapped?{x:p.y,y:p.x}:p));
+    const levels=[...new Set(mapped.flatMap(r=>r.map(p=>p.y)))].sort((a,b)=>a-b);
+    for(let k=1;k<levels.length;k++) {
+      const y=(levels[k-1]+levels[k])/2, xs:number[]=[];
+      for(const ring of mapped) for(let i=0,j=ring.length-1;i<ring.length;j=i++) {
+        const a=ring[j],b=ring[i];
+        if((a.y>y)!==(b.y>y)) xs.push(a.x+(b.x-a.x)*(y-a.y)/(b.y-a.y));
+      }
+      xs.sort((a,b)=>a-b);
+      for(let i=0;i+1<xs.length;i+=2) {
+        const x=(xs[i]+xs[i+1])/2, p=swapped?{x:y,y:x}:{x,y}, d=clearance(p);
+        if(d>bestDistance) {best=p;bestDistance=d;}
+      }
+    }
+  }
+  return best;
+}
+
 /** Append separate closed rings to a fresh canvas path; fill/clip with evenodd. */
 export function traceRoomRings(ctx: Pick<CanvasRenderingContext2D, 'beginPath' | 'moveTo' | 'lineTo' | 'closePath'>,
   polygon: Point[], holes: Point[][] = [], transform: (p: Point) => Point = p => p) {

@@ -1514,7 +1514,7 @@ export function drawRooms(
       ctx.fillStyle = '#9ca3af';
       ctx.font = `${fontSize}px sans-serif`;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      const anchor = roomLabelPosition(room, poly);
+      const anchor = roomLabelPosition(room, poly, holes[ri]);
       const label = wts(cs, anchor.x, anchor.y);
       ctx.fillText(`${room.name} (${formatArea(room.area, dimSettings.units)})`, label.x, label.y);
     }

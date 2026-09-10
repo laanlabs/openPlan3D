@@ -14,6 +14,7 @@ import { wallPlanDimension } from './wallPlanGeometry';
 import type { Project } from '$lib/models/types';
 import { getCatalogItem, getFurnitureSize } from '$lib/utils/furnitureCatalog';
 import { resolveRooms, getRoomPolygon, roomLabelPosition } from '$lib/utils/roomDetection';
+import { roomHoles } from './roomNesting';
 import { projectSettings, formatArea, formatLength } from '$lib/stores/settings';
 import { get } from 'svelte/store';
 
@@ -54,10 +55,11 @@ export function exportDXF(project: Project) {
   // Draw rooms (labels)
   d.setActiveLayer('ROOMS');
   const rooms = resolveRooms(floor);
-  for (const room of rooms) {
-    const poly = getRoomPolygon(room, floor.walls);
+  const polygons = rooms.map(room=>getRoomPolygon(room,floor.walls)), holes=roomHoles(polygons);
+  for (const [index, room] of rooms.entries()) {
+    const poly = polygons[index];
     if (poly.length < 3) continue;
-    const c = roomLabelPosition(room, poly);
+    const c = roomLabelPosition(room, poly, holes[index]);
     // Y is flipped in screen coords vs CAD coords
     d.drawText(c.x, -c.y, 8, 0, room.name, 'center', 'middle');
     d.drawText(c.x, -c.y - 12, 5, 0, `${formatArea(room.area, get(projectSettings).units)}`, 'center', 'middle');

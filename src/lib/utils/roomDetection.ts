@@ -1,6 +1,6 @@
 import type { Wall, Point, Room, Floor } from '$lib/models/types';
 import { wallPathSpans } from './wallProfiles';
-import { roomHoles } from './roomNesting';
+import { roomHoles, roomInteriorPoint } from './roomNesting';
 
 const EPSILON = 5; // snap distance for matching endpoints
 
@@ -415,7 +415,7 @@ export function roomCentroid(polygon: Point[]): Point {
 }
 
 /** Shared label anchor; room geometry and dimension annotations stay unshifted. */
-export function roomLabelPosition(room: Pick<Room, 'labelOffset'>, polygon: Point[]): Point {
-  const center = roomCentroid(polygon);
+export function roomLabelPosition(room: Pick<Room, 'labelOffset'>, polygon: Point[], holes: Point[][] = []): Point {
+  const center = room.labelOffset ? roomCentroid(polygon) : roomInteriorPoint(polygon, holes);
   return { x: center.x + (room.labelOffset?.x ?? 0), y: center.y + (room.labelOffset?.y ?? 0) };
 }

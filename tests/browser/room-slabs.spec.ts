@@ -30,9 +30,10 @@ test('nested rooms export one slab at each point on active and stacked floors', 
   await page.addInitScript(() => {
     const fill=CanvasRenderingContext2D.prototype.fillText;
     CanvasRenderingContext2D.prototype.fillText=function(text,x,y,maxWidth) {
-      if (this.canvas.getAttribute('aria-label')==='Floor plan editor canvas' && text.startsWith('Nested room 2')) {
+      if (this.canvas.getAttribute('aria-label')==='Floor plan editor canvas' && text.startsWith('Nested room ')) {
         const p=new DOMPoint(x,y).matrixTransform(this.getTransform()), b=this.canvas.getBoundingClientRect();
-        (window as any).__nestedAnchor={x:b.x+p.x*b.width/this.canvas.width,y:b.y+p.y*b.height/this.canvas.height};
+        const anchors=(window as any).__nestedAnchors ??= {};
+        anchors[text.split(' (')[0]]={x:b.x+p.x*b.width/this.canvas.width,y:b.y+p.y*b.height/this.canvas.height};
       }
       if (maxWidth===undefined) return fill.call(this,text,x,y);
       return fill.call(this,text,x,y,maxWidth);
@@ -67,11 +68,26 @@ test('nested rooms export one slab at each point on active and stacked floors', 
   await page.getByRole('button',{name:'Close area summary',exact:true}).click();
   await page.getByTitle('Zoom to Fit (F)',{exact:true}).first().click();
   await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
-  const anchor=await page.evaluate(()=>(window as any).__nestedAnchor as {x:number;y:number});
-  await page.mouse.dblclick(anchor.x,anchor.y);
-  const nameEditor=page.getByRole('textbox',{name:'Room name',exact:true});
-  await expect(nameEditor).toHaveValue('Nested room 2');
-  await nameEditor.press('Escape');
+  const anchors=()=>page.evaluate(()=>(window as any).__nestedAnchors as Record<string,{x:number;y:number}>);
+  let positions=await anchors();
+  for (let i=0;i<3;i++) {
+    await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
+    positions=await anchors();
+    const anchor=positions[`Nested room ${i}`];
+    for(let j=0;j<i;j++) expect(Math.hypot(anchor.x-positions[`Nested room ${j}`].x,anchor.y-positions[`Nested room ${j}`].y)).toBeGreaterThan(15);
+    await page.mouse.dblclick(anchor.x,anchor.y);
+    const nameEditor=page.getByRole('textbox',{name:'Room name',exact:true});
+    await expect(nameEditor).toHaveValue(`Nested room ${i}`);
+    await nameEditor.press('Escape');
+    await expect(nameEditor).not.toBeVisible();
+  }
+  positions=await anchors();
+  const start=positions['Nested room 0'];
+  await page.mouse.move(start.x,start.y);await page.mouse.down();
+  await page.mouse.move(start.x+40,start.y+15,{steps:5});await page.mouse.up();
+  await expect.poll(async()=>Math.abs((await anchors())['Nested room 0'].x-start.x-40)).toBeLessThan(2);
+  await page.getByRole('button',{name:'Undo',exact:true}).click();
+  await expect.poll(async()=>Math.abs((await anchors())['Nested room 0'].x-start.x)).toBeLessThan(2);
   for (const format of ['PNG','SVG','PDF']) {
     await page.evaluate(capture=>(window as any).__capturePDF=capture,format==='PDF');
     await page.getByRole('button',{name:'Export',exact:true}).click();
