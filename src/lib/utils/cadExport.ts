@@ -1,3 +1,4 @@
+import { textAnnotationLines } from './textAnnotationLayout';
 import { planOpening } from './planOpening';
 import { planWallOutlines } from './planWallOutline';
 import Drawing from 'dxf-writer';
@@ -60,6 +61,19 @@ export function exportDXF(project: Project) {
     const openings = [...floor.doors, ...floor.windows].filter(o => o.wallId === wall.id);
     for (const outline of planWallOutlines(wall, openings)) {
       d.drawPolyline([...outline, outline[0]].map(p => [p.x, -p.y]));
+    }
+  }
+
+  const textLayers = new Set<string>();
+  for (const note of floor.textAnnotations ?? []) {
+    const raw = note.color || '#1e293b';
+    const hex = /^#[0-9a-f]{6}$/i.test(raw) ? raw.slice(1) : /^#[0-9a-f]{3}$/i.test(raw) ? [...raw.slice(1)].map(c => c + c).join('') : '1e293b';
+    const layer = `TEXT_${hex.toUpperCase()}`;
+    if (!textLayers.has(layer)) { d.addLayer(layer, 7, 'CONTINUOUS'); textLayers.add(layer); }
+    d.setActiveLayer(layer); d.setTrueColor(parseInt(hex, 16));
+    const { fontSize, lines } = textAnnotationLines(note), angle = note.rotation * Math.PI / 180;
+    for (const line of lines) {
+      if (line.text) d.drawText(note.x - line.y * Math.sin(angle), -(note.y + line.y * Math.cos(angle)), fontSize, -note.rotation, line.text, 'center', 'middle');
     }
   }
 

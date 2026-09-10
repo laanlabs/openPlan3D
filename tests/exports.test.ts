@@ -176,3 +176,15 @@ it('frames an oversized rotated furniture symbol consistently in PNG and PDF', a
  expect(size.width).toBeGreaterThan(3000);
  exportPDF(project);expect({width:canvas.width,height:canvas.height}).toEqual(size);
 });
+
+it('exports rotated multiline text annotations in all plan formats', async()=>{
+ const project=namedProject(),floor=project.floors[0];
+ floor.textAnnotations=[{id:'note',x:-800,y:-500,text:'Saved <note>\nSecond line',fontSize:24,color:'#123456',rotation:30}];
+ await exportAsPNG(null,project);expect(canvasText.mock.calls.map(c=>c[0])).toContain('Saved <note>');
+ canvasText.mockClear();exportPDF(project);expect(canvasText.mock.calls.map(c=>c[0])).toContain('Second line');
+ exportAsSVG(project);const svg=await downloaded.at(-1)!.text();
+ expect(svg).toContain('Saved &lt;note&gt;');expect(svg).toContain('<tspan');expect(svg).toContain('rotate(30');
+ exportDXF(project);const dxf=await downloaded.at(-1)!.text();
+ expect(dxf).toContain('Saved <note>');expect(dxf).toContain('Second line');expect(dxf).toContain('TEXT_123456');
+ expect(dxf).toMatch(/\n420\n1193046\n/);
+});

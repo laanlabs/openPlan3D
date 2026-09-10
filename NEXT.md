@@ -969,3 +969,14 @@ outside the walls remain visible; saved furniture and raster caps are unchanged.
 checks, Svelte checks and production build passed.** The actual PNG was visually
 reviewed. See [validation](docs/furniture-export-bounds-validation.md). Long symbol
 labels, other object categories, title text and native parity remain open.
+
+### Saved text annotations in plan exports — 2026-09-09
+
+PNG/PDF now render saved text annotations; SVG preserves multiline spacing;
+DXF includes rotated lines on true-color layers for hex colors. Framed formats
+include rotated measured text bounds, preserving notes outside the wall envelope.
+
+**18 targeted tests, six Chromium/WebKit checks, Svelte checks and production
+build passed.** The exported PNG was visually reviewed. See
+[validation](docs/text-annotation-export-validation.md). Universal font coverage,
+title-block text, dimension annotations, other objects and native parity remain open.

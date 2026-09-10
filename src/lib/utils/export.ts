@@ -1,3 +1,4 @@
+import { textAnnotationBounds, textAnnotationLines } from './textAnnotationLayout';
 import { furniturePlanBounds } from './furniturePlanBounds';
 import { canvasPNG } from './canvasPNG';
 import { planOpening } from './planOpening';
@@ -5,7 +6,7 @@ import { wallPlanBounds, wallPlanDimension } from './wallPlanGeometry';
 import type { Project, Floor } from '$lib/models/types';
 import { getCatalogItem } from '$lib/utils/furnitureCatalog';
 import { resolveRooms, getRoomPolygon, roomLabelPosition } from '$lib/utils/roomDetection';
-import { drawDoorOnWall, drawWindowOnWall, drawEntourageItems } from '$lib/utils/canvasRenderer';
+import { drawDoorOnWall, drawWindowOnWall, drawEntourageItems, drawTextAnnotations } from '$lib/utils/canvasRenderer';
 import type { CanvasState } from '$lib/utils/canvasInteraction';
 import { projectSettings, formatArea } from '$lib/stores/settings';
 import { get } from 'svelte/store';
@@ -62,6 +63,16 @@ function extendBoundsForRoomLabels(floor: Floor, bounds: { minX: number; minY: n
     bounds.maxX = Math.max(bounds.maxX, anchor.x + width / 2);
     bounds.minY = Math.min(bounds.minY, anchor.y - 13);
     bounds.maxY = Math.max(bounds.maxY, anchor.y + 18);
+  }
+}
+
+function extendBoundsForText(floor: Floor, bounds: { minX: number; minY: number; maxX: number; maxY: number }) {
+  const ctx = document.createElement('canvas').getContext('2d');
+  if (!ctx) return;
+  for (const note of floor.textAnnotations ?? []) {
+    const b = textAnnotationBounds(note, ctx);
+    bounds.minX = Math.min(bounds.minX, b.minX); bounds.minY = Math.min(bounds.minY, b.minY);
+    bounds.maxX = Math.max(bounds.maxX, b.maxX); bounds.maxY = Math.max(bounds.maxY, b.maxY);
   }
 }
 
@@ -124,6 +135,7 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
       }
       extendBoundsForOpenings(floor, bounds);
       extendBoundsForRoomLabels(floor, bounds);
+      extendBoundsForText(floor, bounds);
       ({ minX, minY, maxX, maxY } = bounds);
       const pad = 80;
       const w = maxX - minX + pad * 2;
@@ -222,6 +234,8 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
         ctx.restore();
       }
 
+      drawTextAnnotations({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, null);
+
       // Title
       ctx.fillStyle = '#222';
       ctx.font = 'bold 16px sans-serif';
@@ -261,6 +275,7 @@ export function exportAsSVG(project: Project) {
   }
   extendBoundsForOpenings(floor, svgBounds);
   extendBoundsForRoomLabels(floor, svgBounds);
+  extendBoundsForText(floor, svgBounds);
   ({ minX, minY, maxX, maxY } = svgBounds);
   const pad = 50;
   const vw = maxX - minX + pad * 2;
@@ -514,7 +529,8 @@ export function exportAsSVG(project: Project) {
       const tx = ta.x - minX + pad;
       const ty = ta.y - minY + pad;
       const transform = ta.rotation ? ` transform="rotate(${ta.rotation} ${tx} ${ty})"` : '';
-      paths += `  <text x="${tx}" y="${ty}" text-anchor="middle" dominant-baseline="central" font-size="${ta.fontSize}" fill="${escapeXml(ta.color)}" font-family="sans-serif"${transform}>${escapeXml(ta.text)}</text>\n`;
+      const { fontSize, lines } = textAnnotationLines(ta);
+      paths += `  <text x="${tx}" y="${ty}" text-anchor="middle" dominant-baseline="central" font-size="${fontSize}" fill="${escapeXml(ta.color || '#1e293b')}" font-family="sans-serif" xml:space="preserve"${transform}>${lines.map(line => `<tspan x="${tx}" y="${ty + line.y}">${escapeXml(line.text)}</tspan>`).join('')}</text>\n`;
     }
   }
 
@@ -613,6 +629,7 @@ export function exportPDF(project: Project) {
   }
   extendBoundsForOpenings(floor, pdfBounds);
   extendBoundsForRoomLabels(floor, pdfBounds);
+  extendBoundsForText(floor, pdfBounds);
   ({ minX, minY, maxX, maxY } = pdfBounds);
 
   const pad = 80;
@@ -706,6 +723,8 @@ export function exportPDF(project: Project) {
     }
     ctx.restore();
   }
+
+  drawTextAnnotations({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, null);
 
   // Embed rendered plan into PDF
   const imgData = offscreen.toDataURL('image/png');
