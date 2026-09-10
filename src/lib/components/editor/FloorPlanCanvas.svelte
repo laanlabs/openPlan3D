@@ -2423,9 +2423,9 @@
         }
       }
     } else if (tool === 'select') {
-      if (startMultiSelectionDrag(wp)) return;
+      if (!e.ctrlKey && !e.metaKey && startMultiSelectionDrag(wp)) return;
       // Check wall endpoint handles first (drag-to-resize walls)
-      if (currentSelectedId && currentFloor) {
+      if (!e.ctrlKey && !e.metaKey && currentSelectedId && currentFloor) {
         const selWall = currentFloor.walls.find(w => w.id === currentSelectedId);
         if (selWall) {
           const epThreshold = 15 / zoom;
@@ -2468,7 +2468,7 @@
       // Selection handles come first: they belong to the already-selected element and are
       // drawn over everything, so they win over any element underneath them.
       const handle = findHandleAt(wp);
-      if (handle && currentSelectedId && currentFloor) {
+      if (!e.ctrlKey && !e.metaKey && handle && currentSelectedId && currentFloor) {
         const fi = currentFloor.furniture.find(f => f.id === currentSelectedId);
         if (fi) {
           draggingHandle = handle;
@@ -2484,7 +2484,7 @@
       }
       // Entourage resize handle (SE corner of the selected item)
       const selEnt = currentFloor?.entourage?.find(en => en.id === currentSelectedId);
-      if (selEnt && !selEnt.locked) {
+      if (!e.ctrlKey && !e.metaKey && selEnt && !selEnt.locked) {
         const entAspect = entourageAspect(selEnt.defId, customEntourageDefs) || 1;
         const ea = ((selEnt.rotation || 0) * Math.PI) / 180;
         const lx = selEnt.width / 2, ly = (selEnt.width * entAspect) / 2;
@@ -2496,7 +2496,7 @@
         }
       }
       // Helper: select an element (shift = add to multi-select)
-      function selectElement(id: string, isShift: boolean, isCtrl: boolean = false) {
+      function selectElement(id: string, isShift: boolean, isCtrl: boolean = e.ctrlKey || e.metaKey) {
         if (isShift) {
           toggleSelectionTarget(id);
         } else {

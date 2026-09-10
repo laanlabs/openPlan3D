@@ -1491,3 +1491,16 @@ geometry changes during selection/panning, isolated deletion, and Undo restorati
 See [validation](docs/object-shift-selection-validation.md). Ctrl/Cmd group isolation,
 unknown-catalog rendering/hit-testing, annotation alignment/visibility, physical
 qualification and export/native parity remain open.
+
+### Ctrl/Cmd-click object group isolation — 2026-09-10
+
+Ctrl/Cmd-click now isolates every supported object type from saved groups.
+Group drag bounds and selection handles yield to the modifier, and all object
+selection paths pass it consistently. Selection alone preserves saved groups.
+
+**All 18 Chromium/WebKit workflows, Svelte checks and build passed.** Each object
+type is isolated with its group selected and deselected; exact exports verify
+unchanged selection state data, isolated deletion and full Undo restoration.
+See [validation](docs/object-group-isolation-validation.md). Saved-object group
+drag initiation, unknown-catalog rendering/hit-testing, annotation alignment and
+visibility, physical qualification and export/native parity remain open.
