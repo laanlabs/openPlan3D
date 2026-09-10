@@ -6,7 +6,7 @@
   import { planContentBounds, hasPlanContent } from '$lib/utils/planContentBounds';
   import { connectedWallEndpoints } from '$lib/utils/wallEditing';
   import { createDrawScheduler } from '$lib/utils/drawScheduler';
-  import { activeFloor, selectedTool, selectedElementId, selectedElementIds, selectedRoomId, addWall, addDoor, addWindow, updateWall, moveWallEndpoint, updateDoor, updateWindow, addFurniture, moveFurniture, transformFurnitureDuringDrag, rotateFurniture, rotateSelection, setFurnitureRotation, scaleFurniture, removeElement, placingFurnitureId, placingRotation, placingDoorType, placingWindowType, detectedRoomsStore, duplicateDoor, duplicateWindow, duplicateFurniture, duplicateSelection, pasteSelection, moveWallParallel, splitWall, snapEnabled, placingStair, addStair, moveStair, updateStair, placingColumn, placingColumnShape, addColumn, moveColumn, updateColumn, calibrationMode, calibrationPoints, updateBackgroundImage, setBackgroundImage, canvasZoom, canvasMinimumZoom, canvasCamX, canvasCamY, panMode, showFurnitureStore, addGuide, moveGuide, removeGuide, beginUndoGroup, endUndoGroup, layerVisibility, updateRoom, addMeasurement, removeMeasurement, addAnnotation, removeAnnotation, updateAnnotation, addTextAnnotation, removeTextAnnotation, updateTextAnnotation, moveTextAnnotation, toggleFurnitureLock, toggleSelectionLock, createGroup, ungroupElements, findGroupForElement, placingEntourageId, addEntourageItem, moveEntourage, resizeEntourage, currentProject, elevationWallId, elevationPickMode } from '$lib/stores/project';
+  import { activeFloor, selectedTool, selectedElementId, selectedElementIds, selectedRoomId, addWall, addDoor, addWindow, updateWall, moveWallEndpoint, updateDoor, updateWindow, addFurniture, moveFurniture, transformFurnitureDuringDrag, rotateFurniture, rotateSelection, setFurnitureRotation, scaleFurniture, removeElement, placingFurnitureId, placingRotation, placingDoorType, placingWindowType, detectedRoomsStore, duplicateDoor, duplicateWindow, duplicateFurniture, duplicateSelection, pasteSelection, moveWallParallel, splitWall, snapEnabled, placingStair, addStair, moveStair, updateStair, placingColumn, placingColumnShape, addColumn, moveColumn, updateColumn, calibrationMode, calibrationPoints, updateBackgroundImage, setBackgroundImage, canvasZoom, canvasMinimumZoom, canvasCamX, canvasCamY, panMode, showFurnitureStore, addGuide, moveGuide, removeGuide, beginUndoGroup, endUndoGroup, layerVisibility, updateRoom, addMeasurement, updateMeasurement, removeMeasurement, addAnnotation, removeAnnotation, updateAnnotation, addTextAnnotation, removeTextAnnotation, updateTextAnnotation, moveTextAnnotation, toggleFurnitureLock, toggleSelectionLock, createGroup, ungroupElements, findGroupForElement, placingEntourageId, addEntourageItem, moveEntourage, resizeEntourage, currentProject, elevationWallId, elevationPickMode } from '$lib/stores/project';
   import type { Point, Wall, Door, Window as Win, FurnitureItem, Stair, Column, GuideLine, Measurement, Annotation, TextAnnotation, CustomEntourageDef } from '$lib/models/types';
   import type { Floor, Room } from '$lib/models/types';
   import { resolveRoomGeometry, roomLabelPosition } from '$lib/utils/roomDetection';
@@ -263,11 +263,25 @@
   let ctxMenuFurniture: FurnitureItem | null = $state(null);
   let ctxMenuRoom: Room | null = $state(null);
 
+  function selectAllPlanElements() {
+    if (!currentFloor) return;
+    const ids = new Set<string>();
+    for (const items of [currentFloor.walls, currentFloor.furniture, currentFloor.doors,
+      currentFloor.windows, currentFloor.stairs, currentFloor.columns, currentFloor.entourage,
+      currentFloor.textAnnotations, currentFloor.measurements, currentFloor.annotations]) {
+      for (const item of items ?? []) ids.add(item.id);
+    }
+    clearAuxiliarySelection();
+    selectedRoomId.set(null);
+    selectedElementIds.set(ids);
+    selectedElementId.set(ids.values().next().value ?? null);
+  }
+
   /**
    * Compute bounding box of all multi-selected elements.
    */
   function getMultiSelectBBox(): { minX: number; minY: number; maxX: number; maxY: number } | null {
-    return currentFloor ? multiSelectionBounds(currentFloor, currentSelectedIds, customEntourageDefs, zoom) : null;
+    return currentFloor ? multiSelectionBounds(currentFloor, currentSelectedIds, customEntourageDefs, zoom, ctx, dimSettings.units) : null;
   }
 
   /**
@@ -2246,7 +2260,7 @@
     // Measurement click detection (select)
     if (tool === 'select' && currentFloor) {
       const hitId = hitTestMeasurement(wp, currentFloor);
-      if (hitId) {
+      if (hitId && !(currentSelectedIds.size >= 2 && currentSelectedIds.has(hitId))) {
         selectAuxiliary('measurement',hitId);
         return;
       }
@@ -2256,7 +2270,7 @@
     // Text annotation click detection (select + drag)
     if (tool === 'select' && currentFloor) {
       const textHitId = hitTestTextAnnotation(wp, currentFloor);
-      if (textHitId) {
+      if (textHitId && !(currentSelectedIds.size >= 2 && currentSelectedIds.has(textHitId))) {
         selectAuxiliary('text',textHitId);
         const ta = currentFloor.textAnnotations?.find(t => t.id === textHitId);
         if (ta) {
@@ -2271,7 +2285,7 @@
     // Annotation click detection (select)
     if (tool === 'select' && currentFloor) {
       const hitId = hitTestAnnotation(wp, currentFloor);
-      if (hitId) {
+      if (hitId && !(currentSelectedIds.size >= 2 && currentSelectedIds.has(hitId))) {
         selectAuxiliary('annotation',hitId);
         return;
       }
@@ -2341,6 +2355,10 @@
           for (const id of currentSelectedIds) {
             const w = currentFloor.walls.find(w => w.id === id);
             if (w) { origPositions.set(id, { start: { ...w.start }, end: { ...w.end } }); continue; }
+            const note = currentFloor.textAnnotations?.find(item => item.id === id);
+            if (note) { origPositions.set(id, { position: { x: note.x, y: note.y } }); continue; }
+            const dimension = [...currentFloor.measurements ?? [], ...currentFloor.annotations ?? []].find(item => item.id === id);
+            if (dimension) { origPositions.set(id, { start: { x: dimension.x1, y: dimension.y1 }, end: { x: dimension.x2, y: dimension.y2 } }); continue; }
             const fi = currentFloor.furniture.find(f => f.id === id);
             if (fi) { if (!fi.locked) origPositions.set(id, { position: { ...fi.position } }); continue; }
             if (currentFloor.stairs) { const st = currentFloor.stairs.find(s => s.id === id); if (st) { origPositions.set(id, { position: { ...st.position } }); continue; } }
@@ -2746,12 +2764,16 @@
       const dy = Math.round((mousePos.y - draggingMultiSelect.startMousePos.y) / mSnapStep) * mSnapStep;
       for (const [id, orig] of draggingMultiSelect.origPositions) {
         if (orig.start && orig.end) {
+          const endpoints = { x1: orig.start.x + dx, y1: orig.start.y + dy, x2: orig.end.x + dx, y2: orig.end.y + dy };
+          if (currentFloor.measurements?.some(item => item.id === id)) { updateMeasurement(id, endpoints); continue; }
+          if (currentFloor.annotations?.some(item => item.id === id)) { updateAnnotation(id, endpoints); continue; }
           // Wall — move both endpoints
           moveWallEndpoint(id, 'start', { x: orig.start.x + dx, y: orig.start.y + dy });
           moveWallEndpoint(id, 'end', { x: orig.end.x + dx, y: orig.end.y + dy });
         } else if (orig.position) {
           // Furniture, stair, column, or entourage
           const newPos = { x: orig.position.x + dx, y: orig.position.y + dy };
+          if (currentFloor.textAnnotations?.some(item => item.id === id)) { moveTextAnnotation(id, newPos); continue; }
           const fi = currentFloor.furniture.find(f => f.id === id);
           if (fi) { moveFurniture(id, newPos); continue; }
           if (currentFloor.stairs) { const st = currentFloor.stairs.find(s => s.id === id); if (st) { moveStair(id, newPos); continue; } }
@@ -2996,7 +3018,16 @@
           if (ptInRect(item.position)) ids.add(item.id);
         }
 
+        for (const item of currentFloor.textAnnotations ?? []) {
+          if (ptInRect(item)) ids.add(item.id);
+        }
+        for (const item of [...currentFloor.measurements ?? [], ...currentFloor.annotations ?? []]) {
+          if (ptInRect({ x: item.x1, y: item.y1 }) && ptInRect({ x: item.x2, y: item.y2 })) ids.add(item.id);
+        }
+
         if (ids.size > 0) {
+          clearAuxiliarySelection();
+          selectedRoomId.set(null);
           selectedElementIds.set(ids);
           // Set primary selection to first element
           const first = ids.values().next().value;
@@ -3250,8 +3281,10 @@
       }
     }
 
+    if ((e.key === 'Delete' || e.key === 'Backspace') && currentSelectedIds.size >= 2) clearAuxiliarySelection();
+
     // Delete selected guide line
-    if ((e.key === 'Delete' || e.key === 'Backspace') && selectedGuideId) {
+    if ((e.key === 'Delete' || e.key === 'Backspace') && currentSelectedIds.size < 2 && selectedGuideId) {
       removeGuide(selectedGuideId);
       selectedGuideId = null;
       selectedElementId.set(null);
@@ -3260,7 +3293,7 @@
     }
 
     // Delete selected measurement
-    if ((e.key === 'Delete' || e.key === 'Backspace') && selectedMeasurementId) {
+    if ((e.key === 'Delete' || e.key === 'Backspace') && currentSelectedIds.size < 2 && selectedMeasurementId) {
       removeMeasurement(selectedMeasurementId);
       selectedMeasurementId = null;
       selectedElementId.set(null);
@@ -3269,7 +3302,7 @@
     }
 
     // Delete selected text annotation
-    if ((e.key === 'Delete' || e.key === 'Backspace') && selectedTextAnnotationId && !editingTextAnnotationId) {
+    if ((e.key === 'Delete' || e.key === 'Backspace') && currentSelectedIds.size < 2 && selectedTextAnnotationId && !editingTextAnnotationId) {
       removeTextAnnotation(selectedTextAnnotationId);
       selectedTextAnnotationId = null;
       selectedElementId.set(null);
@@ -3278,7 +3311,7 @@
     }
 
     // Delete selected annotation
-    if ((e.key === 'Delete' || e.key === 'Backspace') && selectedAnnotationId) {
+    if ((e.key === 'Delete' || e.key === 'Backspace') && currentSelectedIds.size < 2 && selectedAnnotationId) {
       removeAnnotation(selectedAnnotationId);
       selectedAnnotationId = null;
       selectedElementId.set(null);
@@ -3308,25 +3341,15 @@
     // Select All (Ctrl+A / Cmd+A)
     if ((e.ctrlKey || e.metaKey) && e.key === 'a' && !e.shiftKey) {
       e.preventDefault();
-      if (currentFloor) {
-        const allIds = new Set<string>();
-        for (const w of currentFloor.walls) allIds.add(w.id);
-        for (const f of currentFloor.furniture) allIds.add(f.id);
-        for (const d of currentFloor.doors) allIds.add(d.id);
-        for (const w of currentFloor.windows) allIds.add(w.id);
-        if (currentFloor.stairs) for (const s of currentFloor.stairs) allIds.add(s.id);
-        if (currentFloor.columns) for (const c of currentFloor.columns) allIds.add(c.id);
-        if (currentFloor.entourage) for (const en of currentFloor.entourage) allIds.add(en.id);
-        selectedElementIds.set(allIds);
-        const first = [...allIds][0] ?? null;
-        selectedElementId.set(first);
-      }
+      selectAllPlanElements();
       return;
     }
 
     // Deselect All (Ctrl+D / Cmd+D)
     if ((e.ctrlKey || e.metaKey) && e.key === 'd' && !e.shiftKey) {
       e.preventDefault();
+      clearAuxiliarySelection();
+      selectedRoomId.set(null);
       selectedElementIds.set(new Set());
       selectedElementId.set(null);
       return;
@@ -3703,16 +3726,7 @@
         document.dispatchEvent(new KeyboardEvent('keydown', { key: 'v', ctrlKey: true, metaKey: true }));
         break;
       case 'select-all':
-        if (currentFloor) {
-          const allIds = new Set<string>();
-          currentFloor.walls.forEach(w => allIds.add(w.id));
-          currentFloor.furniture.forEach(f => allIds.add(f.id));
-          currentFloor.doors.forEach(d => allIds.add(d.id));
-          currentFloor.windows.forEach(w => allIds.add(w.id));
-          if (currentFloor.stairs) currentFloor.stairs.forEach(s => allIds.add(s.id));
-          if (currentFloor.columns) currentFloor.columns.forEach(c => allIds.add(c.id));
-          selectedElementIds.set(allIds);
-        }
+        selectAllPlanElements();
         break;
       case 'add-wall':
         selectedTool.set('wall');

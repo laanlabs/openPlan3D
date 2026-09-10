@@ -24,6 +24,8 @@ for(const [key,label] of [['textAnnotations','Copy note'],['measurements','Measu
     async function exported(){await page.getByRole('button',{name:'Export',exact:true}).click();const pending=page.waitForEvent('download');await page.getByRole('button',{name:'Download JSON',exact:true}).click();return JSON.parse(await readFile((await(await pending).path())!,'utf8')).floors[0];}
     const before=await exported();await save.press('ControlOrMeta+a');
     if(key==='textAnnotations') {
+      // Select All now includes notes; deselect the group before targeting one note.
+      await save.press('Escape');
       await page.getByTitle('Zoom to Fit (F)',{exact:true}).first().press('Enter');
       await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
       const point=await page.evaluate(()=>(window as any).__note);await page.mouse.click(point.x,point.y);

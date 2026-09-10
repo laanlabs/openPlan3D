@@ -1431,3 +1431,18 @@ The distant-note case verifies Fit Selection, Escape, isolated Delete and exact
 Undo restoration. See [validation](docs/text-note-layers-validation.md).
 Annotation group editing, note visibility, physical qualification and
 export/native parity remain open.
+
+### Annotation group selection and movement — 2026-09-10
+
+Notes, measurements and dimensions now participate in marquee and Select All,
+with zoom-aware caption bounds. Dragging a selected annotation moves the whole
+group by one snapped delta, preserving lengths and styling in one Undo step.
+Group Delete handles an annotation primary target, and Deselect All clears stale
+auxiliary selection. Keyboard and context-menu Select All share one path.
+
+**18 final Chromium/WebKit annotation workflows, four existing mixed-object
+checks, Svelte checks and build passed.** The unit suite passed 822 of 823 cases;
+the one image-storage timeout passed with its 19-case file on an isolated retry.
+Phone screenshot review passed. See [validation](docs/annotation-group-validation.md).
+Saved-group re-selection, Shift-click annotations, rotation/alignment, note
+visibility, physical qualification and export/native parity remain open.

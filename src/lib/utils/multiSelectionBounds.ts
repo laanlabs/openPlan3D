@@ -1,3 +1,4 @@
+import { planContentBounds } from './planContentBounds';
 import { openingPlanBounds } from './openingPlanBounds';
 import { entouragePlanBounds } from './entouragePlanBounds';
 import type { Floor, CustomEntourageDef } from '$lib/models/types';
@@ -9,7 +10,7 @@ import { entourageAspect } from './canvasRenderer';
 
 type Bounds = { minX: number; minY: number; maxX: number; maxY: number };
 /** Extents for the element kinds supported by the existing group-selection UI. */
-export function multiSelectionBounds(floor: Floor, ids: ReadonlySet<string>, customDefs?: CustomEntourageDef[], zoom = 1): Bounds | null {
+export function multiSelectionBounds(floor: Floor, ids: ReadonlySet<string>, customDefs?: CustomEntourageDef[], zoom = 1, context?: CanvasRenderingContext2D, units: 'metric' | 'imperial' = 'metric'): Bounds | null {
   if (ids.size < 2) return null;
   let bounds: Bounds | null = null;
   function add(b: Bounds) {
@@ -27,6 +28,15 @@ export function multiSelectionBounds(floor: Floor, ids: ReadonlySet<string>, cus
       const wall = floor.walls.find(w => w.id === item.wallId);
       if (wall) add(openingPlanBounds(wall,item,kind,zoom));
     }
+  }
+  if (context) {
+    const annotationBounds = planContentBounds({ ...floor, walls: [], doors: [], windows: [],
+      furniture: [], stairs: [], columns: [], entourage: [], backgroundImage: undefined,
+      textAnnotations: floor.textAnnotations?.filter(item => ids.has(item.id)),
+      measurements: floor.measurements?.filter(item => ids.has(item.id)),
+      annotations: floor.annotations?.filter(item => ids.has(item.id)),
+    }, { context, zoom, units, entourageAspect: () => 1 });
+    if (annotationBounds) add(annotationBounds);
   }
   if (!bounds) return null;
   const b = bounds as Bounds, pad = 20;

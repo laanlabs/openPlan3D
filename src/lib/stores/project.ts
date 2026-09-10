@@ -1070,6 +1070,13 @@ export function addMeasurement(x1: number, y1: number, x2: number, y2: number): 
   return id;
 }
 
+export function updateMeasurement(id: string, updates: Partial<{ x1: number; y1: number; x2: number; y2: number }>) {
+  mutate(f => {
+    const item = f.measurements?.find(item => item.id === id);
+    if (item) Object.assign(item, updates);
+  }, undefined, coalesceKeyFor('measurement', id, updates));
+}
+
 export function removeMeasurement(id: string) {
   removeElement(id);
 }
