@@ -1368,3 +1368,16 @@ rotates in place; the operation has one Undo step and skips no-op history.
 and build passed.** See [validation](docs/selection-rotation-validation.md).
 Wall/opening and annotation transforms, cross-project assets, opening bounds,
 physical gestures and export/native parity remain open.
+
+### Door/window symbol bounds — 2026-09-10
+
+Fit and multi-selection bounds now include opening symbols at their wall tangent,
+covering door swings, pocket tracks, folding/garage details, bay/casement windows
+and sliding arrows. Screen-sized details participate in zoom refinement. Bounds
+are conservative, allowing some spare space on unused swing sides.
+
+**818 unit tests, eight Chromium/WebKit desktop/phone framing checks, Svelte
+checks and build passed.** Phone screenshot review passed. See
+[validation](docs/opening-bounds-validation.md). Fit Selection remains next;
+selected-opening dimension labels, annotation group operations, physical gestures
+and export/native parity remain open.

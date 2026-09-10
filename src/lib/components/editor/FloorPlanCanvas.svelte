@@ -265,7 +265,7 @@
    * Compute bounding box of all multi-selected elements.
    */
   function getMultiSelectBBox(): { minX: number; minY: number; maxX: number; maxY: number } | null {
-    return currentFloor ? multiSelectionBounds(currentFloor, currentSelectedIds, customEntourageDefs) : null;
+    return currentFloor ? multiSelectionBounds(currentFloor, currentSelectedIds, customEntourageDefs, zoom) : null;
   }
 
   /**

@@ -1,14 +1,15 @@
+import { openingPlanBounds } from './openingPlanBounds';
 import { entouragePlanBounds } from './entouragePlanBounds';
 import type { Floor, CustomEntourageDef } from '$lib/models/types';
 import { wallPlanBounds } from './wallPlanGeometry';
 import { furniturePlanBounds } from './furniturePlanBounds';
 import { stairPlanBounds } from './stairPlanGeometry';
 import { columnPlanBounds } from './columnPlanGeometry';
-import { wallPointAt, entourageAspect } from './canvasRenderer';
+import { entourageAspect } from './canvasRenderer';
 
 type Bounds = { minX: number; minY: number; maxX: number; maxY: number };
 /** Extents for the element kinds supported by the existing group-selection UI. */
-export function multiSelectionBounds(floor: Floor, ids: ReadonlySet<string>, customDefs?: CustomEntourageDef[]): Bounds | null {
+export function multiSelectionBounds(floor: Floor, ids: ReadonlySet<string>, customDefs?: CustomEntourageDef[], zoom = 1): Bounds | null {
   if (ids.size < 2) return null;
   let bounds: Bounds | null = null;
   function add(b: Bounds) {
@@ -21,10 +22,11 @@ export function multiSelectionBounds(floor: Floor, ids: ReadonlySet<string>, cus
   for (const item of floor.stairs ?? []) if (ids.has(item.id)) add(stairPlanBounds(item));
   for (const item of floor.columns ?? []) if (ids.has(item.id)) add(columnPlanBounds(item));
   for (const item of floor.entourage ?? []) if (ids.has(item.id)) add(entouragePlanBounds(item, entourageAspect(item.defId, customDefs)));
-  // Opening anchors retain their existing selection behavior, following curved walls.
-  for (const item of [...floor.doors, ...floor.windows]) if (ids.has(item.id)) {
-    const wall = floor.walls.find(w => w.id === item.wallId);
-    if (wall) { const p = wallPointAt(wall,item.position); add({ minX:p.x,maxX:p.x,minY:p.y,maxY:p.y }); }
+  for (const [kind, openings] of [['door',floor.doors ?? []],['window',floor.windows ?? []]] as const) {
+    for (const item of openings) if (ids.has(item.id)) {
+      const wall = floor.walls.find(w => w.id === item.wallId);
+      if (wall) add(openingPlanBounds(wall,item,kind,zoom));
+    }
   }
   if (!bounds) return null;
   const b = bounds as Bounds, pad = 20;

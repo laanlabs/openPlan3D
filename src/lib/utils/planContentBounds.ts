@@ -1,3 +1,4 @@
+import { openingPlanBounds } from './openingPlanBounds';
 import { entouragePlanBounds } from './entouragePlanBounds';
 import { stairPlanBounds } from './stairPlanGeometry';
 import { formatArea, formatLength } from '$lib/stores/settings';
@@ -49,6 +50,12 @@ export function planContentBounds(floor: Floor, options: {
     point(x - dx, y - dy); point(x + dx, y + dy);
   }
   for (const wall of floor.walls) add(wallPlanBounds(wall));
+  for (const [kind, openings] of [['door',floor.doors ?? []],['window',floor.windows ?? []]] as const) {
+    for (const opening of openings) {
+      const wall = floor.walls.find(item => item.id === opening.wallId);
+      if (wall) add(openingPlanBounds(wall,opening,kind,options.zoom ?? 1));
+    }
+  }
   for (const item of floor.furniture) add(furniturePlanBounds(item));
   for (const stair of floor.stairs ?? []) add(stairPlanBounds(stair));
   for (const col of floor.columns ?? []) rectangle(col.position.x, col.position.y, col.diameter, col.diameter, col.shape === 'square' ? col.rotation : 0);
