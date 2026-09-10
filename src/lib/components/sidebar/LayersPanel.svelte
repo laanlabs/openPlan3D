@@ -21,7 +21,8 @@
     collapsed[cat] = !collapsed[cat];
   }
 
-  function toggleVisibility(cat: keyof typeof vis) {
+  function toggleVisibility(cat: Category['key']) {
+    if (cat === 'textAnnotations') return;
     layerVisibility.update(v => ({ ...v, [cat]: !v[cat] }));
   }
 
@@ -38,7 +39,7 @@
   });
 
   interface Category {
-    key: keyof typeof vis;
+    key: keyof typeof vis | 'textAnnotations';
     label: string;
     icon: string;
     items: { id: string; label: string; icon: string }[];
@@ -120,6 +121,17 @@
       });
     }
 
+    if (floor.textAnnotations?.length) {
+      cats.push({
+        key: 'textAnnotations', label: 'Text notes', icon: 'T',
+        items: floor.textAnnotations.map((note, i) => ({
+          id: note.id,
+          label: `Note ${i + 1} (${note.text.trim().replace(/\s+/g, ' ') || 'Empty note'})`,
+          icon: 'T',
+        })),
+      });
+    }
+
     return cats;
   });
 </script>
@@ -143,6 +155,7 @@
           <span class="text-gray-400 mr-1">{cat.items.length}</span>
         </button>
         <!-- Visibility toggle (outside button to avoid nesting) -->
+        {#if cat.key !== 'textAnnotations'}
         <span
           role="button"
           tabindex="0"
@@ -152,6 +165,7 @@
           onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleVisibility(cat.key); } }}
           title={vis[cat.key] ? `Hide ${cat.label}` : `Show ${cat.label}`}
         >👁</span>
+        {/if}
         <!-- Items -->
         {#if !collapsed[cat.key]}
           {#each cat.items as item}
@@ -159,7 +173,7 @@
               class="w-full flex items-center gap-1.5 pl-7 pr-2 py-1 hover:bg-blue-50 text-left transition-colors"
               class:bg-blue-100={selId === item.id}
               class:text-blue-700={selId === item.id}
-              class:opacity-40={!vis[cat.key]}
+              class:opacity-40={cat.key !== 'textAnnotations' && !vis[cat.key]}
               onclick={() => select(item.id)}
             >
               <span class="text-[10px]">{item.icon}</span>

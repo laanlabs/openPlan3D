@@ -1418,3 +1418,16 @@ shared group-reference cleanup, and each paste remains one Undo step.
 checks and build passed.** See [validation](docs/annotation-clipboard-validation.md).
 Annotation multi-selection/group bounds and transforms, cross-project assets,
 selected-opening labels, physical gestures and export/native parity remain open.
+
+### Text notes in Layers — 2026-09-10
+
+Layers now lists text notes with normalized multiline labels and an empty-note
+fallback, making distant notes selectable for framing and editing. Shared
+selection clears old group/room targets. Notes retain existing always-visible
+rendering; the category can be collapsed.
+
+**Eight Chromium/WebKit selection workflows, Svelte checks and build passed.**
+The distant-note case verifies Fit Selection, Escape, isolated Delete and exact
+Undo restoration. See [validation](docs/text-note-layers-validation.md).
+Annotation group editing, note visibility, physical qualification and
+export/native parity remain open.
