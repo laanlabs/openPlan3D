@@ -1329,3 +1329,17 @@ workflows, Svelte checks and build passed.** The final browser rerun verifies th
 plain-store snapshot fix. See [validation](docs/selection-clipboard-validation.md).
 Cross-project custom assets, annotation clipboard support, alignment/distribution,
 opening bounds, physical gestures and export/native parity remain open.
+
+### Geometry-aware object alignment and distribution — 2026-09-10
+
+Alignment now supports furniture, stairs, columns and entourage using rotated
+plan bounds, including asymmetric stairs and custom symbols. Shared furniture
+bounds account for scale. Locked objects remain stationary; distribution spaces
+visual centers between fixed endpoints and locked anchors. No-op operations add
+no Undo entry, and unavailable toolbar actions are disabled.
+
+**798 unit tests, ten final alignment unit cases, eight Chromium/WebKit desktop/
+phone toolbar workflows, Svelte checks and build passed.** See
+[validation](docs/alignment-validation.md). Wall/opening and annotation alignment,
+cross-project clipboard assets, opening bounds, physical gestures and export/native
+parity remain open.

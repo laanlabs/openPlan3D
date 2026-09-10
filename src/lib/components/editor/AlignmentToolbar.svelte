@@ -1,14 +1,13 @@
 <script lang="ts">
-  import { selectedElementIds } from '$lib/stores/project';
-  import { alignElements, type AlignmentOp } from '$lib/utils/alignment';
+  import { selectedElementIds, activeFloor } from '$lib/stores/project';
+  import { alignElements, alignmentItems, type AlignmentOp } from '$lib/utils/alignment';
 
-  let multiCount = $state(0);
-  selectedElementIds.subscribe(ids => { multiCount = ids.size; });
+  const multiCount = $derived($selectedElementIds.size);
+  const supported = $derived($activeFloor ? alignmentItems($activeFloor,$selectedElementIds) : []);
+  const movable = $derived(supported.some(item => !('locked' in item && item.locked)));
 
   function doAlign(op: AlignmentOp) {
-    let ids: Set<string>;
-    selectedElementIds.subscribe(v => { ids = v; })();
-    alignElements(ids!, op);
+    alignElements($selectedElementIds, op);
   }
 
   const buttons: { op: AlignmentOp; title: string; icon: string }[] = [
@@ -29,7 +28,8 @@
     <div class="w-px h-5 bg-gray-200 mx-0.5"></div>
     {#each buttons as btn}
       <button
-        class="w-7 h-7 flex items-center justify-center rounded hover:bg-blue-50 text-gray-500 hover:text-blue-600 transition-colors"
+        class="w-7 h-7 flex items-center justify-center rounded hover:bg-blue-50 text-gray-500 hover:text-blue-600 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+        disabled={!movable || supported.length < (btn.op.startsWith('distribute') ? 3 : 2)}
         title={btn.title}
         aria-label={btn.title}
         onclick={() => doAlign(btn.op)}
