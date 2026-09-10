@@ -2257,3 +2257,11 @@ A separate stored-ZIP QA fixture imported successfully. Catalyst preview showed
 and the full warning without clipping. See `openplan3d-ios/docs/native-partial-area-ui-validation.md`.
 Device/touch checks, all-unresolved interactive layout, diagnostics, area parity,
 and remaining NEXT requirements stay open.
+
+### Native area help accuracy — 2026-09-10
+
+Room Properties explains unresolved measurements without assuming an outside
+label. Statistics describes distinct measured regions, opening exclusions, and
+the approximate half-wall-footprint formula. Catalyst build passed; see `openplan3d-ios/docs/native-area-help-validation.md`.
+Interactive/device qualification, exact diagnostics, area parity, and remaining
+NEXT requirements stay open.
