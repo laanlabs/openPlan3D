@@ -2249,3 +2249,11 @@ counts. Saved-plan reload coverage verifies partial, all-unresolved, and
 resolved-plus-opening states. Catalyst build and all 31 selected tests passed.
 See `openplan3d-ios/docs/native-preview-partial-area-validation.md`. Interactive/device qualification,
 failure diagnostics, area parity, and remaining NEXT requirements stay open.
+
+### Native partial-area interactive check — 2026-09-10
+
+A separate stored-ZIP QA fixture imported successfully. Catalyst preview showed
+355 ft² with one unmeasured room; Statistics displayed partial living/gross totals
+and the full warning without clipping. See `openplan3d-ios/docs/native-partial-area-ui-validation.md`.
+Device/touch checks, all-unresolved interactive layout, diagnostics, area parity,
+and remaining NEXT requirements stay open.
