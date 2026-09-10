@@ -2298,3 +2298,10 @@ Full iPhone 17 Pro / iOS 26.5 validation passed after the wall-footprint fix:
 234 tests, two optional skips, zero failures, including rotated/translated
 room references. See `openplan3d-ios/docs/native-ios-raster-footprint-validation.md`. Interactive/device checks, general
 error bounds, performance budgets, area parity and remaining NEXT work stay open.
+
+### Native interior-area shape references — 2026-09-10
+
+Concave L, shared-partition and nested-room measurements match independent
+interior-face references; an inner floor opening correctly removes only its area.
+All 14 Catalyst region tests passed. See `openplan3d-ios/docs/native-interior-shapes-validation.md`. General geometry,
+area parity, device/performance checks and remaining NEXT work stay open.
