@@ -2505,18 +2505,22 @@
           if (group && !isCtrl) {
             selectedElementId.set(id);
             selectedElementIds.set(new Set(group.elementIds));
+            selectedRoomId.set(null);
+            startMultiSelectionDrag(wp);
+            return true;
           } else {
             selectedElementId.set(id);
             selectedElementIds.set(new Set());
           }
         }
         selectedRoomId.set(null);
+        return false;
       }
 
       // Check columns
       const col = findColumnAt(wp);
       if (col) {
-        selectElement(col.id, e.shiftKey);
+        if (selectElement(col.id, e.shiftKey)) return;
         if (!e.shiftKey) {
           draggingColumnId = col.id;
           columnDragOffset = { x: wp.x - col.position.x, y: wp.y - col.position.y };
@@ -2526,7 +2530,7 @@
       // Check stairs
       const stair = findStairAt(wp);
       if (stair) {
-        selectElement(stair.id, e.shiftKey);
+        if (selectElement(stair.id, e.shiftKey)) return;
         if (!e.shiftKey) {
           draggingStairId = stair.id;
           stairDragOffset = { x: wp.x - stair.position.x, y: wp.y - stair.position.y };
@@ -2536,7 +2540,7 @@
       // Check furniture
       const fi = findFurnitureAt(wp);
       if (fi) {
-        selectElement(fi.id, e.shiftKey, e.ctrlKey || e.metaKey);
+        if (selectElement(fi.id, e.shiftKey, e.ctrlKey || e.metaKey)) return;
         if (!e.shiftKey && !fi.locked) {
           draggingFurnitureId = fi.id;
           dragOffset = { x: wp.x - fi.position.x, y: wp.y - fi.position.y };
@@ -2548,7 +2552,7 @@
       // Check entourage (below furniture in priority)
       const ent = findEntourageAt(wp, currentFloor?.entourage, (d) => entourageAspect(d, customEntourageDefs));
       if (ent) {
-        selectElement(ent.id, e.shiftKey);
+        if (selectElement(ent.id, e.shiftKey)) return;
         if (!e.shiftKey && !ent.locked) {
           draggingEntourageId = ent.id;
           dragOffset = { x: wp.x - ent.position.x, y: wp.y - ent.position.y };
@@ -2559,19 +2563,19 @@
       // and before the walls themselves.
       const door = findDoorAt(wp);
       if (door) {
-        selectElement(door.id, e.shiftKey);
+        if (selectElement(door.id, e.shiftKey)) return;
         if (!e.shiftKey) draggingDoorId = door.id;
         return;
       }
       const win = findWindowAt(wp);
       if (win) {
-        selectElement(win.id, e.shiftKey);
+        if (selectElement(win.id, e.shiftKey)) return;
         if (!e.shiftKey) draggingWindowId = win.id;
         return;
       }
       const wall = findWallAt(wp);
       if (wall) {
-        selectElement(wall.id, e.shiftKey);
+        if (selectElement(wall.id, e.shiftKey)) return;
       } else {
         // Check if clicking on a room label (for dragging)
         const labelRoom = findRoomLabelAt(wp);

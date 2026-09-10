@@ -1504,3 +1504,17 @@ unchanged selection state data, isolated deletion and full Undo restoration.
 See [validation](docs/object-group-isolation-validation.md). Saved-object group
 drag initiation, unknown-catalog rendering/hit-testing, annotation alignment and
 visibility, physical qualification and export/native parity remain open.
+
+### Saved-group first-press dragging — 2026-09-10
+
+The first press on a deselected saved-group member now starts the shared group
+drag instead of moving just the clicked object. Furniture, columns, stairs,
+entourage, straight walls, and openings grouped with their host walls are covered.
+Locked members remain fixed and the complete drag stays one Undo step.
+
+**All 18 Chromium/WebKit workflows, Svelte checks and build passed.** Exact exports
+verify common movement of objects, grouped notes/dimensions, unchanged locked
+members and opening positions, full Undo/Redo, and retained Ctrl/Cmd isolation.
+See [validation](docs/saved-group-drag-validation.md). Opening-only group movement,
+curved-wall group translation, unknown-catalog rendering/hit-testing, annotation
+alignment/visibility, physical qualification and export/native parity remain open.
