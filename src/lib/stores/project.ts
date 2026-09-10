@@ -573,6 +573,8 @@ export function removeElement(id: string) {
     if (f.stairs) f.stairs = f.stairs.filter((s) => s.id !== id);
     if (f.columns) f.columns = f.columns.filter((c) => c.id !== id);
     if (f.textAnnotations) f.textAnnotations = f.textAnnotations.filter((t) => t.id !== id);
+    if (f.measurements) f.measurements = f.measurements.filter(item => item.id !== id);
+    if (f.annotations) f.annotations = f.annotations.filter(item => item.id !== id);
     if (f.entourage) f.entourage = f.entourage.filter((e) => e.id !== id);
     if (f.groups) f.groups = f.groups.map(group => ({ ...group, elementIds: group.elementIds.filter(itemId => !removedIds.has(itemId)) })).filter(group => group.elementIds.length >= 2);
   }, 'Deleted element');
@@ -1069,10 +1071,7 @@ export function addMeasurement(x1: number, y1: number, x2: number, y2: number): 
 }
 
 export function removeMeasurement(id: string) {
-  mutate(f => {
-    if (!f.measurements) return;
-    f.measurements = f.measurements.filter(m => m.id !== id);
-  });
+  removeElement(id);
 }
 
 // --- Annotations ---
@@ -1086,10 +1085,7 @@ export function addAnnotation(x1: number, y1: number, x2: number, y2: number, of
 }
 
 export function removeAnnotation(id: string) {
-  mutate(f => {
-    if (!f.annotations) return;
-    f.annotations = f.annotations.filter(a => a.id !== id);
-  });
+  removeElement(id);
 }
 
 export function updateAnnotation(id: string, updates: Partial<{ x1: number; y1: number; x2: number; y2: number; offset: number; label: string }>) {
@@ -1112,10 +1108,7 @@ export function addTextAnnotation(x: number, y: number, text: string, fontSize =
 }
 
 export function removeTextAnnotation(id: string) {
-  mutate(f => {
-    if (!f.textAnnotations) return;
-    f.textAnnotations = f.textAnnotations.filter(t => t.id !== id);
-  });
+  removeElement(id);
 }
 
 export function updateTextAnnotation(id: string, updates: Partial<{ x: number; y: number; text: string; fontSize: number; color: string; rotation: number }>) {

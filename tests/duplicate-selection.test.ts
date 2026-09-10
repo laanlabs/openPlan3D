@@ -76,3 +76,17 @@ it('does not create orphan standalone openings on a different floor', () => {
   expect(pastePlanSelection(source,target,new Set(['d']),()=> 'unused')).toEqual([]);
   expect(target.doors).toEqual([]);
 });
+
+it('copies notes and dimensions without changing their styling, offsets or measured lengths', () => {
+  const source = createDefaultProject().floors[0];
+  source.textAnnotations=[{id:'t',x:10,y:20,text:'Keep\nthese lines',fontSize:16,rotation:35,color:'#123456'}];
+  source.measurements=[{id:'m',x1:0,y1:10,x2:100,y2:210}];
+  source.annotations=[{id:'a',x1:20,y1:30,x2:120,y2:230,label:'Custom',offset:-60}];
+  source.groups=[{id:'g',elementIds:['t','a']}];
+  const target=createDefaultProject().floors[0],before=structuredClone(source);let count=0;
+  expect(pastePlanSelection(source,target,new Set(['t','m','a']),()=>`new-${++count}`,2)).toHaveLength(3);
+  expect(target.textAnnotations![0]).toEqual({...source.textAnnotations[0],id:'new-1',x:70,y:80});
+  expect(target.measurements![0]).toEqual({id:'new-2',x1:60,y1:70,x2:160,y2:270});
+  expect(target.annotations![0]).toEqual({id:'new-3',x1:80,y1:90,x2:180,y2:290,label:'Custom',offset:-60});
+  expect(target.groups![0].elementIds).toEqual(['new-1','new-3']);expect(source).toEqual(before);
+});

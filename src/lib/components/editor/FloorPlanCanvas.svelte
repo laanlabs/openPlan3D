@@ -3364,7 +3364,10 @@
     // Copy (Ctrl+C / Cmd+C)
     if ((e.ctrlKey || e.metaKey) && e.key === 'c' && !e.shiftKey) {
       if (currentFloor) {
-        const ids = [...(currentSelectedIds.size ? currentSelectedIds : currentSelectedId ? new Set([currentSelectedId]) : new Set<string>())];
+        const copyable = [...currentFloor.walls,...currentFloor.doors,...currentFloor.windows,...currentFloor.furniture,
+          ...currentFloor.stairs ?? [],...currentFloor.columns ?? [],...currentFloor.entourage ?? [],
+          ...currentFloor.textAnnotations ?? [],...currentFloor.measurements ?? [],...currentFloor.annotations ?? []];
+        const ids = [...fitSelectionIds()].filter(id => copyable.some(item => item.id === id));
         if (ids.length) {
           clipboard = { floor: structuredClone(get(activeFloor)!), ids, step: 1, projectId: get(currentProject)!.id };
           e.preventDefault();

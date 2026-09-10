@@ -40,6 +40,17 @@ export function pastePlanSelection(source: Floor, floor: Floor, selected: Readon
       (items as typeof copy[]).push(copy);
     }
   }
+  for (const key of ['textAnnotations','measurements','annotations'] as const) {
+    for (const item of [...source[key] ?? []]) {
+      if (!selected.has(item.id)) continue;
+      const copy = structuredClone(item);
+      copy.id = uid(); mapping.set(item.id,copy.id);
+      if ('x' in copy) { copy.x += 30*step; copy.y += 30*step; }
+      else { copy.x1 += 30*step; copy.y1 += 30*step; copy.x2 += 30*step; copy.y2 += 30*step; }
+      const items = floor[key] ?? (floor[key] = []);
+      (items as typeof copy[]).push(copy);
+    }
+  }
   for (const group of [...source.groups ?? []]) {
     if (group.elementIds.length < 2 || !group.elementIds.every(id => mapping.has(id))) continue;
     (floor.groups ??= []).push({ ...structuredClone(group), id: uid(), elementIds: group.elementIds.map(id => mapping.get(id)!) });

@@ -1406,3 +1406,15 @@ cannot act on an invisible old target. Deletion also clears primary selection.
 passed.** See [validation](docs/auxiliary-selection-validation.md). Annotation
 group transforms and clipboard support, selected-opening labels, physical gestures
 and export/native parity remain open.
+
+### Annotation clipboard support — 2026-09-10
+
+Copy/Paste now supports notes, measurements and dimension annotations, including
+canvas-local selection. Copies retain styling, rotation, labels and offsets while
+translating coordinates and preserving measured lengths. Annotation removal uses
+shared group-reference cleanup, and each paste remains one Undo step.
+
+**822 unit tests, six Chromium/WebKit annotation clipboard workflows, Svelte
+checks and build passed.** See [validation](docs/annotation-clipboard-validation.md).
+Annotation multi-selection/group bounds and transforms, cross-project assets,
+selected-opening labels, physical gestures and export/native parity remain open.
