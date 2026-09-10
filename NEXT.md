@@ -920,3 +920,16 @@ and production build passed.** Tests cover tainted capture and invalid PNG data,
 including failure after the optional page was added. See
 [validation](docs/pdf-capture-recovery-validation.md). Required plan-image failures,
 blank-frame detection, error messaging and native parity remain open.
+
+### PDF export outcome notices — 2026-09-09
+
+Toolbar and command-palette PDF exports now share dismissible feedback for
+required preparation failures, empty floors and omitted optional 3D captures.
+Complete exports clear stale notices. Failed preparation no longer escapes the
+entry point as an unhandled error; the message offers retry/JSON-copy guidance.
+
+**15 targeted tests, two Chromium/WebKit browser checks, Svelte checks and
+production build passed.** Both export entry points were tested with a forced
+plan-image failure and no download. See
+[validation](docs/pdf-export-notice-validation.md). Blank-frame detection, remaining
+PDF typography/layout, native feedback and non-PDF error handling remain open.

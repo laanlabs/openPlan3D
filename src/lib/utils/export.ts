@@ -795,6 +795,7 @@ export function exportPDF(project: Project) {
   // Probing arbitrary canvases can create contexts or select a thumbnail/2D view.
   const threeDCanvas = document.querySelector<HTMLCanvasElement>('canvas[data-plan3d-canvas="true"]');
 
+  let omitted3D = Boolean(threeDCanvas);
   if (threeDCanvas && threeDCanvas.width > 10 && threeDCanvas.height > 10) {
     const completedPages = pdf.getNumberOfPages();
     try {
@@ -821,6 +822,7 @@ export function exportPDF(project: Project) {
         pdf.addImage(img3d, 'PNG', x3, y3, w3, h3);
 
         drawTitleBlock();
+        omitted3D = false;
       }
     } catch {
       // Image encoding may fail after addPage. Keep the completed plan/schedule
@@ -830,4 +832,5 @@ export function exportPDF(project: Project) {
   }
 
   pdf.save(`${project.name || 'floorplan'}.pdf`);
+  return { omitted3D };
 }

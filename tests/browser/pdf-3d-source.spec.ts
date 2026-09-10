@@ -46,5 +46,20 @@ test('PDF captures only the main 3D canvas and skips unrelated canvases', async 
  expect(recovered.toString('latin1')).not.toContain('(3D Perspective View)');
  expect(recovered.toString('latin1')).toContain('(Room Schedule)');
  expect((recovered.toString('latin1').match(/\/Type \/Page\b/g)??[]).length).toBe((flat.toString('latin1').match(/\/Type \/Page\b/g)??[]).length);
+ await expect(page.getByRole('alert')).toContainText('PDF exported without the 3D view');
+ await page.getByRole('button',{name:'Dismiss export notice'}).click();
+ await page.evaluate(()=>{
+  HTMLCanvasElement.prototype.toDataURL=()=>{throw new Error('Forced plan-image failure');};
+ });
+ let failedDownloads=0;page.on('download',()=>failedDownloads++);
+ await page.getByRole('button',{name:'Export',exact:true}).click();
+ await page.getByRole('button',{name:'Export as PDF',exact:true}).click();
+ await expect(page.getByRole('alert')).toContainText("Couldn't export PDF");
+ await page.getByRole('button',{name:'Dismiss export notice'}).click();
+ await page.getByRole('button',{name:'Save',exact:true}).press('ControlOrMeta+k');
+ await page.getByRole('combobox',{name:'Search commands',exact:true}).fill('Export PDF');
+ await page.keyboard.press('Enter');
+ await expect(page.getByRole('alert')).toContainText("Couldn't export PDF");
+ expect(failedDownloads).toBe(0);
  await testInfo.attach('main-view-pdf.pdf',{body:scene,contentType:'application/pdf'});
 });

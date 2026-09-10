@@ -1,9 +1,10 @@
 <script lang="ts">
+  import { exportPDFWithFeedback as exportPDF } from '$lib/stores/exportNotice';
   import { tick } from 'svelte';
   import { modalDialog } from '$lib/utils/modalDialog';
   import { furnitureCatalog } from '$lib/utils/furnitureCatalog';
   import { selectedTool, snapEnabled, placingFurnitureId, undo, redo, currentProject, viewMode } from '$lib/stores/project';
-  import { exportAsPNG, exportAsJSON, exportAsSVG, exportPDF } from '$lib/utils/export';
+  import { exportAsPNG, exportAsJSON, exportAsSVG } from '$lib/utils/export';
   import { exportDXF } from '$lib/utils/cadExport';
   import { get } from 'svelte/store';
   import { goto } from '$app/navigation';

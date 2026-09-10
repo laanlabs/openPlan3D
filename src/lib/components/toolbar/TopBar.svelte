@@ -1,4 +1,6 @@
 <script lang="ts">
+  import ExportNotice from '$lib/components/ExportNotice.svelte';
+  import { exportPDFWithFeedback as exportPDF } from '$lib/stores/exportNotice';
   import { modalDialog, hasOpenModal } from '$lib/utils/modalDialog';
   import { openProject } from '$lib/services/projectOpening';
   import { saveConflict, savingCopy, saveCurrentAsCopy } from '$lib/stores/saveStatus';
@@ -10,7 +12,7 @@
   import { currentProject, viewMode, undo, redo, addFloor, removeFloor, setActiveFloor, updateProjectName, createDefaultProject, snapEnabled, canvasZoom, panMode, showFurnitureStore, layerVisibility, activeFloor, selectedElementId, elevationWallId, elevationPickMode } from '$lib/stores/project';
   import { get } from 'svelte/store';
   import type { Floor } from '$lib/models/types';
-  import { exportAsPNG, exportAsJSON, exportAsSVG, exportPDF } from '$lib/utils/export';
+  import { exportAsPNG, exportAsJSON, exportAsSVG } from '$lib/utils/export';
   import { exportDXF, exportDWG } from '$lib/utils/cadExport';
   import { createProjectFromRoomPlan, extractRoomJsonFromZip, isRoomPlanJson } from '$lib/utils/roomplanImport';
   import SettingsDialog from './SettingsDialog.svelte';
@@ -641,3 +643,5 @@
   <ImportError title="Couldn’t open plan" message={importError} onDismiss={() => importError = null} />
 {/if}
 {#if packageError}<ImportError title="Couldn’t export package" message={packageError} onDismiss={() => packageError = null} />{/if}
+
+<ExportNotice />
