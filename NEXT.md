@@ -2588,3 +2588,10 @@ A truncated QA plan showed recovery controls instead of an editable fallback.
 Error-screen Close returned to preview; restoring the original preserved its
 hash and allowed a normal reopen. See `openplan3d-ios/docs/native-editor-dismissal.md`. Broader recovery
 and device/NEXT qualification remain open.
+
+### Native unique trace package round trip — 2026-09-10
+
+A new storage regression verifies unique trace reference/placement/scale and
+exact JPEG bytes through export, independent import, reload and re-export.
+All ten package tests passed on Catalyst. See `openplan3d-ios/docs/native-trace-file-import.md`. Export-dialog,
+write-failure and broader device/NEXT checks remain open.
