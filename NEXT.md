@@ -2447,3 +2447,10 @@ Switching floors now resets bounds/pan/zoom to the active floor; initial loading
 uses that floor too. Catalyst build and an isolated empty-to-populated floor UI
 check passed, with no extra undo entry. See `openplan3d-ios/docs/native-floor-switch-fit-validation.md`.
 Distant populated floors, zoom, iOS/device checks and remaining NEXT work stay open.
+
+### Native removed-floor recovery — 2026-09-10
+
+Undoing creation of the active floor no longer leaves a nonexistent floor
+selected. The editor selects an existing floor and refits without adding history.
+Catalyst build and before/after UI checks passed; see `openplan3d-ios/docs/native-floor-undo-recovery.md`.
+Broader history, multi-floor and iOS/device qualification remain open.
