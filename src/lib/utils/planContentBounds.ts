@@ -58,7 +58,7 @@ export function planContentBounds(floor: Floor, options: {
   }
   options.context.save();
   try {
-    for (const note of floor.textAnnotations ?? []) add(textAnnotationBounds(note, options.context));
+    for (const note of floor.textAnnotations ?? []) add(textAnnotationBounds(note, options.context, options.zoom ?? 1));
     for (const { room, polygon } of options.roomLabels ?? []) {
       if (polygon.length < 3) continue;
       const anchor = roomLabelPosition(room, polygon), ctx = options.context;

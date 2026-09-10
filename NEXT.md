@@ -1145,3 +1145,14 @@ and eight large-plan/property regressions passed.** Final Svelte checks/build
 passed, and the phone screenshot was reviewed. See
 [validation](docs/room-label-fit-validation.md). Overwide single-line labels,
 other annotation captions, selection framing and physical checks remain open.
+
+### Text-note fit at low zoom — 2026-09-09
+
+Fit now measures text annotations at their rendered screen font size, including
+the eight-pixel minimum, multiline spacing and rotation, before converting bounds
+to world coordinates. The default export bounds behavior is preserved.
+
+**766 unit tests, ten Chromium/WebKit checks, Svelte checks and build passed.**
+Longer note ink and export regressions are covered; the phone screenshot was
+reviewed. See [validation](docs/text-note-fit-validation.md). Overwide text,
+measurement/dimension captions, selection framing and physical checks remain open.

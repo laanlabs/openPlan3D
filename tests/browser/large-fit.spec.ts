@@ -7,10 +7,11 @@ for (const width of [1440, 390]) {
     await page.addInitScript(() => {
       const fill = CanvasRenderingContext2D.prototype.fillText;
       CanvasRenderingContext2D.prototype.fillText = function(text, x, y, maxWidth) {
-        if ((text === 'Left' || text === 'Right') && this.canvas.getAttribute('aria-label') === 'Floor plan editor canvas') {
+        if ((text.startsWith('Left') || text.startsWith('Right')) && this.canvas.getAttribute('aria-label') === 'Floor plan editor canvas') {
           const p = new DOMPoint(x, y).matrixTransform(this.getTransform()), b = this.canvas.getBoundingClientRect();
           const points = (window as any).__extentPoints ??= {};
-          points[text] = { x: b.x + p.x * b.width / this.canvas.width, y: b.y + p.y * b.height / this.canvas.height };
+          const metrics = this.measureText(text), key = text.startsWith('Left') ? 'Left' : 'Right';
+          points[key] = { left: b.x + (p.x - metrics.actualBoundingBoxLeft) * b.width / this.canvas.width, right: b.x + (p.x + metrics.actualBoundingBoxRight) * b.width / this.canvas.width, x: b.x + p.x * b.width / this.canvas.width, y: b.y + p.y * b.height / this.canvas.height };
         }
         if (maxWidth === undefined) return fill.call(this, text, x, y);
         return fill.call(this, text, x, y, maxWidth);
@@ -19,7 +20,7 @@ for (const width of [1440, 390]) {
     const plan = JSON.parse(await readFile('tests/fixtures/connected-dimensions.openplan.json', 'utf8'));
     const floor = plan.floors[0];
     floor.walls = []; floor.doors = []; floor.windows = []; floor.rooms = [];
-    floor.textAnnotations = [-1, 1].map(sign => ({ id: `note-${sign}`, x: sign * 1_000_000, y: 0, text: sign < 0 ? 'Left' : 'Right', fontSize: 20, rotation: 0, color: '#123456' }));
+    floor.textAnnotations = [-1, 1].map(sign => ({ id: `note-${sign}`, x: sign * 1_000_000, y: 0, text: sign < 0 ? 'Left boundary note' : 'Right boundary note', fontSize: 20, rotation: 0, color: '#123456' }));
     await page.goto('/editor');
     await page.getByRole('button', { name: 'Export', exact: true }).click();
     const chooser = page.waitForEvent('filechooser');
@@ -29,6 +30,8 @@ for (const width of [1440, 390]) {
     await expect.poll(async () => { const s = await span(); return s > 50 && s < width - 40; }).toBe(true);
     await expect(page.getByRole('button', { name: 'Zoom to 100%', exact: true })).not.toHaveText('0%');
     const edges = await page.evaluate(() => (window as any).__extentPoints);
+    expect(edges.Left.left).toBeGreaterThan(24);
+    expect(edges.Right.right).toBeLessThan(width - 24);
     expect(edges.Left.x).toBeGreaterThan(36);
     expect(edges.Right.x).toBeLessThan(width - 36);
     const initial = await span();

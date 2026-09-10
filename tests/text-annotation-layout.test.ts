@@ -11,3 +11,13 @@ it('rotates measured text ink bounds without changing the note',()=>{
  expect(bounds.minY).toBeCloseTo(257);expect(bounds.maxY).toBeCloseTo(342);
  expect(JSON.stringify(note)).toBe(before);
 });
+it('measures the minimum screen font at low zoom and converts rotated ink to world units', () => {
+ const ctx = { font: '', measureText: () => ({ width: 20, actualBoundingBoxLeft: 10, actualBoundingBoxRight: 10, actualBoundingBoxAscent: 4, actualBoundingBoxDescent: 4 }) } as unknown as CanvasRenderingContext2D;
+ const single = { ...note, text: 'Note', rotation: 90 };
+ const before = JSON.stringify(single);
+ const bounds = textAnnotationBounds(single, ctx, .1);
+ expect(ctx.font).toBe('8px sans-serif');
+ expect(bounds.minX).toBeCloseTo(-150); expect(bounds.maxX).toBeCloseTo(-50);
+ expect(bounds.minY).toBeCloseTo(190); expect(bounds.maxY).toBeCloseTo(410);
+ expect(JSON.stringify(single)).toBe(before);
+});
