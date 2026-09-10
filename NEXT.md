@@ -2084,3 +2084,12 @@ passed, including cache refresh after label, level, boundary, and wall edits
 and opening toggles. See `openplan3d-ios/docs/native-renderer-area-batch-validation.md`.
 Fill-rectangle batching, device performance qualification, measurement parity,
 PDF visual checks, and remaining NEXT work are still open.
+
+### Native raster seed validation — 2026-09-10
+
+Single-seed area and fill queries now reject nonfinite and overflowing grid
+coordinates before integer conversion. All 60 selected Catalyst tests passed,
+including invalid inputs across single and batch queries and valid interiors.
+See `openplan3d-ios/docs/native-raster-seed-validation.md`. Fill-rectangle batching, device
+performance qualification, measurement parity, PDF visual checks, and remaining
+NEXT work are still open.
