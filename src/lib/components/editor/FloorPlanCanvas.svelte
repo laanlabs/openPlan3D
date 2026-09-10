@@ -200,6 +200,7 @@
   let isCalibrating: boolean = $state(false);
   let calPoints: Point[] = $state([]);
   let bgImage: HTMLImageElement | null = $state(null);
+  let backgroundLoading = $state(false);
 
   // Room label drag state
   let draggingRoomLabelId: string | null = $state(null);
@@ -1734,7 +1735,10 @@
       initialFitPending = true;
       requestAnimationFrame(() => {
         initialFitPending = false;
-        if (!mounted || initialFitDone || !getFitBounds()) return;
+        if (!mounted || initialFitDone) return;
+        // An image-only active floor takes priority over the floor below once loaded.
+        if (backgroundLoading && currentFloor && !boundsForFloor(currentFloor)) return;
+        if (!getFitBounds()) return;
         initialFitDone = true;
         zoomToFit();
       });
@@ -1808,11 +1812,19 @@
       if (source === backgroundSource) return;
       backgroundSource = source;
       bgImage = null;
+      backgroundLoading = !!source;
       if (source) {
         const img = new Image();
         img.onload = () => {
           if (mounted && backgroundSource === source) {
             bgImage = img;
+            backgroundLoading = false;
+            queueInitialFit();
+          }
+        };
+        img.onerror = () => {
+          if (mounted && backgroundSource === source) {
+            backgroundLoading = false;
             queueInitialFit();
           }
         };

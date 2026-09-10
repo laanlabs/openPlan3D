@@ -1123,3 +1123,13 @@ keeps short labels clear of rulers. Phone zoom controls now sit beside Tools.
 regressions passed; Svelte checks and final build passed.** The phone screenshot
 was reviewed. See [validation](docs/large-plan-zoom-validation.md). Caption/
 room-label bounds, selection framing and physical device checks remain open.
+
+### Delayed image fit priority — 2026-09-09
+
+An image-only floor now waits for its image before completing initial framing,
+instead of prematurely fitting the visible floor below. Failed loading releases
+the wait and permits that fallback; stale image callbacks remain rejected.
+
+**Eighteen Chromium/WebKit desktop/phone-width checks, Svelte checks and build
+passed.** See [validation](docs/delayed-image-fit-validation.md). Caption/
+room-label bounds, selection framing and physical device checks remain open.
