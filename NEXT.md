@@ -2658,3 +2658,11 @@ state and completed Save/Home close callbacks. Direct pointer Done activation
 during the pending dismissal did not immediately resolve it. Movement is not
 required; isolate canvas recognizers next. Details are in native
 `docs/native-editor-dismissal.md`. No production source changes.
+
+### Native canvas recognizer isolation — 2026-09-10
+
+The dismissal delay reproduces in a diagnostic build with both canvas drag and
+pinch recognizers removed (over 32 seconds after Home close). Removing pinch
+alone also did not resolve it. Production source was restored; investigate
+presentation and pointer-input behavior, not speculative drag-state resets.
+See native `docs/native-editor-dismissal.md` for measured controls.
