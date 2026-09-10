@@ -2440,3 +2440,10 @@ The full iPhone 17 Pro / iOS 26.5 test target passed with Fit Current Floor:
 240 tests, two optional skips, zero failures. See `openplan3d-ios/docs/native-fit-current-floor-validation.md`.
 This covers compilation and regressions; multi-floor, zoom recovery, iOS UI
 and physical-device checks remain open alongside the remaining NEXT work.
+
+### Native automatic floor-switch fit — 2026-09-10
+
+Switching floors now resets bounds/pan/zoom to the active floor; initial loading
+uses that floor too. Catalyst build and an isolated empty-to-populated floor UI
+check passed, with no extra undo entry. See `openplan3d-ios/docs/native-floor-switch-fit-validation.md`.
+Distant populated floors, zoom, iOS/device checks and remaining NEXT work stay open.
