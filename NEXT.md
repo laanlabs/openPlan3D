@@ -2326,3 +2326,10 @@ Split/merge coverage verifies stale-boundary detection, deliberate reassociation
 ID/note preservation, JSON reload, snapshot restoration and deduplicated merged
 area. All 15 Catalyst region tests passed. See `openplan3d-ios/docs/native-split-merge-identity-validation.md`. Interactive
 undo/usability, schedule behavior, area parity and other NEXT work remain open.
+
+### Native unresolved-area drawing labels — 2026-09-10
+
+SVG and full-detail plan labels explicitly show unavailable area; low-zoom
+labels stay compact and floor openings show zero. All 21 Catalyst presentation
+tests passed, including clearing the notice after resolution. See `openplan3d-ios/docs/native-unresolved-labels-validation.md`.
+Dense-plan visual/device checks, exact diagnostics and remaining NEXT work stay open.
