@@ -2482,3 +2482,10 @@ Undo/Redo now leave elevation when its wall disappears; direct deletion chooses
 a replacement only on the active floor. Catalyst build and a drawn-wall Undo UI
 check passed. See `openplan3d-ios/docs/native-elevation-history.md`. Redo/deletion, iOS/device and wider
 NEXT qualification remain open.
+
+### Native elevation Redo/iOS validation — 2026-09-10
+
+Live Catalyst Redo removal restored Plan controls from the removed wall's
+elevation. Full iOS integration passed: 240 tests, two optional skips, zero
+failures. See `openplan3d-ios/docs/native-elevation-history.md`. Cross-floor direct deletion and broader
+iOS/device/NEXT qualification remain open.
