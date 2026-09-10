@@ -2517,3 +2517,9 @@ New tracing imports use unique filenames, preserving prior image bytes for
 Undo. The displayed cache now follows the restored filename. Catalyst build
 and nine package regressions passed. See `openplan3d-ios/docs/native-trace-history.md`. Live two-image
 history and iOS integration remain pending with the broader NEXT backlog.
+
+### Native trace-history iOS integration — 2026-09-10
+
+The full iOS 26.5 target passed after trace-history preservation and elevation
+counter changes: 240 tests, two optional skips, zero failures. See `openplan3d-ios/docs/native-trace-history.md`.
+Direct two-image Undo/Redo UI and broader device/NEXT qualification remain open.
