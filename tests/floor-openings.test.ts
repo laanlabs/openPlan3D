@@ -4,7 +4,7 @@ import { roomProject } from './fixtures/project';
 import { resolveRooms } from '$lib/utils/roomDetection';
 import { readProject } from '$lib/utils/projectValidation';
 import { currentProject, detectedRoomsStore, loadProject, updateRoom, undo, redo } from '$lib/stores/project';
-import { webToNative, nativeToWeb, applyNativeEdits } from '$lib/utils/projectPackageBridge';
+import { webToNative, nativeToWeb, applyNativeEdits, validatePackagePlan } from '$lib/utils/projectPackageBridge';
 
 it('saves a detected floor opening with one undo and restores its usable area', () => {
   const project=roomProject();loadProject(project);
@@ -41,4 +41,26 @@ it('retains the web floor opening when native room edits return through a packag
   const merged=applyNativeEdits(source,before,nativeToWeb(edited,mapping,source.name));
   expect(merged.floors[0].rooms[0]).toMatchObject({floorOpening:true,name:'Stairwell'});
   expect(resolveRooms(merged.floors[0])[0].area).toBe(0);
+});
+
+it('direct native JSON retains nested boundary identity, opening flags and resets', () => {
+  const source=roomProject(),floor=source.floors[0];
+  floor.walls.push(...floor.walls.map(w=>({...w,id:`inner-${w.id}`,
+    start:{x:100+w.start.x/2,y:75+w.start.y/2},end:{x:100+w.end.x/2,y:75+w.end.y/2}})));
+  floor.rooms=resolveRooms(floor).map((r,i)=>({...r,name:`Room ${i}`,floorOpening:r.walls[0].startsWith('inner-')}));
+  const {plan,mapping}=webToNative(source,undefined);
+  const native=validatePackagePlan(JSON.parse(JSON.stringify(plan)));
+  const restored=nativeToWeb(native,mapping,source.name);
+  expect(restored.floors[0].rooms.map(r=>({walls:r.walls.sort(),opening:r.floorOpening})))
+    .toEqual(floor.rooms.map(r=>({walls:[...r.walls].sort(),opening:r.floorOpening})));
+  expect(resolveRooms(restored.floors[0]).map(r=>r.area).sort((a,b)=>a-b)).toEqual([0,9]);
+  restored.floors[0].rooms.forEach(r=>delete r.floorOpening);
+  const reset=webToNative(restored,native,mapping).plan;
+  expect(reset.rooms.every((r:any)=>r.floorOpening===undefined)).toBe(true);
+  for(const value of [1,'true',{}]) {
+    const invalid=structuredClone(native);invalid.rooms[0].floorOpening=value;
+    expect(()=>validatePackagePlan(invalid)).toThrow();
+  }
+  const invalid=structuredClone(native);invalid.rooms[0].boundaryWallIDs=['not-a-uuid'];
+  expect(()=>validatePackagePlan(invalid)).toThrow();
 });

@@ -90,3 +90,16 @@ The shared `furniture-categories.json` fixtures and actual
 `swift-native-categories-return.zip`/`swift-web-categories-return.zip` outputs
 verify this contract. Package format version remains 1. Native 3D remains a
 simplified category-sized preview rather than the web's full model catalog.
+
+## Room boundaries and floor openings
+
+Native room records may include `boundaryWallIDs` (an array of native wall UUIDs)
+and `floorOpening` (an optional boolean). Web exports use existing wall mappings
+for the boundary references. Explicit boundaries take precedence over label-point
+matching, so nested rooms can share a label center without exchanging metadata.
+Unmatched explicit boundaries remain unassociated; old point-only labels use the
+smallest enclosing footprint. Both optional fields can be cleared on export.
+
+Native Codable documents and package merges retain these fields through edits.
+The web viewer honors the opening flag; native geometry/editing support is still
+pending. These additive optional fields do not change package format version 1.

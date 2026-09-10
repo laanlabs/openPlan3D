@@ -58,6 +58,8 @@ export function validatePackagePlan(plan: any): ObjectMap {
       }
       if (kind === 'furniture') { xy(item.center); num(item.angle); num(item.width, 0, true); num(item.depth, 0, true); if (typeof item.category !== 'string') fail(); }
       if (kind === 'rooms') {
+        if (item.floorOpening != null && typeof item.floorOpening !== 'boolean') fail();
+        if (item.boundaryWallIDs != null && (!Array.isArray(item.boundaryWallIDs) || item.boundaryWallIDs.length > 5000 || item.boundaryWallIDs.some((id: any) => typeof id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)))) fail();
         xy(item.center); if (typeof item.name !== 'string') fail();
         if (item.type != null && !['livingRoom', 'bedroom', 'kitchen', 'bathroom', 'diningRoom', 'laundryRoom', 'office', 'hallway', 'garage', 'closet', 'pantry', 'entryway'].includes(item.type)) fail();
       }
@@ -131,10 +133,18 @@ export function nativeToWeb(plan: ObjectMap, mapping: PackageMapping, title: str
     floor.windows = openings.filter((o: any) => o.kind === 'window').map((o: any) => ({ details: nativeItemDetails(o, 'windows'), id: mapped(o.id), wallId: mapped(o.wallID), position: o.position, width: cm(o.width), height: cm(o.height ?? 1.2), sillHeight: cm(o.sillHeight ?? 0.9), type: o.style === 'sliding' ? 'sliding' : 'fixed' }));
     floor.furniture = plan.furniture.filter((f: any) => (f.level ?? 0) === level).map((f: any) => ({ details: nativeItemDetails(f, 'furniture'), id: mapped(f.id), ...importedFurnitureCategory(f.category, cm(f.width)), position: point(f.center), rotation: f.angle * 180 / Math.PI, width: cm(f.width), depth: cm(f.depth), scale: { x: 1, y: 1, z: 1 } }));
     const detected = detectRooms(floor.walls);
+    const polygons = new Map(detected.map(room=>[room.id,getRoomPolygon(room,floor.walls)]));
+    const area = (room: typeof detected[number]) => {
+      const ring=polygons.get(room.id)!;
+      return Math.abs(ring.reduce((sum,p,i)=>{const q=ring[(i+1)%ring.length];return sum+p.x*q.y-q.x*p.y;},0));
+    };
     floor.rooms = plan.rooms.filter((r: any) => (r.level ?? 0) === level).map((r: any) => {
-      const center = point(r.center), match = detected.find(room => inside(center, getRoomPolygon(room, floor.walls)));
+      const center = point(r.center), boundary = r.boundaryWallIDs?.map((id:string)=>mapped(id));
+      const match = boundary
+        ? detected.find(room=>room.walls.length===new Set(boundary).size && room.walls.every(id=>boundary.includes(id)))
+        : detected.filter(room=>inside(center,polygons.get(room.id)!)).sort((a,b)=>area(a)-area(b))[0];
       const centroid = match ? roomCentroid(getRoomPolygon(match, floor.walls)) : center;
-      return { details: nativeItemDetails(r, 'rooms'), id: mapped(r.id), walls: match?.walls ?? [], name: r.name, color: r.colorHex, floorTexture: 'light-oak', area: match?.area ?? 0, labelOffset: { x: center.x - centroid.x, y: center.y - centroid.y } };
+      return { details: nativeItemDetails(r, 'rooms'), id: mapped(r.id), walls: match?.walls ?? [], name: r.name, color: r.colorHex, floorTexture: 'light-oak', ...(r.floorOpening != null ? {floorOpening:r.floorOpening} : {}), area: r.floorOpening ? 0 : match?.area ?? 0, labelOffset: { x: center.x - centroid.x, y: center.y - centroid.y } };
     });
     floor.textAnnotations = plan.notes.filter((n: any) => (byId.get(key(n.id))?.floorId ?? firstFloorId) === floor.id).map((n: any) => ({ id: mapped(n.id), text: n.text, x: cm(n.position.x), y: cm(n.position.y), fontSize: cm(n.fontSize ?? 0.16), color: n.colorHex ?? '#1e293b', rotation: (n.angle ?? 0) * 180 / Math.PI }));
     return floor;
@@ -230,7 +240,7 @@ export function webToNative(project: Project, original: ObjectMap | undefined, p
     }
     for (const room of floor.rooms) {
       const id = identity('rooms', room.id, floor.id), old = nativeOriginal('rooms', id), polygon = getRoomPolygon(room, floor.walls), center = polygon.length ? roomCentroid(polygon) : point(old.center ?? { x: 0, y: 0 });
-      plan.rooms.push({ ...old, id, name: room.name, center: point({ x: center.x + (room.labelOffset?.x ?? 0), y: center.y + (room.labelOffset?.y ?? 0) }, 0.01), ...(room.color ? { colorHex: room.color } : {}), level });
+      plan.rooms.push({ ...old, id, name: room.name, boundaryWallIDs: room.walls.flatMap(wallID=>walls.has(wallID)?[walls.get(wallID)!]:[]), floorOpening:room.floorOpening, center: point({ x: center.x + (room.labelOffset?.x ?? 0), y: center.y + (room.labelOffset?.y ?? 0) }, 0.01), ...(room.color ? { colorHex: room.color } : {}), level });
     }
     for (const note of floor.textAnnotations) {
       const id = identity('textAnnotations', note.id, floor.id), old = nativeOriginal('notes', id);
@@ -252,7 +262,7 @@ export function webToNative(project: Project, original: ObjectMap | undefined, p
       walls: ['start', 'end', 'height', 'thickness', 'level', 'note', 'material'],
       openings: ['wallID', 'position', 'width', 'height', 'kind', 'style', 'hingeLeft', 'opensInward', 'sillHeight', 'price'],
       furniture: ['category', 'center', 'angle', 'width', 'depth', 'level', 'note', 'price', 'photos'],
-      rooms: ['name', 'center', 'colorHex', 'level', 'note', 'photos', 'type', 'ceilingHeight'],
+      rooms: ['name', 'center', 'boundaryWallIDs', 'floorOpening', 'colorHex', 'level', 'note', 'photos', 'type', 'ceilingHeight'],
       notes: ['text', 'position', 'fontSize', 'colorHex', 'angle'], levels: ['name', 'index'],
     };
     for (const kind of kinds) for (const item of plan[kind]) {

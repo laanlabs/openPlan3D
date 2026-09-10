@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { resolve } from 'node:path';
 import { readFile } from 'node:fs/promises';
+import { readPackageZip, packageJSON } from '../../src/lib/utils/projectPackageZip';
 import { BufferGeometry, DoubleSide, Float32BufferAttribute, Group, Mesh, MeshBasicMaterial, Raycaster, Vector3 } from 'three';
 
 test.beforeEach(async ({page}) => {
@@ -134,6 +135,15 @@ test('nested rooms export one slab at each point on active and stacked floors', 
   const svg=await readFile((await (await openingSVG).path())!,'utf8');
   expect(svg).not.toContain('fill="#bbf7d0"');
   expect(svg).toContain('fill-rule="evenodd"');
+  await page.getByRole('button',{name:'Export',exact:true}).click();
+  const packageFile=page.waitForEvent('download');
+  await page.getByRole('button',{name:'Download project package',exact:true}).click();
+  const files=readPackageZip(new Uint8Array(await readFile((await (await packageFile).path())!)));
+  const native=packageJSON(files['plan.json']);
+  const nativeOpening=native.rooms.find((r:any)=>r.name==='Nested room 2' && r.level===0);
+  expect(nativeOpening.floorOpening).toBe(true);
+  expect(nativeOpening.boundaryWallIDs).toHaveLength(4);
+  expect(nativeOpening.boundaryWallIDs.every((id:string)=>native.walls.some((w:any)=>w.id===id))).toBe(true);
   await page.getByRole('button',{name:'Export',exact:true}).click();
   const saved=page.waitForEvent('download');
   await page.getByRole('button',{name:'Download JSON',exact:true}).click();

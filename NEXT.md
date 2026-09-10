@@ -1931,3 +1931,14 @@ WebKit workflows passed. See [validation](docs/floor-opening-validation.md),
 including the onboarding-test race correction. Arbitrary/stair-derived holes,
 inter-floor ceiling coordination, native opening authoring/rendering, and
 physical qualification remain open.
+
+### Native room boundary and opening metadata — 2026-09-10
+
+Native documents and package merges now retain optional boundary wall IDs and
+floor-opening intent, including explicit resets. Web package imports use those
+boundaries to distinguish nested rooms with coincident label centers; exports
+reuse existing wall identities. All 927 web unit tests, Svelte checks/build, and
+33 selected Catalyst tests passed. Four Chromium/WebKit package and nested-slab
+workflows also passed. See
+[validation](docs/native-floor-opening-metadata-validation.md). Native opening
+geometry/authoring, arbitrary holes, and ceiling coordination remain open.
