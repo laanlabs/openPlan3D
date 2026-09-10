@@ -2650,3 +2650,11 @@ Pan onEnded cleared its operation, gesture activity reset, and Save observed
 no active drag/frozen viewport with gesture zoom 1.0. See `openplan3d-ios/docs/native-editor-dismissal.md`.
 Temporary logging was removed; investigate lower-level presentation/input
 behavior rather than resetting already-cleared app flags.
+
+### Native stationary canvas click control — 2026-09-10
+
+A canvas click without movement also delays dismissal despite cleared gesture
+state and completed Save/Home close callbacks. Direct pointer Done activation
+during the pending dismissal did not immediately resolve it. Movement is not
+required; isolate canvas recognizers next. Details are in native
+`docs/native-editor-dismissal.md`. No production source changes.
