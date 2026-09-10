@@ -21,7 +21,7 @@ vi.mock('jspdf', async importOriginal => {
   };
 });
 
-it('generates a real PDF with the plan image and room schedule using the installed jsPDF', () => {
+it.each(['absent', 'tainted', 'invalid-image'] as const)('preserves a valid plan and schedule PDF when 3D is %s', failure => {
   const context = new Proxy({ measureText: () => ({ width: 30 }) }, {
     get: (target, key) => target[key as keyof typeof target] ?? (() => {}),
   });
@@ -30,7 +30,14 @@ it('generates a real PDF with the plan image and room schedule using the install
   vi.stubGlobal('document', {
     createElement: () => ({ width: 1, height: 1, getContext: () => context, toDataURL: () => png }),
     querySelectorAll: () => [],
-    querySelector: () => null,
+    querySelector: () => failure === 'absent' ? null : {
+      width: 100, height: 100,
+      getContext: () => ({ isContextLost: () => false }),
+      toDataURL: () => {
+        if (failure === 'tainted') throw new Error('Canvas is tainted');
+        return 'data:image/png;base64,' + 'A'.repeat(200);
+      },
+    },
   });
 
   exportPDF(roomProject());
@@ -42,4 +49,5 @@ it('generates a real PDF with the plan image and room schedule using the install
   expect(result.pdf).toContain('(Regression plan)');
   expect(result.pdf).toContain('(Room Schedule)');
   expect(result.pdf).toContain('%%EOF');
+  expect(result.pdf).not.toContain('(3D Perspective View)');
 });

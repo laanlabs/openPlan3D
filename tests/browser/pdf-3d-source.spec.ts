@@ -39,5 +39,12 @@ test('PDF captures only the main 3D canvas and skips unrelated canvases', async 
  expect(scene.toString('latin1')).toContain('(3D Perspective View)');
  await expect(main).toHaveAttribute('data-pdf-captures','1');
  expect((scene.toString('latin1').match(/\/Type \/Page\b/g)??[]).length).toBe((flat.toString('latin1').match(/\/Type \/Page\b/g)??[]).length+1);
+ await main.evaluate(canvas=>{
+  (canvas as HTMLCanvasElement).toDataURL=()=> 'data:image/png;base64,'+'A'.repeat(200);
+ });
+ const recovered=await download();
+ expect(recovered.toString('latin1')).not.toContain('(3D Perspective View)');
+ expect(recovered.toString('latin1')).toContain('(Room Schedule)');
+ expect((recovered.toString('latin1').match(/\/Type \/Page\b/g)??[]).length).toBe((flat.toString('latin1').match(/\/Type \/Page\b/g)??[]).length);
  await testInfo.attach('main-view-pdf.pdf',{body:scene,contentType:'application/pdf'});
 });

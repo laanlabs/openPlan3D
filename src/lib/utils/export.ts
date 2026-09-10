@@ -796,6 +796,7 @@ export function exportPDF(project: Project) {
   const threeDCanvas = document.querySelector<HTMLCanvasElement>('canvas[data-plan3d-canvas="true"]');
 
   if (threeDCanvas && threeDCanvas.width > 10 && threeDCanvas.height > 10) {
+    const completedPages = pdf.getNumberOfPages();
     try {
       const context = threeDCanvas.getContext('webgl2') || threeDCanvas.getContext('webgl');
       if (!context || context.isContextLost()) throw new Error('3D view unavailable');
@@ -821,7 +822,11 @@ export function exportPDF(project: Project) {
 
         drawTitleBlock();
       }
-    } catch { /* 3D canvas tainted or unavailable — skip */ }
+    } catch {
+      // Image encoding may fail after addPage. Keep the completed plan/schedule
+      // pages and remove any unfinished optional page before saving.
+      while (pdf.getNumberOfPages() > completedPages) pdf.deletePage(pdf.getNumberOfPages());
+    }
   }
 
   pdf.save(`${project.name || 'floorplan'}.pdf`);

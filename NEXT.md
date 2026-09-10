@@ -908,3 +908,15 @@ WebGL contexts, and no longer probes unrelated canvases or substitutes the last
 rerun. The exported 3D page was rendered and visually checked. See
 [validation](docs/pdf-3d-source-validation.md). Blank-frame detection, serialization
 failure handling, extreme aspect ratios and broader PDF/native fidelity remain open.
+
+### Optional PDF capture failure recovery — 2026-09-09
+
+If optional 3D capture or image encoding fails, PDF export now removes unfinished
+pages before saving the completed plan and schedule. Previously, failures after
+page creation could leave a blank perspective page.
+
+**13 export/real-jsPDF tests, two Chromium/WebKit download checks, Svelte checks
+and production build passed.** Tests cover tainted capture and invalid PNG data,
+including failure after the optional page was added. See
+[validation](docs/pdf-capture-recovery-validation.md). Required plan-image failures,
+blank-frame detection, error messaging and native parity remain open.
