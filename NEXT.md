@@ -2574,3 +2574,10 @@ Error paths, iOS integration and broader NEXT qualification remain open.
 The full iOS 26.5 target passed after explicit editor dismissal: 240 tests,
 two optional skips, zero failures. See `openplan3d-ios/docs/native-editor-dismissal.md`. Load/save-error UI
 and broader device/NEXT qualification remain open.
+
+### Native save-error dismissal/retry verification — 2026-09-10
+
+A controlled invalid destination in the isolated QA session kept the editor
+open with an error. Restoring the original file preserved its hash; retry
+succeeded and returned to preview. See `openplan3d-ios/docs/native-editor-dismissal.md`. Load-error UI,
+full-disk/unsaved-edit cases and broader NEXT qualification remain open.
