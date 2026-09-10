@@ -2615,3 +2615,11 @@ Moving preview refresh after dismissal did not fix the changed-document editor
 remaining open. The experiment was fully reverted. A fresh QA run reproduced
 the issue without save-failure injection; five walls were saved. See `openplan3d-ios/docs/native-editor-dismissal.md`.
 Changed-document dismissal remains unresolved.
+
+### Native dismissal delay clarification — 2026-09-10
+
+Both previously open QA editors eventually returned to preview without more
+clicks. Treat the issue as delayed dismissal; latency is unmeasured. A two-second
+process sample during a new occurrence showed an idle main event loop, and
+clearing selection did not immediately resolve it. See `openplan3d-ios/docs/native-editor-dismissal.md`.
+Presentation timing remains under investigation.
