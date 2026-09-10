@@ -1840,3 +1840,13 @@ create no slab. Catalyst build and 25 tests plus native visual QA passed. See
 `openplan3d-ios/docs/native-room-slabs-validation.md`. Courtyard/stair voids,
 interior-face area agreement, curves, large-graph performance and device gates
 remain open.
+
+
+### Native room graph performance — 2026-09-10
+
+Native slab boundary detection now filters wall pairs and uses spatial vertex
+lookup. A local 2,000-wall/500-room fixture improved from 2.25 s to 0.069 s while
+retaining all rooms. Catalyst build and 28 tests passed, including dense rotated
+grids and snapping-boundary coverage. See
+`openplan3d-ios/docs/native-room-graph-performance.md`. Worst-case memory and
+physical-device profiling remain open alongside voids and area parity.
