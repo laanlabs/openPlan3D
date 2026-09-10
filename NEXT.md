@@ -1996,3 +1996,12 @@ and all 47 selected tests passed, including nested/shared-wall rooms and JSON
 retention. See `openplan3d-ios/docs/native-boundary-assignment-validation.md`.
 Deliberate reassociation, ambiguous graphs, duplicate-label presentation, batch
 raster work, measurement parity, arbitrary cuts, and device QA remain open.
+
+### Native deliberate room reassignment — 2026-09-10
+
+Native Room Properties can deliberately reassign a label to the room beneath
+its position, preserving metadata and retaining the old association on failure.
+Catalyst build and all 49 selected tests passed. See
+`openplan3d-ios/docs/native-room-reassignment-validation.md`. Ambiguous graphs,
+duplicate-label presentation, batch raster work, measurement parity, arbitrary
+cuts, ceiling coordination, and device/UI QA remain open.
