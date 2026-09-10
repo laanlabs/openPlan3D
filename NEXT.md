@@ -2291,3 +2291,10 @@ pass a bounded-error regression. Full Catalyst: 233 tests, two skips, zero failu
 then all 12 region tests passed. See `openplan3d-ios/docs/native-raster-footprint-validation.md`.
 Fresh iOS/UI checks, runtime budgets, general geometry and web area parity remain
 open alongside the other NEXT requirements.
+
+### Native iOS raster footprint integration — 2026-09-10
+
+Full iPhone 17 Pro / iOS 26.5 validation passed after the wall-footprint fix:
+234 tests, two optional skips, zero failures, including rotated/translated
+room references. See `openplan3d-ios/docs/native-ios-raster-footprint-validation.md`. Interactive/device checks, general
+error bounds, performance budgets, area parity and remaining NEXT work stay open.
