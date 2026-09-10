@@ -2143,3 +2143,12 @@ passed: 221 tests, two optional skips, zero failures. A local 16-room run measur
 0.024 s batch / 0.300 s individual with exact output equality. See `openplan3d-ios/docs/native-fill-component-validation.md`.
 Device latency/memory targets, area parity, PDF visual checks, and remaining
 NEXT requirements stay open.
+
+### Native PDF per-floor summaries — 2026-09-10
+
+Each floor PDF page now reports its own room count and area. Twelve opening
+presentation tests passed, including PDF text and rendered-wall assertions.
+Both pages of a metric Letter fixture were visually reviewed: ground fill/area
+and upper opening with zero label area are correct. See `openplan3d-ios/docs/native-pdf-floor-summary-validation.md`.
+Long titles, paper-size/large-plan coverage, device memory/share sheets, print
+scale, and broader NEXT requirements remain open.
