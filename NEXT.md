@@ -2461,3 +2461,10 @@ The full iPhone 17 Pro / iOS 26.5 target passed after automatic floor fitting
 and removed-floor recovery: 240 tests, two optional skips, zero failures.
 See `openplan3d-ios/docs/native-floor-undo-recovery.md`. iOS UI, broader history/navigation sequences
 and physical-device qualification remain open with the wider NEXT backlog.
+
+### Native elevation floor consistency — 2026-09-10
+
+Reproduced an old-floor elevation remaining visible after selecting an empty
+upper floor. Floor changes now clear mismatched elevation targets and return
+to Plan; the canvas also requires matching floor ownership. Catalyst build
+passed. See `openplan3d-ios/docs/native-elevation-floor-switch.md`; post-fix UI/iOS checks remain pending.
