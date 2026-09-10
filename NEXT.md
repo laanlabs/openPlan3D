@@ -2075,3 +2075,12 @@ helper, preserving first-colored-label ownership and opening suppression. All
 labels and an opening. See `openplan3d-ios/docs/native-fill-owner-batch-validation.md`.
 Fill-rectangle batching, renderer area queries, device performance qualification,
 measurement parity, PDF visual checks, and other NEXT work remain open.
+
+### Native renderer room-area batching — 2026-09-10
+
+Room label, property, and selection area queries now share a bounded batch
+cache keyed by walls and room associations. All 59 selected Catalyst tests
+passed, including cache refresh after label, level, boundary, and wall edits
+and opening toggles. See `openplan3d-ios/docs/native-renderer-area-batch-validation.md`.
+Fill-rectangle batching, device performance qualification, measurement parity,
+PDF visual checks, and remaining NEXT work are still open.
