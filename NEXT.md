@@ -2023,3 +2023,12 @@ opening lost its stale green fill while retaining the outer fill and area total.
 See `openplan3d-ios/docs/native-duplicate-fills-validation.md`. Duplicate text
 overlap, raster batching, measurement parity, ambiguous graphs, and device QA
 remain open.
+
+### Native overlapping room label layout — 2026-09-10
+
+Native canvas/SVG separate colliding room labels without changing saved anchors.
+Editor selection follows displayed bounds, and drags retain their anchor offset.
+All 53 selected Catalyst tests passed; native visual QA confirmed three formerly
+overlapping labels are readable. See
+`openplan3d-ios/docs/native-label-layout-validation.md`. Viewport edges, dense
+layouts, other-object collisions, and pointer/touch/device qualification remain open.
