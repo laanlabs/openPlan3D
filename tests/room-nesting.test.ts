@@ -4,6 +4,7 @@ import { roomHoles } from '$lib/utils/roomNesting';
 import { createRoomSlabGeometry } from '$lib/utils/roomSlabGeometry';
 import { detectRooms, resolveRoomGeometry, resolveRooms } from '$lib/utils/roomDetection';
 import type { Wall } from '$lib/models/types';
+import { findRoomAt, findRoomLabelAt } from '$lib/utils/hitTesting';
 const box = (a:number,b:number,c:number,d:number) => [{x:a,y:b},{x:c,y:b},{x:c,y:d},{x:a,y:d}];
 const wallsFor = (rings: ReturnType<typeof box>[]): Wall[] => rings.flatMap((ring,ri) =>
   ring.map((start,i)=>({id:`${ri}-${i}`,start,end:ring[(i+1)%ring.length],thickness:20,height:280,color:'#fff'})));
@@ -28,6 +29,24 @@ it('nested room areas partition the footprint and recompute without losing saved
 it('subtracts unrounded child footprints before rounding a net area', () => {
   const rooms=detectRooms(wallsFor([box(0,0,600.05,600.05),box(100,100,200.1,200.1)]));
   expect(rooms.map(r=>r.area).sort((a,b)=>a-b)).toEqual([1,35]);
+});
+
+it('selects the innermost footprint regardless of ordering or saved net area', () => {
+  const walls=wallsFor([box(0,0,600,600),box(20,20,580,580),box(200,200,400,400)]);
+  const resolved=resolveRoomGeometry({walls,rooms:[]});
+  const rooms=resolved.map(r=>r.room), polygons=new Map(resolved.map(r=>[r.room.id,r.polygon]));
+  const expected=[rooms.find(r=>r.walls.includes('0-0'))!,rooms.find(r=>r.walls.includes('1-0'))!,rooms.find(r=>r.walls.includes('2-0'))!];
+  for(const ordered of [rooms,[...rooms].reverse()]) {
+    for(const [i,p] of [{x:10,y:10},{x:100,y:100},{x:300,y:300}].entries()) {
+      expect(findRoomAt(p,ordered,walls,polygons)?.id).toBe(expected[i].id);
+      expect(findRoomAt(p,ordered,walls)?.id).toBe(expected[i].id);
+    }
+    expect(findRoomAt({x:700,y:700},ordered,walls,polygons)).toBeNull();
+    expect(findRoomLabelAt({x:300,y:300},ordered,walls,1,polygons)?.id).toBe(expected[2].id);
+  }
+  // An intentionally moved parent label remains selectable on its own.
+  const moved=rooms.map(r=>r.id===expected[0].id ? {...r,labelOffset:{x:-250,y:0}} : r);
+  expect(findRoomLabelAt({x:50,y:300},moved,walls,1,polygons)?.id).toBe(expected[0].id);
 });
 
 it('assigns only immediate children independent of ring order and winding', () => {

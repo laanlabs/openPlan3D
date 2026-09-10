@@ -28,6 +28,15 @@ function checkSlabs(scene: any, elevation: number, thickness = .05) {
 test('nested rooms export one slab at each point on active and stacked floors', async ({ page }) => {
   test.setTimeout(90_000);
   await page.addInitScript(() => {
+    const fill=CanvasRenderingContext2D.prototype.fillText;
+    CanvasRenderingContext2D.prototype.fillText=function(text,x,y,maxWidth) {
+      if (this.canvas.getAttribute('aria-label')==='Floor plan editor canvas' && text.startsWith('Nested room 2')) {
+        const p=new DOMPoint(x,y).matrixTransform(this.getTransform()), b=this.canvas.getBoundingClientRect();
+        (window as any).__nestedAnchor={x:b.x+p.x*b.width/this.canvas.width,y:b.y+p.y*b.height/this.canvas.height};
+      }
+      if (maxWidth===undefined) return fill.call(this,text,x,y);
+      return fill.call(this,text,x,y,maxWidth);
+    };
     const encode=HTMLCanvasElement.prototype.toDataURL;
     HTMLCanvasElement.prototype.toDataURL=function(...args) {
       const result=encode.apply(this,args);
@@ -56,6 +65,13 @@ test('nested rooms export one slab at each point on active and stacked floors', 
   for (const value of ['36.0 m²','20.0 m²','12.0 m²','4.0 m²','Nested room 0']) await expect(summary).toContainText(value);
   await expect(summary).not.toContainText('999');
   await page.getByRole('button',{name:'Close area summary',exact:true}).click();
+  await page.getByTitle('Zoom to Fit (F)',{exact:true}).first().click();
+  await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
+  const anchor=await page.evaluate(()=>(window as any).__nestedAnchor as {x:number;y:number});
+  await page.mouse.dblclick(anchor.x,anchor.y);
+  const nameEditor=page.getByRole('textbox',{name:'Room name',exact:true});
+  await expect(nameEditor).toHaveValue('Nested room 2');
+  await nameEditor.press('Escape');
   for (const format of ['PNG','SVG','PDF']) {
     await page.evaluate(capture=>(window as any).__capturePDF=capture,format==='PDF');
     await page.getByRole('button',{name:'Export',exact:true}).click();

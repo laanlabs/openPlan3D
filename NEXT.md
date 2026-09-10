@@ -1890,3 +1890,12 @@ overlap colors. All 921 unit tests, four Chromium/WebKit slab workflows with
 downloaded-image color checks, Svelte checks, and build passed. See
 [validation](docs/nested-room-fills-validation.md). Explicit openings, nested
 label placement/selection, native nesting, and physical qualification remain open.
+
+### Nested room selection — 2026-09-10
+
+Room and furniture-guide hit testing now selects the smallest enclosing footprint
+instead of the first room. Closest labels win, with innermost-room tie-breaking
+for coincident anchors; moved labels retain their saved positions. All 922 unit
+tests, six Chromium/WebKit label/slab workflows, Svelte checks, and build passed.
+See [validation](docs/nested-room-selection-validation.md). Automatic label
+placement, explicit openings, native nesting, and physical gestures remain open.

@@ -27,7 +27,7 @@
   import { drawWall as _drawWall, drawDoorOnWall as _drawDoorOnWall, drawWindowOnWall as _drawWindowOnWall, drawDoorDistanceDimensions as _drawDoorDistanceDimensions, drawWindowDistanceDimensions as _drawWindowDistanceDimensions, drawFurnitureItem, drawStair as _drawStair, drawColumn as _drawColumn, drawGuides as _drawGuides, drawPersistedMeasurements as _drawPersistedMeasurements, drawTextAnnotations as _drawTextAnnotations, drawAnnotation as _drawAnnotation, drawAnnotations as _drawAnnotations, drawRooms as _drawRooms, drawWallJoints as _drawWallJoints, drawSnapPoints as _drawSnapPoints, drawMinimap as _drawMinimap, drawEntourageItems as _drawEntourageItems, drawEntourageGhost as _drawEntourageGhost, drawFloorBelowGhost as _drawFloorBelowGhost, entourageAspect } from '$lib/utils/canvasRenderer';
   import { getEntourageDef } from '$lib/utils/entourageCatalog';
   import { translatedOpeningPosition } from '$lib/utils/openingTranslation';
-  import { pointInPolygon, positionOnWall, findWallAt as _findWallAt, findHandleAt as _findHandleAt, findFurnitureAt as _findFurnitureAt, findColumnAt as _findColumnAt, findStairAt as _findStairAt, findDoorAt as _findDoorAt, findWindowAt as _findWindowAt, findRoomAt as _findRoomAt, hitTestMeasurement as _hitTestMeasurement, hitTestAnnotation as _hitTestAnnotation, hitTestTextAnnotation as _hitTestTextAnnotation, findEntourageAt } from '$lib/utils/hitTesting';
+  import { findRoomLabelAt as _findRoomLabelAt, positionOnWall, findWallAt as _findWallAt, findHandleAt as _findHandleAt, findFurnitureAt as _findFurnitureAt, findColumnAt as _findColumnAt, findStairAt as _findStairAt, findDoorAt as _findDoorAt, findWindowAt as _findWindowAt, findRoomAt as _findRoomAt, hitTestMeasurement as _hitTestMeasurement, hitTestAnnotation as _hitTestAnnotation, hitTestTextAnnotation as _hitTestTextAnnotation, findEntourageAt } from '$lib/utils/hitTesting';
 
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
@@ -1232,14 +1232,7 @@
           const fBottom = fy + fd / 2;
           
           // Find which room the furniture is in
-          let furnitureRoom: Room | null = null;
-          for (const room of detectedRooms) {
-            const poly = (roomPolygons.get(room.id) ?? []);
-            if (pointInPolygon(selFurniture.position, poly)) {
-              furnitureRoom = room;
-              break;
-            }
-          }
+          const furnitureRoom = findRoomAt(selFurniture.position);
           
           // Collect all dimension lines (wall + furniture distances)
           type DimLine = { label: string; from: Point; to: Point; color: string; dir: 'left' | 'right' | 'top' | 'bottom' };
@@ -2146,18 +2139,7 @@
 
   function findRoomLabelAt(p: Point): Room | null {
     if (!currentFloor || !showRoomLabels) return null;
-    for (const room of detectedRooms) {
-      const poly = (roomPolygons.get(room.id) ?? []);
-      if (poly.length < 3) continue;
-      const { x: lx, y: ly } = roomLabelPosition(room, poly);
-      // Check if click is within label area (approx 80x40 world units)
-      const hitW = 80 / zoom;
-      const hitH = 40 / zoom;
-      if (Math.abs(p.x - lx) < hitW && Math.abs(p.y - ly) < hitH) {
-        return room;
-      }
-    }
-    return null;
+    return _findRoomLabelAt(p, detectedRooms, currentFloor.walls, zoom, roomPolygons);
   }
 
   function findRoomAt(p: Point): Room | null {

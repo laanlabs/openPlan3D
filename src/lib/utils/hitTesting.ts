@@ -7,7 +7,7 @@ import { stairContainsLocalPoint } from './stairPlanGeometry';
 import type { Point, Wall, Door, Window as Win, FurnitureItem, Stair, Column, Floor, Measurement, Annotation, TextAnnotation, EntourageItem } from '$lib/models/types';
 import type { Room } from '$lib/models/types';
 import { getFurnitureSize } from '$lib/utils/furnitureCatalog';
-import { getRoomPolygon } from '$lib/utils/roomDetection';
+import { getRoomPolygon, roomLabelPosition } from '$lib/utils/roomDetection';
 import { wallPointAt, wallTangentAt } from '$lib/utils/canvasRenderer';
 import type { HandleType } from '$lib/utils/canvasInteraction';
 
@@ -177,11 +177,43 @@ export function findWindowAt(p: Point, windows: Win[], walls: Wall[], zoom: numb
 }
 
 export function findRoomAt(p: Point, rooms: Room[], walls: Wall[], polygons?: ReadonlyMap<string, Point[]>): Room | null {
+  let selected: Room | null = null;
+  let smallest = Infinity;
   for (const room of rooms) {
     const poly = polygons?.get(room.id) ?? getRoomPolygon(room, walls);
-    if (pointInPolygon(p, poly)) return room;
+    if (!pointInPolygon(p, poly)) continue;
+    const area = footprintArea(poly);
+    if (area < smallest) { selected = room; smallest = area; }
   }
-  return null;
+  return selected;
+}
+
+// Use the enclosing footprint, not net room.area: an outer ring may have less
+// floor area than its child after subtracting nested rooms.
+function footprintArea(poly: Point[]): number {
+  if (poly.length < 3) return Infinity;
+  const origin = poly[0];
+  return Math.abs(poly.reduce((sum,p,i) => {
+    const q=poly[(i+1)%poly.length];
+    return sum+(p.x-origin.x)*(q.y-origin.y)-(q.x-origin.x)*(p.y-origin.y);
+  },0));
+}
+
+/** Closest label wins; coincident label anchors prefer the innermost room. */
+export function findRoomLabelAt(p: Point, rooms: Room[], walls: Wall[], zoom: number,
+  polygons?: ReadonlyMap<string, Point[]>): Room | null {
+  let selected: Room | null = null, nearest = Infinity, smallest = Infinity;
+  for (const room of rooms) {
+    const poly=polygons?.get(room.id) ?? getRoomPolygon(room,walls);
+    if (poly.length<3) continue;
+    const anchor=roomLabelPosition(room,poly), dx=p.x-anchor.x, dy=p.y-anchor.y;
+    if (Math.abs(dx)>=80/zoom || Math.abs(dy)>=40/zoom) continue;
+    const distance=dx*dx+dy*dy, area=footprintArea(poly);
+    if (distance<nearest || (distance===nearest && area<smallest)) {
+      selected=room;nearest=distance;smallest=area;
+    }
+  }
+  return selected;
 }
 
 export function hitTestMeasurement(wp: Point, floor: Floor, zoom: number): string | null {
