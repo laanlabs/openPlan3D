@@ -2354,3 +2354,10 @@ The full iPhone 17 Pro / iOS 26.5 target passed after geometry references,
 split/merge, unavailable labels and preview/editor framing: 239 tests, two
 optional skips, zero failures. See `openplan3d-ios/docs/native-ios-label-framing-validation.md`. Physical-device/layout
 qualification, area parity, release gates and remaining NEXT work stay open.
+
+### Native furniture footprint framing — 2026-09-10
+
+Document bounds include rotated furniture footprints, correcting center-only
+fitting of furniture-only plans and outlying objects. Full Catalyst validation:
+240 tests, two skips, zero failures. See `openplan3d-ios/docs/native-furniture-fit-validation.md`. Visual/iOS/device
+checks, decorative/text extents and remaining NEXT requirements stay open.
