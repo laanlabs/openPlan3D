@@ -2134,3 +2134,12 @@ A local Catalyst run measured areas at 0.075 s batch / 0.867 s individual and
 fills at 0.175 s / 0.525 s. All ten room-region tests passed. See `openplan3d-ios/docs/native-room-batch-measurement.md`.
 These are single-run debug measurements, not device budgets. Shared fill indexing,
 active-editing/device measurements, area parity, PDF QA, and other NEXT work remain.
+
+### Native fill component indexing — 2026-09-10
+
+Batch color fills now share component traversal and one row scan, preserving
+ordered rectangles and rejecting exterior regions. The full Catalyst target
+passed: 221 tests, two optional skips, zero failures. A local 16-room run measured
+0.024 s batch / 0.300 s individual with exact output equality. See `openplan3d-ios/docs/native-fill-component-validation.md`.
+Device latency/memory targets, area parity, PDF visual checks, and remaining
+NEXT requirements stay open.
