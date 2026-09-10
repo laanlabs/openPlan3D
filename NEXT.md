@@ -1701,3 +1701,13 @@ four Chromium/WebKit workflows, Svelte checks and build passed. Downloaded PNG a
 PDF plan-image visual reviews passed. See
 [validation](docs/stair-raster-export-validation.md). SVG/DXF stair symbols,
 physical qualification and broader native parity remain open.
+
+### Editable stair symbols in SVG — 2026-09-10
+
+SVG now shares the editor's stair renderer through the vector symbol adapter,
+retaining all four shapes, treads, directional arrows, labels and rotation as
+editable geometry. Stair-only SVG plans and complete caption/footprint framing
+are supported. All 884 unit tests, four Chromium/WebKit workflows, Svelte checks
+and build passed; downloaded SVG visual review and furniture regressions passed.
+See [validation](docs/stair-svg-export-validation.md). DXF stairs, physical
+qualification and broader native parity remain open.

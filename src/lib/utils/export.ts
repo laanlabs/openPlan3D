@@ -3,6 +3,7 @@ import { columnPlanBounds } from './columnPlanGeometry';
 import { hasPlanExportContent } from './planExportContent';
 import { dimensionPlanGeometry } from './dimensionPlanGeometry';
 import { textAnnotationBounds, textAnnotationLines } from './textAnnotationLayout';
+import { canvasSymbolSvg } from './canvasSymbolSvg';
 import { furnitureSvg } from './furnitureSvg';
 import { furniturePlanBounds } from './furniturePlanBounds';
 import { canvasPNG } from './canvasPNG';
@@ -297,7 +298,7 @@ export { downloadProjectJSON as exportAsJSON } from './projectBackup';
 
 export function exportAsSVG(project: Project) {
   const floor = project.floors.find(f => f.id === project.activeFloorId) ?? project.floors[0];
-  if (!floor || !hasPlanExportContent(floor)) return;
+  if (!floor || (!hasPlanExportContent(floor) && !floor.stairs?.length)) return;
 
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const w of floor.walls) {
@@ -315,6 +316,7 @@ export function exportAsSVG(project: Project) {
   extendBoundsForOpenings(floor, svgBounds);
   extendBoundsForRoomLabels(floor, svgBounds);
   extendBoundsForColumns(floor, svgBounds);
+  extendBoundsForStairs(floor, svgBounds);
   extendBoundsForText(floor, svgBounds);
   extendBoundsForDimensions(floor, svgBounds);
   extendBoundsForMeasurements(floor, svgBounds);
@@ -515,6 +517,9 @@ export function exportAsSVG(project: Project) {
     paths+='  </g>\n';
   }
 
+  for (const stair of floor.stairs ?? []) {
+    paths+=`<g data-stair="${escapeXml(stair.id)}">${canvasSymbolSvg(ctx=>drawStair({ctx,width:pad*2,height:pad*2,zoom:1,camX:minX,camY:minY},stair,false))}</g>\n`;
+  }
   for (const column of floor.columns ?? []) {
     const x = column.position.x - minX + pad, y = column.position.y - minY + pad;
     const r = column.diameter / 2, rotation = column.shape === 'square' ? column.rotation : 0;

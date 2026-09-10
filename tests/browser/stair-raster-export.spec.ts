@@ -19,6 +19,10 @@ test('stair-only plans retain every shape in PNG and PDF',async({page},testInfo)
  async function download(name:string){await page.getByRole('button',{name:'Export',exact:true}).click();const pending=page.waitForEvent('download');await page.getByRole('button',{name,exact:true}).click();return readFile((await(await pending).path())!);}
  const before=JSON.parse((await download('Download JSON')).toString());
  const png=await download('Export 2D as PNG');expect(png.subarray(1,4).toString()).toBe('PNG');await testInfo.attach('stair-png',{body:png,contentType:'image/png'});
+ const svg=(await download('Export as SVG')).toString();
+ expect((svg.match(/data-stair=/g)??[]).length).toBe(4);expect(svg).not.toMatch(/<image|NaN|Infinity/);
+ const vector=await page.evaluate(async svg=>{const img=new Image(),url=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));try{await new Promise<void>((resolve,reject)=>{img.onload=()=>resolve();img.onerror=reject;img.src=url;});const canvas=document.createElement('canvas');canvas.width=img.width*2;canvas.height=img.height*2;const ctx=canvas.getContext('2d')!;ctx.fillStyle='white';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);return canvas.toDataURL('image/png');}finally{URL.revokeObjectURL(url);}},svg);
+ await testInfo.attach('stair-svg-preview',{body:Buffer.from(vector.split(',')[1],'base64'),contentType:'image/png'});
  const pdf=await download('Export as PDF');expect(pdf.subarray(0,5).toString()).toBe('%PDF-');await testInfo.attach('stair-pdf',{body:pdf,contentType:'application/pdf'});
  const planImage=await page.evaluate(()=>(window as any).__stairPDF);expect(planImage.labels).toEqual(['UP','DN (l-shaped)','UP (u-shaped)','DN']);
  await testInfo.attach('stair-pdf-plan',{body:Buffer.from(planImage.image.split(',')[1],'base64'),contentType:'image/png'});
