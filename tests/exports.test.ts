@@ -226,7 +226,7 @@ it.each([false, true])('exports missing-catalog furniture with shared dimensions
   const width = saved ? 320 : 100, depth = saved ? 40 : 25;
   exportAsSVG(project);
   const svg = await downloaded.at(-1)!.text();
-  expect(svg).toContain(`width="${width}" height="${depth}"`);
+  expect(svg).toContain(`data-width="${width}" data-depth="${depth}"`);
   expect(svg).toContain('Unknown furniture');
   await exportAsPNG(canvas, project);
   expect(canvasCurve).toHaveBeenCalledWith(width/2,-depth/2,width/2,expect.any(Number));

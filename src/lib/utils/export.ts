@@ -2,6 +2,7 @@ import { columnPlanBounds } from './columnPlanGeometry';
 import { hasPlanExportContent } from './planExportContent';
 import { dimensionPlanGeometry } from './dimensionPlanGeometry';
 import { textAnnotationBounds, textAnnotationLines } from './textAnnotationLayout';
+import { furnitureSvg } from './furnitureSvg';
 import { furniturePlanBounds } from './furniturePlanBounds';
 import { canvasPNG } from './canvasPNG';
 import { planOpening } from './planOpening';
@@ -488,20 +489,16 @@ export function exportAsSVG(project: Project) {
     }
   }
 
-  // Furniture rectangles (actual dimensions from catalog)
+  // Shared furniture symbols remain editable vector geometry.
   for (const fi of floor.furniture) {
-    const fx = fi.position.x - minX + pad;
-    const fy = fi.position.y - minY + pad;
-    const cat = getCatalogItem(fi.catalogId);
-    const { width: fw, depth: fd } = getFurnitureSize(fi);
-    const color = fi.color ?? (cat ? cat.color : '#888888');
-    const rot = fi.rotation || 0;
-    paths += `  <g transform="translate(${fx},${fy}) rotate(${rot})">\n`;
-    paths += `    <rect x="${-fw / 2}" y="${-fd / 2}" width="${fw}" height="${fd}" fill="${color}" stroke="#555" stroke-width="0.5" rx="2" opacity="0.7"/>\n`;
-    {
-      paths += `    <text x="0" y="4" text-anchor="middle" font-size="9" fill="#333" font-family="sans-serif">${escapeXml(cat?.name ?? 'Unknown furniture')}</text>\n`;
-    }
-    paths += `  </g>\n`;
+    const fx=fi.position.x-minX+pad, fy=fi.position.y-minY+pad;
+    const cat=getCatalogItem(fi.catalogId), {width:fw,depth:fd}=getFurnitureSize(fi);
+    const color=fi.color ?? cat?.color ?? '#888888';
+    paths+=`  <g data-furniture="${escapeXml(fi.id)}" data-width="${fw}" data-depth="${fd}" transform="translate(${fx},${fy}) rotate(${fi.rotation || 0})">\n`;
+    paths+=`<g transform="scale(${Math.sign(fi.scale?.x ?? 1)||1},${Math.sign(fi.scale?.y ?? 1)||1})">${furnitureSvg(fi.catalogId,fw,fd,color)}</g>\n`;
+    const fontSize=Math.max(8,Math.min(12,Math.min(fw,fd)*0.2));
+    if(Math.min(fw,fd)>20) paths+=`<text x="0" y="${fd/2+fontSize*0.8}" text-anchor="middle" dominant-baseline="central" font-size="${fontSize*0.7}" fill="#374151" font-family="sans-serif">${escapeXml(cat?.name ?? 'Unknown furniture')}</text>\n`;
+    paths+='  </g>\n';
   }
 
   for (const column of floor.columns ?? []) {

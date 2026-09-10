@@ -1656,3 +1656,15 @@ passed. Gallery visual review and oversized furniture-bound regressions passed.
 See [validation](docs/furniture-raster-detail-validation.md). Detailed SVG/DXF
 furniture symbols, independent opening alignment, physical qualification and
 broader native parity remain open.
+
+### Detailed furniture symbols in SVG — 2026-09-10
+
+SVG exports now reuse the furniture icon registry through a vector drawing adapter,
+preserving paths, curves, ellipses and symbol text without embedded raster images.
+Geometry retains rotation and signed scale; captions remain readable outside the
+mirror transform. All 861 unit tests, six Chromium/WebKit workflows, Svelte checks
+and build passed. Every catalog entry is covered by adapter tests; decoded SVG
+gallery visual review and export-bound regressions passed. See
+[validation](docs/furniture-svg-detail-validation.md). Detailed DXF furniture
+symbols, independent opening alignment, physical qualification and broader native
+parity remain open.

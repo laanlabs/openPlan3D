@@ -15,7 +15,7 @@ for (const scaled of [false, true]) test(`exports ${scaled ? 'scaled' : 'unscale
   const doc=new DOMParser().parseFromString(svg,'image/svg+xml');
   const view=doc.documentElement.getAttribute('viewBox')!.split(' ').map(Number);
   const width=scaled ? 1600 : 800, depth=scaled ? 150 : 300;
-  const rect=doc.querySelector(`rect[width="${width}"]`)!, transform=rect.parentElement!.getAttribute('transform')!.match(/-?\d+(?:\.\d+)?/g)!.map(Number);
+  const rect=doc.querySelector(`g[data-width="${width}"]`)!, transform=rect.getAttribute('transform')!.match(/-?\d+(?:\.\d+)?/g)!.map(Number);
   const angle=transform[2]*Math.PI/180;
   const points=[-width/2,width/2].flatMap(x=>[-depth/2,depth/2].map(y=>({x:transform[0]+x*Math.cos(angle)-y*Math.sin(angle),y:transform[1]+x*Math.sin(angle)+y*Math.cos(angle)})));
   return {width:view[2],height:view[3],points};
