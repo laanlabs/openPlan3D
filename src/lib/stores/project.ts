@@ -1089,6 +1089,11 @@ export function splitWall(id: string, t: number): string | null {
     const references = roomReferences.get(room.id);
     if (references) room.walls = references;
   }
+  for (const group of floor.groups ?? []) {
+    if (group.elementIds.includes(id)) {
+      group.elementIds = group.elementIds.flatMap(member => member === id ? [id, newId] : [member]);
+    }
+  }
   w.end = { ...midPt };
   w.startHeight = startH;
   w.endHeight = midH;

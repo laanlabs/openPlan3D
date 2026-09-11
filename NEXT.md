@@ -496,6 +496,11 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
   identity, names and finishes. Unit cases include two rooms using different
   portions of a long wall; browser cases verify export, Undo/Redo and save/reopen.
   Dividing/merging rooms themselves remains separate work.
+
+  Splitting a grouped straight wall now keeps both child segments in the original
+  group. Unit coverage checks group copying and exact Undo/Redo; three browser
+  cases check membership, geometry and save/reopen (14.1 seconds). Group gesture
+  behavior on physical devices remains to be qualified.
 - **Building completeness:** implement slabs, stair voids and common roof forms.
   Floor elevations and variable endpoint wall heights already exist. Extend native
   editing/preview fidelity for curves, slopes, elevations, opening styles and

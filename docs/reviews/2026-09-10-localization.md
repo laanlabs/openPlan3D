@@ -1650,3 +1650,18 @@ Logs: `/tmp/web-room-geometry-integration-unit.log` and
 `/tmp/web-room-geometry-integration-browser.log`. This integrates recent saved-room
 reference/history work; it does not establish native area equality, physical-device
 qualification or completion of the remaining NEXT requirements.
+
+## Wall splits preserve group membership — 2026-09-11
+
+A unit regression at 35008de found that a split's new wall segment had no group.
+The split now substitutes both child IDs at the original membership position,
+inside the existing split undo entry. Three focused wall-split unit cases pass,
+including copying all group members and exact Undo/Redo restoration.
+
+Check/build pass with zero Svelte diagnostics. Three Portuguese browser cases
+pass across Chromium, Firefox and WebKit (14.1 seconds), checking saved membership,
+room references, slope/opening geometry, Undo/Redo and save/reopen. Physical group
+gestures and broader NEXT qualification remain open.
+Logs: `/tmp/web-wall-group-split-repro.log`, `/tmp/web-wall-group-split-unit.log`,
+`/tmp/web-wall-group-split-check.log`, `/tmp/web-wall-group-split-build.log`,
+`/tmp/web-wall-group-split-browser.log`.

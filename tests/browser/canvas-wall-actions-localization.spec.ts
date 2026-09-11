@@ -8,6 +8,7 @@ test('Portuguese swing and midpoint split actions preserve openings and undo', a
   floor.windows[0].wallId = floor.walls[0].id;
   floor.windows[0].position = .75;
   floor.walls[0].startHeight = 250; floor.walls[0].endHeight = 350; floor.walls[0].height = 350;
+  floor.groups = [{ id: 'wall-group', elementIds: [floor.walls[0].id, floor.walls[1].id] }];
   await page.addInitScript(() => localStorage.setItem('o3d_locale', 'pt'));
   await page.goto('/editor');
   await page.getByRole('button', { name: 'Exportar', exact: true }).click();
@@ -41,6 +42,7 @@ test('Portuguese swing and midpoint split actions preserve openings and undo', a
   expect([first.startHeight, first.endHeight, second.startHeight, second.endHeight]).toEqual([250,300,300,350]);
   expect(split.doors[0]).toEqual({ ...original.doors[0], position: .5 });
   expect(split.windows[0]).toEqual({ ...original.windows[0], position: .5, wallId: second.id });
+  expect(split.groups).toEqual([{ id: 'wall-group', elementIds: [first.id, second.id, original.walls[1].id] }]);
   expect(split.rooms).toEqual(original.rooms.map((room: any) => ({
     ...room, walls: room.walls.flatMap((id: string) => id === first.id ? [id, second.id] : [id]),
   })));
