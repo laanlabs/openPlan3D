@@ -60,11 +60,20 @@ removal. Its three scene exports and all slab geometry assertions remain;
 the full workflow has a 180-second allowance. The inventory union now contains
 82 distinct passes; Playwright confirms 1,025 remaining cases.
 
+The next continuation passed seven cases, including crossing-room slab exports
+and all curved-opening placement cases, then the curved-opening mesh export
+hit the same auto-dismiss tip race. All eight remaining identical optional
+hint-click patterns now wait for hidden state, bounded at 15 seconds. The
+curved-opening export workflow also has a 180-second allowance; geometry,
+framing, idle and walkthrough assertions are unchanged. The inventory union
+contains 89 distinct passes and 1,018 remaining cases.
+
 ## Resume the running process
 
 - Command: `npx playwright test --test-list /tmp/web-localization-remaining.txt --max-failures=1`
-- Unified execution session: `41767`; poll this handle before assuming it ended.
-- Active log: `/tmp/web-localization-full-browser-8.log`
+- Unified execution session: `47598`; poll this handle before assuming it ended.
+- Active log: `/tmp/web-localization-full-browser-9.log`
+- Completed seven-pass continuation: `/tmp/web-localization-full-browser-8.log` (session `41767`, terminal exit 1).
 - Completed 30-pass continuation: `/tmp/web-localization-full-browser-7.log` (session `23537`, terminal exit 1).
 - Completed three-pass continuation: `/tmp/web-localization-full-browser-6.log` (session `49725`, terminal exit 1).
 - Completed background pass: `/tmp/web-localization-full-browser-5.log` (session `6878`, terminal exit 1).

@@ -15,7 +15,7 @@ for (const locale of ['en', 'pt']) for (const width of [1440, 390]) test(`${loca
   await page.getByRole('button', { name: '3D', exact: true }).click();
   await page.waitForLoadState('networkidle');
   const hint = page.getByRole('button', { name: locale === 'pt' ? 'Entendi' : 'Got it', exact: true });
-  if (await hint.isVisible()) await hint.click();
+  await expect(hint).toBeHidden({ timeout: 15_000 });
   const download = async () => {
     const pending = page.waitForEvent('download');
     await page.getByRole('button', { name: locale === 'pt' ? 'Exportar cena para Blender' : 'Export Blender Scene', exact: true }).click();

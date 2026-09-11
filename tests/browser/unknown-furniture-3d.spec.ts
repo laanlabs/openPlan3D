@@ -19,7 +19,7 @@ for (const width of [1440, 390]) test(`unknown furniture renders in 3D at ${widt
   await (await chooser).setFiles({ name: 'unknown-3d.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(project)) });
   await page.getByRole('button', { name: '3D', exact: true }).click();
   const hint = page.getByRole('button', { name: 'Got it', exact: true });
-  if (await hint.isVisible()) await hint.click();
+  await expect(hint).toBeHidden({ timeout: 15_000 });
   const canvas = page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').last();
   await page.getByRole('button', { name: 'Top-Down View', exact: true }).click();
   await expect.poll(() => canvas.evaluate((node: HTMLCanvasElement) => {

@@ -80,7 +80,7 @@ async function openWalkthrough(page: Page, pointerLock = false, locale = 'en') {
   await (await chooser).setFiles(resolve('tests/fixtures/top-down-framing.openplan.json'));
   await page.getByRole('button', { name: '3D', exact: true }).click();
   const hint = page.getByRole('button', { name: locale === 'pt' ? 'Entendi' : 'Got it', exact: true });
-  if (await hint.isVisible()) await hint.click();
+  await expect(hint).toBeHidden({ timeout: 15_000 });
   await page.waitForLoadState('networkidle');
   await expect.poll(() => page.evaluate(() => (window as any).__walkAudit.ready())).toBe(true);
   await page.evaluate(() => (window as any).__walkAudit.start());

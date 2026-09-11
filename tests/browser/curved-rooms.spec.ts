@@ -34,7 +34,7 @@ test('curved room slabs follow the wall bulge across active-floor switches', asy
   await page.getByRole('button', { name: '3D', exact: true }).click();
   await page.waitForLoadState('networkidle');
   const hint = page.getByRole('button', { name: 'Got it', exact: true });
-  if (await hint.isVisible()) await hint.click();
+  await expect(hint).toBeHidden({ timeout: 15_000 });
   async function exported() {
     const pending = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Export Blender Scene', exact: true }).click();
