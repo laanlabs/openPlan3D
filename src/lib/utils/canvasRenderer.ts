@@ -907,7 +907,7 @@ export function drawWindowDistanceDimensions(cs: CanvasState, wall: Wall, window
 
 // ── Furniture drawing ────────────────────────────────────────────────
 
-export function drawFurnitureItem(cs: CanvasState, item: FurnitureItem, selected: boolean): void {
+export function drawFurnitureItem(cs: CanvasState, item: FurnitureItem, selected: boolean, caption?: string): void {
   const { ctx, zoom } = cs;
   const cat = getCatalogItem(item.catalogId);
   const s = wts(cs, item.position.x, item.position.y);
@@ -937,7 +937,7 @@ export function drawFurnitureItem(cs: CanvasState, item: FurnitureItem, selected
     ctx.font = `${fontSize * 0.7}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(cat?.name ?? 'Unknown furniture', 0, d / 2 + fontSize * 0.8);
+    ctx.fillText(caption ?? cat?.name ?? 'Unknown furniture', 0, d / 2 + fontSize * 0.8);
     ctx.restore();
   }
 

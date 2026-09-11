@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { t } from '$lib/i18n';
+  import { t, locale } from '$lib/i18n';
+  import { furnitureName } from '$lib/i18n/furnitureNames';
   import { multiSelectionBounds } from '$lib/utils/multiSelectionBounds';
   import { onMount, onDestroy, tick } from 'svelte';
   import { get } from 'svelte/store';
@@ -55,6 +56,7 @@
   // Events and subscriptions coalesce into one frame; no idle polling.
   let drawing: ReturnType<typeof createDrawScheduler> | undefined;
   function markDirty() { drawing?.invalidate(); }
+  onDestroy(locale.subscribe(() => markDirty()));
   function getCS(): CanvasState { return { ctx, width, height, zoom, camX, camY }; }
   // Sync zoom with shared store
   onDestroy(canvasZoom.subscribe(v => { zoom = v; }));
@@ -541,7 +543,7 @@
   }
 
   function drawFurniture(item: FurnitureItem, selected: boolean) {
-    drawFurnitureItem(getCS(), item, selected);
+    drawFurnitureItem(getCS(), item, selected, furnitureName(item.catalogId, get(locale)));
   }
 
   // Track wall snap during placement preview
