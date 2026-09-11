@@ -22,3 +22,11 @@ These tests simulate loader failure and clock advancement; physical-network/brow
 outage qualification is separate.
 
 Production build, catalog consistency check and diff checks passed. Build log: `/tmp/web-model-recovery-build.log`.
+
+## Full web unit integration
+
+The complete `npm test` run passed against `faaa9cd`: 931 tests across 86 files,
+zero failures, in 21.14 seconds. Process exit code was 0. Log:
+`/tmp/web-full-asset-recovery.log`. This covers the current unit suite after both
+texture and model retry changes; it does not claim a new full browser-suite run.
+The separate 12-case texture browser result remains scoped to that workflow.

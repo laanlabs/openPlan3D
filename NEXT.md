@@ -163,6 +163,11 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+Latest full web unit checkpoint: **931 tests across 86 files passed** at `faaa9cd`
+on September 10, 2026, after texture and furniture download recovery changes.
+This is not a full-browser or deployed-release claim; see the
+[integration record](docs/reviews/2026-09-10-model-recovery.md).
+
 The user's new priority is a **universal iPhone/iPad/Mac app with local commands
 and eventual photo-based RoomPlan rendering**. The native implementation plan is
 tracked in [native issue #8](https://github.com/laanlabs/openplan3d-ios/issues/8)
@@ -2818,3 +2823,10 @@ and cloned resources remain independent. Existing fallback instances stay intact
 until rebuilt. The new regression failed before the change; all 14 focused
 model/texture tests, zero-warning Svelte checks, catalog checks and production
 build pass. See [report](docs/reviews/2026-09-10-model-recovery.md).
+
+### Full web asset-recovery integration — 2026-09-10
+
+`npm test` passed all 931 tests in 86 files against faaa9cd, zero failures,
+21.14 seconds. The source already passed zero-warning Svelte checks and production
+build. Focused texture browser checks remain separately reported; no new full
+browser-suite or physical-device result is claimed.
