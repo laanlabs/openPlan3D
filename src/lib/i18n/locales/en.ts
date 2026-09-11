@@ -330,5 +330,10 @@ export const en = {
   "print.overflow": "The plan does not fit at this scale. Choose a smaller scale, another orientation, or Fit to page.",
   "print.canvas": "Floor plan print preview",
   "print.prepareFailed": "Unable to prepare this print.",
-  "print.downloadFailed": "Unable to download PDF."
+  "print.downloadFailed": "Unable to download PDF.",
+  "print.sheetUntitled": "Untitled",
+  "print.sheetScale": "Scale: {value}",
+  "print.sheetFooter": "OpenPlan3D · Print at 100% / Actual size; disable Fit to page in the print dialog.",
+  "print.schedule": "Room Schedule",
+  "print.pdfOverflow": "The plan does not fit this page at the selected scale. Choose a smaller scale or Fit to page."
 } as const;

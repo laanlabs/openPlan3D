@@ -228,3 +228,27 @@ paper aspect ratio and download a nonempty PDF with a valid PDF header. This doe
 not verify physical printer output or every PDF page's visual layout. Logs:
 `/tmp/web-print-localization-unit.log`, `/tmp/web-print-localization-check.log`,
 `/tmp/web-print-localization-build.log`, `/tmp/web-print-localization-browser.log`.
+
+## Printed sheet and schedule migration
+
+The rendered sheet now translates its fallback title, scale caption, Fit to page
+label, date locale and print instructions. The PDF room-schedule heading and
+print-owned validation errors are translated too. Rendering and PDF construction
+accept an explicit locale (English by default); the preview tracks locale changes
+and redraws before allowing download. Footer text is constrained to the existing
+page margins. Project/floor/room names, measurement strings, calibration bar,
+layout math and filenames remain unchanged. Other shared canvas-generated labels
+and general export paths remain separate localization work.
+
+Printed-sheet validation: all 15 print-scale/localization unit tests pass, including
+identical English/Portuguese layout objects, unchanged project data, margin-bounded
+footer text and translated PDF schedule text. The Node fixture uses a solid floor
+because it does not provide browser Image decoding. Svelte check reports zero
+errors/warnings and production build exits 0. Three browser cases pass across all
+engines at 390 pixels (53.0 seconds), verifying actual canvas scale/footer labels,
+Portuguese schedule heading in downloaded PDF bytes, fit validation and A4 portrait
+proportions. Physical print and complete visual/pagination qualification remain
+open. Logs: `/tmp/web-printed-sheet-localization-unit-final.log`,
+`/tmp/web-printed-sheet-localization-check.log`,
+`/tmp/web-printed-sheet-localization-build.log`,
+`/tmp/web-printed-sheet-localization-browser.log`.

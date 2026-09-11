@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { t } from '$lib/i18n';
+  import { t, locale } from '$lib/i18n';
   import { modalDialog } from '$lib/utils/modalDialog';
   import { tick } from 'svelte';
   import { currentProject } from '$lib/stores/project';
@@ -19,12 +19,13 @@
   $effect(() => {
     const project = $currentProject;
     const settings = options;
+    const language = $locale;
     if (!open || !project) return;
     let disposed = false;
     rendering = true;
     void tick().then(() => {
       if (disposed || !canvas) return;
-      try { layout = renderPrintPage(canvas, project, settings); error = ''; }
+      try { layout = renderPrintPage(canvas, project, settings, language); error = ''; }
       catch (e) { layout = null; error = e instanceof Error ? e.message : $t('print.prepareFailed'); }
       rendering = false;
     });
@@ -33,7 +34,7 @@
 
   function downloadPDF() {
     if (!$currentProject || !canvas || !layout?.fits || rendering) return;
-    try { createPrintPDF(canvas, $currentProject, options).save(`${$currentProject.name || 'floorplan'}-${layout.scaleLabel.replaceAll(':', '-')}.pdf`); }
+    try { createPrintPDF(canvas, $currentProject, options, $locale).save(`${$currentProject.name || 'floorplan'}-${layout.scaleLabel.replaceAll(':', '-')}.pdf`); }
     catch (e) { error = e instanceof Error ? e.message : $t('print.downloadFailed'); }
   }
 </script>

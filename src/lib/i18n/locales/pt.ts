@@ -330,5 +330,10 @@ export const pt = {
   "print.overflow": "A planta não cabe nesta escala. Escolha uma escala menor, outra orientação ou Ajustar à página.",
   "print.canvas": "Prévia de impressão da planta",
   "print.prepareFailed": "Não foi possível preparar esta impressão.",
-  "print.downloadFailed": "Não foi possível baixar o PDF."
+  "print.downloadFailed": "Não foi possível baixar o PDF.",
+  "print.sheetUntitled": "Sem título",
+  "print.sheetScale": "Escala: {value}",
+  "print.sheetFooter": "OpenPlan3D · Imprima em 100% / Tamanho real; desative Ajustar à página na janela de impressão.",
+  "print.schedule": "Tabela de ambientes",
+  "print.pdfOverflow": "A planta não cabe nesta página na escala selecionada. Escolha uma escala menor ou Ajustar à página."
 } as const;

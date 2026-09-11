@@ -2949,3 +2949,12 @@ zero-warning Svelte check and production build pass. Three phone-width browser
 cases pass across all engines, verifying overflow/fit behavior, A4 portrait
 proportions and PDF download. Printed sheet/schedule text and physical print
 qualification remain open.
+
+### Printed sheet and schedule localization — 2026-09-10
+
+Translated sheet captions/instructions and the PDF schedule heading with explicit
+locale input. Layout math, calibration and project content remain unchanged.
+Fifteen print-scale/localization unit tests, zero-warning Svelte check and production
+build pass. Three browser cases pass across all engines, inspecting canvas labels
+and the downloaded PDF heading alongside scale/fit checks. Physical print, broader
+canvas text and general export localization remain open.
