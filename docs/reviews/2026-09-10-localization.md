@@ -909,3 +909,20 @@ column, annotation, background and accessibility changes. No runtime edits here.
 Logs: `/tmp/web-properties-second-integration-unit.log`,
 `/tmp/web-properties-second-integration-browser.log`. Remaining wall Properties,
 broader localization, physical-device and release requirements remain open.
+
+## Wall length and endpoint localization
+
+Translated wall heading, length/thickness, fixed-endpoint choices, unit-entry and
+connected-corner help. Minimum-length validation now stores its invalid-draft state
+separately from resize diagnostics, allowing its message to translate reactively.
+Parsing, connected resize and undo handlers remain unchanged; detailed resize
+service diagnostics and other wall controls remain untranslated.
+
+Production check has zero errors/warnings, build and five localization unit tests
+pass. Three desktop browser cases pass (33.0 seconds, exit 0), covering explicit
+meter input, both fixed endpoints, connected corners, retained opening values,
+invalid drafts leaving walls unchanged and undo not consumed by invalid input.
+Logs: `/tmp/web-wall-length-localization-check.log`,
+`/tmp/web-wall-length-localization-build.log`, `/tmp/web-wall-length-localization-unit.log`,
+`/tmp/web-wall-length-localization-browser.log`. Other wall controls, diagnostics,
+physical touch and remaining release requirements stay open.

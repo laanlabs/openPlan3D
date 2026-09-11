@@ -3303,3 +3303,11 @@ Translated image adjustment, lock, calibration-entry and removal labels. Check,
 build and five localization unit tests pass; three browser cases pass (31.1 seconds),
 verifying image byte/position preservation, adjustment values and removal/undo.
 Calibration execution and remaining Properties/device/release gates stay open.
+
+### Wall length and endpoint localization — 2026-09-11
+
+Translated wall length/thickness, fixed-endpoint choices, related help and minimum
+length validation. Check/build, five localization unit tests and three browser
+cases pass (33.0 seconds), retaining connected geometry/opening values and invalid
+input undo behavior. Other wall controls/diagnostics and broader device/release
+requirements remain open.

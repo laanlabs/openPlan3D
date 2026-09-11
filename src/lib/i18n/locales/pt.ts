@@ -774,5 +774,14 @@ export const pt = {
   "backgroundProperties.scale": "Escala",
   "backgroundProperties.rotation": "Rotação",
   "backgroundProperties.calibrate": "Definir escala",
-  "backgroundProperties.remove": "Remover imagem"
+  "backgroundProperties.remove": "Remover imagem",
+  "wallProperties.heading": "Propriedades da parede",
+  "wallProperties.length": "Comprimento",
+  "wallProperties.entryHelp": "Digite em {unit} ou inclua unidades como 2.5 m, 12\" ou 5'6\".",
+  "wallProperties.fixed": "Manter fixo",
+  "wallProperties.start": "Início (A)",
+  "wallProperties.end": "Fim (B)",
+  "wallProperties.joinedHelp": "Os cantos conectados acompanham a extremidade móvel. As aberturas mantêm suas posições relativas.",
+  "wallProperties.minimum": "Digite um comprimento de parede de pelo menos 1 cm.",
+  "wallProperties.thickness": "Espessura"
 } as const;

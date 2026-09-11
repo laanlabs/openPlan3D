@@ -774,5 +774,14 @@ export const en = {
   "backgroundProperties.scale": "Scale",
   "backgroundProperties.rotation": "Rotation",
   "backgroundProperties.calibrate": "Set Scale",
-  "backgroundProperties.remove": "Remove Image"
+  "backgroundProperties.remove": "Remove Image",
+  "wallProperties.heading": "Wall Properties",
+  "wallProperties.length": "Length",
+  "wallProperties.entryHelp": "Enter {unit}, or include units such as 2.5 m, 12\" or 5'6\".",
+  "wallProperties.fixed": "Keep fixed",
+  "wallProperties.start": "Start (A)",
+  "wallProperties.end": "End (B)",
+  "wallProperties.joinedHelp": "Joined corners follow the moving endpoint. Openings keep their relative positions.",
+  "wallProperties.minimum": "Enter a wall length of at least 1 cm.",
+  "wallProperties.thickness": "Thickness"
 } as const;

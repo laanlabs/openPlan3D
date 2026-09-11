@@ -65,7 +65,8 @@
   let wallLength = $derived(selectedWall ? Math.round(calcWallLength(selectedWall) * 1000) / 1000 : 0);
   let fixedEndpoint = $state<WallEndpoint>('start');
   let wallLengthError = $state<string | null>(null);
-  $effect(() => { void selId; fixedEndpoint = 'start'; wallLengthError = null; });
+  let invalidWallLength = $state(false);
+  $effect(() => { void selId; fixedEndpoint = 'start'; wallLengthError = null; invalidWallLength = false; });
 
   // Calculate door distances
   let doorDistFromA = $derived(selectedDoor && selectedDoorWall ? calcWallLength(selectedDoorWall) * selectedDoor.position : 0);
@@ -80,8 +81,9 @@
     const input = e.target as HTMLInputElement;
     const current = calcWallLength(selectedWall);
     const parsed = parseLengthInput(input.value, settings.units);
+    invalidWallLength = parsed === null || parsed < MIN_WALL_LENGTH;
     if (parsed === null || parsed < MIN_WALL_LENGTH) {
-      wallLengthError = 'Enter a wall length of at least 1 cm.';
+      wallLengthError = null;
     } else if (input.value.trim() !== String(displayValue(current))) {
       wallLengthError = resizeWallLength(selectedWall.id, parsed, fixedEndpoint);
     } else { wallLengthError = null; }
@@ -364,25 +366,25 @@
   {#if selectedWall}
     <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
       <span class="w-6 h-6 bg-gray-200 rounded flex items-center justify-center text-xs">▭</span>
-      Wall Properties
+      {$t('wallProperties.heading')}
     </h3>
     <div class="space-y-3">
       <label class="block">
-        <span class="text-xs text-gray-500">Length ({unitLabel()})</span>
+        <span class="text-xs text-gray-500">{$t('wallProperties.length')} ({unitLabel()})</span>
         <input type="text" value={displayValue(wallLength)} onblur={onWallLength} onkeydown={(event) => { if (event.key === 'Enter') event.currentTarget.blur(); }} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
-      <p class="text-xs text-gray-500">Enter {unitLabel()}, or include units such as 2.5 m, 12&quot; or 5&apos;6&quot;.</p>
+      <p class="text-xs text-gray-500">{$t('wallProperties.entryHelp', { unit: unitLabel() })}</p>
       <label class="block">
-        <span class="text-xs text-gray-500">Keep fixed</span>
+        <span class="text-xs text-gray-500">{$t('wallProperties.fixed')}</span>
         <select bind:value={fixedEndpoint} class="w-full px-2 py-1 border border-gray-200 rounded text-sm">
-          <option value="start">Start (A)</option>
-          <option value="end">End (B)</option>
+          <option value="start">{$t('wallProperties.start')}</option>
+          <option value="end">{$t('wallProperties.end')}</option>
         </select>
       </label>
-      <p class="text-xs text-gray-500">Joined corners follow the moving endpoint. Openings keep their relative positions.</p>
-      {#if wallLengthError}<p role="alert" class="text-xs text-red-700">{wallLengthError}</p>{/if}
+      <p class="text-xs text-gray-500">{$t('wallProperties.joinedHelp')}</p>
+      {#if invalidWallLength || wallLengthError}<p role="alert" class="text-xs text-red-700">{invalidWallLength ? $t('wallProperties.minimum') : wallLengthError}</p>{/if}
       <label class="block">
-        <span class="text-xs text-gray-500">Thickness ({unitLabel()})</span>
+        <span class="text-xs text-gray-500">{$t('wallProperties.thickness')} ({unitLabel()})</span>
         <input type="number" value={displayValue(selectedWall.thickness)} oninput={onWallThickness} onblur={onWallThickness} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <div class="grid grid-cols-2 gap-2">
