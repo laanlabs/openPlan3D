@@ -1217,6 +1217,16 @@ Undo/Redo. All 945 unit tests and six desktop/narrow browser cases pass. Keyboar
 label reset also preserves other room fields and restores its offset with Undo.
 Full browser, shared-boundary deletion semantics and physical/release gates remain.
 
+### Preserve neighboring rooms during deletion — 2026-09-11
+
+Room deletion now retains boundary walls used by another saved or detected room,
+including attached openings. Two failing unit cases reproduced shared-wall loss;
+all four room-deletion unit cases now pass, with exact Undo/Redo and unrelated data
+preservation. Check/build and six browser cases at 1440px/390px across three engines
+pass (17.0 seconds). In a four-room grid, deleting a corner removes only its two
+exclusive walls, preserving three neighbors, shared openings and all furniture.
+Imported duplicate/coincident wall topology and physical/release gates remain open.
+
 ### Minimap for object-only content — 2026-09-09
 
 The desktop minimap now uses shared content bounds for drawing and navigation,

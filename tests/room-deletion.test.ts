@@ -2,6 +2,7 @@ import { beforeEach, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { get } from 'svelte/store';
 import { currentProject, detectedRoomsStore, removeRoom, undo, redo } from '$lib/stores/project';
+import { benchmarkProject } from './fixtures/render-benchmark';
 
 beforeEach(() => detectedRoomsStore.set([]));
 
@@ -26,4 +27,29 @@ for (const saved of [true, false]) it(`deletes ${saved ? 'saved' : 'detected'} r
   expect(get(currentProject)!.floors[0]).toEqual(before);
   redo();
   expect(get(currentProject)!.floors[0]).toEqual(after);
+});
+
+for (const detected of [false, true]) it(`preserves shared walls and openings used by ${detected ? 'detected' : 'saved'} neighbors`, () => {
+  const project = benchmarkProject('small');
+  const floor = project.floors[0];
+  const target = floor.rooms[0];
+  const neighbors = floor.rooms.slice(1);
+  const shared = new Set(neighbors.flatMap(room => room.walls));
+  const removed = new Set(target.walls.filter(id => !shared.has(id)));
+  if (detected) {
+    floor.rooms = [target];
+    detectedRoomsStore.set(neighbors);
+  }
+  currentProject.set(project);
+  const before = structuredClone(floor);
+  removeRoom(target.id);
+  const expected = {
+    ...before, rooms: detected ? [] : neighbors,
+    walls: before.walls.filter(wall => !removed.has(wall.id)),
+    doors: before.doors.filter(door => !removed.has(door.wallId)),
+    windows: before.windows.filter(win => !removed.has(win.wallId)),
+  };
+  expect(get(currentProject)!.floors[0]).toEqual(expected);
+  undo(); expect(get(currentProject)!.floors[0]).toEqual(before);
+  redo(); expect(get(currentProject)!.floors[0]).toEqual(expected);
 });

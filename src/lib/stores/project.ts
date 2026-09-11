@@ -563,14 +563,19 @@ export function addCustomEntourage(name: string, dataUrl: string, aspect: number
 export const calibrationMode = writable<boolean>(false);
 export const calibrationPoints = writable<Point[]>([]);
 
-/** Delete a room's boundary and saved metadata in one undo operation. */
+/** Delete a room's exclusive boundary and metadata, preserving neighboring rooms. */
 export function removeRoom(id: string) {
-  const room = get(activeFloor)?.rooms.find(room => room.id === id)
-    ?? get(detectedRoomsStore).find(room => room.id === id);
+  const floor = get(activeFloor);
+  if (!floor) return;
+  const rooms = [...floor.rooms, ...get(detectedRoomsStore)];
+  const room = rooms.find(room => room.id === id);
   if (!room) return;
+  const retainedWalls = new Set(rooms.filter(room => room.id !== id).flatMap(room => room.walls));
   beginUndoGroup();
   try {
-    for (const wallId of room.walls) removeElement(wallId);
+    for (const wallId of room.walls) {
+      if (!retainedWalls.has(wallId)) removeElement(wallId);
+    }
     mutate(floor => { floor.rooms = floor.rooms.filter(room => room.id !== id); }, 'Deleted room');
     detectedRoomsStore.update(rooms => rooms.filter(room => room.id !== id));
   } finally {

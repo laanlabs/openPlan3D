@@ -1566,3 +1566,21 @@ The initial deletion failure is in `/tmp/web-room-actions-browser.log`; final
 logs are `/tmp/web-room-delete-unit.log`, `/tmp/web-room-delete-check.log`,
 `/tmp/web-room-delete-build.log`, `/tmp/web-room-delete-browser.log`.
 This does not qualify shared-boundary deletion semantics or physical accessibility.
+
+## Preserve shared room boundaries — 2026-09-11
+
+Two unit regressions at 20ec82b reproduced removal of walls needed by neighboring
+saved/detected rooms. removeRoom now collects walls referenced by other rooms
+before mutation and removes only the target's exclusive boundary. Openings on
+retained walls stay intact. The existing grouped metadata deletion and Undo remain.
+
+All four room-deletion unit cases pass. Check/build pass with zero Svelte
+diagnostics. Six English browser cases pass at 1440px/390px across Chromium,
+Firefox and WebKit (17.0 seconds). A connected four-room grid loses only the target
+corner's two exclusive walls; the three neighboring records, shared openings and
+furniture remain byte-for-byte equivalent in the exported floor. One Undo/Redo
+restores each exact floor state, and neighboring rooms remain selectable in Layers.
+Imported coincident/duplicate topology and physical qualification remain open.
+Logs: `/tmp/web-shared-room-repro.log`, `/tmp/web-shared-room-unit.log`,
+`/tmp/web-shared-room-check.log`, `/tmp/web-shared-room-build.log`,
+`/tmp/web-shared-room-browser.log`.
