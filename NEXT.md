@@ -163,6 +163,11 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+The seventh browser audit has now completed Firefox as well: accumulated audit
+and focused follow-up evidence verifies **350 Chromium and 350 Firefox cases**.
+WebKit is running, with no failure yet in this continuation. The full 1,050-case
+qualification and physical-device gates remain open.
+
 Browser audit at `d6e33d1`: the seventh continuation completed the remaining
 Chromium cases. The accumulated audit and focused follow-ups now verify all
 **350 Chromium cases** in the current 1,050-case inventory. Firefox and WebKit

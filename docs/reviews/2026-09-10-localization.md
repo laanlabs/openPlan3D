@@ -2004,3 +2004,17 @@ expectations. The seventh run remains active in
 `/tmp/web-full-browser-audit-7.log`, using the 267-entry exclusion list at
 `/tmp/web-browser-audit-passed.txt`. Firefox and WebKit are not yet fully
 qualified. Physical-device and release gates remain open.
+
+### 2026-09-11: Complete Firefox audit checkpoint
+
+The same seventh continuation completed the remaining Firefox cases and moved
+into WebKit. Deduplicating the audit and focused follow-up logs now verifies
+350 Chromium and 350 Firefox cases. The seventh run itself reached 450 passes
+before starting WebKit, with no failure. This includes Firefox's resource cleanup,
+walkthrough timing/input release, storage recovery, exports and wall editing.
+
+Later Firefox cases ran more slowly than earlier cases but completed within their
+configured limits. These automated results do not establish hardware performance
+budgets. The original run remains active; no restart or timeout increase was used.
+Log: `/tmp/web-full-browser-audit-7.log`. The 267-entry exclusion list remains the
+one used to start that run. WebKit, physical-device and release gates remain open.
