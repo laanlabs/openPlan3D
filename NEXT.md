@@ -163,6 +163,13 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+**Firefox canvas qualification checkpoint:** all 47 affected Firefox cases now
+have passing evidence, matching Chromium's completed 47. Exact inventory comparison
+finds 97/141 passing identities (47 Chromium, 47 Firefox, three WebKit), leaving
+44 WebKit cases at this checkpoint. The same continuation remains active in
+`/tmp/web-canvas-label-browser-2.log`. Resume it before another build or browser
+suite. Full affected-file qualification is still pending.
+
 **Chromium canvas qualification checkpoint:** all 47 affected Chromium cases now
 have passing evidence across the initial run, focused room-keyboard rerun and
 continuation. Exact identity comparison finds 51/141 total cases passed (47

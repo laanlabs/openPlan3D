@@ -2489,3 +2489,18 @@ changed during this continuation. As documented above, the staged evidence spans
 the initial canvas build and the later panel-cleanup build. Do not describe this
 as a single full run or completed cross-browser qualification. Resume the live
 process before another build or browser suite.
+
+### 2026-09-11: Firefox canvas qualification complete
+
+All 47 affected Firefox cases now have passing evidence: 45 from the active
+continuation plus the two focused room-keyboard cases. The completed checks cover
+the Portuguese accessible name, drawing, wall/opening geometry, keyboard editing,
+catalog controls, modal cancellation, floor navigation, camera fitting and
+placement/Undo behavior. Chromium's 47 cases remain fully covered.
+
+Exact comparison against the 141-case inventory finds 97 distinct passes with no
+extra identities: 47 Chromium, 47 Firefox, three WebKit. Forty-four WebKit cases
+remain at this checkpoint. The same continuation is still active in
+`/tmp/web-canvas-label-browser-2.log`; do not rebuild or start a competing suite.
+These remain staged results across the documented builds, not completed full
+affected-file qualification or completion of the broader NEXT.md objective.
