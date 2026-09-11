@@ -1,5 +1,16 @@
 # Next work and pause handoff
 
+## Generated opening and column history labels — September 11
+
+Undo display now recognizes the 15 generated descriptions for supported door,
+window and column types and uses the existing localized catalog/type labels.
+The lookup enumerates exact known descriptions; unknown types, appended text,
+English descriptions and stored history remain unchanged. Eight focused history
+tests pass, including real door/window/column actions with exact project/history
+preservation assertions. Production check reports zero diagnostics and build
+passes. This adds no fresh browser-suite evidence. Furniture catalog descriptions,
+broader interface review and physical accessibility remain open.
+
 ## Additional built-in history translations — September 11
 
 The display-only Undo map now also translates eight existing descriptions for
