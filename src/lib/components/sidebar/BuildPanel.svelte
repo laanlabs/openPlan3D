@@ -117,24 +117,24 @@
     })()
   );
 
-  const doorCatalog: { type: Door['type']; name: string; desc: string; icon: string }[] = [
-    { type: 'single', name: 'Single', desc: '90cm swing', icon: 'M6 3h12v18H6z' },
-    { type: 'double', name: 'Double', desc: '150cm swing', icon: 'M3 3h8v18H3zM13 3h8v18h-8z' },
-    { type: 'sliding', name: 'Sliding', desc: '180cm slide', icon: 'M3 6h18v12H3z' },
-    { type: 'french', name: 'French', desc: '150cm glass', icon: 'M3 3h8v18H3zM13 3h8v18h-8z' },
-    { type: 'pocket', name: 'Pocket', desc: '90cm recess', icon: 'M6 3h12v18H6z' },
-    { type: 'bifold', name: 'Bifold', desc: '180cm fold', icon: 'M3 3h5v18H3zM9 3h6v18H9zM16 3h5v18h-5z' },
-    { type: 'opening', name: 'Doorway', desc: '100cm open', icon: 'M6 3h2v18H6zM16 3h2v18h-2z' },
-    { type: 'garage', name: 'Garage', desc: '240cm overhead', icon: 'M3 5h18v14H3zM5 9h14M5 13h14M5 17h14' },
-  ];
+  const doorCatalog: { type: Door['type']; name: string; desc: string; icon: string }[] = $derived([
+    { type: 'single', name: $t('openingCatalog.single'), desc: $t('openingCatalog.singleDescription'), icon: 'M6 3h12v18H6z' },
+    { type: 'double', name: $t('openingCatalog.double'), desc: $t('openingCatalog.doubleDescription'), icon: 'M3 3h8v18H3zM13 3h8v18h-8z' },
+    { type: 'sliding', name: $t('openingCatalog.sliding'), desc: $t('openingCatalog.slidingDescription'), icon: 'M3 6h18v12H3z' },
+    { type: 'french', name: $t('openingCatalog.french'), desc: $t('openingCatalog.frenchDescription'), icon: 'M3 3h8v18H3zM13 3h8v18h-8z' },
+    { type: 'pocket', name: $t('openingCatalog.pocket'), desc: $t('openingCatalog.pocketDescription'), icon: 'M6 3h12v18H6z' },
+    { type: 'bifold', name: $t('openingCatalog.bifold'), desc: $t('openingCatalog.bifoldDescription'), icon: 'M3 3h5v18H3zM9 3h6v18H9zM16 3h5v18h-5z' },
+    { type: 'opening', name: $t('openingCatalog.doorway'), desc: $t('openingCatalog.doorwayDescription'), icon: 'M6 3h2v18H6zM16 3h2v18h-2z' },
+    { type: 'garage', name: $t('openingCatalog.garage'), desc: $t('openingCatalog.garageDescription'), icon: 'M3 5h18v14H3zM5 9h14M5 13h14M5 17h14' },
+  ]);
 
-  const windowCatalog: { type: Win['type']; name: string; desc: string }[] = [
-    { type: 'standard', name: 'Standard', desc: '120×120cm' },
-    { type: 'fixed', name: 'Fixed', desc: '100×100cm' },
-    { type: 'casement', name: 'Casement', desc: '80×130cm' },
-    { type: 'sliding', name: 'Sliding', desc: '180×120cm' },
-    { type: 'bay', name: 'Bay', desc: '200×150cm' },
-  ];
+  const windowCatalog: { type: Win['type']; name: string; desc: string }[] = $derived([
+    { type: 'standard', name: $t('openingCatalog.standard'), desc: '120×120cm' },
+    { type: 'fixed', name: $t('openingCatalog.fixed'), desc: '100×100cm' },
+    { type: 'casement', name: $t('openingCatalog.casement'), desc: '80×130cm' },
+    { type: 'sliding', name: $t('openingCatalog.sliding'), desc: '180×120cm' },
+    { type: 'bay', name: $t('openingCatalog.bay'), desc: '200×150cm' },
+  ]);
 
   let selectedDoorType = $state<Door['type']>('single');
   let selectedWindowType = $state<Win['type']>('standard');
@@ -493,7 +493,7 @@
           class="w-full flex items-center justify-between px-1 py-2 mt-3"
           onclick={() => constructionOpen = !constructionOpen}
         >
-          <h3 class="text-xs font-semibold text-gray-400 uppercase">Doors</h3>
+          <h3 class="text-xs font-semibold text-gray-400 uppercase">{$t('layers.doors')}</h3>
           <span class="text-gray-400 text-xs">{constructionOpen ? '▼' : '▶'}</span>
         </button>
 
@@ -515,7 +515,7 @@
             {/each}
           </div>
 
-          <h3 class="text-xs font-semibold text-gray-400 uppercase mb-2">Windows</h3>
+          <h3 class="text-xs font-semibold text-gray-400 uppercase mb-2">{$t('layers.windows')}</h3>
           <div class="grid grid-cols-2 gap-2">
             {#each windowCatalog as wc}
               <button

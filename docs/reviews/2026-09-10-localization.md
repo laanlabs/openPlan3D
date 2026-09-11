@@ -553,3 +553,19 @@ click fixed the test without changing production drawer behavior. Other tool
 operations are not newly qualified by this run. Logs:
 `/tmp/web-build-tools-unit.log`, `/tmp/web-build-tools-check.log`,
 `/tmp/web-build-tools-build.log`, `/tmp/web-build-tools-browser-final.log`.
+
+## Door and window catalogs
+
+Translated door/window headings, all opening names and door descriptions in the
+Build panel. Catalog arrays derive their text reactively while retaining type IDs,
+icons, numeric dimensions, drag payloads and placement handlers.
+
+Five localization unit tests, zero-warning Svelte check and production build pass.
+Three desktop browser cases pass across all engines (10.3 seconds), checking all
+13 catalog labels and placing/exporting a single door (90cm) and fixed window
+(100cm) on their original host wall. The first test used pre-fit coordinates and
+missed the wall after automatic framing; it now explicitly fits and uses the
+current canvas bounds. This is representative placement coverage, not every
+opening type or phone placement qualification. Logs:
+`/tmp/web-opening-catalog-unit.log`, `/tmp/web-opening-catalog-check-final.log`,
+`/tmp/web-opening-catalog-build.log`, `/tmp/web-opening-catalog-browser-final.log`.

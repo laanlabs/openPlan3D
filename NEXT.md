@@ -3124,3 +3124,11 @@ tests, zero-warning check, production build and six browser cases pass (26.1
 seconds), selecting the translated wall tool through desktop/phone UI and verifying
 its exported wall. Catalogs, remaining room/object content, import dialogs and
 physical-device qualification stay open.
+
+### Opening-catalog localization — 2026-09-10
+
+Translated all door/window choice labels and descriptions reactively, retaining
+semantic types, dimensions and drag payloads. Five unit tests, zero-warning check,
+production build and three desktop browser cases pass (10.3 seconds), checking
+all labels plus representative door/window placement and exported types/widths.
+Remaining room/object catalogs, dialogs and device qualification stay open.
