@@ -89,11 +89,19 @@ variants now have a 180-second allowance, with every assertion retained.
 There are 104 distinct retained passes and 1,003 remaining cases, confirmed
 by Playwright.
 
+The 1,003-case continuation passed 20 cases, including both floor-elevation
+workflows. Furniture fidelity then exhausted its 60-second total deadline during
+the second 3D color check, after initial color/model-reuse and saved-property
+checks. Both viewport variants now have a 180-second allowance, retaining all
+color, reload and resource-reuse assertions. There are 124 retained distinct
+passes and 983 remaining cases, confirmed by Playwright.
+
 ## Resume the running process
 
 - Command: `npx playwright test --test-list /tmp/web-localization-remaining.txt --max-failures=1`
-- Unified execution session: `7225`; poll this handle before assuming it ended.
-- Active log: `/tmp/web-localization-full-browser-12.log`
+- Unified execution session: `49049`; poll this handle before assuming it ended.
+- Active log: `/tmp/web-localization-full-browser-13.log`
+- Completed 20-pass continuation: `/tmp/web-localization-full-browser-12.log` (session `7225`, terminal exit 1).
 - Completed sloped-wall pass: `/tmp/web-localization-full-browser-11.log` (session `35782`, terminal exit 1).
 - Completed asset-cache pass: `/tmp/web-localization-full-browser-10.log` (session `22444`, terminal exit 1).
 - Completed 13-pass continuation: `/tmp/web-localization-full-browser-9.log` (session `47598`, terminal exit 1).

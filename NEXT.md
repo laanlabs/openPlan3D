@@ -32,9 +32,12 @@ That wait now allows 60 seconds within a 180-second workflow. There are 103
 distinct retained passes at that launch. Sloped walls passed; the floor-elevation
 workflow then hit its total deadline during a walkthrough screenshot after its
 earlier edit/reload/stack checks. That workflow now has a 180-second allowance.
-There are 104 retained passes; 1,003 remaining cases run in session `7225`.
+That continuation passed 20 cases before the furniture-fidelity workflow
+reached its total deadline during the second 3D color check. Both viewport
+variants now have a 180-second allowance with all assertions retained. There
+are 124 retained passes; 983 remaining cases run in session `49049`.
 Poll the actual process before starting competing tests or rebuilding;
-sessions `93960`, `85756`, `76158`, `6878`, `49725`, `23537`, `41767`, `47598`, `22444` and `35782` are terminal.
+sessions `93960`, `85756`, `76158`, `6878`, `49725`, `23537`, `41767`, `47598`, `22444`, `35782` and `7225` are terminal.
 See [the live report](docs/reviews/2026-09-11-catalog-browser-qualification.md).
 No full-suite completion is claimed; broader NEXT requirements remain open.
 

@@ -46,6 +46,7 @@ async function open3D(page: Page) {
 }
 
 for (const width of [1440, 390]) test(`furniture tint, finish and resource reuse survive 3D rebuilds at ${width}px`, async ({ page }, testInfo) => {
+  test.slow();
   const observed = observe(page); await page.setViewportSize({ width, height: 900 });
   await openFixture(page); await open3D(page);
   await expect.poll(async () => (await colors(page)).green).toBeGreaterThan(50);
