@@ -1379,3 +1379,16 @@ Logs: `/tmp/web-ai-errors-check.log`, `/tmp/web-ai-errors-build.log`,
 `/tmp/web-ai-errors-unit.log`, `/tmp/web-ai-errors-browser.log`.
 Other mapped failure branches were not newly fault-injected; physical-device,
 provider and remaining NEXT qualification stay open.
+
+## Canvas status count localization
+
+Translated singular/plural room, wall, door, window and object counts, selection
+summary and zoom text. Geometry and count calculations are unchanged. Production
+check reports zero errors/warnings; build and five localization unit tests pass.
+Twelve browser cases pass (1.3 minutes, exit 0), including desktop/narrow layers
+with four walls and singular room/door/window counts, preserved exported data,
+welcome import recovery, template creation and tour persistence.
+Logs: `/tmp/web-canvas-status-check.log`, `/tmp/web-canvas-status-build.log`,
+`/tmp/web-canvas-status-unit.log`, `/tmp/web-canvas-status-browser.log`.
+Object/multiselection counts and every plural combination were not newly exercised;
+remaining UI, physical-device and release requirements stay open.

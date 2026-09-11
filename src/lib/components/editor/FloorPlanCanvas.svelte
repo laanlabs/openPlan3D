@@ -4011,28 +4011,28 @@
   {/if}
   <div style:--visible-bottom={`${zoomControlsBottom}px`} class="absolute bottom-2 right-2 max-md:bottom-[calc(var(--visible-bottom)+3rem)] max-md:left-2 max-md:overflow-x-auto max-md:whitespace-nowrap max-md:[&>*]:shrink-0 bg-white/80 rounded px-2 py-1 text-xs text-gray-500 flex gap-3">
     {#if detectedRooms.length > 0}
-      <span>{detectedRooms.length} room{detectedRooms.length !== 1 ? 's' : ''}</span>
+      <span>{$t(detectedRooms.length === 1 ? 'canvasStatus.roomsOne' : 'canvasStatus.roomsMany', { count: detectedRooms.length })}</span>
       <span>{formatArea(detectedRooms.reduce((s, r) => s + r.area, 0), $projectSettings.units)}</span>
       <span class="text-gray-300">|</span>
     {/if}
     {#if currentFloor}
-      <span>{currentFloor.walls.length} wall{currentFloor.walls.length !== 1 ? 's' : ''}</span>
+      <span>{$t(currentFloor.walls.length === 1 ? 'canvasStatus.wallsOne' : 'canvasStatus.wallsMany', { count: currentFloor.walls.length })}</span>
       {#if currentFloor.doors.length > 0}
-        <span>{currentFloor.doors.length} door{currentFloor.doors.length !== 1 ? 's' : ''}</span>
+        <span>{$t(currentFloor.doors.length === 1 ? 'canvasStatus.doorsOne' : 'canvasStatus.doorsMany', { count: currentFloor.doors.length })}</span>
       {/if}
       {#if currentFloor.windows.length > 0}
-        <span>{currentFloor.windows.length} window{currentFloor.windows.length !== 1 ? 's' : ''}</span>
+        <span>{$t(currentFloor.windows.length === 1 ? 'canvasStatus.windowsOne' : 'canvasStatus.windowsMany', { count: currentFloor.windows.length })}</span>
       {/if}
       {#if currentFloor.furniture.length > 0}
-        <span>{currentFloor.furniture.length} object{currentFloor.furniture.length !== 1 ? 's' : ''}</span>
+        <span>{$t(currentFloor.furniture.length === 1 ? 'canvasStatus.objectsOne' : 'canvasStatus.objectsMany', { count: currentFloor.furniture.length })}</span>
       {/if}
       <span class="text-gray-300">|</span>
     {/if}
     {#if currentSelectedIds.size > 1}
-      <span class="text-blue-600 font-medium">{currentSelectedIds.size} selected</span>
+      <span class="text-blue-600 font-medium">{$t('canvasStatus.selected', { count: currentSelectedIds.size })}</span>
       <span class="text-gray-300">|</span>
     {/if}
-    <span>Zoom: {Math.round(zoom * 100)}%</span>
+    <span>{$t('canvasStatus.zoom', { value: Math.round(zoom * 100) })}</span>
     <button class="hover:text-gray-700" onclick={() => zoomToFit()} title={$t('canvasZoom.fitHint')}>⊞ {$t('canvasDisplay.fit')}</button>
     <button class="hover:text-gray-700" onclick={() => showGrid = !showGrid} title={$t('canvasDisplay.gridHint')} aria-pressed={showGrid}>
       {showGrid ? '▦' : '▢'} {$t('canvasDisplay.grid')}

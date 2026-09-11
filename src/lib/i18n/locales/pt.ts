@@ -1062,5 +1062,17 @@ export const pt = {
   "aiRenderMessage.storage": "O armazenamento do navegador está indisponível. Este modelo será usado apenas nesta renderização.",
   "aiRenderMessage.failed": "Falha na renderização.",
   "aiRenderMessage.key": "Adicione sua chave de API do Gemini em Configurações → IA primeiro.",
-  "aiRenderMessage.noImage": "Nenhuma imagem foi retornada. Tente outro modelo ou prompt."
+  "aiRenderMessage.noImage": "Nenhuma imagem foi retornada. Tente outro modelo ou prompt.",
+  "canvasStatus.roomsOne": "{count} ambiente",
+  "canvasStatus.roomsMany": "{count} ambientes",
+  "canvasStatus.wallsOne": "{count} parede",
+  "canvasStatus.wallsMany": "{count} paredes",
+  "canvasStatus.doorsOne": "{count} porta",
+  "canvasStatus.doorsMany": "{count} portas",
+  "canvasStatus.windowsOne": "{count} janela",
+  "canvasStatus.windowsMany": "{count} janelas",
+  "canvasStatus.objectsOne": "{count} objeto",
+  "canvasStatus.objectsMany": "{count} objetos",
+  "canvasStatus.selected": "{count} selecionados",
+  "canvasStatus.zoom": "Zoom: {value}%"
 } as const;

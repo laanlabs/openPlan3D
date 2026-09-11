@@ -11,7 +11,7 @@ for (const width of [1440, 390]) test(`Portuguese layers preserve visibility, se
   const chooser = page.waitForEvent('filechooser');
   await page.getByRole('button', { name: 'Importar JSON', exact: true }).click();
   await (await chooser).setFiles({ name: 'layers.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(plan)) });
-  await expect(page.getByRole('application')).toContainText('walls');
+  for (const text of ['4 paredes', '1 porta', '1 janela', '1 ambiente']) await expect(page.getByText(text, { exact: true })).toBeVisible();
   async function exported() {
     await page.getByRole('button', { name: 'Exportar', exact: true }).click();
     const pending = page.waitForEvent('download');

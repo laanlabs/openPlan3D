@@ -3556,3 +3556,10 @@ Translated five known app-owned AI error messages while preserving unknown/raw
 diagnostics. Check/build, five localization unit tests and three browser cases
 pass (35.8 seconds), including missing-key recovery without network requests.
 Other failure branches, physical-device and release requirements stay open.
+
+### Canvas status count localization — 2026-09-11
+
+Translated object/geometry counts with singular/plural forms, selection and zoom
+text. Check/build, five localization unit tests and twelve browser cases pass
+(1.3 minutes), covering desktop/narrow layer counts and welcome/template recovery
+with retained project data. Remaining UI/device/release requirements stay open.

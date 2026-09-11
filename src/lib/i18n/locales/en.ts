@@ -1062,5 +1062,17 @@ export const en = {
   "aiRenderMessage.storage": "Browser storage is unavailable. This model will be used for this render only.",
   "aiRenderMessage.failed": "Rendering failed.",
   "aiRenderMessage.key": "Please add your Gemini API key in Settings → AI first.",
-  "aiRenderMessage.noImage": "No image returned. Try a different model or prompt."
+  "aiRenderMessage.noImage": "No image returned. Try a different model or prompt.",
+  "canvasStatus.roomsOne": "{count} room",
+  "canvasStatus.roomsMany": "{count} rooms",
+  "canvasStatus.wallsOne": "{count} wall",
+  "canvasStatus.wallsMany": "{count} walls",
+  "canvasStatus.doorsOne": "{count} door",
+  "canvasStatus.doorsMany": "{count} doors",
+  "canvasStatus.windowsOne": "{count} window",
+  "canvasStatus.windowsMany": "{count} windows",
+  "canvasStatus.objectsOne": "{count} object",
+  "canvasStatus.objectsMany": "{count} objects",
+  "canvasStatus.selected": "{count} selected",
+  "canvasStatus.zoom": "Zoom: {value}%"
 } as const;
