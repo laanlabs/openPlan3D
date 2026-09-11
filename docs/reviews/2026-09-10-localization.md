@@ -1324,3 +1324,16 @@ retired hosting proxy still returns 404. No runtime changes in this checkpoint.
 Log: `/tmp/web-ai-render-integration-browser.log`. This preserves execution
 coverage after panel localization; Portuguese execution, live providers, physical
 devices and remaining NEXT requirements stay open.
+
+## 3D furniture placement localization
+
+Translated furniture placement/exit, picker heading/close and placement/material
+guidance, reusing catalog category translations. Category buttons now expose
+pressed state. Original catalog item names and IDs are unchanged. Production
+check reports zero errors/warnings; build and five localization unit tests pass.
+Three browser cases pass (46.1 seconds, exit 0), changing categories, placing an
+Armchair with catalog ID `chair`, retaining wall data and exactly restoring floor
+data through Undo/Redo. Logs: `/tmp/web-3d-furniture-check.log`,
+`/tmp/web-3d-furniture-build.log`, `/tmp/web-3d-furniture-unit.log`,
+`/tmp/web-3d-furniture-browser.log`. Individual item names, other remaining viewer
+text, physical-device and release requirements stay open.

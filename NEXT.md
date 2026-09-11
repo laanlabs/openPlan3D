@@ -3525,3 +3525,11 @@ three engines and desktop/narrow layouts (2.1 minutes), covering image output,
 byte-identical download, failure/cancellation and settings cleanup. No runtime
 changes or live AI requests were needed. Portuguese execution, device and
 remaining release qualification stay open.
+
+### 3D furniture placement localization — 2026-09-11
+
+Translated placement controls/guidance and reused category labels, with accessible
+category selection states. Check/build, five localization unit tests and three
+browser cases pass (46.1 seconds), verifying catalog identity and exact floor
+Undo/Redo after placement. Item names, remaining viewer text and device/release
+requirements stay open.

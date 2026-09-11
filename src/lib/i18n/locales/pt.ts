@@ -1041,5 +1041,12 @@ export const pt = {
   "aiRenderOption.rusticCharm": "charme rústico",
   "aiRenderOption.sophisticated": "sofisticada",
   "aiRenderOption.relaxed": "relaxada",
-  "aiRenderOption.vibrant": "vibrante"
+  "aiRenderOption.vibrant": "vibrante",
+  "viewerFurniture.place": "Posicionar móveis",
+  "viewerFurniture.exit": "Sair do posicionamento de móveis",
+  "viewerFurniture.title": "🪑 Móveis",
+  "viewerFurniture.close": "Fechar seletor de móveis",
+  "viewerFurniture.fallback": "móveis",
+  "viewerFurniture.hint": "🪑 Clique no piso para posicionar {name} • Esc para cancelar",
+  "viewerFurniture.paint": "🪣 Clique nas paredes para aplicar materiais • Esc para fechar o seletor ou sair"
 } as const;

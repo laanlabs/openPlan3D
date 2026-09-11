@@ -1041,5 +1041,12 @@ export const en = {
   "aiRenderOption.rusticCharm": "rustic charm",
   "aiRenderOption.sophisticated": "sophisticated",
   "aiRenderOption.relaxed": "relaxed",
-  "aiRenderOption.vibrant": "vibrant"
+  "aiRenderOption.vibrant": "vibrant",
+  "viewerFurniture.place": "Place Furniture",
+  "viewerFurniture.exit": "Exit Furniture Placement",
+  "viewerFurniture.title": "🪑 Furniture",
+  "viewerFurniture.close": "Close furniture picker",
+  "viewerFurniture.fallback": "furniture",
+  "viewerFurniture.hint": "🪑 Click floor to place {name} • ESC to cancel",
+  "viewerFurniture.paint": "🪣 Click walls to paint materials • ESC to close picker or exit"
 } as const;

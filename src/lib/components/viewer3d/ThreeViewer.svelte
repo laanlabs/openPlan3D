@@ -1,5 +1,6 @@
 <script lang="ts">
   import { t } from '$lib/i18n';
+  import { catalogCategoryLabels } from '$lib/i18n/catalogCategories';
   import { aiRenderLabels } from '$lib/i18n/aiRenderLabels';
   import { hasOpenModal } from '$lib/utils/modalDialog';
   import { onMount } from 'svelte';
@@ -2423,9 +2424,9 @@
           <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
         </svg>
         {#if furniturePlacementMode}
-          🪑 Click floor to place {selectedCatalogId ? getCatalogItem(selectedCatalogId)?.name ?? 'furniture' : 'furniture'} • ESC to cancel
+          {$t('viewerFurniture.hint', { name: (selectedCatalogId ? getCatalogItem(selectedCatalogId)?.name : null) ?? $t('viewerFurniture.fallback') })}
         {:else}
-          🪣 Click walls to paint materials • ESC to close picker or exit
+          {$t('viewerFurniture.paint')}
         {/if}
       </div>
     </div>
@@ -2434,8 +2435,8 @@
     <button
       onclick={() => { furniturePlacementMode = !furniturePlacementMode; if (!furniturePlacementMode) { removeGhostPreview(); selectedCatalogId = null; furniturePickerOpen = false; } else { furniturePickerOpen = true; } }}
       class="absolute top-16 right-28 z-50 p-2 rounded-lg transition-colors {furniturePlacementMode ? 'bg-green-600 text-white ring-2 ring-green-300' : 'bg-black/70 text-white hover:bg-black/80'}"
-      title={furniturePlacementMode ? 'Exit Furniture Placement' : 'Place Furniture'}
-      aria-label={furniturePlacementMode ? 'Exit Furniture Placement' : 'Place Furniture'}
+      title={furniturePlacementMode ? $t('viewerFurniture.exit') : $t('viewerFurniture.place')}
+      aria-label={furniturePlacementMode ? $t('viewerFurniture.exit') : $t('viewerFurniture.place')}
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="3" y="12" width="18" height="8" rx="1"/>
@@ -2449,16 +2450,17 @@
     {#if furniturePlacementMode && furniturePickerOpen}
       <div class="absolute top-4 left-4 z-50 bg-black/85 text-white rounded-lg backdrop-blur-sm w-56 max-h-[70vh] flex flex-col overflow-hidden select-none">
         <div class="p-2 border-b border-white/10 flex items-center justify-between">
-          <span class="font-semibold text-sm">🪑 Furniture</span>
-          <button onclick={() => { furniturePickerOpen = false; }} class="text-white/50 hover:text-white text-lg leading-none">&times;</button>
+          <span class="font-semibold text-sm">{$t('viewerFurniture.title')}</span>
+          <button onclick={() => { furniturePickerOpen = false; }} aria-label={$t('viewerFurniture.close')} class="text-white/50 hover:text-white text-lg leading-none">&times;</button>
         </div>
         <!-- Category tabs -->
         <div class="flex flex-wrap gap-1 p-2 border-b border-white/10">
           {#each furnitureCategories.filter(c => c !== 'Electrical' && c !== 'Plumbing') as cat}
             <button
               onclick={() => { furniturePickerCategory = cat; }}
+              aria-pressed={furniturePickerCategory === cat}
               class="px-2 py-0.5 rounded text-[10px] transition-colors {furniturePickerCategory === cat ? 'bg-green-600 text-white' : 'bg-white/10 hover:bg-white/20 text-white/70'}"
-            >{cat}</button>
+            >{catalogCategoryLabels[cat] ? $t(catalogCategoryLabels[cat]) : cat}</button>
           {/each}
         </div>
         <!-- Items -->
