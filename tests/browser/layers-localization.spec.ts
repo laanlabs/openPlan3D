@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Locator } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
 for (const width of [1440, 390]) test(`Portuguese layers preserve visibility, selection and source text at ${width}px`, async ({ page }) => {
@@ -20,16 +20,27 @@ for (const width of [1440, 390]) test(`Portuguese layers preserve visibility, se
   }
   const before = await exported();
   if (width < 768) {
+    async function clickStatusControl(control: Locator) {
+      // WebKit's scrolling layer can retain the previous hit-test position
+      // briefly after programmatic horizontal scrolling.
+      await control.scrollIntoViewIfNeeded();
+      await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+      await expect.poll(() => control.evaluate(element => {
+        const rect = element.getBoundingClientRect();
+        return document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2)?.closest('button') === element;
+      })).toBe(true);
+      await control.click();
+    }
     for (const title of ['Alternar grade (G)', 'Alternar ajuste à grade (S)', 'Alternar móveis', 'Alternar réguas', 'Alternar minimapa']) {
       const toggle = page.getByTitle(title, { exact: true });
       const before = await toggle.getAttribute('aria-pressed');
-      await toggle.click();
+      await clickStatusControl(toggle);
       await expect(toggle).toHaveAttribute('aria-pressed', before === 'true' ? 'false' : 'true');
-      await toggle.click();
+      await clickStatusControl(toggle);
       await expect(toggle).toHaveAttribute('aria-pressed', before!);
     }
     const visibility = page.getByRole('button', { name: '🗂 Camadas', exact: true });
-    await visibility.click();
+    await clickStatusControl(visibility);
     const walls = page.getByRole('checkbox', { name: 'Paredes', exact: true });
     await expect(walls).toBeChecked();
     await walls.click();
@@ -41,7 +52,7 @@ for (const width of [1440, 390]) test(`Portuguese layers preserve visibility, se
     await labels.click();
     await expect(labels).toBeChecked({ checked: !wasChecked });
     await labels.click();
-    await visibility.click();
+    await clickStatusControl(visibility);
     await expect(walls).toHaveCount(0);
 
     await page.getByRole('button', { name: 'Mais ações', exact: true }).click();

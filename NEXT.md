@@ -163,6 +163,14 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+The eighth browser audit added 12 WebKit passes before the phone Layers test
+clicked a status control while its horizontal scrolling layer had stale hit-test
+positions. A focused reproduction failed on a different toggle. The test now
+scrolls each control into view, waits two frames and verifies its click point hits
+the control before clicking. All six desktop/phone cases pass (2.6 minutes), plus
+three repeated phone WebKit cases (1.0 minute). No runtime code changed. Combined
+audit evidence covers 873 of 1,056 cases, with 183 remaining.
+
 All **21 project-opening cases pass** across three engines on the translated
 production build (6.6 minutes). The multi-stage same-ID import/reload/3D case now
 uses Playwright's bounded slow-test budget after traces showed the default minute

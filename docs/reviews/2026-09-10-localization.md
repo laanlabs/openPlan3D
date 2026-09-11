@@ -2132,3 +2132,23 @@ The deduplicated exclusion list now contains 860 passes across the expanded
 build checks. There are 196 remaining cases. Path:
 `/tmp/web-browser-audit-passed.txt`. Preserve this provenance rather than describing
 the aggregate as one clean full-suite run against a single commit.
+
+### 2026-09-11: Scrolled status-control hit testing in WebKit
+
+Audit continuation eight passed 12 WebKit cases before the phone Layers test
+failed to restore the grid toggle. Its trace showed the horizontal status-strip
+container repeatedly intercepting the control's click point after scrolling.
+A focused WebKit reproduction passed the grid checks but failed on the furniture
+toggle, supporting a scrolling/hit-test timing issue rather than grid state logic.
+
+The test now scrolls each status control into view, waits two animation frames,
+and polls elementFromPoint to verify that the center hits the intended button
+before clicking. No forced clicks or weakened state assertions were introduced.
+The existing checkbox visibility, layer selection, source text and exact exported
+floors/settings checks remain. All six cases pass across three engines in
+2.6 minutes; three repeated phone WebKit cases pass in 1.0 minute. No runtime code
+changed. Physical touch scrolling remains a separate qualification requirement.
+
+Logs: `/tmp/web-full-browser-audit-8.log`, `/tmp/web-layers-toggle-repro.log`,
+`/tmp/web-layers-scroll-settle-browser.log`, `/tmp/web-layers-scroll-settle-repeat.log`.
+The exclusion list now contains 873 distinct passes of 1,056, leaving 183 cases.
