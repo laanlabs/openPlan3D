@@ -887,39 +887,39 @@
   {:else if selectedStair}
     <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
       <span class="w-6 h-6 bg-gray-200 rounded flex items-center justify-center text-xs">🪜</span>
-      Stair Properties
+      {$t('stairProperties.heading')}
     </h3>
     <div class="space-y-3">
       <label class="block">
-        <span class="text-xs text-gray-500">Type</span>
+        <span class="text-xs text-gray-500">{$t('openingProperties.type')}</span>
         <select value={selectedStair.stairType || 'straight'} onchange={(e) => updateStair(selectedStair!.id, { stairType: (e.target as HTMLSelectElement).value as any })} class="w-full px-2 py-1 border border-gray-200 rounded text-sm">
-          <option value="straight">Straight</option>
-          <option value="l-shaped">L-Shaped</option>
-          <option value="u-shaped">U-Shaped</option>
-          <option value="spiral">Spiral</option>
+          <option value="straight">{$t('stairProperties.straight')}</option>
+          <option value="l-shaped">{$t('stairProperties.l')}</option>
+          <option value="u-shaped">{$t('stairProperties.u')}</option>
+          <option value="spiral">{$t('stairProperties.spiral')}</option>
         </select>
       </label>
       <label class="block">
-        <span class="text-xs text-gray-500">Width ({unitLabel()})</span>
+        <span class="text-xs text-gray-500">{$t('openingProperties.width')} ({unitLabel()})</span>
         <input type="number" value={displayValue(selectedStair.width)} oninput={onStairWidth} onblur={onStairWidth} min="0" step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
-        <span class="text-xs text-gray-500">Depth ({unitLabel()})</span>
+        <span class="text-xs text-gray-500">{$t('furnitureProperties.depth')} ({unitLabel()})</span>
         <input type="number" value={displayValue(selectedStair.depth)} oninput={onStairDepth} onblur={onStairDepth} min="0" step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
-        <span class="text-xs text-gray-500">Risers</span>
+        <span class="text-xs text-gray-500">{$t('stairProperties.risers')}</span>
         <input type="number" value={selectedStair.riserCount} min="3" max="30" step="1" oninput={onStairRisers} onblur={onStairRisers} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
-        <span class="text-xs text-gray-500">Direction</span>
+        <span class="text-xs text-gray-500">{$t('stairProperties.direction')}</span>
         <div class="flex gap-2">
-          <button onclick={() => updateStair(selectedStair!.id, { direction: 'up' })} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedStair.direction === 'up' ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">Up ↑</button>
-          <button onclick={() => updateStair(selectedStair!.id, { direction: 'down' })} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedStair.direction === 'down' ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">Down ↓</button>
+          <button onclick={() => updateStair(selectedStair!.id, { direction: 'up' })} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedStair.direction === 'up' ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">{$t('stairProperties.up')}</button>
+          <button onclick={() => updateStair(selectedStair!.id, { direction: 'down' })} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedStair.direction === 'down' ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">{$t('stairProperties.down')}</button>
         </div>
       </label>
       <label class="block">
-        <span class="text-xs text-gray-500">Rotation (degrees)</span>
+        <span class="text-xs text-gray-500">{$t('furnitureProperties.rotation')}</span>
         <input type="number" value={selectedStair.rotation} step="any" oninput={onStairRotation} onblur={onStairRotation} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
     </div>

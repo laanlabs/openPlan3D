@@ -740,5 +740,14 @@ export const pt = {
   "symbolProperties.opacity": "Opacidade ({percent}%)",
   "symbolProperties.locked": "🔒 Bloqueado",
   "symbolProperties.unlocked": "🔓 Desbloqueado",
-  "symbolProperties.delete": "Excluir"
+  "symbolProperties.delete": "Excluir",
+  "stairProperties.heading": "Propriedades da escada",
+  "stairProperties.straight": "Reta",
+  "stairProperties.l": "Em L",
+  "stairProperties.u": "Em U",
+  "stairProperties.spiral": "Caracol",
+  "stairProperties.risers": "Espelhos",
+  "stairProperties.direction": "Direção",
+  "stairProperties.up": "Subir ↑",
+  "stairProperties.down": "Descer ↓"
 } as const;

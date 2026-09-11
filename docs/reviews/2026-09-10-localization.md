@@ -817,3 +817,18 @@ races. No claim that this explains every prior intermittent canvas-control failu
 Logs: `/tmp/web-symbol-undo-repeated.log`, `/tmp/web-save-width-check-final.log`,
 `/tmp/web-save-width-build-serial.log`, `/tmp/web-save-width-browser-final.log`,
 `/tmp/web-save-width-webkit-repeat.log`. Physical-device and broader gates remain open.
+
+## Stair Properties localization
+
+Translated stair heading, layout choices, dimensions, riser count, direction and
+rotation labels. Stored layout IDs and all editing handlers remain unchanged.
+Production check has zero errors/warnings, build and five localization unit tests
+pass. Three desktop browser cases pass (18.5 seconds, exit 0): place a stair,
+select Em U/u-shaped, edit width/depth/risers/rotation/direction, compare exported
+stair data and unchanged other elements, then undo direction. The first test run
+was stopped after identifying an exact placement-button locator that omitted its
+existing help text; corrected selector only, no runtime workaround.
+Logs: `/tmp/web-stair-properties-check.log`, `/tmp/web-stair-properties-build.log`,
+`/tmp/web-stair-properties-unit.log`, `/tmp/web-stair-properties-browser-final.log`.
+Other Properties sections, rendered stair geometry and physical touch/release
+qualification remain open.

@@ -3259,3 +3259,10 @@ position-stability assertion passes across all engines with save/symbol workflow
 (six cases), followed by five consecutive WebKit passes. Production check/build
 pass. This addresses the observed save-label shift; other intermittent canvas
 observations and remaining NEXT requirements remain open.
+
+### Stair Properties localization — 2026-09-10
+
+Translated stair editing controls while retaining layout IDs and handlers. Check,
+build and five localization unit tests pass; three desktop browser cases pass
+(18.5 seconds), verifying dimensions, riser count, layout, rotation, direction and
+undo through exported data. Remaining Properties and device/release gates stay open.

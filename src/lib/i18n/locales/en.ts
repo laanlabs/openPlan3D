@@ -740,5 +740,14 @@ export const en = {
   "symbolProperties.opacity": "Opacity ({percent}%)",
   "symbolProperties.locked": "🔒 Locked",
   "symbolProperties.unlocked": "🔓 Unlocked",
-  "symbolProperties.delete": "Delete"
+  "symbolProperties.delete": "Delete",
+  "stairProperties.heading": "Stair Properties",
+  "stairProperties.straight": "Straight",
+  "stairProperties.l": "L-Shaped",
+  "stairProperties.u": "U-Shaped",
+  "stairProperties.spiral": "Spiral",
+  "stairProperties.risers": "Risers",
+  "stairProperties.direction": "Direction",
+  "stairProperties.up": "Up ↑",
+  "stairProperties.down": "Down ↓"
 } as const;
