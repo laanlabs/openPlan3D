@@ -20,20 +20,26 @@ for (const width of [1440, 390]) test(`Portuguese layers preserve visibility, se
   }
   const before = await exported();
   if (width < 768) {
-    const visibility = page.getByRole('button', { name: '🗂 Layers', exact: true });
+    const visibility = page.getByRole('button', { name: '🗂 Camadas', exact: true });
     await visibility.click();
-    const walls = page.getByRole('checkbox', { name: 'Walls', exact: true });
+    const walls = page.getByRole('checkbox', { name: 'Paredes', exact: true });
     await expect(walls).toBeChecked();
     await walls.click();
     await expect(walls).not.toBeChecked();
     await walls.click();
+    await expect(page.getByRole('checkbox', { name: 'Pavimento abaixo', exact: true })).toBeDisabled();
+    const labels = page.getByRole('checkbox', { name: 'Nomes dos ambientes', exact: true });
+    const wasChecked = await labels.isChecked();
+    await labels.click();
+    await expect(labels).toBeChecked({ checked: !wasChecked });
+    await labels.click();
     await visibility.click();
     await expect(walls).toHaveCount(0);
 
     await page.getByRole('button', { name: 'Mais ações', exact: true }).click();
     await page.getByRole('button', { name: 'Camadas', exact: true }).click();
   } else await page.getByRole('button', { name: 'Toggle Layers Panel', exact: true }).click();
-  await expect(page.getByText('🗂 Camadas', { exact: true })).toBeVisible();
+  await expect(page.locator('div').filter({ hasText: /^🗂 Camadas$/ })).toBeVisible();
   const hide = page.getByTitle('Ocultar Paredes', { exact: true });
   await hide.focus();
   await page.keyboard.press('Space');

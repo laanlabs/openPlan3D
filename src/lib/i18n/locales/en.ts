@@ -465,5 +465,10 @@ export const en = {
   "layers.value.round": "round",
   "layers.value.square": "square",
   "layers.value.horizontal": "horizontal",
-  "layers.value.vertical": "vertical"
+  "layers.value.vertical": "vertical",
+  "layerVisibility.title": "Layer Visibility",
+  "layerVisibility.dimensions": "Dimensions",
+  "layerVisibility.below": "Floor Below",
+  "layerVisibility.belowNamed": "Floor Below ({name})",
+  "layerVisibility.roomLabels": "Room Labels"
 } as const;

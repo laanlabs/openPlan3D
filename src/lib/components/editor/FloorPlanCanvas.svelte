@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '$lib/i18n';
   import { multiSelectionBounds } from '$lib/utils/multiSelectionBounds';
   import { onMount, onDestroy } from 'svelte';
   import { get } from 'svelte/store';
@@ -4041,8 +4042,8 @@
     <button class="hover:text-gray-700" onclick={() => layerVisibility.update(v => ({ ...v, furniture: !v.furniture }))} title="Toggle Furniture">
       {showFurniture ? '🪑' : '👻'} Furniture
     </button>
-    <button class="hover:text-gray-700" onclick={() => showLayerPanel = !showLayerPanel} title="Layer Visibility">
-      🗂 Layers
+    <button class="hover:text-gray-700" onclick={() => showLayerPanel = !showLayerPanel} title={$t('layerVisibility.title')}>
+      🗂 {$t('layers.title')}
     </button>
     <button class="hover:text-gray-700" onclick={() => showRulers = !showRulers} title="Toggle Rulers">
       {showRulers ? '📏' : '📐'} Rulers
@@ -4054,8 +4055,8 @@
   <!-- Layer Visibility Panel -->
   {#if showLayerPanel}
     <div style:--visible-bottom={`${zoomControlsBottom}px`} class="absolute bottom-12 right-2 max-md:bottom-[calc(var(--visible-bottom)+6rem)] z-20 bg-white rounded-lg shadow-lg border border-gray-200 p-3 text-xs min-w-[160px]">
-      <div class="font-semibold text-gray-700 mb-2">Layers</div>
-      {#each [['walls','Walls'],['doors','Doors'],['windows','Windows'],['furniture','Furniture'],['stairs','Stairs'],['columns','Columns'],['guides','Guides'],['measurements','Measurements'],['annotations','Dimensions'],['textAnnotations','Text notes']] as [key, label]}
+      <div class="font-semibold text-gray-700 mb-2">{$t('layers.title')}</div>
+      {#each [['walls',$t('layers.walls')],['doors',$t('layers.doors')],['windows',$t('layers.windows')],['furniture',$t('layers.furniture')],['stairs',$t('layers.stairs')],['columns',$t('layers.columns')],['guides',$t('layers.guides')],['measurements',$t('layers.measurements')],['annotations',$t('layerVisibility.dimensions')],['textAnnotations',$t('layers.textAnnotations')]] as [key, label]}
         <label class="flex items-center gap-2 py-0.5 cursor-pointer hover:bg-gray-50 rounded px-1">
           <input type="checkbox" checked={(layerVis as Record<string, boolean>)[key]} onchange={() => layerVisibility.update(v => ({ ...v, [key]: !(v as Record<string, boolean>)[key] }))} class="accent-blue-500" />
           <span>{label}</span>
@@ -4064,15 +4065,15 @@
       <hr class="my-1 border-gray-100" />
       <label class="flex items-center gap-2 py-0.5 cursor-pointer hover:bg-gray-50 rounded px-1" class:opacity-40={!floorBelow}>
         <input type="checkbox" checked={layerVis.floorBelow} disabled={!floorBelow} onchange={() => layerVisibility.update(v => ({ ...v, floorBelow: !v.floorBelow }))} class="accent-blue-500" />
-        <span>{floorBelow ? `Floor Below (${floorBelow.name})` : 'Floor Below'}</span>
+        <span>{floorBelow ? $t('layerVisibility.belowNamed', { name: floorBelow.name }) : $t('layerVisibility.below')}</span>
       </label>
       <label class="flex items-center gap-2 py-0.5 cursor-pointer hover:bg-gray-50 rounded px-1">
         <input type="checkbox" bind:checked={showRoomLabels} class="accent-blue-500" />
-        <span>Room Labels</span>
+        <span>{$t('layerVisibility.roomLabels')}</span>
       </label>
       <label class="flex items-center gap-2 py-0.5 cursor-pointer hover:bg-gray-50 rounded px-1">
         <input type="checkbox" bind:checked={showDimensions} class="accent-blue-500" />
-        <span>Dimensions</span>
+        <span>{$t('layerVisibility.dimensions')}</span>
       </label>
     </div>
   {/if}

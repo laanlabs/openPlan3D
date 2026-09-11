@@ -3039,8 +3039,8 @@ editor localization and device/release gates stay open.
 
 Layers item-list labels are translated. Five unit tests, zero-warning check,
 production build and six browser cases pass, using the L shortcut at both widths
-to verify visibility/selection and exported-data preservation. Catalog names
-and the separate canvas visibility popover remain untranslated.
+to verify visibility/selection and exported-data preservation. Catalog names remain untranslated; the canvas visibility popover was translated
+in the follow-up below.
 
 **Reproduced issue, subsequently fixed in browser checks (see below):** at 390px, clicking the canvas “Layers” control is blocked
 by the floating zoom toolbar (Fit selection intercepts the click in Chromium).
@@ -3059,3 +3059,11 @@ The narrow cases use normal pointer clicks to open/close the visibility popover,
 toggle walls and open the item list, then verify selection and exported floor
 data. Production build and zero-warning Svelte check pass. Physical touch devices,
 other narrow viewport combinations and general toolbar localization remain open.
+
+### Canvas visibility-popover localization — 2026-09-10
+
+Translated visibility checkbox labels, lower-floor text and the canvas trigger.
+Five unit tests, zero-warning check, production build and six browser cases pass
+(57.5 seconds), including narrow-layout pointer access, room-label toggles and the
+disabled no-lower-floor option. Remaining canvas/editor strings and physical-device
+qualification stay open.

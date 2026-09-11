@@ -426,3 +426,20 @@ Logs: `/tmp/web-mobile-layers-build-final.log`,
 `/tmp/web-mobile-layers-check-final.log`, `/tmp/web-mobile-layers-browser-final.log`.
 This resolves the observed browser overlap and keyboard-only item-list entry,
 without claiming physical-device qualification or all viewport combinations.
+
+## Canvas layer-visibility popover
+
+Translated the canvas visibility toggle/title and popover checkboxes, reusing
+typed layer labels and interpolating the original lower-floor name. Visibility
+keys, toggle handlers and room-label/dimension state are unchanged.
+
+Five localization unit tests, zero-warning Svelte check and production build pass.
+Six browser cases pass across all engines (57.5 seconds), retaining desktop/list
+coverage and narrow-layout real clicks. The phone cases additionally verify
+translated room-label toggling and the disabled lower-floor option with no lower
+floor. A first run found an ambiguous test selector shared by the translated
+button and heading; the heading assertion was scoped before the successful run.
+Logs: `/tmp/web-visibility-localization-unit.log`,
+`/tmp/web-visibility-localization-check.log`, `/tmp/web-visibility-localization-build.log`,
+`/tmp/web-visibility-localization-browser-final.log`. Physical-device and the
+remaining canvas/editor translation work remain open.

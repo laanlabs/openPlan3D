@@ -465,5 +465,10 @@ export const pt = {
   "layers.value.round": "redonda",
   "layers.value.square": "quadrada",
   "layers.value.horizontal": "horizontal",
-  "layers.value.vertical": "vertical"
+  "layers.value.vertical": "vertical",
+  "layerVisibility.title": "Visibilidade das camadas",
+  "layerVisibility.dimensions": "Dimensões",
+  "layerVisibility.below": "Pavimento abaixo",
+  "layerVisibility.belowNamed": "Pavimento abaixo ({name})",
+  "layerVisibility.roomLabels": "Nomes dos ambientes"
 } as const;
