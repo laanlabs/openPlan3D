@@ -1044,3 +1044,18 @@ retention and used-reference rejection retain their separate existing coverage.
 Logs: `/tmp/web-retained-labels-check.log`, `/tmp/web-retained-labels-build.log`,
 `/tmp/web-retained-labels-unit.log`, `/tmp/web-retained-labels-browser.log`.
 Status/error diagnostics, physical touch and remaining NEXT requirements stay open.
+
+## Item-detail status and validation messages
+
+Added a typed display map for twelve known panel-owned messages, translating at
+render time so locale changes do not freeze existing notices. Unknown service
+errors retain their original diagnostics. Handlers, validation limits and stored
+values are unchanged.
+Production check reports zero errors/warnings; build and five localization unit
+tests pass. Six browser cases pass (1.0 minute, exit 0), checking invalid cost
+restores its precise prior value, attachment/reuse/deletion success notices and
+used-file deletion rejection, alongside prior exported-data comparisons.
+Logs: `/tmp/web-detail-messages-check.log`, `/tmp/web-detail-messages-build.log`,
+`/tmp/web-detail-messages-unit.log`, `/tmp/web-detail-messages-browser.log`.
+Not every fallback branch was fault-injected; service diagnostics, physical-device
+and remaining NEXT requirements stay open.

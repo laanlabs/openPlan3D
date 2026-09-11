@@ -3370,3 +3370,10 @@ Translated retained-file controls and confirmation text, preserving source filen
 Check/build, five localization unit tests and three browser cases pass (41.9 seconds),
 verifying reuse, cancellation retaining bytes and confirmed deletion. Diagnostics
 and broader device/release requirements remain open.
+
+### Item-detail status and validation localization — 2026-09-11
+
+Translated known detail-panel notices at render time, preserving unknown service
+errors. Check/build, five localization unit tests and six browser cases pass
+(1.0 minute), verifying invalid-cost recovery, attachment notices and rejection of
+used-file deletion. Broader diagnostics/device/release requirements remain open.

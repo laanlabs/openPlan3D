@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { itemDetailMessages } from '$lib/i18n/itemDetailMessages';
   import { t } from '$lib/i18n';
   import { itemDetailLabels } from '$lib/i18n/itemDetailLabels';
   import { onDestroy } from 'svelte';
@@ -184,6 +185,6 @@
       {/if}
     </div>
   {/if}
-  {#if error}<p role="alert" class="break-words text-xs text-red-700">{error}</p>{/if}
-  {#if status}<p role="status" class="text-xs text-green-700">{status}</p>{/if}
+  {#if error}<p role="alert" class="break-words text-xs text-red-700">{itemDetailMessages[error] ? $t(itemDetailMessages[error]) : error}</p>{/if}
+  {#if status}<p role="status" class="text-xs text-green-700">{itemDetailMessages[status] ? $t(itemDetailMessages[status]) : status}</p>{/if}
 </section>

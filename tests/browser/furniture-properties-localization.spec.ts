@@ -43,6 +43,9 @@ test('Portuguese furniture properties preserve finish IDs and reset original app
   await notes.fill('Original {value}\nSegunda linha'); await notes.press('Tab');
   const cost = details.getByRole('spinbutton', { name: 'Custo do item', exact: true });
   await cost.fill('123.456'); await cost.press('Tab');
+  await cost.fill('-1'); await cost.press('Tab');
+  await expect(details.getByRole('alert')).toHaveText('Digite um custo igual ou maior que zero ou limpe o campo.');
+  await expect(cost).toHaveValue('123.456');
   const metadata = await exported();
   expect(metadata.furniture[0].details).toMatchObject({ note: 'Original {value}\nSegunda linha', price: 123.456 });
   expect(metadata.furniture.slice(1)).toEqual(reset.furniture.slice(1));

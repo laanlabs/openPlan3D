@@ -873,5 +873,17 @@ export const en = {
   "retainedFiles.group": "Delete retained attachment",
   "retainedFiles.confirm": "Delete {name} from this project’s future exports? Original features may refer to retained files. Older projects, saved versions and downloaded files keep their copies.",
   "retainedFiles.keep": "Keep file",
-  "retainedFiles.commit": "Delete file from project"
+  "retainedFiles.commit": "Delete file from project",
+  "itemDetailMessage.download": "This attachment could not be downloaded. Export a JSON backup to retain the original saved data.",
+  "itemDetailMessage.update": "Could not update item details.",
+  "itemDetailMessage.cost": "Enter a cost of zero or more, or clear the field.",
+  "itemDetailMessage.ceiling": "Enter a positive ceiling height, or clear the field to use the default.",
+  "itemDetailMessage.attached": "Photo attached. Save the project to keep it in this browser.",
+  "itemDetailMessage.add": "Could not add the photo. The project has not changed.",
+  "itemDetailMessage.reused": "Existing attachment reused.",
+  "itemDetailMessage.attach": "Could not attach the photo.",
+  "itemDetailMessage.used": "This file is still used by an item or tracing image. Remove those references first.",
+  "itemDetailMessage.references": "Could not check attachment references.",
+  "itemDetailMessage.deleted": "File removed from this project’s future exports. Save to keep this change.",
+  "itemDetailMessage.delete": "Could not delete the attachment."
 } as const;

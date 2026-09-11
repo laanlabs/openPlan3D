@@ -27,6 +27,7 @@ test('Portuguese item photo controls preserve downloads and retained bytes', asy
     await page.getByRole('button', { name: 'Baixar JSON', exact: true }).click();
     return JSON.parse(await readFile((await (await pending).path())!, 'utf8'));
   }
+  await expect(panel.getByRole('status')).toHaveText('Foto anexada. Salve o projeto para mantê-la neste navegador.');
   const attached = await exported();
   await panel.getByRole('button', { name: 'Remover foto 1 do item', exact: true }).click();
   await expect(panel.getByRole('heading', { name: 'Fotos do item (0)', exact: true })).toBeVisible();
@@ -40,6 +41,9 @@ test('Portuguese item photo controls preserve downloads and retained bytes', asy
   await panel.locator('summary').filter({ hasText: 'Anexos preservados (1)' }).click();
   const retainedName = Object.keys(attached.projectPackage.assets)[0].slice(7);
   await panel.getByRole('button', { name: `Anexar arquivo preservado ${retainedName}`, exact: true }).click();
+  await expect(panel.getByRole('status')).toHaveText('Anexo existente reutilizado.');
+  await panel.getByRole('button', { name: `Excluir arquivo preservado ${retainedName}`, exact: true }).click();
+  await expect(panel.getByRole('alert')).toHaveText('Este arquivo ainda é usado por um item ou imagem de referência. Remova essas referências primeiro.');
   expect((await exported()).floors[0].furniture[0].details.photos).toEqual(attached.floors[0].furniture[0].details.photos);
   await panel.getByRole('button', { name: 'Remover foto 1 do item', exact: true }).click();
   await panel.getByRole('button', { name: `Excluir arquivo preservado ${retainedName}`, exact: true }).click();
@@ -50,4 +54,5 @@ test('Portuguese item photo controls preserve downloads and retained bytes', asy
   await panel.getByRole('button', { name: `Excluir arquivo preservado ${retainedName}`, exact: true }).click();
   await confirmation.getByRole('button', { name: 'Excluir arquivo do projeto', exact: true }).click();
   expect(Object.keys((await exported()).projectPackage.assets)).toHaveLength(0);
+  await expect(panel.getByRole('status')).toHaveText('Arquivo removido das futuras exportações deste projeto. Salve para manter esta alteração.');
 });

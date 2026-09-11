@@ -873,5 +873,17 @@ export const pt = {
   "retainedFiles.group": "Excluir anexo preservado",
   "retainedFiles.confirm": "Excluir {name} das futuras exportações deste projeto? Recursos originais podem fazer referência a arquivos preservados. Projetos anteriores, versões salvas e arquivos baixados mantêm suas cópias.",
   "retainedFiles.keep": "Manter arquivo",
-  "retainedFiles.commit": "Excluir arquivo do projeto"
+  "retainedFiles.commit": "Excluir arquivo do projeto",
+  "itemDetailMessage.download": "Não foi possível baixar este anexo. Exporte um backup JSON para preservar os dados originais salvos.",
+  "itemDetailMessage.update": "Não foi possível atualizar os detalhes do item.",
+  "itemDetailMessage.cost": "Digite um custo igual ou maior que zero ou limpe o campo.",
+  "itemDetailMessage.ceiling": "Digite um pé-direito positivo ou limpe o campo para usar o padrão.",
+  "itemDetailMessage.attached": "Foto anexada. Salve o projeto para mantê-la neste navegador.",
+  "itemDetailMessage.add": "Não foi possível adicionar a foto. O projeto não foi alterado.",
+  "itemDetailMessage.reused": "Anexo existente reutilizado.",
+  "itemDetailMessage.attach": "Não foi possível anexar a foto.",
+  "itemDetailMessage.used": "Este arquivo ainda é usado por um item ou imagem de referência. Remova essas referências primeiro.",
+  "itemDetailMessage.references": "Não foi possível verificar as referências do anexo.",
+  "itemDetailMessage.deleted": "Arquivo removido das futuras exportações deste projeto. Salve para manter esta alteração.",
+  "itemDetailMessage.delete": "Não foi possível excluir o anexo."
 } as const;
