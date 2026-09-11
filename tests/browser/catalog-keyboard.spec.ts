@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
 
 for (const recent of [false, true]) test(`favorites support keyboard without starting placement (${recent ? 'recent' : 'catalog'})`, async ({ page, browserName }) => {
   await page.addInitScript(recent => {
@@ -30,17 +31,18 @@ for (const recent of [false, true]) test(`favorites support keyboard without sta
   await expect(canvas).toHaveCSS('cursor', 'copy');
 });
 
-test('requested annotation editing focuses its named field and context menus fit the viewport', async ({ page }) => {
+for (const locale of ['en', 'pt']) test(`${locale}: requested annotation editing focuses its named field and context menus fit the viewport`, async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('hasSeenWelcome', 'true'));
+  await page.addInitScript(locale => localStorage.setItem('o3d_locale', locale), locale);
   await page.goto('/editor');
-  await page.getByRole('button', { name: 'Save', exact: true }).press('ControlOrMeta+k');
-  await page.getByRole('combobox', { name: 'Search commands', exact: true }).fill('Text Tool');
-  await page.getByRole('option', { name: /Text Tool/ }).click();
+  await page.getByRole('button', { name: locale === 'pt' ? 'Salvar' : 'Save', exact: true }).press('ControlOrMeta+k');
+  await page.getByRole('combobox', { name: locale === 'pt' ? 'Pesquisar comandos' : 'Search commands', exact: true }).fill(locale === 'pt' ? 'Ferramenta de Texto' : 'Text Tool');
+  await page.getByRole('option', { name: locale === 'pt' ? /Ferramenta de Texto/ : /Text Tool/ }).click();
   const canvas = page.getByLabel('Floor plan editor canvas', { exact: true });
   await canvas.click({ position: { x: 250, y: 250 } });
-  const input = page.getByRole('textbox', { name: 'Annotation text', exact: true });
+  const input = page.getByRole('textbox', { name: locale === 'pt' ? 'Texto da anotação' : 'Annotation text', exact: true });
   await expect(input).toBeFocused();
-  await input.fill('Keyboard annotation');
+  await input.fill('Keyboard {number} annotation');
   await input.press('Enter');
   await expect(input).toHaveCount(0);
   const bounds = (await canvas.boundingBox())!;
@@ -51,4 +53,18 @@ test('requested annotation editing focuses its named field and context menus fit
     const box = (await menu.boundingBox())!;
     return box.x >= 0 && box.y >= 0 && box.x + box.width <= 1440 && box.y + box.height <= 900;
   }).toBe(true);
+  await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: locale === 'pt' ? 'Salvar' : 'Save', exact: true }).click();
+  async function exported() {
+    await page.getByRole('button', { name: locale === 'pt' ? 'Exportar' : 'Export', exact: true }).click();
+    const pending = page.waitForEvent('download');
+    await page.getByRole('button', { name: locale === 'pt' ? 'Baixar JSON' : 'Download JSON', exact: true }).click();
+    return JSON.parse(await readFile((await (await pending).path())!, 'utf8'));
+  }
+  const before = await exported();
+  expect(before.floors[0].textAnnotations).toHaveLength(1);
+  expect(before.floors[0].textAnnotations[0].text).toBe('Keyboard {number} annotation');
+  await page.goto(`/editor?id=${encodeURIComponent(before.id)}`);
+  await expect(page.getByRole('button', { name: locale === 'pt' ? 'Salvar' : 'Save', exact: true })).toBeVisible();
+  expect((await exported()).floors[0].textAnnotations).toEqual(before.floors[0].textAnnotations);
 });

@@ -3108,3 +3108,11 @@ Translated empty-plan/elevation-picking guidance and inline editor labels. Five
 unit tests, zero-warning check, production build and six browser cases pass
 (30.5 seconds), including drawing a real wall and canceling elevation picking at
 both widths. Remaining editor strings and physical-device gates remain open.
+
+### Bilingual inline annotation persistence — 2026-09-10
+
+Expanded the existing annotation keyboard test to English/Portuguese and verified
+save/reopen/download equality for literal-brace text. All six desktop browser
+cases pass across three engines (24.4 seconds), including field focus and context
+menu bounds. Room/dimension inline editing and phone qualification remain separate
+work. Runtime source is unchanged from `102537f`.

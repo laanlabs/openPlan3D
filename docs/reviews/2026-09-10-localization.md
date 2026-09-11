@@ -520,3 +520,18 @@ hiding empty guidance and downloading exactly one wall. Inline text-edit behavio
 is not newly qualified by this focused run. Logs:
 `/tmp/web-canvas-hints-unit.log`, `/tmp/web-canvas-hints-check.log`,
 `/tmp/web-canvas-hints-build.log`, `/tmp/web-canvas-hints-browser.log`.
+
+## Bilingual inline annotation editing verification
+
+Extended the existing annotation/context-menu keyboard test to both languages.
+It enters the text tool through the translated command palette, verifies focus in
+the localized annotation field, enters literal-brace text, commits it, checks
+context-menu viewport bounds, saves, downloads JSON, reopens the stored project
+by ID and verifies identical annotation data after another download.
+
+All six English/Portuguese cases pass across Chromium, Firefox and WebKit at the
+existing 1440px desktop viewport (24.4 seconds, exit 0), using the production build
+from `102537f`. Log: `/tmp/web-inline-text-integration.log`. This adds behavioral
+evidence for the translated inline annotation field, without claiming phone
+editing, room-name editing or dimension-label editing coverage. No runtime code
+changed in this verification batch.
