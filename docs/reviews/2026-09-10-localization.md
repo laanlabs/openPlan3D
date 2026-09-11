@@ -2471,3 +2471,21 @@ The continuation is now running with max-failures=1 and writes to
 yields, and do not treat this checkpoint as complete affected-file qualification.
 Resume the existing process before further builds or browser runs. Broader
 physical/native/release requirements remain open.
+
+### 2026-09-11: Chromium canvas qualification complete
+
+The continuation added 26 Chromium passes, completing all 47 affected Chromium
+cases when combined with the original 19 and two focused room-keyboard passes.
+Coverage includes bilingual floor/camera behavior, large-floor fitting, modal
+keyboard handling, curved opening placement, catalogs, symbols, room templates,
+wall splits and Properties. The explicit Portuguese canvas-name checks passed
+in the earlier desktop/phone hint cases.
+
+An exact inventory comparison found 51 distinct passing identities out of 141:
+47 Chromium, two Firefox and two WebKit, with no extra identities. Ninety cases
+remain at this checkpoint. The same process continues into Firefox in
+`/tmp/web-canvas-label-browser-2.log`; it has not completed. No runtime source
+changed during this continuation. As documented above, the staged evidence spans
+the initial canvas build and the later panel-cleanup build. Do not describe this
+as a single full run or completed cross-browser qualification. Resume the live
+process before another build or browser suite.

@@ -163,6 +163,15 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+**Chromium canvas qualification checkpoint:** all 47 affected Chromium cases now
+have passing evidence across the initial run, focused room-keyboard rerun and
+continuation. Exact identity comparison finds 51/141 total cases passed (47
+Chromium, two Firefox, two WebKit), leaving 90. The continuation is still active
+in `/tmp/web-canvas-label-browser-2.log` and has moved to Firefox. Keep this
+process running; do not rebuild or start another browser suite until it finishes
+or fails. These are staged results, not a single fresh run or completed overall
+qualification.
+
 **Room-keyboard verification now passes:** all six desktop/phone cases across
 Chromium, Firefox and WebKit passed (4.4 minutes) on the rebuilt panel-cleanup
 source. Combined with the initial canvas run, 25 distinct cases have passing
