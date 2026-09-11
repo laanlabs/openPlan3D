@@ -1298,3 +1298,17 @@ Logs: `/tmp/web-viewer-localization-integration-unit.log`,
 `/tmp/web-viewer-localization-integration-browser.log`. Browser viewport coverage
 is not physical-touch, memory/battery or full-browser qualification. Remaining
 NEXT requirements stay open.
+
+## AI render panel localization
+
+Translated panel/control labels, provider disclosure, result/error shell and
+24 style/lighting/mood choices through a typed display map. Option values, model
+IDs, prompt generation and literal extra instructions are unchanged. Production
+check reports zero errors/warnings; build and five localization unit tests pass.
+Three browser cases pass (37.8 seconds, exit 0), choosing Portuguese options and
+checking their original English prompt values, literal braces in extra text,
+provider disclosure and panel dismissal. No external requests occurred.
+Logs: `/tmp/web-ai-panel-check.log`, `/tmp/web-ai-panel-build.log`,
+`/tmp/web-ai-panel-unit.log`, `/tmp/web-ai-panel-browser.log`.
+This did not invoke rendering or qualify result/error handlers. Model descriptions,
+service diagnostics, physical-device and remaining NEXT requirements stay open.

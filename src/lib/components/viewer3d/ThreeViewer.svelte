@@ -1,5 +1,6 @@
 <script lang="ts">
   import { t } from '$lib/i18n';
+  import { aiRenderLabels } from '$lib/i18n/aiRenderLabels';
   import { hasOpenModal } from '$lib/utils/modalDialog';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
@@ -2193,7 +2194,7 @@
         <span class="text-white text-sm font-medium">{$t('viewerCamera.title')}</span>
         <div class="flex gap-2">
           <button class="text-xs text-blue-400 hover:text-blue-300" onclick={() => { cancelAIRender(); aiRenderOpen = !aiRenderOpen; }}>
-            {aiRenderOpen ? 'Hide AI' : '✨ AI Render'}
+            {aiRenderOpen ? $t('viewerAI.hide') : $t('viewerAI.show')}
           </button>
           <button class="text-gray-400 hover:text-white text-lg leading-none" onclick={closeCamera} aria-label={$t('viewerCamera.close')}>✕</button>
         </div>
@@ -2260,7 +2261,7 @@
       <!-- AI Render Section -->
       {#if aiRenderOpen}
         <div class="border-t border-gray-700 px-3 py-3 space-y-2">
-          <div class="text-xs font-medium text-white">✨ AI Photorealistic Render</div>
+          <div class="text-xs font-medium text-white">{$t('viewerAI.title')}</div>
 
           <!-- Provider toggle -->
           <div class="flex rounded-lg overflow-hidden border border-gray-700">
@@ -2276,48 +2277,48 @@
 
           {#if aiProvider === 'gemini'}
             <label class="block">
-              <span class="text-[10px] text-gray-400 block mb-1">Model</span>
+              <span class="text-[10px] text-gray-400 block mb-1">{$t('viewerAI.model')}</span>
               <select bind:value={aiModel} disabled={aiRendering} class="w-full bg-gray-800 text-gray-200 text-xs rounded px-1.5 py-1.5 border border-gray-700">
                 {#each AI_MODELS as m}<option value={m.id}>{m.name} — {m.desc}</option>{/each}
               </select>
             </label>
           {:else}
             <div class="text-gray-200 space-y-2">
-              <p class="text-xs break-all">Provider: {providerDestination()}</p>
+              <p class="text-xs break-all">{$t('viewerAI.provider', { destination: providerDestination() })}</p>
               <OpenAIModelPicker config={$openAISettings} bind:model={openaiModel} id="render-openai-model" disabled={aiRendering} onchange={saveRenderModel} />
-              <p class="text-xs text-gray-400">The camera image goes directly to this provider. Provider charges may apply.</p>
+              <p class="text-xs text-gray-400">{$t('viewerAI.disclosure')}</p>
             </div>
           {/if}
 
           <div class="grid grid-cols-3 gap-2">
             <label class="block">
-              <span class="text-[10px] text-gray-400 block mb-1">Style</span>
+              <span class="text-[10px] text-gray-400 block mb-1">{$t('viewerAI.style')}</span>
               <select bind:value={aiRenderStyle} class="w-full bg-gray-800 text-gray-200 text-xs rounded px-1.5 py-1 border border-gray-700">
-                {#each STYLE_OPTIONS as opt}<option value={opt}>{opt}</option>{/each}
+                {#each STYLE_OPTIONS as opt}<option value={opt}>{aiRenderLabels[opt] ? $t(aiRenderLabels[opt]) : opt}</option>{/each}
               </select>
             </label>
             <label class="block">
-              <span class="text-[10px] text-gray-400 block mb-1">Lighting</span>
+              <span class="text-[10px] text-gray-400 block mb-1">{$t('viewerAI.lighting')}</span>
               <select bind:value={aiRenderLighting} class="w-full bg-gray-800 text-gray-200 text-xs rounded px-1.5 py-1 border border-gray-700">
-                {#each LIGHTING_OPTIONS as opt}<option value={opt}>{opt}</option>{/each}
+                {#each LIGHTING_OPTIONS as opt}<option value={opt}>{aiRenderLabels[opt] ? $t(aiRenderLabels[opt]) : opt}</option>{/each}
               </select>
             </label>
             <label class="block">
-              <span class="text-[10px] text-gray-400 block mb-1">Mood</span>
+              <span class="text-[10px] text-gray-400 block mb-1">{$t('viewerAI.mood')}</span>
               <select bind:value={aiRenderMood} class="w-full bg-gray-800 text-gray-200 text-xs rounded px-1.5 py-1 border border-gray-700">
-                {#each MOOD_OPTIONS as opt}<option value={opt}>{opt}</option>{/each}
+                {#each MOOD_OPTIONS as opt}<option value={opt}>{aiRenderLabels[opt] ? $t(aiRenderLabels[opt]) : opt}</option>{/each}
               </select>
             </label>
           </div>
 
           <label class="block">
-            <span class="text-[10px] text-gray-400 block mb-1">Extra instructions (optional)</span>
-            <input type="text" bind:value={aiRenderExtra} placeholder="e.g. hardwood floors, white marble counters..."
+            <span class="text-[10px] text-gray-400 block mb-1">{$t('viewerAI.extra')}</span>
+            <input type="text" bind:value={aiRenderExtra} placeholder={$t('viewerAI.placeholder')}
               class="w-full bg-gray-800 text-gray-200 text-xs rounded px-2 py-1.5 border border-gray-700 placeholder:text-gray-600" />
           </label>
 
           <details class="text-[10px] text-gray-500">
-            <summary class="cursor-pointer hover:text-gray-400">View full prompt</summary>
+            <summary class="cursor-pointer hover:text-gray-400">{$t('viewerAI.prompt')}</summary>
             <p class="mt-1 p-2 bg-gray-800 rounded text-gray-400 leading-relaxed">{buildAIPrompt()}</p>
           </details>
 
@@ -2327,35 +2328,35 @@
             disabled={aiRendering}
           >
             {#if aiRendering}
-              <span class="animate-spin">⏳</span> Rendering...
+              <span class="animate-spin">⏳</span> {$t('viewerAI.rendering')}
             {:else}
-              ✨ Generate Photorealistic Render
+              {$t('viewerAI.generate')}
             {/if}
           </button>
 
           {#if aiRendering}
-            <button type="button" onclick={cancelAIRender} class="w-full py-2 text-sm text-gray-200 border border-gray-600 rounded-lg">Cancel render</button>
+            <button type="button" onclick={cancelAIRender} class="w-full py-2 text-sm text-gray-200 border border-gray-600 rounded-lg">{$t('viewerAI.cancel')}</button>
           {/if}
 
           {#if aiRenderError}
             <div class="bg-red-900/30 border border-red-700 rounded-lg p-3 space-y-2">
-              <div class="text-xs font-medium text-red-400">❌ AI Render Failed</div>
+              <div class="text-xs font-medium text-red-400">{$t('viewerAI.failed')}</div>
               <pre class="text-[10px] text-red-300 whitespace-pre-wrap break-all max-h-32 overflow-y-auto select-all cursor-text font-mono bg-red-950/40 rounded p-2">{aiRenderError}</pre>
               <button
                 class="text-[10px] text-red-400 hover:text-red-300 underline"
                 onclick={() => { navigator.clipboard.writeText(aiRenderError ?? ''); }}
-              >📋 Copy error</button>
+              >{$t('viewerAI.copy')}</button>
             </div>
           {/if}
 
           {#if aiRenderResult}
             <div class="space-y-2">
-              <img src={aiRenderResult} alt="AI Render" class="w-full rounded-lg" />
+              <img src={aiRenderResult} alt={$t('viewerAI.result')} class="w-full rounded-lg" />
               <button
                 class="w-full px-3 py-1.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-500 transition-colors"
                 onclick={downloadAIRender}
               >
-                💾 Download Render
+                {$t('viewerAI.download')}
               </button>
             </div>
           {/if}

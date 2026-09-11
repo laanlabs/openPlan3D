@@ -3509,3 +3509,11 @@ movement arrows accessibly. Check/build, five localization unit tests and three
 browser cases pass (58.6 seconds), covering preview rendering, control use,
 1920×1080 PNG capture and context cleanup after reposition/close. AI panel,
 physical-device and remaining release requirements stay open.
+
+### AI render panel localization — 2026-09-11
+
+Translated AI panel controls/disclosure and style/lighting/mood display choices
+while preserving model IDs and provider prompt values. Check/build, five
+localization unit tests and three browser cases pass (37.8 seconds), with literal
+extra instructions retained and no external requests. Render execution, remaining
+diagnostics/device and release qualification stay open.
