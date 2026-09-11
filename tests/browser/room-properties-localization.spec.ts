@@ -39,4 +39,12 @@ test('Portuguese room properties retain names, geometry and material IDs', async
   await panel.getByRole('checkbox', { name: 'Aberto para o andar inferior', exact: true }).uncheck();
   const restored = await exported();
   expect(restored.rooms.find((candidate: any) => candidate.id === room.id)?.floorOpening).toBe(false);
+
+  const details = page.getByRole('region', { name: 'Detalhes do item', exact: true });
+  await details.getByRole('combobox', { name: 'Uso do ambiente', exact: true }).selectOption({ label: 'Despensa' });
+  const ceiling = details.getByRole('spinbutton', { name: 'Pé-direito do ambiente (cm)', exact: true });
+  await ceiling.fill('275.5'); await ceiling.press('Tab');
+  const metadata = await exported();
+  expect(metadata.rooms.find((candidate: any) => candidate.id === room.id).details).toMatchObject({ roomType: 'pantry', ceilingHeight: 275.5 });
+  expect(metadata.walls).toEqual(restored.walls);
 });

@@ -981,3 +981,19 @@ Logs: `/tmp/web-wall-properties-integration-unit.log`,
 `/tmp/web-wall-properties-integration-browser.log`. No runtime changes here.
 These complement focused Portuguese controls tests; they do not qualify remaining
 service diagnostics, detail panels, full-browser or physical-device/release work.
+
+## Item metadata field localization
+
+Translated detail-section heading, notes/cost fields and help, construction material,
+room use and ceiling-height labels/help, unspecified/default and retained-value text.
+A typed display map retains six construction-material IDs and twelve room-use IDs.
+Photo workflows and validation/service diagnostics are still untranslated.
+
+Production check reports zero errors/warnings; build and five localization unit
+tests pass. Six desktop browser cases pass (56.1 seconds, exit 0), extending room
+and furniture checks with pantry ID, 275.5cm ceiling override, literal multiline
+notes and 123.456 cost, while retaining wall geometry and neighboring furniture.
+Logs: `/tmp/web-item-detail-labels-check.log`, `/tmp/web-item-detail-labels-build.log`,
+`/tmp/web-item-detail-labels-unit.log`, `/tmp/web-item-detail-labels-browser.log`.
+Construction-material editing/native round-trip, photo localization, physical touch
+and broader release requirements remain open.

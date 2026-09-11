@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { t } from '$lib/i18n';
+  import { itemDetailLabels } from '$lib/i18n/itemDetailLabels';
   import { onDestroy } from 'svelte';
   import { get } from 'svelte/store';
   import type { DetailTarget, ItemDetails } from '$lib/models/types';
@@ -22,7 +24,6 @@
   let retained = $derived(Object.keys(assets).map(path => path.slice(7)));
   let attachmentMiB = $derived((Object.values(assets).reduce((n, value) => n + value.length * 3 / 4, 0) / 1024 / 1024).toFixed(2));
   let imperial = $derived($projectSettings.units === 'imperial');
-  const label = (value: string) => value.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
   const photoName = (name: string) => $currentProject?.attachmentNames?.[name] ?? (/^photo-[a-f0-9]{64}\./.test(name) ? 'Added photo' : name);
   function download(name: string) {
     try { downloadPhoto(photoName(name), assets[`assets/${name}`]); }
@@ -97,40 +98,40 @@
   }
 </script>
 
-<section aria-label="Item details" class="mt-4 space-y-3 border-t border-gray-200 pt-3">
-  <h3 class="text-sm font-semibold text-gray-700">Item details</h3>
+<section aria-label={$t('itemDetails.heading')} class="mt-4 space-y-3 border-t border-gray-200 pt-3">
+  <h3 class="text-sm font-semibold text-gray-700">{$t('itemDetails.heading')}</h3>
   {#if target.kind === 'walls' || supportsPhotos}
-    <label class="block text-xs text-gray-600">Item notes
+    <label class="block text-xs text-gray-600">{$t('itemDetails.notes')}
       <textarea value={details.note ?? ''} rows="3" maxlength="20000" oninput={e => save({ note: e.currentTarget.value || null })} class="mt-1 w-full rounded border border-gray-300 px-2 py-1.5 text-sm"></textarea>
     </label>
   {/if}
   {#if supportsCost}
-    <label class="block text-xs text-gray-600">Item cost
+    <label class="block text-xs text-gray-600">{$t('itemDetails.cost')}
       <input type="number" min="0" step="any" value={details.price ?? ''} oninput={e => optionalNumber(e, 'price')} onblur={e => optionalNumber(e, 'price')} class="mt-1 w-full rounded border border-gray-300 px-2 py-1.5 text-sm" />
     </label>
-    <p class="text-xs text-gray-500">Use the same currency throughout the project. Clear the field to leave the cost unset.</p>
+    <p class="text-xs text-gray-500">{$t('itemDetails.currencyHelp')}</p>
   {/if}
   {#if target.kind === 'walls'}
-    <label class="block text-xs text-gray-600">Construction material
+    <label class="block text-xs text-gray-600">{$t('itemDetails.material')}
       <select value={details.material ?? ''} onchange={e => save({ material: e.currentTarget.value || null })} class="mt-1 w-full rounded border border-gray-300 px-2 py-1.5 text-sm">
-        <option value="">Unspecified</option>
-        {#if details.material && !WALL_MATERIALS.includes(details.material)}<option value={details.material}>{details.material} (retained)</option>{/if}
-        {#each WALL_MATERIALS as value}<option {value}>{label(value)}</option>{/each}
+        <option value="">{$t('itemDetails.unspecified')}</option>
+        {#if details.material && !WALL_MATERIALS.includes(details.material)}<option value={details.material}>{$t('itemDetails.retained', { value: details.material })}</option>{/if}
+        {#each WALL_MATERIALS as value}<option {value}>{$t(itemDetailLabels[value])}</option>{/each}
       </select>
     </label>
-    <p class="text-xs text-gray-500">Used by the iPhone plan. Wall colors and textures remain separately editable.</p>
+    <p class="text-xs text-gray-500">{$t('itemDetails.materialHelp')}</p>
   {/if}
   {#if target.kind === 'rooms'}
-    <label class="block text-xs text-gray-600">Room use
+    <label class="block text-xs text-gray-600">{$t('itemDetails.use')}
       <select value={details.roomType ?? ''} onchange={e => save({ roomType: e.currentTarget.value || null })} class="mt-1 w-full rounded border border-gray-300 px-2 py-1.5 text-sm">
-        <option value="">Unspecified</option>
-        {#each ROOM_TYPES as value}<option {value}>{label(value)}</option>{/each}
+        <option value="">{$t('itemDetails.unspecified')}</option>
+        {#each ROOM_TYPES as value}<option {value}>{$t(itemDetailLabels[value])}</option>{/each}
       </select>
     </label>
-    <label class="block text-xs text-gray-600">Room ceiling height ({imperial ? 'in' : 'cm'})
-      <input type="number" min="0" step="any" placeholder="Use plan default" value={details.ceilingHeight == null ? '' : details.ceilingHeight / (imperial ? 2.54 : 1)} oninput={e => optionalNumber(e, 'ceilingHeight')} onblur={e => optionalNumber(e, 'ceilingHeight')} class="mt-1 w-full rounded border border-gray-300 px-2 py-1.5 text-sm" />
+    <label class="block text-xs text-gray-600">{$t('itemDetails.ceiling')} ({imperial ? 'in' : 'cm'})
+      <input type="number" min="0" step="any" placeholder={$t('itemDetails.default')} value={details.ceilingHeight == null ? '' : details.ceilingHeight / (imperial ? 2.54 : 1)} oninput={e => optionalNumber(e, 'ceilingHeight')} onblur={e => optionalNumber(e, 'ceilingHeight')} class="mt-1 w-full rounded border border-gray-300 px-2 py-1.5 text-sm" />
     </label>
-    <p class="text-xs text-gray-500">This room override travels to iPhone. Edit wall heights to change the web 3D geometry.</p>
+    <p class="text-xs text-gray-500">{$t('itemDetails.ceilingHelp')}</p>
   {/if}
   {#if supportsPhotos}
     <div class="space-y-2">
