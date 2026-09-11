@@ -641,3 +641,18 @@ verifying unchanged stored records, focus containment and template-dialog focus
 restoration. Successful import geometry is not newly qualified by this run. Logs:
 `/tmp/web-roomplan-dialog-unit.log`, `/tmp/web-roomplan-dialog-check.log`,
 `/tmp/web-roomplan-dialog-build.log`, `/tmp/web-roomplan-dialog-browser.log`.
+
+## Bilingual successful RoomPlan confirmation
+
+Added end-to-end comparison of successful imports in English and Portuguese at
+1440px/390px. The prepared handoff fixture retains disabled straightening and
+orthogonal defaults plus zero merge distance; confirmation retains the literal
+filename-derived project name. Downloaded wall and opening geometry is compared
+across languages, normalizing generated object IDs while preserving wall linkage
+by index. The source wall's 27.5cm thickness and 273.5cm height are asserted.
+
+All six browser cases pass across three engines (43.6 seconds, exit 0) against
+production source `9fd5922`. Log: `/tmp/web-roomplan-confirm-browser-final.log`.
+Locale is set before each navigation without relying on startup-script ordering.
+This verifies prepared RoomPlan confirmation, not all raw scans, import options,
+physical devices or every retained metadata field. Runtime source is unchanged.

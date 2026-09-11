@@ -3171,3 +3171,11 @@ tests, zero-warning check, production build and six Portuguese browser cases pas
 (39.4 seconds), verifying edited-option cancellation leaves stored projects intact
 and restores dialog focus at both widths. Remaining diagnostics/editor strings
 and physical-device/release gates stay open.
+
+### Bilingual RoomPlan confirmation geometry — 2026-09-10
+
+Six browser cases pass across all engines at both widths (43.6 seconds), confirming
+prepared RoomPlan imports in English/Portuguese and comparing exported walls,
+openings and linkage while retaining original names and prepared-option defaults.
+Runtime source remains `9fd5922`. Raw-scan/device qualification and remaining
+localization/release requirements remain open.
