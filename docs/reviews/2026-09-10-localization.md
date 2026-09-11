@@ -2174,3 +2174,17 @@ runtime code changed. Logs: `/tmp/web-full-browser-audit-9.log` and
 `/tmp/web-storage-observation-browser.log`. The expanded inventory has 1,059 cases;
 the exclusion list now contains 1,033 distinct passes, leaving 26. Prior-runtime
 and current-build evidence remain distinguished in the audit history above.
+
+### 2026-09-11: Final browser inventory reconciliation
+
+Continuation ten passed all 26 remaining cases in 6.6 minutes. The accumulated
+passing list exactly matches the current `playwright test --list` inventory after
+normalizing source line numbers: 1,059 distinct identities, 353 per engine, no
+missing or extra cases. Log: `/tmp/web-full-browser-audit-10.log`; inventory:
+`/tmp/web-browser-final-inventory.txt`; passing list:
+`/tmp/web-browser-audit-passed.txt`.
+
+See [the audit checkpoint report](2026-09-11-browser-audit.md) for the scope,
+runtime provenance, corrections and remaining gates. This completes inventory
+coverage through staged qualification, not a single uninterrupted run or the
+broader NEXT.md objective. Physical-device, native and release requirements remain.

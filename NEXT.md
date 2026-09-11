@@ -163,6 +163,16 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+**Browser audit checkpoint:** every case in the expanded inventory has passing
+evidence: **1,059 distinct cases, 353 per engine**. The final inventory comparison
+found no missing or extra cases. This aggregates staged runs and focused
+follow-ups across the documented runtime versions; it is not one uninterrupted
+full-suite result. See [the audit report](docs/reviews/2026-09-11-browser-audit.md)
+for provenance and limits. The latest source also has 987 passing unit tests,
+zero Svelte diagnostics and a successful production build. Physical-device,
+native, performance, usability and release/cost gates remain open.
+The paragraphs below retain earlier checkpoints and their then-pending counts.
+
 The ninth audit passed 156 WebKit cases before a test-only IndexedDB observer
 raced app hydration and created an empty database. The helper now aborts schema
 creation, rejects failed reads and closes connections; transfer tests wait for the
