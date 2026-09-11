@@ -485,6 +485,11 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
   faces or another boundary, reconcile native raster-based areas with web polygons,
   and test room split/merge identity and schedules. Matching area totals are not
   yet an established cross-platform guarantee.
+
+  Straight-wall splitting now updates saved room references while retaining room
+  identity, names and finishes. Unit cases include two rooms using different
+  portions of a long wall; browser cases verify export, Undo/Redo and save/reopen.
+  Dividing/merging rooms themselves remains separate work.
 - **Building completeness:** implement slabs, stair voids and common roof forms.
   Floor elevations and variable endpoint wall heights already exist. Extend native
   editing/preview fidelity for curves, slopes, elevations, opening styles and

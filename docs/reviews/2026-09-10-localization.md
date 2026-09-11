@@ -1617,3 +1617,24 @@ does not replace the preceding full unit checkpoint or physical qualification.
 Logs: `/tmp/web-furniture-noop-repro.log`, `/tmp/web-furniture-noop-unit.log`,
 `/tmp/web-furniture-noop-check.log`, `/tmp/web-furniture-noop-build.log`,
 `/tmp/web-furniture-noop-browser.log`.
+
+## Wall splitting retains room identity — 2026-09-11
+
+A unit regression at 6698700 reproduced a wall split leaving saved room references
+out of date, so room resolution lost custom identity and finishes. The split now
+examines the original room boundary and substitutes the child wall IDs that
+actually overlap it. This handles rooms using only part of a long wall. Historical
+rooms without a resolvable boundary retain both child references as a fallback.
+
+Check/build pass with zero Svelte diagnostics. Twenty-three focused room/wall unit
+cases pass, including custom metadata, exact area and Undo for whole and partial
+boundaries. Nine wall-action browser cases pass (21.8 seconds), preserving opening
+guards and saved room references. Three extended save/reopen cases pass across
+Chromium, Firefox and WebKit (14.5 seconds). The first reopen attempt navigated
+before saving completed; the final test verifies Redo state and waits for the saved
+indicator before reopening. Original floor data returns exactly with Undo.
+Logs: `/tmp/web-wall-room-split-repro.log`, `/tmp/web-wall-room-split-unit.log`,
+`/tmp/web-wall-room-split-check.log`, `/tmp/web-wall-room-split-build.log`,
+`/tmp/web-wall-room-split-browser.log`, `/tmp/web-wall-room-reopen-browser-final.log`.
+Room partition/merge identity, curved-wall splitting and physical qualification
+remain open.

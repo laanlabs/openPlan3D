@@ -14,11 +14,14 @@ test('Portuguese swing and midpoint split actions preserve openings and undo', a
   const chooser = page.waitForEvent('filechooser');
   await page.getByRole('button', { name: 'Importar JSON', exact: true }).click();
   await (await chooser).setFiles({ name: 'wall-actions.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(plan)) });
+  let exportedProjectId = '';
   async function exported() {
     await page.getByRole('button', { name: 'Exportar', exact: true }).click();
     const pending = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Baixar JSON', exact: true }).click();
-    return JSON.parse(await readFile((await (await pending).path())!, 'utf8')).floors[0];
+    const project = JSON.parse(await readFile((await (await pending).path())!, 'utf8'));
+    exportedProjectId = project.id;
+    return project.floors[0];
   }
   const original = await exported();
   await page.getByRole('button', { name: 'Salvar', exact: true }).press('l');
@@ -38,8 +41,18 @@ test('Portuguese swing and midpoint split actions preserve openings and undo', a
   expect([first.startHeight, first.endHeight, second.startHeight, second.endHeight]).toEqual([250,300,300,350]);
   expect(split.doors[0]).toEqual({ ...original.doors[0], position: .5 });
   expect(split.windows[0]).toEqual({ ...original.windows[0], position: .5, wallId: second.id });
+  expect(split.rooms).toEqual(original.rooms.map((room: any) => ({
+    ...room, walls: room.walls.flatMap((id: string) => id === first.id ? [id, second.id] : [id]),
+  })));
+  await expect(page.getByRole('button', { name: new RegExp(original.rooms[0].name) })).toBeVisible();
   await page.getByRole('button', { name: 'Desfazer', exact: true }).click();
   expect(await exported()).toEqual(original);
+  await page.getByRole('button', { name: 'Refazer', exact: true }).click();
+  expect(await exported()).toEqual(split);
+  await page.getByRole('button', { name: 'Salvar', exact: true }).click();
+  await expect(page.getByText('Salvo ✓', { exact: true })).toBeVisible();
+  await page.goto(`/editor?id=${encodeURIComponent(exportedProjectId)}`);
+  expect(await exported()).toEqual(split);
 });
 
 for (const kind of ['door', 'window']) test(`midpoint split explains and preserves a crossing ${kind}`, async ({ page }) => {

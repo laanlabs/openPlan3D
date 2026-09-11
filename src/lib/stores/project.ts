@@ -1,4 +1,5 @@
 import { selectionRotation } from '$lib/utils/selectionRotation';
+import { splitWallRoomReferences } from '$lib/utils/splitWallRooms';
 import { duplicatePlanSelection, pastePlanSelection } from '$lib/utils/duplicateSelection';
 import { writable, derived, get } from 'svelte/store';
 import type { Project, Floor, Wall, Door, Window as Win, FurnitureItem, Point, Stair, Column, BackgroundImage, GuideLine, ElementGroup, EntourageItem } from '$lib/models/types';
@@ -1066,6 +1067,7 @@ export function splitWall(id: string, t: number): string | null {
   const endH = getWallEndHeight(w);
   const midH = getWallHeightAt(w, t);
   const newId = uid();
+  const roomReferences = splitWallRoomReferences(floor, w, t, newId);
   // New wall from midpoint to original end
   floor.walls.push({
     ...w,
@@ -1083,6 +1085,10 @@ export function splitWall(id: string, t: number): string | null {
     exteriorTexture: w.exteriorTexture,
   });
   // Shorten original wall to midpoint
+  for (const room of floor.rooms) {
+    const references = roomReferences.get(room.id);
+    if (references) room.walls = references;
+  }
   w.end = { ...midPt };
   w.startHeight = startH;
   w.endHeight = midH;
