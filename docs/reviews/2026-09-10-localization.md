@@ -1531,3 +1531,21 @@ Logs: `/tmp/web-keyboard-integration-unit.log` and
 `/tmp/web-keyboard-integration-browser.log`. No runtime changes were needed in this
 checkpoint. These checks do not establish full browser, physical accessibility,
 native release or Firebase migration completion.
+
+## Room floor-material keyboard access — 2026-09-11
+
+The existing Change Floor Texture action only selected the room. It now clears
+other element selection, waits for the room panel, and focuses the selected
+material with a first-choice fallback. A named material group and aria-pressed
+values make the section and current choice accessible. Deferred focus checks
+that the canvas and requested room are still active.
+
+The prior-build regression found no focused control in a named material group.
+Check/build pass with zero Svelte diagnostics. Six Portuguese browser cases pass
+on Chromium, Firefox and WebKit at 1440px/390px (20.8 seconds), verifying keyboard
+menu activation, material focus, Enter selection of light oak from no texture,
+material-only floor changes and exact Undo restoration. Existing room rename,
+cancel and focus cases remain in the same tests. Room reset/delete and physical
+assistive-technology qualification remain open.
+Logs: `/tmp/web-room-material-repro.log`, `/tmp/web-room-material-check.log`,
+`/tmp/web-room-material-build.log`, `/tmp/web-room-material-browser.log`.

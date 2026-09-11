@@ -824,7 +824,7 @@
           <input type="color" aria-label={$t('furnitureProperties.customColor')} value={selectedRoom.color ?? '#ffffff'} oninput={(e) => onRoomColor((e.target as HTMLInputElement).value)} class="w-8 h-6 rounded border border-gray-200 cursor-pointer" />
         </div>
       </div>
-      <div>
+      <div data-room-floor-materials role="group" aria-label={$t('roomProperties.floorMaterial')}>
         <div class="flex items-center gap-1 mb-2">
           <span class="text-xs text-gray-500">{$t('roomProperties.floorMaterial')}</span>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-400">
@@ -844,6 +844,7 @@
                     <button
                       class="p-1 rounded-lg border-2 hover:border-gray-300 transition-all text-xs {selectedRoom.floorTexture === mat.id ? 'border-blue-500 ring-2 ring-blue-200 shadow-sm' : 'border-gray-200'}"
                       title={$t(floorMaterialLabels[mat.id])}
+                      aria-pressed={selectedRoom.floorTexture === mat.id}
                       onclick={() => onRoomFloor(mat.id)}
                     >
                       <div

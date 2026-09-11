@@ -3656,3 +3656,13 @@ Check/build and six Portuguese browser cases across Chromium/Firefox/WebKit at
 focus, cancellation with exact floor preservation, ordinary blur focus transfer,
 name-only updates and exact Undo restoration. Other room-menu actions and physical
 accessibility remain open.
+
+### Room floor-material keyboard access — 2026-09-11
+
+Change Floor Texture now selects the room and focuses its current material (or
+the first available choice). Material choices have a named group and expose
+their selected state. Check/build and six Portuguese browser cases pass across
+Chromium/Firefox/WebKit at 1440px/390px (20.8 seconds), covering menu focus,
+keyboard material selection, material-only changes and exact Undo alongside the
+existing rename cases. Room reset/delete keyboard flows and physical accessibility
+remain open.

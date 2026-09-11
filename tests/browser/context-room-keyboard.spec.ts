@@ -1,10 +1,11 @@
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
-for (const width of [1440, 390]) test(`keyboard room rename commits, cancels and restores focus at ${width}px`, async ({ page }) => {
+for (const width of [1440, 390]) test(`keyboard room rename and floor materials preserve focus and Undo at ${width}px`, async ({ page }) => {
   await page.setViewportSize({ width, height: 900 });
   const plan = JSON.parse(await readFile('tests/fixtures/connected-dimensions.openplan.json', 'utf8'));
   plan.floors[0].rooms[0].name = 'Original {name}';
+  plan.floors[0].rooms[0].floorTexture = 'none';
   await page.addInitScript(() => localStorage.setItem('o3d_locale', 'pt'));
   await page.goto('/editor');
   await page.getByRole('button', { name: 'Exportar', exact: true }).click();
@@ -41,6 +42,19 @@ for (const width of [1440, 390]) test(`keyboard room rename commits, cancels and
   await editor.fill('Meu {name} ambiente'); await editor.press('Enter');
   await expect(editor).toHaveCount(0); await expect(canvas).toBeFocused();
   expect(await exported()).toEqual({ ...before, rooms: before.rooms.map((room: any, index: number) => index === 0 ? { ...room, name: 'Meu {name} ambiente' } : room) });
+  await page.getByRole('button', { name: 'Desfazer', exact: true }).click();
+  expect(await exported()).toEqual(before);
+  await page.getByRole('button', { name: /Original \{name\}/ }).click();
+  await canvas.focus(); await canvas.press('Shift+F10');
+  await page.keyboard.press('ArrowDown'); await page.keyboard.press('ArrowDown');
+  const materialAction = page.getByRole('menuitem', { name: '🎨 Alterar Textura do Piso', exact: true });
+  await expect(materialAction).toBeFocused(); await materialAction.press('Enter');
+  const materials = page.getByRole('group', { name: 'Material do piso', exact: true });
+  await expect(materials.locator(':focus')).toHaveCount(1);
+  const oak = materials.getByRole('button', { name: 'Carvalho claro', exact: true });
+  await oak.focus(); await oak.press('Enter');
+  await expect(oak).toHaveAttribute('aria-pressed', 'true');
+  expect(await exported()).toEqual({ ...before, rooms: before.rooms.map((room: any, index: number) => index === 0 ? { ...room, floorTexture: 'light-oak' } : room) });
   await page.getByRole('button', { name: 'Desfazer', exact: true }).click();
   expect(await exported()).toEqual(before);
 });

@@ -3837,8 +3837,19 @@
         }
         break;
       case 'change-floor-texture':
-        // Select the room so PropertiesPanel shows it
-        if (ctxMenuRoom) selectedRoomId.set(ctxMenuRoom.id);
+        if (ctxMenuRoom) {
+          const roomId = ctxMenuRoom.id;
+          selectedElementId.set(null);
+          selectedElementIds.set(new Set());
+          selectedRoomId.set(roomId);
+          void tick().then(() => {
+            if (!canvas.isConnected || get(selectedRoomId) !== roomId) return;
+            const materials = document.querySelector('[data-plan-properties]:not(.hidden) [data-room-floor-materials]');
+            const choice = materials?.querySelector<HTMLButtonElement>('button[aria-pressed="true"]')
+              ?? materials?.querySelector<HTMLButtonElement>('button');
+            choice?.focus();
+          });
+        }
         break;
       case 'delete-room':
         if (ctxMenuRoom) {
