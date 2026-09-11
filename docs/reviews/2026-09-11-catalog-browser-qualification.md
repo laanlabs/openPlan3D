@@ -115,11 +115,19 @@ now wait for hidden state (15 seconds). Geometry and Undo assertions remain.
 There are 130 retained distinct passes and 977 remaining cases, confirmed by
 Playwright.
 
+The next continuation passed all seven geometry-drag cases. The legacy
+migration workflow then exceeded its 10-second final 3D readiness wait, after
+history/image backup and large-project save/reload preservation checks. That
+boundary now allows 60 seconds within a 180-second workflow. Every storage and
+network assertion remains. There are 137 retained distinct passes and 970
+remaining cases, confirmed by Playwright.
+
 ## Resume the running process
 
 - Command: `npx playwright test --test-list /tmp/web-localization-remaining.txt --max-failures=1`
-- Unified execution session: `83767`; poll this handle before assuming it ended.
-- Active log: `/tmp/web-localization-full-browser-16.log`
+- Unified execution session: `36898`; poll this handle before assuming it ended.
+- Active log: `/tmp/web-localization-full-browser-17.log`
+- Completed seven-pass continuation: `/tmp/web-localization-full-browser-16.log` (session `83767`, terminal exit 1).
 - Completed six-pass continuation: `/tmp/web-localization-full-browser-15.log` (session `80619`, terminal exit 1).
 - Completed initial-readiness failure: `/tmp/web-localization-full-browser-14.log` (session `34370`, terminal exit 1).
 - Completed zero-pass rerun: `/tmp/web-localization-full-browser-13.log` (session `49049`, terminal exit 1).
