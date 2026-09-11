@@ -1030,3 +1030,17 @@ compare retained assets, then undo to restore references. Logs:
 `/tmp/web-item-photos-labels-unit.log`, `/tmp/web-item-photos-labels-browser.log`.
 Large-photo conversion, physical touch and broader release gates remain separately
 qualified by their own checks; this batch does not close those requirements.
+
+## Retained-attachment controls
+
+Translated retained count/size summary, budget guidance, previews, reuse/download/
+delete controls and deletion confirmation. Original filenames remain literal;
+attachment/reference and confirmation handlers are unchanged.
+Production check reports zero errors/warnings, build and five localization unit
+tests pass. Three browser cases pass (41.9 seconds, exit 0), extending the photo
+workflow with retained reuse, cancellation preserving asset bytes and confirmed
+unused-file deletion removing only the current project's asset entry. Older-version
+retention and used-reference rejection retain their separate existing coverage.
+Logs: `/tmp/web-retained-labels-check.log`, `/tmp/web-retained-labels-build.log`,
+`/tmp/web-retained-labels-unit.log`, `/tmp/web-retained-labels-browser.log`.
+Status/error diagnostics, physical touch and remaining NEXT requirements stay open.

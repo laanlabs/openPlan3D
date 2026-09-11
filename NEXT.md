@@ -3363,3 +3363,10 @@ Translated item-photo add/download/remove controls and guidance. Check/build,
 five localization unit tests and three browser cases pass (33.8 seconds), preserving
 small-PNG bytes and retained assets while verifying remove/undo references. Retained
 file management, diagnostics and broader device/release requirements stay open.
+
+### Retained-attachment control localization — 2026-09-11
+
+Translated retained-file controls and confirmation text, preserving source filenames.
+Check/build, five localization unit tests and three browser cases pass (41.9 seconds),
+verifying reuse, cancellation retaining bytes and confirmed deletion. Diagnostics
+and broader device/release requirements remain open.

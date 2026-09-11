@@ -860,5 +860,18 @@ export const en = {
   "itemPhotos.preparing": "Preparing photo…",
   "itemPhotos.add": "Add photo",
   "itemPhotos.help": "JPG or PNG, up to 8 MiB and 24 megapixels. Large photos become resized copies up to 1600 pixels. No uploads.",
-  "itemPhotos.retentionHelp": "Removing from an item keeps the file in retained attachments. Delete an unused file below to omit it from future exports."
+  "itemPhotos.retentionHelp": "Removing from an item keeps the file in retained attachments. Delete an unused file below to omit it from future exports.",
+  "retainedFiles.summary": "Retained attachments ({count}) · {size} MiB",
+  "retainedFiles.budget": "Repeated photo bytes are shared across saved versions. New photos must fit the 64 MiB project and version-history budget.",
+  "retainedFiles.preview": "Retained attachment preview",
+  "retainedFiles.attachLabel": "Attach retained file {name}",
+  "retainedFiles.downloadLabel": "Download retained file {name}",
+  "retainedFiles.deleteLabel": "Delete retained file {name}",
+  "retainedFiles.attach": "Attach to item",
+  "retainedFiles.download": "Download",
+  "retainedFiles.delete": "Delete file…",
+  "retainedFiles.group": "Delete retained attachment",
+  "retainedFiles.confirm": "Delete {name} from this project’s future exports? Original features may refer to retained files. Older projects, saved versions and downloaded files keep their copies.",
+  "retainedFiles.keep": "Keep file",
+  "retainedFiles.commit": "Delete file from project"
 } as const;

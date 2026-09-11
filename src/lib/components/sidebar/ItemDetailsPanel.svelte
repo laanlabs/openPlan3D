@@ -155,18 +155,18 @@
       <p class="text-xs text-gray-500">{$t('itemPhotos.retentionHelp')}</p>
       {#if retained.length}
         <details ontoggle={e => retainedOpen = e.currentTarget.open} class="rounded border border-gray-200 p-2">
-          <summary class="cursor-pointer text-xs font-medium text-gray-600">Retained attachments ({retained.length}) · {attachmentMiB} MiB</summary>
+          <summary class="cursor-pointer text-xs font-medium text-gray-600">{$t('retainedFiles.summary', { count: retained.length, size: attachmentMiB })}</summary>
           {#if retainedOpen}
-            <p class="mt-2 text-xs text-gray-500">Repeated photo bytes are shared across saved versions. New photos must fit the 64 MiB project and version-history budget.</p>
+            <p class="mt-2 text-xs text-gray-500">{$t('retainedFiles.budget')}</p>
             {#each retained as name (name)}
               {@const preview = photoPreview(assets[`assets/${name}`])}
               <div class="mt-3 border-t border-gray-100 pt-2">
-                {#if preview}<img src={preview} alt="Retained attachment preview" loading="lazy" class="mb-1 h-12 w-16 rounded object-contain" />{/if}
+                {#if preview}<img src={preview} alt={$t('retainedFiles.preview')} loading="lazy" class="mb-1 h-12 w-16 rounded object-contain" />{/if}
                 <p class="break-words text-xs text-gray-600">{photoName(name)}</p>
                 <div class="mt-1 flex flex-wrap gap-2">
-                  <button disabled={photos.includes(name)} onclick={() => attachRetained(name)} aria-label={`Attach retained file ${name}`} class="text-xs text-blue-700 underline disabled:text-gray-400">Attach to item</button>
-                  <button onclick={() => download(name)} aria-label={`Download retained file ${name}`} class="text-xs text-blue-700 underline">Download</button>
-                  <button onclick={() => requestDelete(name)} aria-label={`Delete retained file ${name}`} class="text-xs text-red-700 underline">Delete file…</button>
+                  <button disabled={photos.includes(name)} onclick={() => attachRetained(name)} aria-label={$t('retainedFiles.attachLabel', { name })} class="text-xs text-blue-700 underline disabled:text-gray-400">{$t('retainedFiles.attach')}</button>
+                  <button onclick={() => download(name)} aria-label={$t('retainedFiles.downloadLabel', { name })} class="text-xs text-blue-700 underline">{$t('retainedFiles.download')}</button>
+                  <button onclick={() => requestDelete(name)} aria-label={$t('retainedFiles.deleteLabel', { name })} class="text-xs text-red-700 underline">{$t('retainedFiles.delete')}</button>
                 </div>
               </div>
             {/each}
@@ -174,11 +174,11 @@
         </details>
       {/if}
       {#if deleting}
-        <div class="space-y-2 rounded border border-amber-300 bg-amber-50 p-2" role="group" aria-label="Delete retained attachment">
-          <p class="break-words text-xs text-gray-700">Delete {photoName(deleting)} from this project’s future exports? Original features may refer to retained files. Older projects, saved versions and downloaded files keep their copies.</p>
+        <div class="space-y-2 rounded border border-amber-300 bg-amber-50 p-2" role="group" aria-label={$t('retainedFiles.group')}>
+          <p class="break-words text-xs text-gray-700">{$t('retainedFiles.confirm', { name: photoName(deleting) })}</p>
           <div class="flex gap-2">
-            <button onclick={() => deleting = null} class="rounded border px-2 py-1 text-xs">Keep file</button>
-            <button onclick={deleteFile} class="rounded bg-red-700 px-2 py-1 text-xs text-white">Delete file from project</button>
+            <button onclick={() => deleting = null} class="rounded border px-2 py-1 text-xs">{$t('retainedFiles.keep')}</button>
+            <button onclick={deleteFile} class="rounded bg-red-700 px-2 py-1 text-xs text-white">{$t('retainedFiles.commit')}</button>
           </div>
         </div>
       {/if}

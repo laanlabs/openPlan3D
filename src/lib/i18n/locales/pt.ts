@@ -860,5 +860,18 @@ export const pt = {
   "itemPhotos.preparing": "Preparando foto…",
   "itemPhotos.add": "Adicionar foto",
   "itemPhotos.help": "JPG ou PNG, até 8 MiB e 24 megapixels. Fotos grandes geram cópias redimensionadas de até 1600 pixels. Nenhum envio para servidores.",
-  "itemPhotos.retentionHelp": "Remover do item mantém o arquivo nos anexos preservados. Exclua um arquivo sem uso abaixo para omiti-lo de futuras exportações."
+  "itemPhotos.retentionHelp": "Remover do item mantém o arquivo nos anexos preservados. Exclua um arquivo sem uso abaixo para omiti-lo de futuras exportações.",
+  "retainedFiles.summary": "Anexos preservados ({count}) · {size} MiB",
+  "retainedFiles.budget": "Os bytes de fotos repetidas são compartilhados entre versões salvas. Novas fotos devem caber no limite de 64 MiB do projeto e do histórico de versões.",
+  "retainedFiles.preview": "Prévia do anexo preservado",
+  "retainedFiles.attachLabel": "Anexar arquivo preservado {name}",
+  "retainedFiles.downloadLabel": "Baixar arquivo preservado {name}",
+  "retainedFiles.deleteLabel": "Excluir arquivo preservado {name}",
+  "retainedFiles.attach": "Anexar ao item",
+  "retainedFiles.download": "Baixar",
+  "retainedFiles.delete": "Excluir arquivo…",
+  "retainedFiles.group": "Excluir anexo preservado",
+  "retainedFiles.confirm": "Excluir {name} das futuras exportações deste projeto? Recursos originais podem fazer referência a arquivos preservados. Projetos anteriores, versões salvas e arquivos baixados mantêm suas cópias.",
+  "retainedFiles.keep": "Manter arquivo",
+  "retainedFiles.commit": "Excluir arquivo do projeto"
 } as const;
