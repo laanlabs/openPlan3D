@@ -849,5 +849,16 @@ export const en = {
   "itemDetailValue.garage": "Garage",
   "itemDetailValue.closet": "Closet",
   "itemDetailValue.pantry": "Pantry",
-  "itemDetailValue.entryway": "Entryway"
+  "itemDetailValue.entryway": "Entryway",
+  "itemPhotos.heading": "Item photos ({count})",
+  "itemPhotos.alt": "Item photo {number}",
+  "itemPhotos.unavailable": "Preview unavailable. The original file is retained.",
+  "itemPhotos.download": "Download photo {number}",
+  "itemPhotos.removeLabel": "Remove photo {number} from item",
+  "itemPhotos.remove": "Remove from item",
+  "itemPhotos.choose": "Choose item photo",
+  "itemPhotos.preparing": "Preparing photo…",
+  "itemPhotos.add": "Add photo",
+  "itemPhotos.help": "JPG or PNG, up to 8 MiB and 24 megapixels. Large photos become resized copies up to 1600 pixels. No uploads.",
+  "itemPhotos.retentionHelp": "Removing from an item keeps the file in retained attachments. Delete an unused file below to omit it from future exports."
 } as const;

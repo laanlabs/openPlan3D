@@ -1014,3 +1014,19 @@ image decoder checks 1600x800 dimensions. Six existing photo/metadata cases pass
 retention. Logs: `/tmp/web-detail-native-localization-browser-final.log`,
 `/tmp/web-detail-photo-decoder-browser.log`. Photo/control diagnostic translation,
 physical devices and remaining NEXT requirements stay open.
+
+## Item-photo control localization
+
+Translated photo count, preview alt text/fallback, add/preparing/choose controls,
+download/removal labels and format/retention guidance. File names, attachment
+handlers and saved references remain unchanged. Retained-file management and
+status/error diagnostics still need translation.
+
+Production check reports zero errors/warnings; build and five localization unit
+tests pass. Three desktop browser cases pass (33.8 seconds, exit 0): add a small
+PNG, verify the named preview and exact downloaded bytes, remove the item reference,
+compare retained assets, then undo to restore references. Logs:
+`/tmp/web-item-photos-labels-check.log`, `/tmp/web-item-photos-labels-build.log`,
+`/tmp/web-item-photos-labels-unit.log`, `/tmp/web-item-photos-labels-browser.log`.
+Large-photo conversion, physical touch and broader release gates remain separately
+qualified by their own checks; this batch does not close those requirements.

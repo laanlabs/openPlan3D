@@ -3356,3 +3356,10 @@ translated construction material, native room-use/height and cost export. Fixed 
 test-loading dependency by validating exported photos with the browser decoder;
 six desktop/compact photo integration cases pass (1.6 minutes). Runtime unchanged;
 new physical/native runs and remaining photo/localization/release gates stay open.
+
+### Item-photo control localization — 2026-09-11
+
+Translated item-photo add/download/remove controls and guidance. Check/build,
+five localization unit tests and three browser cases pass (33.8 seconds), preserving
+small-PNG bytes and retained assets while verifying remove/undo references. Retained
+file management, diagnostics and broader device/release requirements stay open.

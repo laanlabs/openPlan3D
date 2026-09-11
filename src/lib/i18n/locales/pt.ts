@@ -849,5 +849,16 @@ export const pt = {
   "itemDetailValue.garage": "Garagem",
   "itemDetailValue.closet": "Closet",
   "itemDetailValue.pantry": "Despensa",
-  "itemDetailValue.entryway": "Entrada"
+  "itemDetailValue.entryway": "Entrada",
+  "itemPhotos.heading": "Fotos do item ({count})",
+  "itemPhotos.alt": "Foto do item {number}",
+  "itemPhotos.unavailable": "Prévia indisponível. O arquivo original foi preservado.",
+  "itemPhotos.download": "Baixar foto {number}",
+  "itemPhotos.removeLabel": "Remover foto {number} do item",
+  "itemPhotos.remove": "Remover do item",
+  "itemPhotos.choose": "Escolher foto do item",
+  "itemPhotos.preparing": "Preparando foto…",
+  "itemPhotos.add": "Adicionar foto",
+  "itemPhotos.help": "JPG ou PNG, até 8 MiB e 24 megapixels. Fotos grandes geram cópias redimensionadas de até 1600 pixels. Nenhum envio para servidores.",
+  "itemPhotos.retentionHelp": "Remover do item mantém o arquivo nos anexos preservados. Exclua um arquivo sem uso abaixo para omiti-lo de futuras exportações."
 } as const;

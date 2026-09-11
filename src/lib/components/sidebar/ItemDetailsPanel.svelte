@@ -135,24 +135,24 @@
   {/if}
   {#if supportsPhotos}
     <div class="space-y-2">
-      <h4 class="text-xs font-medium text-gray-600">Item photos ({photos.length})</h4>
+      <h4 class="text-xs font-medium text-gray-600">{$t('itemPhotos.heading', { count: photos.length })}</h4>
       {#each photos as name, index (name)}
         {@const data = assets[`assets/${name}`]}
         {@const preview = photoPreview(data)}
         <div class="rounded border border-gray-200 p-2 space-y-2">
-          {#if preview}<img src={preview} alt={`Item photo ${index + 1}`} loading="lazy" class="max-h-40 w-full rounded object-contain" />
-          {:else}<p class="text-xs text-gray-500">Preview unavailable. The original file is retained.</p>{/if}
+          {#if preview}<img src={preview} alt={$t('itemPhotos.alt', { number: index + 1 })} loading="lazy" class="max-h-40 w-full rounded object-contain" />
+          {:else}<p class="text-xs text-gray-500">{$t('itemPhotos.unavailable')}</p>{/if}
           <p class="break-words text-xs text-gray-500">{photoName(name)}</p>
           <div class="flex flex-wrap gap-2">
-            <button onclick={() => download(name)} disabled={!data} class="text-xs text-blue-700 underline">Download photo {index + 1}</button>
-            <button onclick={() => save({ photos: photos.filter(p => p !== name) })} aria-label={`Remove photo ${index + 1} from item`} class="text-xs text-red-700 underline">Remove from item</button>
+            <button onclick={() => download(name)} disabled={!data} class="text-xs text-blue-700 underline">{$t('itemPhotos.download', { number: index + 1 })}</button>
+            <button onclick={() => save({ photos: photos.filter(p => p !== name) })} aria-label={$t('itemPhotos.removeLabel', { number: index + 1 })} class="text-xs text-red-700 underline">{$t('itemPhotos.remove')}</button>
           </div>
         </div>
       {/each}
-      <input bind:this={input} type="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" aria-label="Choose item photo" onchange={addPhoto} class="hidden" />
-      <button disabled={busy} onclick={() => input?.click()} class="rounded border border-blue-300 px-3 py-2 text-sm text-blue-700 disabled:opacity-50">{busy ? 'Preparing photo…' : 'Add photo'}</button>
-      <p class="text-xs text-gray-500">JPG or PNG, up to 8 MiB and 24 megapixels. Large photos become resized copies up to 1600 pixels. No uploads.</p>
-      <p class="text-xs text-gray-500">Removing from an item keeps the file in retained attachments. Delete an unused file below to omit it from future exports.</p>
+      <input bind:this={input} type="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" aria-label={$t('itemPhotos.choose')} onchange={addPhoto} class="hidden" />
+      <button disabled={busy} onclick={() => input?.click()} class="rounded border border-blue-300 px-3 py-2 text-sm text-blue-700 disabled:opacity-50">{busy ? $t('itemPhotos.preparing') : $t('itemPhotos.add')}</button>
+      <p class="text-xs text-gray-500">{$t('itemPhotos.help')}</p>
+      <p class="text-xs text-gray-500">{$t('itemPhotos.retentionHelp')}</p>
       {#if retained.length}
         <details ontoggle={e => retainedOpen = e.currentTarget.open} class="rounded border border-gray-200 p-2">
           <summary class="cursor-pointer text-xs font-medium text-gray-600">Retained attachments ({retained.length}) · {attachmentMiB} MiB</summary>
