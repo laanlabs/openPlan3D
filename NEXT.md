@@ -163,6 +163,14 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+**Room-keyboard verification now passes:** all six desktop/phone cases across
+Chromium, Firefox and WebKit passed (4.4 minutes) on the rebuilt panel-cleanup
+source. Combined with the initial canvas run, 25 distinct cases have passing
+evidence. An exact inventory comparison leaves 116 cases; their continuation is
+now running in `/tmp/web-canvas-label-browser-2.log`, selected by
+`/tmp/web-canvas-label-remaining.txt`. Resume this process before rebuilding or
+starting another browser suite. This staged qualification is still incomplete.
+
 **Canvas qualification continuation:** the original 141-case run stopped after
 19 Chromium passes when the room-keyboard regression exceeded its 60-second
 budget during repeated exports. A focused rerun reproduced the timeout. The test

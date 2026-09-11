@@ -2451,3 +2451,23 @@ the original 19 passes used the prior canvas-label build. Logs:
 `/tmp/web-panel-cleanup-build.log`. No direct memory-profile result is claimed.
 Resume the active browser process before another build or browser suite, then
 complete the remaining affected inventory. Broader NEXT.md gates remain open.
+
+### 2026-09-11: Room-keyboard qualification and exact continuation
+
+The bounded room-keyboard run passed all six desktop/phone cases across three
+engines in 4.4 minutes. Chromium desktop took 1.4 minutes; all focus, edit,
+export and Undo/Redo assertions remained in place. This run used the rebuilt
+source with panel subscription cleanup. Log:
+`/tmp/web-canvas-room-keyboard-bounded.log`.
+
+Matching project/file/test identities against the original 141-case inventory
+gives 25 distinct passes (19 initial + six focused), with no unmatched results.
+The remaining 116 identities were written to `/tmp/web-canvas-label-remaining.txt`.
+Playwright's --test-list listing confirmed exactly 116 cases in 16 files;
+`/tmp/web-canvas-label-continuation-inventory.log` records that selection.
+
+The continuation is now running with max-failures=1 and writes to
+`/tmp/web-canvas-label-browser-2.log`. Do not restart it solely because a wait
+yields, and do not treat this checkpoint as complete affected-file qualification.
+Resume the existing process before further builds or browser runs. Broader
+physical/native/release requirements remain open.
