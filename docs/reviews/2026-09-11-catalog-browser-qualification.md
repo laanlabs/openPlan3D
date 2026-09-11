@@ -27,11 +27,21 @@ remain intact. The two completed runs contain seven distinct passes. Their
 union was checked against the original inventory; Playwright confirms 1,100
 remaining cases for the next continuation.
 
+The 1,100-case continuation ended after 41 passes and one timeout (1,058 unrun).
+The background-image workflow exhausted its 60-second overall deadline during
+final calibration, after its earlier cancellation, invalid-input, image-byte,
+property-edit, removal and Undo checks. It now has a 180-second slow-test
+allowance, retaining all assertions. The log also reports an error outside a
+test without a separate diagnostic; this is not treated as passing evidence.
+The union of completed stages contains 48 distinct inventory cases. Playwright
+confirms the next continuation contains 1,059 cases. Production is unchanged.
+
 ## Resume the running process
 
 - Command: `npx playwright test --test-list /tmp/web-localization-remaining.txt --max-failures=1`
-- Unified execution session: `76158`; poll this handle before assuming it ended.
-- Active log: `/tmp/web-localization-full-browser-4.log`
+- Unified execution session: `6878`; poll this handle before assuming it ended.
+- Active log: `/tmp/web-localization-full-browser-5.log`
+- Completed 41-pass continuation: `/tmp/web-localization-full-browser-4.log` (session `76158`, terminal exit 1).
 - Completed one-pass continuation: `/tmp/web-localization-full-browser-3.log` (session `85756`, terminal exit 1).
 - Completed six-pass run: `/tmp/web-localization-full-browser-2.log` (session `93960`, terminal exit 1).
 - Retained pass identities: `/tmp/web-localization-passed.txt`

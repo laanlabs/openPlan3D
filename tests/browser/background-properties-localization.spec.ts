@@ -2,6 +2,8 @@ import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
 test('Portuguese background controls preserve image bytes and restore removed images', async ({ page }) => {
+  // Import, cancellation, four invalid scales, restoration and calibration share one workflow.
+  test.slow();
   const plan = JSON.parse(await readFile('tests/fixtures/connected-dimensions.openplan.json', 'utf8'));
   const dataUrl = `data:image/png;base64,${(await readFile('tests/fixtures/item-photo.png')).toString('base64')}`;
   plan.floors[0].backgroundImage = { dataUrl, position: { x: 200, y: 150 }, scale: 1, opacity: .5, rotation: 0, locked: false };
