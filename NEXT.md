@@ -2966,3 +2966,12 @@ Nine unit tests, zero-warning Svelte check and production build pass. Three
 Portuguese browser cases pass across all engines, checking real 2D PNG export
 from 3D mode and failure feedback from menu/palette with no extra download.
 Export-menu labels, deployment notices and wider localization remain open.
+
+### Update/reload notice localization — 2026-09-10
+
+Translated update, loading-failure and save-before-leaving notices with reactive
+keys. Twenty-one targeted unit tests, zero-warning Svelte check and production
+build pass. Three Portuguese browser cases pass across all engines using an
+isolated server, verifying blocked navigation on save failure, JSON recovery and
+successful retry to the intended destination. No live deployment changed; wider
+localization remains open.

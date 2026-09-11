@@ -1,8 +1,9 @@
 import { get, writable } from 'svelte/store';
+import type { TranslationKey } from '$lib/i18n';
 import { autoSave, saveState } from '$lib/stores/saveStatus';
 import { currentProject } from '$lib/stores/project';
 
-export const loadingFailure = writable<string | null>(null);
+export const loadingFailure = writable<TranslationKey | null>(null);
 
 /** A concurrent edit or failed write must prevent a programmatic reload. */
 export async function prepareToLeave(): Promise<boolean> {
@@ -13,5 +14,5 @@ export async function prepareToLeave(): Promise<boolean> {
 }
 
 export function reportLoadingFailure() {
-  loadingFailure.set('Part of the app could not load. Check your connection, then reload to try again.');
+  loadingFailure.set('deployment.loadingFailed');
 }

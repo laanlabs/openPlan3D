@@ -346,5 +346,13 @@ export const pt = {
   "exportNotice.pngFailed": "Não foi possível preparar o PNG. Tente novamente ou exporte JSON para guardar uma cópia da planta.",
   "exportNotice.png3DTitle": "Não foi possível exportar o PNG 3D",
   "exportNotice.png3DFailed": "Não foi possível capturar a vista 3D. Abra a vista 3D novamente e tente outra vez.",
-  "exportNotice.dismiss": "Fechar aviso de exportação"
+  "exportNotice.dismiss": "Fechar aviso de exportação",
+  "deployment.navigateFailed": "Não foi possível salvar suas alterações. Fique nesta página para tentar novamente ou baixe um backup JSON.",
+  "deployment.reloadFailed": "Não foi possível salvar suas alterações. Tente salvar novamente ou baixe um backup JSON antes de recarregar.",
+  "deployment.update": "Uma atualização do aplicativo está disponível. Recarregue para usar a versão mais recente. Seu projeto será salvo primeiro.",
+  "deployment.loadingFailed": "Não foi possível carregar parte do aplicativo. Verifique sua conexão e recarregue para tentar novamente.",
+  "deployment.saving": "Salvando…",
+  "deployment.reload": "Salvar e recarregar",
+  "deployment.backup": "Baixar backup JSON",
+  "deployment.stay": "Continuar editando"
 } as const;

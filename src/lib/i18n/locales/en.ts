@@ -346,5 +346,13 @@ export const en = {
   "exportNotice.pngFailed": "The PNG could not be prepared. Try again, or export JSON to keep a copy of your plan.",
   "exportNotice.png3DTitle": "Couldn't export 3D PNG",
   "exportNotice.png3DFailed": "The 3D view could not be captured. Reopen the 3D view and try again.",
-  "exportNotice.dismiss": "Dismiss export notice"
+  "exportNotice.dismiss": "Dismiss export notice",
+  "deployment.navigateFailed": "Your changes could not be saved. Stay here to retry or download a JSON backup.",
+  "deployment.reloadFailed": "Your changes could not be saved. Retry saving or download a JSON backup before reloading.",
+  "deployment.update": "An app update is ready. Reload to use the latest version. Your project will be saved first.",
+  "deployment.loadingFailed": "Part of the app could not load. Check your connection, then reload to try again.",
+  "deployment.saving": "Saving…",
+  "deployment.reload": "Save and reload",
+  "deployment.backup": "Download JSON backup",
+  "deployment.stay": "Keep editing"
 } as const;

@@ -116,33 +116,34 @@ cacheTest('real cached validators cannot create a false update or hide a later d
   } finally { await server.close(); }
 });
 
-test('update reload preserves failed saves, JSON recovery and the chosen destination', async ({ page, context }) => {
+for (const locale of ['en', 'pt']) test(`${locale}: update reload preserves failed saves, JSON recovery and the chosen destination`, async ({ page, context }) => {
   const server = await deploymentServer();
   try {
     await seed(context, 'qa-deployment-save');
+    await context.addInitScript(locale => localStorage.setItem('o3d_locale', locale), locale);
     await page.clock.install();
     await page.goto(`${server.url}/editor?id=qa-deployment-save`);
     await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeVisible();
     server.serve(server.different);
     await advanceCheck(page);
-    await expect(page.getByRole('status')).toContainText('An app update is ready');
+    await expect(page.getByRole('status')).toContainText(locale === 'pt' ? 'Uma atualização do aplicativo está disponível' : 'An app update is ready');
     await failProjectWrites(page);
     await rename(page, 'Unsaved deployment recovery');
-    await page.getByRole('button', { name: 'Save and reload', exact: true }).click();
-    await expect(page.getByRole('status')).toContainText('Your changes could not be saved');
+    await page.getByRole('button', { name: locale === 'pt' ? 'Salvar e recarregar' : 'Save and reload', exact: true }).click();
+    await expect(page.getByRole('status')).toContainText(locale === 'pt' ? 'Não foi possível salvar suas alterações' : 'Your changes could not be saved');
     await expect(page).toHaveURL(/editor\?id=qa-deployment-save$/);
     const download = page.waitForEvent('download');
-    await page.getByRole('status').getByRole('button', { name: 'Download JSON backup' }).click();
+    await page.getByRole('status').getByRole('button', { name: locale === 'pt' ? 'Baixar backup JSON' : 'Download JSON backup' }).click();
     const backup = JSON.parse(await readFile((await (await download).path())!, 'utf8'));
     expect(backup.name).toBe('Unsaved deployment recovery');
     expect(backup.id).toBe('qa-deployment-save');
-    await page.getByRole('button', { name: 'Keep editing', exact: true }).click();
+    await page.getByRole('button', { name: locale === 'pt' ? 'Continuar editando' : 'Keep editing', exact: true }).click();
     await page.getByTitle('Back to Projects', { exact: true }).click();
-    await expect(page.getByRole('status')).toContainText('Your changes could not be saved');
+    await expect(page.getByRole('status')).toContainText(locale === 'pt' ? 'Não foi possível salvar suas alterações' : 'Your changes could not be saved');
     await expect(page).toHaveURL(/editor\?id=qa-deployment-save$/);
     await page.evaluate(() => { (window as any).failProjectWrites = false; });
     server.serve(server.current);
-    await page.getByRole('button', { name: 'Save and reload', exact: true }).click();
+    await page.getByRole('button', { name: locale === 'pt' ? 'Salvar e recarregar' : 'Save and reload', exact: true }).click();
     await expect(page).toHaveURL(`${server.url}/`);
     expect((await savedProjects(page))['qa-deployment-save'].name).toBe(backup.name);
   } finally { await server.close(); }

@@ -272,3 +272,21 @@ PDF/3D failure path. Logs: `/tmp/web-export-notice-localization-unit.log`,
 `/tmp/web-export-notice-localization-check.log`,
 `/tmp/web-export-notice-localization-build.log`,
 `/tmp/web-export-notice-localization-browser.log`.
+
+## Update and reload notices
+
+Update availability, loading failure, save-before-navigation/reload failure,
+recovery-download and keep-editing controls now use typed, reactive translations.
+The existing save guards, update polling, target URL tracking and JSON backup path
+are unchanged. No live deployment or remote configuration is changed by this work.
+
+Reload-notice validation: 21 deployment/version/localization unit tests pass,
+Svelte check has zero errors/warnings, and production build exits 0. Three
+Portuguese browser cases pass across Chromium, Firefox and WebKit (28.0 seconds)
+against an isolated deployment server. They verify update detection, blocked reload
+and navigation on failed writes, JSON recovery of the unsaved name, Keep editing,
+and successful save/reload to the chosen destination after storage recovery.
+Logs: `/tmp/web-deployment-localization-unit.log`,
+`/tmp/web-deployment-localization-check.log`,
+`/tmp/web-deployment-localization-build.log`,
+`/tmp/web-deployment-localization-browser.log`.
