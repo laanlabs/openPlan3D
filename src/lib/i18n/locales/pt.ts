@@ -1,4 +1,3 @@
-// Adapted from the community translations in laanlabs/openPlan3D PR #15.
 export const pt = {
   "settings.title": "Configurações",
   "settings.close": "Fechar configurações",
@@ -366,5 +365,29 @@ export const pt = {
   "exportMenu.json": "Baixar JSON",
   "exportMenu.package": "Baixar pacote de projeto",
   "exportMenu.packageHelp": "Para iPhone e web. Inclui dados originais preservados e anexos, mesmo quando não são exibidos aqui.",
-  "exportMenu.import": "Importar JSON"
+  "exportMenu.import": "Importar JSON",
+  "toolbarView.more": "Mais",
+  "toolbarView.moreActions": "Mais ações",
+  "toolbarView.view": "Visualização",
+  "toolbarView.zoomIn": "Ampliar",
+  "toolbarView.zoomOut": "Reduzir",
+  "toolbarView.resetZoom": "Redefinir zoom",
+  "toolbarView.pan": "Modo de deslocamento",
+  "toolbarView.snap": "Ajustar à grade",
+  "toolbarView.showFurniture": "Mostrar móveis",
+  "toolbarView.elevationView": "Vista de elevação",
+  "toolbarView.plan": "Planta",
+  "toolbarView.elevation": "Elevação",
+  "toolbarView.selectLabel": "Modo de seleção",
+  "toolbarView.selectHint": "Modo de seleção (V)",
+  "toolbarView.panLabel": "Modo de deslocamento",
+  "toolbarView.panHint": "Modo de deslocamento (H)",
+  "toolbarView.toggleFurniture": "Alternar móveis",
+  "toolbarView.planHint": "Vista em planta — planta baixa vista de cima",
+  "toolbarView.pickHint": "Escolha uma parede na planta para ver sua elevação — pressione novamente ou Esc para cancelar",
+  "toolbarView.elevationHint": "Vista de elevação — parede selecionada de frente, ou escolha uma na planta",
+  "toolbarView.on": "Ativado",
+  "toolbarView.off": "Desativado",
+  "toolbarView.visible": "Visível",
+  "toolbarView.hidden": "Oculto"
 } as const;

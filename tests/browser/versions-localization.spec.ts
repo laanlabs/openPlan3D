@@ -15,7 +15,7 @@ test('Portuguese history confirmations preserve cancellation and restore the sel
   }, { current, history });
   await page.setViewportSize({ width: 390, height: 900 });
   await page.goto(`/editor?id=${current.id}`);
-  await page.getByRole('button', { name: 'More actions', exact: true }).click();
+  await page.getByRole('button', { name: /^(?:More actions|Mais ações)$/, exact: true }).click();
   await page.getByRole('button', { name: 'Histórico de versões', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'Histórico de versões', exact: true });
   const entry = dialog.getByRole('group', { name: 'Snapshot {original}', exact: true });

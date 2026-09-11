@@ -375,8 +375,8 @@
   <button
     onclick={() => { snapEnabled.update(v => !v); snapOn = !snapOn; }}
     class="p-1.5 rounded transition-colors max-xl:hidden {snapOn ? 'text-white bg-white/20' : 'text-white/40 hover:text-white/70 hover:bg-white/10'}"
-    title="Snap to Grid ({snapOn ? 'On' : 'Off'})"
-    aria-label="Snap to Grid"
+    title={`${$t('toolbarView.snap')} (${snapOn ? $t('toolbarView.on') : $t('toolbarView.off')})`}
+    aria-label={$t('toolbarView.snap')}
   >
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
@@ -389,16 +389,16 @@
     <button
       onclick={() => panMode.set(false)}
       class="px-2 py-1 text-xs font-semibold rounded-full transition-colors {!$panMode ? 'bg-white text-slate-800' : 'text-white/80 hover:text-white'}"
-      title="Select mode (V)"
-      aria-label="Select mode"
+      title={$t('toolbarView.selectHint')}
+      aria-label={$t('toolbarView.selectLabel')}
     >
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg>
     </button>
     <button
       onclick={() => panMode.set(true)}
       class="px-2 py-1 text-xs font-semibold rounded-full transition-colors {$panMode ? 'bg-white text-slate-800' : 'text-white/80 hover:text-white'}"
-      title="Pan mode (H)"
-      aria-label="Pan mode"
+      title={$t('toolbarView.panHint')}
+      aria-label={$t('toolbarView.panLabel')}
     >
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-4 0v1"/><path d="M14 10V4a2 2 0 0 0-4 0v2"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
     </button>
@@ -409,8 +409,8 @@
   <button
     onclick={() => layerVisibility.update(v => ({ ...v, furniture: !v.furniture }))}
     class="p-1.5 rounded transition-colors max-xl:hidden {$showFurnitureStore ? 'text-white bg-white/20' : 'text-white/40 hover:text-white/70 hover:bg-white/10'}"
-    title="Toggle Furniture ({$showFurnitureStore ? 'Visible' : 'Hidden'})"
-    aria-label="Toggle Furniture"
+    title={`${$t('toolbarView.toggleFurniture')} (${$showFurnitureStore ? $t('toolbarView.visible') : $t('toolbarView.hidden')})`}
+    aria-label={$t('toolbarView.toggleFurniture')}
   >
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="2" y="12" width="20" height="8" rx="1"/><path d="M4 12V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v5"/><line x1="12" y1="12" x2="12" y2="20"/>
@@ -426,20 +426,20 @@
       <button
         onclick={exitElevation}
         class="px-3 py-1 text-xs font-semibold rounded-full transition-colors flex items-center gap-1.5 {!$elevationWallId ? 'bg-white text-slate-800' : 'text-white/80 hover:text-white'}"
-        title="Plan view — top-down floor plan"
+        title={$t('toolbarView.planHint')}
         aria-pressed={!$elevationWallId}
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 12h8"/><path d="M11 12v9"/><path d="M15 3v6"/></svg>
-        <span>Plan</span>
+        <span>{$t('toolbarView.plan')}</span>
       </button>
       <button
         onclick={enterElevation}
         class="px-3 py-1 text-xs font-semibold rounded-full transition-colors flex items-center gap-1.5 {$elevationWallId ? 'bg-white text-slate-800' : $elevationPickMode ? 'bg-blue-500 text-white' : 'text-white/80 hover:text-white'}"
-        title={$elevationPickMode ? 'Pick a wall in the plan to view its elevation — press again or Esc to cancel' : 'Elevation view — the selected wall face-on, or pick one on the plan'}
+        title={$elevationPickMode ? $t('toolbarView.pickHint') : $t('toolbarView.elevationHint')}
         aria-pressed={!!$elevationWallId || $elevationPickMode}
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9H3z"/><rect x="10" y="14" width="4" height="6"/><rect x="5.5" y="13" width="3" height="3"/></svg>
-        <span>Elevation</span>
+        <span>{$t('toolbarView.elevation')}</span>
       </button>
     </div>
   {/if}
@@ -493,8 +493,8 @@
     <button
       onclick={() => moreOpen = !moreOpen}
       class="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded transition-colors"
-      title="More"
-      aria-label="More actions"
+      title={$t('toolbarView.more')}
+      aria-label={$t('toolbarView.moreActions')}
     >
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
     </button>
@@ -515,16 +515,16 @@
           <div class="h-px bg-gray-100 my-1"></div>
         {/if}
         {#if mode === '2d'}
-          <div class="px-3 pt-1.5 pb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">View</div>
-          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => canvasZoom.update(z => Math.min(10, z * 1.25))}>Zoom In</button>
-          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => canvasZoom.update(z => Math.max($canvasMinimumZoom, z / 1.25))}>Zoom Out</button>
-          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => canvasZoom.set(1)}>Reset Zoom ({$canvasZoom < 0.01 ? ($canvasZoom * 100).toPrecision(2) : Math.round($canvasZoom * 100)}%)</button>
-          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => panMode.update(v => !v)}>{$panMode ? '✓ ' : ''}Pan Mode</button>
-          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => { snapEnabled.update(v => !v); snapOn = !snapOn; }}>{snapOn ? '✓ ' : ''}Snap to Grid</button>
-          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => layerVisibility.update(v => ({ ...v, furniture: !v.furniture }))}>{$showFurnitureStore ? '✓ ' : ''}Show Furniture</button>
+          <div class="px-3 pt-1.5 pb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">{$t('toolbarView.view')}</div>
+          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => canvasZoom.update(z => Math.min(10, z * 1.25))}>{$t('toolbarView.zoomIn')}</button>
+          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => canvasZoom.update(z => Math.max($canvasMinimumZoom, z / 1.25))}>{$t('toolbarView.zoomOut')}</button>
+          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => canvasZoom.set(1)}>{$t('toolbarView.resetZoom')} ({$canvasZoom < 0.01 ? ($canvasZoom * 100).toPrecision(2) : Math.round($canvasZoom * 100)}%)</button>
+          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => panMode.update(v => !v)}>{$panMode ? '✓ ' : ''}{$t('toolbarView.pan')}</button>
+          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => { snapEnabled.update(v => !v); snapOn = !snapOn; }}>{snapOn ? '✓ ' : ''}{$t('toolbarView.snap')}</button>
+          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => layerVisibility.update(v => ({ ...v, furniture: !v.furniture }))}>{$showFurnitureStore ? '✓ ' : ''}{$t('toolbarView.showFurniture')}</button>
           <div class="h-px bg-gray-100 my-1"></div>
         {/if}
-        <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={toggleElevationView}>{$elevationWallId ? '✓ ' : ''}Elevation View</button>
+        <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={toggleElevationView}>{$elevationWallId ? '✓ ' : ''}{$t('toolbarView.elevationView')}</button>
         <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => { versionHistoryOpen = true; moreOpen = false; }}>{$t('versions.title')}</button>
         <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => { areaOpen = true; moreOpen = false; }}>{$t('areaSummary.title')}</button>
         <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => { settingsOpen = true; moreOpen = false; }}>{$t('settings.title')}</button>

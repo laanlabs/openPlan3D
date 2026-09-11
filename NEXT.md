@@ -3003,3 +3003,11 @@ tests, zero-warning Svelte check, production build and six browser cases pass
 across all three engines, including original-name JSON preservation and PNG
 export/failure feedback. Remaining editor localization and device/release gates
 stay open.
+
+### Toolbar view controls — 2026-09-10
+
+Desktop and compact view controls now translate labels, tooltips and state text.
+Five localization unit tests, zero-warning check, production build and nine
+browser cases pass across all engines, including 390px/1440px controls and
+language-switching area-summary preservation. Other editor localization, fluent
+review and physical-device/release requirements remain open.

@@ -1,4 +1,3 @@
-// Adapted from the community translations in laanlabs/openPlan3D PR #15.
 export const en = {
   "settings.title": "Settings",
   "settings.close": "Close settings",
@@ -366,5 +365,29 @@ export const en = {
   "exportMenu.json": "Download JSON",
   "exportMenu.package": "Download project package",
   "exportMenu.packageHelp": "For iPhone and web. Includes retained original data and attachments, even when they are not shown here.",
-  "exportMenu.import": "Import JSON"
+  "exportMenu.import": "Import JSON",
+  "toolbarView.more": "More",
+  "toolbarView.moreActions": "More actions",
+  "toolbarView.view": "View",
+  "toolbarView.zoomIn": "Zoom In",
+  "toolbarView.zoomOut": "Zoom Out",
+  "toolbarView.resetZoom": "Reset Zoom",
+  "toolbarView.pan": "Pan Mode",
+  "toolbarView.snap": "Snap to Grid",
+  "toolbarView.showFurniture": "Show Furniture",
+  "toolbarView.elevationView": "Elevation View",
+  "toolbarView.plan": "Plan",
+  "toolbarView.elevation": "Elevation",
+  "toolbarView.selectLabel": "Select mode",
+  "toolbarView.selectHint": "Select mode (V)",
+  "toolbarView.panLabel": "Pan mode",
+  "toolbarView.panHint": "Pan mode (H)",
+  "toolbarView.toggleFurniture": "Toggle Furniture",
+  "toolbarView.planHint": "Plan view — top-down floor plan",
+  "toolbarView.pickHint": "Pick a wall in the plan to view its elevation — press again or Esc to cancel",
+  "toolbarView.elevationHint": "Elevation view — the selected wall face-on, or pick one on the plan",
+  "toolbarView.on": "On",
+  "toolbarView.off": "Off",
+  "toolbarView.visible": "Visible",
+  "toolbarView.hidden": "Hidden"
 } as const;

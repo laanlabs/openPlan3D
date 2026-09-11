@@ -325,3 +325,19 @@ Portuguese menu labels, JSON export, real 2D PNG export and failure feedback.
 Logs: `/tmp/web-export-menu-localization-check.log`, `/tmp/web-export-menu-build.log`,
 `/tmp/web-export-menu-unit.log`, `/tmp/web-export-menu-browser.log`. This does not
 qualify every export format or physical mobile devices.
+
+## Desktop and compact view controls
+
+Translated the overflow trigger, view section, zoom/pan/snap/furniture controls,
+plan/elevation labels and descriptive tooltips. On/off and visibility states
+remain reactive; numeric zoom calculations and action handlers are unchanged.
+Existing area/history tests now locate the overflow control in either language.
+
+Five localization unit tests, zero-warning Svelte check and production build pass.
+Nine browser cases pass across Chromium, Firefox and WebKit (36.6 seconds):
+Portuguese controls at 390px/1440px, reversible pan/snap indicators, furniture
+visibility tooltip, zoom/reset percentages, and the existing area-summary flow
+that switches language while retaining measurements and imported names. This is
+not physical-device or elevation-rendering qualification. Logs:
+`/tmp/web-toolbar-view-unit.log`, `/tmp/web-toolbar-view-check.log`,
+`/tmp/web-toolbar-view-build.log`, `/tmp/web-toolbar-view-browser.log`.

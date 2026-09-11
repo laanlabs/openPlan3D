@@ -12,7 +12,7 @@ test('area summary keeps measurements and imported room names across languages',
   await page.getByRole('button', { name: 'Import JSON', exact: true }).click();
   await (await chooser).setFiles({ name: 'areas.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(plan)) });
   await expect(page.getByRole('button', { name: plan.name, exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'More actions', exact: true }).click();
+  await page.getByRole('button', { name: /^(?:More actions|Mais ações)$/, exact: true }).click();
   await page.getByRole('button', { name: 'Area Summary', exact: true }).click();
   const english = page.getByRole('dialog', { name: 'Area Summary', exact: true });
   await expect(english).toContainText('Uncategorized');
@@ -20,13 +20,13 @@ test('area summary keeps measurements and imported room names across languages',
   const before = measurements(await english.innerText());
   expect(before?.length).toBeGreaterThan(2);
   await page.keyboard.press('Escape');
-  await page.getByRole('button', { name: 'More actions', exact: true }).click();
+  await page.getByRole('button', { name: /^(?:More actions|Mais ações)$/, exact: true }).click();
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   const settings = page.getByRole('dialog', { name: 'Settings', exact: true });
   await settings.getByRole('button', { name: 'Appearance', exact: true }).click();
   await settings.getByRole('combobox', { name: 'Language', exact: true }).selectOption('pt');
   await page.keyboard.press('Escape');
-  await page.getByRole('button', { name: 'More actions', exact: true }).click();
+  await page.getByRole('button', { name: /^(?:More actions|Mais ações)$/, exact: true }).click();
   await page.getByRole('button', { name: 'Resumo de áreas', exact: true }).click();
   const portuguese = page.getByRole('dialog', { name: 'Resumo de áreas', exact: true });
   await expect(portuguese).toContainText('Sem categoria');
