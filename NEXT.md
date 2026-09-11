@@ -1,5 +1,17 @@
 # Next work and pause handoff
 
+## Undo group lifecycle — September 11 checkpoint
+
+Reproduced unchanged groups clearing Redo and pending groups inserting an old
+project into Undo after a replacement project loads. Unchanged groups now leave
+history intact; loading clears pending group state and descriptions. Nested
+changed groups still commit one action and discard the superseded redo branch.
+All 1,032 unit tests in 97 files pass (24.08s), check/build pass without
+diagnostics, and 24 Chromium/Firefox/WebKit drag cases pass (3.3 minutes): leaving
+elevation during a window drag plus stair, column, text, endpoint, parallel-wall,
+curve and room drags with Undo restoration. Physical-device, release and broader
+NEXT requirements remain open.
+
 ## Multi-step history replay — September 11 checkpoint
 
 Three failing regressions reproduced shifted Redo descriptions after history

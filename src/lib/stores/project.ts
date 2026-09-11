@@ -122,7 +122,7 @@ let undoGroupDepth = 0;
 export function beginUndoGroup() {
   if (undoGroupDepth === 0) {
     const p = get(currentProject);
-    if (p) undoGroupSnapshot = JSON.stringify(p);
+    undoGroupSnapshot = p ? JSON.stringify(p) : null;
   }
   undoGroupDepth++;
 }
@@ -131,12 +131,16 @@ export function beginUndoGroup() {
 export function endUndoGroup(description?: string) {
   if (undoGroupDepth <= 0) return;
   undoGroupDepth--;
-  if (undoGroupDepth === 0 && undoGroupSnapshot !== null) {
-    pushHistory(undoStack, { state: undoGroupSnapshot, description: description || _nextDescription || 'Group action', timestamp: Date.now() });
-    redoStack.length = 0;
+  if (undoGroupDepth === 0) {
+    const before = undoGroupSnapshot;
+    const action = description || _nextDescription || 'Group action';
     undoGroupSnapshot = null;
     _nextDescription = '';
     resetCoalescing();
+    const project = get(currentProject);
+    if (before === null || !project || JSON.stringify(project) === before) return;
+    pushHistory(undoStack, { state: before, description: action, timestamp: Date.now() });
+    redoStack.length = 0;
     syncHistoryStore();
   }
 }
@@ -932,6 +936,9 @@ export function updateProjectName(name: string) {
 export function loadProject(project: Project) {
   undoStack.length = 0;
   redoStack.length = 0;
+  undoGroupDepth = 0;
+  undoGroupSnapshot = null;
+  _nextDescription = '';
   resetCoalescing();
   clearFloorContext();
   currentProject.set(project);
