@@ -1,8 +1,9 @@
 import { writable } from 'svelte/store';
+import type { TranslationKey } from '$lib/i18n';
 import type { Project } from '$lib/models/types';
 import { exportAsPNG, exportPDF } from '$lib/utils/export';
 
-export const exportNotice = writable<{ title: string; message: string } | null>(null);
+export const exportNotice = writable<{ title: TranslationKey; message: TranslationKey } | null>(null);
 
 /** Both PDF entry points use the same outcome reporting. */
 export async function exportPDFWithFeedback(project: Project) {
@@ -10,20 +11,20 @@ export async function exportPDFWithFeedback(project: Project) {
   try {
     const result = await exportPDF(project);
     if (!result) {
-      exportNotice.set({ title: "Couldn't export PDF", message: 'Add walls, furniture, stairs, columns, entourage, notes or measurements to the active floor before exporting a PDF.' });
+      exportNotice.set({ title: 'exportNotice.pdfTitle', message: 'exportNotice.pdfEmpty' });
     } else if (result.omitted3D) {
-      exportNotice.set({ title: 'PDF exported without the 3D view', message: 'The floor plan was exported. Reopen the 3D view and try again to include it.' });
+      exportNotice.set({ title: 'exportNotice.pdfPartial', message: 'exportNotice.pdfPartialHelp' });
     }
   } catch {
-    exportNotice.set({ title: "Couldn't export PDF", message: 'The PDF could not be prepared. Try again, or export JSON to keep a copy of your plan.' });
+    exportNotice.set({ title: 'exportNotice.pdfTitle', message: 'exportNotice.pdfFailed' });
   }
 }
 
 export async function exportPNGWithFeedback(project: Project) {
   exportNotice.set(null);
   try {
-    if (!await exportAsPNG(null, project)) exportNotice.set({ title: "Couldn't export 2D PNG", message: 'Add walls, furniture, stairs, columns, entourage, notes or measurements to the active floor before exporting a PNG.' });
+    if (!await exportAsPNG(null, project)) exportNotice.set({ title: 'exportNotice.pngTitle', message: 'exportNotice.pngEmpty' });
   } catch {
-    exportNotice.set({ title: "Couldn't export 2D PNG", message: 'The PNG could not be prepared. Try again, or export JSON to keep a copy of your plan.' });
+    exportNotice.set({ title: 'exportNotice.pngTitle', message: 'exportNotice.pngFailed' });
   }
 }

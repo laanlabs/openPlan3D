@@ -335,5 +335,16 @@ export const en = {
   "print.sheetScale": "Scale: {value}",
   "print.sheetFooter": "OpenPlan3D · Print at 100% / Actual size; disable Fit to page in the print dialog.",
   "print.schedule": "Room Schedule",
-  "print.pdfOverflow": "The plan does not fit this page at the selected scale. Choose a smaller scale or Fit to page."
+  "print.pdfOverflow": "The plan does not fit this page at the selected scale. Choose a smaller scale or Fit to page.",
+  "exportNotice.pdfTitle": "Couldn't export PDF",
+  "exportNotice.pdfEmpty": "Add walls, furniture, stairs, columns, entourage, notes or measurements to the active floor before exporting a PDF.",
+  "exportNotice.pdfPartial": "PDF exported without the 3D view",
+  "exportNotice.pdfPartialHelp": "The floor plan was exported. Reopen the 3D view and try again to include it.",
+  "exportNotice.pdfFailed": "The PDF could not be prepared. Try again, or export JSON to keep a copy of your plan.",
+  "exportNotice.pngTitle": "Couldn't export 2D PNG",
+  "exportNotice.pngEmpty": "Add walls, furniture, stairs, columns, entourage, notes or measurements to the active floor before exporting a PNG.",
+  "exportNotice.pngFailed": "The PNG could not be prepared. Try again, or export JSON to keep a copy of your plan.",
+  "exportNotice.png3DTitle": "Couldn't export 3D PNG",
+  "exportNotice.png3DFailed": "The 3D view could not be captured. Reopen the 3D view and try again.",
+  "exportNotice.dismiss": "Dismiss export notice"
 } as const;

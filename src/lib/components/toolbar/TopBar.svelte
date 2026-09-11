@@ -156,7 +156,7 @@
         link.href = url; link.download = `${project?.name || 'floorplan'}-3d.png`; link.click();
       } finally { URL.revokeObjectURL(url); }
     } catch {
-      if (!openingLifetime.signal.aborted) exportNotice.set({ title: "Couldn't export 3D PNG", message: 'The 3D view could not be captured. Reopen the 3D view and try again.' });
+      if (!openingLifetime.signal.aborted) exportNotice.set({ title: 'exportNotice.png3DTitle', message: 'exportNotice.png3DFailed' });
     } finally {
       exporting3D = false;
       if (!openingLifetime.signal.aborted && oldMode === '2d' && get(viewMode) === '3d') viewMode.set('2d');

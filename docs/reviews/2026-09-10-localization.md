@@ -252,3 +252,23 @@ open. Logs: `/tmp/web-printed-sheet-localization-unit-final.log`,
 `/tmp/web-printed-sheet-localization-check.log`,
 `/tmp/web-printed-sheet-localization-build.log`,
 `/tmp/web-printed-sheet-localization-browser.log`.
+
+## Export outcome notices
+
+PDF, 2D PNG and 3D PNG outcome notices now hold typed translation keys, and the
+notice component resolves them reactively. This preserves language switching for
+an already-visible notice and keeps implementation-error details out of the
+message. Empty-floor guidance, partial-PDF guidance, retry text and dismissal are
+translated. The export menu itself and deployment notices remain separate work.
+
+Export-notice validation: nine unit tests pass, covering partial/failed/empty PDF,
+asynchronous PNG failure, clearing successful outcomes, and English/Portuguese
+resolution of the same stored notice. Svelte check has zero errors/warnings and
+production build exits 0. Three Portuguese browser cases pass across all engines
+(42.7 seconds): a real 2D PNG downloads while the editor is in 3D mode, then forced
+encoding failure reports the localized notice from both menu and palette without
+an additional download. This batch does not claim new browser coverage of every
+PDF/3D failure path. Logs: `/tmp/web-export-notice-localization-unit.log`,
+`/tmp/web-export-notice-localization-check.log`,
+`/tmp/web-export-notice-localization-build.log`,
+`/tmp/web-export-notice-localization-browser.log`.

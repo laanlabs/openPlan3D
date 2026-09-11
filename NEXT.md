@@ -2958,3 +2958,11 @@ Fifteen print-scale/localization unit tests, zero-warning Svelte check and produ
 build pass. Three browser cases pass across all engines, inspecting canvas labels
 and the downloaded PDF heading alongside scale/fit checks. Physical print, broader
 canvas text and general export localization remain open.
+
+### Export outcome localization — 2026-09-10
+
+PDF/PNG notices now retain typed message keys and translate at display time.
+Nine unit tests, zero-warning Svelte check and production build pass. Three
+Portuguese browser cases pass across all engines, checking real 2D PNG export
+from 3D mode and failure feedback from menu/palette with no extra download.
+Export-menu labels, deployment notices and wider localization remain open.

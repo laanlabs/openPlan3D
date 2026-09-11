@@ -335,5 +335,16 @@ export const pt = {
   "print.sheetScale": "Escala: {value}",
   "print.sheetFooter": "OpenPlan3D · Imprima em 100% / Tamanho real; desative Ajustar à página na janela de impressão.",
   "print.schedule": "Tabela de ambientes",
-  "print.pdfOverflow": "A planta não cabe nesta página na escala selecionada. Escolha uma escala menor ou Ajustar à página."
+  "print.pdfOverflow": "A planta não cabe nesta página na escala selecionada. Escolha uma escala menor ou Ajustar à página.",
+  "exportNotice.pdfTitle": "Não foi possível exportar o PDF",
+  "exportNotice.pdfEmpty": "Adicione paredes, móveis, escadas, colunas, elementos de entorno, notas ou medidas ao piso ativo antes de exportar um PDF.",
+  "exportNotice.pdfPartial": "PDF exportado sem a vista 3D",
+  "exportNotice.pdfPartialHelp": "A planta foi exportada. Abra novamente a vista 3D e tente outra vez para incluí-la.",
+  "exportNotice.pdfFailed": "Não foi possível preparar o PDF. Tente novamente ou exporte JSON para guardar uma cópia da planta.",
+  "exportNotice.pngTitle": "Não foi possível exportar o PNG 2D",
+  "exportNotice.pngEmpty": "Adicione paredes, móveis, escadas, colunas, elementos de entorno, notas ou medidas ao piso ativo antes de exportar um PNG.",
+  "exportNotice.pngFailed": "Não foi possível preparar o PNG. Tente novamente ou exporte JSON para guardar uma cópia da planta.",
+  "exportNotice.png3DTitle": "Não foi possível exportar o PNG 3D",
+  "exportNotice.png3DFailed": "Não foi possível capturar a vista 3D. Abra a vista 3D novamente e tente outra vez.",
+  "exportNotice.dismiss": "Fechar aviso de exportação"
 } as const;
