@@ -473,14 +473,14 @@
   <div class="h-screen flex flex-col items-center justify-center gap-3">
     {#if loadError}
       <p role="alert" class="max-w-lg px-6 text-center text-red-700">{loadError}</p>
-      <button class="text-blue-700 underline" onclick={initializeEditor}>Retry loading</button>
-      <button class="text-blue-700 underline" onclick={backupLibrary}>Download library backup</button>
-      <a class="text-blue-700 underline" href={`${base}/`}>Back to projects</a>
+      <button class="text-blue-700 underline" onclick={initializeEditor}>{$t('library.retry')}</button>
+      <button class="text-blue-700 underline" onclick={backupLibrary}>{$t('library.backup')}</button>
+      <a class="text-blue-700 underline" href={`${base}/`}>{$t('editorRecovery.back')}</a>
     {:else if importingCapture}
       <div class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
-      <p class="text-gray-400">Importing capture from iOS app…</p>
+      <p class="text-gray-400">{$t('editorRecovery.importing')}</p>
     {:else}
-      <p class="text-gray-400">Loading...</p>
+      <p class="text-gray-400">{$t('editorRecovery.loading')}</p>
     {/if}
   </div>
 {/if}
@@ -490,9 +490,9 @@
   <div class="fixed top-16 left-1/2 -translate-x-1/2 z-[100] w-[calc(100vw-2rem)] max-w-md bg-red-50 border border-red-200 text-red-700 rounded-lg shadow-lg px-4 py-3 flex items-start gap-3" role="alert">
     <svg class="w-5 h-5 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
     <div class="flex-1 text-sm">
-      <p class="font-semibold">Capture import failed</p>
+      <p class="font-semibold">{$t('editorRecovery.failed')}</p>
       <p>{importError}</p>
     </div>
-    <button class="text-red-400 hover:text-red-600 text-lg leading-none" onclick={() => importError = null} aria-label="Dismiss error">✕</button>
+    <button class="text-red-400 hover:text-red-600 text-lg leading-none" onclick={() => importError = null} aria-label={$t('editorRecovery.dismiss')}>✕</button>
   </div>
 {/if}

@@ -1169,3 +1169,17 @@ Logs: `/tmp/web-shortcuts-check.log`, `/tmp/web-shortcuts-build.log`,
 `/tmp/web-shortcuts-unit.log`, `/tmp/web-shortcuts-browser.log`.
 Remaining editor loading/error actions, viewer UI, physical-device and release
 requirements remain open.
+
+## Editor loading and recovery controls
+
+Translated editor retry/backup controls using existing library keys, return-to-
+projects link, loading/importing labels and capture-error heading/dismiss action.
+Underlying service diagnostics remain unchanged. Production check reports zero
+errors/warnings; build and five localization unit tests pass. Three browser cases
+pass (22.3 seconds, exit 0), injecting a migration quota failure on direct editor
+load, downloading identical legacy bytes, then retrying successfully with one
+project whose saved data exactly matches the source. Original legacy bytes remain
+available afterward. Logs: `/tmp/web-editor-recovery-check.log`,
+`/tmp/web-editor-recovery-build.log`, `/tmp/web-editor-recovery-unit.log`,
+`/tmp/web-editor-recovery-browser.log`. Capture-network branches, physical-device
+recovery and remaining NEXT requirements stay open.

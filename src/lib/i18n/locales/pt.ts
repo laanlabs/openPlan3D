@@ -936,5 +936,10 @@ export const pt = {
   "shortcuts.copyLabel": "Copiar todos os atalhos",
   "shortcuts.close": "Fechar atalhos",
   "shortcuts.footer": "Pressione ? ou Esc para fechar",
-  "shortcuts.loading3d": "Carregando visualizador 3D…"
+  "shortcuts.loading3d": "Carregando visualizador 3D…",
+  "editorRecovery.back": "Voltar aos projetos",
+  "editorRecovery.importing": "Importando captura do app iOS…",
+  "editorRecovery.loading": "Carregando...",
+  "editorRecovery.failed": "Falha ao importar captura",
+  "editorRecovery.dismiss": "Dispensar erro"
 } as const;

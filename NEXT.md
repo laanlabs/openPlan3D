@@ -3438,3 +3438,11 @@ message. Production check/build, five localization unit tests and three browser
 cases pass (22.6 seconds), verifying help entry/dismissal and the translated
 clipboard payload. OS clipboard permissions, remaining UI/device/release work
 stay open.
+
+### Editor loading and recovery localization — 2026-09-11
+
+Translated retry/backup, return-to-projects, loading/importing and capture-error
+shell controls. Check/build, five localization unit tests and three browser cases
+pass (22.3 seconds). Injected migration failure preserves exact backup bytes;
+retry opens the original project without duplication or saved-data changes.
+Service diagnostics, physical-device recovery and other release work remain open.

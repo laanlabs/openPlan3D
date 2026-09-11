@@ -936,5 +936,10 @@ export const en = {
   "shortcuts.copyLabel": "Copy all shortcuts",
   "shortcuts.close": "Close shortcuts",
   "shortcuts.footer": "Press ? or Esc to close",
-  "shortcuts.loading3d": "Loading 3D viewer…"
+  "shortcuts.loading3d": "Loading 3D viewer…",
+  "editorRecovery.back": "Back to projects",
+  "editorRecovery.importing": "Importing capture from iOS app…",
+  "editorRecovery.loading": "Loading...",
+  "editorRecovery.failed": "Capture import failed",
+  "editorRecovery.dismiss": "Dismiss error"
 } as const;
