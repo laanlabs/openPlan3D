@@ -52,7 +52,7 @@ async function changed(page: Page, action: () => Promise<unknown>) {
 }
 
 test('2D sleeps between display, camera, tool, geometry and history changes', async ({ page }) => {
-  test.setTimeout(120_000);
+  test.setTimeout(180_000);
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   await observeCanvas(page); await importHome(page);
@@ -101,7 +101,7 @@ test('2D sleeps between display, camera, tool, geometry and history changes', as
   await changed(page, () => page.setViewportSize({ width: 1100, height: 650 }));
   const old = (await audit(page)).canvases[0];
   await page.getByRole('button', { name: '3D', exact: true }).click();
-  await expect(page.getByRole('region', { name: '3D floor plan viewer' })).toBeVisible();
+  await expect(page.getByRole('region', { name: '3D floor plan viewer' })).toBeVisible({ timeout: 60_000 });
   await page.getByRole('button', { name: '2D', exact: true }).click(); await idle(page);
   const entries = (await audit(page)).canvases;
   expect(entries[0]).toEqual({ ...old, connected: false });

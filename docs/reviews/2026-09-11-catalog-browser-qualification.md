@@ -44,11 +44,19 @@ The first-frame poll and initial canvas readiness now allow 60 seconds within a
 180-second workflow. Capture dimensions and renderer cleanup assertions remain.
 There are 49 distinct retained passes; Playwright confirms 1,058 remaining cases.
 
+The next continuation passed camera capture/cleanup (2.1 minutes) and both
+canvas-hint cases. The canvas-idle workflow then exceeded its 10-second 3D
+readiness assertion near the end, with the snapshot showing “Loading 3D viewer…”.
+That boundary now allows 60 seconds within a 180-second total workflow; idle,
+pixel-change, saved-state and teardown checks remain intact. There are 52
+retained distinct passes and 1,055 remaining cases, confirmed by Playwright.
+
 ## Resume the running process
 
 - Command: `npx playwright test --test-list /tmp/web-localization-remaining.txt --max-failures=1`
-- Unified execution session: `49725`; poll this handle before assuming it ended.
-- Active log: `/tmp/web-localization-full-browser-6.log`
+- Unified execution session: `23537`; poll this handle before assuming it ended.
+- Active log: `/tmp/web-localization-full-browser-7.log`
+- Completed three-pass continuation: `/tmp/web-localization-full-browser-6.log` (session `49725`, terminal exit 1).
 - Completed background pass: `/tmp/web-localization-full-browser-5.log` (session `6878`, terminal exit 1).
 - Completed 41-pass continuation: `/tmp/web-localization-full-browser-4.log` (session `76158`, terminal exit 1).
 - Completed one-pass continuation: `/tmp/web-localization-full-browser-3.log` (session `85756`, terminal exit 1).

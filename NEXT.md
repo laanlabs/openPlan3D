@@ -14,10 +14,12 @@ exhausted its overall deadline during final calibration. That workflow now has
 a 180-second allowance with all assertions retained. That case passed in 1.8 minutes. The following camera case timed out while
 waiting for its first preview GPU probe. Preview readiness now allows 60 seconds
 inside a 180-second workflow, preserving capture and teardown checks. There are
-49 distinct passes preserved; the verified 1,058-case remainder runs in session
-`49725`.
+52 distinct passes preserved after the camera and canvas-hint cases passed.
+The canvas-idle case then reached its 10-second 3D loading deadline; the snapshot
+showed the loading message. That boundary now allows 60 seconds within a
+180-second workflow. The verified 1,055-case remainder runs in session `23537`.
 Poll the actual process before starting competing tests or rebuilding;
-sessions `93960`, `85756`, `76158` and `6878` are terminal.
+sessions `93960`, `85756`, `76158`, `6878` and `49725` are terminal.
 See [the live report](docs/reviews/2026-09-11-catalog-browser-qualification.md).
 No full-suite completion is claimed; broader NEXT requirements remain open.
 
