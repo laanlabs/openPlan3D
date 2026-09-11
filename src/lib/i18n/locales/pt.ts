@@ -1048,5 +1048,8 @@ export const pt = {
   "viewerFurniture.close": "Fechar seletor de móveis",
   "viewerFurniture.fallback": "móveis",
   "viewerFurniture.hint": "🪑 Clique no piso para posicionar {name} • Esc para cancelar",
-  "viewerFurniture.paint": "🪣 Clique nas paredes para aplicar materiais • Esc para fechar o seletor ou sair"
+  "viewerFurniture.paint": "🪣 Clique nas paredes para aplicar materiais • Esc para fechar o seletor ou sair",
+  "shortcuts.copying": "Copiando atalhos…",
+  "shortcuts.copied": "Atalhos copiados.",
+  "shortcuts.failed": "Não foi possível copiar os atalhos. Tente novamente."
 } as const;

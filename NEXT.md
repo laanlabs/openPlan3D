@@ -3533,3 +3533,11 @@ category selection states. Check/build, five localization unit tests and three
 browser cases pass (46.1 seconds), verifying catalog identity and exact floor
 Undo/Redo after placement. Item names, remaining viewer text and device/release
 requirements stay open.
+
+### Shortcut clipboard failure recovery — 2026-09-11
+
+Reproduced missing feedback on clipboard denial. Copy now catches failure, reports
+translated status, supports retry and ignores late results after dialog reopen.
+Check/build, five localization unit tests and six browser cases pass (28.6 seconds),
+including delayed completion and no page errors. Actual OS permissions and
+remaining device/release requirements stay open.

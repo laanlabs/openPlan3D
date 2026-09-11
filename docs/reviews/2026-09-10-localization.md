@@ -1337,3 +1337,17 @@ data through Undo/Redo. Logs: `/tmp/web-3d-furniture-check.log`,
 `/tmp/web-3d-furniture-build.log`, `/tmp/web-3d-furniture-unit.log`,
 `/tmp/web-3d-furniture-browser.log`. Individual item names, other remaining viewer
 text, physical-device and release requirements stay open.
+
+## Shortcut clipboard failure recovery
+
+At `6bfa007`, injected clipboard denial reproduced missing user feedback. Shortcut
+copy now awaits and catches clipboard errors, reports translated pending/success/
+failure status, disables duplicate pending copies and ignores results from a
+closed dialog generation. Production check reports zero errors/warnings; build
+and five localization unit tests pass. Six browser cases pass (28.6 seconds,
+exit 0), checking copied contents, denial without page errors, successful retry,
+status reset on reopen and delayed completion after close/reopen.
+Logs: `/tmp/web-shortcut-copy-repro.log`, `/tmp/web-shortcut-copy-check.log`,
+`/tmp/web-shortcut-copy-build.log`, `/tmp/web-shortcut-copy-unit.log`,
+`/tmp/web-shortcut-copy-browser.log`. Clipboard permission is simulated; actual
+OS clipboard permissions and remaining NEXT requirements stay open.

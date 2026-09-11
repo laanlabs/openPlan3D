@@ -44,6 +44,13 @@
   let mode = $state<'2d' | '3d'>('2d');
   let ready = $state(false);
   let showHelp = $state(false);
+  let shortcutCopyState = $state<'idle' | 'copying' | 'copied' | 'failed'>('idle');
+  let shortcutCopyGeneration = 0;
+  $effect(() => {
+    showHelp;
+    shortcutCopyGeneration++;
+    shortcutCopyState = 'idle';
+  });
   let showUndoHistory = $state(false);
 
   // Mobile (< md): BuildPanel becomes an off-canvas drawer toggled by the Tools FAB.
@@ -314,7 +321,10 @@
           <div class="flex items-center gap-2">
             <button
               class="text-xs px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 transition-colors flex items-center gap-1.5"
-              onclick={() => {
+              disabled={shortcutCopyState === 'copying'}
+              onclick={async () => {
+                const generation = ++shortcutCopyGeneration;
+                shortcutCopyState = 'copying';
                 const text = [
                   $t('shortcuts.title') + ' — Open3D Floorplan',
                   '',
@@ -361,7 +371,12 @@
                   $t('shortcuts.doubleClick') + ' ' + $t('shortcuts.finishWall'),
                   "C          " + $t('shortcuts.closeWall'),
                 ].join('\n');
-                navigator.clipboard.writeText(text);
+                try {
+                  await navigator.clipboard.writeText(text);
+                  if (generation === shortcutCopyGeneration) shortcutCopyState = 'copied';
+                } catch {
+                  if (generation === shortcutCopyGeneration) shortcutCopyState = 'failed';
+                }
               }}
               aria-label={$t('shortcuts.copyLabel')}
             >
@@ -461,6 +476,10 @@
             </div>
           </div>
         </div>
+
+        {#if shortcutCopyState !== 'idle'}
+          <p role="status" class="px-6 py-2 text-xs text-slate-600">{$t(`shortcuts.${shortcutCopyState}`)}</p>
+        {/if}
 
         <!-- Footer -->
         <div class="px-6 py-3 border-t border-gray-100 text-center">

@@ -1048,5 +1048,8 @@ export const en = {
   "viewerFurniture.close": "Close furniture picker",
   "viewerFurniture.fallback": "furniture",
   "viewerFurniture.hint": "🪑 Click floor to place {name} • ESC to cancel",
-  "viewerFurniture.paint": "🪣 Click walls to paint materials • ESC to close picker or exit"
+  "viewerFurniture.paint": "🪣 Click walls to paint materials • ESC to close picker or exit",
+  "shortcuts.copying": "Copying shortcuts…",
+  "shortcuts.copied": "Shortcuts copied.",
+  "shortcuts.failed": "Could not copy shortcuts. Try again."
 } as const;
