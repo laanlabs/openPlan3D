@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '$lib/i18n';
   import { onDestroy } from 'svelte';
   import { modalDialog } from '$lib/utils/modalDialog';
   import { prepareLibraryRestore, type LibraryRestorePreview, type RestoreResult } from '$lib/services/libraryRestore';
@@ -29,7 +30,7 @@
       source = raw;
       preview = prepareLibraryRestore(raw, file.name);
     } catch (reason) {
-      if (!lifetime.signal.aborted && request === readRequest) error = reason instanceof Error ? reason.message : 'Could not read this backup.';
+      if (!lifetime.signal.aborted && request === readRequest) error = reason instanceof Error ? reason.message : $t('restore.failedRead');
     } finally { if (request === readRequest) reading = false; }
   }
 
@@ -44,8 +45,8 @@
       await onrestored();
     } catch (reason) {
       if (!lifetime.signal.aborted) error = result
-        ? 'Restoration finished, but the project list could not refresh. Close this dialog and retry loading the library.'
-        : `${storageErrorMessage(reason)} Nothing from this restore was added. You can retry.`;
+        ? $t('restore.refreshFailed')
+        : `${storageErrorMessage(reason)} ${$t('restore.retry')}`;
     } finally { restoring = false; }
   }
 
@@ -63,55 +64,55 @@
   <div class="flex max-h-[85vh] flex-col text-gray-800">
     <div class="flex items-start justify-between gap-4 border-b border-gray-100 px-5 py-4">
       <div>
-        <h2 id="library-restore-title" class="text-lg font-semibold">Restore library backup</h2>
-        <p id="library-restore-description" class="mt-1 text-sm text-gray-500">Add restored copies to this browser. Your existing projects stay available.</p>
+        <h2 id="library-restore-title" class="text-lg font-semibold">{$t('restore.title')}</h2>
+        <p id="library-restore-description" class="mt-1 text-sm text-gray-500">{$t('restore.help')}</p>
       </div>
-      <button aria-label="Close restore" onclick={onclose} disabled={restoring} class="rounded px-2 py-1 text-gray-500 hover:bg-gray-100 disabled:opacity-40">✕</button>
+      <button aria-label={$t('restore.close')} onclick={onclose} disabled={restoring} class="rounded px-2 py-1 text-gray-500 hover:bg-gray-100 disabled:opacity-40">✕</button>
     </div>
 
     <div class="space-y-4 overflow-y-auto px-5 py-4">
       {#if result}
         <div role="status" class="rounded-lg bg-green-50 p-4 text-sm text-green-900">
-          <p class="font-semibold">{result.projects.length ? `${result.projects.length} project${result.projects.length === 1 ? '' : 's'} restored.` : 'Recovery data saved.'}</p>
-          {#if result.recoveryArchives}<p class="mt-1">Recovery data is included when you download a library backup.</p>{/if}
-          {#if result.projects.length}<p class="mt-1">Close this dialog to open a restored copy from the library.</p>{/if}
+          <p class="font-semibold">{result.projects.length ? $t(result.projects.length === 1 ? 'restore.savedOne' : 'restore.savedMany', { count: result.projects.length }) : $t('restore.saved')}</p>
+          {#if result.recoveryArchives}<p class="mt-1">{$t('restore.archiveHelp')}</p>{/if}
+          {#if result.projects.length}<p class="mt-1">{$t('restore.openHelp')}</p>{/if}
         </div>
       {:else}
         <input type="file" accept=".json,application/json" class="hidden" bind:this={input} onchange={selectFile} disabled={restoring} />
         <div class="flex flex-wrap items-center gap-3">
-          <button onclick={() => input?.click()} disabled={restoring} class="rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold hover:bg-gray-50 disabled:opacity-40">Choose backup file</button>
-          <p class="min-w-0 break-all text-sm text-gray-500">{filename || 'A current or older library JSON backup'}</p>
+          <button onclick={() => input?.click()} disabled={restoring} class="rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold hover:bg-gray-50 disabled:opacity-40">{$t('restore.choose')}</button>
+          <p class="min-w-0 break-all text-sm text-gray-500">{filename || $t('restore.fileHint')}</p>
         </div>
-        {#if reading}<p role="status" class="text-sm text-gray-500">Reading backup…</p>{/if}
+        {#if reading}<p role="status" class="text-sm text-gray-500">{$t('restore.reading')}</p>{/if}
         {#if preview}
-          <p class="text-sm font-semibold">{preview.projectCount} project{preview.projectCount === 1 ? '' : 's'} ready to restore</p>
+          <p class="text-sm font-semibold">{$t(preview.projectCount === 1 ? 'restore.readyOne' : 'restore.readyMany', { count: preview.projectCount })}</p>
           {#if preview.warnings.length}
             <div class="space-y-1 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
               {#each preview.warnings as warning}<p>{warning}</p>{/each}
             </div>
           {/if}
-          <ul class="space-y-2" aria-label="Backup projects">
+          <ul class="space-y-2" aria-label={$t('restore.projects')}>
             {#each preview.entries as entry}
               <li class="rounded-lg border border-gray-200 px-3 py-2">
                 <p class="break-words text-sm font-semibold">{entry.name}</p>
-                <p class="mt-0.5 text-xs text-gray-500">{entry.restorable ? `New copy · ${entry.versions} saved version${entry.versions === 1 ? '' : 's'}` : 'Recovery data only'}</p>
+                <p class="mt-0.5 text-xs text-gray-500">{entry.restorable ? $t(entry.versions === 1 ? 'restore.versionOne' : 'restore.versionMany', { count: entry.versions }) : $t('restore.recoveryOnly')}</p>
                 {#each entry.warnings as warning}<p class="mt-1 break-words text-xs text-amber-800">{warning}</p>{/each}
               </li>
             {/each}
           </ul>
-          {#if !preview.entries.length && !preview.recoveryArchives}<p class="text-sm text-gray-500">This backup is empty.</p>{/if}
+          {#if !preview.entries.length && !preview.recoveryArchives}<p class="text-sm text-gray-500">{$t('restore.empty')}</p>{/if}
         {/if}
       {/if}
       {#if error}<p role="alert" class="rounded-lg bg-red-50 p-3 text-sm text-red-900">{error}</p>{/if}
-      {#if source !== null}<button onclick={downloadSource} class="text-sm font-semibold text-blue-600 underline">Download original backup</button>{/if}
+      {#if source !== null}<button onclick={downloadSource} class="text-sm font-semibold text-blue-600 underline">{$t('restore.original')}</button>{/if}
     </div>
 
     <div class="flex flex-wrap justify-end gap-3 border-t border-gray-100 px-5 py-4">
-      <button onclick={onclose} disabled={restoring} class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold hover:bg-gray-50 disabled:opacity-40">{result ? 'Done' : 'Cancel'}</button>
+      <button onclick={onclose} disabled={restoring} class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold hover:bg-gray-50 disabled:opacity-40">{result ? $t('transfer.done') : $t('transfer.cancel')}</button>
       {#if !result}
         <button onclick={restore} disabled={reading || restoring || !preview || (!preview.projectCount && !preview.recoveryArchives)}
           class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-40">
-          {restoring ? 'Restoring…' : preview && !preview.projectCount && preview.recoveryArchives ? 'Keep recovery data' : 'Restore as copies'}
+          {restoring ? $t('restore.busy') : preview && !preview.projectCount && preview.recoveryArchives ? $t('restore.keep') : $t('restore.confirm')}
         </button>
       {/if}
     </div>

@@ -99,3 +99,23 @@ fixture includes the current door flipSide default to avoid confusing a legacy
 migration with the rename operation. Logs: `/tmp/web-library-localization-unit.log`,
 `/tmp/web-library-localization-check.log`, `/tmp/web-library-localization-build.log`
 and `/tmp/web-library-localization-browser-final.log`.
+
+## Restore and package dialogs
+
+Library restore and project-package dialogs now translate their controls, preview
+summaries, confirmation labels, completion states and dialog-owned recovery
+messages. Restore project/version counts distinguish singular and plural. Source
+names, filenames and original downloaded data remain unchanged. Service-produced
+validation, warning and storage diagnostics retain their original text and need a
+separate structured-message migration; this batch does not claim those are fully
+localized. File validation, cancellation, copy identities and atomic writes still
+use the existing services.
+
+Transfer validation: five localization unit tests pass, Svelte check has zero
+errors/warnings, and production build exits 0. Six Portuguese browser cases pass
+at 390 × 900 across Chromium, Firefox and WebKit (30.5 seconds). They verify no
+library mutation during preview, byte-identical original backup/package downloads,
+explicit confirmation before creating one copy, translated completion and removal
+of the repeat-import action. Logs: `/tmp/web-transfer-localization-unit.log`,
+`/tmp/web-transfer-localization-check.log`, `/tmp/web-transfer-localization-build.log`
+and `/tmp/web-transfer-localization-browser.log`.
