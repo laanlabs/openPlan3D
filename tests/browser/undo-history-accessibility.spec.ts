@@ -28,7 +28,43 @@ for (const language of ['en', 'pt'] as const) test(`${language}: named undo hist
   await expect(history.locator('[aria-current="step"]')).toHaveText(language === 'en' ? /Current state/ : /Estado atual/);
   const action = history.getByRole('button', { name: language === 'en' ? /Added floor/ : /Pavimento adicionado/ });
   await expect(action).toBeVisible();
-  await action.click();
+  for (const dark of [false, true]) {
+    await page.evaluate(dark => document.documentElement.classList.toggle('dark', dark), dark);
+    // Measure the settled theme rather than an intermediate transition color.
+    await history.evaluate(async region => {
+      await Promise.all(region.getAnimations({ subtree: true }).map(animation => animation.finished.catch(() => {})));
+    });
+    const contrast = await history.evaluate(region => {
+      const ctx = document.createElement('canvas').getContext('2d', { willReadFrequently: true })!;
+      function rgb(color: string) {
+        ctx.clearRect(0, 0, 1, 1);
+        ctx.fillStyle = color;
+        ctx.fillRect(0, 0, 1, 1);
+        return Array.from(ctx.getImageData(0, 0, 1, 1).data);
+      }
+      function luminance(color: number[]) {
+        const linear = color.slice(0, 3).map(c => c / 255).map(c => c <= .04045 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4);
+        return linear[0] * .2126 + linear[1] * .7152 + linear[2] * .0722;
+      }
+      return Array.from(region.querySelectorAll('span, time, button')).filter(el => el.children.length === 0 && el.textContent?.trim()).map(el => {
+        let parent: Element | null = el;
+        let background = [255, 255, 255, 255];
+        while (parent) {
+          const candidate = rgb(getComputedStyle(parent).backgroundColor);
+          if (candidate[3] === 255) { background = candidate; break; }
+          parent = parent.parentElement;
+        }
+        const foreground = luminance(rgb(getComputedStyle(el).color));
+        const back = luminance(background);
+        return { text: el.textContent, ratio: (Math.max(foreground, back) + .05) / (Math.min(foreground, back) + .05) };
+      });
+    });
+    expect(contrast.length).toBeGreaterThan(4);
+    for (const item of contrast) expect(item.ratio, `${dark ? 'dark' : 'light'}: ${item.text}`).toBeGreaterThanOrEqual(4.5);
+  }
+  await action.focus();
+  await expect(action).toBeFocused();
+  await action.press('Enter');
   expect((await exported()).floors).toEqual(before.floors);
   await history.getByRole('button', { name: language === 'en' ? 'Close history' : 'Fechar histórico', exact: true }).click();
   await expect(history).toHaveCount(0);

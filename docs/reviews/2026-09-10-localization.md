@@ -2541,6 +2541,16 @@ unit/browser run. Actual screen-reader use, visual contrast review, action-label
 translation and broader NEXT.md gates remain open.
 # Undo action descriptions — September 11 checkpoint
 
+Follow-up: Undo History metadata uses darker text, the selected current-state
+text has a dark-theme color, and buttons have explicit focus outlines. Check
+(zero diagnostics), build and six English/Portuguese Chromium/Firefox/WebKit
+cases pass (1.7 minutes). Browser checks measure populated-panel text at >=4.5:1
+in both settled themes and use Enter to restore the floor change with exact
+export comparison. An initial Portuguese Chromium measurement sampled a color
+transition; tests now await active animations before measuring, with no relaxed
+contrast threshold. Empty-state/mobile and physical accessibility review remain
+open; this is not full interface or assistive-technology qualification.
+
 Added display-only English/Portuguese translations for 33 recognized built-in
 Undo History descriptions. Unknown text passes through unchanged; stored history
 is not rewritten. Six focused unit tests pass, Svelte check reports zero errors

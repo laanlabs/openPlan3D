@@ -1,5 +1,16 @@
 # Next work and pause handoff
 
+## Undo History contrast — September 11 checkpoint
+
+Darkened faint history metadata and added a readable dark-theme current-state
+color and explicit keyboard focus outlines. All six English/Portuguese browser
+cases pass across Chromium, Firefox and WebKit (1.7 minutes). They measure at
+least 4.5:1 for populated-panel text in settled light/dark themes and activate
+the floor-history action with Enter, preserving exact exported floor restoration.
+Check reports zero diagnostics and production build passes. This covers the
+populated desktop panel; empty-state, phone and physical assistive-technology
+qualification and the wider NEXT backlog remain open.
+
 ## Undo action descriptions — September 11 checkpoint
 
 Undo History now translates 33 recognized built-in descriptions for English and
