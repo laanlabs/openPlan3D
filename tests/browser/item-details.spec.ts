@@ -67,6 +67,14 @@ for (const width of [1440, 390]) test(`field keyboard editing cannot select or p
       await expect(input).toHaveValue(value);
     }
   }
+  // WebKit can coalesce native edits across different form controls, including
+  // invalid numeric drafts. Start the clipboard/history check with fresh native
+  // history after independently verifying that the numeric edit was persisted.
+  await page.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect.poll(async () => (await savedProjects(page))[original.id]?.floors[0].furniture[0].width)
+    .toBe(78.125);
+  await page.reload(); await selectFurniture(page);
+  await expect(itemWidth).toHaveValue('78.125');
   // Seed the canvas clipboard with furniture before using the text clipboard.
   await page.getByRole('button', { name: 'Save', exact: true }).press('ControlOrMeta+c');
   const notes = page.getByRole('textbox', { name: 'Item notes', exact: true });
@@ -76,9 +84,18 @@ for (const width of [1440, 390]) test(`field keyboard editing cannot select or p
   await notes.press('ControlOrMeta+a'); await notes.press('ControlOrMeta+c');
   await notes.press('ArrowRight'); await notes.press('Enter'); await notes.press('ControlOrMeta+v');
   await expect(notes).toHaveValue('Soft green fabric chair\nSoft green fabric chair');
+  await notes.evaluate(element => element.addEventListener('input', event => {
+    element.setAttribute('data-last-input-type', (event as InputEvent).inputType);
+  }));
   await notes.press('ControlOrMeta+z');
-  await expect(notes).toHaveValue('Soft green fabric chair\n');
+  // Engines group typing, newlines and pastes differently. Require native field
+  // history, rather than a specific engine's intermediate undo boundary.
+  await expect(notes).toHaveAttribute('data-last-input-type', 'historyUndo');
+  await expect(notes).not.toHaveValue('Soft green fabric chair\nSoft green fabric chair');
   await expect(itemWidth).toHaveValue('78.125');
+  await notes.press('ControlOrMeta+Shift+z');
+  await expect(notes).toHaveAttribute('data-last-input-type', 'historyRedo');
+  await expect(notes).toHaveValue('Soft green fabric chair\nSoft green fabric chair');
   await notes.press('ControlOrMeta+a'); await notes.press('Backspace');
   await notes.pressSequentially('Soft green fabric chair');
   await notes.press('Tab');

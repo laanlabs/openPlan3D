@@ -2063,3 +2063,29 @@ Logs: `/tmp/web-project-service-messages-full-unit.log` and
 `/tmp/web-project-service-messages-serial-unit.log`.
 The production build and browser checks for the new translation batch remain
 pending while the original WebKit audit runs.
+
+### 2026-09-11: Native form-history boundaries in keyboard qualification
+
+The seventh audit passed 577 cases in 52.8 minutes before WebKit's item-notes
+test expected Undo to remove only its paste. Chromium/Firefox did so, but a plain
+textarea showed WebKit grouping the newline differently. Adding the same prior
+numeric typing and rejected drafts to a plain HTML form reproduced the exact
+application result: the initial note returned and the width draft became blank.
+This reproduction had no application scripts or keyboard handlers.
+
+The test now saves and verifies the numeric edit, reloads, and then independently
+tests clipboard/history behavior with fresh native form history. It asserts
+native input historyUndo/historyRedo events and exact pasted-text restoration,
+retains the width assertion, and retains full saved floors/settings comparisons.
+All six cases pass across three engines (3.7 minutes) against the unchanged
+`78d3ad0` production runtime. No editor runtime fix was made for this finding.
+
+The first diagnostic follow-up passed four cases but reproduced WebKit's grouped
+numeric draft undo in both widths. Logs:
+`/tmp/web-full-browser-audit-7.log`,
+`/tmp/web-item-notes-native-history-browser.log`, and
+`/tmp/web-item-notes-isolated-history-browser.log`.
+The seventh audit is terminal. Including its passes and the successful follow-up
+gives 846 distinct cases in the original 1,050-case inventory, leaving 204.
+The translation build/qualification is now the next batch; preserve the distinction
+between the old runtime audit and the new source's six additional recovery cases.

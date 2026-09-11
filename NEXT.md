@@ -163,6 +163,14 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+The seventh audit stopped after 577 additional passes on WebKit's native form
+Undo grouping. A plain HTML form reproduces its grouped note/numeric-draft Undo.
+The keyboard regression now saves/verifies/reloads numeric edits before testing
+native text history, explicitly checks historyUndo/historyRedo and exact Redo
+text, and retains the final geometry/save/reload assertions. All six desktop/
+phone cases pass across three engines (3.7 minutes). Accumulated original-audit
+coverage is 846 of 1,050 cases; 204 remain. The seventh run is finished.
+
 Known project-opening and storage diagnostics now translate at display time in
 the import alert, save banner, library actions and editor load recovery. English
 service diagnostics and unknown detail strings remain intact. Four focused unit
