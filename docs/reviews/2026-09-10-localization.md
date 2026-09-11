@@ -1127,3 +1127,19 @@ data. Logs: `/tmp/web-elevation-labels-check.log`,
 `/tmp/web-elevation-labels-build.log`, `/tmp/web-elevation-labels-unit.log`,
 `/tmp/web-elevation-labels-browser.log`. This navigation test does not qualify
 opening drag interactions or physical touch; remaining NEXT scope stays open.
+
+## Elevation teardown closes drag undo groups
+
+At `155bb92`, a browser regression reproduced dragging a window then pressing
+Escape before pointer release: the window moved, but Undo did not restore it.
+Elevation teardown now finalizes its pending drag through the same handler used
+for pointer release, closing the undo group when the canvas disappears.
+Production check reports zero errors/warnings and build passes. Three browser
+cases pass (41.3 seconds, exit 0), verifying horizontal/sill movement, preserved
+window dimensions, and exact whole-floor Undo/Redo restoration. Pointer movement
+allows one screen pixel of rounding (Firefox produced a 19cm rather than 20cm
+rise); saved-data restoration assertions remain exact.
+Logs: `/tmp/web-elevation-drag-repro.log`, `/tmp/web-elevation-drag-check.log`,
+`/tmp/web-elevation-drag-build.log`, `/tmp/web-elevation-drag-browser-final.log`.
+This covers desktop Escape during a window drag, not all gesture exits or physical
+touch. Remaining NEXT requirements stay open.

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { t } from '$lib/i18n';
+  import { onDestroy } from 'svelte';
   import { hasOpenModal } from '$lib/utils/modalDialog';
   /**
    * ElevationView — integrated face-on view + editor for a single wall.
@@ -283,16 +284,19 @@
     hoverOpeningId = p ? (hitOpening(p.x, p.y)?.id ?? null) : null;
   }
 
-  function endDrag(e: PointerEvent) {
+  function endDrag(e?: PointerEvent) {
     if (drag) {
       if (drag.grouped) {
         endUndoGroup(drag.kind === 'door' ? 'Moved door (elevation)' : 'Moved window (elevation)');
       }
       drag = null;
       dragging = false;
-      try { canvas?.releasePointerCapture(e.pointerId); } catch { /* already released */ }
+      try { if (e) canvas?.releasePointerCapture(e.pointerId); } catch { /* already released */ }
     }
   }
+
+  // Closing elevation can remove the canvas before pointerup is delivered.
+  onDestroy(() => endDrag());
 
   let cursor = $derived(dragging ? 'grabbing' : hoverOpeningId ? 'move' : 'default');
 

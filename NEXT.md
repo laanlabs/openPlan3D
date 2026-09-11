@@ -3415,3 +3415,11 @@ elevation canvas for accessibility. Check/build, five localization unit tests
 and three browser cases pass (51.3 seconds), covering navigation, wraparound and
 Escape with unchanged exported floor data. Opening drag/device qualification and
 the remaining localization/release work remain open.
+
+### Preserve undo when leaving elevation mid-drag — 2026-09-11
+
+Reproduced a moved window remaining changed after Undo when Escape interrupted
+its elevation drag. View teardown now closes the pending drag's undo group.
+Production check/build and three browser cases pass (41.3 seconds), checking
+position/sill changes, retained dimensions and exact whole-floor Undo/Redo.
+Other gesture exits, physical-device and remaining release work stay open.
