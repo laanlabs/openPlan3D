@@ -2900,3 +2900,12 @@ open. Five localization unit tests, zero-warning Svelte check and production bui
 pass. Twelve Portuguese alignment cases pass at desktop/phone widths across all
 three engines, verifying scaled/rotated geometry, locked items, Undo and Redo.
 See the localization record for the exact coverage limits.
+
+### Command palette localization — 2026-09-10
+
+Translated command/action names, categories, search labels and keyboard hints;
+search accepts queries without Portuguese accents. Five localization unit tests,
+zero-warning Svelte check and production build pass. Three browser cases pass
+across all engines, verifying searches, Settings/tool/grid execution after modal
+closure and focus restoration. Catalog names/categories and wider editor controls
+remain open. See the localization record.

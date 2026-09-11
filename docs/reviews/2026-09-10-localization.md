@@ -140,3 +140,23 @@ Logs: `/tmp/web-editor-controls-localization-unit.log`,
 `/tmp/web-editor-controls-localization-check.log`,
 `/tmp/web-editor-controls-localization-build.log` and
 `/tmp/web-editor-controls-localization-browser.log`.
+
+## Command palette migration
+
+Tool/action names, categories, search labels and keyboard hints now follow the
+selected language. Reactive item lists update the displayed and searchable names.
+Search normalizes combining accents, so `configuracoes` finds `Configurações` and
+`acao` finds the action category. Execution still closes the modal before sending
+editor commands. Catalog furniture names/categories remain the original catalog
+text pending catalog localization; their identifiers and placement actions are
+unchanged.
+
+Palette validation: five localization unit tests pass, Svelte check has zero
+errors/warnings and production build exits 0. Three Portuguese browser cases pass
+across Chromium, Firefox and WebKit (24.6 seconds), exercising accent-free name
+and category searches, no-result active-descendant clearing, Enter execution into
+Settings and wall mode, grid dispatch after closing, and Escape focus restoration.
+The initial test's unscoped option selector matched the floor dropdown; the final
+assertion targets the command listbox. Logs: `/tmp/web-palette-localization-unit.log`,
+`/tmp/web-palette-localization-check.log`, `/tmp/web-palette-localization-build.log`
+and `/tmp/web-palette-localization-browser-final.log`.
