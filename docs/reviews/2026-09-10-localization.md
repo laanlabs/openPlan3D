@@ -671,3 +671,19 @@ ID/55cm width and undo removal. Upload behavior and other symbol placements are
 not newly qualified by this run. Logs: `/tmp/web-entourage-labels-unit.log`,
 `/tmp/web-entourage-labels-check.log`, `/tmp/web-entourage-labels-build.log`,
 `/tmp/web-entourage-labels-browser.log`.
+
+## Symbol-upload error recovery
+
+Corrected the upload caption to list PNG/JPEG/WebP, matching the existing accepted
+types. Added reader/decode error handlers and translated inline alert state; the
+existing 2MB size rejection now uses the same alert instead of a blocking browser
+alert. Choosing another file clears the previous error.
+
+Five localization unit tests, zero-warning Svelte check and production build pass.
+Three browser cases pass across all engines (41.8 seconds), rejecting corrupt and
+oversized PNG inputs, retaining prior floor/custom-definition data on failure,
+and successfully retrying with exact original PNG bytes and literal-brace name.
+Reader hardware failures, JPEG/WebP round trips and physical devices are not
+newly qualified by this focused run. Logs: `/tmp/web-symbol-upload-unit.log`,
+`/tmp/web-symbol-upload-check.log`, `/tmp/web-symbol-upload-build.log`,
+`/tmp/web-symbol-upload-browser.log`.

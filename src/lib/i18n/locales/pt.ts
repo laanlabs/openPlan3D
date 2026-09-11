@@ -618,7 +618,7 @@ export const pt = {
   "entourageLabels.planting": "Vegetação",
   "entourageLabels.outdoor": "Área externa",
   "entourageLabels.custom": "Personalizados",
-  "entourageLabels.upload": "Enviar símbolo PNG",
+  "entourageLabels.upload": "Enviar símbolo (PNG, JPEG, WebP)",
   "entourageLabels.tooLarge": "Imagem muito grande (máximo de 2 MB)",
   "entourageLabels.placeHint": "{name} ({width} cm) — clique na planta para posicionar; Shift+clique para inserir vários",
   "entourageLabels.item.person": "Pessoa",
@@ -632,5 +632,7 @@ export const pt = {
   "entourageLabels.item.hedge": "Cerca viva",
   "entourageLabels.item.potted-plant": "Planta em vaso",
   "entourageLabels.item.grass-tuft": "Grama",
-  "entourageLabels.item.patio-umbrella": "Ombrelone"
+  "entourageLabels.item.patio-umbrella": "Ombrelone",
+  "entourageLabels.readFailed": "Não foi possível ler esta imagem. Escolha o arquivo novamente.",
+  "entourageLabels.invalid": "Não foi possível abrir esta imagem. Escolha um arquivo PNG, JPEG ou WebP válido."
 } as const;

@@ -170,16 +170,21 @@
     setTool('select');
   }
 
+  let symbolUploadError = $state<'tooLarge' | 'readFailed' | 'invalid' | null>(null);
+
   function onEntourageUpload(e: Event) {
     const input = e.target as HTMLInputElement;
     const file = input.files?.[0];
     input.value = '';
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) { alert($t('entourageLabels.tooLarge')); return; }
+    symbolUploadError = null;
+    if (file.size > 2 * 1024 * 1024) { symbolUploadError = 'tooLarge'; return; }
     const reader = new FileReader();
+    reader.onerror = () => { symbolUploadError = 'readFailed'; };
     reader.onload = () => {
       const dataUrl = reader.result as string;
       const img = new Image();
+      img.onerror = () => { symbolUploadError = 'invalid'; };
       img.onload = () => {
         const aspect = img.naturalHeight / img.naturalWidth || 1;
         const id = addCustomEntourage(file.name.replace(/\.[^.]+$/, ''), dataUrl, aspect);
@@ -740,6 +745,7 @@
             class="w-full py-1.5 border border-dashed border-gray-300 rounded-lg text-xs text-gray-500 hover:border-blue-300 hover:text-blue-600 transition-colors"
             onclick={() => entourageFileInput?.click()}
           >+ {$t('entourageLabels.upload')}</button>
+          {#if symbolUploadError}<p role="alert" class="text-xs text-red-700">{$t(`entourageLabels.${symbolUploadError}`)}</p>{/if}
           <input type="file" accept="image/png,image/jpeg,image/webp" class="hidden" bind:this={entourageFileInput} onchange={onEntourageUpload} />
         </div>
       </div>

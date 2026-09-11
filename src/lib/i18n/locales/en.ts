@@ -618,7 +618,7 @@ export const en = {
   "entourageLabels.planting": "Planting",
   "entourageLabels.outdoor": "Outdoor",
   "entourageLabels.custom": "Custom",
-  "entourageLabels.upload": "Upload PNG symbol",
+  "entourageLabels.upload": "Upload symbol (PNG, JPEG, WebP)",
   "entourageLabels.tooLarge": "Image too large (max 2 MB)",
   "entourageLabels.placeHint": "{name} ({width} cm) — click canvas to place, Shift-click to stamp several",
   "entourageLabels.item.person": "Person",
@@ -632,5 +632,7 @@ export const en = {
   "entourageLabels.item.hedge": "Hedge",
   "entourageLabels.item.potted-plant": "Potted Plant",
   "entourageLabels.item.grass-tuft": "Grass",
-  "entourageLabels.item.patio-umbrella": "Patio Umbrella"
+  "entourageLabels.item.patio-umbrella": "Patio Umbrella",
+  "entourageLabels.readFailed": "Could not read this image. Choose the file again.",
+  "entourageLabels.invalid": "Could not open this image. Choose a valid PNG, JPEG or WebP file."
 } as const;
