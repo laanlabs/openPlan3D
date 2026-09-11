@@ -18,7 +18,7 @@ test('Portuguese print controls preserve paper, scale validation and PDF export'
   const chooser = page.waitForEvent('filechooser');
   await page.getByRole('button', { name: /^(?:Import\ JSON|Importar\ JSON)$/, exact: true }).click();
   await (await chooser).setFiles('tests/fixtures/connected-dimensions.openplan.json');
-  await expect(page.getByRole('application')).toContainText('1 room');
+  await expect(page.getByRole('application')).toContainText('1 ambiente');
   await page.getByRole('button', { name: /^(?:Export|Exportar)$/, exact: true }).click();
   await page.getByRole('button', { name: 'Layout de impressão', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'Prévia de impressão', exact: true });

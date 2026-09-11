@@ -163,6 +163,13 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+Browser audit at `1dfd862`: another 48 Chromium cases passed before the Portuguese
+print test expected the obsolete English room count. Its expectation now matches
+the Portuguese UI. All three print cases pass (34.2 seconds), retaining paper
+ratio, scale rejection, PDF content and translated print-caption checks. No runtime
+code changed. Accumulated qualification covers 267 distinct cases; full browser
+qualification remains unfinished.
+
 Browser audit at `b9452d0`: the phone group-drag case targeted a stair covered by
 the Properties sheet. It now uses Fit selection and asserts the drag starts on
 the canvas. All six desktop/phone-width group cases pass across three engines

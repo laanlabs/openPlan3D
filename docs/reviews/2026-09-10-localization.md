@@ -1975,3 +1975,16 @@ All six desktop/phone-width cases pass across Chromium, Firefox and WebKit
 216 distinct cases out of 1,050; full qualification remains unfinished.
 Logs: `/tmp/web-full-browser-audit-5.log`, `/tmp/web-group-visible-drag-browser.log`.
 The exclusion list still has 210 entries; add these logs before resuming.
+
+### 2026-09-11: Portuguese count in print qualification
+
+The sixth audit run excluded 216 verified cases and passed 48 more Chromium
+cases. The Portuguese print test then expected 1 room although the canvas now
+correctly displays 1 ambiente. Updating that expectation lets the existing paper
+ratio, invalid-scale blocking, PDF bytes/room schedule, translated captions and
+dialog-close checks run. All three engines pass (34.2 seconds).
+
+No runtime code changed. Accumulated audit/follow-up coverage is 267 distinct
+cases out of 1,050; full qualification remains unfinished.
+Logs: `/tmp/web-full-browser-audit-6.log`, `/tmp/web-print-count-localization-browser.log`.
+The exclusion list still has 216 entries; add these logs before resuming.
