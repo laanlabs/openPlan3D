@@ -58,3 +58,24 @@ No real provider call is made. Logs: `/tmp/web-localization-nested-unit.log`,
 `/tmp/web-localization-nested-chromium-final.log`, and
 `/tmp/web-localization-nested-webkit-final.log`. Initial browser failures were test
 interaction issues; they are retained in the earlier logs, not reported as passes.
+
+## Welcome and onboarding migration
+
+The welcome card, four-step quick tour, template cards, library/package entry
+labels, import-error controls and contextual onboarding tips now use reactive
+translations. Existing community welcome strings were reused and current controls
+were added. Template display labels are mapped separately from factories: project
+names, floor names, geometry and IDs are not translated or rewritten. Unknown
+template labels fall back to their supplied text. Raw parser/import diagnostics
+remain available; the welcome fallback messages and no-import notice are localized.
+The library page, package/restore dialogs, and wider editor remain separate work.
+
+Welcome validation: five dictionary/preference unit tests pass, Svelte check has
+zero errors/warnings, and production build exits 0. Six browser cases pass across
+Chromium, Firefox and WebKit at 390 × 900 (34.8 seconds, exit 0). They cover invalid
+JSON recovery, translated template selection, actual JSON export with unchanged
+project/floor names and nonempty geometry, and tour completion/dismissal after
+reload. Logs: `/tmp/web-welcome-localization-unit.log`,
+`/tmp/web-welcome-localization-check.log`, `/tmp/web-welcome-localization-build.log`
+and `/tmp/web-welcome-localization-browser.log`. Contextual tooltip translations
+are type checked; this batch does not claim a new interactive tooltip/device run.

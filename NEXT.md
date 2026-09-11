@@ -2862,3 +2862,13 @@ Svelte check and production build pass. Language switching and Portuguese
 floor/provider interactions are verified across all three engines, with native
 model suggestions committed before the next button action. Broader localization
 and diagnostic-message translation remain open. See the localization record.
+
+### Welcome and onboarding localization — 2026-09-10
+
+Translated the welcome flow, quick tour, template display labels, import-error
+controls and contextual tips. Template factories and generated data retain their
+original identifiers/names. Five localization unit tests, zero-warning Svelte
+check and production build pass. Six Portuguese browser cases pass across all
+three engines at 390 × 900, including bad-import recovery, template export and
+tour dismissal persistence. Library/package dialogs, wider editor translation
+and fluent-speaker/device review remain open. See the localization record.
