@@ -3116,3 +3116,11 @@ save/reopen/download equality for literal-brace text. All six desktop browser
 cases pass across three engines (24.4 seconds), including field focus and context
 menu bounds. Room/dimension inline editing and phone qualification remain separate
 work. Runtime source is unchanged from `102537f`.
+
+### Build-panel primary tool localization — 2026-09-10
+
+Translated panel tabs, primary tool/help text and import entry captions. Five unit
+tests, zero-warning check, production build and six browser cases pass (26.1
+seconds), selecting the translated wall tool through desktop/phone UI and verifying
+its exported wall. Catalogs, remaining room/object content, import dialogs and
+physical-device qualification stay open.

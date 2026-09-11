@@ -7,7 +7,7 @@ for (const recent of [false, true]) test(`favorites support keyboard without sta
     if (recent) localStorage.setItem('o3d_recent_furniture', JSON.stringify(['sofa']));
   }, recent);
   await page.goto('/editor');
-  await page.getByRole('button', { name: 'Objects', exact: true }).click();
+  await page.getByRole('button', { name: /^(?:Objects|Objetos)$/, exact: true }).click();
   const canvas = page.getByLabel('Floor plan editor canvas', { exact: true });
   const favorite = page.getByRole('button', { name: 'Add Sofa to favorites', exact: true }).first();
   await canvas.focus(); await page.keyboard.down('Space');

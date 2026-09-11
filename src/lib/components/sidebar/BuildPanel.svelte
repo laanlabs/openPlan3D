@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '$lib/i18n';
   import { modalDialog } from '$lib/utils/modalDialog';
   import { openProject } from '$lib/services/projectOpening';
   import ImportError from '$lib/components/ImportError.svelte';
@@ -344,21 +345,21 @@
     <button
       class="flex-1 py-2.5 text-xs font-semibold uppercase tracking-wide {activeTab === 'draw' ? 'text-slate-800 border-b-2 border-blue-500 bg-blue-50' : 'text-gray-500 hover:text-gray-700'}"
       onclick={() => activeTab = 'draw'}
-    >Build</button>
+    >{$t('buildTools.build')}</button>
     <button
       class="flex-1 py-2.5 text-xs font-semibold uppercase tracking-wide {activeTab === 'rooms' ? 'text-slate-800 border-b-2 border-blue-500 bg-blue-50' : 'text-gray-500 hover:text-gray-700'}"
       onclick={() => activeTab = 'rooms'}
-    >Rooms</button>
+    >{$t('buildTools.rooms')}</button>
     <button
       class="flex-1 py-2.5 text-xs font-semibold uppercase tracking-wide {activeTab === 'objects' ? 'text-slate-800 border-b-2 border-blue-500 bg-blue-50' : 'text-gray-500 hover:text-gray-700'}"
       onclick={() => activeTab = 'objects'}
-    >Objects</button>
+    >{$t('buildTools.objects')}</button>
   </div>
 
   <div class="flex-1 overflow-y-auto p-3">
     {#if activeTab === 'draw'}
       <div class="space-y-1">
-        <h3 class="text-xs font-semibold text-gray-400 uppercase mb-2">Tools</h3>
+        <h3 class="text-xs font-semibold text-gray-400 uppercase mb-2">{$t('buildTools.tools')}</h3>
         <button
           class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors {currentTool === 'select' ? 'bg-blue-50 text-slate-800 ring-1 ring-blue-200' : 'hover:bg-gray-50 text-gray-700'}"
           onclick={() => setTool('select')}
@@ -367,8 +368,8 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg>
           </div>
           <div class="text-left">
-            <div class="font-medium">Select <span class="text-gray-400 text-xs ml-1">V</span></div>
-            <div class="text-xs text-gray-400">Click to select elements</div>
+            <div class="font-medium">{$t('buildTools.select')} <span class="text-gray-400 text-xs ml-1">V</span></div>
+            <div class="text-xs text-gray-400">{$t('buildTools.selectHelp')}</div>
           </div>
         </button>
         <button
@@ -379,12 +380,12 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="8" rx="1"/><line x1="7" y1="8" x2="7" y2="16"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="17" y1="8" x2="17" y2="16"/></svg>
           </div>
           <div class="text-left">
-            <div class="font-medium">Draw Wall <span class="text-gray-400 text-xs ml-1">W</span></div>
-            <div class="text-xs text-gray-400">Click to draw, dbl-click to finish</div>
+            <div class="font-medium">{$t('buildTools.wall')} <span class="text-gray-400 text-xs ml-1">W</span></div>
+            <div class="text-xs text-gray-400">{$t('buildTools.wallHelp')}</div>
           </div>
         </button>
 
-        <h3 class="text-xs font-semibold text-gray-400 uppercase mb-2 mt-3">Structure</h3>
+        <h3 class="text-xs font-semibold text-gray-400 uppercase mb-2 mt-3">{$t('buildTools.structure')}</h3>
         <button
           class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors {isPlacingStair ? 'bg-blue-50 text-slate-800 ring-1 ring-blue-200' : 'hover:bg-gray-50 text-gray-700'}"
           onclick={onPlaceStair}
@@ -393,8 +394,8 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 5h-5V2h-3v6h-4V5H7v6H2v3h5v3h3v-3h4v3h3v-6h5z"/></svg>
           </div>
           <div class="text-left">
-            <div class="font-medium">Add Stairs</div>
-            <div class="text-xs text-gray-400">Click to place stairs</div>
+            <div class="font-medium">{$t('buildTools.stairs')}</div>
+            <div class="text-xs text-gray-400">{$t('buildTools.stairsHelp')}</div>
           </div>
         </button>
 
@@ -407,7 +408,7 @@
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="6"/><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
             </div>
             <div class="text-left">
-              <div class="font-medium text-xs">Round Column</div>
+              <div class="font-medium text-xs">{$t('buildTools.round')}</div>
             </div>
           </button>
           <button
@@ -418,12 +419,12 @@
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="6" width="12" height="12"/><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
             </div>
             <div class="text-left">
-              <div class="font-medium text-xs">Square Column</div>
+              <div class="font-medium text-xs">{$t('buildTools.square')}</div>
             </div>
           </button>
         </div>
 
-        <h3 class="text-xs font-semibold text-gray-400 uppercase mb-2 mt-3">Annotate</h3>
+        <h3 class="text-xs font-semibold text-gray-400 uppercase mb-2 mt-3">{$t('buildTools.annotate')}</h3>
         <button
           class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors {currentTool === 'text' ? 'bg-blue-50 text-slate-800 ring-1 ring-blue-200' : 'hover:bg-gray-50 text-gray-700'}"
           onclick={() => setTool('text')}
@@ -432,8 +433,8 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><line x1="12" y1="4" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/></svg>
           </div>
           <div class="text-left">
-            <div class="font-medium">Text Label</div>
-            <div class="text-xs text-gray-400">Add text annotations (T)</div>
+            <div class="font-medium">{$t('buildTools.text')}</div>
+            <div class="text-xs text-gray-400">{$t('buildTools.textHelp')}</div>
           </div>
         </button>
 
@@ -445,8 +446,8 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><line x1="16" y1="5" x2="22" y2="5"/><line x1="19" y1="2" x2="19" y2="8"/><line x1="3" y1="12" x2="12" y2="12"/></svg>
           </div>
           <div class="text-left">
-            <div class="font-medium">Dimension</div>
-            <div class="text-xs text-gray-400">Add dimension annotations (N)</div>
+            <div class="font-medium">{$t('buildTools.dimension')}</div>
+            <div class="text-xs text-gray-400">{$t('buildTools.dimensionHelp')}</div>
           </div>
         </button>
         <button
@@ -457,12 +458,12 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h5l2-7 4 14 2-7h7"/></svg>
           </div>
           <div class="text-left">
-            <div class="font-medium">Measure</div>
-            <div class="text-xs text-gray-400">Measure distances (M)</div>
+            <div class="font-medium">{$t('buildTools.measure')}</div>
+            <div class="text-xs text-gray-400">{$t('buildTools.measureHelp')}</div>
           </div>
         </button>
 
-        <h3 class="text-xs font-semibold text-gray-400 uppercase mb-2 mt-3">Import</h3>
+        <h3 class="text-xs font-semibold text-gray-400 uppercase mb-2 mt-3">{$t('buildTools.import')}</h3>
         <button
           class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-gray-50 text-gray-700"
           onclick={onImportImage}
@@ -471,8 +472,8 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
           </div>
           <div class="text-left">
-            <div class="font-medium">Import Image</div>
-            <div class="text-xs text-gray-400">Floor plan background</div>
+            <div class="font-medium">{$t('buildTools.image')}</div>
+            <div class="text-xs text-gray-400">{$t('buildTools.imageHelp')}</div>
           </div>
         </button>
         <button
@@ -483,8 +484,8 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           </div>
           <div class="text-left">
-            <div class="font-medium">Import RoomPlan</div>
-            <div class="text-xs text-gray-400">iOS LiDAR scan (.json/.zip)</div>
+            <div class="font-medium">{$t('buildTools.roomplan')}</div>
+            <div class="text-xs text-gray-400">{$t('buildTools.roomplanHelp')}</div>
           </div>
         </button>
 

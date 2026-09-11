@@ -535,3 +535,21 @@ from `102537f`. Log: `/tmp/web-inline-text-integration.log`. This adds behaviora
 evidence for the translated inline annotation field, without claiming phone
 editing, room-name editing or dimension-label editing coverage. No runtime code
 changed in this verification batch.
+
+## Build tabs and primary tools
+
+Translated the Build/Rooms/Objects tabs, primary drawing/selection, structural and
+annotation tools, help text and import entry captions. Tool identifiers, placement
+and import handlers remain unchanged. Door/window catalogs, room/object content
+and import dialogs still need their remaining strings migrated.
+
+Five localization unit tests, zero-warning Svelte check and production build pass.
+Six browser cases pass across all engines at 1440px/390px (26.1 seconds), checking
+translated tabs and drawing a real wall by selecting the translated tool. Phone
+cases open the tools drawer and wait for its existing automatic dismissal after
+selection. An initial test incorrectly clicked outside after the drawer had
+automatically closed, starting an extra wall in Firefox; removing that redundant
+click fixed the test without changing production drawer behavior. Other tool
+operations are not newly qualified by this run. Logs:
+`/tmp/web-build-tools-unit.log`, `/tmp/web-build-tools-check.log`,
+`/tmp/web-build-tools-build.log`, `/tmp/web-build-tools-browser-final.log`.

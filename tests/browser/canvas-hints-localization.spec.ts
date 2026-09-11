@@ -19,7 +19,11 @@ for (const width of [1440, 390]) test(`Portuguese canvas hints guide drawing and
   await expect(pick).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(pick).toHaveCount(0);
-  await page.getByRole('button', { name: 'Salvar', exact: true }).press('w');
+  if (width < 768) await page.getByRole('button', { name: 'Toggle tools panel', exact: true }).click();
+  for (const label of ['Construir', 'Ambientes', 'Objetos']) await expect(page.getByRole('button', { name: label, exact: true })).toBeVisible();
+  await page.getByRole('button', { name: /^Desenhar parede W/ }).click();
+  if (width < 768) await expect(page.getByRole('button', { name: /^Desenhar parede W/ })).not.toBeInViewport();
+
   const canvas = page.getByLabel('Floor plan editor canvas', { exact: true });
   const box = (await canvas.boundingBox())!;
   await page.mouse.click(box.x + box.width * .3, box.y + box.height * .3);
