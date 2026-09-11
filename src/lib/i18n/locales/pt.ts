@@ -1222,4 +1222,12 @@ export const pt = {
   "undoAction.distribute": "Seleção distribuída",
   "undoAction.align": "Seleção alinhada",
   "undoAction.roomTemplate": "Modelo de ambiente posicionado",
+  "undoAction.front": "Móvel trazido para frente",
+  "undoAction.back": "Móvel enviado para trás",
+  "undoAction.itemDetails": "Detalhes do item alterados",
+  "undoAction.itemPhoto": "Foto do item adicionada",
+  "undoAction.reusePhoto": "Foto do item reutilizada",
+  "undoAction.deleteAttachment": "Anexo retido excluído",
+  "undoAction.lock": "Seleção bloqueada",
+  "undoAction.unlock": "Seleção desbloqueada",
 } as const;

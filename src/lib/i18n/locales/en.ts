@@ -1222,4 +1222,12 @@ export const en = {
   "undoAction.distribute": "Distributed selection",
   "undoAction.align": "Aligned selection",
   "undoAction.roomTemplate": "Placed room template",
+  "undoAction.front": "Brought furniture to front",
+  "undoAction.back": "Sent furniture to back",
+  "undoAction.itemDetails": "Changed item details",
+  "undoAction.itemPhoto": "Added item photo",
+  "undoAction.reusePhoto": "Reused item photo",
+  "undoAction.deleteAttachment": "Deleted retained attachment",
+  "undoAction.lock": "Locked selection",
+  "undoAction.unlock": "Unlocked selection",
 } as const;

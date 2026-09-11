@@ -34,6 +34,14 @@ const keys: Extract<TranslationKey, `undoAction.${string}`>[] = [
   'undoAction.distribute',
   'undoAction.align',
   'undoAction.roomTemplate',
+  'undoAction.front',
+  'undoAction.back',
+  'undoAction.itemDetails',
+  'undoAction.itemPhoto',
+  'undoAction.reusePhoto',
+  'undoAction.deleteAttachment',
+  'undoAction.lock',
+  'undoAction.unlock',
 ];
 const messages = new Map(keys.map(key => [translate('en', key), key]));
 

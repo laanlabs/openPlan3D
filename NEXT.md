@@ -1,5 +1,16 @@
 # Next work and pause handoff
 
+## Additional built-in history translations — September 11
+
+The display-only Undo map now also translates eight existing descriptions for
+furniture stacking order, item details, adding/reusing photos, deleting retained
+attachments and locking/unlocking selection. Stored descriptions and unknown
+text remain unchanged. Seven focused history unit tests pass; production build
+and the explicit-production Svelte check pass with zero diagnostics. No browser
+suite was rerun for this string-map extension; the full browser checkpoint below
+remains evidence for its named earlier runtime. Dynamic catalog descriptions,
+full interface review and physical accessibility remain open.
+
 ## Full browser qualification complete — September 11
 
 All 1,098 distinct browser cases in 136 files now pass against runtime `ddf7d90`
