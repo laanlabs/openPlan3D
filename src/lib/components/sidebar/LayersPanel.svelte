@@ -1,5 +1,6 @@
 <script lang="ts">
   import { t } from '$lib/i18n';
+  import { entourageLabels } from '$lib/i18n/entourageLabels';
   import { onDestroy } from 'svelte';
   import { activeFloor, selectedElementId, selectedElementIds, selectedRoomId, detectedRoomsStore, layerVisibility } from '$lib/stores/project';
   import { getCatalogItem } from '$lib/utils/furnitureCatalog';
@@ -76,7 +77,7 @@
     if (floor.entourage?.length) {
       cats.push({
         key: 'entourage', label: $t('layers.entourage'), icon: '🌳',
-        items: floor.entourage.map((en, i) => ({ id: en.id, label: getEntourageDef(en.defId)?.name ?? $t('layers.custom', { number: i + 1 }), icon: '🌳' })),
+        items: floor.entourage.map((en, i) => ({ id: en.id, label: entourageLabels[en.defId] ? $t(entourageLabels[en.defId]) : getEntourageDef(en.defId)?.name ?? $t('layers.custom', { number: i + 1 }), icon: '🌳' })),
       });
     }
 

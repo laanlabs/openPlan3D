@@ -656,3 +656,18 @@ production source `9fd5922`. Log: `/tmp/web-roomplan-confirm-browser-final.log`.
 Locale is set before each navigation without relying on startup-script ordering.
 This verifies prepared RoomPlan confirmation, not all raw scans, import options,
 physical devices or every retained metadata field. Runtime source is unchanged.
+
+## Presentation-symbol labels
+
+Translated the 12 built-in entourage symbols, four category captions, placement
+hints, custom/upload captions and oversized-upload alert. The Layers item list
+uses the same symbol display map; custom names, IDs, paths and dimensions remain
+unchanged.
+
+Five localization unit tests, zero-warning Svelte check and production build pass.
+Three desktop browser cases pass across all engines (41.9 seconds), checking all
+symbol labels, translated person-placement help, Layers naming, exported `person`
+ID/55cm width and undo removal. Upload behavior and other symbol placements are
+not newly qualified by this run. Logs: `/tmp/web-entourage-labels-unit.log`,
+`/tmp/web-entourage-labels-check.log`, `/tmp/web-entourage-labels-build.log`,
+`/tmp/web-entourage-labels-browser.log`.

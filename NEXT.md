@@ -3179,3 +3179,11 @@ prepared RoomPlan imports in English/Portuguese and comparing exported walls,
 openings and linkage while retaining original names and prepared-option defaults.
 Runtime source remains `9fd5922`. Raw-scan/device qualification and remaining
 localization/release requirements remain open.
+
+### Presentation-symbol localization — 2026-09-10
+
+Translated built-in symbols, category/place hints and upload captions, sharing
+display labels with Layers. Five unit tests, zero-warning check, production build
+and three browser cases pass (41.9 seconds), retaining person ID/size and undo.
+Custom names stay unchanged; individual furniture names, remaining editor panels
+and physical-device/release requirements remain open.
