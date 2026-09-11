@@ -22,6 +22,8 @@
 		"test:watch": "vitest",
 		"benchmark:viewer": "playwright test --config=playwright.benchmark.config.ts",
 		"benchmark:fixtures": "node tooling/render-fixtures.mjs",
+		"catalog:manifest": "node tooling/catalog-manifest.mjs",
+		"catalog:check": "node tooling/catalog-manifest.mjs --check",
 		"build:render-lab": "vite build --config tooling/render-lab-site/vite.config.ts"
 	},
 	"devDependencies": {

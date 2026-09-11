@@ -1,0 +1,3214 @@
+{
+  "format": "openplan3d-furniture-inventory",
+  "version": 1,
+  "catalogSource": "src/lib/utils/furnitureCatalog.ts",
+  "modelMappingSource": "src/lib/utils/furnitureModelFiles.ts",
+  "modelPlacement": "Runtime fits catalog dimensions, centers the footprint and places the bottom at zero; see furnitureModelLoader.ts.",
+  "nativeSupport": "Not certified by this inventory; native package preservation and visual support require separate validation.",
+  "provenanceNote": "Embedded metadata is recorded verbatim, not verified attribution or a license determination. Asset provenance remains open.",
+  "items": [
+    {
+      "id": "sofa",
+      "name": "Sofa",
+      "category": "Living Room",
+      "dimensionsCm": {
+        "width": 200,
+        "depth": 90,
+        "height": 80
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "loungeDesignSofa"
+    },
+    {
+      "id": "loveseat",
+      "name": "Loveseat",
+      "category": "Living Room",
+      "dimensionsCm": {
+        "width": 140,
+        "depth": 85,
+        "height": 80
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "loungeDesignSofa"
+    },
+    {
+      "id": "chair",
+      "name": "Armchair",
+      "category": "Living Room",
+      "dimensionsCm": {
+        "width": 80,
+        "depth": 80,
+        "height": 90
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "loungeChair"
+    },
+    {
+      "id": "coffee_table",
+      "name": "Coffee Table",
+      "category": "Living Room",
+      "dimensionsCm": {
+        "width": 120,
+        "depth": 60,
+        "height": 45
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "tableCoffee"
+    },
+    {
+      "id": "tv_stand",
+      "name": "TV Stand",
+      "category": "Living Room",
+      "dimensionsCm": {
+        "width": 150,
+        "depth": 45,
+        "height": 50
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "cabinetTelevision"
+    },
+    {
+      "id": "bookshelf",
+      "name": "Bookshelf",
+      "category": "Living Room",
+      "dimensionsCm": {
+        "width": 80,
+        "depth": 30,
+        "height": 180
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "bookcaseOpen"
+    },
+    {
+      "id": "side_table",
+      "name": "Side Table",
+      "category": "Living Room",
+      "dimensionsCm": {
+        "width": 50,
+        "depth": 50,
+        "height": 55
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "sideTable"
+    },
+    {
+      "id": "bed_queen",
+      "name": "Queen Bed",
+      "category": "Bedroom",
+      "dimensionsCm": {
+        "width": 200,
+        "depth": 150,
+        "height": 50
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "bedDouble"
+    },
+    {
+      "id": "bed_twin",
+      "name": "Twin Bed",
+      "category": "Bedroom",
+      "dimensionsCm": {
+        "width": 190,
+        "depth": 100,
+        "height": 50
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "bedSingle"
+    },
+    {
+      "id": "nightstand",
+      "name": "Nightstand",
+      "category": "Bedroom",
+      "dimensionsCm": {
+        "width": 50,
+        "depth": 40,
+        "height": 55
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "cabinetBedDrawerTable"
+    },
+    {
+      "id": "dresser",
+      "name": "Dresser",
+      "category": "Bedroom",
+      "dimensionsCm": {
+        "width": 120,
+        "depth": 50,
+        "height": 80
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "cabinetBedDrawer"
+    },
+    {
+      "id": "wardrobe",
+      "name": "Wardrobe",
+      "category": "Bedroom",
+      "dimensionsCm": {
+        "width": 120,
+        "depth": 60,
+        "height": 200
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "bookcaseClosedDoors"
+    },
+    {
+      "id": "stove",
+      "name": "Stove",
+      "category": "Kitchen",
+      "dimensionsCm": {
+        "width": 60,
+        "depth": 60,
+        "height": 85
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "kitchenStove"
+    },
+    {
+      "id": "fridge",
+      "name": "Fridge",
+      "category": "Kitchen",
+      "dimensionsCm": {
+        "width": 70,
+        "depth": 70,
+        "height": 180
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "kitchenFridgeLarge"
+    },
+    {
+      "id": "sink_k",
+      "name": "Sink",
+      "category": "Kitchen",
+      "dimensionsCm": {
+        "width": 60,
+        "depth": 45,
+        "height": 85
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "kitchenSink"
+    },
+    {
+      "id": "counter",
+      "name": "Counter",
+      "category": "Kitchen",
+      "dimensionsCm": {
+        "width": 120,
+        "depth": 60,
+        "height": 85
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "kitchenCabinet"
+    },
+    {
+      "id": "dishwasher",
+      "name": "Dishwasher",
+      "category": "Kitchen",
+      "dimensionsCm": {
+        "width": 60,
+        "depth": 60,
+        "height": 85
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "kitchenCabinetDrawer"
+    },
+    {
+      "id": "oven",
+      "name": "Oven",
+      "category": "Kitchen",
+      "dimensionsCm": {
+        "width": 60,
+        "depth": 60,
+        "height": 85
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "kitchenStoveElectric"
+    },
+    {
+      "id": "toilet",
+      "name": "Toilet",
+      "category": "Bathroom",
+      "dimensionsCm": {
+        "width": 40,
+        "depth": 65,
+        "height": 40
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "toilet"
+    },
+    {
+      "id": "bathtub",
+      "name": "Bathtub",
+      "category": "Bathroom",
+      "dimensionsCm": {
+        "width": 170,
+        "depth": 75,
+        "height": 60
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "bathtub"
+    },
+    {
+      "id": "shower",
+      "name": "Shower",
+      "category": "Bathroom",
+      "dimensionsCm": {
+        "width": 90,
+        "depth": 90,
+        "height": 210
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "shower"
+    },
+    {
+      "id": "sink_b",
+      "name": "Sink",
+      "category": "Bathroom",
+      "dimensionsCm": {
+        "width": 60,
+        "depth": 45,
+        "height": 85
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "bathroomSink"
+    },
+    {
+      "id": "washer_dryer",
+      "name": "Washer/Dryer",
+      "category": "Bathroom",
+      "dimensionsCm": {
+        "width": 60,
+        "depth": 65,
+        "height": 85
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "washerDryerStacked"
+    },
+    {
+      "id": "desk",
+      "name": "Desk",
+      "category": "Office",
+      "dimensionsCm": {
+        "width": 140,
+        "depth": 70,
+        "height": 75
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "tableCross"
+    },
+    {
+      "id": "office_chair",
+      "name": "Office Chair",
+      "category": "Office",
+      "dimensionsCm": {
+        "width": 45,
+        "depth": 45,
+        "height": 90
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "chairDesk"
+    },
+    {
+      "id": "dining_table",
+      "name": "Dining Table",
+      "category": "Dining",
+      "dimensionsCm": {
+        "width": 120,
+        "depth": 80,
+        "height": 75
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "tableCross"
+    },
+    {
+      "id": "dining_chair",
+      "name": "Dining Chair",
+      "category": "Dining",
+      "dimensionsCm": {
+        "width": 45,
+        "depth": 45,
+        "height": 90
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "chair"
+    },
+    {
+      "id": "fireplace",
+      "name": "Fireplace",
+      "category": "Living Room",
+      "dimensionsCm": {
+        "width": 120,
+        "depth": 40,
+        "height": 120
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "television",
+      "name": "Television",
+      "category": "Living Room",
+      "dimensionsCm": {
+        "width": 120,
+        "depth": 8,
+        "height": 70
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "televisionModern"
+    },
+    {
+      "id": "storage",
+      "name": "Storage Cabinet",
+      "category": "Living Room",
+      "dimensionsCm": {
+        "width": 100,
+        "depth": 50,
+        "height": 120
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "bookcaseClosed"
+    },
+    {
+      "id": "table",
+      "name": "Table",
+      "category": "Living Room",
+      "dimensionsCm": {
+        "width": 100,
+        "depth": 60,
+        "height": 75
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "tableCross"
+    },
+    {
+      "id": "rug",
+      "name": "Rug",
+      "category": "Decor",
+      "dimensionsCm": {
+        "width": 200,
+        "depth": 300,
+        "height": 1
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "round_rug",
+      "name": "Round Rug",
+      "category": "Decor",
+      "dimensionsCm": {
+        "width": 200,
+        "depth": 200,
+        "height": 1
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "runner_rug",
+      "name": "Runner Rug",
+      "category": "Decor",
+      "dimensionsCm": {
+        "width": 80,
+        "depth": 250,
+        "height": 1
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "potted_plant",
+      "name": "Potted Plant",
+      "category": "Decor",
+      "dimensionsCm": {
+        "width": 40,
+        "depth": 40,
+        "height": 60
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "pottedPlant"
+    },
+    {
+      "id": "floor_plant",
+      "name": "Floor Plant",
+      "category": "Decor",
+      "dimensionsCm": {
+        "width": 50,
+        "depth": 50,
+        "height": 120
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "plantSmall1"
+    },
+    {
+      "id": "hanging_plant",
+      "name": "Hanging Plant",
+      "category": "Decor",
+      "dimensionsCm": {
+        "width": 30,
+        "depth": 30,
+        "height": 40
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "curtain",
+      "name": "Curtain",
+      "category": "Decor",
+      "dimensionsCm": {
+        "width": 120,
+        "depth": 10,
+        "height": 260
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "sheer_curtain",
+      "name": "Sheer Curtain",
+      "category": "Decor",
+      "dimensionsCm": {
+        "width": 120,
+        "depth": 10,
+        "height": 260
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "wall_art",
+      "name": "Wall Art",
+      "category": "Decor",
+      "dimensionsCm": {
+        "width": 80,
+        "depth": 5,
+        "height": 60
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "mirror",
+      "name": "Mirror",
+      "category": "Decor",
+      "dimensionsCm": {
+        "width": 60,
+        "depth": 5,
+        "height": 90
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "clock",
+      "name": "Clock",
+      "category": "Decor",
+      "dimensionsCm": {
+        "width": 30,
+        "depth": 5,
+        "height": 30
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "ceiling_light",
+      "name": "Ceiling Light",
+      "category": "Lighting",
+      "dimensionsCm": {
+        "width": 40,
+        "depth": 40,
+        "height": 15
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "chandelier",
+      "name": "Chandelier",
+      "category": "Lighting",
+      "dimensionsCm": {
+        "width": 60,
+        "depth": 60,
+        "height": 50
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "recessed_light",
+      "name": "Recessed Light",
+      "category": "Lighting",
+      "dimensionsCm": {
+        "width": 15,
+        "depth": 15,
+        "height": 5
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "floor_lamp",
+      "name": "Floor Lamp",
+      "category": "Lighting",
+      "dimensionsCm": {
+        "width": 40,
+        "depth": 40,
+        "height": 160
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "table_lamp",
+      "name": "Table Lamp",
+      "category": "Lighting",
+      "dimensionsCm": {
+        "width": 25,
+        "depth": 25,
+        "height": 45
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "wall_sconce",
+      "name": "Wall Sconce",
+      "category": "Lighting",
+      "dimensionsCm": {
+        "width": 15,
+        "depth": 10,
+        "height": 20
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "pendant_light",
+      "name": "Pendant Light",
+      "category": "Lighting",
+      "dimensionsCm": {
+        "width": 30,
+        "depth": 30,
+        "height": 30
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "patio_table",
+      "name": "Patio Table",
+      "category": "Outdoor Furniture",
+      "dimensionsCm": {
+        "width": 120,
+        "depth": 120,
+        "height": 75
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "patio_chair",
+      "name": "Patio Chair",
+      "category": "Outdoor Furniture",
+      "dimensionsCm": {
+        "width": 55,
+        "depth": 55,
+        "height": 85
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "bench_outdoor",
+      "name": "Park Bench",
+      "category": "Outdoor Furniture",
+      "dimensionsCm": {
+        "width": 150,
+        "depth": 50,
+        "height": 80
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "lounger",
+      "name": "Sun Lounger",
+      "category": "Outdoor Furniture",
+      "dimensionsCm": {
+        "width": 70,
+        "depth": 190,
+        "height": 35
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "umbrella",
+      "name": "Patio Umbrella",
+      "category": "Outdoor Furniture",
+      "dimensionsCm": {
+        "width": 200,
+        "depth": 200,
+        "height": 230
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "bbq_grill",
+      "name": "BBQ Grill",
+      "category": "Outdoor Furniture",
+      "dimensionsCm": {
+        "width": 80,
+        "depth": 50,
+        "height": 100
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "fire_pit",
+      "name": "Fire Pit",
+      "category": "Outdoor Furniture",
+      "dimensionsCm": {
+        "width": 90,
+        "depth": 90,
+        "height": 40
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_campfire_stones"
+    },
+    {
+      "id": "campfire",
+      "name": "Campfire",
+      "category": "Outdoor Furniture",
+      "dimensionsCm": {
+        "width": 60,
+        "depth": 60,
+        "height": 30
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_campfire_logs"
+    },
+    {
+      "id": "picnic_table",
+      "name": "Picnic Table",
+      "category": "Outdoor Furniture",
+      "dimensionsCm": {
+        "width": 180,
+        "depth": 140,
+        "height": 75
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "tent",
+      "name": "Tent",
+      "category": "Outdoor Furniture",
+      "dimensionsCm": {
+        "width": 200,
+        "depth": 200,
+        "height": 140
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_tent_detailedOpen"
+    },
+    {
+      "id": "outdoor_sign",
+      "name": "Sign",
+      "category": "Outdoor Furniture",
+      "dimensionsCm": {
+        "width": 40,
+        "depth": 10,
+        "height": 120
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_sign"
+    },
+    {
+      "id": "outdoor_pot_large",
+      "name": "Large Pot",
+      "category": "Outdoor Furniture",
+      "dimensionsCm": {
+        "width": 40,
+        "depth": 40,
+        "height": 35
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_pot_large"
+    },
+    {
+      "id": "outdoor_pot_small",
+      "name": "Small Pot",
+      "category": "Outdoor Furniture",
+      "dimensionsCm": {
+        "width": 25,
+        "depth": 25,
+        "height": 25
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_pot_small"
+    },
+    {
+      "id": "tree_oak",
+      "name": "Oak Tree",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 300,
+        "depth": 300,
+        "height": 500
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_tree_oak"
+    },
+    {
+      "id": "tree_default",
+      "name": "Deciduous Tree",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 250,
+        "depth": 250,
+        "height": 450
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_tree_default"
+    },
+    {
+      "id": "tree_detailed",
+      "name": "Detailed Tree",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 280,
+        "depth": 280,
+        "height": 480
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_tree_detailed"
+    },
+    {
+      "id": "tree_pine",
+      "name": "Pine Tree",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 150,
+        "depth": 150,
+        "height": 500
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_tree_pineRoundA"
+    },
+    {
+      "id": "tree_pine_tall",
+      "name": "Tall Pine",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 120,
+        "depth": 120,
+        "height": 600
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_tree_pineTallA_detailed"
+    },
+    {
+      "id": "tree_palm",
+      "name": "Palm Tree",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 200,
+        "depth": 200,
+        "height": 500
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_tree_palm"
+    },
+    {
+      "id": "tree_palm_bend",
+      "name": "Bent Palm",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 200,
+        "depth": 200,
+        "height": 450
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_tree_palmBend"
+    },
+    {
+      "id": "tree_palm_tall",
+      "name": "Tall Palm",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 150,
+        "depth": 150,
+        "height": 600
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_tree_palmTall"
+    },
+    {
+      "id": "tree_fat",
+      "name": "Fat Tree",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 350,
+        "depth": 350,
+        "height": 400
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_tree_fat"
+    },
+    {
+      "id": "tree_simple",
+      "name": "Simple Tree",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 200,
+        "depth": 200,
+        "height": 350
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_tree_simple"
+    },
+    {
+      "id": "tree_thin",
+      "name": "Thin Tree",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 100,
+        "depth": 100,
+        "height": 450
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_tree_thin"
+    },
+    {
+      "id": "tree_tall",
+      "name": "Tall Tree",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 200,
+        "depth": 200,
+        "height": 550
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_tree_tall"
+    },
+    {
+      "id": "tree_cone",
+      "name": "Cone Tree",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 150,
+        "depth": 150,
+        "height": 400
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_tree_cone"
+    },
+    {
+      "id": "tree_blocky",
+      "name": "Blocky Tree",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 200,
+        "depth": 200,
+        "height": 400
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_tree_blocks"
+    },
+    {
+      "id": "tree_small",
+      "name": "Small Tree",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 120,
+        "depth": 120,
+        "height": 250
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_tree_small"
+    },
+    {
+      "id": "bush",
+      "name": "Bush",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 80,
+        "depth": 80,
+        "height": 60
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_plant_bush"
+    },
+    {
+      "id": "bush_detailed",
+      "name": "Detailed Bush",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 90,
+        "depth": 90,
+        "height": 70
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_plant_bushDetailed"
+    },
+    {
+      "id": "bush_large",
+      "name": "Large Bush",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 120,
+        "depth": 120,
+        "height": 90
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_plant_bushLarge"
+    },
+    {
+      "id": "bush_large_triangle",
+      "name": "Large Triangle Bush",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 120,
+        "depth": 120,
+        "height": 100
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_plant_bushLargeTriangle"
+    },
+    {
+      "id": "bush_small",
+      "name": "Small Bush",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 50,
+        "depth": 50,
+        "height": 40
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_plant_bushSmall"
+    },
+    {
+      "id": "bush_triangle",
+      "name": "Triangle Bush",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 80,
+        "depth": 80,
+        "height": 80
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_plant_bushTriangle"
+    },
+    {
+      "id": "hedge_row",
+      "name": "Hedge Row",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 200,
+        "depth": 60,
+        "height": 120
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "cactus_short",
+      "name": "Short Cactus",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 30,
+        "depth": 30,
+        "height": 60
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_cactus_short"
+    },
+    {
+      "id": "cactus_tall",
+      "name": "Tall Cactus",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 30,
+        "depth": 30,
+        "height": 120
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_cactus_tall"
+    },
+    {
+      "id": "hanging_moss",
+      "name": "Hanging Moss",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 40,
+        "depth": 40,
+        "height": 80
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_hanging_moss"
+    },
+    {
+      "id": "flower_purple",
+      "name": "Purple Flower",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 20,
+        "depth": 20,
+        "height": 30
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_flower_purpleA"
+    },
+    {
+      "id": "flower_red",
+      "name": "Red Flower",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 20,
+        "depth": 20,
+        "height": 30
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_flower_redA"
+    },
+    {
+      "id": "flower_yellow",
+      "name": "Yellow Flower",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 20,
+        "depth": 20,
+        "height": 30
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_flower_yellowA"
+    },
+    {
+      "id": "flower_purple_b",
+      "name": "Purple Flower B",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 25,
+        "depth": 25,
+        "height": 35
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_flower_purpleB"
+    },
+    {
+      "id": "flower_red_b",
+      "name": "Red Flower B",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 25,
+        "depth": 25,
+        "height": 35
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_flower_redB"
+    },
+    {
+      "id": "flower_yellow_b",
+      "name": "Yellow Flower B",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 25,
+        "depth": 25,
+        "height": 35
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_flower_yellowB"
+    },
+    {
+      "id": "flower_bed",
+      "name": "Flower Bed",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 100,
+        "depth": 40,
+        "height": 20
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "lily",
+      "name": "Water Lily",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 30,
+        "depth": 30,
+        "height": 5
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_lily_large"
+    },
+    {
+      "id": "grass_tuft",
+      "name": "Grass Tuft",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 30,
+        "depth": 30,
+        "height": 15
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_grass"
+    },
+    {
+      "id": "grass_large",
+      "name": "Large Grass",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 40,
+        "depth": 40,
+        "height": 25
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_grass_large"
+    },
+    {
+      "id": "grass_leafs",
+      "name": "Grass Leaves",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 30,
+        "depth": 30,
+        "height": 20
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_grass_leafs"
+    },
+    {
+      "id": "grass_leafs_large",
+      "name": "Large Grass Leaves",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 40,
+        "depth": 40,
+        "height": 30
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_grass_leafsLarge"
+    },
+    {
+      "id": "rock_large",
+      "name": "Large Rock",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 100,
+        "depth": 80,
+        "height": 60
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_rock_largeA"
+    },
+    {
+      "id": "rock_large_b",
+      "name": "Large Rock B",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 90,
+        "depth": 70,
+        "height": 55
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_rock_largeB"
+    },
+    {
+      "id": "rock_tall",
+      "name": "Tall Rock",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 60,
+        "depth": 50,
+        "height": 100
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_rock_tallA"
+    },
+    {
+      "id": "rock_small",
+      "name": "Small Rock",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 30,
+        "depth": 25,
+        "height": 20
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_rock_smallA"
+    },
+    {
+      "id": "rock_small_b",
+      "name": "Small Rock B",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 25,
+        "depth": 20,
+        "height": 18
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_rock_smallB"
+    },
+    {
+      "id": "stone_large",
+      "name": "Large Stone",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 80,
+        "depth": 60,
+        "height": 50
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_stone_largeA"
+    },
+    {
+      "id": "stone_tall",
+      "name": "Tall Stone",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 50,
+        "depth": 40,
+        "height": 90
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_stone_tallA"
+    },
+    {
+      "id": "boulder",
+      "name": "Boulder",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 150,
+        "depth": 120,
+        "height": 100
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "mushroom_red",
+      "name": "Red Mushroom",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 20,
+        "depth": 20,
+        "height": 25
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_mushroom_red"
+    },
+    {
+      "id": "mushroom_group",
+      "name": "Mushroom Group",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 30,
+        "depth": 30,
+        "height": 20
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_mushroom_redGroup"
+    },
+    {
+      "id": "mushroom_tan",
+      "name": "Tan Mushroom",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 20,
+        "depth": 20,
+        "height": 25
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_mushroom_tan"
+    },
+    {
+      "id": "log_single",
+      "name": "Log",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 30,
+        "depth": 100,
+        "height": 30
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_log"
+    },
+    {
+      "id": "log_large",
+      "name": "Large Log",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 40,
+        "depth": 120,
+        "height": 40
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_log_large"
+    },
+    {
+      "id": "log_stack",
+      "name": "Log Stack",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 80,
+        "depth": 60,
+        "height": 50
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_log_stack"
+    },
+    {
+      "id": "stump_old",
+      "name": "Old Stump",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 40,
+        "depth": 40,
+        "height": 30
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_stump_old"
+    },
+    {
+      "id": "stump_round",
+      "name": "Round Stump",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 35,
+        "depth": 35,
+        "height": 25
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_stump_round"
+    },
+    {
+      "id": "corn",
+      "name": "Corn Stalks",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 30,
+        "depth": 30,
+        "height": 120
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_crops_cornStageD"
+    },
+    {
+      "id": "pumpkin",
+      "name": "Pumpkin",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 30,
+        "depth": 30,
+        "height": 25
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_crop_pumpkin"
+    },
+    {
+      "id": "statue_column",
+      "name": "Column Statue",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 30,
+        "depth": 30,
+        "height": 200
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_statue_column"
+    },
+    {
+      "id": "obelisk",
+      "name": "Obelisk",
+      "category": "Landscaping",
+      "dimensionsCm": {
+        "width": 40,
+        "depth": 40,
+        "height": 250
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_statue_obelisk"
+    },
+    {
+      "id": "fence_simple",
+      "name": "Simple Fence",
+      "category": "Fencing",
+      "dimensionsCm": {
+        "width": 200,
+        "depth": 10,
+        "height": 100
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_fence_simple"
+    },
+    {
+      "id": "fence_planks",
+      "name": "Plank Fence",
+      "category": "Fencing",
+      "dimensionsCm": {
+        "width": 200,
+        "depth": 10,
+        "height": 120
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_fence_planks"
+    },
+    {
+      "id": "fence_gate",
+      "name": "Fence Gate",
+      "category": "Fencing",
+      "dimensionsCm": {
+        "width": 100,
+        "depth": 10,
+        "height": 100
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_fence_gate"
+    },
+    {
+      "id": "fence_corner",
+      "name": "Fence Corner",
+      "category": "Fencing",
+      "dimensionsCm": {
+        "width": 100,
+        "depth": 100,
+        "height": 100
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "glb-with-procedural-fallback",
+      "model": "outdoor_fence_corner"
+    },
+    {
+      "id": "picket_fence",
+      "name": "Picket Fence",
+      "category": "Fencing",
+      "dimensionsCm": {
+        "width": 200,
+        "depth": 10,
+        "height": 90
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "metal_fence",
+      "name": "Metal Fence",
+      "category": "Fencing",
+      "dimensionsCm": {
+        "width": 200,
+        "depth": 10,
+        "height": 120
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "pergola",
+      "name": "Pergola",
+      "category": "Structures",
+      "dimensionsCm": {
+        "width": 300,
+        "depth": 300,
+        "height": 250
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "deck_patio",
+      "name": "Deck/Patio",
+      "category": "Structures",
+      "dimensionsCm": {
+        "width": 400,
+        "depth": 300,
+        "height": 15
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "raised_garden_bed",
+      "name": "Raised Garden Bed",
+      "category": "Structures",
+      "dimensionsCm": {
+        "width": 120,
+        "depth": 60,
+        "height": 40
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "shed",
+      "name": "Garden Shed",
+      "category": "Structures",
+      "dimensionsCm": {
+        "width": 200,
+        "depth": 250,
+        "height": 230
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "gazebo",
+      "name": "Gazebo",
+      "category": "Structures",
+      "dimensionsCm": {
+        "width": 300,
+        "depth": 300,
+        "height": 280
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "planter_box",
+      "name": "Planter Box",
+      "category": "Structures",
+      "dimensionsCm": {
+        "width": 80,
+        "depth": 30,
+        "height": 30
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "raised_bed",
+      "name": "Raised Bed",
+      "category": "Structures",
+      "dimensionsCm": {
+        "width": 180,
+        "depth": 90,
+        "height": 40
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "pool_rectangular",
+      "name": "Rectangular Pool",
+      "category": "Pool & Spa",
+      "dimensionsCm": {
+        "width": 500,
+        "depth": 300,
+        "height": 15
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "pool_round",
+      "name": "Round Pool",
+      "category": "Pool & Spa",
+      "dimensionsCm": {
+        "width": 300,
+        "depth": 300,
+        "height": 15
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "pool_lshaped",
+      "name": "L-Shaped Pool",
+      "category": "Pool & Spa",
+      "dimensionsCm": {
+        "width": 600,
+        "depth": 400,
+        "height": 15
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "pool_kidney",
+      "name": "Kidney Pool",
+      "category": "Pool & Spa",
+      "dimensionsCm": {
+        "width": 500,
+        "depth": 280,
+        "height": 15
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "hot_tub",
+      "name": "Hot Tub",
+      "category": "Pool & Spa",
+      "dimensionsCm": {
+        "width": 200,
+        "depth": 200,
+        "height": 80
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "pool_ladder",
+      "name": "Pool Ladder",
+      "category": "Pool & Spa",
+      "dimensionsCm": {
+        "width": 50,
+        "depth": 30,
+        "height": 100
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "diving_board",
+      "name": "Diving Board",
+      "category": "Pool & Spa",
+      "dimensionsCm": {
+        "width": 50,
+        "depth": 200,
+        "height": 80
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "pool_lounge",
+      "name": "Pool Lounger",
+      "category": "Pool & Spa",
+      "dimensionsCm": {
+        "width": 70,
+        "depth": 190,
+        "height": 35
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "car_sedan",
+      "name": "Car (Sedan)",
+      "category": "Garage",
+      "dimensionsCm": {
+        "width": 180,
+        "depth": 450,
+        "height": 150
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "car_suv",
+      "name": "Car (SUV)",
+      "category": "Garage",
+      "dimensionsCm": {
+        "width": 190,
+        "depth": 480,
+        "height": 170
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "garage_door_single",
+      "name": "Garage Door (Single)",
+      "category": "Garage",
+      "dimensionsCm": {
+        "width": 280,
+        "depth": 10,
+        "height": 220
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "garage_door_double",
+      "name": "Garage Door (Double)",
+      "category": "Garage",
+      "dimensionsCm": {
+        "width": 500,
+        "depth": 10,
+        "height": 220
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "workbench",
+      "name": "Workbench",
+      "category": "Garage",
+      "dimensionsCm": {
+        "width": 180,
+        "depth": 60,
+        "height": 90
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "tool_cabinet",
+      "name": "Tool Cabinet",
+      "category": "Garage",
+      "dimensionsCm": {
+        "width": 70,
+        "depth": 45,
+        "height": 140
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "bike",
+      "name": "Bicycle",
+      "category": "Garage",
+      "dimensionsCm": {
+        "width": 60,
+        "depth": 170,
+        "height": 110
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "motorcycle",
+      "name": "Motorcycle",
+      "category": "Garage",
+      "dimensionsCm": {
+        "width": 80,
+        "depth": 210,
+        "height": 110
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "lawn_rect",
+      "name": "Lawn (Rectangle)",
+      "category": "Paths & Lawns",
+      "dimensionsCm": {
+        "width": 400,
+        "depth": 300,
+        "height": 3
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "lawn_square",
+      "name": "Lawn (Square)",
+      "category": "Paths & Lawns",
+      "dimensionsCm": {
+        "width": 300,
+        "depth": 300,
+        "height": 3
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "lawn_large",
+      "name": "Lawn (Large)",
+      "category": "Paths & Lawns",
+      "dimensionsCm": {
+        "width": 600,
+        "depth": 400,
+        "height": 3
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "path_straight",
+      "name": "Path (Straight)",
+      "category": "Paths & Lawns",
+      "dimensionsCm": {
+        "width": 100,
+        "depth": 300,
+        "height": 3
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "path_wide",
+      "name": "Path (Wide)",
+      "category": "Paths & Lawns",
+      "dimensionsCm": {
+        "width": 150,
+        "depth": 300,
+        "height": 3
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "patio_stone",
+      "name": "Stone Patio",
+      "category": "Paths & Lawns",
+      "dimensionsCm": {
+        "width": 300,
+        "depth": 300,
+        "height": 5
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "gravel_area",
+      "name": "Gravel Area",
+      "category": "Paths & Lawns",
+      "dimensionsCm": {
+        "width": 200,
+        "depth": 200,
+        "height": 3
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "stepping_stones",
+      "name": "Stepping Stones",
+      "category": "Paths & Lawns",
+      "dimensionsCm": {
+        "width": 60,
+        "depth": 300,
+        "height": 3
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "driveway",
+      "name": "Driveway",
+      "category": "Paths & Lawns",
+      "dimensionsCm": {
+        "width": 300,
+        "depth": 600,
+        "height": 3
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "sandbox",
+      "name": "Sandbox",
+      "category": "Paths & Lawns",
+      "dimensionsCm": {
+        "width": 200,
+        "depth": 200,
+        "height": 20
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "lamp_post",
+      "name": "Lamp Post",
+      "category": "Outdoor Lighting",
+      "dimensionsCm": {
+        "width": 30,
+        "depth": 30,
+        "height": 300
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "lamp_post_double",
+      "name": "Double Lamp Post",
+      "category": "Outdoor Lighting",
+      "dimensionsCm": {
+        "width": 60,
+        "depth": 30,
+        "height": 300
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "bollard_light",
+      "name": "Bollard Light",
+      "category": "Outdoor Lighting",
+      "dimensionsCm": {
+        "width": 15,
+        "depth": 15,
+        "height": 80
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "wall_sconce_outdoor",
+      "name": "Wall Sconce",
+      "category": "Outdoor Lighting",
+      "dimensionsCm": {
+        "width": 20,
+        "depth": 15,
+        "height": 30
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "spot_light_outdoor",
+      "name": "Spot Light",
+      "category": "Outdoor Lighting",
+      "dimensionsCm": {
+        "width": 15,
+        "depth": 15,
+        "height": 25
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "string_lights",
+      "name": "String Lights",
+      "category": "Outdoor Lighting",
+      "dimensionsCm": {
+        "width": 300,
+        "depth": 10,
+        "height": 250
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "solar_path_light",
+      "name": "Solar Path Light",
+      "category": "Outdoor Lighting",
+      "dimensionsCm": {
+        "width": 12,
+        "depth": 12,
+        "height": 40
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "flood_light",
+      "name": "Flood Light",
+      "category": "Outdoor Lighting",
+      "dimensionsCm": {
+        "width": 25,
+        "depth": 20,
+        "height": 30
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "greenhouse",
+      "name": "Greenhouse",
+      "category": "Garden Structures",
+      "dimensionsCm": {
+        "width": 300,
+        "depth": 400,
+        "height": 250
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "greenhouse_small",
+      "name": "Small Greenhouse",
+      "category": "Garden Structures",
+      "dimensionsCm": {
+        "width": 200,
+        "depth": 250,
+        "height": 200
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "trellis",
+      "name": "Trellis",
+      "category": "Garden Structures",
+      "dimensionsCm": {
+        "width": 150,
+        "depth": 10,
+        "height": 200
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "arbor",
+      "name": "Garden Arbor",
+      "category": "Garden Structures",
+      "dimensionsCm": {
+        "width": 150,
+        "depth": 60,
+        "height": 230
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "compost_bin",
+      "name": "Compost Bin",
+      "category": "Garden Structures",
+      "dimensionsCm": {
+        "width": 80,
+        "depth": 80,
+        "height": 90
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "rain_barrel",
+      "name": "Rain Barrel",
+      "category": "Garden Structures",
+      "dimensionsCm": {
+        "width": 60,
+        "depth": 60,
+        "height": 90
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "bird_bath",
+      "name": "Bird Bath",
+      "category": "Garden Structures",
+      "dimensionsCm": {
+        "width": 50,
+        "depth": 50,
+        "height": 80
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "fountain",
+      "name": "Garden Fountain",
+      "category": "Garden Structures",
+      "dimensionsCm": {
+        "width": 120,
+        "depth": 120,
+        "height": 150
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "statue",
+      "name": "Garden Statue",
+      "category": "Garden Structures",
+      "dimensionsCm": {
+        "width": 40,
+        "depth": 40,
+        "height": 120
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "mailbox",
+      "name": "Mailbox",
+      "category": "Garden Structures",
+      "dimensionsCm": {
+        "width": 30,
+        "depth": 20,
+        "height": 110
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "procedural",
+      "model": null
+    },
+    {
+      "id": "sym_outlet",
+      "name": "Power Outlet",
+      "category": "Electrical",
+      "dimensionsCm": {
+        "width": 15,
+        "depth": 15,
+        "height": 0
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "2d-symbol",
+      "model": null
+    },
+    {
+      "id": "sym_switch",
+      "name": "Light Switch",
+      "category": "Electrical",
+      "dimensionsCm": {
+        "width": 15,
+        "depth": 15,
+        "height": 0
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "2d-symbol",
+      "model": null
+    },
+    {
+      "id": "sym_ceiling_light",
+      "name": "Ceiling Light",
+      "category": "Electrical",
+      "dimensionsCm": {
+        "width": 20,
+        "depth": 20,
+        "height": 0
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "2d-symbol",
+      "model": null
+    },
+    {
+      "id": "sym_recessed_light",
+      "name": "Recessed Light",
+      "category": "Electrical",
+      "dimensionsCm": {
+        "width": 15,
+        "depth": 15,
+        "height": 0
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "2d-symbol",
+      "model": null
+    },
+    {
+      "id": "sym_pendant",
+      "name": "Pendant Light",
+      "category": "Electrical",
+      "dimensionsCm": {
+        "width": 18,
+        "depth": 18,
+        "height": 0
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "2d-symbol",
+      "model": null
+    },
+    {
+      "id": "sym_ceiling_fan",
+      "name": "Ceiling Fan",
+      "category": "Electrical",
+      "dimensionsCm": {
+        "width": 25,
+        "depth": 25,
+        "height": 0
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "2d-symbol",
+      "model": null
+    },
+    {
+      "id": "sym_junction",
+      "name": "Junction Box",
+      "category": "Electrical",
+      "dimensionsCm": {
+        "width": 12,
+        "depth": 12,
+        "height": 0
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "2d-symbol",
+      "model": null
+    },
+    {
+      "id": "sym_smoke",
+      "name": "Smoke Detector",
+      "category": "Electrical",
+      "dimensionsCm": {
+        "width": 15,
+        "depth": 15,
+        "height": 0
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "2d-symbol",
+      "model": null
+    },
+    {
+      "id": "sym_water_supply",
+      "name": "Water Supply",
+      "category": "Plumbing",
+      "dimensionsCm": {
+        "width": 15,
+        "depth": 15,
+        "height": 0
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "2d-symbol",
+      "model": null
+    },
+    {
+      "id": "sym_drain",
+      "name": "Drain Point",
+      "category": "Plumbing",
+      "dimensionsCm": {
+        "width": 15,
+        "depth": 15,
+        "height": 0
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "2d-symbol",
+      "model": null
+    },
+    {
+      "id": "sym_water_heater",
+      "name": "Water Heater",
+      "category": "Plumbing",
+      "dimensionsCm": {
+        "width": 20,
+        "depth": 20,
+        "height": 0
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "2d-symbol",
+      "model": null
+    },
+    {
+      "id": "sym_washer_hookup",
+      "name": "Washer Hookup",
+      "category": "Plumbing",
+      "dimensionsCm": {
+        "width": 15,
+        "depth": 15,
+        "height": 0
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "2d-symbol",
+      "model": null
+    },
+    {
+      "id": "sym_gas_line",
+      "name": "Gas Line",
+      "category": "Plumbing",
+      "dimensionsCm": {
+        "width": 15,
+        "depth": 15,
+        "height": 0
+      },
+      "dimensionStatus": "catalog-defaults-not-product-measurements",
+      "webRepresentation": "2d-symbol",
+      "model": null
+    }
+  ],
+  "models": {
+    "bathroomSink": {
+      "path": "static/models/bathroomSink.glb",
+      "bytes": 22536,
+      "sha256": "39d4f19608cab7e0fed52303b2c689f5f51fae1bad9b6913cb53d838875e797e",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "bathtub": {
+      "path": "static/models/bathtub.glb",
+      "bytes": 35500,
+      "sha256": "54c405c7035aab63dc41e709dc3c50fc5bcfbc4cddc91ffc54188075a6d25d01",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "bedDouble": {
+      "path": "static/models/bedDouble.glb",
+      "bytes": 23368,
+      "sha256": "c49b33e7d797d2ba1111895587dba7ff63b17a712eb9b4ceeb40a598f73e476c",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "bedSingle": {
+      "path": "static/models/bedSingle.glb",
+      "bytes": 18636,
+      "sha256": "ca00c63f9a12da3138d902b2f5f18e0360fb6e8a5ac42ccb4bc3f185724b65d1",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "bookcaseClosed": {
+      "path": "static/models/bookcaseClosed.glb",
+      "bytes": 23132,
+      "sha256": "9d210448de5e1179541da895450bbc7a39f4cd673d677654cd6b134e4ea0e047",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "bookcaseClosedDoors": {
+      "path": "static/models/bookcaseClosedDoors.glb",
+      "bytes": 22644,
+      "sha256": "ff33f535acdb1825c0e958a293642b39665adcae0b1317b650e83d2bb687f4e2",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "bookcaseOpen": {
+      "path": "static/models/bookcaseOpen.glb",
+      "bytes": 18020,
+      "sha256": "750702218d68c062b15dfef6ab06a4014d1cfa8bd05f02e57c53b7e13bec157c",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "cabinetBedDrawer": {
+      "path": "static/models/cabinetBedDrawer.glb",
+      "bytes": 16088,
+      "sha256": "e3dfd2e120af3d4d29b66509e317452cd15bd3f57ac8945575462c582adc6de8",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "cabinetBedDrawerTable": {
+      "path": "static/models/cabinetBedDrawerTable.glb",
+      "bytes": 12200,
+      "sha256": "fec6271639df5aff9f8ac75d6679385eab2abb7c8d2f51abeba3ed689ddb6f0d",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "cabinetTelevision": {
+      "path": "static/models/cabinetTelevision.glb",
+      "bytes": 10524,
+      "sha256": "811719593d676ff76f7b5904d52c845ce0396af2bc9a6a2636c4818ead320b99",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "chair": {
+      "path": "static/models/chair.glb",
+      "bytes": 10756,
+      "sha256": "c8a11eec93e89e31250ba91afc1b8d56c3bec7ae86640fd1239f595ff4180883",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "chairDesk": {
+      "path": "static/models/chairDesk.glb",
+      "bytes": 39016,
+      "sha256": "46406619186034cbe92b19b79a5f1a8e3f442a17a70a7524ef2c0ad0f35095c6",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "kitchenCabinet": {
+      "path": "static/models/kitchenCabinet.glb",
+      "bytes": 10444,
+      "sha256": "7238c57778935ae25db5e57e9f7af3ba7068c71b005ff7cfbff3b6f3b1a13200",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "kitchenCabinetDrawer": {
+      "path": "static/models/kitchenCabinetDrawer.glb",
+      "bytes": 15384,
+      "sha256": "6f784807e3cadb15b4d2d3db726d93357ea5e6c4f2b6e4c9c064048a2d1d9cfc",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "kitchenFridgeLarge": {
+      "path": "static/models/kitchenFridgeLarge.glb",
+      "bytes": 30632,
+      "sha256": "5851cc59c7e12f6f34a01a2ea93d5b9540be4078c1b703f517239fcede98fb32",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "kitchenSink": {
+      "path": "static/models/kitchenSink.glb",
+      "bytes": 23480,
+      "sha256": "7b9610277d71f00dcf1bba49cf4d98d77ce5177e84bf76c7da2f8893e542f743",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "kitchenStove": {
+      "path": "static/models/kitchenStove.glb",
+      "bytes": 54324,
+      "sha256": "3239edb36295dfca9530a9b9a6ad0aff98ce62e7cf8d13ca2a5a1a6b2a904656",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "kitchenStoveElectric": {
+      "path": "static/models/kitchenStoveElectric.glb",
+      "bytes": 18604,
+      "sha256": "cf646b960d7dfed1fac27898ff6de1f0671cfa33beecbed06ead7d0684517392",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "loungeChair": {
+      "path": "static/models/loungeChair.glb",
+      "bytes": 9648,
+      "sha256": "ddfe6bc4b3451bca61666d7b614552d6ed2a03d82fc76244b72ae3155874dc6c",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "loungeDesignSofa": {
+      "path": "static/models/loungeDesignSofa.glb",
+      "bytes": 9128,
+      "sha256": "b4f4e6850118e409da301df678228c703b6ac02e94fbb9dbde61543af817fa53",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_cactus_short": {
+      "path": "static/models/outdoor_cactus_short.glb",
+      "bytes": 8844,
+      "sha256": "81ac9fc4c66eacceaf4aebcb6df3468ea450a2f5081151bb11400282efbc51bd",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_cactus_tall": {
+      "path": "static/models/outdoor_cactus_tall.glb",
+      "bytes": 9668,
+      "sha256": "d43a1aca5952e1f8a104d64a0edfec09c39f15102ca6bdc531460dd5a2c53d25",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_campfire_logs": {
+      "path": "static/models/outdoor_campfire_logs.glb",
+      "bytes": 9284,
+      "sha256": "98d87cdcf9095b94fd348d0946e911dd4ca6c0956bac3318cfd2b0030b86055a",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_campfire_stones": {
+      "path": "static/models/outdoor_campfire_stones.glb",
+      "bytes": 17344,
+      "sha256": "54869db23243a3f4905bc00bd4cd93b1037b28556ab3ef93e7a893a093791e35",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_crop_pumpkin": {
+      "path": "static/models/outdoor_crop_pumpkin.glb",
+      "bytes": 10840,
+      "sha256": "5b4878c5996033629419c26ac32153ce8ac06bbbdac98e4fa8a5cbab98f78077",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_crops_cornStageD": {
+      "path": "static/models/outdoor_crops_cornStageD.glb",
+      "bytes": 29316,
+      "sha256": "d90d9cbba85e99526b254adee638495f914480831ab41d00807378c004c112c3",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_fence_corner": {
+      "path": "static/models/outdoor_fence_corner.glb",
+      "bytes": 8644,
+      "sha256": "f37060de68c5680e518183d44e7ac498e0bfe7b04f3fe71e355d8a4670ef83f1",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_fence_gate": {
+      "path": "static/models/outdoor_fence_gate.glb",
+      "bytes": 27652,
+      "sha256": "34d10d5620179b8a211a01eea837caa828c0782422f0b408e1a5838788888436",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_fence_planks": {
+      "path": "static/models/outdoor_fence_planks.glb",
+      "bytes": 7720,
+      "sha256": "2db68f60d24443dbeab05dedd92fcc665d0e21bd261c6a668ea9022a732a06a9",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_fence_simple": {
+      "path": "static/models/outdoor_fence_simple.glb",
+      "bytes": 5712,
+      "sha256": "ecaf6c29532aa9fd305a8ef71df769d60748bd797f2eb1c63bdefc4edb8062a7",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_flower_purpleA": {
+      "path": "static/models/outdoor_flower_purpleA.glb",
+      "bytes": 7112,
+      "sha256": "f6fc34c96a03420a74fe36d4c2d0ec88f15204fcad99cd1416c3c4ecb22e48c4",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_flower_purpleB": {
+      "path": "static/models/outdoor_flower_purpleB.glb",
+      "bytes": 8084,
+      "sha256": "2afb10cd68a9a7b185fc46110be0da550ea2aef86ef9ac6b7339f217eb4b636a",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_flower_redA": {
+      "path": "static/models/outdoor_flower_redA.glb",
+      "bytes": 7104,
+      "sha256": "171930b7789ddbf735af3745576b5393750beb9133b9ff4a444bb6bb2986c020",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_flower_redB": {
+      "path": "static/models/outdoor_flower_redB.glb",
+      "bytes": 8080,
+      "sha256": "1ed430a4ee2be9e86649e1ce22ec23162814a3f8c2ad133117315db19293fc16",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_flower_yellowA": {
+      "path": "static/models/outdoor_flower_yellowA.glb",
+      "bytes": 7120,
+      "sha256": "8a3b08cd2ca411c21f9c581d5bda651d78b13c50cba45ad8fa0389398ead6d1d",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_flower_yellowB": {
+      "path": "static/models/outdoor_flower_yellowB.glb",
+      "bytes": 11256,
+      "sha256": "aaa8707779a5de59f881f80185bc507b35ec3fd5f23a39d6447ef61141dcd4f5",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_grass": {
+      "path": "static/models/outdoor_grass.glb",
+      "bytes": 11496,
+      "sha256": "260e41d3e5f2472492ed7b475c5b92a30b13ce2bad408535b5ff50574d4575e7",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_grass_large": {
+      "path": "static/models/outdoor_grass_large.glb",
+      "bytes": 18504,
+      "sha256": "af49a595624abca7249824eeefb944d4baf974abeeb5b16110d175da3563d6cd",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_grass_leafs": {
+      "path": "static/models/outdoor_grass_leafs.glb",
+      "bytes": 4608,
+      "sha256": "8bc4c0b17c2e64c34e1acbf7c4a2fd8c04cfcd7155328e61767887b2ced112c7",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_grass_leafsLarge": {
+      "path": "static/models/outdoor_grass_leafsLarge.glb",
+      "bytes": 13988,
+      "sha256": "a68b9b3d9639afaeb4ace840d5a8e3f21ffc4e8afc1eab15566500fbb2bee3e3",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_hanging_moss": {
+      "path": "static/models/outdoor_hanging_moss.glb",
+      "bytes": 4776,
+      "sha256": "2124c2d038054f1ea89d470a6095d35c2fbdb2674916db93400ea6ed5f499cb0",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_lily_large": {
+      "path": "static/models/outdoor_lily_large.glb",
+      "bytes": 8044,
+      "sha256": "c8f7080df0ae3166e9d33f523b66360c2ac7556dff36cc9c8ee78b6a676c7db2",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_log": {
+      "path": "static/models/outdoor_log.glb",
+      "bytes": 14288,
+      "sha256": "8c8fe8f6adfc03a3c0cd6cb24961ff74be96c2da284d70322f05797d049972d6",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_log_large": {
+      "path": "static/models/outdoor_log_large.glb",
+      "bytes": 7924,
+      "sha256": "e7a92369062d491e5a31a163d390e07db04ee573605bbfa84c00660d18896b4c",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_log_stack": {
+      "path": "static/models/outdoor_log_stack.glb",
+      "bytes": 10896,
+      "sha256": "90eaae4a01ba1f25c2f0c6d83087e4a7a8fac684f2452615245333968d118d68",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_mushroom_red": {
+      "path": "static/models/outdoor_mushroom_red.glb",
+      "bytes": 6364,
+      "sha256": "843e2de43dce78920a5675a67bac4b72f500e6220315e713fe08381642cfc571",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_mushroom_redGroup": {
+      "path": "static/models/outdoor_mushroom_redGroup.glb",
+      "bytes": 14960,
+      "sha256": "29f02df0589dd2b09e8d2aff6a4662394dac5cfcf1fec701640dcbd6127e0802",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_mushroom_tan": {
+      "path": "static/models/outdoor_mushroom_tan.glb",
+      "bytes": 5804,
+      "sha256": "455cbacdcdac82cc20420c3f21eaba3ff2fbceadb2e13d35a39d52130dba5a80",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_plant_bush": {
+      "path": "static/models/outdoor_plant_bush.glb",
+      "bytes": 4396,
+      "sha256": "ae7b1beb39e242b13f5f29e3ec23ef21034b814f82297b8aa00a9bf4e1b09590",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_plant_bushDetailed": {
+      "path": "static/models/outdoor_plant_bushDetailed.glb",
+      "bytes": 10172,
+      "sha256": "2e0487020d68ccf664435db9d829c78ae00e6d2785ee3ec10b9f89cc70a10406",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_plant_bushLarge": {
+      "path": "static/models/outdoor_plant_bushLarge.glb",
+      "bytes": 6436,
+      "sha256": "10e1d9fbf29d96d1d1a56fb2ce25ae66537505101759229afe01ae22c6c45e02",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_plant_bushLargeTriangle": {
+      "path": "static/models/outdoor_plant_bushLargeTriangle.glb",
+      "bytes": 4564,
+      "sha256": "098af3618e20e5a2cb5f6e24a7c67c0a80663f989137d86430bc9e2b1b2d52e4",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_plant_bushSmall": {
+      "path": "static/models/outdoor_plant_bushSmall.glb",
+      "bytes": 3212,
+      "sha256": "a9620a7d1fb165ae68d323676f80dbb2a9e3aafb21110d18d18d90b07026b91d",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_plant_bushTriangle": {
+      "path": "static/models/outdoor_plant_bushTriangle.glb",
+      "bytes": 3956,
+      "sha256": "e944e19adda28436fdc63d77019aa490e6591358659a14abea8aa654181fc417",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_pot_large": {
+      "path": "static/models/outdoor_pot_large.glb",
+      "bytes": 6168,
+      "sha256": "57e60214bc6ab1dc3764c9ffe80091ff45f2bfd49fbc313c1b68dcaab1537aef",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_pot_small": {
+      "path": "static/models/outdoor_pot_small.glb",
+      "bytes": 7004,
+      "sha256": "1141d9e16099c2103f1a177de0cae4ea979a3246439e33074923e4cfe3098df8",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_rock_largeA": {
+      "path": "static/models/outdoor_rock_largeA.glb",
+      "bytes": 7552,
+      "sha256": "6dd15390fd96501dcd1454765a17ba61dbbd8d47705dfe5149c8dd92b353ce25",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_rock_largeB": {
+      "path": "static/models/outdoor_rock_largeB.glb",
+      "bytes": 8560,
+      "sha256": "caa8b025833d4dabf6d98fe2e96cf2fbd886693ac990df0db75f9d827194374b",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_rock_smallA": {
+      "path": "static/models/outdoor_rock_smallA.glb",
+      "bytes": 3044,
+      "sha256": "df9fff9d711e61370e8df0caa2514c89b8f8a8dc6c6fafaf4eb2ec79c5ae07c1",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_rock_smallB": {
+      "path": "static/models/outdoor_rock_smallB.glb",
+      "bytes": 3528,
+      "sha256": "11b26bc0a12e971a3b69df1401e530e24432d528c262df94b99c412e7f372763",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_rock_tallA": {
+      "path": "static/models/outdoor_rock_tallA.glb",
+      "bytes": 12072,
+      "sha256": "88250f236a3b75f8b55c1d8afb6af020f8a91b1e81f9fb51f7ef513420d45a2d",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_sign": {
+      "path": "static/models/outdoor_sign.glb",
+      "bytes": 5040,
+      "sha256": "c658c21672ecd63c5d3e53f06f875d68e6509edb1ab7e3b75374df7c61e7dd0c",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_statue_column": {
+      "path": "static/models/outdoor_statue_column.glb",
+      "bytes": 10472,
+      "sha256": "5d7f6c8bce8d1dc7ee62b1841376cda331c4359acfa2b9a11dd7e78c14ea9dbb",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_statue_obelisk": {
+      "path": "static/models/outdoor_statue_obelisk.glb",
+      "bytes": 4416,
+      "sha256": "e18013044ad6453a1850226be29f63c37d67e0002141f5f6a4d14a46bde69e00",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_stone_largeA": {
+      "path": "static/models/outdoor_stone_largeA.glb",
+      "bytes": 7124,
+      "sha256": "fe486a13775e833b1aca99413a89e013f300841de80f42ecd44ceaf43720f17b",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_stone_tallA": {
+      "path": "static/models/outdoor_stone_tallA.glb",
+      "bytes": 11644,
+      "sha256": "3070bd574104abce19f5e3c82c917cb7f52801720377beba7aad76058408d5db",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_stump_old": {
+      "path": "static/models/outdoor_stump_old.glb",
+      "bytes": 9564,
+      "sha256": "4c2d2da34804c1662c6a776a9d60fe4449e6f6fdd50914bfec7d5cca3e9ceddb",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_stump_round": {
+      "path": "static/models/outdoor_stump_round.glb",
+      "bytes": 5644,
+      "sha256": "e9b0f385f0ef98493ef716a055aa51e0b99efb8445279be7bb8bd83329a4c4af",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_tent_detailedOpen": {
+      "path": "static/models/outdoor_tent_detailedOpen.glb",
+      "bytes": 15324,
+      "sha256": "d54d9665d07e0ff9680e56731c9f5338fc25d93788504d63b8375f54e6444193",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_tree_blocks": {
+      "path": "static/models/outdoor_tree_blocks.glb",
+      "bytes": 10128,
+      "sha256": "cb74bda3024bbe396c01b3d5b381a93e6d7c73241079868c19ac420ad52e475c",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_tree_cone": {
+      "path": "static/models/outdoor_tree_cone.glb",
+      "bytes": 10924,
+      "sha256": "90be4d214ee2cbf79d317677cb87fc11dac9873b73e446b75e8c12825a374272",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_tree_default": {
+      "path": "static/models/outdoor_tree_default.glb",
+      "bytes": 9428,
+      "sha256": "562d29638c902de3c7bee465d3a53bb77117efbc392ae04ed894faf6b5dc691d",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_tree_detailed": {
+      "path": "static/models/outdoor_tree_detailed.glb",
+      "bytes": 31412,
+      "sha256": "c041daf2f0fb1d49e4325227cbcd58667adbe51e9b55e8c1f0a94b74cc521b3b",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_tree_fat": {
+      "path": "static/models/outdoor_tree_fat.glb",
+      "bytes": 5576,
+      "sha256": "84b262c5dda3a91ac6c95f9d8b23a0ebbb1951d678c0e1375d3e32623cc43ee2",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_tree_oak": {
+      "path": "static/models/outdoor_tree_oak.glb",
+      "bytes": 14644,
+      "sha256": "d7fd8773674928c50c11b66d12c636d49bdcc15a8b1c7fbb98e6f63a3439a3f3",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_tree_palm": {
+      "path": "static/models/outdoor_tree_palm.glb",
+      "bytes": 13616,
+      "sha256": "27bbb23d26ed788d84de6df2f7fab0acc3fe0ff16c7d08cdcfa1fffcb11de324",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_tree_palmBend": {
+      "path": "static/models/outdoor_tree_palmBend.glb",
+      "bytes": 14820,
+      "sha256": "8af9dae16ce3c03183f9457996ebdd135167199514e8f4f944ee2bd82828d5c9",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_tree_palmTall": {
+      "path": "static/models/outdoor_tree_palmTall.glb",
+      "bytes": 15592,
+      "sha256": "cbd2c2ea7d0316be7514d44699527c566ce91e0542e8b6c6bf431a155e5655f6",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_tree_pineRoundA": {
+      "path": "static/models/outdoor_tree_pineRoundA.glb",
+      "bytes": 14488,
+      "sha256": "7dc9711f31585eafdcb965d0649c30af5e19f2def1955f7a915081d30759ef8e",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_tree_pineTallA_detailed": {
+      "path": "static/models/outdoor_tree_pineTallA_detailed.glb",
+      "bytes": 10708,
+      "sha256": "9ba6337460e718b8baf165b23c02f39455e3d5757b1911505410c46bc88a86b5",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_tree_simple": {
+      "path": "static/models/outdoor_tree_simple.glb",
+      "bytes": 6500,
+      "sha256": "93891ea740447634930de19c31a7c1c9f4add94122e6db03aca9f75aea32f9d6",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_tree_small": {
+      "path": "static/models/outdoor_tree_small.glb",
+      "bytes": 6500,
+      "sha256": "d26c0eeed65cc681667f50042ef23ec72ce47ae3b39837bfeec170b05ba6ab6a",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_tree_tall": {
+      "path": "static/models/outdoor_tree_tall.glb",
+      "bytes": 7000,
+      "sha256": "3515a8826044d91e84e011186c86878f62024a487a079b4e32c9ac2e71994411",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "outdoor_tree_thin": {
+      "path": "static/models/outdoor_tree_thin.glb",
+      "bytes": 17200,
+      "sha256": "f0f1f6861fe0446963d3be216cc628324f538bb0841bc9a8e14140313f64e2f3",
+      "embeddedGenerator": "UniGLTF-1.27",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "plantSmall1": {
+      "path": "static/models/plantSmall1.glb",
+      "bytes": 8224,
+      "sha256": "2b9c022feb47be857b2c4fdc29f36522766ba9b70c578c31d7c05d71b4377d15",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "pottedPlant": {
+      "path": "static/models/pottedPlant.glb",
+      "bytes": 7576,
+      "sha256": "5b760eda2766f75fda36b2c5df652a1662f82981ef64cd8fa7fe7bcd386b3a15",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "shower": {
+      "path": "static/models/shower.glb",
+      "bytes": 52020,
+      "sha256": "25c1cebad681fe369dc04839a8f08f5da2ccbd99b3a70aa83fe2e4d1590c6951",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "sideTable": {
+      "path": "static/models/sideTable.glb",
+      "bytes": 8800,
+      "sha256": "8227810584f7d37582e4e9ec821c56f1dc54b99c88a8dc74242ea3b7402bc472",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "tableCoffee": {
+      "path": "static/models/tableCoffee.glb",
+      "bytes": 8256,
+      "sha256": "e38bea760fbd514efbb75528d09b4752c91af44677bbb97e6d4386c263525179",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "tableCross": {
+      "path": "static/models/tableCross.glb",
+      "bytes": 12140,
+      "sha256": "f0d83392aff5df82f6c9585cadff694643dbd30a4ff2b8bb01a00a7a161338a3",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "televisionModern": {
+      "path": "static/models/televisionModern.glb",
+      "bytes": 6368,
+      "sha256": "d89519ad0a5f28b5b0dccb0d83209dccf610cda959578238dd21bbf9e219cfc6",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "toilet": {
+      "path": "static/models/toilet.glb",
+      "bytes": 18112,
+      "sha256": "16165cfd03c56c2cb443b800570810a22ef770f65e7a468f6761d9dc14eaaeae",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    },
+    "washerDryerStacked": {
+      "path": "static/models/washerDryerStacked.glb",
+      "bytes": 64060,
+      "sha256": "efcc2155ef170092dc2602a98179380de3442c2500998a6ca37cc5554d275676",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "unverified"
+    }
+  }
+}

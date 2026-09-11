@@ -2737,3 +2737,11 @@ platform minimums. Updated the linked native handoff with current resume guidanc
 marked stale pause instructions historical, and qualified old test counts as dated
 checkpoints. Setup documentation is present; native licensing/publication, final
 release branding and device gates remain open.
+
+### Reproducible furniture inventory — 2026-09-10
+
+Added a generated manifest for 189 catalog entries and 93 mapped GLBs, including
+default centimetre dimensions, web representation, asset hashes and embedded
+metadata. CI checks drift through `npm run catalog:check`. Provenance is explicitly
+unverified; source/license curation, product measurements, native support and
+unmapped/texture assets remain open. See [inventory scope](docs/furniture-inventory.md).
