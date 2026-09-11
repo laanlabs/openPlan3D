@@ -4,7 +4,8 @@ import { resolve } from 'node:path';
 import { storedRecords } from './storage';
 
 const id = 'qa-modal-keyboard';
-async function seed(page: Page) {
+async function seed(page: Page, locale = 'en') {
+  await page.addInitScript(locale => localStorage.setItem('o3d_locale', locale), locale);
   const project = JSON.parse(await readFile('tests/fixtures/save-conflicts.openplan.json', 'utf8'));
   project.id = id; project.name = 'QA Modal Keyboard';
   await page.addInitScript(project => {
@@ -15,8 +16,8 @@ async function seed(page: Page) {
     }
   }, project);
   await page.goto(`/editor?id=${id}`);
-  await page.getByRole('button', { name: 'Save', exact: true }).press('l');
-  await page.getByRole('button', { name: '─ Wall 1', exact: true }).click();
+  await page.getByRole('button', { name: locale === 'pt' ? 'Salvar' : 'Save', exact: true }).press('l');
+  await page.getByRole('button', { name: locale === 'pt' ? '─ Parede 1' : '─ Wall 1', exact: true }).click();
   return project;
 }
 function observe(page: Page) {
@@ -153,23 +154,25 @@ test('closing a dialog preserves elevation and 3D edit modes and print remains u
   check();
 });
 
-for (const width of [1440, 390]) test(`RoomPlan cancellation and template modal focus stay local at ${width}px`, async ({ page }) => {
-  await page.setViewportSize({ width, height: 900 }); const check = observe(page); await seed(page);
+for (const locale of ['en', 'pt']) for (const width of [1440, 390]) test(`${locale}: RoomPlan cancellation and template modal focus stay local at ${width}px`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 900 }); const check = observe(page); await seed(page, locale);
   const before = await storedRecords(page);
   if (width < 768) await page.getByRole('button', { name: 'Toggle tools panel', exact: true }).click();
   const pending = page.waitForEvent('filechooser');
-  await page.getByRole('button', { name: /Import RoomPlan iOS LiDAR scan/ }).click();
+  await page.getByRole('button', { name: locale === 'pt' ? /Importar RoomPlan Escaneamento LiDAR/ : /Import RoomPlan iOS LiDAR scan/ }).click();
   await (await pending).setFiles(resolve('tests/fixtures/handoff-roomplan.json'));
-  const dialog = await focusInside(page, 'Import RoomPlan');
-  await page.keyboard.press('Tab'); await focusInside(page, 'Import RoomPlan');
+  const dialog = await focusInside(page, locale === 'pt' ? 'Importar RoomPlan' : 'Import RoomPlan');
+  await dialog.getByRole('checkbox', { name: locale === 'pt' ? /Alinhar paredes/ : /Straighten walls/ }).uncheck();
+  await dialog.getByRole('spinbutton', { name: locale === 'pt' ? 'Distância para unir cantos (cm)' : 'Corner merge distance (cm)' }).fill('25');
+  await page.keyboard.press('Tab'); await focusInside(page, locale === 'pt' ? 'Importar RoomPlan' : 'Import RoomPlan');
   await page.keyboard.press('Escape'); await expect(dialog).toHaveCount(0);
   expect(await storedRecords(page)).toEqual(before);
   await page.goto('/');
-  await page.getByRole('button', { name: 'Templates', exact: true }).press('Enter');
-  const templates = await focusInside(page, 'Floor Plan Templates');
-  await page.keyboard.press('Shift+Tab'); await focusInside(page, 'Floor Plan Templates');
+  await page.getByRole('button', { name: locale === 'pt' ? 'Modelos' : 'Templates', exact: true }).press('Enter');
+  const templates = await focusInside(page, locale === 'pt' ? 'Modelos de Planta Baixa' : 'Floor Plan Templates');
+  await page.keyboard.press('Shift+Tab'); await focusInside(page, locale === 'pt' ? 'Modelos de Planta Baixa' : 'Floor Plan Templates');
   await page.keyboard.press('Escape'); await expect(templates).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'Templates', exact: true })).toBeFocused();
+  await expect(page.getByRole('button', { name: locale === 'pt' ? 'Modelos' : 'Templates', exact: true })).toBeFocused();
   expect(await storedRecords(page)).toEqual(before);
   check();
 });

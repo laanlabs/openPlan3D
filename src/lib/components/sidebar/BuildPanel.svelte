@@ -774,37 +774,37 @@
 
 <!-- RoomPlan Import Options Dialog -->
 {#if showImportDialog}
-  <dialog use:modalDialog class="modal-overlay fixed inset-0 bg-black/50 z-50 flex items-center justify-center" aria-label="Import RoomPlan" onclick={(e) => { if (e.target === e.currentTarget) cancelImport(); }} oncancel={(e) => { e.preventDefault(); cancelImport(); }}>
+  <dialog use:modalDialog class="modal-overlay fixed inset-0 bg-black/50 z-50 flex items-center justify-center" aria-label={$t('roomPlanDialog.title')} onclick={(e) => { if (e.target === e.currentTarget) cancelImport(); }} oncancel={(e) => { e.preventDefault(); cancelImport(); }}>
     <div class="bg-white rounded-xl shadow-2xl w-80 max-w-[calc(100vw-2rem)] max-h-[85vh] overflow-auto p-5">
-      <h3 class="text-sm font-bold text-gray-800 mb-1">Import RoomPlan</h3>
+      <h3 class="text-sm font-bold text-gray-800 mb-1">{$t('roomPlanDialog.title')}</h3>
       <p class="text-xs text-gray-400 mb-4">{importFileName}</p>
 
       <div class="space-y-3">
         <label class="flex items-start gap-2.5 cursor-pointer">
           <input type="checkbox" bind:checked={optStraighten} class="accent-blue-500 mt-0.5" />
           <div>
-            <div class="text-sm font-medium text-gray-700">Straighten walls</div>
-            <div class="text-xs text-gray-400">Snap near-horizontal/vertical walls to axis</div>
+            <div class="text-sm font-medium text-gray-700">{$t('roomPlanDialog.straighten')}</div>
+            <div class="text-xs text-gray-400">{$t('roomPlanDialog.straightenHelp')}</div>
           </div>
         </label>
 
         <label class="flex items-start gap-2.5 cursor-pointer">
           <input type="checkbox" bind:checked={optOrthogonal} class="accent-blue-500 mt-0.5" />
           <div>
-            <div class="text-sm font-medium text-gray-700">Enforce orthogonal <span class="text-xs text-blue-400 font-mono">{ORTHO_VERSION}</span></div>
-            <div class="text-xs text-gray-400">Force all walls to 90°/180° angles</div>
+            <div class="text-sm font-medium text-gray-700">{$t('roomPlanDialog.orthogonal')} <span class="text-xs text-blue-400 font-mono">{ORTHO_VERSION}</span></div>
+            <div class="text-xs text-gray-400">{$t('roomPlanDialog.orthogonalHelp')}</div>
           </div>
         </label>
 
         <label class="block">
-          <div class="text-xs text-gray-500 mb-1">Corner merge distance (cm)</div>
+          <div class="text-xs text-gray-500 mb-1">{$t('roomPlanDialog.merge')}</div>
           <input type="number" bind:value={optMergeDistance} min="0" max="50" step="5" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
         </label>
       </div>
 
       <div class="flex gap-2 mt-5">
-        <button onclick={cancelImport} class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors">Cancel</button>
-        <button onclick={confirmImport} class="flex-1 px-3 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors">Import</button>
+        <button onclick={cancelImport} class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors">{$t('roomPlanDialog.cancel')}</button>
+        <button onclick={confirmImport} class="flex-1 px-3 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors">{$t('roomPlanDialog.import')}</button>
       </div>
     </div>
   </dialog>

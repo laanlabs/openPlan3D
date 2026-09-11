@@ -3163,3 +3163,11 @@ accepts original/translated categories without requiring accents. Five unit test
 zero-warning check, production build and three browser cases pass (36.3 seconds),
 including category isolation and original recent-item IDs. Individual object names,
 remaining editor panels/dialogs and device/release gates remain open.
+
+### RoomPlan import-dialog localization — 2026-09-10
+
+Translated import-option labels/help and confirmation/cancel actions. Five unit
+tests, zero-warning check, production build and six Portuguese browser cases pass
+(39.4 seconds), verifying edited-option cancellation leaves stored projects intact
+and restores dialog focus at both widths. Remaining diagnostics/editor strings
+and physical-device/release gates stay open.

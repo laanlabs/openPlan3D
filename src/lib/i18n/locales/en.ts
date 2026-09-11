@@ -603,5 +603,13 @@ export const en = {
   "catalogCategories.imported": "Imported",
   "catalogCategories.outdoorLighting": "Outdoor Lighting",
   "catalogCategories.pathsLawns": "Paths & Lawns",
-  "catalogCategories.poolSpa": "Pool & Spa"
+  "catalogCategories.poolSpa": "Pool & Spa",
+  "roomPlanDialog.title": "Import RoomPlan",
+  "roomPlanDialog.straighten": "Straighten walls",
+  "roomPlanDialog.straightenHelp": "Snap near-horizontal/vertical walls to axis",
+  "roomPlanDialog.orthogonal": "Enforce orthogonal",
+  "roomPlanDialog.orthogonalHelp": "Force all walls to 90°/180° angles",
+  "roomPlanDialog.merge": "Corner merge distance (cm)",
+  "roomPlanDialog.cancel": "Cancel",
+  "roomPlanDialog.import": "Import"
 } as const;

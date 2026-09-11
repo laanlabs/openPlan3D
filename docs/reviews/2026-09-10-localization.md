@@ -627,3 +627,17 @@ after placement activation. Logs: `/tmp/web-catalog-categories-unit.log`,
 `/tmp/web-catalog-categories-check.log`, `/tmp/web-catalog-categories-build.log`,
 `/tmp/web-catalog-categories-browser.log`. Physical-device/search usability review
 and individual furniture-name localization remain open.
+
+## RoomPlan import-options dialog
+
+Translated dialog title, straightening/orthogonal help, merge-distance label and
+confirmation/cancel buttons. Option bindings, numeric constraints, import pipeline
+and cancellation handlers are unchanged.
+
+Five localization unit tests, zero-warning Svelte check and production build pass.
+Six Portuguese browser cases pass across three engines at 1440px/390px (39.4
+seconds), editing the straightening/merge-distance options before cancellation,
+verifying unchanged stored records, focus containment and template-dialog focus
+restoration. Successful import geometry is not newly qualified by this run. Logs:
+`/tmp/web-roomplan-dialog-unit.log`, `/tmp/web-roomplan-dialog-check.log`,
+`/tmp/web-roomplan-dialog-build.log`, `/tmp/web-roomplan-dialog-browser.log`.

@@ -603,5 +603,13 @@ export const pt = {
   "catalogCategories.imported": "Importados",
   "catalogCategories.outdoorLighting": "Iluminação externa",
   "catalogCategories.pathsLawns": "Caminhos e gramados",
-  "catalogCategories.poolSpa": "Piscinas e spas"
+  "catalogCategories.poolSpa": "Piscinas e spas",
+  "roomPlanDialog.title": "Importar RoomPlan",
+  "roomPlanDialog.straighten": "Alinhar paredes",
+  "roomPlanDialog.straightenHelp": "Alinhar aos eixos as paredes quase horizontais ou verticais",
+  "roomPlanDialog.orthogonal": "Aplicar ângulos retos",
+  "roomPlanDialog.orthogonalHelp": "Ajustar todas as paredes a ângulos de 90°/180°",
+  "roomPlanDialog.merge": "Distância para unir cantos (cm)",
+  "roomPlanDialog.cancel": "Cancelar",
+  "roomPlanDialog.import": "Importar"
 } as const;
