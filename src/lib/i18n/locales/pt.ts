@@ -768,5 +768,11 @@ export const pt = {
   "columnColor.Navy": "Azul-marinho",
   "annotationProperties.heading": "Anotação de texto",
   "annotationProperties.text": "Texto",
-  "annotationProperties.fontSize": "Tamanho da fonte"
+  "annotationProperties.fontSize": "Tamanho da fonte",
+  "backgroundProperties.heading": "Imagem de fundo",
+  "backgroundProperties.opacity": "Opacidade",
+  "backgroundProperties.scale": "Escala",
+  "backgroundProperties.rotation": "Rotação",
+  "backgroundProperties.calibrate": "Definir escala",
+  "backgroundProperties.remove": "Remover imagem"
 } as const;

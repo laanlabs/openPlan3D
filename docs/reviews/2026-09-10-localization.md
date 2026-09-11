@@ -883,3 +883,17 @@ Logs: `/tmp/web-annotation-properties-check.log`,
 `/tmp/web-annotation-properties-build.log`, `/tmp/web-annotation-properties-unit.log`,
 `/tmp/web-annotation-properties-browser.log`. Physical touch, rendered multiline
 layout, remaining Properties sections and release requirements stay open.
+
+## Background-image Properties localization
+
+Translated heading, opacity/scale/rotation, lock state, calibration entry and remove
+controls. Existing image/calibration handlers remain unchanged. Production check
+reports zero errors/warnings; build and five localization unit tests pass. Three
+desktop browser cases pass (31.1 seconds, exit 0), comparing original image bytes,
+position, scale/opacity/rotation/lock edits, unchanged plan geometry and complete
+restoration after removal/undo. The first browser run caught a partial Set Scale
+translation; the full label was corrected before the final passing build/run.
+Logs: `/tmp/web-background-properties-check.log`,
+`/tmp/web-background-properties-build-final.log`, `/tmp/web-background-properties-unit.log`,
+`/tmp/web-background-properties-browser-final.log`. Calibration execution, physical
+touch and remaining editor/release requirements remain open.

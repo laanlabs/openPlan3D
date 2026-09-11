@@ -3289,3 +3289,10 @@ Translated annotation Properties labels. Production check/build and five
 localization unit tests pass. Six bilingual browser cases pass (53.2 seconds),
 checking focus, reopen, literal multiline text and font/rotation/position edits
 through exported data. Remaining Properties/device/release gates stay open.
+
+### Background-image Properties localization — 2026-09-11
+
+Translated image adjustment, lock, calibration-entry and removal labels. Check,
+build and five localization unit tests pass; three browser cases pass (31.1 seconds),
+verifying image byte/position preservation, adjustment values and removal/undo.
+Calibration execution and remaining Properties/device/release gates stay open.

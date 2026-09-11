@@ -768,5 +768,11 @@ export const en = {
   "columnColor.Navy": "Navy",
   "annotationProperties.heading": "Text Annotation",
   "annotationProperties.text": "Text",
-  "annotationProperties.fontSize": "Font Size"
+  "annotationProperties.fontSize": "Font Size",
+  "backgroundProperties.heading": "Background Image",
+  "backgroundProperties.opacity": "Opacity",
+  "backgroundProperties.scale": "Scale",
+  "backgroundProperties.rotation": "Rotation",
+  "backgroundProperties.calibrate": "Set Scale",
+  "backgroundProperties.remove": "Remove Image"
 } as const;
