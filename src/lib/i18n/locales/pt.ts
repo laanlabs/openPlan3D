@@ -1183,4 +1183,9 @@ export const pt = {
   "projectService.retainedDetails": "Dados retidos do pacote de projeto inválidos. Mantenha um backup JSON antes da recuperação.",
   "projectService.historyUnreadable": "Não foi possível ler o histórico de versões. Baixe um backup antes de limpar as versões danificadas.",
   "projectService.historySize": "Estas fotos tornariam as versões salvas grandes demais para reabrir. Exporte um backup e use fotos menores ou remova anexos não utilizados.",
+  "projectService.historyMissing": "Nenhum histórico de versões salvo foi encontrado.",
+  "projectService.historyChanged": "Esta versão mudou. Feche e reabra o histórico de versões e escolha-a novamente.",
+  "projectService.historyWrongProject": "Esta versão pertence a outro projeto.",
+  "projectService.historyRead": "Não foi possível ler esta versão.",
+  "projectService.historyUnchanged": "Sua planta atual não foi alterada.",
 } as const;

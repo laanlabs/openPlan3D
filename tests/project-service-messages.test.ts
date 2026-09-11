@@ -161,7 +161,7 @@ describe('project service diagnostics', () => {
     expect(error).toBeInstanceOf(Error);
     expect(projectServiceMessage((error as Error).message, 'pt')).toBe('Este backup não contém projetos nem dados de recuperação.');
   });
-  it.each(['restore.retry', 'package.retry'] as const)('translates the cause and %s outcome without losing unknown details', key => {
+  it.each(['restore.retry', 'package.retry', 'projectService.historyUnchanged'] as const)('translates the cause and %s outcome without losing unknown details', key => {
     const cause = storageErrorMessage({ name: 'QuotaExceededError' });
     for (const sourceLocale of ['en', 'pt'] as const) {
       const message = `${cause} ${translate(sourceLocale, key)}`;

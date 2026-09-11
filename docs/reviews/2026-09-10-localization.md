@@ -2378,3 +2378,30 @@ Logs: `/tmp/web-recovery-errors-unit.log`, `/tmp/web-recovery-errors-check.log`,
 This is scoped evidence after the full unit checkpoint, not a new full-suite run.
 Missing-history and failed-restore outcome messages in versionHistory.ts remain
 open, along with physical/native/release requirements.
+
+### 2026-09-11: Version-history restore outcomes
+
+Translated missing history, changed snapshots, foreign-project versions and the
+unreadable-version fallback. The shared outcome translator also recognizes Your
+current plan has not changed in either language and preserves unknown causes.
+Service behavior and data remain unchanged.
+
+All 47 focused service-message/dictionary checks pass; Svelte reports zero
+errors/warnings and the production build passes. The first browser run had three
+new-case failures and six existing-case passes. The new test incorrectly expected
+the seeded history array to remain the entire history after startup; traces showed
+the legitimate Session start snapshot. The test now waits for that snapshot,
+checks the original seeded entry, then captures its exact pre-restore baseline.
+No runtime fix was needed for this test failure.
+
+The corrected run passes all nine history cases across Chromium, Firefox and
+WebKit (1.2 minutes). The new phone case rejects a foreign-project snapshot,
+requires the Portuguese cause and unchanged-plan outcome, checks exact project
+and history records, downloads the history unchanged, and compares floor exports
+before and after the attempt.
+
+Logs: `/tmp/web-history-outcomes-unit.log`, `/tmp/web-history-outcomes-check.log`,
+`/tmp/web-history-outcomes-build.log`, `/tmp/web-history-outcomes-browser.log`
+(initial test baseline failure), `/tmp/web-history-outcomes-browser-retry.log`.
+This is scoped post-checkpoint evidence, not a new full-suite result. Broader
+localization, physical-device/native and release requirements remain open.

@@ -163,6 +163,17 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+Remaining version-history diagnostics now translate missing history, changed or
+foreign snapshots, unreadable versions and the unchanged-current-plan outcome.
+Forty-seven focused unit/dictionary checks, zero Svelte diagnostics and the
+production build pass. Nine history browser cases pass across three engines
+(1.2 minutes), verifying rejected foreign-project restoration, unchanged project
+and history records, recovery download and before/after floor exports. The first
+run exposed a test baseline that omitted the legitimate Session start snapshot;
+the corrected test waits for it and verifies exact preservation thereafter.
+This is scoped verification; other localization and physical/native/release gates
+remain open.
+
 The recovery-error gaps listed below now have display translations, and the
 version-history panel applies the shared translator. Forty-six focused unit and
 dictionary checks pass, Svelte reports zero diagnostics, and the production build

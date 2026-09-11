@@ -1183,4 +1183,9 @@ export const en = {
   "projectService.retainedDetails": "Invalid retained project-package data. Keep a JSON backup before recovery.",
   "projectService.historyUnreadable": "Version history could not be read. Download a backup before clearing damaged versions.",
   "projectService.historySize": "These photos would make saved versions too large to reopen. Export a backup, then use smaller photos or remove unused attachments.",
+  "projectService.historyMissing": "No saved version history was found.",
+  "projectService.historyChanged": "This version changed. Close and reopen version history, then choose it again.",
+  "projectService.historyWrongProject": "This version belongs to a different project.",
+  "projectService.historyRead": "Could not read this version.",
+  "projectService.historyUnchanged": "Your current plan has not changed.",
 } as const;

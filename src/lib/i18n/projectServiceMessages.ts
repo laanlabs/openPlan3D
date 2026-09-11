@@ -3,6 +3,10 @@ import { projectValidationMessage } from './projectValidationMessages';
 
 type ServiceKey = Extract<TranslationKey, `projectService.${string}`>;
 const keys: ServiceKey[] = [
+  'projectService.historyMissing',
+  'projectService.historyChanged',
+  'projectService.historyWrongProject',
+  'projectService.historyRead',
   'projectService.upgradeBlocked',
   'projectService.libraryUnreadable',
   'projectService.recoveryId',
@@ -83,7 +87,7 @@ function countedMessage(message: string, language: Locale): string {
   }
   return projectValidationMessage(packageMessage(message, language), language);
 }
-const outcomes = (['welcome.noImport', 'restore.retry', 'package.retry'] as const)
+const outcomes = (['welcome.noImport', 'restore.retry', 'package.retry', 'projectService.historyUnchanged'] as const)
   .flatMap(key => (['en', 'pt'] as const).map(locale => ({ key, text: ` ${translate(locale, key)}` })));
 
 /** Translate known service diagnostics without altering unknown error details. */
