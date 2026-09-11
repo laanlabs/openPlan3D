@@ -2699,3 +2699,12 @@ check source pixel dimensions and render at scale 1, preserving original saved
 image bytes. Four new preview regressions reproduced the defect; all 14 preview
 and package tests pass on Catalyst and iOS Simulator. See native
 `docs/native-trace-preview-pixels.md`. Peak import memory/device budgets remain open.
+
+### Native trace thumbnail decoding — 2026-09-10
+
+Reopen/history reload now requests a transformed ImageIO thumbnail directly
+from the saved file at the 2,000-pixel limit, avoiding the previous full-image
+UIImage drawing path. Source bytes stay intact; missing/corrupt files return
+no preview. All 17 preview/package tests pass on Catalyst and iOS Simulator,
+including file dimensions and EXIF rotation. See native
+`docs/native-trace-preview-pixels.md`; peak import/device measurements remain open.
