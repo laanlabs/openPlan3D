@@ -1516,3 +1516,18 @@ preservation and exact Undo restoration. Room material/reset/delete keyboard
 flows and physical assistive-technology qualification remain open.
 Logs: `/tmp/web-context-room-repro.log`, `/tmp/web-context-room-check.log`,
 `/tmp/web-context-room-build.log`, `/tmp/web-context-room-browser.log`.
+
+## Keyboard integration checkpoint — 2026-09-11
+
+At `6a59c00`, all 943 unit tests across 87 files pass (5.66 seconds). Nine existing
+English browser cases pass across Chromium, Firefox and WebKit (1.4 minutes).
+Six modal cases at 1440px/390px exercise Settings, Version History, Area Summary,
+Keyboard Shortcuts and Print Preview: modal focus stays contained, editor keys
+preserve selected geometry and stored records, and deletion/Undo resume after
+dismissal. Three room-label cases verify saved offsets, reset, drag, inline editor
+anchoring and Undo after the recent rename focus change.
+
+Logs: `/tmp/web-keyboard-integration-unit.log` and
+`/tmp/web-keyboard-integration-browser.log`. No runtime changes were needed in this
+checkpoint. These checks do not establish full browser, physical accessibility,
+native release or Firebase migration completion.

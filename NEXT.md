@@ -163,7 +163,14 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
-Latest full web unit checkpoint: **943 tests across 87 files passed** with the
+Latest full web unit checkpoint: **943 tests across 87 files passed** at `6a59c00`
+(5.66 seconds). Nine existing English browser cases pass across Chromium,
+Firefox and WebKit (1.4 minutes): modal keyboard isolation at 1440px/390px,
+stored/exported floor preservation, and room-label positioning, reset, drag and
+Undo. This integrates the recent context-menu and rename focus changes; full
+browser/device/release qualification remains open.
+
+Earlier full web unit checkpoint: **943 tests across 87 files passed** with the
 opening-safe wall split change (5.06 seconds). Check/build and nine contextual
 wall-action browser cases across Chromium, Firefox and WebKit also pass (52.9
 seconds). Splits crossing opening interiors are rejected without mutation; exact
