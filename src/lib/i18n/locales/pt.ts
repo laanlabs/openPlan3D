@@ -789,5 +789,10 @@ export const pt = {
   "wallProperties.equalize": "Igualar ({height} {unit})",
   "wallProperties.reverse": "Inverter direção",
   "wallProperties.reverseHint": "Inverter a direção da parede (trocar extremidades e alturas iniciais/finais)",
-  "wallProperties.clipped": "Algumas aberturas não cabem nesta parede. A elevação e a vista 3D recortam a prévia; as dimensões salvas permanecem iguais. Aumente a altura da parede ou redimensione/reposicione as aberturas."
+  "wallProperties.clipped": "Algumas aberturas não cabem nesta parede. A elevação e a vista 3D recortam a prévia; as dimensões salvas permanecem iguais. Aumente a altura da parede ou redimensione/reposicione as aberturas.",
+  "wallProperties.curved": "Curva",
+  "wallProperties.curveToggle": "Parede curva",
+  "wallProperties.curveOn": "◆ Ativada",
+  "wallProperties.curveOff": "◇ Desativada",
+  "wallProperties.elevationHint": "Ver esta parede de frente e editar suas portas e janelas"
 } as const;

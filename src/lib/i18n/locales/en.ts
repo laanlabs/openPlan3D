@@ -789,5 +789,10 @@ export const en = {
   "wallProperties.equalize": "Equalize ({height} {unit})",
   "wallProperties.reverse": "Reverse direction",
   "wallProperties.reverseHint": "Reverse wall direction (swap start/end points and heights)",
-  "wallProperties.clipped": "Some openings do not fit this wall. Elevation and 3D clip their preview; saved dimensions stay unchanged. Raise the wall or resize/reposition the openings."
+  "wallProperties.clipped": "Some openings do not fit this wall. Elevation and 3D clip their preview; saved dimensions stay unchanged. Raise the wall or resize/reposition the openings.",
+  "wallProperties.curved": "Curved",
+  "wallProperties.curveToggle": "Curved wall",
+  "wallProperties.curveOn": "◆ On",
+  "wallProperties.curveOff": "◇ Off",
+  "wallProperties.elevationHint": "View this wall face-on and edit its doors and windows"
 } as const;

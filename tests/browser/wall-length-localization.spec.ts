@@ -61,4 +61,20 @@ test('Portuguese wall length controls preserve connections and reject invalid dr
   await page.getByRole('button', { name: '↔️ Igualar (200 cm)', exact: true }).click();
   const equalized = await exported();
   expect(equalized.walls[0]).toMatchObject({ startHeight: 200, endHeight: 200 });
+
+  const curve = page.getByRole('button', { name: 'Parede curva', exact: true });
+  await expect(curve).toHaveAttribute('aria-pressed', 'false');
+  await curve.click();
+  await expect(curve).toHaveAttribute('aria-pressed', 'true');
+  await expect(curve).toHaveText('◆ Ativada');
+  const curved = await exported();
+  const wall = equalized.walls[0];
+  const dx = wall.end.x - wall.start.x, dy = wall.end.y - wall.start.y;
+  const lengthCm = Math.hypot(dx, dy);
+  expect(curved.walls[0].curvePoint).toEqual({ x: (wall.start.x + wall.end.x) / 2 - dy / lengthCm * 60, y: (wall.start.y + wall.end.y) / 2 + dx / lengthCm * 60 });
+  expect(curved.doors).toEqual(equalized.doors);
+  expect(curved.windows).toEqual(equalized.windows);
+  await curve.click();
+  await expect(curve).toHaveAttribute('aria-pressed', 'false');
+  expect((await exported()).walls).toEqual(equalized.walls);
 });

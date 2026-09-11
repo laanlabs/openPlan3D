@@ -420,14 +420,15 @@
       <button
         class="w-full py-1.5 text-sm rounded-md bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors flex items-center justify-center gap-1.5"
         onclick={() => { if (selectedWall) elevationWallId.set(selectedWall.id); }}
-        title="View this wall face-on and edit its doors and windows"
+        title={$t('wallProperties.elevationHint')}
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="1"/><line x1="3" y1="18" x2="21" y2="18"/><rect x="7" y="9" width="4" height="4"/><rect x="14" y="10" width="3" height="8"/></svg>
-        Elevation
+        {$t('toolbarView.elevation')}
       </button>
       <div class="flex items-center gap-2">
-        <span class="text-xs text-gray-500">Curved</span>
+        <span class="text-xs text-gray-500">{$t('wallProperties.curved')}</span>
         <button
+          aria-label={$t('wallProperties.curveToggle')} aria-pressed={!!selectedWall.curvePoint}
           class="px-2 py-0.5 text-xs rounded {selectedWall.curvePoint ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-gray-100 text-gray-500 border border-gray-200'}"
           onclick={() => {
             if (selectedWall) {
@@ -445,7 +446,7 @@
             }
           }}
         >
-          {selectedWall.curvePoint ? '◆ On' : '◇ Off'}
+          {selectedWall.curvePoint ? $t('wallProperties.curveOn') : $t('wallProperties.curveOff')}
         </button>
       </div>
       <!-- Wall Material Tabs: Interior / Exterior -->

@@ -3318,3 +3318,10 @@ Translated endpoint-height controls, clipping warning, equalize and reverse acti
 Check/build, five localization unit tests and three browser cases pass (40.0 seconds),
 verifying saved opening dimensions, swapped endpoints/heights and equalized heights.
 Remaining wall controls/diagnostics and broader device/release scope stay open.
+
+### Wall curve control localization and accessibility — 2026-09-11
+
+Translated curve states and elevation entry; added a named curve toggle with
+pressed state. Check/build, five localization unit tests and three browser cases
+pass (47.5 seconds), verifying saved curve geometry, unchanged openings and straight
+wall restoration. Wall materials/diagnostics and broader device/release gates stay open.

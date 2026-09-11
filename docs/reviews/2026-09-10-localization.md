@@ -940,3 +940,17 @@ Logs: `/tmp/web-wall-height-localization-check.log`,
 `/tmp/web-wall-height-localization-build.log`, `/tmp/web-wall-height-localization-unit.log`,
 `/tmp/web-wall-height-localization-browser.log`. Wall material/curve/elevation labels,
 service diagnostics and broader device/release requirements remain open.
+
+## Wall curve control and elevation-entry localization
+
+Translated the curve caption/states and elevation entry/hint. The curve toggle now
+has an explicit accessible name and aria-pressed state; its geometry handler is
+unchanged. Production check reports zero errors/warnings; build and five
+localization unit tests pass. Three browser cases pass (47.5 seconds, exit 0),
+verifying the saved 60cm perpendicular midpoint control point, unchanged openings
+and complete straight-wall restoration after toggling off. This verifies stored
+geometry and control semantics, not rendered curve/elevation fidelity.
+Logs: `/tmp/web-wall-curve-localization-check.log`,
+`/tmp/web-wall-curve-localization-build.log`, `/tmp/web-wall-curve-localization-unit.log`,
+`/tmp/web-wall-curve-localization-browser.log`. Wall material labels, service
+messages, broader localization and physical-device/release requirements remain open.
