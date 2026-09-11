@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test('Portuguese AI choices preserve provider prompt values without sending an image', async ({ page }) => {
+  test.slow();
   await page.addInitScript(() => localStorage.setItem('o3d_locale', 'pt'));
   const external: string[] = [];
   await page.route(/^https?:\/\//, route => {
@@ -11,7 +12,8 @@ test('Portuguese AI choices preserve provider prompt values without sending an i
   await page.getByRole('button', { name: '3D', exact: true }).click();
   const viewer = page.getByRole('region', { name: 'Visualizador 3D da planta', exact: true });
   const canvas = viewer.locator('canvas').first();
-  await expect(canvas).toBeVisible();
+  // Cold production navigation must load the 3D bundle before creating canvas.
+  await expect(canvas).toBeVisible({ timeout: 60_000 });
   await viewer.getByRole('button', { name: 'Posicionar câmera interna', exact: true }).click();
   const bounds = (await canvas.boundingBox())!;
   await canvas.click({ position: { x: bounds.width * .45, y: bounds.height * .5 } });

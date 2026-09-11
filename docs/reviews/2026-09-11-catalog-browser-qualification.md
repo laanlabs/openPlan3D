@@ -10,13 +10,22 @@ at the 10-second canvas-readiness deadline. The captured trace showed no
 application error. The test now allows up to 60 seconds for this lazy-load
 boundary, inside its existing 180-second overall deadline. No assertions were
 removed. The restarted full run passed that case (1.3 minutes), including
-placement and exact Undo/Redo export comparisons, and is continuing.
+placement and exact Undo/Redo export comparisons. That run then finished with
+six passes and one failure: the AI-panel case also reached its 10-second canvas
+deadline while the page still displayed the 3D loading message. Its readiness
+wait is now 60 seconds inside a 180-second overall allowance; its assertions and
+network-request guard remain intact. Six distinct completed case identities were
+matched against the original inventory and excluded from a 1,101-case continuation.
+Playwright's own list command confirms that continuation count.
 
 ## Resume the running process
 
-- Command: `npx playwright test --max-failures=1`
-- Unified execution session: `93960`; poll this handle before assuming it ended.
-- Active log: `/tmp/web-localization-full-browser-2.log`
+- Command: `npx playwright test --test-list /tmp/web-localization-remaining.txt --max-failures=1`
+- Unified execution session: `85756`; poll this handle before assuming it ended.
+- Active log: `/tmp/web-localization-full-browser-3.log`
+- Completed six-pass run: `/tmp/web-localization-full-browser-2.log` (session `93960`, terminal exit 1).
+- Retained pass identities: `/tmp/web-localization-passed.txt`
+- Continuation inventory: `/tmp/web-localization-continuation-inventory.log`
 - Initial failed log: `/tmp/web-localization-full-browser.log`
 - Exact inventory: `/tmp/web-localization-full-inventory.log`
 
