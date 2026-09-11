@@ -3454,3 +3454,11 @@ unexpected diagnostics. Check/build, five localization unit tests and three
 browser cases pass (35.8 seconds), each covering six routed failure paths and
 dismissal back to an available editor. Live handoff, physical-device and remaining
 release requirements stay open.
+
+### Capture download survives initial save failure — 2026-09-11
+
+Three browser cases pass at `1700d1e` (29.6 seconds), confirming a routed
+multi-floor capture remains exportable after a project-write quota failure. Retry
+saves one project with exact backup floor data, and reload avoids re-downloading
+the capture. No runtime changes were needed. Live cloud/device and remaining
+release qualification stay open.

@@ -1198,3 +1198,17 @@ No live cloud download was used. Logs: `/tmp/web-capture-errors-check.log`,
 `/tmp/web-capture-errors-build.log`, `/tmp/web-capture-errors-unit.log`,
 `/tmp/web-capture-errors-browser.log`. Generic fallback/unknown-error branches,
 live handoff, physical-device and remaining NEXT requirements stay open.
+
+## Successful capture download with failed initial save
+
+At `1700d1e`, three new browser cases pass (29.6 seconds, exit 0), routing the
+prepared multi-floor RoomPlan fixture through the capture URL and injecting
+QuotaExceededError at project writes. The capture stays in memory with a backup
+action; the backup contains all three floors and every source wall identifier.
+After removing the injected failure, retry persists one project with exactly the
+backup's floor data. Reload opens that project without a second capture request.
+No runtime change was needed. The initial test incorrectly counted all source
+walls against only floor zero; corrected assertions cover every floor and wall ID.
+Log: `/tmp/web-capture-save-recovery-browser-final.log`. This uses a routed fixture,
+not live cloud capture or physical-device storage pressure. Those and remaining
+NEXT requirements stay open.
