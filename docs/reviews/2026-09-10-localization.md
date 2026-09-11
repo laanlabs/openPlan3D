@@ -775,3 +775,22 @@ Logs: `/tmp/web-properties-integration-unit.log`,
 `/tmp/web-properties-integration-browser.log`. No runtime changes in this checkpoint.
 These tests complement the focused Portuguese Properties cases; they do not close
 remaining localization, full-browser, physical-device or release requirements.
+
+## Symbol Properties localization
+
+Translated symbol labels, rotation/opacity/lock/delete controls and reused the
+built-in symbol-name map already used in Build and Layers. Custom definitions
+retain their source names. Numeric handlers and symbol IDs are unchanged.
+
+Production check has zero errors/warnings; production build and five localization
+unit tests pass. Extended browser coverage edits width/rotation/opacity, locks and
+unlocks, deletes, then undoes deletion and compares the full saved symbol.
+The first run passed Chromium/Firefox but WebKit retained the symbol after the
+pre-existing placement undo assertion, before the new Properties edits. No runtime
+fix is claimed: isolated WebKit passed unchanged (11.2 seconds), then the full
+three-engine run passed (50.1 seconds, exit 0). Keep the intermittent undo observation
+open for reproduction. Logs: `/tmp/web-symbol-properties-browser.log`,
+`/tmp/web-symbol-properties-webkit-repro.log`,
+`/tmp/web-symbol-properties-browser-final.log`, with check/build/unit logs under
+`/tmp/web-symbol-properties-*.log`. Physical touch and remaining editor/release
+requirements are still open.

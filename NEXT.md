@@ -3240,3 +3240,12 @@ preset names and material IDs. Production check/build and five localization unit
 tests pass. Three desktop browser cases pass (35.6 seconds), checking literal names,
 category/material/color edits, reversible floor openings and unchanged geometry.
 Remaining Properties sections and broader usability/device/release gates stay open.
+
+### Symbol Properties localization — 2026-09-10
+
+Translated symbol Properties controls and reused built-in display names. Check,
+build and five localization unit tests pass; three browser cases pass (50.1 seconds)
+for numeric/opacity/lock edits and delete/undo data preservation. An initial WebKit
+placement undo assertion failed before new edits, then passed unchanged in isolated
+and full reruns; its intermittent cause remains unresolved. See the localization
+record. Remaining Properties and device/release gates stay open.

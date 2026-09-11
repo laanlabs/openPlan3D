@@ -733,5 +733,12 @@ export const en = {
   "floorMaterialLabel.carpet-gray": "Gray Carpet",
   "floorMaterialLabel.concrete": "Concrete",
   "floorMaterialLabel.slate": "Slate",
-  "floorMaterialLabel.vinyl": "Vinyl"
+  "floorMaterialLabel.vinyl": "Vinyl",
+  "symbolProperties.symbol": "Symbol",
+  "symbolProperties.custom": "Custom image",
+  "symbolProperties.rotation": "Rotation (°)",
+  "symbolProperties.opacity": "Opacity ({percent}%)",
+  "symbolProperties.locked": "🔒 Locked",
+  "symbolProperties.unlocked": "🔓 Unlocked",
+  "symbolProperties.delete": "Delete"
 } as const;

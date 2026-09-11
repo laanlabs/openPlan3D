@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { entourageLabels } from '$lib/i18n/entourageLabels';
   import { roomTypeLabels, roomColorLabels, floorGroupLabels, floorMaterialLabels } from '$lib/i18n/roomPropertyLabels';
   import { t, type TranslationKey } from '$lib/i18n';
   const furnitureFinishLabels: Record<string, TranslationKey> = {"Wood": "furnitureFinish.Wood", "Metal": "furnitureFinish.Metal", "Fabric": "furnitureFinish.Fabric", "Leather": "furnitureFinish.Leather", "Glass": "furnitureFinish.Glass", "Plastic": "furnitureFinish.Plastic", "Stone": "furnitureFinish.Stone", "Ceramic": "furnitureFinish.Ceramic"};
@@ -858,28 +859,28 @@
   {:else if selectedEntourage}
     <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
       <span class="w-6 h-6 bg-green-100 rounded flex items-center justify-center text-xs">🌳</span>
-      Entourage
+      {$t('entourageLabels.title')}
     </h3>
     <div class="space-y-3">
       <div>
-        <span class="text-xs text-gray-500">Symbol</span>
-        <p class="text-sm text-gray-700">{getEntourageDef(selectedEntourage.defId)?.name ?? 'Custom image'}</p>
+        <span class="text-xs text-gray-500">{$t('symbolProperties.symbol')}</span>
+        <p class="text-sm text-gray-700">{entourageLabels[selectedEntourage.defId] ? $t(entourageLabels[selectedEntourage.defId]) : getEntourageDef(selectedEntourage.defId)?.name ?? $t('symbolProperties.custom')}</p>
       </div>
       <label class="block">
-        <span class="text-xs text-gray-500">Width ({unitLabel()})</span>
+        <span class="text-xs text-gray-500">{$t('openingProperties.width')} ({unitLabel()})</span>
         <input type="number" value={displayValue(selectedEntourage.width)} oninput={(e) => dimensionInput(e, selectedEntourage!.width, value => updateEntourageItem(selectedEntourage!.id, { width: value }))} onblur={(e) => dimensionInput(e, selectedEntourage!.width, value => updateEntourageItem(selectedEntourage!.id, { width: value }))} min={settings.units === 'imperial' ? 1 / 2.54 : 1} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
-        <span class="text-xs text-gray-500">Rotation (°)</span>
+        <span class="text-xs text-gray-500">{$t('symbolProperties.rotation')}</span>
         <input type="number" value={selectedEntourage.rotation} oninput={(e) => scalarInput(e, selectedEntourage!.rotation, value => updateEntourageItem(selectedEntourage!.id, { rotation: value }))} onblur={(e) => scalarInput(e, selectedEntourage!.rotation, value => updateEntourageItem(selectedEntourage!.id, { rotation: value }))} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
-        <span class="text-xs text-gray-500">Opacity ({Math.round((selectedEntourage.opacity ?? 1) * 100)}%)</span>
+        <span class="text-xs text-gray-500">{$t('symbolProperties.opacity', { percent: Math.round((selectedEntourage.opacity ?? 1) * 100) })}</span>
         <input type="range" min="0.1" max="1" step="0.05" value={selectedEntourage.opacity ?? 1} oninput={(e) => { if (selectedEntourage) updateEntourageItem(selectedEntourage.id, { opacity: Number((e.target as HTMLInputElement).value) }); }} class="w-full" />
       </label>
       <div class="flex gap-2">
-        <button onclick={() => { if (selectedEntourage) updateEntourageItem(selectedEntourage.id, { locked: !selectedEntourage.locked }); }} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedEntourage.locked ? 'bg-amber-50 border-amber-300 text-amber-700' : 'border-gray-200 hover:bg-gray-50'}">{selectedEntourage.locked ? '🔒 Locked' : '🔓 Unlocked'}</button>
-        <button onclick={() => { if (selectedEntourage) { removeElement(selectedEntourage.id); selectedElementId.set(null); } }} class="flex-1 px-2 py-1.5 border border-red-200 text-red-600 rounded text-sm hover:bg-red-50 transition-colors">Delete</button>
+        <button onclick={() => { if (selectedEntourage) updateEntourageItem(selectedEntourage.id, { locked: !selectedEntourage.locked }); }} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedEntourage.locked ? 'bg-amber-50 border-amber-300 text-amber-700' : 'border-gray-200 hover:bg-gray-50'}">{selectedEntourage.locked ? $t('symbolProperties.locked') : $t('symbolProperties.unlocked')}</button>
+        <button onclick={() => { if (selectedEntourage) { removeElement(selectedEntourage.id); selectedElementId.set(null); } }} class="flex-1 px-2 py-1.5 border border-red-200 text-red-600 rounded text-sm hover:bg-red-50 transition-colors">{$t('symbolProperties.delete')}</button>
       </div>
     </div>
 

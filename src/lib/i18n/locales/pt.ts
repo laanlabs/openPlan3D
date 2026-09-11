@@ -733,5 +733,12 @@ export const pt = {
   "floorMaterialLabel.carpet-gray": "Carpete cinza",
   "floorMaterialLabel.concrete": "Concreto",
   "floorMaterialLabel.slate": "Ardósia",
-  "floorMaterialLabel.vinyl": "Vinílico"
+  "floorMaterialLabel.vinyl": "Vinílico",
+  "symbolProperties.symbol": "Símbolo",
+  "symbolProperties.custom": "Imagem personalizada",
+  "symbolProperties.rotation": "Rotação (°)",
+  "symbolProperties.opacity": "Opacidade ({percent}%)",
+  "symbolProperties.locked": "🔒 Bloqueado",
+  "symbolProperties.unlocked": "🔓 Desbloqueado",
+  "symbolProperties.delete": "Excluir"
 } as const;

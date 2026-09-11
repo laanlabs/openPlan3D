@@ -26,4 +26,24 @@ test('Portuguese presentation symbols retain their IDs and sizes through placeme
   expect(placed.entourage[0]).toMatchObject({ defId: 'person', width: 55 });
   await page.getByRole('button', { name: 'Desfazer', exact: true }).click();
   expect((await exported()).entourage ?? []).toHaveLength(0);
+  await page.getByRole('button', { name: 'Refazer', exact: true }).click();
+  await page.getByRole('button', { name: '🌳 Pessoa', exact: true }).click();
+  const panel = page.locator('[data-plan-properties]');
+  await expect(panel.getByText('Pessoa', { exact: true })).toBeVisible();
+  const width = panel.getByRole('spinbutton', { name: 'Largura (cm)', exact: true });
+  await width.fill('72.5'); await width.press('Tab');
+  const rotation = panel.getByRole('spinbutton', { name: 'Rotação (°)', exact: true });
+  await rotation.fill('27.5'); await rotation.press('Tab');
+  const opacity = panel.getByRole('slider', { name: 'Opacidade (100%)', exact: true });
+  await opacity.focus(); await opacity.press('ArrowLeft');
+  await expect(panel.getByRole('slider', { name: 'Opacidade (95%)', exact: true })).toHaveValue('0.95');
+  await panel.getByRole('button', { name: '🔓 Desbloqueado', exact: true }).click();
+  const edited = (await exported()).entourage[0];
+  expect(edited).toEqual({ ...placed.entourage[0], width: 72.5, rotation: 27.5, opacity: 0.95, locked: true });
+  await panel.getByRole('button', { name: '🔒 Bloqueado', exact: true }).click();
+  await panel.getByRole('button', { name: 'Excluir', exact: true }).click();
+  expect((await exported()).entourage ?? []).toHaveLength(0);
+  await page.getByRole('button', { name: 'Desfazer', exact: true }).click();
+  expect((await exported()).entourage[0]).toEqual({ ...edited, locked: false });
+
 });
