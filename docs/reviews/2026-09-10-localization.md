@@ -1988,3 +1988,19 @@ No runtime code changed. Accumulated audit/follow-up coverage is 267 distinct
 cases out of 1,050; full qualification remains unfinished.
 Logs: `/tmp/web-full-browser-audit-6.log`, `/tmp/web-print-count-localization-browser.log`.
 The exclusion list still has 216 entries; add these logs before resuming.
+
+### 2026-09-11: Complete Chromium audit checkpoint
+
+The seventh continuation excludes the 267 previously verified cases and runs
+the remaining 783. It completed all remaining Chromium cases and proceeded to
+Firefox without a failure. Deduplicating project, relative spec path and test
+title across the seven audit logs and the focused follow-ups verifies all 350
+Chromium cases in the current 1,050-case inventory. Source line numbers are
+excluded from identity because test synchronization edits shifted them.
+
+The production runtime remains at `78d3ad0`; subsequent changes through
+`d6e33d1` adjust test synchronization, visible input targets and translated
+expectations. The seventh run remains active in
+`/tmp/web-full-browser-audit-7.log`, using the 267-entry exclusion list at
+`/tmp/web-browser-audit-passed.txt`. Firefox and WebKit are not yet fully
+qualified. Physical-device and release gates remain open.

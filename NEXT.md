@@ -163,6 +163,12 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+Browser audit at `d6e33d1`: the seventh continuation completed the remaining
+Chromium cases. The accumulated audit and focused follow-ups now verify all
+**350 Chromium cases** in the current 1,050-case inventory. Firefox and WebKit
+qualification remains in progress; the seventh run is still active. This is a
+Chromium checkpoint, not completion of the full browser or physical-device gates.
+
 Browser audit at `1dfd862`: another 48 Chromium cases passed before the Portuguese
 print test expected the obsolete English room count. Its expectation now matches
 the Portuguese UI. All three print cases pass (34.2 seconds), retaining paper
