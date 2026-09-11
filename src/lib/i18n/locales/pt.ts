@@ -1078,5 +1078,15 @@ export const pt = {
   "canvasStatus.zoom": "Zoom: {value}%",
   "canvasActions.splitBlocked": "Escolha um ponto de divisão fora de portas e janelas. Dividir uma abertura alteraria sua geometria.",
   "canvasActions.flipSwing": "Inverter abertura",
-  "canvasActions.splitMidpoint": "Dividir parede ao meio"
+  "canvasActions.splitMidpoint": "Dividir parede ao meio",
+  "projectService.storageFull": "O armazenamento do navegador está cheio. Baixe seu projeto em JSON e libere espaço excluindo projetos dos quais você já fez backup.",
+  "projectService.storageUnavailable": "O armazenamento do navegador está indisponível. Permita o armazenamento do site ou baixe seu projeto em JSON.",
+  "projectService.storageFailed": "Não foi possível salvar no armazenamento do navegador. Baixe seu projeto em JSON para manter uma cópia.",
+  "projectService.conflict": "Este projeto foi alterado ou excluído em outra aba. Salve sua versão como uma cópia ou baixe um backup JSON para manter as duas versões.",
+  "projectService.openUnsaved": "Não foi possível salvar sua planta atual.",
+  "projectService.openRetry": "Tente salvar novamente ou baixe um backup JSON antes de abrir outra planta.",
+  "projectService.newId": "Não foi possível escolher um novo identificador para o projeto. Tente abrir o arquivo novamente.",
+  "projectService.changed": "Sua planta mudou durante a preparação para abrir outra. Tente novamente para salvar primeiro as alterações mais recentes.",
+  "projectService.newFailed": "Não foi possível abrir um novo projeto.",
+  "projectService.fileFailed": "Não foi possível ler este arquivo."
 } as const;

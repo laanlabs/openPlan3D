@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { t } from '$lib/i18n';
+  import { t, locale } from '$lib/i18n';
+  import { projectServiceMessage } from '$lib/i18n/projectServiceMessages';
   let { onToggleLayers, layersOpen = false }: { onToggleLayers?: () => void; layersOpen?: boolean } = $props();
   import { captureMain3DPNG } from '$lib/utils/captureMain3D';
   import ExportNotice from '$lib/components/ExportNotice.svelte';
@@ -621,7 +622,7 @@
 
 {#if $saveError}
   <div role="alert" class="flex flex-wrap items-center gap-3 bg-red-50 border-b border-red-200 px-4 py-3 text-sm text-red-900">
-    <span class="flex-1 min-w-48">{$t('saveControls.error')} {$saveError}</span>
+    <span class="flex-1 min-w-48">{$t('saveControls.error')} {projectServiceMessage($saveError, $locale)}</span>
     {#if $saveConflict}
       <button class="font-semibold underline disabled:opacity-50" disabled={$savingCopy} onclick={saveCurrentAsCopy}>{$savingCopy ? $t('saveControls.savingCopy') : $t('saveControls.copy')}</button>
     {:else}

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { t, locale, translate, type Locale } from '$lib/i18n';
+  import { projectServiceMessage } from '$lib/i18n/projectServiceMessages';
   import { templateLabels } from '$lib/i18n/templateLabels';
   import { modalDialog } from '$lib/utils/modalDialog';
   import { onMount, onDestroy, tick } from 'svelte';
@@ -191,7 +192,7 @@
     </div>
     {#if libraryError}
       <div role="alert" class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-900">
-        <p>{libraryError}</p>
+        <p>{projectServiceMessage(libraryError, $locale)}</p>
         <div class="mt-3 flex gap-4">
           <button class="font-semibold underline" onclick={() => withLibraryError(refreshProjects)}>{$t('library.retry')}</button>
           <button class="font-semibold underline" onclick={backupLibrary}>{$t('library.backup')}</button>
@@ -268,7 +269,7 @@
           <input id="library-project-name" type="text" bind:value={renameValue} disabled={actionBusy} required
             class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-blue-500" />
         {/if}
-        {#if actionError}<p role="alert" class="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-900">{actionError}</p>{/if}
+        {#if actionError}<p role="alert" class="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-900">{projectServiceMessage(actionError, $locale)}</p>{/if}
         {#if actionBusy}<p role="status" class="mt-4 text-sm text-gray-500">{actionDialog.type === 'rename' ? $t('library.saving') : $t('library.deleting')}</p>{/if}
         <div class="mt-5 flex justify-end gap-3">
           <button type="button" onclick={closeAction} disabled={actionBusy} class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold disabled:opacity-40">{$t('library.cancel')}</button>

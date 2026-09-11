@@ -2018,3 +2018,27 @@ configured limits. These automated results do not establish hardware performance
 budgets. The original run remains active; no restart or timeout increase was used.
 Log: `/tmp/web-full-browser-audit-7.log`. The 267-entry exclusion list remains the
 one used to start that run. WebKit, physical-device and release gates remain open.
+
+### 2026-09-11: Project service diagnostic translation, browser validation pending
+
+Known storage-full, unavailable-storage, save failure, cross-tab conflict and
+project-opening failure messages now translate when rendered. The shared import
+alert handles nested save-before-open causes and the no-import outcome. Save
+banners, library errors/actions and editor load recovery use the same mapper.
+English service messages remain unchanged, and unknown details are displayed
+verbatim through Svelte text interpolation. Language subscriptions update these
+messages without mutating projects, storage or the underlying diagnostics.
+
+Four unit cases pass using actual storageErrorMessage/ProjectConflictError
+outputs, composed opening failures, unknown details and either language's welcome
+outcome suffix. Svelte checking reports zero errors and zero warnings. Logs:
+`/tmp/web-project-service-messages-unit.log` and
+`/tmp/web-project-service-messages-check.log`.
+
+This batch has not yet been built or browser-qualified. The seventh browser audit
+remains active against the unchanged production build from `78d3ad0`; its passes
+must not be attributed to this new source change. After it finishes, build and
+exercise Portuguese quota-blocked import/New Project, JSON backup/retry and live
+language changes, together with the existing project-opening/save recovery cases
+across all three engines. Keep the audit's 1,050-case inventory separate from any
+new browser coverage added for this batch.

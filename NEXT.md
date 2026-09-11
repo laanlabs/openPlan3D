@@ -163,6 +163,13 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+Known project-opening and storage diagnostics now translate at display time in
+the import alert, save banner, library actions and editor load recovery. English
+service diagnostics and unknown detail strings remain intact. Four focused unit
+cases pass and Svelte checking reports zero errors/warnings. **Production build
+and browser verification of this new localization batch are pending** until the
+active seventh audit finishes; that audit still serves the `78d3ad0` runtime.
+
 The seventh browser audit has now completed Firefox as well: accumulated audit
 and focused follow-up evidence verifies **350 Chromium and 350 Firefox cases**.
 WebKit is running, with no failure yet in this continuation. The full 1,050-case

@@ -1078,5 +1078,15 @@ export const en = {
   "canvasStatus.zoom": "Zoom: {value}%",
   "canvasActions.splitBlocked": "Choose a split point outside doors and windows. Splitting through an opening would change its geometry.",
   "canvasActions.flipSwing": "Flip swing",
-  "canvasActions.splitMidpoint": "Split wall at midpoint"
+  "canvasActions.splitMidpoint": "Split wall at midpoint",
+  "projectService.storageFull": "Browser storage is full. Download your project as JSON, then free space by deleting projects you have backed up.",
+  "projectService.storageUnavailable": "Browser storage is unavailable. Allow site storage or download your project as JSON.",
+  "projectService.storageFailed": "Could not save to browser storage. Download your project as JSON to keep a copy.",
+  "projectService.conflict": "This project changed or was deleted in another tab. Save your version as a copy or download a JSON backup to keep both versions.",
+  "projectService.openUnsaved": "Your current plan could not be saved.",
+  "projectService.openRetry": "Retry saving or download a JSON backup before opening another plan.",
+  "projectService.newId": "Could not choose a new project ID. Try opening the file again.",
+  "projectService.changed": "Your plan changed while preparing to open another one. Try again so the latest edits can be saved first.",
+  "projectService.newFailed": "Could not open a new project.",
+  "projectService.fileFailed": "Could not read this file."
 } as const;

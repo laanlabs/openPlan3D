@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { t } from '$lib/i18n';
+  import { t, locale } from '$lib/i18n';
+  import { projectServiceMessage } from '$lib/i18n/projectServiceMessages';
   import { CaptureImportError } from '$lib/i18n/captureImportError';
   import { modalDialog, hasOpenModal } from '$lib/utils/modalDialog';
   import { onMount } from 'svelte';
@@ -495,7 +496,7 @@
 {:else}
   <div class="h-screen flex flex-col items-center justify-center gap-3">
     {#if loadError}
-      <p role="alert" class="max-w-lg px-6 text-center text-red-700">{loadError}</p>
+      <p role="alert" class="max-w-lg px-6 text-center text-red-700">{projectServiceMessage(loadError, $locale)}</p>
       <button class="text-blue-700 underline" onclick={initializeEditor}>{$t('library.retry')}</button>
       <button class="text-blue-700 underline" onclick={backupLibrary}>{$t('library.backup')}</button>
       <a class="text-blue-700 underline" href={`${base}/`}>{$t('editorRecovery.back')}</a>
