@@ -160,3 +160,18 @@ The initial test's unscoped option selector matched the floor dropdown; the fina
 assertion targets the command listbox. Logs: `/tmp/web-palette-localization-unit.log`,
 `/tmp/web-palette-localization-check.log`, `/tmp/web-palette-localization-build.log`
 and `/tmp/web-palette-localization-browser-final.log`.
+
+## Full unit and English palette integration checkpoint
+
+At source commit `31e263d`, the complete web unit suite passes: 936 tests across
+87 files, zero failures, in 21.68 seconds (exit 0). This covers the current unit
+suite after the localized Settings, welcome, library, transfer, selection and
+palette changes. Log: `/tmp/web-full-localization-integration.log`.
+
+The pre-existing English command-palette/modal-field regression also passes in
+all three engines at 1440 and 390 pixels: six cases, 46.4 seconds, exit 0. It checks
+keyboard selection, Settings field editing, editor shortcut dispatch after modal
+closure and focus restoration. Log: `/tmp/web-english-palette-integration.log`.
+These are a full-unit and targeted-browser baseline, not a full-browser, physical
+device or deployment qualification. Remaining localization and NEXT release gates
+are unchanged.

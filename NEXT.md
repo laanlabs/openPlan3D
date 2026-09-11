@@ -163,6 +163,12 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+Latest full web unit checkpoint: **936 tests across 87 files passed** at `31e263d`
+after the initial localization batches. The existing English palette/modal-field
+flow also passed in all three engines at desktop/phone widths (six cases). See the
+[localization integration record](docs/reviews/2026-09-10-localization.md).
+This is not a full-browser, physical-device or deployment qualification.
+
 Latest full web unit checkpoint: **931 tests across 86 files passed** at `faaa9cd`
 on September 10, 2026, after texture and furniture download recovery changes.
 This is not a full-browser or deployed-release claim; see the
@@ -2909,3 +2915,10 @@ zero-warning Svelte check and production build pass. Three browser cases pass
 across all engines, verifying searches, Settings/tool/grid execution after modal
 closure and focus restoration. Catalog names/categories and wider editor controls
 remain open. See the localization record.
+
+### Localization integration checkpoint — 2026-09-10
+
+All 936 web unit tests across 87 files pass at `31e263d` (21.68 seconds, exit 0).
+The existing English palette/modal-field flow passes in all three engines at
+1440 and 390 pixels (six cases, 46.4 seconds). This supplements the focused
+Portuguese checks; it does not close the remaining localization or release gates.
