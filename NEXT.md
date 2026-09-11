@@ -163,6 +163,13 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+Browser audit continuation at `c47207e`: 47 more Chromium cases passed before a
+save/reload timing failure in the sloped-wall test (102 distinct audit passes so
+far). Slope/elevation tests now await completed saves, including the hidden status
+text on phone layouts, and await an imported copy before selecting its floor.
+All nine slope/elevation cases pass across the three engines (1.5 minutes).
+This changes test synchronization only; the full browser audit remains unfinished.
+
 Broader browser audit at `78d3ad0`: the 1,050-case run stopped after 55 Chromium
 passes on a room-label coordinate check following a floor switch. The test now
 waits for the queued initial fit/redraw before clicking a rendered label, retaining

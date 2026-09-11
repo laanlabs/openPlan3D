@@ -1911,3 +1911,21 @@ three repetitions per engine: nine passes (37.2 seconds). The broader suite is
 not yet qualified. Catalog manifest validation also passes.
 Logs: `/tmp/web-full-browser-audit.log`, `/tmp/web-room-floor-hit-browser.log`,
 `/tmp/web-room-floor-hit-repeat.log`, `/tmp/web-catalog-audit.log`.
+
+### 2026-09-11: Save/import completion in slope and elevation qualification
+
+The audit resumed with 995 cases after explicitly excluding the 55 verified
+Chromium passes. It passed 47 more before the sloped-wall test reloaded during
+Save and read an earlier saved wall state. The test now waits for Saved ✓ before
+reload. The elevation test also waits for save completion (the status text is
+hidden on phone layouts), and waits for the imported-copy project name before
+selecting its upper floor. This prevents a floor selection on the outgoing plan
+from racing the asynchronous import.
+
+All nine slope/elevation cases pass across Chromium, Firefox and WebKit
+(1.5 minutes), retaining exact exported-floor comparisons and stacked-view checks.
+No editor runtime code changed. The full 1,050-case audit remains incomplete.
+Logs: `/tmp/web-full-browser-audit-2.log`,
+`/tmp/web-editor-save-confirmation-browser.log`.
+The audit's first-pass exclusion list is `/tmp/web-browser-audit-passed.txt`;
+it contains 55 cases and has not yet incorporated the second run's 47 passes.

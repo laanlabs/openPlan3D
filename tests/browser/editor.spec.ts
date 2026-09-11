@@ -229,6 +229,7 @@ test('sloped walls preserve heights and openings through edits, reversal, elevat
   await testInfo.attach('sloped-elevation', { body: await page.screenshot(), contentType: 'image/png' });
   await page.getByRole('button', { name: 'Plan', exact: true }).click();
   await page.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.getByText('Saved ✓', { exact: true })).toBeVisible();
   await page.reload();
   expect((await exportJSON(page)).floors).toEqual(reversed.floors);
   await page.getByRole('button', { name: '3D', exact: true }).click();
@@ -291,6 +292,8 @@ for (const width of [1440, 390]) {
     await upper.fill('425.5'); await upper.press('Tab');
     await page.getByRole('button', { name: 'Close settings', exact: true }).click();
     await page.getByRole('button', { name: 'Save', exact: true }).click();
+    // The completed-save text remains in the DOM but is hidden on narrow screens.
+    await expect(page.getByText('Saved ✓', { exact: true })).toHaveCount(1);
     const saved = await exportJSON(page);
     expect(saved.floors.map((floor: { elevation: number }) => floor.elevation)).toEqual([-50.5, 425.5]);
     expect(saved.floors.map(({ elevation: _, ...floor }: { elevation: number }) => floor)).toEqual(original.floors);
@@ -298,6 +301,7 @@ for (const width of [1440, 390]) {
     expect((await exportJSON(page)).floors).toEqual(saved.floors);
     // JSON import must preserve the setting as well as local storage does.
     await importJSON(page, { name: 'elevations.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(saved)) });
+    await expect(page.getByRole('button', { name: `${saved.name} (Imported copy)`, exact: true })).toBeVisible();
     await selectFloor('Curved Upper');
     await page.getByRole('button', { name: '3D', exact: true }).click();
     await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible();
