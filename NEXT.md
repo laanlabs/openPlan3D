@@ -169,6 +169,11 @@ service diagnostics and unknown detail strings remain intact. Four focused unit
 cases pass and Svelte checking reports zero errors/warnings. **Production build
 and browser verification of this new localization batch are pending** until the
 active seventh audit finishes; that audit still serves the `78d3ad0` runtime.
+The separate `project-service-localization.spec.ts` now collects six desktop/
+phone-width cases across the three engines for quota-blocked import/New Project,
+reactive error language, original-byte preservation, JSON backup, retry and
+successful later import. Collection is verified; execution is still pending.
+The newly added cases are outside the active audit's original 1,050-case inventory.
 
 The seventh browser audit has now completed Firefox as well: accumulated audit
 and focused follow-up evidence verifies **350 Chromium and 350 Firefox cases**.

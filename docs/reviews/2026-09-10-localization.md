@@ -2042,3 +2042,12 @@ exercise Portuguese quota-blocked import/New Project, JSON backup/retry and live
 language changes, together with the existing project-opening/save recovery cases
 across all three engines. Keep the audit's 1,050-case inventory separate from any
 new browser coverage added for this batch.
+
+The separate `tests/browser/project-service-localization.spec.ts` is prepared and
+collects six cases (desktop/phone widths in each engine). It checks the actual
+IndexedDB quota boundary, exact retained library bytes, translated opening and
+save alerts, language changes while Settings is open, backup geometry, successful
+retry and a later separate imported copy. No existing audit spec was changed.
+`/tmp/web-project-service-localization-inventory.log` proves collection only;
+these six cases have not been executed. They increase the next full inventory to
+1,056 while the already-running seventh audit retains its original inventory.
