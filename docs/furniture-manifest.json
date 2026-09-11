@@ -2467,6 +2467,36 @@
     }
   ],
   "models": {
+    "bathroomCabinet": {
+      "path": "static/models/bathroomCabinet.glb",
+      "bytes": 7216,
+      "sha256": "9db540227acaaedbbadc6a085f4a00460b73944e608afaad4770e53238a3b7f8",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "bathroomCabinetDrawer": {
+      "path": "static/models/bathroomCabinetDrawer.glb",
+      "bytes": 34744,
+      "sha256": "f32d09c6dab20fe823d238310f75ce81f24e893a91c2078b12efd3f7fe6c6b10",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "bathroomMirror": {
+      "path": "static/models/bathroomMirror.glb",
+      "bytes": 6792,
+      "sha256": "940b986894101ea59b50541554b6dc608a22b133057975849259009012984175",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
     "bathroomSink": {
       "path": "static/models/bathroomSink.glb",
       "bytes": 22536,
@@ -2474,7 +2504,20 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "sink_b"
+      ]
+    },
+    "bathroomSinkSquare": {
+      "path": "static/models/bathroomSinkSquare.glb",
+      "bytes": 15108,
+      "sha256": "360853c822f268e7267c62ef20cf646f170a13d76254cc0804a1d397a4a3ea67",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
     },
     "bathtub": {
       "path": "static/models/bathtub.glb",
@@ -2483,7 +2526,30 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "bathtub"
+      ]
+    },
+    "bear": {
+      "path": "static/models/bear.glb",
+      "bytes": 11884,
+      "sha256": "fd87c08f81dcd652b1f7f61afae9d1f040fa1322ac4ddda6f543ed423b954aed",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "bedBunk": {
+      "path": "static/models/bedBunk.glb",
+      "bytes": 40784,
+      "sha256": "a3eccbc4a04340dd84878d959e15eede76f517fb8d4de6862ca46877c88d764e",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
     },
     "bedDouble": {
       "path": "static/models/bedDouble.glb",
@@ -2492,7 +2558,10 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "bed_queen"
+      ]
     },
     "bedSingle": {
       "path": "static/models/bedSingle.glb",
@@ -2501,7 +2570,40 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "bed_twin"
+      ]
+    },
+    "bench": {
+      "path": "static/models/bench.glb",
+      "bytes": 10756,
+      "sha256": "ba05a6d23a5a5a44da016757632070e47ff7587ce10e2f6d6d52328b4cf5489b",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "benchCushion": {
+      "path": "static/models/benchCushion.glb",
+      "bytes": 12500,
+      "sha256": "5186ad938f8b9eff255361fd1fdc48a81f08c318161cde27c93753ab95a2d354",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "benchCushionLow": {
+      "path": "static/models/benchCushionLow.glb",
+      "bytes": 10268,
+      "sha256": "d1fac209eae2ea7393beefa4932dacb54d500e8f9932a1b17d2a842527df1b2c",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
     },
     "bookcaseClosed": {
       "path": "static/models/bookcaseClosed.glb",
@@ -2510,7 +2612,10 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "storage"
+      ]
     },
     "bookcaseClosedDoors": {
       "path": "static/models/bookcaseClosedDoors.glb",
@@ -2519,7 +2624,20 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "wardrobe"
+      ]
+    },
+    "bookcaseClosedWide": {
+      "path": "static/models/bookcaseClosedWide.glb",
+      "bytes": 23140,
+      "sha256": "55b9903e9646dc407ed5237a1c41c1f0a14f9edc22e3392bdb9a4804d846af6a",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
     },
     "bookcaseOpen": {
       "path": "static/models/bookcaseOpen.glb",
@@ -2528,7 +2646,40 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "bookshelf"
+      ]
+    },
+    "bookcaseOpenLow": {
+      "path": "static/models/bookcaseOpenLow.glb",
+      "bytes": 11520,
+      "sha256": "6d4d625faf977a2dbf155f1313cd32c6310e463114a1cd4c08cb9f80a5fb1d75",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "books": {
+      "path": "static/models/books.glb",
+      "bytes": 6864,
+      "sha256": "b8dc56e5d29f6fc1f4727fccb1b9642627fee9942c48060a00034e98df02701c",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "cabinetBed": {
+      "path": "static/models/cabinetBed.glb",
+      "bytes": 7496,
+      "sha256": "b651fafb9e2c8e4adcb8cad3d10dc94404b46fe039b26e66b2c9020df4e5301d",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
     },
     "cabinetBedDrawer": {
       "path": "static/models/cabinetBedDrawer.glb",
@@ -2537,7 +2688,10 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "dresser"
+      ]
     },
     "cabinetBedDrawerTable": {
       "path": "static/models/cabinetBedDrawerTable.glb",
@@ -2546,7 +2700,10 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "nightstand"
+      ]
     },
     "cabinetTelevision": {
       "path": "static/models/cabinetTelevision.glb",
@@ -2555,7 +2712,50 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "tv_stand"
+      ]
+    },
+    "cabinetTelevisionDoors": {
+      "path": "static/models/cabinetTelevisionDoors.glb",
+      "bytes": 16876,
+      "sha256": "8959347bfe26b1ac7e44c476f05789466bb84bcd2ad8b0fb40286005399bfcfc",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "cardboardBoxClosed": {
+      "path": "static/models/cardboardBoxClosed.glb",
+      "bytes": 5400,
+      "sha256": "4af079dca52960912764574950f0549ff2ae1224b3db1528718629473a2d5d81",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "cardboardBoxOpen": {
+      "path": "static/models/cardboardBoxOpen.glb",
+      "bytes": 5404,
+      "sha256": "960da412564774c75e7b32f9af0100895e1edb877fc1e70dd34ee2422a2196d4",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "ceilingFan": {
+      "path": "static/models/ceilingFan.glb",
+      "bytes": 15284,
+      "sha256": "5fdf7b3c4328875462c9887c6b1f2fad08126ea42e758cf86534639b9ea72044",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
     },
     "chair": {
       "path": "static/models/chair.glb",
@@ -2564,7 +2764,20 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "dining_chair"
+      ]
+    },
+    "chairCushion": {
+      "path": "static/models/chairCushion.glb",
+      "bytes": 12588,
+      "sha256": "33544228984857f2cb502b58452fed72157335f9b1caf29e96da5c9094c53fdc",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
     },
     "chairDesk": {
       "path": "static/models/chairDesk.glb",
@@ -2573,7 +2786,240 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "office_chair"
+      ]
+    },
+    "chairModernCushion": {
+      "path": "static/models/chairModernCushion.glb",
+      "bytes": 7376,
+      "sha256": "245132697e633e907e2b48c86d56f6c8543604a3440a055d1c71c06ce11d2858",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "chairModernFrameCushion": {
+      "path": "static/models/chairModernFrameCushion.glb",
+      "bytes": 18592,
+      "sha256": "fd3351b077cafbd54224e20fa7a3a1b4a4304019cf44c25a6e7709ad71b852b8",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "chairRounded": {
+      "path": "static/models/chairRounded.glb",
+      "bytes": 17156,
+      "sha256": "53f4933ec547179c499f04dbda1231cf44b83ec82c7f4ab981cdf680aee5c973",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "coatRack": {
+      "path": "static/models/coatRack.glb",
+      "bytes": 9948,
+      "sha256": "0f56540d57367ea6fea6b9aedf305d4fc58abeec8ff3b039dbff44360d819c76",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "coatRackStanding": {
+      "path": "static/models/coatRackStanding.glb",
+      "bytes": 13288,
+      "sha256": "d8231c22dab63ceb9fc8678f6c8ceafc62afa8726b51a73b4ce349043d3cdc91",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "computerKeyboard": {
+      "path": "static/models/computerKeyboard.glb",
+      "bytes": 3476,
+      "sha256": "9d9135789de2120e9f41ce3f0a56dd1b15f40adcc7888739bb842a2d820da322",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "computerMouse": {
+      "path": "static/models/computerMouse.glb",
+      "bytes": 5868,
+      "sha256": "d3ad1a923f0f7707ef367bb969eb94c9076e211c98c830ba52e133fadc5cdfc0",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "computerScreen": {
+      "path": "static/models/computerScreen.glb",
+      "bytes": 6404,
+      "sha256": "5942cbad29a2d2b956619569926e81d50a4174403d592fece6556e57632dc643",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "desk": {
+      "path": "static/models/desk.glb",
+      "bytes": 15048,
+      "sha256": "0164fe828f028b321730fb8c74502e353583f751be74da1682d42fff7d3c5a42",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "deskCorner": {
+      "path": "static/models/deskCorner.glb",
+      "bytes": 17984,
+      "sha256": "a6a77ba0083d5ecd34ad50f738867b03ed7b7f469429bb1acc78f423bcc3f034",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "doorway": {
+      "path": "static/models/doorway.glb",
+      "bytes": 14532,
+      "sha256": "08983e299822140d580eb55d4b4e4e4552c37bb6e88571e41d2b7b5d2eef987e",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "doorwayFront": {
+      "path": "static/models/doorwayFront.glb",
+      "bytes": 13016,
+      "sha256": "b5b8e4c14ee1f2ffa10ef5c69badc995ae6fbcc868abac240221c61b8c593b0e",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "doorwayOpen": {
+      "path": "static/models/doorwayOpen.glb",
+      "bytes": 3256,
+      "sha256": "cf05e165ea26dbbeaab4dc6296c143ef5f5a001e2ab5af9cd4fd65739408317e",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "dryer": {
+      "path": "static/models/dryer.glb",
+      "bytes": 17760,
+      "sha256": "d8b727612fdfc141c0b56360f75b897f1b71d3420c8c0942b5ec626bd3c8303c",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "floorCorner": {
+      "path": "static/models/floorCorner.glb",
+      "bytes": 2524,
+      "sha256": "7a3ed4473bd7dc71a7fac74a77c548412ed01caf9fd21be605bc8bbda824f8ff",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "floorCornerRound": {
+      "path": "static/models/floorCornerRound.glb",
+      "bytes": 5168,
+      "sha256": "d9d5392ecff520a263dd7e5b77e733da125f866002311ea65572731d90fb8990",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "floorFull": {
+      "path": "static/models/floorFull.glb",
+      "bytes": 2260,
+      "sha256": "99fc5df646d8dc605d6fe35001fe5b15bb7b269cc5c65f4f7793fbc76ff3d822",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "floorHalf": {
+      "path": "static/models/floorHalf.glb",
+      "bytes": 2264,
+      "sha256": "8cf16d67b8185f6c28f957458da92a337f0949d2e127df9a50b53ea5e8894673",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "hoodLarge": {
+      "path": "static/models/hoodLarge.glb",
+      "bytes": 4652,
+      "sha256": "e9b60fa02bba74d99103e8ba9d7ca99fbd99299bc57c4f5f84b2add2a6a3afcc",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "hoodModern": {
+      "path": "static/models/hoodModern.glb",
+      "bytes": 3968,
+      "sha256": "f5ac7dbadd1d98813c48315e56fa6ab2e8783870b1fb7be30825177bbf2b2afe",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "kitchenBar": {
+      "path": "static/models/kitchenBar.glb",
+      "bytes": 6004,
+      "sha256": "792c3d31e60c8a8d8c7a28cf7d1efe004c5a601adc1b163a8799dde32c1b559d",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "kitchenBarEnd": {
+      "path": "static/models/kitchenBarEnd.glb",
+      "bytes": 11084,
+      "sha256": "410c6d83defe4ed248a8ec32f81553b56c8b610372d02ecf0e547e3f52cdc0a1",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "kitchenBlender": {
+      "path": "static/models/kitchenBlender.glb",
+      "bytes": 18728,
+      "sha256": "f471defb5b2b1cf3b949a1a8aaef0a8b727afe662b0815068cf4e963325a3c1f",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
     },
     "kitchenCabinet": {
       "path": "static/models/kitchenCabinet.glb",
@@ -2582,7 +3028,30 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "counter"
+      ]
+    },
+    "kitchenCabinetCornerInner": {
+      "path": "static/models/kitchenCabinetCornerInner.glb",
+      "bytes": 5184,
+      "sha256": "8d1b69e63048424a0559d1e5c77427fab9021def7dea74cf1c4d3d8ce16e6e69",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "kitchenCabinetCornerRound": {
+      "path": "static/models/kitchenCabinetCornerRound.glb",
+      "bytes": 13656,
+      "sha256": "333ab73202cb87b76d4ff94939038dcaf315eda55285bdbeba20d255da488e97",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
     },
     "kitchenCabinetDrawer": {
       "path": "static/models/kitchenCabinetDrawer.glb",
@@ -2591,7 +3060,80 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "dishwasher"
+      ]
+    },
+    "kitchenCabinetUpper": {
+      "path": "static/models/kitchenCabinetUpper.glb",
+      "bytes": 8168,
+      "sha256": "8f2496feed85a745ffb6e554075b8450d647f8f68b01d6a010fcac1510fc173a",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "kitchenCabinetUpperCorner": {
+      "path": "static/models/kitchenCabinetUpperCorner.glb",
+      "bytes": 13712,
+      "sha256": "b23551ff585b5b804cf3ec0fe046b7bc1e84a387021e3cdb01c93add56444e8d",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "kitchenCabinetUpperDouble": {
+      "path": "static/models/kitchenCabinetUpperDouble.glb",
+      "bytes": 18184,
+      "sha256": "7b2abd976f2e8f1727d6ba23490aaf5fe18db9c5ac66e729ef6fe8de835c039e",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "kitchenCabinetUpperLow": {
+      "path": "static/models/kitchenCabinetUpperLow.glb",
+      "bytes": 7216,
+      "sha256": "c25293d38ad3d4338142f5bfb6832a2f7e8a069a552fc4a6730231b1b382d33e",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "kitchenCoffeeMachine": {
+      "path": "static/models/kitchenCoffeeMachine.glb",
+      "bytes": 13332,
+      "sha256": "063f582c6fa0f00a9f24e3393dac2295491c4becdaf5513c893ab1a2826b6ec3",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "kitchenFridge": {
+      "path": "static/models/kitchenFridge.glb",
+      "bytes": 20116,
+      "sha256": "8af4f4bbb1b5525ad8226e97926a5af60fa8fb20a3cb74dbda5328a9d320dbab",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "kitchenFridgeBuiltIn": {
+      "path": "static/models/kitchenFridgeBuiltIn.glb",
+      "bytes": 22616,
+      "sha256": "eedcfbca0a9e565424d941b8cf82ddc0c3c4dfc63911a420bfae058e9a18044c",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
     },
     "kitchenFridgeLarge": {
       "path": "static/models/kitchenFridgeLarge.glb",
@@ -2600,7 +3142,30 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "fridge"
+      ]
+    },
+    "kitchenFridgeSmall": {
+      "path": "static/models/kitchenFridgeSmall.glb",
+      "bytes": 12988,
+      "sha256": "35dab7f63711623be321bfd82072f4ab29fe8006aac9371c6e6b78df2e02f5ed",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "kitchenMicrowave": {
+      "path": "static/models/kitchenMicrowave.glb",
+      "bytes": 11248,
+      "sha256": "dd6a6c919f4bebc6e2080fe419262cf97a0d6461ead3f3998aa3c9edf4d2bd27",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
     },
     "kitchenSink": {
       "path": "static/models/kitchenSink.glb",
@@ -2609,7 +3174,10 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "sink_k"
+      ]
     },
     "kitchenStove": {
       "path": "static/models/kitchenStove.glb",
@@ -2618,7 +3186,10 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "stove"
+      ]
     },
     "kitchenStoveElectric": {
       "path": "static/models/kitchenStoveElectric.glb",
@@ -2627,7 +3198,80 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "oven"
+      ]
+    },
+    "lampRoundFloor": {
+      "path": "static/models/lampRoundFloor.glb",
+      "bytes": 6600,
+      "sha256": "50fe1b5b588edf15bfa9cc880f71a02a4fda6036350b24733d0ef4de5cc5e908",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "lampRoundTable": {
+      "path": "static/models/lampRoundTable.glb",
+      "bytes": 6604,
+      "sha256": "75bb644caaa3da003b4fcad7a931722dd61cd2858aab70cf660021d5061fa1b2",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "lampSquareCeiling": {
+      "path": "static/models/lampSquareCeiling.glb",
+      "bytes": 5628,
+      "sha256": "57066be51583d83ae60071e8179af275189cb2911ecb9fc24953bb930c8bf118",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "lampSquareFloor": {
+      "path": "static/models/lampSquareFloor.glb",
+      "bytes": 5624,
+      "sha256": "6466993748d8e184de9ec5b6b0af613867c50c0ce320d1898b1db9e4c27c2561",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "lampSquareTable": {
+      "path": "static/models/lampSquareTable.glb",
+      "bytes": 5624,
+      "sha256": "70ec9211af336b1ef3b4da32590b8737b4facf219348c22e6533a1e898cdb13d",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "lampWall": {
+      "path": "static/models/lampWall.glb",
+      "bytes": 4828,
+      "sha256": "a9679ecd3be05731846f22ade97c37069598ca7a06dd9319f50230e63a1ea83c",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "laptop": {
+      "path": "static/models/laptop.glb",
+      "bytes": 5540,
+      "sha256": "5fa8a1f4a71ab8d82ef64da77a6973ffd350c6d4557516069a4ffd4bb8d808af",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
     },
     "loungeChair": {
       "path": "static/models/loungeChair.glb",
@@ -2636,7 +3280,30 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "chair"
+      ]
+    },
+    "loungeChairRelax": {
+      "path": "static/models/loungeChairRelax.glb",
+      "bytes": 13904,
+      "sha256": "def698179e44de6cd17f4cfc2730273da54dd25458a29b079fbf4468abe5d98e",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "loungeDesignChair": {
+      "path": "static/models/loungeDesignChair.glb",
+      "bytes": 9136,
+      "sha256": "f0766a7d5698974b711adac18a2108f0e74e3a036fa4e4e0ccf91195b0ee5abf",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
     },
     "loungeDesignSofa": {
       "path": "static/models/loungeDesignSofa.glb",
@@ -2645,7 +3312,61 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "sofa",
+        "loveseat"
+      ]
+    },
+    "loungeDesignSofaCorner": {
+      "path": "static/models/loungeDesignSofaCorner.glb",
+      "bytes": 13744,
+      "sha256": "fe665d07d53fdc6bc96e9fed453874ba4202b008194e1e24100b067081c62be1",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "loungeSofa": {
+      "path": "static/models/loungeSofa.glb",
+      "bytes": 9644,
+      "sha256": "1886b811c0d3ad0d8525a4fd43adf4112c497c8e0ed906f06877ca3517f4c7dd",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "loungeSofaCorner": {
+      "path": "static/models/loungeSofaCorner.glb",
+      "bytes": 13412,
+      "sha256": "bbdd91791e621ac71321eaf38a2432c53279792ef946707f23b216123bd52655",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "loungeSofaLong": {
+      "path": "static/models/loungeSofaLong.glb",
+      "bytes": 13112,
+      "sha256": "452df1c862f97781615e2c1c832913b48cf6c6f011d3260dc023ff3f117cc9d1",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "loungeSofaOttoman": {
+      "path": "static/models/loungeSofaOttoman.glb",
+      "bytes": 6960,
+      "sha256": "79087654136d7d69653fdc3b52a02d7833fe13e6a0a56b8dcdf652c611dbd959",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
     },
     "outdoor_cactus_short": {
       "path": "static/models/outdoor_cactus_short.glb",
@@ -2654,7 +3375,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "cactus_short"
+      ]
     },
     "outdoor_cactus_tall": {
       "path": "static/models/outdoor_cactus_tall.glb",
@@ -2663,7 +3387,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "cactus_tall"
+      ]
     },
     "outdoor_campfire_logs": {
       "path": "static/models/outdoor_campfire_logs.glb",
@@ -2672,7 +3399,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "campfire"
+      ]
     },
     "outdoor_campfire_stones": {
       "path": "static/models/outdoor_campfire_stones.glb",
@@ -2681,7 +3411,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "fire_pit"
+      ]
     },
     "outdoor_crop_pumpkin": {
       "path": "static/models/outdoor_crop_pumpkin.glb",
@@ -2690,7 +3423,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "pumpkin"
+      ]
     },
     "outdoor_crops_cornStageD": {
       "path": "static/models/outdoor_crops_cornStageD.glb",
@@ -2699,7 +3435,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "corn"
+      ]
     },
     "outdoor_fence_corner": {
       "path": "static/models/outdoor_fence_corner.glb",
@@ -2708,7 +3447,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "fence_corner"
+      ]
     },
     "outdoor_fence_gate": {
       "path": "static/models/outdoor_fence_gate.glb",
@@ -2717,7 +3459,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "fence_gate"
+      ]
     },
     "outdoor_fence_planks": {
       "path": "static/models/outdoor_fence_planks.glb",
@@ -2726,7 +3471,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "fence_planks"
+      ]
     },
     "outdoor_fence_simple": {
       "path": "static/models/outdoor_fence_simple.glb",
@@ -2735,7 +3483,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "fence_simple"
+      ]
     },
     "outdoor_flower_purpleA": {
       "path": "static/models/outdoor_flower_purpleA.glb",
@@ -2744,7 +3495,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "flower_purple"
+      ]
     },
     "outdoor_flower_purpleB": {
       "path": "static/models/outdoor_flower_purpleB.glb",
@@ -2753,7 +3507,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "flower_purple_b"
+      ]
     },
     "outdoor_flower_redA": {
       "path": "static/models/outdoor_flower_redA.glb",
@@ -2762,7 +3519,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "flower_red"
+      ]
     },
     "outdoor_flower_redB": {
       "path": "static/models/outdoor_flower_redB.glb",
@@ -2771,7 +3531,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "flower_red_b"
+      ]
     },
     "outdoor_flower_yellowA": {
       "path": "static/models/outdoor_flower_yellowA.glb",
@@ -2780,7 +3543,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "flower_yellow"
+      ]
     },
     "outdoor_flower_yellowB": {
       "path": "static/models/outdoor_flower_yellowB.glb",
@@ -2789,7 +3555,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "flower_yellow_b"
+      ]
     },
     "outdoor_grass": {
       "path": "static/models/outdoor_grass.glb",
@@ -2798,7 +3567,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "grass_tuft"
+      ]
     },
     "outdoor_grass_large": {
       "path": "static/models/outdoor_grass_large.glb",
@@ -2807,7 +3579,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "grass_large"
+      ]
     },
     "outdoor_grass_leafs": {
       "path": "static/models/outdoor_grass_leafs.glb",
@@ -2816,7 +3591,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "grass_leafs"
+      ]
     },
     "outdoor_grass_leafsLarge": {
       "path": "static/models/outdoor_grass_leafsLarge.glb",
@@ -2825,7 +3603,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "grass_leafs_large"
+      ]
     },
     "outdoor_hanging_moss": {
       "path": "static/models/outdoor_hanging_moss.glb",
@@ -2834,7 +3615,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "hanging_moss"
+      ]
     },
     "outdoor_lily_large": {
       "path": "static/models/outdoor_lily_large.glb",
@@ -2843,7 +3627,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "lily"
+      ]
     },
     "outdoor_log": {
       "path": "static/models/outdoor_log.glb",
@@ -2852,7 +3639,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "log_single"
+      ]
     },
     "outdoor_log_large": {
       "path": "static/models/outdoor_log_large.glb",
@@ -2861,7 +3651,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "log_large"
+      ]
     },
     "outdoor_log_stack": {
       "path": "static/models/outdoor_log_stack.glb",
@@ -2870,7 +3663,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "log_stack"
+      ]
     },
     "outdoor_mushroom_red": {
       "path": "static/models/outdoor_mushroom_red.glb",
@@ -2879,7 +3675,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "mushroom_red"
+      ]
     },
     "outdoor_mushroom_redGroup": {
       "path": "static/models/outdoor_mushroom_redGroup.glb",
@@ -2888,7 +3687,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "mushroom_group"
+      ]
     },
     "outdoor_mushroom_tan": {
       "path": "static/models/outdoor_mushroom_tan.glb",
@@ -2897,7 +3699,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "mushroom_tan"
+      ]
     },
     "outdoor_plant_bush": {
       "path": "static/models/outdoor_plant_bush.glb",
@@ -2906,7 +3711,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "bush"
+      ]
     },
     "outdoor_plant_bushDetailed": {
       "path": "static/models/outdoor_plant_bushDetailed.glb",
@@ -2915,7 +3723,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "bush_detailed"
+      ]
     },
     "outdoor_plant_bushLarge": {
       "path": "static/models/outdoor_plant_bushLarge.glb",
@@ -2924,7 +3735,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "bush_large"
+      ]
     },
     "outdoor_plant_bushLargeTriangle": {
       "path": "static/models/outdoor_plant_bushLargeTriangle.glb",
@@ -2933,7 +3747,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "bush_large_triangle"
+      ]
     },
     "outdoor_plant_bushSmall": {
       "path": "static/models/outdoor_plant_bushSmall.glb",
@@ -2942,7 +3759,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "bush_small"
+      ]
     },
     "outdoor_plant_bushTriangle": {
       "path": "static/models/outdoor_plant_bushTriangle.glb",
@@ -2951,7 +3771,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "bush_triangle"
+      ]
     },
     "outdoor_pot_large": {
       "path": "static/models/outdoor_pot_large.glb",
@@ -2960,7 +3783,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "outdoor_pot_large"
+      ]
     },
     "outdoor_pot_small": {
       "path": "static/models/outdoor_pot_small.glb",
@@ -2969,7 +3795,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "outdoor_pot_small"
+      ]
     },
     "outdoor_rock_largeA": {
       "path": "static/models/outdoor_rock_largeA.glb",
@@ -2978,7 +3807,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "rock_large"
+      ]
     },
     "outdoor_rock_largeB": {
       "path": "static/models/outdoor_rock_largeB.glb",
@@ -2987,7 +3819,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "rock_large_b"
+      ]
     },
     "outdoor_rock_smallA": {
       "path": "static/models/outdoor_rock_smallA.glb",
@@ -2996,7 +3831,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "rock_small"
+      ]
     },
     "outdoor_rock_smallB": {
       "path": "static/models/outdoor_rock_smallB.glb",
@@ -3005,7 +3843,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "rock_small_b"
+      ]
     },
     "outdoor_rock_tallA": {
       "path": "static/models/outdoor_rock_tallA.glb",
@@ -3014,7 +3855,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "rock_tall"
+      ]
     },
     "outdoor_sign": {
       "path": "static/models/outdoor_sign.glb",
@@ -3023,7 +3867,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "outdoor_sign"
+      ]
     },
     "outdoor_statue_column": {
       "path": "static/models/outdoor_statue_column.glb",
@@ -3032,7 +3879,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "statue_column"
+      ]
     },
     "outdoor_statue_obelisk": {
       "path": "static/models/outdoor_statue_obelisk.glb",
@@ -3041,7 +3891,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "obelisk"
+      ]
     },
     "outdoor_stone_largeA": {
       "path": "static/models/outdoor_stone_largeA.glb",
@@ -3050,7 +3903,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "stone_large"
+      ]
     },
     "outdoor_stone_tallA": {
       "path": "static/models/outdoor_stone_tallA.glb",
@@ -3059,7 +3915,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "stone_tall"
+      ]
     },
     "outdoor_stump_old": {
       "path": "static/models/outdoor_stump_old.glb",
@@ -3068,7 +3927,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "stump_old"
+      ]
     },
     "outdoor_stump_round": {
       "path": "static/models/outdoor_stump_round.glb",
@@ -3077,7 +3939,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "stump_round"
+      ]
     },
     "outdoor_tent_detailedOpen": {
       "path": "static/models/outdoor_tent_detailedOpen.glb",
@@ -3086,7 +3951,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "tent"
+      ]
     },
     "outdoor_tree_blocks": {
       "path": "static/models/outdoor_tree_blocks.glb",
@@ -3095,7 +3963,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "tree_blocky"
+      ]
     },
     "outdoor_tree_cone": {
       "path": "static/models/outdoor_tree_cone.glb",
@@ -3104,7 +3975,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "tree_cone"
+      ]
     },
     "outdoor_tree_default": {
       "path": "static/models/outdoor_tree_default.glb",
@@ -3113,7 +3987,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "tree_default"
+      ]
     },
     "outdoor_tree_detailed": {
       "path": "static/models/outdoor_tree_detailed.glb",
@@ -3122,7 +3999,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "tree_detailed"
+      ]
     },
     "outdoor_tree_fat": {
       "path": "static/models/outdoor_tree_fat.glb",
@@ -3131,7 +4011,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "tree_fat"
+      ]
     },
     "outdoor_tree_oak": {
       "path": "static/models/outdoor_tree_oak.glb",
@@ -3140,7 +4023,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "tree_oak"
+      ]
     },
     "outdoor_tree_palm": {
       "path": "static/models/outdoor_tree_palm.glb",
@@ -3149,7 +4035,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "tree_palm"
+      ]
     },
     "outdoor_tree_palmBend": {
       "path": "static/models/outdoor_tree_palmBend.glb",
@@ -3158,7 +4047,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "tree_palm_bend"
+      ]
     },
     "outdoor_tree_palmTall": {
       "path": "static/models/outdoor_tree_palmTall.glb",
@@ -3167,7 +4059,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "tree_palm_tall"
+      ]
     },
     "outdoor_tree_pineRoundA": {
       "path": "static/models/outdoor_tree_pineRoundA.glb",
@@ -3176,7 +4071,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "tree_pine"
+      ]
     },
     "outdoor_tree_pineTallA_detailed": {
       "path": "static/models/outdoor_tree_pineTallA_detailed.glb",
@@ -3185,7 +4083,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "tree_pine_tall"
+      ]
     },
     "outdoor_tree_simple": {
       "path": "static/models/outdoor_tree_simple.glb",
@@ -3194,7 +4095,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "tree_simple"
+      ]
     },
     "outdoor_tree_small": {
       "path": "static/models/outdoor_tree_small.glb",
@@ -3203,7 +4107,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "tree_small"
+      ]
     },
     "outdoor_tree_tall": {
       "path": "static/models/outdoor_tree_tall.glb",
@@ -3212,7 +4119,10 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "tree_tall"
+      ]
     },
     "outdoor_tree_thin": {
       "path": "static/models/outdoor_tree_thin.glb",
@@ -3221,7 +4131,60 @@
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "nature-kit"
+      "sourcePack": "nature-kit",
+      "catalogIds": [
+        "tree_thin"
+      ]
+    },
+    "paneling": {
+      "path": "static/models/paneling.glb",
+      "bytes": 3960,
+      "sha256": "69234bb71f54b0241ef6b78c3c7aa8aa855aae745475645f9adec4895296a96c",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "pillow": {
+      "path": "static/models/pillow.glb",
+      "bytes": 5044,
+      "sha256": "6fae7c190d0b676ef3efd35e5178cef21dffb5c80e1257d8b537ad424da0e5f6",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "pillowBlue": {
+      "path": "static/models/pillowBlue.glb",
+      "bytes": 5056,
+      "sha256": "8326e018c09cb00c19c2c9b745f521cd7eba1169b755322b04f88440dbfef319",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "pillowBlueLong": {
+      "path": "static/models/pillowBlueLong.glb",
+      "bytes": 5088,
+      "sha256": "b643f81a863595071b7907d3d0dcf5b1b0e3bb6ad8521db37778b2242ba46bbc",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "pillowLong": {
+      "path": "static/models/pillowLong.glb",
+      "bytes": 5072,
+      "sha256": "d8490ae920413fd04c85a2164ef384d67a1ca257f761dec1cc7f06fa2c027283",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
     },
     "plantSmall1": {
       "path": "static/models/plantSmall1.glb",
@@ -3230,7 +4193,30 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "floor_plant"
+      ]
+    },
+    "plantSmall2": {
+      "path": "static/models/plantSmall2.glb",
+      "bytes": 12996,
+      "sha256": "d7c8ff42c66dd4f9238a73570549813d1ca6c5f6f661d7af9cb764c4fce314b9",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "plantSmall3": {
+      "path": "static/models/plantSmall3.glb",
+      "bytes": 8424,
+      "sha256": "1aa38b1b22bd19fa4f9f3abd8c4cbf50da2d6fa721cf1f9aa4d80bb89b1bef94",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
     },
     "pottedPlant": {
       "path": "static/models/pottedPlant.glb",
@@ -3239,7 +4225,70 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "potted_plant"
+      ]
+    },
+    "radio": {
+      "path": "static/models/radio.glb",
+      "bytes": 25020,
+      "sha256": "1ba93d6ba6f049750853b4652b92f286f2898e527695a0705b75cc7615897fed",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "rugDoormat": {
+      "path": "static/models/rugDoormat.glb",
+      "bytes": 13812,
+      "sha256": "bd888e41853342cdc0d34d3f09b99cedc50a144f47b514943b65cdb9a2cfd802",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "rugRectangle": {
+      "path": "static/models/rugRectangle.glb",
+      "bytes": 3188,
+      "sha256": "a989d2d59c04e3071e0c90388b113a9a8f339ce1814ef984c51cb6dcd7c8e0eb",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "rugRound": {
+      "path": "static/models/rugRound.glb",
+      "bytes": 10164,
+      "sha256": "c4cdc8f51ed2dbfb853b147521ed40e995307392fd3b19045b2203ea50f376db",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "rugRounded": {
+      "path": "static/models/rugRounded.glb",
+      "bytes": 10876,
+      "sha256": "2ef5cc634bb1060a1a5774cfcaf6e11c235791c99d6b59da5fdbc09edfb95a68",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "rugSquare": {
+      "path": "static/models/rugSquare.glb",
+      "bytes": 3180,
+      "sha256": "18a63634e9bbdde0b309c008f4cd41df8455f7f2ffdb8fe8985fdf8c2cd06b3d",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
     },
     "shower": {
       "path": "static/models/shower.glb",
@@ -3248,7 +4297,20 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "shower"
+      ]
+    },
+    "showerRound": {
+      "path": "static/models/showerRound.glb",
+      "bytes": 72048,
+      "sha256": "1723208eaba3fb215089e02c8cdd3d7201d0980ad0c7b275319eb539f6094bfb",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
     },
     "sideTable": {
       "path": "static/models/sideTable.glb",
@@ -3257,7 +4319,120 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "side_table"
+      ]
+    },
+    "sideTableDrawers": {
+      "path": "static/models/sideTableDrawers.glb",
+      "bytes": 19072,
+      "sha256": "911145653c11b103b2c2e84f3d019205d1886186015c3b52aceddc3801ae8fdf",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "speaker": {
+      "path": "static/models/speaker.glb",
+      "bytes": 15744,
+      "sha256": "78230b9fb382a937cb19e4bf7556ee9402d33ac80b1baaee2d2eb89493cfa1fc",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "speakerSmall": {
+      "path": "static/models/speakerSmall.glb",
+      "bytes": 15244,
+      "sha256": "34db09984703282822f3f57fc9a31bfdfa6a8f6bf8251893d0c907e7ee6601b2",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "stairs": {
+      "path": "static/models/stairs.glb",
+      "bytes": 21616,
+      "sha256": "b442f997583e417fcb32ec89470ecc441b0556f416d3afe00e3f18c806e556a0",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "stairsCorner": {
+      "path": "static/models/stairsCorner.glb",
+      "bytes": 21576,
+      "sha256": "250d3c51e10fa250c30954b8a3d6bb0d011362be34ba85a50f5bebdd4184e0dc",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "stairsOpen": {
+      "path": "static/models/stairsOpen.glb",
+      "bytes": 39924,
+      "sha256": "cbfe1dc9fd66f1375f9c79ccff7069923655238fdf49c7c366653d17632453a5",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "stairsOpenSingle": {
+      "path": "static/models/stairsOpenSingle.glb",
+      "bytes": 24600,
+      "sha256": "97172c18eff61b844cfa871da32b6c639230adf20901188f378926861e7610de",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "stoolBar": {
+      "path": "static/models/stoolBar.glb",
+      "bytes": 11816,
+      "sha256": "a86167a9f92401a61fec7e509ad089ecc552d0f299743add3aeb919acb24e341",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "stoolBarSquare": {
+      "path": "static/models/stoolBarSquare.glb",
+      "bytes": 9784,
+      "sha256": "a7e1099d64eb35416d4d8c9b16921ef12ae7c1c1e6fff5ea75f3ae19cc934a8b",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "table": {
+      "path": "static/models/table.glb",
+      "bytes": 8196,
+      "sha256": "ff1a94498d023957f4bc3ff6f55a7a82977d336dbf01a573b3364f03afe5ff61",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "tableCloth": {
+      "path": "static/models/tableCloth.glb",
+      "bytes": 9920,
+      "sha256": "64de52b5c4370724c29feefd68a65b157c55c88592e2096987bbce007ae80bcb",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
     },
     "tableCoffee": {
       "path": "static/models/tableCoffee.glb",
@@ -3266,7 +4441,40 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "coffee_table"
+      ]
+    },
+    "tableCoffeeGlass": {
+      "path": "static/models/tableCoffeeGlass.glb",
+      "bytes": 9428,
+      "sha256": "05bf257a086a540b3b79b0c1c7dae35b036ed4d520686aed74ea94ea701c447e",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "tableCoffeeGlassSquare": {
+      "path": "static/models/tableCoffeeGlassSquare.glb",
+      "bytes": 9448,
+      "sha256": "e4a7ebef6ad0dbafee629df78b0edd88433a1059c4dd5fb3d70304ba2f71b945",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "tableCoffeeSquare": {
+      "path": "static/models/tableCoffeeSquare.glb",
+      "bytes": 8276,
+      "sha256": "bcc81d8919a3af9141c9c93b4520106dd0a90a7144346cd87928014018aac816",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
     },
     "tableCross": {
       "path": "static/models/tableCross.glb",
@@ -3275,7 +4483,52 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "desk",
+        "dining_table",
+        "table"
+      ]
+    },
+    "tableCrossCloth": {
+      "path": "static/models/tableCrossCloth.glb",
+      "bytes": 13852,
+      "sha256": "3c16b86cdf9a9a82b80b97611030a1da2ed2e9e977ac76457e09a1547b0cebbc",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "tableGlass": {
+      "path": "static/models/tableGlass.glb",
+      "bytes": 9848,
+      "sha256": "a5ed516d18b51cf5db3cc78f1403451f853a81db45510543d3ed56c1dd9c412b",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "tableRound": {
+      "path": "static/models/tableRound.glb",
+      "bytes": 6444,
+      "sha256": "f8daea9124a542a00b7bdacfddac82dc468573d43e44d7b54dd6316e9695754b",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "televisionAntenna": {
+      "path": "static/models/televisionAntenna.glb",
+      "bytes": 4500,
+      "sha256": "00eea4123b3efc7f8050fd3eaac0a83de3053c9e6cead18dc739260a429b2bb7",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
     },
     "televisionModern": {
       "path": "static/models/televisionModern.glb",
@@ -3284,7 +4537,30 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "television"
+      ]
+    },
+    "televisionVintage": {
+      "path": "static/models/televisionVintage.glb",
+      "bytes": 19392,
+      "sha256": "eb144cc8fb1e7f761e3665226e4266c8868679421d21d6548f24d2abad7c67cf",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "toaster": {
+      "path": "static/models/toaster.glb",
+      "bytes": 14924,
+      "sha256": "38c1fb7b122be9997758c8ee855d87f28014cf282f24d66d39f4e8d8b236d2af",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
     },
     "toilet": {
       "path": "static/models/toilet.glb",
@@ -3293,7 +4569,120 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "toilet"
+      ]
+    },
+    "toiletSquare": {
+      "path": "static/models/toiletSquare.glb",
+      "bytes": 17548,
+      "sha256": "f241e26a22b0d9512d8455f3e868124f8032710c83c5265a546c19c67ecdd4b9",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "trashcan": {
+      "path": "static/models/trashcan.glb",
+      "bytes": 6452,
+      "sha256": "e0ccc1fe50cbd05386477fdff527171d1cf7c0de2ba7ff3233f8d9561feb2561",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "wall": {
+      "path": "static/models/wall.glb",
+      "bytes": 3340,
+      "sha256": "69273d5d623bddfce41d12d4e5eeb5621ea04f1edcbd8f35c00a60c2fd3258b7",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "wallCorner": {
+      "path": "static/models/wallCorner.glb",
+      "bytes": 4460,
+      "sha256": "0e6521caee1f9282784c52e0f651084e49f575b091ad97bf25540b8049757aef",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "wallCornerRond": {
+      "path": "static/models/wallCornerRond.glb",
+      "bytes": 10448,
+      "sha256": "33e87dd846335dca5fce8a0e242225bb97d4a7b47c3ae84df33ba97fe1da33bf",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "wallDoorway": {
+      "path": "static/models/wallDoorway.glb",
+      "bytes": 6444,
+      "sha256": "a55be1da05aa80c74749d0c38bd093fa5e2b1eaf21cbc9a7c3a0e6fbcfbe38e2",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "wallDoorwayWide": {
+      "path": "static/models/wallDoorwayWide.glb",
+      "bytes": 6468,
+      "sha256": "877af5b239f31f12027e3cec92aa26e97d511e1ae8673a8e3d7d13302d33edf3",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "wallHalf": {
+      "path": "static/models/wallHalf.glb",
+      "bytes": 3348,
+      "sha256": "24db9f126891b48b443dcfa9f80d79e4321c8780aede83fb6d8f384b3d4eb35f",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "wallWindow": {
+      "path": "static/models/wallWindow.glb",
+      "bytes": 10744,
+      "sha256": "166a10fddb8a78d942bc2791186913f7015dfee8501d20efd7a7b8f196fc5c3e",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "wallWindowSlide": {
+      "path": "static/models/wallWindowSlide.glb",
+      "bytes": 14564,
+      "sha256": "33e51d7ee74f13de318e419b0ebfb31fe7f6e9fd37050f13aa9347641b49376a",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
+    },
+    "washer": {
+      "path": "static/models/washer.glb",
+      "bytes": 48104,
+      "sha256": "0c9704df1817d2699b72305b96cde097c9558bacabaef2fd5ab1ff4c03b81abf",
+      "embeddedGenerator": "UniGLTF-1.24",
+      "embeddedCopyright": null,
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit",
+      "catalogIds": []
     },
     "washerDryerStacked": {
       "path": "static/models/washerDryerStacked.glb",
@@ -3302,7 +4691,10 @@
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
       "provenanceStatus": "official-archive-byte-match",
-      "sourcePack": "furniture-kit"
+      "sourcePack": "furniture-kit",
+      "catalogIds": [
+        "washer_dryer"
+      ]
     }
   }
 }

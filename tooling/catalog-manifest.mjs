@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { furnitureCatalog } from '../src/lib/utils/furnitureCatalog.ts';
 import { getModelFile } from '../src/lib/utils/furnitureModelFiles.ts';
@@ -8,14 +8,8 @@ const root = new URL('../', import.meta.url);
 const output = new URL('docs/furniture-manifest.json', root);
 const provenance = JSON.parse(readFileSync(new URL('docs/furniture-provenance.json', root), 'utf8'));
 const ids = new Set(), models = new Map();
-const items = furnitureCatalog.map(item => {
-  if (ids.has(item.id)) throw new Error(`Duplicate catalog ID: ${item.id}`);
-  ids.add(item.id);
-  for (const key of ['width', 'depth', 'height']) {
-    if (!Number.isFinite(item[key]) || item[key] < 0 || (item[key] === 0 && !(item.symbol && key === 'height'))) throw new Error(`Invalid ${key}: ${item.id}`);
-  }
-  const model = getModelFile(item.id);
-  if (model && !models.has(model)) {
+function collectModel(model) {
+  if (!models.has(model)) {
     const path = `static/models/${model}.glb`;
     const bytes = readFileSync(new URL(path, root));
     if (bytes.length < 20 || bytes.toString('ascii', 0, 4) !== 'glTF' ||
@@ -43,6 +37,15 @@ const items = furnitureCatalog.map(item => {
       sourcePack: evidence?.pack ?? null,
     });
   }
+}
+const items = furnitureCatalog.map(item => {
+  if (ids.has(item.id)) throw new Error(`Duplicate catalog ID: ${item.id}`);
+  ids.add(item.id);
+  for (const key of ['width', 'depth', 'height']) {
+    if (!Number.isFinite(item[key]) || item[key] < 0 || (item[key] === 0 && !(item.symbol && key === 'height'))) throw new Error(`Invalid ${key}: ${item.id}`);
+  }
+  const model = getModelFile(item.id);
+  if (model) collectModel(model);
   return {
     id: item.id, name: item.name, category: item.category,
     dimensionsCm: { width: item.width, depth: item.depth, height: item.height },
@@ -51,8 +54,14 @@ const items = furnitureCatalog.map(item => {
     model: model ?? null,
   };
 });
+for (const file of readdirSync(new URL('static/models/', root)).sort()) {
+  if (file.endsWith('.glb')) collectModel(file.slice(0, -4));
+}
+for (const [model, asset] of models) {
+  asset.catalogIds = items.filter(item => item.model === model).map(item => item.id);
+}
 for (const model of Object.keys(provenance.models)) {
-  if (!models.has(model)) throw new Error(`Provenance entry is no longer mapped: ${model}`);
+  if (!models.has(model)) throw new Error(`Provenance entry is no longer bundled: ${model}`);
 }
 const manifest = {
   format: 'openplan3d-furniture-inventory', version: 1,
@@ -69,8 +78,8 @@ const args = process.argv.slice(2);
 if (args.length > 1 || (args.length === 1 && args[0] !== '--check')) throw new Error('Usage: node tooling/catalog-manifest.mjs [--check]');
 if (args[0] === '--check') {
   if (readFileSync(output, 'utf8') !== text) throw new Error('Furniture inventory is stale; run npm run catalog:manifest.');
-  console.log(`Verified ${items.length} catalog entries and ${models.size} mapped GLBs.`);
+  console.log(`Verified ${items.length} catalog entries and ${models.size} bundled GLBs.`);
 } else {
   writeFileSync(output, text);
-  console.log(`Wrote ${fileURLToPath(output)} (${items.length} entries, ${models.size} mapped GLBs).`);
+  console.log(`Wrote ${fileURLToPath(output)} (${items.length} entries, ${models.size} bundled GLBs).`);
 }

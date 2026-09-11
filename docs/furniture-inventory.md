@@ -1,7 +1,7 @@
 # Furniture inventory and provenance work
 
 The generated [manifest](furniture-manifest.json) records all current furniture
-catalog entries and their mapped GLB assets. Run with Node 24:
+catalog entries and every GLB bundled in `static/models`, including unmapped assets. Run with Node 24:
 
 ```sh
 npm run catalog:manifest
@@ -20,9 +20,9 @@ bottom at zero; see [the loader](../src/lib/utils/furnitureModelLoader.ts).
 Entries distinguish 2D-only symbols, procedural models and GLBs with a procedural
 fallback. Native visual support is not inferred from a web mapping.
 
-The [provenance record](furniture-provenance.json) now maps all 93 referenced
-GLBs to exact byte matches in official Kenney archives: 29 Furniture Kit models
-and 64 Nature Kit models. It records source/download URLs, archive hashes,
+The [provenance record](furniture-provenance.json) now maps all 204 bundled
+GLBs to exact byte matches in official Kenney archives: 140 Furniture Kit models
+and 64 Nature Kit models. Of these, 93 are currently mapped to catalog entries. It records source/download URLs, archive hashes,
 member paths and per-model hashes. Both official pack pages list CC0:
 [Furniture Kit](https://kenney.nl/assets/furniture-kit) and
 [Nature Kit](https://kenney.nl/assets/nature-kit). The downloaded notices are
@@ -32,15 +32,16 @@ included locally with whitespace normalized:
 notice hashes and included notice hashes are both recorded.
 
 The generator rejects changed model bytes under an existing provenance record
-and altered license notices. New unmapped provenance remains explicitly unverified
+and altered license notices. New models remain explicitly unverified
 until source evidence is recorded. Embedded generator/copyright strings alone are
 not attribution. Do not edit generated inventory JSON by hand; update source
 records and regenerate it. Product measurements, asset orientation and native
 representation still need independent qualification.
 
-This inventory covers furniture catalog mappings only. It does not certify
-unmapped files, textures, entourage, native assets, catalog completeness or release
-readiness. Texture credits are separately recorded in
+This inventory covers furniture catalog entries and all bundled GLBs. Each model's
+`catalogIds` lists its current users; an empty list identifies an unmapped file.
+It does not certify textures, entourage, native assets, catalog completeness or
+release readiness. Texture credits are separately recorded in
 [the existing credits](../static/textures/CREDITS.md). Broader catalog curation
 remains in [NEXT](../NEXT.md).
 
@@ -54,3 +55,9 @@ commits `4c1589742e2bf1c718a2c98483dd9479767db31e` and
 `927315f2db8e89c9be2f63b8a602cc9c39b093fa` independently name the two packs.
 The archives were inspected locally, not executed. CI verifies the committed
 evidence without downloading source packs.
+
+Expanded verification on September 10, 2026 covers all 204 bundled GLBs, including
+111 without catalog mappings. The generator now scans the bundle directory and
+checks their provenance too. An intentionally mismatched provenance hash for an
+unmapped asset was rejected; the original record was restored and the complete
+check passed. No assets were removed or runtime mappings changed.

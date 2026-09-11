@@ -2753,3 +2753,11 @@ Kit, 64 Nature Kit). Added durable archive/member/model hashes and local CC0
 notices; inventory generation validates source evidence and license-notice hashes.
 See [provenance scope](docs/furniture-inventory.md). Unmapped assets, textures,
 product dimensions and native representation remain separate curation work.
+
+### Complete bundled GLB inventory — 2026-09-10
+
+Expanded source-byte verification and CI inventory checks from 93 mapped models
+to all 204 bundled GLBs (140 Furniture Kit, 64 Nature Kit). All match official
+archive members. The 111 unmapped assets are identified by empty catalogIds;
+an altered unmapped-asset provenance hash is rejected. Textures, product
+measurements and native representation remain separate work.
