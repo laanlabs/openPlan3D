@@ -1,5 +1,7 @@
 <script lang="ts">
   import { t, locale } from '$lib/i18n';
+  import { furnitureName } from '$lib/i18n/furnitureNames';
+  import { catalogCategoryLabels } from '$lib/i18n/catalogCategories';
   import { exportPNGWithFeedback, exportPDFWithFeedback as exportPDF } from '$lib/stores/exportNotice';
   import { tick } from 'svelte';
   import { modalDialog } from '$lib/utils/modalDialog';
@@ -27,6 +29,7 @@
     icon: string;
     category: 'furniture' | 'tool' | 'action';
     categoryLabel: string;
+    searchAliases?: string[];
     action: () => void;
   };
 
@@ -55,17 +58,18 @@
     { id: 'a-toggle-3d', name: $t('commandPalette.toggle2d3d'), icon: '⚡', category: 'action', categoryLabel: `⚡ ${$t('commandPalette.action')}`, action: () => { viewMode.update(m => m === '2d' ? '3d' : '2d'); } },
   ]);
 
-  const furnitureItems: ResultItem[] = furnitureCatalog.map(f => ({
+  const furnitureItems: ResultItem[] = $derived(furnitureCatalog.map(f => ({
     id: `f-${f.id}`,
-    name: f.name,
+    name: furnitureName(f.id, $locale),
     icon: f.icon,
     category: 'furniture' as const,
-    categoryLabel: `🪑 ${f.category}`,
+    categoryLabel: `🪑 ${catalogCategoryLabels[f.category] ? $t(catalogCategoryLabels[f.category]) : f.category}`,
+    searchAliases: [f.name, f.category, f.id],
     action: () => {
       selectedTool.set('furniture');
       placingFurnitureId.set(f.id);
     },
-  }));
+  })));
 
   const allItems = $derived([...actions, ...tools, ...furnitureItems]);
 
@@ -76,7 +80,8 @@
   let results = $derived.by(() => {
     const q = searchText(query).trim();
     if (!q) return allItems.slice(0, 12);
-    return allItems.filter(item => searchText(item.name).includes(q) || searchText(item.categoryLabel).includes(q)).slice(0, 20);
+    return allItems.filter(item => [item.name, item.categoryLabel, ...(item.searchAliases ?? [])]
+      .some(value => searchText(value).includes(q))).slice(0, 20);
   });
 
   $effect(() => {

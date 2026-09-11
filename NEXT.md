@@ -1,5 +1,17 @@
 # Next work and pause handoff
 
+## Command-palette furniture names — September 11
+
+Furniture results now react to the selected language and share catalog names
+and category translations. Original English names/categories and catalog IDs
+remain search aliases; matching stays accent-insensitive. Three focused unit
+tests pass, check reports zero diagnostics, build passes, and three browser
+engine cases pass (1.5 minutes). The browser flow finds Fogão through `fogao`,
+finds Poltrona through Portuguese, English and ID queries, executes with Enter,
+and confirms the exported new object still has catalog ID `chair` with unchanged
+walls. Full interface/fluent-language review, physical accessibility and wider
+NEXT requirements remain open.
+
 ## SVG and DXF furniture captions — September 11
 
 Vector furniture labels now use the selected language from both the export menu
