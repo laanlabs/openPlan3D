@@ -1,5 +1,15 @@
 # Next work and pause handoff
 
+## Full catalog browser qualification running — September 11
+
+The 1,107-case full browser suite is running against runtime `87d3c86`.
+An initial cold 3D load exceeded the 10-second canvas assertion; the test now
+waits up to 60 seconds for that boundary without weakening its assertions.
+The rerun passed the first 3D placement/history case and continues in session
+`93960`. Poll the actual process before starting competing tests or rebuilding.
+See [the live report](docs/reviews/2026-09-11-catalog-browser-qualification.md).
+No full-suite completion is claimed; broader NEXT requirements remain open.
+
 ## Command-palette furniture names — September 11
 
 Furniture results now react to the selected language and share catalog names

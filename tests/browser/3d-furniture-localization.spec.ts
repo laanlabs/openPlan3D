@@ -16,7 +16,8 @@ test('Portuguese 3D furniture placement preserves catalog identity and undo', as
   await page.getByRole('button', { name: '3D', exact: true }).click();
   const viewer = page.getByRole('region', { name: 'Visualizador 3D da planta', exact: true });
   const canvas = viewer.locator('canvas').last();
-  await expect(canvas).toBeVisible();
+  // The first production navigation loads the 3D bundle before creating canvas.
+  await expect(canvas).toBeVisible({ timeout: 60_000 });
   await viewer.getByRole('button', { name: 'Modo de edição', exact: true }).click();
   await viewer.getByRole('button', { name: 'Posicionar móveis', exact: true }).click();
   const living = viewer.getByRole('button', { name: 'Sala de estar', exact: true });

@@ -1,0 +1,31 @@
+# Catalog localization browser qualification — in progress
+
+Runtime source: `87d3c8658ea7ce877354a3353d6c5503091fe428`. The working tree was
+clean at launch. Inventory: 1,107 cases in 139 files, across Chromium, Firefox
+and WebKit. Production code has not changed during this qualification.
+
+The initial full run exited with one failure and 1,106 unrun cases. Its first
+Chromium case found the page still displaying the translated 3D loading message
+at the 10-second canvas-readiness deadline. The captured trace showed no
+application error. The test now allows up to 60 seconds for this lazy-load
+boundary, inside its existing 180-second overall deadline. No assertions were
+removed. The restarted full run passed that case (1.3 minutes), including
+placement and exact Undo/Redo export comparisons, and is continuing.
+
+## Resume the running process
+
+- Command: `npx playwright test --max-failures=1`
+- Unified execution session: `93960`; poll this handle before assuming it ended.
+- Active log: `/tmp/web-localization-full-browser-2.log`
+- Initial failed log: `/tmp/web-localization-full-browser.log`
+- Exact inventory: `/tmp/web-localization-full-inventory.log`
+
+This is a live checkpoint, not completion evidence. Do not run another competing
+browser suite, rebuild production assets, or restart this run while it is live.
+On terminal failure, inspect the exact failure before choosing a correction and
+continuation inventory. On success, verify the pass count against the inventory
+and replace this report's in-progress status with the actual outcome.
+
+Physical-device, native, release, fluent-language review and other NEXT gates
+remain separate. Earlier full browser evidence applies to its named earlier
+runtime, not automatically to this source.
