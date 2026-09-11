@@ -1789,3 +1789,19 @@ Nine cases pass across Chromium, Firefox and WebKit (33.6 seconds).
 Logs: `/tmp/web-wall-placement-browser.log`, `/tmp/web-placement-persistence-browser.log`.
 No runtime change was required. This qualifies the sampled straight-wall case;
 physical touch and broader visual/device behavior remain open.
+
+### 2026-09-11: Furnished room-template drag placement
+
+The room-template cards emitted `room-template` drag data, but the canvas only
+handled empty room presets. A Chromium reproduction dragged a bedroom card and
+exported zero walls. The canvas now resolves the template and its preset and
+calls the same grouped placement function used by clicking the card.
+
+Nine browser cases pass across Chromium, Firefox and WebKit (19.2 seconds).
+The drag case checks four walls at the offset drop location, the five bedroom
+catalog IDs, a furniture offset, exact Undo/Redo and saved/reopened floors. Existing
+Portuguese room-choice click cases pass at desktop and phone widths. Check/build
+pass with zero Svelte diagnostics. The drag case uses desktop mouse input;
+physical touch dragging remains unqualified.
+Logs: `/tmp/web-template-drop-repro.log`, `/tmp/web-template-drop-check.log`,
+`/tmp/web-template-drop-build.log`, `/tmp/web-template-drop-browser.log`.

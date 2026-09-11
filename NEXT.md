@@ -176,6 +176,13 @@ save/reopen (33.6 seconds). The wall case checks that snapping overrides the
 preview angle and keeps the sofa flush with the wall surface. Check/build passed
 for the implementation; physical gestures remain separate qualification cases.
 
+Furnished room-template dragging now places the selected template at the drop
+point. Previously the draggable cards emitted a type the canvas did not handle.
+Nine browser cases pass across all three engines (19.2 seconds), covering desktop
+drag placement/Undo/Redo/save-reopen and existing desktop/phone-width click
+placement. Check/build pass with zero Svelte diagnostics. Physical touch dragging
+remains unqualified.
+
 Earlier full web unit checkpoint: **958 tests across 90 files passed** with curved
 wall splitting (3.65 seconds). Check/build and 12 wall-action browser cases pass
 across Chromium, Firefox and WebKit (54.4 seconds), including curved split controls,
