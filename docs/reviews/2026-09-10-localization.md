@@ -1244,3 +1244,17 @@ audit or a walkthrough movement test. Logs: `/tmp/web-viewer-nav-check.log`,
 `/tmp/web-viewer-nav-build.log`, `/tmp/web-viewer-nav-unit.log`,
 `/tmp/web-viewer-nav-browser.log`. Camera preview/AI/lighting/furniture UI and
 physical-device/release requirements remain open.
+
+## 3D lighting panel localization
+
+Translated lighting panel labels and four time-of-day presets. The toggle exposes
+expanded state and presets expose pressed state, including clearing that state
+after manual adjustment. Existing preset IDs and lighting math are unchanged.
+Production check reports zero errors/warnings; build and five localization unit
+tests pass. Three browser cases pass (57.5 seconds, exit 0), checking all four
+presets' azimuth/elevation/ambient values, keyboard ambient adjustment and cleared
+selection, panel close, plus prior navigation/export/data preservation coverage.
+Logs: `/tmp/web-viewer-lighting-check.log`, `/tmp/web-viewer-lighting-build.log`,
+`/tmp/web-viewer-lighting-unit.log`, `/tmp/web-viewer-lighting-browser.log`.
+This checks UI state, not physical lighting accuracy or visual render quality.
+Remaining viewer panels, physical-device and release requirements stay open.

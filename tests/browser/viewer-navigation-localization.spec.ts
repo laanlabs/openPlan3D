@@ -31,6 +31,26 @@ test('Portuguese 3D navigation preserves project data and exports a screenshot',
   await expect(viewer.getByText('📷 Clique no piso para posicionar a câmera', { exact: true })).toBeVisible();
   await camera.click();
   await expect(viewer.getByText('📷 Clique no piso para posicionar a câmera', { exact: true })).toHaveCount(0);
+  const lighting = viewer.getByRole('button', { name: 'Controles de iluminação', exact: true });
+  await expect(lighting).toHaveAttribute('aria-expanded', 'false');
+  await lighting.click();
+  await expect(lighting).toHaveAttribute('aria-expanded', 'true');
+  const azimuth = viewer.getByRole('slider', { name: /^Posição do sol/ });
+  const elevation = viewer.getByRole('slider', { name: /^Elevação do sol/ });
+  const ambient = viewer.getByRole('slider', { name: /^Luz ambiente/ });
+  for (const [label, az, el, light] of [['manhã', 90, 25, 30], ['meio-dia', 180, 80, 45], ['entardecer', 270, 15, 20], ['noite', 0, 5, 8]] as const) {
+    const preset = viewer.getByRole('button', { name: new RegExp(label + '$') });
+    await preset.click();
+    await expect(preset).toHaveAttribute('aria-pressed', 'true');
+    await expect(azimuth).toHaveValue(String(az));
+    await expect(elevation).toHaveValue(String(el));
+    await expect(ambient).toHaveValue(String(light));
+  }
+  await ambient.focus(); await ambient.press('ArrowRight');
+  await expect(ambient).toHaveValue('9');
+  await expect(viewer.getByRole('button', { name: /noite$/ })).toHaveAttribute('aria-pressed', 'false');
+  await lighting.click();
+  await expect(lighting).toHaveAttribute('aria-expanded', 'false');
   const pending = page.waitForEvent('download');
   await viewer.getByRole('button', { name: 'Salvar captura 3D', exact: true }).click();
   const screenshot = await pending;

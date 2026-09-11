@@ -2481,8 +2481,9 @@
   <button
     onclick={() => { lightingPanelOpen = !lightingPanelOpen; }}
     class="absolute bottom-4 left-4 md:left-14 z-50 p-2 rounded-lg transition-colors {lightingPanelOpen ? 'bg-amber-500 text-white ring-2 ring-amber-300' : 'bg-black/70 text-white hover:bg-black/80'}"
-    title="Lighting Controls"
-    aria-label="Lighting Controls"
+    title={$t('viewerLighting.title')}
+    aria-label={$t('viewerLighting.title')}
+    aria-expanded={lightingPanelOpen}
   >
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="12" cy="12" r="5"/>
@@ -2498,20 +2499,21 @@
     <div class="absolute bottom-14 left-4 md:left-14 z-50 bg-black/80 text-white text-xs rounded-lg backdrop-blur-sm p-3 space-y-3 min-w-[220px] select-none">
       <div class="font-semibold text-white/90 text-sm flex items-center gap-1.5">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
-        Lighting Controls
+        {$t('viewerLighting.title')}
       </div>
 
       <!-- Time of Day Presets -->
       <div class="space-y-1">
-        <span class="text-white/60 text-[10px] uppercase tracking-wide">Time of Day</span>
+        <span class="text-white/60 text-[10px] uppercase tracking-wide">{$t('viewerLighting.time')}</span>
         <div class="flex gap-1">
           {#each (['morning', 'noon', 'evening', 'night'] as const) as preset}
             <button
               onclick={() => applyTimePreset(preset)}
+              aria-pressed={timeOfDay === preset}
               class="flex-1 px-1.5 py-1 rounded text-[11px] transition-colors {timeOfDay === preset ? 'bg-amber-500 text-white' : 'bg-white/10 hover:bg-white/20 text-white/80'}"
             >
               {preset === 'morning' ? '🌅' : preset === 'noon' ? '☀️' : preset === 'evening' ? '🌇' : '🌙'}
-              <span class="block capitalize">{preset}</span>
+              <span class="block capitalize">{$t(`viewerLighting.${preset}`)}</span>
             </button>
           {/each}
         </div>
@@ -2520,7 +2522,7 @@
       <!-- Sun Position -->
       <label class="block space-y-0.5">
         <div class="flex justify-between text-white/60">
-          <span>Sun Position</span><span>{sunAzimuth}°</span>
+          <span>{$t('viewerLighting.azimuth')}</span><span>{sunAzimuth}°</span>
         </div>
         <input type="range" min="0" max="360" bind:value={sunAzimuth} oninput={() => { timeOfDay = null; updateSunPosition(); }} class="w-full h-1 accent-amber-400" />
       </label>
@@ -2528,7 +2530,7 @@
       <!-- Sun Elevation -->
       <label class="block space-y-0.5">
         <div class="flex justify-between text-white/60">
-          <span>Sun Elevation</span><span>{sunElevation}°</span>
+          <span>{$t('viewerLighting.elevation')}</span><span>{sunElevation}°</span>
         </div>
         <input type="range" min="0" max="90" bind:value={sunElevation} oninput={() => { timeOfDay = null; updateSunPosition(); }} class="w-full h-1 accent-amber-400" />
       </label>
@@ -2536,7 +2538,7 @@
       <!-- Ambient Intensity -->
       <label class="block space-y-0.5">
         <div class="flex justify-between text-white/60">
-          <span>Ambient Light</span><span>{Math.round(ambientIntensity * 100)}%</span>
+          <span>{$t('viewerLighting.ambient')}</span><span>{Math.round(ambientIntensity * 100)}%</span>
         </div>
         <input type="range" min="0" max="100" value={Math.round(ambientIntensity * 100)} oninput={(e) => { ambientIntensity = parseInt(e.currentTarget.value) / 100; timeOfDay = null; updateAmbientIntensity(); }} class="w-full h-1 accent-blue-400" />
       </label>

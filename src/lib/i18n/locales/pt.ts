@@ -975,5 +975,14 @@ export const pt = {
   "viewerNav.eyeHeight": "Altura dos olhos",
   "viewerNav.walkSpeed": "Velocidade de caminhada",
   "viewerNav.sprintSpeed": "Velocidade de corrida",
-  "viewerNav.walkHelp": "WASD para olhar • Setas para mover • Mouse para olhar • Shift para correr • Esc para sair"
+  "viewerNav.walkHelp": "WASD para olhar • Setas para mover • Mouse para olhar • Shift para correr • Esc para sair",
+  "viewerLighting.title": "Controles de iluminação",
+  "viewerLighting.time": "Hora do dia",
+  "viewerLighting.azimuth": "Posição do sol",
+  "viewerLighting.elevation": "Elevação do sol",
+  "viewerLighting.ambient": "Luz ambiente",
+  "viewerLighting.morning": "manhã",
+  "viewerLighting.noon": "meio-dia",
+  "viewerLighting.evening": "entardecer",
+  "viewerLighting.night": "noite"
 } as const;

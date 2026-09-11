@@ -975,5 +975,14 @@ export const en = {
   "viewerNav.eyeHeight": "Eye Height",
   "viewerNav.walkSpeed": "Walk Speed",
   "viewerNav.sprintSpeed": "Sprint Speed",
-  "viewerNav.walkHelp": "WASD to look • Arrows to move • Mouse to look • Shift to sprint • ESC to exit"
+  "viewerNav.walkHelp": "WASD to look • Arrows to move • Mouse to look • Shift to sprint • ESC to exit",
+  "viewerLighting.title": "Lighting Controls",
+  "viewerLighting.time": "Time of Day",
+  "viewerLighting.azimuth": "Sun Position",
+  "viewerLighting.elevation": "Sun Elevation",
+  "viewerLighting.ambient": "Ambient Light",
+  "viewerLighting.morning": "morning",
+  "viewerLighting.noon": "noon",
+  "viewerLighting.evening": "evening",
+  "viewerLighting.night": "night"
 } as const;
