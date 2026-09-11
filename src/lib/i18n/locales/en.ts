@@ -1223,6 +1223,7 @@ export const en = {
   "undoAction.align": "Aligned selection",
   "undoAction.roomTemplate": "Placed room template",
   "undoAction.addDoor": "Door added: {type}",
+  "undoAction.addCatalogItem": "Added {name}",
   "undoAction.addWindow": "Window added: {type}",
   "undoAction.addColumn": "Column added: {type}",
   "undoAction.front": "Brought furniture to front",

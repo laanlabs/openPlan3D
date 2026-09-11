@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { t } from '$lib/i18n';
+  import { furnitureName } from '$lib/i18n/furnitureNames';
+  import { t, locale } from '$lib/i18n';
   import { entourageLabels } from '$lib/i18n/entourageLabels';
   import { catalogCategoryLabels, normalizeCatalogSearch } from '$lib/i18n/catalogCategories';
   import { roomPresetLabels, roomTemplateLabels } from '$lib/i18n/roomLabels';
@@ -114,7 +115,7 @@
             return matchCat;
           });
       if (s) {
-        items = items.filter(f => [f.name, f.category, catalogCategoryLabels[f.category] ? $t(catalogCategoryLabels[f.category]) : f.category]
+        items = items.filter(f => [f.name, furnitureName(f.id, $locale), f.category, catalogCategoryLabels[f.category] ? $t(catalogCategoryLabels[f.category]) : f.category]
           .some(value => normalizeCatalogSearch(value).includes(s)));
       }
       return items;
@@ -649,13 +650,13 @@
                     onmousemove={onItemMouseMove}
                     onmouseleave={onItemMouseLeave}
                   >
-                    <div class="w-10 h-10"><FurnitureThumbnail catalogId={item.id} name={item.name} color={item.color} /></div>
-                    <span class="text-[10px] font-medium text-gray-600 leading-tight text-center">{item.name}</span>
+                    <div class="w-10 h-10"><FurnitureThumbnail catalogId={item.id} name={furnitureName(item.id, $locale)} color={item.color} /></div>
+                    <span class="text-[10px] font-medium text-gray-600 leading-tight text-center">{furnitureName(item.id, $locale)}</span>
                   </button>
                   <button
                     class="absolute top-1 right-1 text-[12px] leading-none cursor-pointer {favoriteIds.includes(item.id) ? 'text-pink-500' : 'text-gray-300 hover:text-pink-400'}"
                     onclick={() => toggleFavorite(item.id)}
-                    aria-label={$t(favoriteIds.includes(item.id) ? 'objectControls.remove' : 'objectControls.add', { name: item.name })}
+                    aria-label={$t(favoriteIds.includes(item.id) ? 'objectControls.remove' : 'objectControls.add', { name: furnitureName(item.id, $locale) })}
                     aria-pressed={favoriteIds.includes(item.id)}
                     title={$t(favoriteIds.includes(item.id) ? 'objectControls.removeHint' : 'objectControls.addHint')}
                   >{favoriteIds.includes(item.id) ? '♥' : '♡'}</button>
@@ -680,19 +681,19 @@
                 onmousemove={onItemMouseMove}
                 onmouseleave={onItemMouseLeave}
               >
-                <div class="w-12 h-12"><FurnitureThumbnail catalogId={item.id} name={item.name} color={item.color} /></div>
-                {#if s && item.name.toLowerCase().includes(s)}
-                  {@const idx = item.name.toLowerCase().indexOf(s)}
-                  <span class="text-xs font-medium text-gray-600">{item.name.slice(0, idx)}<mark class="bg-yellow-200 text-gray-800 rounded-sm px-0.5">{item.name.slice(idx, idx + s.length)}</mark>{item.name.slice(idx + s.length)}</span>
+                <div class="w-12 h-12"><FurnitureThumbnail catalogId={item.id} name={furnitureName(item.id, $locale)} color={item.color} /></div>
+                {#if s && furnitureName(item.id, $locale).toLowerCase().includes(s)}
+                  {@const idx = furnitureName(item.id, $locale).toLowerCase().indexOf(s)}
+                  <span class="text-xs font-medium text-gray-600">{furnitureName(item.id, $locale).slice(0, idx)}<mark class="bg-yellow-200 text-gray-800 rounded-sm px-0.5">{furnitureName(item.id, $locale).slice(idx, idx + s.length)}</mark>{furnitureName(item.id, $locale).slice(idx + s.length)}</span>
                 {:else}
-                  <span class="text-xs font-medium text-gray-600">{item.name}</span>
+                  <span class="text-xs font-medium text-gray-600">{furnitureName(item.id, $locale)}</span>
                 {/if}
                 <span class="text-[10px] text-gray-400">{item.width}×{item.depth}cm</span>
               </button>
               <button
                 class="absolute top-1 right-1 text-[12px] leading-none cursor-pointer {favoriteIds.includes(item.id) ? 'text-pink-500' : 'text-gray-300 hover:text-pink-400'}"
                 onclick={() => toggleFavorite(item.id)}
-                aria-label={$t(favoriteIds.includes(item.id) ? 'objectControls.remove' : 'objectControls.add', { name: item.name })}
+                aria-label={$t(favoriteIds.includes(item.id) ? 'objectControls.remove' : 'objectControls.add', { name: furnitureName(item.id, $locale) })}
                 aria-pressed={favoriteIds.includes(item.id)}
                 title={$t(favoriteIds.includes(item.id) ? 'objectControls.removeHint' : 'objectControls.addHint')}
               >{favoriteIds.includes(item.id) ? '♥' : '♡'}</button>
@@ -762,11 +763,11 @@
   >
     <div class="bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden" style="width: 220px;">
       <div class="w-full h-[120px] bg-gray-50 flex items-center justify-center p-3">
-        <div class="w-full h-full"><FurnitureThumbnail catalogId={item.id} name={item.name} color={item.color} /></div>
+        <div class="w-full h-full"><FurnitureThumbnail catalogId={item.id} name={furnitureName(item.id, $locale)} color={item.color} /></div>
       </div>
       <div class="p-3 space-y-1.5">
         <div class="flex items-center gap-2">
-          <span class="text-sm font-semibold text-gray-800">{item.name}</span>
+          <span class="text-sm font-semibold text-gray-800">{furnitureName(item.id, $locale)}</span>
           <span
             class="px-1.5 py-0.5 rounded-full text-[9px] font-semibold text-white"
             style="background-color: {categoryColors[item.category] ?? '#6b7280'}"

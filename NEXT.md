@@ -1,5 +1,21 @@
 # Next work and pause handoff
 
+## Portuguese furniture catalog names — September 11
+
+Added display names for all 191 built-in and import-preview catalog IDs. Object
+cards, recent items, favorites, hover previews, properties headings and generated
+Undo descriptions now use them in Portuguese. Search accepts both original
+English names and accent-free Portuguese names. Catalog IDs, dimensions, saved
+data, drag payloads and unknown/custom identifiers stay unchanged.
+
+Three focused unit tests pass, including exact catalog coverage and unchanged
+catalog/history data. Production check reports zero diagnostics, build passes,
+and all 24 scoped Chromium/Firefox/WebKit cases pass (9.8 minutes): category and
+bilingual search, keyboard favorites/recent placement, focus, and Portuguese
+properties persistence. The full browser suite was not rerun. Remaining naming
+surfaces such as Layers and the 3D catalog, fluent Portuguese review, physical
+accessibility and the wider NEXT requirements remain open.
+
 ## Generated opening and column history labels — September 11
 
 Undo display now recognizes the 15 generated descriptions for supported door,

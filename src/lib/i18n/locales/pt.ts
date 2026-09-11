@@ -1223,6 +1223,7 @@ export const pt = {
   "undoAction.align": "Seleção alinhada",
   "undoAction.roomTemplate": "Modelo de ambiente posicionado",
   "undoAction.addDoor": "Porta adicionada: {type}",
+  "undoAction.addCatalogItem": "Item adicionado: {name}",
   "undoAction.addWindow": "Janela adicionada: {type}",
   "undoAction.addColumn": "Coluna adicionada: {type}",
   "undoAction.front": "Móvel trazido para frente",

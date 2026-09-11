@@ -15,25 +15,25 @@ for (const locale of ['en', 'pt']) for (const recent of [false, true]) test(`${l
   await page.getByTitle(locale === 'pt' ? 'Limpar pesquisa' : 'Clear search', { exact: true }).click();
   await expect(search).toHaveValue('');
   const canvas = page.getByLabel(/^(?:Floor plan editor canvas|Área de edição da planta baixa)$/, { exact: true });
-  const favorite = page.getByRole('button', { name: locale === 'pt' ? 'Adicionar Sofa aos favoritos' : 'Add Sofa to favorites', exact: true }).first();
+  const favorite = page.getByRole('button', { name: locale === 'pt' ? 'Adicionar Sofá aos favoritos' : 'Add Sofa to favorites', exact: true }).first();
   await canvas.focus(); await page.keyboard.down('Space');
   await expect(canvas).toHaveCSS('cursor', 'grab');
   await favorite.focus(); await page.keyboard.up('Space');
   await expect(canvas).not.toHaveCSS('cursor', 'grab');
   await favorite.press('Space');
-  const selected = page.getByRole('button', { name: locale === 'pt' ? 'Remover Sofa dos favoritos' : 'Remove Sofa from favorites', exact: true }).first();
+  const selected = page.getByRole('button', { name: locale === 'pt' ? 'Remover Sofá dos favoritos' : 'Remove Sofa from favorites', exact: true }).first();
   await expect(selected).toHaveAttribute('aria-pressed', 'true');
   await expect(canvas).not.toHaveCSS('cursor', 'copy');
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('o3d_favorite_furniture')!))).toEqual(['sofa']);
   // macOS WebKit uses Option+Tab to include buttons when full keyboard access is off.
   await selected.press(browserName === 'webkit' && process.platform === 'darwin' ? 'Alt+Shift+Tab' : 'Shift+Tab');
-  await expect(page.getByRole('button', { name: /^Sofa(?: Sofa)?(?: 200×90cm)?$/ }).first()).toBeFocused();
+  await expect(page.getByRole('button', { name: /^Sof[aá](?: Sof[aá])?(?: 200×90cm)?$/ }).first()).toBeFocused();
   await selected.press('Enter');
   await expect(favorite).toHaveAttribute('aria-pressed', 'false');
   await expect(canvas).not.toHaveCSS('cursor', 'copy');
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('o3d_favorite_furniture')!))).toEqual([]);
   // The sibling placement button remains independently keyboard operable.
-  await page.getByRole('button', { name: /^Sofa(?: Sofa)?(?: 200×90cm)?$/ }).first().press('Enter');
+  await page.getByRole('button', { name: /^Sof[aá](?: Sof[aá])?(?: 200×90cm)?$/ }).first().press('Enter');
   await expect(canvas).toHaveCSS('cursor', 'copy');
 });
 

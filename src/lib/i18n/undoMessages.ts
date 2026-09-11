@@ -1,5 +1,7 @@
 import { translate, type Locale, type TranslationKey } from './index';
 import type { Door, Window, Column } from '$lib/models/types';
+import { getCatalogItem } from '$lib/utils/furnitureCatalog';
+import { furnitureName } from './furnitureNames';
 
 const keys: Extract<TranslationKey, `undoAction.${string}`>[] = [
   'undoAction.edit',
@@ -78,6 +80,10 @@ export function undoMessage(description: string, language: Locale): string {
   const typed = typedMessages.get(description);
   if (typed && language !== 'en') {
     return translate(language, typed.action, { type: translate(language, typed.type) });
+  }
+  const catalogId = description.startsWith('Added ') ? description.slice(6) : '';
+  if (language !== 'en' && getCatalogItem(catalogId)) {
+    return translate(language, 'undoAction.addCatalogItem', { name: furnitureName(catalogId, language) });
   }
   return description;
 }
