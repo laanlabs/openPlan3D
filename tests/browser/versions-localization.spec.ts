@@ -41,9 +41,9 @@ test('Portuguese history confirmations preserve cancellation and restore the sel
   await restore;
   await expect(dialog).toHaveCount(0);
   await expect(page.getByTitle('Click to rename', { exact: true })).toHaveText(prior.name);
-  await page.getByRole('button', { name: 'Export', exact: true }).click();
+  await page.getByRole('button', { name: /^(?:Export|Exportar)$/, exact: true }).click();
   const downloading = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Download JSON', exact: true }).click();
+  await page.getByRole('button', { name: /^(?:Download\ JSON|Baixar\ JSON)$/, exact: true }).click();
   const saved = JSON.parse(await readFile((await (await downloading).path())!, 'utf8'));
   expect(saved.floors[0].walls[0].height).toBe(321);
 });

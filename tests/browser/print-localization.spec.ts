@@ -14,12 +14,12 @@ test('Portuguese print controls preserve paper, scale validation and PDF export'
   });
   await page.setViewportSize({ width: 390, height: 900 });
   await page.goto('/editor');
-  await page.getByRole('button', { name: 'Export', exact: true }).click();
+  await page.getByRole('button', { name: /^(?:Export|Exportar)$/, exact: true }).click();
   const chooser = page.waitForEvent('filechooser');
-  await page.getByRole('button', { name: 'Import JSON', exact: true }).click();
+  await page.getByRole('button', { name: /^(?:Import\ JSON|Importar\ JSON)$/, exact: true }).click();
   await (await chooser).setFiles('tests/fixtures/connected-dimensions.openplan.json');
   await expect(page.getByRole('application')).toContainText('1 room');
-  await page.getByRole('button', { name: 'Export', exact: true }).click();
+  await page.getByRole('button', { name: /^(?:Export|Exportar)$/, exact: true }).click();
   await page.getByRole('button', { name: 'Layout de impressão', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'Prévia de impressão', exact: true });
   await dialog.getByRole('combobox', { name: 'Papel:', exact: true }).selectOption('a4');

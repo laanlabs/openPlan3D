@@ -18,9 +18,12 @@ test('Portuguese welcome recovers from invalid JSON and creates the selected tem
   await expect(page.getByRole('button', { name: /Casa em L/ })).toBeVisible();
   await page.getByRole('button', { name: /Apartamento estúdio/ }).click();
   await expect(page.getByRole('application')).toContainText('walls');
-  await page.getByRole('button', { name: 'Export', exact: true }).click();
+  await page.getByRole('button', { name: 'Exportar', exact: true }).click();
+  for (const name of ['Exportar 2D como PNG', 'Exportar 3D como PNG', 'Exportar como SVG', 'Exportar como DXF', 'Exportar como DWG', 'Exportar como PDF', 'Baixar pacote de projeto', 'Importar JSON']) {
+    await expect(page.getByRole('button', { name, exact: true })).toBeVisible();
+  }
   const pending = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Download JSON', exact: true }).click();
+  await page.getByRole('button', { name: 'Baixar JSON', exact: true }).click();
   const saved = JSON.parse(await readFile((await (await pending).path())!, 'utf8'));
   expect(saved.name).toBe('Studio Apartment');
   expect(saved.floors[0].name).toBe('Ground Floor');

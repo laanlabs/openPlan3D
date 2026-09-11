@@ -355,5 +355,16 @@ export const en = {
   "deployment.reload": "Save and reload",
   "deployment.backup": "Download JSON backup",
   "deployment.stay": "Keep editing",
-  "models.foundOne": "{count} model found. Type to search or enter another model ID."
+  "models.foundOne": "{count} model found. Type to search or enter another model ID.",
+  "exportMenu.title": "Export",
+  "exportMenu.png2d": "Export 2D as PNG",
+  "exportMenu.png3d": "Export 3D as PNG",
+  "exportMenu.svg": "Export as SVG",
+  "exportMenu.dxf": "Export as DXF",
+  "exportMenu.dwg": "Export as DWG",
+  "exportMenu.pdf": "Export as PDF",
+  "exportMenu.json": "Download JSON",
+  "exportMenu.package": "Download project package",
+  "exportMenu.packageHelp": "For iPhone and web. Includes retained original data and attachments, even when they are not shown here.",
+  "exportMenu.import": "Import JSON"
 } as const;

@@ -11,13 +11,13 @@ for (const locale of ['en', 'pt']) for (const width of [1440,390]) for (const op
     floor.entourage=[{id:'a',defId:'person',position:{x:0,y:0},width:100,rotation:0,locked:true},
       {id:'b',defId:'person',position:{x:100,y:100},width:100,rotation:0},
       {id:'c',defId:'person',position:{x:400,y:150},width:100,rotation:90}];
-    await page.goto('/editor'); await page.getByRole('button',{name:'Export',exact:true}).click();
-    const chooser=page.waitForEvent('filechooser'); await page.getByRole('button',{name:'Import JSON',exact:true}).click();
+    await page.goto('/editor'); await page.getByRole('button',{name: /^(?:Export|Exportar)$/,exact:true}).click();
+    const chooser=page.waitForEvent('filechooser'); await page.getByRole('button',{name: /^(?:Import\ JSON|Importar\ JSON)$/,exact:true}).click();
     await (await chooser).setFiles({name:'align.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(plan))});
     await expect(page.getByRole('button',{name:plan.name,exact:true})).toBeVisible();
     async function exported() {
-      await page.getByRole('button',{name:'Export',exact:true}).click();const pending=page.waitForEvent('download');
-      await page.getByRole('button',{name:'Download JSON',exact:true}).click();
+      await page.getByRole('button',{name: /^(?:Export|Exportar)$/,exact:true}).click();const pending=page.waitForEvent('download');
+      await page.getByRole('button',{name: /^(?:Download\ JSON|Baixar\ JSON)$/,exact:true}).click();
       return JSON.parse(await readFile((await (await pending).path())!,'utf8')).floors[0];
     }
     const before=await exported();

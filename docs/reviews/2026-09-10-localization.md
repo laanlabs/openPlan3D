@@ -310,3 +310,18 @@ flow passes across all three engines with the singular response assertion (three
 cases, 25.8 seconds). Logs: `/tmp/web-model-count-unit.log`,
 `/tmp/web-model-count-check.log`, `/tmp/web-model-count-build.log`,
 `/tmp/web-model-count-browser.log`.
+
+## Export menu
+
+The export dropdown now translates its toggle, format actions, project-package
+explanation, JSON import and new-project entry. Export handlers, filenames and
+file formats are unchanged. Existing bilingual workflow locators accept the
+localized actions; the Portuguese welcome test explicitly checks every format
+action and verifies the downloaded JSON retains original project/floor names.
+
+Five localization unit tests, zero-warning Svelte check and production build pass.
+Six browser cases pass across Chromium, Firefox and WebKit (27.9 seconds), covering
+Portuguese menu labels, JSON export, real 2D PNG export and failure feedback.
+Logs: `/tmp/web-export-menu-localization-check.log`, `/tmp/web-export-menu-build.log`,
+`/tmp/web-export-menu-unit.log`, `/tmp/web-export-menu-browser.log`. This does not
+qualify every export format or physical mobile devices.

@@ -2995,3 +2995,11 @@ Corrected one-result model-discovery wording in English and Portuguese. Five
 localization unit tests, zero-warning Svelte check, production build and all three
 provider browser cases pass. Broader localization and fluent-speaker review remain
 open.
+
+### Export-menu localization — 2026-09-10
+
+Translated export/import actions and project-package help. Five localization unit
+tests, zero-warning Svelte check, production build and six browser cases pass
+across all three engines, including original-name JSON preservation and PNG
+export/failure feedback. Remaining editor localization and device/release gates
+stay open.
