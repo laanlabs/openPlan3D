@@ -2541,6 +2541,16 @@ unit/browser run. Actual screen-reader use, visual contrast review, action-label
 translation and broader NEXT.md gates remain open.
 # Undo action descriptions — September 11 checkpoint
 
+History replay follow-up: multi-step jumps had shifted the descriptions attached
+to Redo states and replaced the final action name with “Current state”. The jump
+now pairs each saved state with its original action metadata, preserving correct
+labels for subsequent display translation. Three store regressions cover exact
+state/metadata replay, an existing redo tail and invalid-index preservation; all
+failed before the fix and now pass. Full unit verification passes 1,029 tests in
+96 files (25.52s), check/build pass without diagnostics, and all 24 bilingual
+desktop/phone history browser cases pass (2.4 minutes). Broader localization,
+physical-device and release qualification remain open.
+
 Populated-phone follow-up: a Chromium regression reproduced focus being lost
 after selecting an entry removed from the history list. The panel now focuses
 Close after that update, unless it has closed or focus moved to another control.

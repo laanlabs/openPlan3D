@@ -218,26 +218,23 @@ export function redo() {
 
 /** Jump to a specific undo history step by index (0 = oldest) */
 export function jumpToUndoStep(targetIndex: number) {
-  resetCoalescing();
   const total = undoStack.length; // total past states; current state is at index `total`
-  if (targetIndex < 0 || targetIndex > total) return;
+  if (!Number.isInteger(targetIndex) || targetIndex < 0 || targetIndex > total) return;
   if (targetIndex === total) return; // already at current state
-
-  // We need to go back (total - targetIndex) steps
-  // First, save current state to redo
   const cur = get(currentProject);
   if (!cur) return;
+  resetCoalescing();
 
-  // Push current + all states between current and target onto redo
+  // Pair each redo state with the action that produced it, just as undo() does.
+  // Publish only the final state rather than every intermediate project.
   const stepsBack = total - targetIndex;
-  // Move states from undoStack to redoStack
-  pushHistory(redoStack, { state: JSON.stringify(cur), description: 'Current state', timestamp: Date.now() });
-  for (let i = 0; i < stepsBack - 1; i++) {
+  let state = JSON.stringify(cur);
+  for (let i = 0; i < stepsBack; i++) {
     const entry = undoStack.pop()!;
-    pushHistory(redoStack, entry);
+    pushHistory(redoStack, { state, description: entry.description, timestamp: entry.timestamp });
+    state = entry.state;
   }
-  const target = undoStack.pop()!;
-  restoreHistoryProject(target.state);
+  restoreHistoryProject(state);
   syncHistoryStore();
 }
 

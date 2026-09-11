@@ -1,5 +1,17 @@
 # Next work and pause handoff
 
+## Multi-step history replay — September 11 checkpoint
+
+Three failing regressions reproduced shifted Redo descriptions after history
+jumps (including an existing redo tail), and invalid indices changing project
+state. Jumps now preserve each action's state, description and timestamp and
+reject noninteger/out-of-range indices before touching history. Intermediate
+project states are not published. All 1,029 unit tests in 96 files pass (25.52s),
+check/build pass with zero diagnostics, and all 24 bilingual desktop/phone
+history browser cases pass (2.4 minutes). This is a fresh full unit checkpoint,
+not a full browser-suite or physical-device qualification; broader NEXT scope
+remains open.
+
 ## Populated mobile Undo History — September 11 checkpoint
 
 Reproduced keyboard focus disappearing when a selected history entry is removed.
