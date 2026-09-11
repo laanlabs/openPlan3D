@@ -2,6 +2,9 @@ import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
 for (const width of [1440, 390]) test(`keyboard room rename and floor materials preserve focus and Undo at ${width}px`, async ({ page }) => {
+  // This end-to-end workflow verifies repeated JSON exports after each edit and
+  // Undo/Redo step; slower browser runs can exceed the default one-minute budget.
+  test.slow();
   await page.setViewportSize({ width, height: 900 });
   const plan = JSON.parse(await readFile('tests/fixtures/connected-dimensions.openplan.json', 'utf8'));
   plan.floors[0].rooms[0].name = 'Original {name}';

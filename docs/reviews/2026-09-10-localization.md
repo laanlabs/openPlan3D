@@ -2426,3 +2426,28 @@ Logs: `/tmp/web-canvas-label-unit.log`, `/tmp/web-canvas-label-check.log`,
 `/tmp/web-canvas-label-browser.log`. Resume the existing browser process before
 any rebuild or new browser suite. Broader localization and device/release gates
 remain open.
+
+### 2026-09-11: Canvas qualification timeout and panel cleanup
+
+The initial 141-case run terminated with 19 Chromium passes, one room-keyboard
+timeout and 121 unrun cases. Its trace reached the one-minute deadline during a
+JSON export after earlier edits/assertions passed. A focused rerun reproduced the
+desktop timeout without a concurrent application check; that run was interrupted
+before repeating the other cases with the known insufficient limit.
+
+The room-keyboard test now uses Playwright's bounded slow-test allowance. Its many
+export comparisons, focus assertions, room edits, label reset, deletion and
+Undo/Redo checks remain unchanged. A new focused six-case run is still active;
+its first desktop Chromium case passed in 1.4 minutes. Qualification is pending.
+Logs: `/tmp/web-canvas-label-browser.log`,
+`/tmp/web-canvas-room-keyboard-repro.log`, `/tmp/web-canvas-room-keyboard-bounded.log`.
+
+Separately, source review found unreleased subscriptions in UndoHistoryPanel and
+SettingsDialog. Four subscriptions now register their unsubscribe callback with
+onDestroy. Both application checks pass with zero errors/warnings, and the new
+production build passes. The six-case focused browser run uses that new build;
+the original 19 passes used the prior canvas-label build. Logs:
+`/tmp/web-undo-history-cleanup-check.log`, `/tmp/web-panel-cleanup-check.log`,
+`/tmp/web-panel-cleanup-build.log`. No direct memory-profile result is claimed.
+Resume the active browser process before another build or browser suite, then
+complete the remaining affected inventory. Broader NEXT.md gates remain open.

@@ -163,6 +163,21 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+**Canvas qualification continuation:** the original 141-case run stopped after
+19 Chromium passes when the room-keyboard regression exceeded its 60-second
+budget during repeated exports. A focused rerun reproduced the timeout. The test
+now has Playwright's bounded slow-test allowance, retaining all assertions. The
+first desktop Chromium case passes in 1.4 minutes; the six-case focused run is
+still active in `/tmp/web-canvas-room-keyboard-bounded.log`. Resume it before
+rebuilding or starting another suite. The remaining affected-file qualification
+is not complete; the earlier paragraphs below are historical checkpoints.
+
+UndoHistoryPanel and SettingsDialog now release four store subscriptions when
+destroyed, preventing closed editor instances from continuing to receive updates.
+Svelte reports zero errors/warnings and the production build passes. The focused
+browser run above uses this rebuilt source. Direct memory profiling and completion
+of the affected browser inventory remain open.
+
 **Canvas accessible-name verification is in progress.** The drawing canvas now
 uses the selected language for its accessible name; English remains unchanged.
 Seventeen affected bilingual browser test files now accept either language, and
