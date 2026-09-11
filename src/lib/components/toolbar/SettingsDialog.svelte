@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onDestroy } from 'svelte';
   import { locale, t, type Locale } from '$lib/i18n';
   import { modalDialog } from '$lib/utils/modalDialog';
   import { projectSettings } from '$lib/stores/settings';
@@ -13,12 +14,12 @@
   let projectName = $state('');
   let projectDescription = $state('');
 
-  currentProject.subscribe((p) => {
+  onDestroy(currentProject.subscribe((p) => {
     if (p) {
       projectName = p.name;
       projectDescription = p.description ?? '';
     }
-  });
+  }));
 
   function onNameChange(e: Event) {
     projectName = (e.target as HTMLInputElement).value;
@@ -64,7 +65,7 @@
   }
 
   let currentTheme = $state<ThemePreference>('system');
-  themePreference.subscribe((t) => { currentTheme = t; });
+  onDestroy(themePreference.subscribe((t) => { currentTheme = t; }));
   let settings = $state<ProjectSettings>({
     units: 'metric',
     showDimensions: true,
@@ -79,7 +80,7 @@
     gridSize: 25,
   });
 
-  projectSettings.subscribe((s) => { settings = { ...s }; });
+  onDestroy(projectSettings.subscribe((s) => { settings = { ...s }; }));
 
   function updateSetting<K extends keyof ProjectSettings>(key: K, value: ProjectSettings[K]) {
     settings[key] = value;

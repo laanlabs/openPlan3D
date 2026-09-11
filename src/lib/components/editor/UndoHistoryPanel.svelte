@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onDestroy } from 'svelte';
   import { t } from '$lib/i18n';
   import { undoHistoryStore, jumpToUndoStep } from '$lib/stores/project';
 
@@ -6,7 +7,7 @@
 
   let history = $state<{ entries: { description: string; timestamp: number }[]; currentIndex: number }>({ entries: [], currentIndex: -1 });
 
-  undoHistoryStore.subscribe((h) => { history = h; });
+  onDestroy(undoHistoryStore.subscribe((h) => { history = h; }));
 
   function formatTime(ts: number) {
     const d = new Date(ts);
