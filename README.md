@@ -99,6 +99,9 @@ npm run dev
 
 Open [http://localhost:5173](http://localhost:5173) in your browser.
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for fixture-based reports, focused checks
+and pull requests. Maintainers can use the [release checklist](docs/release-checklist.md).
+
 ### Development Checks
 
 ```bash

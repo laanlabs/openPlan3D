@@ -410,8 +410,9 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
 - `FEATURES.md` now provides implementation scope linked to regression coverage;
   `COMPARISON_REVIEW.md` is explicitly historical. README links the matrix and
   package import/export contract and uses the catalog source instead of a stale
-  item count. Contributor guidance, fixture-oriented issue/PR templates and a
-  release checklist remain. Historical findings are not current release status.
+  item count. CONTRIBUTING.md, fixture-oriented issue/PR templates and the release
+  evidence checklist are now available. Continue maintaining these with behavior
+  changes; historical findings are not current release status.
 - The seven remaining Svelte warnings are resolved in the local keyboard/component
   cleanup batch: native favorite buttons, protected control activation/Tab, explicit
   inline-editor focus, reactive menu bounds and removal of the retired material
@@ -2718,3 +2719,12 @@ comparison as historical, refreshed README package import/export coverage and
 removed its fixed catalog count. Inspected the linked test scopes and verified
 all 44 matrix file targets; `git diff --check` passed. No runtime tests were rerun
 for documentation-only edits. Contributor/release templates and device gates remain open.
+
+### Contributor and release workflow documentation — 2026-09-10
+
+Added contributor setup/testing guidance, a minimal-fixture bug template, a PR
+template and a release evidence checklist. Commands and browser isolation match
+package scripts/Playwright/CI; the release checklist links the existing native,
+Storage migration and billing gates rather than asserting they are complete.
+README links both guides. Local links/frontmatter and diff checks passed; no
+application tests were repeated for documentation-only changes.
