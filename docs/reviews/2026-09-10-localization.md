@@ -1059,3 +1059,14 @@ Logs: `/tmp/web-detail-messages-check.log`, `/tmp/web-detail-messages-build.log`
 `/tmp/web-detail-messages-unit.log`, `/tmp/web-detail-messages-browser.log`.
 Not every fallback branch was fault-injected; service diagnostics, physical-device
 and remaining NEXT requirements stay open.
+
+## Detail-panel failure and cancellation integration checkpoint
+
+At `82aa35f`, all 938 unit tests across 87 files pass (20.05 seconds, exit 0).
+Six existing English attachment failure/selection-change cases pass across all
+engines (1.1 minutes, exit 0). They cover bad photo rejection, injected project-write
+failure preserving saved state and an exportable draft, successful retry, and
+changing selection during delayed decode without attaching to another item.
+Logs: `/tmp/web-detail-integration-unit.log`, `/tmp/web-detail-integration-browser.log`.
+No runtime changes here. Full-browser, physical-device and remaining localization/
+release requirements remain open.

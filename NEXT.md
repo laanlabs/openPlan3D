@@ -163,7 +163,14 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
-Latest full web unit checkpoint: **938 tests across 87 files passed** at `4cc7a2c`
+Latest full web unit checkpoint: **938 tests across 87 files passed** at `82aa35f`
+(20.05 seconds). Six attachment failure/selection-change cases pass across all
+engines (1.1 minutes), checking saved-data preservation, exportable drafts, retry
+and cancellation of an obsolete photo decode. See the
+[localization integration record](docs/reviews/2026-09-10-localization.md).
+Full-browser and physical-device qualification remain open.
+
+Earlier full web unit checkpoint: **938 tests across 87 files passed** at `4cc7a2c`
 (24.53 seconds). Six existing English wall-dimension cases pass across all engines
 (2.6 minutes), checking desktop/compact connected edits, invalid drafts, imperial
 conversion, full-precision undo, persistence and 3D viewer opening. See the
