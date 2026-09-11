@@ -5,8 +5,33 @@ import { translate } from '../src/lib/i18n';
 import { prepareLibraryRestore } from '../src/lib/services/libraryRestore';
 import { readFileSync } from 'node:fs';
 import { packageJSON, readPackageZip, writePackageZip } from '../src/lib/utils/projectPackageZip';
+import { readProjectPackage, PACKAGE_NOTICE } from '../src/lib/services/projectPackage';
 
 describe('project service diagnostics', () => {
+  it.each(['missing', 'unknown'] as const)('translates actual %s attachment/file errors', kind => {
+    const files = readPackageZip(readFileSync('tests/fixtures/native-project-package.zip'));
+    if (kind === 'missing') delete files['assets/chair.png'];
+    else files['unknown.json'] = new TextEncoder().encode('{}');
+    let message = '';
+    try { readProjectPackage(writePackageZip(files)); } catch (error) { message = (error as Error).message; }
+    expect(projectServiceMessage(message, 'pt')).toBe(kind === 'missing'
+      ? 'Pacote de projeto inválido: Anexo ausente: chair.png.'
+      : 'Pacote de projeto inválido: Arquivo de pacote não reconhecido: unknown.json.');
+    expect(projectServiceMessage(message, 'en')).toBe(message);
+  });
+
+  it('translates real preview notices while retaining unsupported image bytes', () => {
+    const files = readPackageZip(readFileSync('tests/fixtures/native-project-package.zip'));
+    files['assets/chair.png'] = new Uint8Array([1, 2, 3]);
+    const preview = readProjectPackage(writePackageZip(files));
+    expect(preview.warnings).toContain(PACKAGE_NOTICE);
+    expect(preview.warnings.map(message => projectServiceMessage(message, 'pt'))).toEqual([
+      translate('pt', 'projectService.packageNotice'),
+      'O formato da imagem de referência é mantido para o iPhone, mas não pode ser visualizado aqui.',
+    ]);
+    for (const message of preview.warnings) expect(projectServiceMessage(message, 'en')).toBe(message);
+    expect((preview.project as any).projectPackage.assets['assets/chair.png']).toBe('AQID');
+  });
   it.each([
     [() => readPackageZip(new Uint8Array()), 'O arquivo deve ser um pacote ZIP com menos de 64 MiB.'],
     [() => readPackageZip(new Uint8Array(22)), 'Estrutura ZIP incompatível. Exporte um novo pacote de projeto do OpenPlan3D.'],

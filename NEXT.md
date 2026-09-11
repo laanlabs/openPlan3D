@@ -163,6 +163,14 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+Package preview notices and service-level attachment/retained-data diagnostics now
+translate at display time, preserving filenames and unknown details. Thirty-three
+focused unit/dictionary checks, zero Svelte diagnostics, the production build and
+15 transfer browser cases pass across three engines (2.6 minutes). Tests verify
+missing-attachment rejection, both preview notices, exact original-package
+download and retention of unpreviewable image bytes after import. This is scoped
+post-audit verification; deeper native-plan validation and broader gates remain.
+
 Package diagnostics now translate the invalid-package prefix, known ZIP/JSON
 validation, size limits, unsupported manifests and damaged filenames. Unknown
 details remain intact. Thirty focused unit/dictionary checks, zero Svelte

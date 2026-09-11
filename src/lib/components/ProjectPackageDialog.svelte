@@ -63,7 +63,7 @@
             <h3 class="break-words font-semibold">{preview.project.name || $t('library.untitled')}</h3>
             <p class="mt-1 text-sm text-gray-500">{$t('package.summary', { floors: preview.project.floors.length, walls: preview.project.floors.reduce((n, floor) => n + floor.walls.length, 0), assets: preview.assets })}</p>
           </div>
-          {#each preview.warnings as warning}<p class="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">{warning}</p>{/each}
+          {#each preview.warnings as warning}<p class="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">{projectServiceMessage(warning, $locale)}</p>{/each}
           <p class="text-sm text-gray-500">{$t('package.copyHelp')}</p>
         {/if}
       {/if}

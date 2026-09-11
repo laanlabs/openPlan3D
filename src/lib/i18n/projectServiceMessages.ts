@@ -2,6 +2,7 @@ import { translate, type Locale, type TranslationKey } from './index';
 
 type ServiceKey = Extract<TranslationKey, `projectService.${string}`>;
 const keys: ServiceKey[] = [
+  'projectService.packageNotice', 'projectService.packageTracingNotice',
   'projectService.storageFull', 'projectService.storageUnavailable',
   'projectService.storageFailed', 'projectService.conflict',
   'projectService.openRetry', 'projectService.newId', 'projectService.changed',
@@ -15,6 +16,19 @@ const keys: ServiceKey[] = [
 ];
 const messages = new Map(keys.map(key => [translate('en', key), key]));
 const packageKeys: ServiceKey[] = [
+  'projectService.packageImages',
+  'projectService.packageAttachmentData',
+  'projectService.packageRetainedData',
+  'projectService.packageCategoryVersion',
+  'projectService.packageLegacyExport',
+  'projectService.packageAttachmentCount',
+  'projectService.packageAttachmentPath',
+  'projectService.packageAttachmentSize',
+  'projectService.packageReturnData',
+  'projectService.packageNested',
+  'projectService.packageDetailsBaseline',
+  'projectService.packageCategoryBaseline',
+  'projectService.packageLegacyImport',
   'projectService.packageOversized',
   'projectService.packagePathDirectory', 'projectService.packageSize',
   'projectService.packageLayout', 'projectService.packageDirectory',
@@ -34,8 +48,12 @@ function packageMessage(message: string, language: Locale): string {
   const detail = message.slice(prefix.length);
   const key = packageMessages.get(detail);
   const damaged = /^The file ([\s\S]+) is damaged\.$/.exec(detail);
+  const missing = /^Missing attachment: ([\s\S]+)\.$/.exec(detail);
+  const unknown = /^Unrecognized package file: ([\s\S]+)\.$/.exec(detail);
   const translated = key ? translate(language, key) : damaged
-    ? translate(language, 'projectService.packageFileDamaged', { name: damaged[1] }) : detail;
+    ? translate(language, 'projectService.packageFileDamaged', { name: damaged[1] }) : missing
+    ? translate(language, 'projectService.packageMissingAttachment', { name: missing[1] }) : unknown
+    ? translate(language, 'projectService.packageUnknownFile', { name: unknown[1] }) : detail;
   return `${translate(language, 'projectService.packageInvalid')} ${translated}`;
 }
 const counts: { pattern: RegExp; one: ServiceKey; many: ServiceKey }[] = [

@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { failProjectWrites, savedProjects, storedRecords } from './storage';
+import { readPackageZip, writePackageZip } from '../../src/lib/utils/projectPackageZip';
 
 test('Portuguese package rejection leaves saved records unchanged and allows another file', async ({ page }) => {
   await page.addInitScript(() => {
@@ -12,9 +13,12 @@ test('Portuguese package rejection leaves saved records unchanged and allows ano
   const before = await storedRecords(page);
   await page.getByRole('button', { name: 'Importar pacote de projeto', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'Importar pacote de projeto', exact: true });
+  const missingAttachment = readPackageZip(await readFile('tests/fixtures/native-project-package.zip'));
+  delete missingAttachment['assets/chair.png'];
   for (const [buffer, message] of [
     [Buffer.from('invalid'), 'O arquivo deve ser um pacote ZIP com menos de 64 MiB.'],
     [Buffer.alloc(22), 'Estrutura ZIP incompatível. Exporte um novo pacote de projeto do OpenPlan3D.'],
+    [Buffer.from(writePackageZip(missingAttachment)), 'Anexo ausente: chair.png.'],
   ] as const) {
     const chooser = page.waitForEvent('filechooser');
     await dialog.getByRole('button', { name: 'Escolher pacote de projeto', exact: true }).click();
@@ -25,12 +29,23 @@ test('Portuguese package rejection leaves saved records unchanged and allows ano
   }
   const chooser = page.waitForEvent('filechooser');
   await dialog.getByRole('button', { name: 'Escolher pacote de projeto', exact: true }).click();
-  await (await chooser).setFiles('tests/fixtures/native-project-package.zip');
+  const retainedImage = readPackageZip(await readFile('tests/fixtures/native-project-package.zip'));
+  retainedImage['assets/chair.png'] = new Uint8Array([1, 2, 3]);
+  const retainedBytes = Buffer.from(writePackageZip(retainedImage));
+  await (await chooser).setFiles({ name: 'retained-image.zip', mimeType: 'application/zip', buffer: retainedBytes });
   await expect(dialog).toContainText('arquivos anexos');
+  await expect(dialog).toContainText('Fotos, notas dos itens e custos acompanham este pacote');
+  await expect(dialog).toContainText('O formato da imagem de referência é mantido para o iPhone, mas não pode ser visualizado aqui.');
+  await expect(dialog).not.toContainText('Photos, item notes and costs');
   await expect(dialog.getByRole('alert')).toHaveCount(0);
+  const downloading = page.waitForEvent('download');
+  await dialog.getByRole('button', { name: 'Baixar pacote original', exact: true }).click();
+  expect((await readFile((await (await downloading).path())!)).equals(retainedBytes)).toBe(true);
   await dialog.getByRole('button', { name: 'Importar como cópia', exact: true }).click();
   await expect(dialog.getByRole('status')).toContainText('Projeto importado.');
-  expect(Object.keys(await savedProjects(page))).toHaveLength(1);
+  const saved = Object.values(await savedProjects(page));
+  expect(saved).toHaveLength(1);
+  expect((saved[0] as any).projectPackage.assets['assets/chair.png']).toBe('AQID');
 });
 
 test('Portuguese recovery preview explains damage and preserves the backup', async ({ page }) => {

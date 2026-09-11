@@ -2278,3 +2278,24 @@ Logs: `/tmp/web-package-validation-unit.log`,
 `/tmp/web-package-validation-browser.log`. This is scoped post-audit verification,
 not a fresh full-suite result. Native-plan and attachment-specific diagnostics,
 package preview notices and physical/native/release gates remain open.
+
+### 2026-09-11: Package preview and attachment diagnostics
+
+ProjectPackageDialog now translates the package metadata/return notice and the
+tracing-image compatibility notice. The shared translator also recognizes known
+service-level attachment, retained-state and baseline-version errors. Missing
+attachments and unrecognized files preserve their names in translated sentences.
+The services continue producing original diagnostics and package bytes.
+
+All 33 focused service-message/dictionary checks pass, including actual missing
+attachment and unknown-file rejection plus retained unpreviewable image bytes.
+Svelte reports zero errors/warnings and the production build passes. All 15
+transfer browser cases pass across Chromium, Firefox and WebKit (2.6 minutes).
+The expanded package case rejects a missing chair.png, verifies Portuguese
+preview notices on a subsequent package with an unpreviewable image, downloads
+that package byte-for-byte, and verifies the saved image payload remains AQID.
+
+Logs: `/tmp/web-package-notices-unit.log`, `/tmp/web-package-notices-check.log`,
+`/tmp/web-package-notices-build.log`, `/tmp/web-package-notices-browser.log`.
+This scoped post-audit batch does not establish a fresh full-suite result or close
+deeper native-plan validator translations, physical-device or release requirements.
