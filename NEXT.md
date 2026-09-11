@@ -3602,3 +3602,14 @@ dismissible explanation. Check/build, 943 unit tests and nine browser cases pass
 browser checks cover crossing door/window preservation, notice dismissal and
 existing safe split/swing/Undo behavior. Curved splitting, physical gestures and
 the remaining native/release backlog stay open.
+
+### Context-menu keyboard navigation — 2026-09-11
+
+Reproduced the context menu opening without focused actions. Menus now focus the
+first enabled action, wrap with Up/Down, support Home/End and restore prior focus
+on Escape or activation. Tab closes the menu; menu key events no longer bubble
+to editor shortcuts. Removed unused action imports and added visible focus styling.
+Check/build and six English/Portuguese Chromium/Firefox/WebKit cases pass (52.4
+seconds), including keyboard activation, Escape, viewport bounds and annotation
+save/reload/edit preservation. These tests open the menu with a pointer; native
+keyboard context-menu invocation and physical accessibility checks remain open.

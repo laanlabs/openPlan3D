@@ -59,7 +59,27 @@ for (const locale of ['en', 'pt']) test(`${locale}: requested annotation editing
     const box = (await menu.boundingBox())!;
     return box.x >= 0 && box.y >= 0 && box.x + box.width <= 1440 && box.y + box.height <= 900;
   }).toBe(true);
+  const items = menu.getByRole('menuitem');
+  await expect(items.first()).toBeFocused();
+  await page.keyboard.press('ArrowUp');
+  await expect(items.last()).toBeFocused();
+  await page.keyboard.press('ArrowDown');
+  await expect(items.first()).toBeFocused();
+  await page.keyboard.press('End');
+  await expect(items.last()).toBeFocused();
+  await page.keyboard.press('Home');
+  await expect(items.first()).toBeFocused();
+  await page.keyboard.press('ArrowDown');
+  await expect(items.nth(1)).toBeFocused();
   await page.keyboard.press('Escape');
+  await expect(menu).toHaveCount(0);
+  await expect(canvas).toBeFocused();
+  await canvas.click({ button: 'right', position: { x: bounds.width - 10, y: bounds.height - 40 } });
+  await expect(items.first()).toBeFocused();
+  await page.keyboard.press('End');
+  await page.keyboard.press('Enter');
+  await expect(menu).toHaveCount(0);
+  await expect(canvas).toBeFocused();
   await page.getByRole('button', { name: locale === 'pt' ? 'Salvar' : 'Save', exact: true }).click();
   async function exported() {
     await page.getByRole('button', { name: locale === 'pt' ? 'Exportar' : 'Export', exact: true }).click();

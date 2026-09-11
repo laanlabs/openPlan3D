@@ -1,13 +1,6 @@
 <script lang="ts">
   import { t } from '$lib/i18n';
   import { onMount } from 'svelte';
-  import {
-    selectedElementId, selectedElementIds, selectedTool,
-    removeElement, duplicateFurniture, duplicateWall,
-    rotateFurniture, scaleFurniture, splitWall,
-    updateWall, updateRoom, removeWall,
-    beginUndoGroup, endUndoGroup, updateFurniture
-  } from '$lib/stores/project';
   import type { Wall, Door, Window as Win, FurnitureItem, Room } from '$lib/models/types';
 
   interface Props {
@@ -45,8 +38,36 @@
     }
   });
 
+  let returnFocus: HTMLElement | null = null;
+  $effect(() => {
+    if (visible && menuEl) {
+      returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      menuEl.querySelector<HTMLButtonElement>('[role="menuitem"]:not(:disabled)')?.focus();
+    }
+  });
+
   function handleKeydown(e: KeyboardEvent) {
-    if (e.key === 'Escape') onclose();
+    // Menu keys must not reach the editor's selection/geometry shortcuts.
+    e.stopPropagation();
+    if (e.key === 'Escape' || e.key === 'Tab') {
+      if (e.key === 'Escape') e.preventDefault();
+      returnFocus?.focus();
+      onclose();
+      return;
+    }
+    const items = [...(menuEl?.querySelectorAll<HTMLButtonElement>('[role="menuitem"]:not(:disabled)') ?? [])];
+    if (!items.length) return;
+    const current = items.indexOf(document.activeElement as HTMLButtonElement);
+    let next: number;
+    switch (e.key) {
+      case 'ArrowDown': next = (current + 1) % items.length; break;
+      case 'ArrowUp': next = (current - 1 + items.length) % items.length; break;
+      case 'Home': next = 0; break;
+      case 'End': next = items.length - 1; break;
+      default: return;
+    }
+    e.preventDefault();
+    items[next].focus();
   }
 
   function handleClickOutside(e: MouseEvent) {
@@ -56,16 +77,15 @@
   }
 
   function clickItem(action: string, data?: any) {
+    returnFocus?.focus();
     onaction(action, data);
     onclose();
   }
 
   onMount(() => {
     document.addEventListener('mousedown', handleClickOutside, true);
-    document.addEventListener('keydown', handleKeydown);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside, true);
-      document.removeEventListener('keydown', handleKeydown);
     };
   });
 </script>
@@ -76,6 +96,8 @@
     class="fixed z-[9999] bg-white border border-gray-200 rounded-lg shadow-xl py-1 min-w-[180px] text-sm select-none"
     style="left: {adjustedX}px; top: {adjustedY}px;"
     role="menu"
+    tabindex="-1"
+    onkeydown={handleKeydown}
   >
     {#if targetType === 'furniture'}
       <button class="ctx-item" role="menuitem" onclick={() => clickItem('duplicate-furniture')}>
@@ -189,7 +211,7 @@
     font-size: 13px;
     white-space: nowrap;
   }
-  .ctx-item:hover {
+  .ctx-item:hover, .ctx-item:focus-visible {
     background: #f3f4f6;
   }
   .ctx-danger {

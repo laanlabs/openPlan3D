@@ -1447,3 +1447,21 @@ driven in this batch. Curved splitting and physical-device qualification remain.
 Logs: `/tmp/web-split-opening-repro.log`, `/tmp/web-split-opening-check.log`,
 `/tmp/web-split-opening-build.log`, `/tmp/web-split-opening-all-unit.log`,
 `/tmp/web-split-opening-browser.log`.
+
+## Context-menu keyboard focus — 2026-09-11
+
+A Chromium regression at 394cf14 failed because the first menu action was not
+focused after opening. ContextMenu now focuses its first enabled action; handles
+wrapping ArrowUp/ArrowDown, Home and End; restores prior focus on Escape and action
+activation; closes on Tab; and stops menu key propagation into editor shortcuts.
+Focus-visible styling accompanies the existing hover style. Unused store imports
+were removed.
+
+Check/build pass with zero Svelte diagnostics. Six English/Portuguese cases pass
+across Chromium, Firefox and WebKit (52.4 seconds), exercising focus, arrow wrapping,
+Home/End, Escape restoration, Enter activation, menu viewport bounds and existing
+annotation save/reload/edit preservation. Tab and native keyboard invocation were
+not independently exercised here. Full unit baseline remains the preceding 943
+passing tests; no new full unit run was needed for this component-only change.
+Logs: `/tmp/web-context-keyboard-repro.log`, `/tmp/web-context-keyboard-check.log`,
+`/tmp/web-context-keyboard-build.log`, `/tmp/web-context-keyboard-browser.log`.
