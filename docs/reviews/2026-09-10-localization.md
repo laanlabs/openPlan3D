@@ -191,3 +191,23 @@ restoration of the selected snapshot's project name and wall height through JSON
 export. Logs: `/tmp/web-versions-localization-unit.log`,
 `/tmp/web-versions-localization-check.log`, `/tmp/web-versions-localization-build.log`
 and `/tmp/web-versions-localization-browser.log`.
+
+## Area summary migration
+
+Area-summary entry points, dialog controls, category names, room/stat headings and
+empty-state guidance now follow the selected language. Door/window abbreviations
+use P/J in Portuguese. Saved room names, unknown imported categories, geometry,
+area/length calculations and measurement units are unchanged. Category labels are
+reactive, including the uncategorized fallback; the original room category remains
+in project data.
+
+Area-summary validation: five localization unit tests pass, Svelte check has zero
+errors/warnings and production build exits 0. Three 390-pixel browser cases pass
+across Chromium, Firefox and WebKit (26.7 seconds). They compare displayed area,
+wall-length and percentage values before/after changing language, retain a room
+name containing literal braces, show an imported unknown category under the
+translated fallback, and verify Portuguese door/window abbreviations. The initial
+test needed the mobile overflow menu to reach Settings; the final test follows
+that navigation. Logs: `/tmp/web-area-localization-unit.log`,
+`/tmp/web-area-localization-check.log`, `/tmp/web-area-localization-build.log` and
+`/tmp/web-area-localization-browser-final.log`.

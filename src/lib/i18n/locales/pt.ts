@@ -296,5 +296,21 @@ export const pt = {
   "versions.backupFailed": "Não foi possível baixar o histórico de versões.",
   "versions.now": "Agora mesmo",
   "versions.minutes": "há {count} min",
-  "versions.hours": "há {count} h"
+  "versions.hours": "há {count} h",
+  "areaSummary.indoor": "Interno",
+  "areaSummary.outdoor": "Externo",
+  "areaSummary.garage": "Garagem",
+  "areaSummary.utility": "Serviço",
+  "areaSummary.rooms": "Cômodos",
+  "areaSummary.totalArea": "Área Total",
+  "areaSummary.doorsWindows": "Portas / Janelas",
+  "areaSummary.wallLength": "Comprimento de Parede",
+  "areaSummary.byCategory": "Por Categoria",
+  "areaSummary.roomBreakdown": "Detalhamento por Cômodo",
+  "areaSummary.noRooms": "Nenhum cômodo detectado ainda.",
+  "areaSummary.drawWalls": "Desenhe paredes para criar cômodos.",
+  "areaSummary.title": "Resumo de áreas",
+  "areaSummary.close": "Fechar resumo de áreas",
+  "areaSummary.uncategorized": "Sem categoria",
+  "areaSummary.openingCounts": "{doors}P / {windows}J"
 } as const;

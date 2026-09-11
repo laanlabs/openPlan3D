@@ -169,7 +169,7 @@ flow also passed in all three engines at desktop/phone widths (six cases). See t
 [localization integration record](docs/reviews/2026-09-10-localization.md).
 This is not a full-browser, physical-device or deployment qualification.
 
-Latest full web unit checkpoint: **931 tests across 86 files passed** at `faaa9cd`
+Earlier full web unit checkpoint: **931 tests across 86 files passed** at `faaa9cd`
 on September 10, 2026, after texture and furniture download recovery changes.
 This is not a full-browser or deployed-release claim; see the
 [integration record](docs/reviews/2026-09-10-model-recovery.md).
@@ -2931,3 +2931,12 @@ unit tests, zero-warning Svelte check and production build pass. Three phone-wid
 browser cases pass across all engines, verifying cancellation preserves history
 and confirmed restore recovers the selected project name and wall height.
 Service diagnostics and wider editor translation remain open.
+
+### Area summary localization — 2026-09-10
+
+Translated summary labels, categories and controls, preserving room names and
+measurement logic. Five localization unit tests, zero-warning Svelte check and
+production build pass. Three phone-width browser cases pass across all engines,
+comparing measurements across languages and retaining unknown room categories.
+The older 931-test checkpoint above is explicitly historical; the latest full
+unit baseline remains 936 tests at `31e263d`. Wider localization remains open.

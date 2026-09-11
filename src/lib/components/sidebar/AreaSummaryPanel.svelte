@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '$lib/i18n';
   import { activeFloor, detectedRoomsStore } from '$lib/stores/project';
   import { projectSettings, formatArea, formatLength } from '$lib/stores/settings';
   import type { Room, Wall, RoomCategory } from '$lib/models/types';
@@ -30,7 +31,7 @@
   let categoryTotals = $derived.by(() => {
     const cats = roomsByCategory;
     const result: { category: SummaryCategory; label: string; area: number; count: number }[] = [];
-    const labels: Record<SummaryCategory, string> = { indoor: '🏠 Indoor', outdoor: '🌳 Outdoor', garage: '🚗 Garage', utility: '🔧 Utility', uncategorized: 'Uncategorized' };
+    const labels: Record<SummaryCategory, string> = { indoor: `🏠 ${$t('areaSummary.indoor')}`, outdoor: `🌳 ${$t('areaSummary.outdoor')}`, garage: `🚗 ${$t('areaSummary.garage')}`, utility: `🔧 ${$t('areaSummary.utility')}`, uncategorized: $t('areaSummary.uncategorized') };
     for (const [cat, rooms] of Object.entries(cats) as [SummaryCategory, Room[]][]) {
       if (rooms.length > 0) {
         result.push({ category: cat, label: labels[cat], area: rooms.reduce((s: number, r: Room) => s + r.area, 0), count: rooms.length });
@@ -67,26 +68,26 @@
   <div class="grid grid-cols-2 gap-2">
     <div class="bg-blue-50 rounded-lg p-2 text-center">
       <div class="text-lg font-bold text-blue-700">{allRooms.length}</div>
-      <div class="text-[10px] text-blue-500">Rooms</div>
+      <div class="text-[10px] text-blue-500">{$t('areaSummary.rooms')}</div>
     </div>
     <div class="bg-green-50 rounded-lg p-2 text-center">
       <div class="text-lg font-bold text-green-700">{formatArea(totalArea, settings.units)}</div>
-      <div class="text-[10px] text-green-500">Total Area</div>
+      <div class="text-[10px] text-green-500">{$t('areaSummary.totalArea')}</div>
     </div>
     <div class="bg-amber-50 rounded-lg p-2 text-center">
-      <div class="text-sm font-bold text-amber-700">{totalDoors}D / {totalWindows}W</div>
-      <div class="text-[10px] text-amber-500">Doors / Windows</div>
+      <div class="text-sm font-bold text-amber-700">{$t('areaSummary.openingCounts', { doors: totalDoors, windows: totalWindows })}</div>
+      <div class="text-[10px] text-amber-500">{$t('areaSummary.doorsWindows')}</div>
     </div>
     <div class="bg-purple-50 rounded-lg p-2 text-center">
       <div class="text-sm font-bold text-purple-700">{formatLength(totalWallLength, settings.units)}</div>
-      <div class="text-[10px] text-purple-500">Wall Length</div>
+      <div class="text-[10px] text-purple-500">{$t('areaSummary.wallLength')}</div>
     </div>
   </div>
 
   <!-- Category Breakdown -->
   {#if categoryTotals.length > 0}
     <div>
-      <h4 class="text-xs font-semibold text-gray-500 uppercase mb-1.5">By Category</h4>
+      <h4 class="text-xs font-semibold text-gray-500 uppercase mb-1.5">{$t('areaSummary.byCategory')}</h4>
       <div class="space-y-1">
         {#each categoryTotals as cat}
           <div class="flex items-center justify-between text-xs bg-gray-50 rounded px-2 py-1.5">
@@ -101,7 +102,7 @@
   <!-- Per-Room Breakdown -->
   {#if allRooms.length > 0}
     <div>
-      <h4 class="text-xs font-semibold text-gray-500 uppercase mb-1.5">Room Breakdown</h4>
+      <h4 class="text-xs font-semibold text-gray-500 uppercase mb-1.5">{$t('areaSummary.roomBreakdown')}</h4>
       <div class="space-y-0.5">
         {#each allRooms as room}
           {@const pct = totalArea > 0 ? (room.area / totalArea * 100) : 0}
@@ -121,6 +122,6 @@
       </div>
     </div>
   {:else}
-    <p class="text-xs text-gray-400 text-center py-4">No rooms detected yet.<br/>Draw walls to create rooms.</p>
+    <p class="text-xs text-gray-400 text-center py-4">{$t('areaSummary.noRooms')}<br/>{$t('areaSummary.drawWalls')}</p>
   {/if}
 </div>

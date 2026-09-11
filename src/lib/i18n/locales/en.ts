@@ -296,5 +296,21 @@ export const en = {
   "versions.backupFailed": "Could not download version history.",
   "versions.now": "Just now",
   "versions.minutes": "{count} min ago",
-  "versions.hours": "{count}h ago"
+  "versions.hours": "{count}h ago",
+  "areaSummary.indoor": "Indoor",
+  "areaSummary.outdoor": "Outdoor",
+  "areaSummary.garage": "Garage",
+  "areaSummary.utility": "Utility",
+  "areaSummary.rooms": "Rooms",
+  "areaSummary.totalArea": "Total Area",
+  "areaSummary.doorsWindows": "Doors / Windows",
+  "areaSummary.wallLength": "Wall Length",
+  "areaSummary.byCategory": "By Category",
+  "areaSummary.roomBreakdown": "Room Breakdown",
+  "areaSummary.noRooms": "No rooms detected yet.",
+  "areaSummary.drawWalls": "Draw walls to create rooms.",
+  "areaSummary.title": "Area Summary",
+  "areaSummary.close": "Close area summary",
+  "areaSummary.uncategorized": "Uncategorized",
+  "areaSummary.openingCounts": "{doors}D / {windows}W"
 } as const;

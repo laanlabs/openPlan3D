@@ -1,0 +1,38 @@
+import { expect, test } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
+
+test('area summary keeps measurements and imported room names across languages', async ({ page }) => {
+  const plan = JSON.parse(await readFile('tests/fixtures/connected-dimensions.openplan.json', 'utf8'));
+  plan.floors[0].rooms[0].name = 'My {value} room';
+  plan.floors[0].rooms[0].roomType = 'retained-category';
+  await page.setViewportSize({ width: 390, height: 900 });
+  await page.goto('/editor');
+  await page.getByRole('button', { name: 'Export', exact: true }).click();
+  const chooser = page.waitForEvent('filechooser');
+  await page.getByRole('button', { name: 'Import JSON', exact: true }).click();
+  await (await chooser).setFiles({ name: 'areas.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(plan)) });
+  await expect(page.getByRole('button', { name: plan.name, exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'More actions', exact: true }).click();
+  await page.getByRole('button', { name: 'Area Summary', exact: true }).click();
+  const english = page.getByRole('dialog', { name: 'Area Summary', exact: true });
+  await expect(english).toContainText('Uncategorized');
+  const measurements = (text: string) => text.match(/\d+(?:\.\d+)?\s*(?:m²|cm|m|%)/g);
+  const before = measurements(await english.innerText());
+  expect(before?.length).toBeGreaterThan(2);
+  await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'More actions', exact: true }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  const settings = page.getByRole('dialog', { name: 'Settings', exact: true });
+  await settings.getByRole('button', { name: 'Appearance', exact: true }).click();
+  await settings.getByRole('combobox', { name: 'Language', exact: true }).selectOption('pt');
+  await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'More actions', exact: true }).click();
+  await page.getByRole('button', { name: 'Resumo de áreas', exact: true }).click();
+  const portuguese = page.getByRole('dialog', { name: 'Resumo de áreas', exact: true });
+  await expect(portuguese).toContainText('Sem categoria');
+  await expect(portuguese).toContainText('My {value} room');
+  await expect(portuguese).toContainText('1P / 1J');
+  expect(measurements(await portuguese.innerText())).toEqual(before);
+  await portuguese.getByRole('button', { name: 'Fechar resumo de áreas', exact: true }).click();
+  await expect(portuguese).toHaveCount(0);
+});
