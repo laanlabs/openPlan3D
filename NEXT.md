@@ -2830,3 +2830,14 @@ build pass. See [report](docs/reviews/2026-09-10-model-recovery.md).
 21.14 seconds. The source already passed zero-warning Svelte checks and production
 build. Focused texture browser checks remain separately reported; no new full
 browser-suite or physical-device result is claimed.
+
+### Native initial tracing-image import — 2026-09-10
+
+Native `8e2605d` now prepares ImageIO thumbnails directly from encoded Files/Photos
+input and preserves PNG/JPEG attachment bytes instead of full-resolution UIKit
+JPEG re-encoding. Other formats retain conversion. All 22 targeted preview/import
+and package tests passed on Catalyst and iPhone 17 Pro / iOS 26.5 Simulator,
+including PNG/JPEG package round trips. Original metadata/transparency and source
+resolution are preserved; larger package sizes, other-format conversion and
+physical-device peak memory remain open. See native
+`docs/native-trace-preview-pixels.md`. No new picker UI qualification is claimed.
