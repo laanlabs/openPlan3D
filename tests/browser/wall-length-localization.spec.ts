@@ -77,4 +77,17 @@ test('Portuguese wall length controls preserve connections and reject invalid dr
   await curve.click();
   await expect(curve).toHaveAttribute('aria-pressed', 'false');
   expect((await exported()).walls).toEqual(equalized.walls);
+
+  const panel = page.locator('[data-plan-properties]');
+  // Texture choices have visible text; color swatches use the same name as a title.
+  await panel.getByRole('button', { name: 'Tijolo vermelho', exact: true }).filter({ hasText: 'Tijolo vermelho' }).click();
+  await panel.getByRole('button', { name: 'Exterior', exact: true }).click();
+  await panel.getByRole('button', { name: 'Painel de madeira', exact: true }).filter({ hasText: 'Painel de madeira' }).click();
+  const materials = await exported();
+  expect(materials.walls[0]).toEqual({ ...equalized.walls[0], interiorTexture: 'red-brick', interiorColor: '#8B4513', exteriorTexture: 'wood-panel', exteriorColor: '#8B6914' });
+  await panel.getByRole('button', { name: 'Nenhuma', exact: true }).click();
+  const noExteriorTexture = await exported();
+  expect(noExteriorTexture.walls[0]).toEqual({ ...materials.walls[0], exteriorTexture: 'none' });
+  expect(noExteriorTexture.doors).toEqual(equalized.doors);
+  expect(noExteriorTexture.windows).toEqual(equalized.windows);
 });

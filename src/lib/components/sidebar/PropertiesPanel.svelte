@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { wallMaterialLabels } from '$lib/i18n/wallMaterialLabels';
   import { entourageLabels } from '$lib/i18n/entourageLabels';
   import { roomTypeLabels, roomColorLabels, floorGroupLabels, floorMaterialLabels } from '$lib/i18n/roomPropertyLabels';
   import { t, type TranslationKey } from '$lib/i18n';
@@ -455,44 +456,44 @@
           <button
             class="flex-1 py-1.5 text-xs font-medium border-b-2 transition-colors {wallSideTab === 'interior' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-400 hover:text-gray-600'}"
             onclick={() => wallSideTab = 'interior'}
-          >Interior</button>
+          >{$t('wallProperties.interior')}</button>
           <button
             class="flex-1 py-1.5 text-xs font-medium border-b-2 transition-colors {wallSideTab === 'exterior' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-400 hover:text-gray-600'}"
             onclick={() => wallSideTab = 'exterior'}
-          >Exterior</button>
+          >{$t('wallProperties.exterior')}</button>
         </div>
         {#if wallSideTab === 'interior'}
           {@const sideColor = selectedWall.interiorColor || selectedWall.color}
           {@const sideTex = selectedWall.interiorTexture === 'none' ? undefined : (selectedWall.interiorTexture || selectedWall.texture)}
           <div class="space-y-2">
-            <span class="text-xs text-gray-500">Color</span>
+            <span class="text-xs text-gray-500">{$t('furnitureProperties.color')}</span>
             <div class="grid grid-cols-6 gap-1.5">
               {#each wallColors as wc}
                 <button
                   class="w-7 h-7 rounded-md border-2 hover:border-gray-300 transition-colors {sideColor === wc.color ? 'border-blue-500 ring-1 ring-blue-200' : 'border-gray-200'}"
                   style="background-color: {wc.color}"
-                  title={wc.name}
+                  title={$t(wallMaterialLabels[wc.id])}
                   onclick={() => { if (selectedWall) updateWall(selectedWall.id, { interiorColor: wc.color }); }}
                 ></button>
               {/each}
             </div>
             <label class="flex items-center gap-2">
-              <span class="text-xs text-gray-500">Custom:</span>
+              <span class="text-xs text-gray-500">{$t('furnitureProperties.custom')}</span>
               <input type="color" value={sideColor} oninput={(e) => { if (selectedWall) updateWall(selectedWall.id, { interiorColor: (e.target as HTMLInputElement).value }); }} class="w-8 h-6 rounded border border-gray-200 cursor-pointer" />
             </label>
-            <span class="text-xs text-gray-500">Texture</span>
+            <span class="text-xs text-gray-500">{$t('wallProperties.texture')}</span>
             <div class="grid grid-cols-3 gap-1.5">
               <button
                 class="p-1.5 rounded-md border-2 text-[10px] text-center h-14 {!sideTex ? 'border-blue-500 ring-1 ring-blue-200' : 'border-gray-200 hover:border-gray-300'}"
                 onclick={() => { if (selectedWall) updateWall(selectedWall.id, { interiorTexture: 'none' }); }}
-              >None</button>
+              >{$t('wallProperties.none')}</button>
               {#each wallColors.filter(wc => wc.texture) as wc}
                 {@const texPath = wallTexPaths[wc.id] ?? ''}
                 <button
                   class="rounded-md border-2 text-[10px] text-center h-14 flex flex-col items-center justify-end overflow-hidden relative {sideTex === wc.id ? 'border-blue-500 ring-1 ring-blue-200' : 'border-gray-200 hover:border-gray-300'}"
                   style={texPath ? `background-image: url(${texPath}); background-size: cover; background-position: center;` : `background-color: ${wc.color}20`}
                   onclick={() => { if (selectedWall) updateWall(selectedWall.id, { interiorTexture: wc.id, interiorColor: wc.color }); }}
-                ><span class="bg-white/80 backdrop-blur-sm rounded px-1 py-0.5 mb-0.5 text-gray-700">{wc.name}</span></button>
+                ><span class="bg-white/80 backdrop-blur-sm rounded px-1 py-0.5 mb-0.5 text-gray-700">{$t(wallMaterialLabels[wc.id])}</span></button>
               {/each}
             </div>
           </div>
@@ -500,34 +501,34 @@
           {@const sideColor = selectedWall.exteriorColor || selectedWall.color}
           {@const sideTex = selectedWall.exteriorTexture === 'none' ? undefined : (selectedWall.exteriorTexture || selectedWall.texture)}
           <div class="space-y-2">
-            <span class="text-xs text-gray-500">Color</span>
+            <span class="text-xs text-gray-500">{$t('furnitureProperties.color')}</span>
             <div class="grid grid-cols-6 gap-1.5">
               {#each wallColors as wc}
                 <button
                   class="w-7 h-7 rounded-md border-2 hover:border-gray-300 transition-colors {sideColor === wc.color ? 'border-blue-500 ring-1 ring-blue-200' : 'border-gray-200'}"
                   style="background-color: {wc.color}"
-                  title={wc.name}
+                  title={$t(wallMaterialLabels[wc.id])}
                   onclick={() => { if (selectedWall) updateWall(selectedWall.id, { exteriorColor: wc.color }); }}
                 ></button>
               {/each}
             </div>
             <label class="flex items-center gap-2">
-              <span class="text-xs text-gray-500">Custom:</span>
+              <span class="text-xs text-gray-500">{$t('furnitureProperties.custom')}</span>
               <input type="color" value={sideColor} oninput={(e) => { if (selectedWall) updateWall(selectedWall.id, { exteriorColor: (e.target as HTMLInputElement).value }); }} class="w-8 h-6 rounded border border-gray-200 cursor-pointer" />
             </label>
-            <span class="text-xs text-gray-500">Texture</span>
+            <span class="text-xs text-gray-500">{$t('wallProperties.texture')}</span>
             <div class="grid grid-cols-3 gap-1.5">
               <button
                 class="p-1.5 rounded-md border-2 text-[10px] text-center h-14 {!sideTex ? 'border-blue-500 ring-1 ring-blue-200' : 'border-gray-200 hover:border-gray-300'}"
                 onclick={() => { if (selectedWall) updateWall(selectedWall.id, { exteriorTexture: 'none' }); }}
-              >None</button>
+              >{$t('wallProperties.none')}</button>
               {#each wallColors.filter(wc => wc.texture) as wc}
                 {@const texPath = wallTexPaths[wc.id] ?? ''}
                 <button
                   class="rounded-md border-2 text-[10px] text-center h-14 flex flex-col items-center justify-end overflow-hidden relative {sideTex === wc.id ? 'border-blue-500 ring-1 ring-blue-200' : 'border-gray-200 hover:border-gray-300'}"
                   style={texPath ? `background-image: url(${texPath}); background-size: cover; background-position: center;` : `background-color: ${wc.color}20`}
                   onclick={() => { if (selectedWall) updateWall(selectedWall.id, { exteriorTexture: wc.id, exteriorColor: wc.color }); }}
-                ><span class="bg-white/80 backdrop-blur-sm rounded px-1 py-0.5 mb-0.5 text-gray-700">{wc.name}</span></button>
+                ><span class="bg-white/80 backdrop-blur-sm rounded px-1 py-0.5 mb-0.5 text-gray-700">{$t(wallMaterialLabels[wc.id])}</span></button>
               {/each}
             </div>
           </div>

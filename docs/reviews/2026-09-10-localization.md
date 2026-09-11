@@ -954,3 +954,18 @@ Logs: `/tmp/web-wall-curve-localization-check.log`,
 `/tmp/web-wall-curve-localization-build.log`, `/tmp/web-wall-curve-localization-unit.log`,
 `/tmp/web-wall-curve-localization-browser.log`. Wall material labels, service
 messages, broader localization and physical-device/release requirements remain open.
+
+## Wall material label localization
+
+Translated wall color/texture display names, side selectors and None/custom labels.
+A typed map keeps all 21 catalog IDs and source material definitions unchanged.
+Production check has zero errors/warnings, build and five localization unit tests
+pass. Three desktop browser cases pass (53.2 seconds, exit 0), selecting red-brick
+interior and wood-panel exterior finishes, comparing full saved wall data, then
+removing only exterior texture while retaining interior/color/opening values.
+The test distinguishes texture buttons from same-named color swatches by visible
+text. This does not qualify every material's rendering or physical touch.
+Logs: `/tmp/web-wall-materials-check.log`, `/tmp/web-wall-materials-build.log`,
+`/tmp/web-wall-materials-unit.log`, `/tmp/web-wall-materials-browser.log`.
+Service diagnostics, child detail panels, broader localization and release gates
+remain open.
