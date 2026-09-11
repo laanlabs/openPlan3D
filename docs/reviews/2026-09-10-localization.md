@@ -2051,3 +2051,15 @@ retry and a later separate imported copy. No existing audit spec was changed.
 `/tmp/web-project-service-localization-inventory.log` proves collection only;
 these six cases have not been executed. They increase the next full inventory to
 1,056 while the already-running seventh audit retains its original inventory.
+
+Full unit verification at `d8cbd54`: `npm test` completed with 985 passes and two
+five-second timeouts (wall texture recovery's dynamic-import case and the crafted
+pooled-history attachment expansion bound). No assertion mismatch was reported.
+The complete retry, `npx vitest run --maxWorkers=1`, passed all 987 tests across
+94 files in 232.60 seconds, using unchanged timeouts and assertions. This is
+consistent with contention in the parallel run, rather than proof of a runtime
+defect. No test or production code was changed to obtain the retry result.
+Logs: `/tmp/web-project-service-messages-full-unit.log` and
+`/tmp/web-project-service-messages-serial-unit.log`.
+The production build and browser checks for the new translation batch remain
+pending while the original WebKit audit runs.

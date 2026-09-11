@@ -174,6 +174,10 @@ phone-width cases across the three engines for quota-blocked import/New Project,
 reactive error language, original-byte preservation, JSON backup, retry and
 successful later import. Collection is verified; execution is still pending.
 The newly added cases are outside the active audit's original 1,050-case inventory.
+Full unit verification of this source now passes **987 tests in 94 files** with
+one worker and unchanged timeouts. The initial parallel run had two five-second
+timeouts; both passed in the full serial retry. Production/browser verification
+of the translation change remains pending behind the active WebKit audit.
 
 The seventh browser audit has now completed Firefox as well: accumulated audit
 and focused follow-up evidence verifies **350 Chromium and 350 Firefox cases**.
