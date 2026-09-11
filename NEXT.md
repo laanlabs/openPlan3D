@@ -2769,3 +2769,11 @@ iPhone 17 Pro / iOS 26.5 Simulator: 248 executed, two optional external-worker
 checks skipped, zero failures on each platform. Suite durations were 65.894 s
 and 55.705 s respectively. See native `docs/native-trace-integration-baseline.md`.
 UI dismissal, physical-device and release gates remain open.
+
+### Texture credit and mapping inventory — 2026-09-10
+
+Catalog inventory now covers all 20 bundled material textures with hashes,
+material IDs and source asset IDs from existing credits. Each has one current
+material mapping. CI rejects missing/duplicate credit records and missing mapped
+files. Attribution remains documented locally, not independently source-byte
+verified; conversion/source comparison and physical scale remain open.

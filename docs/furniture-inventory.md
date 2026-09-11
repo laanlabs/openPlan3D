@@ -40,8 +40,8 @@ representation still need independent qualification.
 
 This inventory covers furniture catalog entries and all bundled GLBs. Each model's
 `catalogIds` lists its current users; an empty list identifies an unmapped file.
-It does not certify textures, entourage, native assets, catalog completeness or
-release readiness. Texture credits are separately recorded in
+Texture records track local attribution claims separately from byte-verified GLBs.
+It does not certify entourage, native assets, catalog completeness or release readiness. Texture credits are separately recorded in
 [the existing credits](../static/textures/CREDITS.md). Broader catalog curation
 remains in [NEXT](../NEXT.md).
 
@@ -61,3 +61,19 @@ Expanded verification on September 10, 2026 covers all 204 bundled GLBs, includi
 checks their provenance too. An intentionally mismatched provenance hash for an
 unmapped asset was rejected; the original record was restored and the complete
 check passed. No assets were removed or runtime mappings changed.
+
+## Texture credit inventory
+
+The generated manifest also includes all 20 bundled material textures, their
+SHA-256 hashes, ambientCG asset IDs from the existing credit file, and material
+IDs found in textureGenerator.ts. Every current file has one material mapping.
+CI rejects missing mapped/credited files, duplicate credits and bundled images
+without a credit record. Unmapped textures remain visible through an empty
+materialIds list rather than being silently omitted.
+
+Texture status is `documented-locally-not-source-byte-verified`. The existing
+credits document conversion to WebP; this check does not compare converted
+images to ambientCG source archives or certify physical texture scale. It does
+not elevate the local credit claims to the GLB archive-match evidence level.
+A synthetic missing-credit case was rejected, and the complete catalog check
+passed after generation. No texture files or rendering behavior were changed.

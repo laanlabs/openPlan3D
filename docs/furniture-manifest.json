@@ -7,6 +7,228 @@
   "nativeSupport": "Not certified by this inventory; native package preservation and visual support require separate validation.",
   "provenanceSource": "docs/furniture-provenance.json",
   "provenanceNote": "Matched models have exact official archive byte evidence; embedded generator metadata alone is not attribution.",
+  "textures": [
+    {
+      "path": "static/textures/brick.webp",
+      "bytes": 116184,
+      "sha256": "180239e3db92a22848076a8a038c49aa85c2a9e83da5a4c8540a6f622a965c27",
+      "materialIds": [
+        "red-brick"
+      ],
+      "sourceAssetId": "Bricks097",
+      "creditsPath": "static/textures/CREDITS.md",
+      "provenanceStatus": "documented-locally-not-source-byte-verified"
+    },
+    {
+      "path": "static/textures/concrete.webp",
+      "bytes": 112454,
+      "sha256": "5a1c4cf0bb6a58060ac8b49c863ef7960d01255a0c341f4ac419aa95f4e60d92",
+      "materialIds": [
+        "concrete-block"
+      ],
+      "sourceAssetId": "Concrete048",
+      "creditsPath": "static/textures/CREDITS.md",
+      "provenanceStatus": "documented-locally-not-source-byte-verified"
+    },
+    {
+      "path": "static/textures/exposed-brick.webp",
+      "bytes": 174422,
+      "sha256": "8e933432cf8d78a2342c8869cd720cb8c96d3c3780a30b3e83c86a77b70233bd",
+      "materialIds": [
+        "exposed-brick"
+      ],
+      "sourceAssetId": "Bricks059",
+      "creditsPath": "static/textures/CREDITS.md",
+      "provenanceStatus": "documented-locally-not-source-byte-verified"
+    },
+    {
+      "path": "static/textures/floor-bamboo.webp",
+      "bytes": 103930,
+      "sha256": "39f6930da46e7caad454b1d6226e8879bcd36bb8d53fcc1487f2daed96565d83",
+      "materialIds": [
+        "bamboo"
+      ],
+      "sourceAssetId": "WoodFloor012",
+      "creditsPath": "static/textures/CREDITS.md",
+      "provenanceStatus": "documented-locally-not-source-byte-verified"
+    },
+    {
+      "path": "static/textures/floor-carpet-beige.webp",
+      "bytes": 331024,
+      "sha256": "f6ce01e5baeacd93be659c35df4606a4427c2ec5f12ecc6efc7dea41778d3e60",
+      "materialIds": [
+        "carpet-beige"
+      ],
+      "sourceAssetId": "Carpet008",
+      "creditsPath": "static/textures/CREDITS.md",
+      "provenanceStatus": "documented-locally-not-source-byte-verified"
+    },
+    {
+      "path": "static/textures/floor-carpet-gray.webp",
+      "bytes": 270190,
+      "sha256": "33d47f5509b93475821ed8aefd8e4b8e74d2d972e43d2e4d738ad13e5a73cf19",
+      "materialIds": [
+        "carpet-gray"
+      ],
+      "sourceAssetId": "Carpet007",
+      "creditsPath": "static/textures/CREDITS.md",
+      "provenanceStatus": "documented-locally-not-source-byte-verified"
+    },
+    {
+      "path": "static/textures/floor-concrete.webp",
+      "bytes": 27686,
+      "sha256": "a76f7d954a9b7c0e6c93603e312971b556a64c1daf6c4ce3a6f6cb2a6cc3701d",
+      "materialIds": [
+        "concrete"
+      ],
+      "sourceAssetId": "Concrete034",
+      "creditsPath": "static/textures/CREDITS.md",
+      "provenanceStatus": "documented-locally-not-source-byte-verified"
+    },
+    {
+      "path": "static/textures/floor-laminate.webp",
+      "bytes": 88084,
+      "sha256": "34890bfd3c0228552cea1cd41c90d40df5c01f1016c9465723c8a7d327d6bf8d",
+      "materialIds": [
+        "laminate"
+      ],
+      "sourceAssetId": "WoodFloor048",
+      "creditsPath": "static/textures/CREDITS.md",
+      "provenanceStatus": "documented-locally-not-source-byte-verified"
+    },
+    {
+      "path": "static/textures/floor-light-oak.webp",
+      "bytes": 99336,
+      "sha256": "8e05be7c0d68ee5770a3f6660e2320f01727cb2141b7296a877fbdd70a37f888",
+      "materialIds": [
+        "light-oak"
+      ],
+      "sourceAssetId": "WoodFloor040",
+      "creditsPath": "static/textures/CREDITS.md",
+      "provenanceStatus": "documented-locally-not-source-byte-verified"
+    },
+    {
+      "path": "static/textures/floor-marble-dark.webp",
+      "bytes": 237054,
+      "sha256": "a8ba0f961a5f9a52c3e2700e9544c15a1f3b21d26b6713e7e3616e2319de5fa9",
+      "materialIds": [
+        "marble-dark"
+      ],
+      "sourceAssetId": "Marble006",
+      "creditsPath": "static/textures/CREDITS.md",
+      "provenanceStatus": "documented-locally-not-source-byte-verified"
+    },
+    {
+      "path": "static/textures/floor-marble-white.webp",
+      "bytes": 231878,
+      "sha256": "4fdf3db3a6f4603fcbe87f54af73b58d4dadb16f01c933af5262b93368fda48e",
+      "materialIds": [
+        "marble-white"
+      ],
+      "sourceAssetId": "Marble012",
+      "creditsPath": "static/textures/CREDITS.md",
+      "provenanceStatus": "documented-locally-not-source-byte-verified"
+    },
+    {
+      "path": "static/textures/floor-porcelain.webp",
+      "bytes": 513432,
+      "sha256": "8d681202ab8d84af3ba26030407f1d0f5a9fa40c254ebc1b40605a4dbf7b75ce",
+      "materialIds": [
+        "porcelain"
+      ],
+      "sourceAssetId": "Tiles099",
+      "creditsPath": "static/textures/CREDITS.md",
+      "provenanceStatus": "documented-locally-not-source-byte-verified"
+    },
+    {
+      "path": "static/textures/floor-slate.webp",
+      "bytes": 291122,
+      "sha256": "0f32cd902b4451137fc664b1a61203fac96a931f494105434675fb46fe40bfbc",
+      "materialIds": [
+        "slate"
+      ],
+      "sourceAssetId": "Rock030",
+      "creditsPath": "static/textures/CREDITS.md",
+      "provenanceStatus": "documented-locally-not-source-byte-verified"
+    },
+    {
+      "path": "static/textures/floor-tile-gray.webp",
+      "bytes": 305504,
+      "sha256": "f9ab0a77102eb16fa1739d3457c7479161df4c21dc00c939ccbe423006ae63bd",
+      "materialIds": [
+        "ceramic-gray"
+      ],
+      "sourceAssetId": "Tiles101",
+      "creditsPath": "static/textures/CREDITS.md",
+      "provenanceStatus": "documented-locally-not-source-byte-verified"
+    },
+    {
+      "path": "static/textures/floor-tile-white.webp",
+      "bytes": 119050,
+      "sha256": "e34f092bf19102b3dd871d0189498690b2737cecef47e0330ee783e19a0a043f",
+      "materialIds": [
+        "ceramic-white"
+      ],
+      "sourceAssetId": "Tiles074",
+      "creditsPath": "static/textures/CREDITS.md",
+      "provenanceStatus": "documented-locally-not-source-byte-verified"
+    },
+    {
+      "path": "static/textures/floor-vinyl.webp",
+      "bytes": 133396,
+      "sha256": "94fc6be32ef6550441077aa7b047b98e78aa6b5b258ed6f49028509d45b06e69",
+      "materialIds": [
+        "vinyl"
+      ],
+      "sourceAssetId": "WoodFloor024",
+      "creditsPath": "static/textures/CREDITS.md",
+      "provenanceStatus": "documented-locally-not-source-byte-verified"
+    },
+    {
+      "path": "static/textures/floor-walnut.webp",
+      "bytes": 63366,
+      "sha256": "23c08e3b7a39bf7ac9b8296514e887890cd16f679057ba25ccad31ba41112098",
+      "materialIds": [
+        "walnut"
+      ],
+      "sourceAssetId": "WoodFloor043",
+      "creditsPath": "static/textures/CREDITS.md",
+      "provenanceStatus": "documented-locally-not-source-byte-verified"
+    },
+    {
+      "path": "static/textures/stone.webp",
+      "bytes": 269744,
+      "sha256": "ea0ed6e2118d95d60520a009294b3c378eaa5593d99acf1052fce05cce6b093f",
+      "materialIds": [
+        "stone"
+      ],
+      "sourceAssetId": "Rock051",
+      "creditsPath": "static/textures/CREDITS.md",
+      "provenanceStatus": "documented-locally-not-source-byte-verified"
+    },
+    {
+      "path": "static/textures/subway-tile.webp",
+      "bytes": 119772,
+      "sha256": "4229deead192a7b9a58f76778a208a895c3bcdb5c712a92ad012771a7246790f",
+      "materialIds": [
+        "subway-tile"
+      ],
+      "sourceAssetId": "Tiles093",
+      "creditsPath": "static/textures/CREDITS.md",
+      "provenanceStatus": "documented-locally-not-source-byte-verified"
+    },
+    {
+      "path": "static/textures/wood-panel.webp",
+      "bytes": 54644,
+      "sha256": "0e004fcccbc36818851ddfcf3fe33c360f0d8a9ee32feb6f2386fbe5a6476336",
+      "materialIds": [
+        "wood-panel"
+      ],
+      "sourceAssetId": "WoodSiding009",
+      "creditsPath": "static/textures/CREDITS.md",
+      "provenanceStatus": "documented-locally-not-source-byte-verified"
+    }
+  ],
   "items": [
     {
       "id": "sofa",

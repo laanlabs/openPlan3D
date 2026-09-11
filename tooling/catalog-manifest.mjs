@@ -3,6 +3,7 @@ import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { furnitureCatalog } from '../src/lib/utils/furnitureCatalog.ts';
 import { getModelFile } from '../src/lib/utils/furnitureModelFiles.ts';
+import { textureInventory } from './texture-inventory.mjs';
 
 const root = new URL('../', import.meta.url);
 const output = new URL('docs/furniture-manifest.json', root);
@@ -71,6 +72,7 @@ const manifest = {
   nativeSupport: 'Not certified by this inventory; native package preservation and visual support require separate validation.',
   provenanceSource: 'docs/furniture-provenance.json',
   provenanceNote: 'Matched models have exact official archive byte evidence; embedded generator metadata alone is not attribution.',
+  textures: textureInventory(root),
   items, models: Object.fromEntries([...models].sort(([a], [b]) => a.localeCompare(b, 'en'))),
 };
 const text = JSON.stringify(manifest, null, 2) + '\n';
@@ -78,7 +80,7 @@ const args = process.argv.slice(2);
 if (args.length > 1 || (args.length === 1 && args[0] !== '--check')) throw new Error('Usage: node tooling/catalog-manifest.mjs [--check]');
 if (args[0] === '--check') {
   if (readFileSync(output, 'utf8') !== text) throw new Error('Furniture inventory is stale; run npm run catalog:manifest.');
-  console.log(`Verified ${items.length} catalog entries and ${models.size} bundled GLBs.`);
+  console.log(`Verified ${items.length} catalog entries and ${models.size} bundled GLBs and ${manifest.textures.length} textures.`);
 } else {
   writeFileSync(output, text);
   console.log(`Wrote ${fileURLToPath(output)} (${items.length} entries, ${models.size} bundled GLBs).`);
