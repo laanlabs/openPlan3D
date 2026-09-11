@@ -2504,3 +2504,19 @@ remain at this checkpoint. The same continuation is still active in
 `/tmp/web-canvas-label-browser-2.log`; do not rebuild or start a competing suite.
 These remain staged results across the documented builds, not completed full
 affected-file qualification or completion of the broader NEXT.md objective.
+
+### 2026-09-11: Complete canvas qualification and fresh full unit result
+
+The continuation finished with all 116 cases passing (28.5 minutes). Combined
+with the initial 19 and focused six, exact identity comparison proves all 141
+affected cases passed: 47 Chromium, 47 Firefox and 47 WebKit, with no missing or
+extra identities. Every browser process in this batch is terminal.
+
+The subsequent full unit run passed all 1,025 tests in 94 files (125.13 seconds),
+recorded in `/tmp/web-canvas-cleanup-full-unit.log`. Application checking and the
+production build had already passed on the same runtime source. See the
+[consolidated report](2026-09-11-canvas-accessibility.md) for build provenance,
+timeout reproduction, retained assertions, subscription cleanup and limitations.
+This completes the affected canvas qualification, not the entire NEXT.md scope
+or a fresh full browser suite. Physical/native/release and broader interface
+review requirements remain open.

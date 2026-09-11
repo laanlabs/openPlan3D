@@ -163,6 +163,18 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+**Canvas accessible-name qualification is complete:** all **141 affected cases,
+47 per engine**, have passing evidence with exact inventory agreement. The final
+116-case continuation passed in 28.5 minutes; no browser process from this batch
+remains active. These are staged results across the documented builds, not a
+fresh run of the entire browser suite. The current source also passes a fresh
+full unit run: **1,025 tests in 94 files**, 125.13 seconds. Application checking
+has zero errors/warnings and the production build passed. See the consolidated
+[canvas accessibility report](docs/reviews/2026-09-11-canvas-accessibility.md).
+The pending-run paragraphs below retain historical checkpoints. Broader catalog
+and interface review, physical accessibility/performance, native and release
+requirements remain open.
+
 **Firefox canvas qualification checkpoint:** all 47 affected Firefox cases now
 have passing evidence, matching Chromium's completed 47. Exact inventory comparison
 finds 97/141 passing identities (47 Chromium, 47 Firefox, three WebKit), leaving
