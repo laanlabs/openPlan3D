@@ -726,3 +726,21 @@ Firefox and WebKit (12.2 seconds, exit 0). Logs:
 `/tmp/web-opening-properties-unit.log`, `/tmp/web-opening-properties-browser.log`.
 Other Properties sections, physical-device editing and broader release gates
 remain open.
+
+## Furniture Properties localization
+
+Translated furniture appearance/dimension/rotation/flip/reset controls, lock
+hints, imported-object explanations and eight finish display names. Catalog names,
+unknown material names and stored finish values remain original; the custom color
+input now has an accessible label. Numeric and appearance handlers are unchanged.
+
+Production check reports zero errors/warnings, production build and five
+localization unit tests pass. Three desktop browser cases pass (25.8 seconds,
+exit 0): Portuguese Tecido stores Fabric, tint/depth/rotation/flip edits round-trip,
+reset clears appearance overrides but retains placement, and other furniture
+remains unchanged. An initial heading locator omitted the existing icon/lock
+text; correcting the test selector resolved it without a runtime change.
+Logs: `/tmp/web-furniture-properties-check.log`,
+`/tmp/web-furniture-properties-build.log`, `/tmp/web-furniture-properties-unit.log`,
+`/tmp/web-furniture-properties-browser-final.log`. This does not qualify 3D visual
+appearance, every control, physical touch editing or remaining Properties sections.

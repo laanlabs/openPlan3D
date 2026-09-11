@@ -3217,3 +3217,11 @@ stored type IDs. Production check/build and five localization unit tests pass;
 three desktop browser cases pass (12.2 seconds), verifying width, sill height,
 type, hinge and opening direction edits through JSON export with host walls
 unchanged. Other Properties sections and physical-device/release gates remain open.
+
+### Furniture Properties localization — 2026-09-10
+
+Translated furniture editing controls and finish display names, retaining stored
+IDs and catalog names. Production check/build, five localization unit tests and
+three desktop browser cases pass (25.8 seconds). Export comparisons verify
+appearance/transform edits, reset behavior and unchanged neighboring furniture.
+Other Properties sections, 3D/device qualification and remaining NEXT gates stay open.

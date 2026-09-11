@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { t } from '$lib/i18n';
+  import { t, type TranslationKey } from '$lib/i18n';
+  const furnitureFinishLabels: Record<string, TranslationKey> = {"Wood": "furnitureFinish.Wood", "Metal": "furnitureFinish.Metal", "Fabric": "furnitureFinish.Fabric", "Leather": "furnitureFinish.Leather", "Glass": "furnitureFinish.Glass", "Plastic": "furnitureFinish.Plastic", "Stone": "furnitureFinish.Stone", "Ceramic": "furnitureFinish.Ceramic"};
   import { furnitureFinishes } from '$lib/utils/furnitureFinishes';
   import { resolveRooms } from '$lib/utils/roomDetection';
   import { onDestroy } from 'svelte';
@@ -624,23 +625,23 @@
       <span class="w-6 h-6 bg-purple-100 rounded flex items-center justify-center text-xs">
         {getCatalogItem(selectedFurniture.catalogId)?.icon ?? '🪑'}
       </span>
-      {getCatalogItem(selectedFurniture.catalogId)?.name ?? 'Furniture'} Properties
+      {$t('furnitureProperties.heading', { name: getCatalogItem(selectedFurniture.catalogId)?.name ?? $t('furnitureProperties.fallback') })}
       <button
         onclick={() => { if (selectedFurniture) toggleFurnitureLock(selectedFurniture.id); }}
         class="ml-auto px-1.5 py-0.5 rounded text-xs border transition-colors {selectedFurniture.locked ? 'bg-amber-100 border-amber-400 text-amber-700' : 'border-gray-200 hover:bg-gray-50 text-gray-500'}"
-        title={selectedFurniture.locked ? 'Unlock (Ctrl+L)' : 'Lock (Ctrl+L)'}
-      >{selectedFurniture.locked ? '🔒 Locked' : '🔓'}</button>
+        title={selectedFurniture.locked ? $t('furnitureProperties.unlock') : $t('furnitureProperties.lock')}
+      >{selectedFurniture.locked ? `🔒 ${$t('furnitureProperties.locked')}` : '🔓'}</button>
     </h3>
     {#if selectedFurniture.catalogId === 'imported_object'}
-      <p class="mb-3 text-xs text-gray-500 break-words">Original category: {selectedFurniture.sourceCategory || 'Unknown'}. Shown as a neutral box.</p>
+      <p class="mb-3 text-xs text-gray-500 break-words">{$t('furnitureProperties.originalCategory', { category: selectedFurniture.sourceCategory || $t('furnitureProperties.unknown') })}</p>
     {:else if selectedFurniture.catalogId === 'stairs'}
-      <p class="mb-3 text-xs text-gray-500">Imported stair preview. Use building stairs to edit risers and stair layouts.</p>
+      <p class="mb-3 text-xs text-gray-500">{$t('furnitureProperties.stairsHelp')}</p>
     {/if}
     <div class="space-y-3">
       <!-- Color -->
       <div>
         <div class="flex items-center gap-1 mb-2">
-          <span class="text-xs text-gray-500">Color</span>
+          <span class="text-xs text-gray-500">{$t('furnitureProperties.color')}</span>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-400">
             <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
             <circle cx="9" cy="9" r="2"/>
@@ -652,15 +653,15 @@
             <button
               class="w-6 h-6 rounded border-2 hover:border-gray-300 transition-colors {(selectedFurniture.color ?? getCatalogItem(selectedFurniture.catalogId)?.color) === color ? 'border-blue-500 ring-1 ring-blue-200' : 'border-gray-200'}"
               style="background-color: {color}"
-              title="Color: {color}"
+              title={$t('furnitureProperties.colorValue', { color })}
               onclick={() => onFurnitureColor(color)}
             ></button>
           {/each}
         </div>
         <div class="flex items-center gap-2">
-          <span class="text-xs text-gray-500">Custom:</span>
+          <span class="text-xs text-gray-500">{$t('furnitureProperties.custom')}</span>
           <input 
-            type="color" 
+            type="color" aria-label={$t('furnitureProperties.customColor')}
             value={selectedFurniture.color ?? getCatalogItem(selectedFurniture.catalogId)?.color ?? '#888888'} 
             oninput={(e) => onFurnitureColor((e.target as HTMLInputElement).value)} 
             class="w-8 h-6 rounded border border-gray-200 cursor-pointer" 
@@ -670,7 +671,7 @@
       
       <!-- Dimensions -->
       <label class="block">
-        <span class="text-xs text-gray-500">Width ({unitLabel()})</span>
+        <span class="text-xs text-gray-500">{$t('openingProperties.width')} ({unitLabel()})</span>
         <input 
           type="number" 
           value={displayValue(selectedFurniture.width ?? getCatalogItem(selectedFurniture.catalogId)?.width ?? 50)}
@@ -679,7 +680,7 @@
         />
       </label>
       <label class="block">
-        <span class="text-xs text-gray-500">Depth ({unitLabel()})</span>
+        <span class="text-xs text-gray-500">{$t('furnitureProperties.depth')} ({unitLabel()})</span>
         <input 
           type="number" 
           value={displayValue(selectedFurniture.depth ?? getCatalogItem(selectedFurniture.catalogId)?.depth ?? 50)}
@@ -688,7 +689,7 @@
         />
       </label>
       <label class="block">
-        <span class="text-xs text-gray-500">Height ({unitLabel()})</span>
+        <span class="text-xs text-gray-500">{$t('openingProperties.height')} ({unitLabel()})</span>
         <input 
           type="number" 
           value={displayValue(selectedFurniture.height ?? getCatalogItem(selectedFurniture.catalogId)?.height ?? 50)}
@@ -699,25 +700,25 @@
       
       <!-- Material -->
       <label class="block">
-        <span class="text-xs text-gray-500">Material</span>
+        <span class="text-xs text-gray-500">{$t('furnitureProperties.material')}</span>
         <select 
           value={selectedFurniture.material ?? ''}
           onchange={onFurnitureMaterial} 
           class="w-full px-2 py-1 border border-gray-200 rounded text-sm"
         >
-          <option value="">Original materials</option>
+          <option value="">{$t('furnitureProperties.original')}</option>
           {#if selectedFurniture.material && !Object.hasOwn(furnitureFinishes, selectedFurniture.material)}
-            <option value={selectedFurniture.material}>{selectedFurniture.material} (retained)</option>
+            <option value={selectedFurniture.material}>{$t('furnitureProperties.retained', { material: selectedFurniture.material })}</option>
           {/if}
-          {#each Object.keys(furnitureFinishes) as finish}<option value={finish}>{finish}</option>{/each}
+          {#each Object.keys(furnitureFinishes) as finish}<option value={finish}>{$t(furnitureFinishLabels[finish])}</option>{/each}
         </select>
       </label>
 
-      <p class="text-xs text-gray-500">Color tints the 3D model; materials adjust its finish. Reset to defaults restores the original appearance.</p>
+      <p class="text-xs text-gray-500">{$t('furnitureProperties.appearanceHelp')}</p>
       
       <!-- Rotation -->
       <label class="block">
-        <span class="text-xs text-gray-500">Rotation (degrees)</span>
+        <span class="text-xs text-gray-500">{$t('furnitureProperties.rotation')}</span>
         <input 
           type="number" 
           value={selectedFurniture.rotation}
@@ -731,25 +732,25 @@
         <button
           onclick={() => { if (selectedFurniture) updateFurniture(selectedFurniture.id, { rotation: selectedFurniture.rotation - 90 }); }}
           class="flex-1 px-2 py-1.5 border border-gray-200 rounded text-sm hover:bg-gray-50 transition-colors"
-          title="Rotate 90° left"
+          title={$t('furnitureProperties.rotateLeft')}
         >↺ 90°</button>
         <button
           onclick={() => { if (selectedFurniture) updateFurniture(selectedFurniture.id, { rotation: selectedFurniture.rotation + 90 }); }}
           class="flex-1 px-2 py-1.5 border border-gray-200 rounded text-sm hover:bg-gray-50 transition-colors"
-          title="Rotate 90° right"
+          title={$t('furnitureProperties.rotateRight')}
         >↻ 90°</button>
       </div>
       <div class="flex gap-1">
         <button
           onclick={() => { if (selectedFurniture) { const s = selectedFurniture.scale; updateFurniture(selectedFurniture.id, { scale: { x: s.x * -1, y: s.y, z: s.z } }); } }}
           class="flex-1 px-2 py-1.5 border border-gray-200 rounded text-sm hover:bg-gray-50 transition-colors"
-          title="Flip horizontally"
-        >↔ Flip H</button>
+          title={$t('furnitureProperties.flipHorizontal')}
+        >↔ {$t('furnitureProperties.flipH')}</button>
         <button
           onclick={() => { if (selectedFurniture) { const s = selectedFurniture.scale; updateFurniture(selectedFurniture.id, { scale: { x: s.x, y: s.y * -1, z: s.z } }); } }}
           class="flex-1 px-2 py-1.5 border border-gray-200 rounded text-sm hover:bg-gray-50 transition-colors"
-          title="Flip vertically"
-        >↕ Flip V</button>
+          title={$t('furnitureProperties.flipVertical')}
+        >↕ {$t('furnitureProperties.flipV')}</button>
       </div>
       
       <!-- Reset button -->
@@ -757,7 +758,7 @@
         onclick={resetFurnitureDefaults}
         class="w-full px-2 py-1.5 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50 transition-colors"
       >
-        Reset to defaults
+        {$t('furnitureProperties.reset')}
       </button>
     </div>
 
