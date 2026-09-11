@@ -394,12 +394,23 @@ export function setFurnitureRotation(id: string, angle: number) {
 }
 
 export function scaleFurniture(id: string, scale: { x: number; y: number }) {
-  mutate((f) => {
-    const fi = f.furniture.find((item) => item.id === id);
-    if (fi) {
-      fi.scale = { x: Math.max(0.2, scale.x), y: Math.max(0.2, scale.y), z: fi.scale.z };
-    }
-  });
+  const item = get(activeFloor)?.furniture.find(item => item.id === id);
+  if (!item || !Number.isFinite(scale.x) || !Number.isFinite(scale.y)) return;
+  const bounded = (value: number) => (value < 0 ? -1 : 1) * Math.max(0.2, Math.abs(value));
+  updateFurniture(id, { scale: { x: bounded(scale.x), y: bounded(scale.y), z: item.scale.z } });
+}
+
+/** Furniture array order controls painting and hit testing in the plan. */
+export function reorderFurniture(id: string, destination: 'front' | 'back') {
+  const furniture = get(activeFloor)?.furniture;
+  if (!furniture) return;
+  const index = furniture.findIndex(item => item.id === id);
+  const target = destination === 'front' ? furniture.length - 1 : 0;
+  if (index < 0 || index === target) return;
+  mutate(floor => {
+    const [item] = floor.furniture.splice(index, 1);
+    floor.furniture.splice(target, 0, item);
+  }, destination === 'front' ? 'Brought furniture to front' : 'Sent furniture to back');
 }
 
 export function removeFurniture(id: string) {

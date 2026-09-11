@@ -1742,3 +1742,21 @@ active floor. Three cases pass across Chromium, Firefox and WebKit (17.1 seconds
 Log: `/tmp/web-curve-split-mesh-browser.log`.
 This closes the preceding exported-mesh check; physical gestures and pixel-level
 rendering remain unqualified. No runtime changes were required.
+
+### 2026-09-11: Furniture context-menu mirroring and stacking history
+
+A browser reproduction confirmed Flip Horizontal clamped negative scale to 0.2,
+shrinking the furniture instead of mirroring it. Scaling now retains each axis's
+sign, bounds its magnitude, rejects nonfinite values and uses the existing
+unchanged-update guard. Bring to Front and Send to Back previously mutated the
+array directly; both now use an undoable store operation. An unchanged end position
+or missing item does not create history or discard Redo.
+
+All 960 unit tests across 90 files pass (3.92 seconds); check/build pass with zero
+Svelte diagnostics. Six browser cases pass across Chromium, Firefox and WebKit
+(21.8 seconds), covering context-menu mirror data, front/back ordering, exact
+Undo/Redo and the existing Portuguese furniture-properties workflow. Pixel-level
+overlap appearance and physical-device interactions remain separate checks.
+Logs: `/tmp/web-context-furniture-repro.log`, `/tmp/web-context-furniture-all-unit.log`,
+`/tmp/web-context-furniture-check.log`, `/tmp/web-context-furniture-build.log`,
+`/tmp/web-context-furniture-browser.log`.

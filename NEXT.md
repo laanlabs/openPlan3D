@@ -163,7 +163,13 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
-Latest full web unit checkpoint: **958 tests across 90 files passed** with curved
+Latest full web unit checkpoint: **960 tests across 90 files passed** with furniture
+context-menu mirror and stacking fixes (3.92 seconds). Check/build pass with zero
+Svelte diagnostics; six browser cases across Chromium, Firefox and WebKit pass
+(21.8 seconds). Mirroring preserves signed scale, and front/back changes now use
+Undo history without clearing Redo for unchanged order.
+
+Earlier full web unit checkpoint: **958 tests across 90 files passed** with curved
 wall splitting (3.65 seconds). Check/build and 12 wall-action browser cases pass
 across Chromium, Firefox and WebKit (54.4 seconds), including curved split controls,
 opening/room/group preservation, Undo/Redo and save/reopen. Device/release gates remain.

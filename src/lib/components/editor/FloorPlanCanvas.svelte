@@ -3,7 +3,7 @@
   import { multiSelectionBounds } from '$lib/utils/multiSelectionBounds';
   import { onMount, onDestroy, tick } from 'svelte';
   import { get } from 'svelte/store';
-  import { removeRoom } from '$lib/stores/project';
+  import { removeRoom, reorderFurniture } from '$lib/stores/project';
   import { selectionContentBounds } from '$lib/utils/selectionContentBounds';
   import { planContentBounds, hasPlanContent } from '$lib/utils/planContentBounds';
   import { connectedWallEndpoints } from '$lib/utils/wallEditing';
@@ -3780,24 +3780,10 @@
         }
         break;
       case 'bring-to-front':
-        if (id) {
-          const idx = currentFloor.furniture.findIndex(f => f.id === id);
-          if (idx >= 0) {
-            const [item] = currentFloor.furniture.splice(idx, 1);
-            currentFloor.furniture.push(item);
-            markDirty();
-          }
-        }
+        if (id) reorderFurniture(id, 'front');
         break;
       case 'send-to-back':
-        if (id) {
-          const idx = currentFloor.furniture.findIndex(f => f.id === id);
-          if (idx >= 0) {
-            const [item] = currentFloor.furniture.splice(idx, 1);
-            currentFloor.furniture.unshift(item);
-            markDirty();
-          }
-        }
+        if (id) reorderFurniture(id, 'back');
         break;
 
       // Wall actions

@@ -7,12 +7,48 @@ import { snapFurnitureToWalls } from '$lib/utils/furnitureGeometry';
 import { findFurnitureAt, findHandleAt } from '$lib/utils/hitTesting';
 import { beginUndoGroup, endUndoGroup, loadProject, currentProject, transformFurnitureDuringDrag, updateFurniture, undo, redo } from '$lib/stores/project';
 import { roomProject } from './fixtures/project';
+import { reorderFurniture, scaleFurniture } from '$lib/stores/project';
 
 const item = (updates: Partial<FurnitureItem> = {}): FurnitureItem => ({
   id: 'qa-chair', catalogId: 'sofa', position: { x: 0, y: 0 }, rotation: 0,
   scale: { x: 1, y: 1, z: 1 }, width: 100, depth: 60, height: 80, color: '#2563eb', ...updates,
 });
 const wall: Wall = { id: 'wall', start: { x: 0, y: 0 }, end: { x: 600, y: 0 }, thickness: 20, height: 250, color: '#eee' };
+
+it('furniture scaling preserves mirror signs and ignores invalid or unchanged values', () => {
+  const project = roomProject();
+  project.floors[0].furniture = [item({ scale: { x: 1.5, y: -2, z: 3 } })];
+  currentProject.set(project);
+  const before = structuredClone(project.floors[0]);
+  scaleFurniture('qa-chair', { x: -1.5, y: -2 });
+  const mirrored = structuredClone(get(currentProject)!.floors[0]);
+  expect(mirrored.furniture[0].scale).toEqual({ x: -1.5, y: -2, z: 3 });
+  undo(); expect(get(currentProject)!.floors[0]).toEqual(before);
+  scaleFurniture('qa-chair', { x: NaN, y: 2 });
+  scaleFurniture('missing', { x: 2, y: 2 });
+  scaleFurniture('qa-chair', { x: 1.5, y: -2 });
+  redo(); expect(get(currentProject)!.floors[0]).toEqual(mirrored);
+  scaleFurniture('qa-chair', { x: -.01, y: .01 });
+  expect(get(currentProject)!.floors[0].furniture[0].scale).toEqual({ x: -.2, y: .2, z: 3 });
+});
+
+it('furniture stacking preserves data and treats the existing end position as a history no-op', () => {
+  const project = roomProject();
+  project.floors[0].furniture = [item({ id: 'a' }), item({ id: 'b' }), item({ id: 'c' })];
+  currentProject.set(project);
+  const before = structuredClone(project.floors[0]);
+  reorderFurniture('a', 'front');
+  const front = structuredClone(get(currentProject)!.floors[0]);
+  expect(front).toEqual({ ...before, furniture: [before.furniture[1], before.furniture[2], before.furniture[0]] });
+  reorderFurniture('a', 'front');
+  undo(); expect(get(currentProject)!.floors[0]).toEqual(before);
+  reorderFurniture('missing', 'front');
+  reorderFurniture('a', 'back');
+  redo(); expect(get(currentProject)!.floors[0]).toEqual(front);
+  reorderFurniture('a', 'back');
+  expect(get(currentProject)!.floors[0]).toEqual(before);
+  undo(); expect(get(currentProject)!.floors[0]).toEqual(front);
+});
 
 it('unchanged furniture appearance and transforms preserve Undo and Redo', () => {
   const project = roomProject();
