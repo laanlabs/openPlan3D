@@ -1230,3 +1230,17 @@ assertion in this batch. Logs: `/tmp/web-panel-labels-check.log`,
 `/tmp/web-panel-labels-browser.log`, `/tmp/web-panel-labels-chromium-final.log`,
 `/tmp/web-panel-labels-other-engines.log`. Physical touch and remaining NEXT
 requirements stay open.
+
+## Main 3D navigation localization
+
+Translated viewer region, floor stacking, top-down, transparency, edit, camera
+placement, screenshot and walkthrough control labels, plus camera/walkthrough
+guidance. Renderer behavior and stored values are unchanged. Production check
+reports zero errors/warnings; build and five localization unit tests pass. Three
+browser cases pass (47.0 seconds, exit 0), exercising stacking/transparency/edit
+toggles, top-down entry, camera placement cancellation, PNG download signature
+and unchanged exported floors/settings. This is not a pixel-quality screenshot
+audit or a walkthrough movement test. Logs: `/tmp/web-viewer-nav-check.log`,
+`/tmp/web-viewer-nav-build.log`, `/tmp/web-viewer-nav-unit.log`,
+`/tmp/web-viewer-nav-browser.log`. Camera preview/AI/lighting/furniture UI and
+physical-device/release requirements remain open.

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '$lib/i18n';
   import { hasOpenModal } from '$lib/utils/modalDialog';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
@@ -2043,7 +2044,7 @@
   });
 </script>
 
-<div bind:this={container} class="w-full h-full relative" role="region" aria-label="3D floor plan viewer">
+<div bind:this={container} class="w-full h-full relative" role="region" aria-label={$t('viewerNav.region')}>
   <div class="absolute bottom-16 left-4 z-10 max-w-xs">
     {#if renderExportMessage}<p role="status" class="mb-2 rounded bg-black/80 p-2 text-xs text-white">{renderExportMessage}</p>{/if}
     <button class="rounded bg-black/70 px-3 py-2 text-sm text-white hover:bg-black/80" onclick={exportBlenderScene}
@@ -2060,8 +2061,8 @@
     <button
       onclick={() => { showAllFloors = !showAllFloors; rebuildScene(); }}
       class="p-2 rounded-lg transition-colors {showAllFloors ? 'bg-purple-600 text-white ring-2 ring-purple-300' : 'bg-black/70 text-white hover:bg-black/80'}"
-      title={showAllFloors ? 'Active Floor Only' : 'Show All Floors Stacked'}
-      aria-label={showAllFloors ? 'Active Floor Only' : 'Show All Floors Stacked'}
+      title={showAllFloors ? $t('viewerNav.activeFloor') : $t('viewerNav.allFloors')}
+      aria-label={showAllFloors ? $t('viewerNav.activeFloor') : $t('viewerNav.allFloors')}
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="4" y="14" width="16" height="4" rx="1"/>
@@ -2074,8 +2075,8 @@
     <button
       onclick={viewTopDown}
       class="p-2 rounded-lg bg-black/70 text-white hover:bg-black/80 transition-colors"
-      title="Top-Down View"
-      aria-label="Top-Down View"
+      title={$t('viewerNav.top')}
+      aria-label={$t('viewerNav.top')}
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="12" cy="12" r="10"/>
@@ -2090,8 +2091,8 @@
     <button
       onclick={toggleWallTransparency}
       class="p-2 rounded-lg transition-colors {wallsTransparent ? 'bg-blue-600 text-white ring-2 ring-blue-300' : 'bg-black/70 text-white hover:bg-black/80'}"
-      title={wallsTransparent ? 'Show Solid Walls' : 'Make Walls Transparent'}
-      aria-label={wallsTransparent ? 'Show Solid Walls' : 'Make Walls Transparent'}
+      title={wallsTransparent ? $t('viewerNav.solid') : $t('viewerNav.transparent')}
+      aria-label={wallsTransparent ? $t('viewerNav.solid') : $t('viewerNav.transparent')}
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="3" y="3" width="18" height="18" rx="2" opacity={wallsTransparent ? 0.3 : 1}/>
@@ -2104,8 +2105,8 @@
     <button
       onclick={() => { editMode = !editMode; if (editMode && walkthroughMode) { exitWalkthroughMode(); } if (!editMode) { selectedElementId.set(null); } }}
       class="p-2 rounded-lg transition-colors {editMode ? 'bg-blue-600 text-white ring-2 ring-blue-300' : 'bg-black/70 text-white hover:bg-black/80'}"
-      title={editMode ? 'Exit Edit Mode' : 'Edit Mode — click to select walls & change materials'}
-      aria-label={editMode ? 'Exit Edit Mode' : 'Edit Mode'}
+      title={editMode ? $t('viewerNav.exitEdit') : $t('viewerNav.editHelp')}
+      aria-label={editMode ? $t('viewerNav.exitEdit') : $t('viewerNav.edit')}
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -2127,8 +2128,8 @@
         }
       }}
       class="p-2 rounded-lg transition-colors {cameraPlacementMode ? 'bg-blue-600 text-white ring-2 ring-blue-300' : 'bg-black/70 text-white hover:bg-black/80'}"
-      title={cameraPlacementMode ? 'Cancel camera placement (click floor to place)' : 'Place Interior Camera — click floor to position, click again to aim'}
-      aria-label="Place Interior Camera"
+      title={cameraPlacementMode ? $t('viewerNav.cameraCancel') : $t('viewerNav.cameraHelp')}
+      aria-label={$t('viewerNav.camera')}
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M23 7l-7 5 7 5V7z"/>
@@ -2140,8 +2141,8 @@
     <button
       onclick={takeScreenshot}
       class="p-2 rounded-lg bg-black/70 text-white hover:bg-black/80 transition-colors"
-      title="Save 3D Screenshot"
-      aria-label="Save 3D Screenshot"
+      title={$t('viewerNav.screenshot')}
+      aria-label={$t('viewerNav.screenshot')}
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
@@ -2153,8 +2154,8 @@
     <button
       onclick={toggleWalkthroughMode}
       class="p-2 rounded-lg bg-black/70 text-white hover:bg-black/80 transition-colors"
-      title={walkthroughMode ? 'Exit Walkthrough Mode' : 'Enter Walkthrough Mode'}
-      aria-label={walkthroughMode ? 'Exit Walkthrough Mode' : 'Enter Walkthrough Mode'}
+      title={walkthroughMode ? $t('viewerNav.exitWalk') : $t('viewerNav.enterWalk')}
+      aria-label={walkthroughMode ? $t('viewerNav.exitWalk') : $t('viewerNav.enterWalk')}
   >
     {#if walkthroughMode}
       <!-- Exit/Eye closed icon -->
@@ -2177,11 +2178,11 @@
 
   {#if cameraPlacementMode && !cameraPlaced}
     <div class="absolute top-16 left-1/2 -translate-x-1/2 z-50 bg-black/80 text-white px-4 py-2 rounded-lg text-sm backdrop-blur-sm">
-      📷 Click on the floor to place camera position
+      {$t('viewerNav.cameraPosition')}
     </div>
   {:else if cameraPlacementMode && cameraPlaced}
     <div class="absolute top-16 left-1/2 -translate-x-1/2 z-50 bg-black/80 text-white px-4 py-2 rounded-lg text-sm backdrop-blur-sm">
-      🎯 Click where the camera should look
+      {$t('viewerNav.cameraAim')}
     </div>
   {/if}
 
@@ -2378,26 +2379,26 @@
 
     <!-- Controls Panel -->
     <div class="absolute top-4 left-4 z-10 bg-black/70 text-white text-xs rounded-lg backdrop-blur-sm p-3 space-y-2 min-w-[180px]">
-      <div class="font-semibold text-white/90 mb-1">Walkthrough Controls</div>
+      <div class="font-semibold text-white/90 mb-1">{$t('viewerNav.walkControls')}</div>
       {#if walkthroughMouseUnavailable}
-        <p role="status" class="max-w-56 text-amber-200">Mouse look is unavailable in this browser. Use WASD to look and arrow keys to move.</p>
+        <p role="status" class="max-w-56 text-amber-200">{$t('viewerNav.mouseUnavailable')}</p>
       {/if}
       <label class="flex items-center justify-between gap-2">
-        <span class="text-white/70">Eye Height</span>
+        <span class="text-white/70">{$t('viewerNav.eyeHeight')}</span>
         <div class="flex items-center gap-1">
           <input type="range" min="80" max="220" bind:value={eyeHeight} oninput={markSceneDirty} class="w-16 h-1 accent-blue-400" />
           <span class="w-10 text-right">{eyeHeight}cm</span>
         </div>
       </label>
       <label class="flex items-center justify-between gap-2">
-        <span class="text-white/70">Walk Speed</span>
+        <span class="text-white/70">{$t('viewerNav.walkSpeed')}</span>
         <div class="flex items-center gap-1">
           <input type="range" min="100" max="1000" step="50" bind:value={moveSpeed} class="w-16 h-1 accent-blue-400" />
           <span class="w-10 text-right">{moveSpeed}</span>
         </div>
       </label>
       <label class="flex items-center justify-between gap-2">
-        <span class="text-white/70">Sprint Speed</span>
+        <span class="text-white/70">{$t('viewerNav.sprintSpeed')}</span>
         <div class="flex items-center gap-1">
           <input type="range" min="200" max="2000" step="100" bind:value={sprintSpeed} class="w-16 h-1 accent-blue-400" />
           <span class="w-10 text-right">{sprintSpeed}</span>
@@ -2408,7 +2409,7 @@
     <!-- Help Text -->
     <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
       <div class="bg-black/70 text-white text-sm px-4 py-2 rounded-lg backdrop-blur-sm">
-        WASD to look • Arrows to move • Mouse to look • Shift to sprint • ESC to exit
+        {$t('viewerNav.walkHelp')}
       </div>
     </div>
   {/if}

@@ -3470,3 +3470,11 @@ and five localization unit tests pass. All 30 affected browser cases pass across
 three engines in split runs, including desktop/narrow panel use, catalog placement
 and bilingual RoomPlan preservation. See the localization record for run details.
 Physical touch and remaining UI/release requirements stay open.
+
+### Main 3D navigation localization — 2026-09-11
+
+Translated primary viewer controls and camera/walkthrough guidance. Check/build,
+five localization unit tests and three browser cases pass (47.0 seconds),
+covering view toggles, camera placement cancellation, PNG download and unchanged
+project floors/settings. Remaining viewer panels, physical-device and release
+requirements stay open.
