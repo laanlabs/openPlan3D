@@ -885,5 +885,6 @@ export const en = {
   "itemDetailMessage.used": "This file is still used by an item or tracing image. Remove those references first.",
   "itemDetailMessage.references": "Could not check attachment references.",
   "itemDetailMessage.deleted": "File removed from this project’s future exports. Save to keep this change.",
-  "itemDetailMessage.delete": "Could not delete the attachment."
+  "itemDetailMessage.delete": "Could not delete the attachment.",
+  "backgroundProperties.distancePrompt": "Enter the real-world distance between these two points (in cm):"
 } as const;

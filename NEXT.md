@@ -3384,3 +3384,11 @@ Translated known detail-panel notices at render time, preserving unknown service
 errors. Check/build, five localization unit tests and six browser cases pass
 (1.0 minute), verifying invalid-cost recovery, attachment notices and rejection of
 used-file deletion. Broader diagnostics/device/release requirements remain open.
+
+### Calibration finite-scale protection and translation — 2026-09-11
+
+Reproduced Infinity calibration producing null scale in JSON export. Added finite,
+positive distance/result checks and translated the prompt. Check/build, five
+localization unit tests and three browser cases pass (46.8 seconds), checking
+invalid/cancelled input preservation and valid scale doubling. Physical calibration
+and remaining device/release requirements stay open.

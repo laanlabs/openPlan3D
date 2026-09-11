@@ -885,5 +885,6 @@ export const pt = {
   "itemDetailMessage.used": "Este arquivo ainda é usado por um item ou imagem de referência. Remova essas referências primeiro.",
   "itemDetailMessage.references": "Não foi possível verificar as referências do anexo.",
   "itemDetailMessage.deleted": "Arquivo removido das futuras exportações deste projeto. Salve para manter esta alteração.",
-  "itemDetailMessage.delete": "Não foi possível excluir o anexo."
+  "itemDetailMessage.delete": "Não foi possível excluir o anexo.",
+  "backgroundProperties.distancePrompt": "Digite a distância real entre estes dois pontos (em cm):"
 } as const;

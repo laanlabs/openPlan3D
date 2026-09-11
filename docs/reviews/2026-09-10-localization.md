@@ -1070,3 +1070,19 @@ changing selection during delayed decode without attaching to another item.
 Logs: `/tmp/web-detail-integration-unit.log`, `/tmp/web-detail-integration-browser.log`.
 No runtime changes here. Full-browser, physical-device and remaining localization/
 release requirements remain open.
+
+## Calibration prompt and finite-scale protection
+
+Reproduced Infinity input at `6eb26f2`: the exported background scale became null
+from a non-finite calculated value. Calibration now requires finite positive entered
+and measured distances plus a finite positive resulting scale before updating the
+image. The native browser prompt is translated; no change to the cm input contract.
+
+Production check reports zero errors/warnings; build and five localization unit
+tests pass. Three browser cases pass (46.8 seconds, exit 0), checking Infinity,
+zero, negative and cancelled input preserve original image data; at 100% zoom,
+200px between points with a 400cm answer doubles scale while retaining other fields.
+Logs: `/tmp/web-calibration-infinity-repro.log`, `/tmp/web-calibration-check.log`,
+`/tmp/web-calibration-build.log`, `/tmp/web-calibration-unit.log`,
+`/tmp/web-calibration-browser.log`. Physical touch calibration and remaining native/
+localization/release requirements stay open.

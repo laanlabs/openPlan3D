@@ -21,6 +21,19 @@ test('Portuguese background controls preserve image bytes and restore removed im
     return JSON.parse(await readFile((await (await pending).path())!, 'utf8')).floors[0];
   }
   const original = await exported();
+  const canvas = page.getByLabel('Floor plan editor canvas', { exact: true });
+  for (const answer of ['Infinity', '0', '-5', null]) {
+    await panel.getByRole('button', { name: '📏 Definir escala', exact: true }).click();
+    await canvas.click({ position: { x: 200, y: 200 } });
+    let message = '';
+    page.once('dialog', async dialog => {
+      message = dialog.message();
+      if (answer === null) await dialog.dismiss(); else await dialog.accept(answer);
+    });
+    await canvas.click({ position: { x: 400, y: 200 } });
+    expect(message).toBe('Digite a distância real entre estes dois pontos (em cm):');
+    expect((await exported()).backgroundImage).toEqual(original.backgroundImage);
+  }
   for (const label of ['Opacidade','Escala']) {
     const slider = panel.getByRole('slider', { name: label, exact: true });
     await slider.focus(); await slider.press('ArrowRight');
@@ -35,4 +48,14 @@ test('Portuguese background controls preserve image bytes and restore removed im
   expect((await exported()).backgroundImage).toBeUndefined();
   await page.getByRole('button', { name: 'Desfazer', exact: true }).click();
   expect((await exported()).backgroundImage).toEqual(edited.backgroundImage);
+
+  await page.getByRole('button', { name: 'Zoom em 100%', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Zoom em 100%', exact: true })).toHaveText('100%');
+  await panel.getByRole('button', { name: '📏 Definir escala', exact: true }).click();
+  await canvas.click({ position: { x: 200, y: 200 } });
+  page.once('dialog', dialog => dialog.accept('400'));
+  await canvas.click({ position: { x: 400, y: 200 } });
+  const calibrated = (await exported()).backgroundImage;
+  expect(calibrated.scale).toBeCloseTo(edited.backgroundImage.scale * 2);
+  expect({ ...calibrated, scale: edited.backgroundImage.scale }).toEqual(edited.backgroundImage);
 });

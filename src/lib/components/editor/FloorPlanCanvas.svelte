@@ -2388,12 +2388,11 @@
         const newPts = [...pts, { x: wp.x, y: wp.y }];
         if (newPts.length >= 2) {
           const dist = Math.hypot(newPts[1].x - newPts[0].x, newPts[1].y - newPts[0].y);
-          const realDist = prompt('Enter the real-world distance between these two points (in cm):');
-          if (realDist && Number(realDist) > 0) {
-            const pixelsPerCm = dist / Number(realDist);
-            if (currentFloor?.backgroundImage) {
-              updateBackgroundImage({ scale: currentFloor.backgroundImage.scale * (1 / pixelsPerCm) });
-            }
+          const realDist = prompt($t('backgroundProperties.distancePrompt'));
+          const distanceCm = Number(realDist);
+          if (Number.isFinite(distanceCm) && distanceCm > 0 && Number.isFinite(dist) && dist > 0 && currentFloor?.backgroundImage) {
+            const scale = currentFloor.backgroundImage.scale * (distanceCm / dist);
+            if (Number.isFinite(scale) && scale > 0) updateBackgroundImage({ scale });
           }
           calibrationMode.set(false);
           return [];
