@@ -3563,3 +3563,11 @@ Translated object/geometry counts with singular/plural forms, selection and zoom
 text. Check/build, five localization unit tests and twelve browser cases pass
 (1.3 minutes), covering desktop/narrow layer counts and welcome/template recovery
 with retained project data. Remaining UI/device/release requirements stay open.
+
+### Canvas contextual action localization — 2026-09-11
+
+Translated duplicate/delete, swing-flip and midpoint-split controls. Check/build,
+five localization unit tests and six Portuguese browser cases pass (56.3 seconds),
+covering mixed/symbol duplication and deletion with IDs, wall references and
+Undo/Redo preservation. Swing/split, device and remaining release qualification
+stay open.

@@ -1074,5 +1074,7 @@ export const pt = {
   "canvasStatus.objectsOne": "{count} objeto",
   "canvasStatus.objectsMany": "{count} objetos",
   "canvasStatus.selected": "{count} selecionados",
-  "canvasStatus.zoom": "Zoom: {value}%"
+  "canvasStatus.zoom": "Zoom: {value}%",
+  "canvasActions.flipSwing": "Inverter abertura",
+  "canvasActions.splitMidpoint": "Dividir parede ao meio"
 } as const;

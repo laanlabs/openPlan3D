@@ -1074,5 +1074,7 @@ export const en = {
   "canvasStatus.objectsOne": "{count} object",
   "canvasStatus.objectsMany": "{count} objects",
   "canvasStatus.selected": "{count} selected",
-  "canvasStatus.zoom": "Zoom: {value}%"
+  "canvasStatus.zoom": "Zoom: {value}%",
+  "canvasActions.flipSwing": "Flip swing",
+  "canvasActions.splitMidpoint": "Split wall at midpoint"
 } as const;

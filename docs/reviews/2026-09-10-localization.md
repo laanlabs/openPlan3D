@@ -1392,3 +1392,16 @@ Logs: `/tmp/web-canvas-status-check.log`, `/tmp/web-canvas-status-build.log`,
 `/tmp/web-canvas-status-unit.log`, `/tmp/web-canvas-status-browser.log`.
 Object/multiselection counts and every plural combination were not newly exercised;
 remaining UI, physical-device and release requirements stay open.
+
+## Canvas contextual action localization
+
+Translated duplicate/delete using existing keys and added swing-flip/midpoint
+split labels. Action handlers are unchanged. Production check reports zero
+errors/warnings; build and five localization unit tests pass. Six Portuguese
+browser cases pass (56.3 seconds, exit 0), duplicating/deleting mixed and symbol
+selections, checking unique IDs and copied wall-opening references, then exact
+Undo/Redo restoration of the tested object collections. The test retains its
+English cases. Logs: `/tmp/web-canvas-actions-check.log`,
+`/tmp/web-canvas-actions-build.log`, `/tmp/web-canvas-actions-unit.log`,
+`/tmp/web-canvas-actions-browser.log`. Swing/split actions were not exercised
+in this batch; physical-device and remaining NEXT requirements stay open.

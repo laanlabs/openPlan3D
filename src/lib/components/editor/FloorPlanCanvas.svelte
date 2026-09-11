@@ -4120,8 +4120,8 @@
       >
         <button
           class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700"
-          title="Duplicate"
-          aria-label="Duplicate"
+          title={$t('contextMenu.duplicate')}
+          aria-label={$t('contextMenu.duplicate')}
           onclick={() => {
             if (!currentSelectedId || !currentFloor) return;
             const ids = currentSelectedIds.size ? currentSelectedIds : new Set([currentSelectedId]);
@@ -4137,8 +4137,8 @@
         {#if el.type === 'door' && el.door}
           <button
             class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700"
-            title="Flip swing"
-            aria-label="Flip swing"
+            title={$t('canvasActions.flipSwing')}
+            aria-label={$t('canvasActions.flipSwing')}
             onclick={() => { if (el.door) updateDoor(el.door.id, { swingDirection: el.door.swingDirection === 'left' ? 'right' : 'left' }); }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
@@ -4147,8 +4147,8 @@
         {#if el.type === 'wall' && currentSelectedId && currentSelectedIds.size === 0}
           <button
             class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700"
-            title="Split wall at midpoint"
-            aria-label="Split wall at midpoint"
+            title={$t('canvasActions.splitMidpoint')}
+            aria-label={$t('canvasActions.splitMidpoint')}
             onclick={() => {
               if (currentSelectedId) {
                 const newId = splitWall(currentSelectedId, 0.5);
@@ -4162,8 +4162,8 @@
         <div class="w-px h-5 bg-gray-200 mx-0.5"></div>
         <button
           class="w-7 h-7 flex items-center justify-center rounded hover:bg-red-50 text-gray-400 hover:text-red-600"
-          title="Delete"
-          aria-label="Delete"
+          title={$t('contextMenu.delete')}
+          aria-label={$t('contextMenu.delete')}
           onclick={() => {
             if (currentSelectedIds.size > 0) {
               beginUndoGroup();

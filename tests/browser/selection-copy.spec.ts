@@ -1,8 +1,9 @@
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
-for (const kind of ['mixed','entourage']) {
-  test(`duplicate and delete the complete ${kind} selection with undo and redo`, async ({page}) => {
+for (const locale of ['en', 'pt']) for (const kind of ['mixed','entourage']) {
+  test(`${locale} duplicate and delete the complete ${kind} selection with undo and redo`, async ({page}) => {
     test.setTimeout(90_000);
+    await page.addInitScript(locale => localStorage.setItem('o3d_locale', locale), locale);
     await page.addInitScript(() => localStorage.setItem('o3d_tips_seen',JSON.stringify(['first-wall','first-furniture','first-3d','first-export','first-door'])));
     const plan = JSON.parse(await readFile('tests/fixtures/connected-dimensions.openplan.json','utf8'));
     const floor = plan.floors[0];
@@ -13,20 +14,20 @@ for (const kind of ['mixed','entourage']) {
     if (kind === 'entourage') for (const key of ['walls','doors','windows','rooms','furniture','stairs','columns']) floor[key]=[];
     floor.groups = kind === 'mixed' ? [{id:'group',elementIds:['f','e']}] : [];
     await page.goto('/editor');
-    await page.getByRole('button',{name:'Export',exact:true}).click();
+    await page.getByRole('button',{name:locale === 'pt' ? 'Exportar' : 'Export',exact:true}).click();
     const chooser=page.waitForEvent('filechooser');
-    await page.getByRole('button',{name:'Import JSON',exact:true}).click();
+    await page.getByRole('button',{name:locale === 'pt' ? 'Importar JSON' : 'Import JSON',exact:true}).click();
     await (await chooser).setFiles({name:'copy.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(plan))});
     await expect(page.getByRole('button',{name:plan.name,exact:true})).toBeVisible();
     async function exported() {
-      await page.getByRole('button',{name:'Export',exact:true}).click(); const pending=page.waitForEvent('download');
-      await page.getByRole('button',{name:'Download JSON',exact:true}).click();
+      await page.getByRole('button',{name:locale === 'pt' ? 'Exportar' : 'Export',exact:true}).click(); const pending=page.waitForEvent('download');
+      await page.getByRole('button',{name:locale === 'pt' ? 'Baixar JSON' : 'Download JSON',exact:true}).click();
       return JSON.parse(await readFile((await (await pending).path())!,'utf8')).floors[0];
     }
     const original = await exported();
-    await page.getByRole('button',{name:'Save',exact:true}).press('ControlOrMeta+a');
-    await page.getByTitle('Zoom to Fit (F)',{exact:true}).first().press('Enter');
-    await page.getByRole('button',{name:'Duplicate',exact:true}).click();
+    await page.getByRole('button',{name:locale === 'pt' ? 'Salvar' : 'Save',exact:true}).press('ControlOrMeta+a');
+    await page.getByTitle(locale === 'pt' ? 'Ajustar à tela (F)' : 'Zoom to Fit (F)',{exact:true}).first().press('Enter');
+    await page.getByRole('button',{name:locale === 'pt' ? 'Duplicar' : 'Duplicate',exact:true}).click();
     const copied = await exported();
     const keys = ['walls','doors','windows','furniture','stairs','columns','entourage','groups'];
     for (const key of keys) {
@@ -37,13 +38,13 @@ for (const kind of ['mixed','entourage']) {
     for (const key of ['doors','windows']) for (const item of copied[key].slice(original[key].length)) {
       expect(copied.walls.slice(original.walls.length).some((wall:any)=>wall.id===item.wallId)).toBe(true);
     }
-    await page.getByRole('button',{name:'Undo',exact:true}).click();
+    await page.getByRole('button',{name:locale === 'pt' ? 'Desfazer' : 'Undo',exact:true}).click();
     const undone = await exported(); for (const key of keys) expect(undone[key]).toEqual(original[key]);
-    await page.getByRole('button',{name:'Redo',exact:true}).click();
+    await page.getByRole('button',{name:locale === 'pt' ? 'Refazer' : 'Redo',exact:true}).click();
     const redone = await exported(); for (const key of keys) expect(redone[key]).toEqual(copied[key]);
-    await page.getByRole('button',{name:'Delete',exact:true}).and(page.getByTitle('Delete',{exact:true})).click();
+    await page.getByRole('button',{name:locale === 'pt' ? 'Excluir' : 'Delete',exact:true}).and(page.getByTitle(locale === 'pt' ? 'Excluir' : 'Delete',{exact:true})).click();
     const deleted = await exported(); for (const key of keys) expect(deleted[key]).toEqual(original[key]);
-    await page.getByRole('button',{name:'Undo',exact:true}).click();
+    await page.getByRole('button',{name:locale === 'pt' ? 'Desfazer' : 'Undo',exact:true}).click();
     const restored = await exported(); for (const key of keys) expect(restored[key]).toEqual(copied[key]);
   });
 }
