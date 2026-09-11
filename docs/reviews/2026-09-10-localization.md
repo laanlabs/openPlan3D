@@ -897,3 +897,15 @@ Logs: `/tmp/web-background-properties-check.log`,
 `/tmp/web-background-properties-build-final.log`, `/tmp/web-background-properties-unit.log`,
 `/tmp/web-background-properties-browser-final.log`. Calibration execution, physical
 touch and remaining editor/release requirements remain open.
+
+## Properties and background-framing integration checkpoint
+
+At `31b7486`, all 938 unit tests across 87 files pass (20.85 seconds, exit 0).
+Eighteen existing English browser cases pass (1.1 minutes, exit 0) across
+Chromium/Firefox/WebKit at 1440/390px: initial framing waits for image dimensions,
+delayed images take priority over the floor below, and failed images fall back.
+These supplement the focused translated-control checks after the symbol, stair,
+column, annotation, background and accessibility changes. No runtime edits here.
+Logs: `/tmp/web-properties-second-integration-unit.log`,
+`/tmp/web-properties-second-integration-browser.log`. Remaining wall Properties,
+broader localization, physical-device and release requirements remain open.

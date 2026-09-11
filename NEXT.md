@@ -163,7 +163,14 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
-Latest full web unit checkpoint: **938 tests across 87 files passed** at `b671dfc`
+Latest full web unit checkpoint: **938 tests across 87 files passed** at `31b7486`
+(20.85 seconds). Eighteen existing English background-image browser cases pass
+across all engines (1.1 minutes), covering initial framing, delayed-image priority
+and failed-image fallback at desktop/narrow widths. See the
+[localization integration record](docs/reviews/2026-09-10-localization.md).
+Full-browser and physical-device qualification remain open.
+
+Earlier full web unit checkpoint: **938 tests across 87 files passed** at `b671dfc`
 (4.74 seconds). Fifteen existing English browser integration cases pass across all
 engines (3.4 minutes), covering desktop/narrow furniture tint, finish, reload and
 resource reuse, plus nested/disconnected floor slabs and active-floor switches.
