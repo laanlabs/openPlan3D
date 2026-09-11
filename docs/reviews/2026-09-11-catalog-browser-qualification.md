@@ -102,11 +102,17 @@ that observation alone does not prove the numeric pixel assertion. Both blue
 readiness probes now allow 60 seconds, with thresholds and resource assertions
 unchanged. The same 983-case inventory is rerunning; retained passes remain 124.
 
+The subsequent attempt stopped earlier at the shared open3D helper's initial
+10-second canvas-readiness assertion. That helper now allows 60 seconds.
+No case passed in that attempt, so the same 983-case inventory remains and
+retained passes are still 124. The blue-pixel readiness result remains unproven.
+
 ## Resume the running process
 
 - Command: `npx playwright test --test-list /tmp/web-localization-remaining.txt --max-failures=1`
-- Unified execution session: `34370`; poll this handle before assuming it ended.
-- Active log: `/tmp/web-localization-full-browser-14.log`
+- Unified execution session: `80619`; poll this handle before assuming it ended.
+- Active log: `/tmp/web-localization-full-browser-15.log`
+- Completed initial-readiness failure: `/tmp/web-localization-full-browser-14.log` (session `34370`, terminal exit 1).
 - Completed zero-pass rerun: `/tmp/web-localization-full-browser-13.log` (session `49049`, terminal exit 1).
 - Completed 20-pass continuation: `/tmp/web-localization-full-browser-12.log` (session `7225`, terminal exit 1).
 - Completed sloped-wall pass: `/tmp/web-localization-full-browser-11.log` (session `35782`, terminal exit 1).

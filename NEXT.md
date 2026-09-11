@@ -38,7 +38,9 @@ variants now have a 180-second allowance with all assertions retained. There
 are 124 retained passes. That rerun reached the blue-pixel probe’s own
 10-second deadline; its screenshot shows the navy chair. Blue-pixel readiness
 now allows 60 seconds without changing color thresholds. The same 983 cases
-run in session `34370`; `49049` is terminal with zero added passes.
+run in session `80619`. The previous attempt stopped at the helper’s initial
+10-second 3D readiness wait, now 60 seconds. Sessions `49049` and `34370`
+are terminal with zero added passes.
 Poll the actual process before starting competing tests or rebuilding;
 sessions `93960`, `85756`, `76158`, `6878`, `49725`, `23537`, `41767`, `47598`, `22444`, `35782` and `7225` are terminal.
 See [the live report](docs/reviews/2026-09-11-catalog-browser-qualification.md).
