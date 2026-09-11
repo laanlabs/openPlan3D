@@ -53,6 +53,11 @@
     shortcutCopyState = 'idle';
   });
   let showUndoHistory = $state(false);
+  let historyTrigger: HTMLButtonElement | undefined = $state();
+  function toggleHistory(trigger: HTMLButtonElement) {
+    historyTrigger = trigger;
+    showUndoHistory = !showUndoHistory;
+  }
 
   // Mobile (< md): BuildPanel becomes an off-canvas drawer toggled by the Tools FAB.
   let buildPanelOpen = $state(false);
@@ -219,7 +224,7 @@
 
 {#if ready}
   <div class="h-screen flex flex-col overflow-hidden">
-    <TopBar onToggleLayers={() => showLayers = !showLayers} layersOpen={showLayers} />
+    <TopBar onToggleLayers={() => showLayers = !showLayers} layersOpen={showLayers} onToggleHistory={toggleHistory} historyOpen={showUndoHistory} />
     <!-- Keep canvas/viewer controls beneath toolbar menus and project dialogs. -->
     <div class="flex flex-1 overflow-hidden isolate">
       {#if mode === '2d'}
@@ -293,13 +298,13 @@
     class:text-white={showUndoHistory}
     class:bg-slate-700={!showUndoHistory}
     class:text-gray-300={!showUndoHistory}
-    onclick={() => showUndoHistory = !showUndoHistory}
+    onclick={(event) => toggleHistory(event.currentTarget)}
     title={$t('undoHistory.title')}
     aria-label={$t('editorPanels.history')}
       aria-expanded={showUndoHistory}
   >⟲</button>
 
-  <UndoHistoryPanel bind:visible={showUndoHistory} />
+  <UndoHistoryPanel bind:visible={showUndoHistory} returnFocusTo={historyTrigger} />
 
   <!-- Help button (desktop only — keyboard shortcuts are meaningless on touch) -->
   <button

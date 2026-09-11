@@ -2541,6 +2541,15 @@ unit/browser run. Actual screen-reader use, visual contrast review, action-label
 translation and broader NEXT.md gates remain open.
 # Undo action descriptions — September 11 checkpoint
 
+Mobile/focus follow-up: Undo History is now available in the phone overflow menu,
+with its existing translated label. Opening focuses Close; Escape/Close restore
+the desktop trigger or persistent More actions button. A failing desktop focus
+regression preceded the fix. Check and build pass without diagnostics; all 18
+English/Portuguese Chromium/Firefox/WebKit cases pass (2.1 minutes), including
+empty-panel keyboard entry/dismissal and bounds at 1440/390px and the populated
+desktop contrast/Undo export checks. The panel remains nonmodal, without a focus
+trap. Populated phone and physical accessibility qualification remain open.
+
 Follow-up: Undo History metadata uses darker text, the selected current-state
 text has a dark-theme color, and buttons have explicit focus outlines. Check
 (zero diagnostics), build and six English/Portuguese Chromium/Firefox/WebKit

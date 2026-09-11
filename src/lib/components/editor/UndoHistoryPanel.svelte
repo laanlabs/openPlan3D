@@ -1,10 +1,31 @@
 <script lang="ts">
-  import { onDestroy } from 'svelte';
+  import { onDestroy, tick } from 'svelte';
   import { t, locale, type Locale } from '$lib/i18n';
   import { undoMessage } from '$lib/i18n/undoMessages';
   import { undoHistoryStore, jumpToUndoStep } from '$lib/stores/project';
 
-  let { visible = $bindable(false) } : { visible?: boolean } = $props();
+  let { visible = $bindable(false), returnFocusTo } : { visible?: boolean; returnFocusTo?: HTMLElement } = $props();
+  let panel: HTMLDivElement | undefined = $state();
+  $effect(() => {
+    if (!visible) return;
+    let cancelled = false;
+    void tick().then(() => {
+      if (!cancelled) panel?.querySelector('button')?.focus();
+    });
+    return () => { cancelled = true; };
+  });
+
+  function close() {
+    visible = false;
+    if (returnFocusTo?.isConnected) returnFocusTo.focus();
+  }
+
+  function handleKeydown(event: KeyboardEvent) {
+    if (event.key !== 'Escape') return;
+    event.preventDefault();
+    event.stopPropagation();
+    close();
+  }
 
   let history = $state<{ entries: { description: string; timestamp: number }[]; currentIndex: number }>({ entries: [], currentIndex: -1 });
 
@@ -21,7 +42,7 @@
 </script>
 
 {#if visible}
-  <div role="region" aria-label={$t('undoHistory.title')} class="undo-history fixed bottom-12 left-4 w-64 max-h-80 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 flex flex-col overflow-hidden">
+  <div bind:this={panel} role="region" aria-label={$t('undoHistory.title')} class="undo-history fixed bottom-12 left-4 w-64 max-h-80 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 flex flex-col overflow-hidden">
     <!-- Header -->
     <div class="flex items-center justify-between px-3 py-2 border-b border-gray-100 bg-gray-50">
       <div class="flex items-center gap-1.5">
@@ -34,7 +55,8 @@
         </span>
         <button
           class="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 text-gray-600 text-sm leading-none"
-          onclick={() => visible = false}
+          onclick={close}
+          onkeydown={handleKeydown}
           aria-label={$t('undoHistory.close')}
         >✕</button>
       </div>
@@ -54,6 +76,7 @@
               class:text-gray-600={i > history.currentIndex}
               class:text-gray-700={i < history.currentIndex && i !== history.currentIndex}
               onclick={() => handleClick(i)}
+              onkeydown={handleKeydown}
             >
               <span class="w-5 text-[10px] text-gray-600 text-right shrink-0">{i + 1}</span>
               <span class="truncate flex-1">{undoMessage(entry.description, $locale)}</span>

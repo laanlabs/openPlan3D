@@ -1,5 +1,16 @@
 # Next work and pause handoff
 
+## Undo History mobile entry and focus — September 11 checkpoint
+
+Added Undo History to the phone overflow menu. Opening the panel focuses Close;
+Escape and Close return focus to the desktop toggle or persistent More actions
+button. The panel remains nonmodal. A desktop regression reproduced missing
+focus before the fix. Check/build pass with zero diagnostics, and 18 bilingual
+Chromium/Firefox/WebKit cases pass (2.1 minutes): empty-panel entry, dismissal,
+focus restoration and horizontal bounds at 1440/390px, plus the populated desktop
+contrast and exact keyboard Undo/export checks. Populated phone interactions,
+physical assistive technology and the wider native/release backlog remain open.
+
 ## Undo History contrast — September 11 checkpoint
 
 Darkened faint history metadata and added a readable dark-theme current-state

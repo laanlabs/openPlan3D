@@ -1,7 +1,7 @@
 <script lang="ts">
   import { t, locale } from '$lib/i18n';
   import { projectServiceMessage } from '$lib/i18n/projectServiceMessages';
-  let { onToggleLayers, layersOpen = false }: { onToggleLayers?: () => void; layersOpen?: boolean } = $props();
+  let { onToggleLayers, layersOpen = false, onToggleHistory, historyOpen = false }: { onToggleLayers?: () => void; layersOpen?: boolean; onToggleHistory?: (trigger: HTMLButtonElement) => void; historyOpen?: boolean } = $props();
   import { captureMain3DPNG } from '$lib/utils/captureMain3D';
   import ExportNotice from '$lib/components/ExportNotice.svelte';
   import { exportNotice, exportPNGWithFeedback, exportPDFWithFeedback as exportPDF } from '$lib/stores/exportNotice';
@@ -47,6 +47,7 @@
   // Mobile (< md) overflow menu for secondary actions
   let moreOpen = $state(false);
   let moreRef: HTMLDivElement | undefined = $state();
+  let moreButton: HTMLButtonElement;
   // Floor-seed menu on the desktop + button
   let floorMenuOpen = $state(false);
   let floorMenuRef: HTMLDivElement | undefined = $state();
@@ -493,6 +494,7 @@
   <!-- Overflow menu (mobile only): secondary actions hidden from the condensed bar -->
   <div class="relative xl:hidden" bind:this={moreRef}>
     <button
+      bind:this={moreButton}
       onclick={() => moreOpen = !moreOpen}
       class="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded transition-colors"
       title={$t('toolbarView.more')}
@@ -530,6 +532,9 @@
           <div class="h-px bg-gray-100 my-1"></div>
         {/if}
         <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={toggleElevationView}>{$elevationWallId ? '✓ ' : ''}{$t('toolbarView.elevationView')}</button>
+        {#if onToggleHistory}
+          <button class="md:hidden w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" aria-expanded={historyOpen} aria-label={$t('editorPanels.history')} onclick={() => { onToggleHistory?.(moreButton); moreOpen = false; }}>{$t('undoHistory.title')}</button>
+        {/if}
         <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => { versionHistoryOpen = true; moreOpen = false; }}>{$t('versions.title')}</button>
         <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => { areaOpen = true; moreOpen = false; }}>{$t('areaSummary.title')}</button>
         <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => { settingsOpen = true; moreOpen = false; }}>{$t('settings.title')}</button>
