@@ -163,6 +163,14 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+The native package bridge's geometry/reference, invalid identity-map and duplicate
+identity diagnostics now translate into Portuguese. Thirty-six focused unit and
+dictionary checks pass; Svelte reports zero diagnostics and the production build
+passes. All 15 transfer browser cases pass across three engines (2.6 minutes),
+including rejection of a negative wall height with unchanged saved records and
+successful subsequent import. This is scoped post-audit verification; general
+project-validator field messages and physical/native/release work remain open.
+
 Package preview notices and service-level attachment/retained-data diagnostics now
 translate at display time, preserving filenames and unknown details. Thirty-three
 focused unit/dictionary checks, zero Svelte diagnostics, the production build and

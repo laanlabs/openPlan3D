@@ -16,6 +16,7 @@ const keys: ServiceKey[] = [
 ];
 const messages = new Map(keys.map(key => [translate('en', key), key]));
 const packageKeys: ServiceKey[] = [
+  'projectService.packageGeometry', 'projectService.packageIdentity', 'projectService.packageDuplicateIdentity',
   'projectService.packageImages',
   'projectService.packageAttachmentData',
   'projectService.packageRetainedData',

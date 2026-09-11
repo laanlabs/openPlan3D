@@ -2299,3 +2299,23 @@ Logs: `/tmp/web-package-notices-unit.log`, `/tmp/web-package-notices-check.log`,
 `/tmp/web-package-notices-build.log`, `/tmp/web-package-notices-browser.log`.
 This scoped post-audit batch does not establish a fresh full-suite result or close
 deeper native-plan validator translations, physical-device or release requirements.
+
+### 2026-09-11: Native package bridge validation messages
+
+Translated all three diagnostic strings emitted by the package bridge validator:
+invalid geometry/references, invalid identity maps and duplicate mapped identities.
+Validation rules and original service diagnostics remain unchanged. Unit cases
+invoke the actual validators and check Portuguese output and original English.
+
+All 36 focused service-message/dictionary checks pass, Svelte checking has zero
+errors/warnings, and the production build passes. All 15 transfer browser cases
+pass across Chromium, Firefox and WebKit (2.6 minutes). The package rejection
+workflow now also uploads a native plan with a negative wall height, checks the
+Portuguese geometry message and unchanged saved records, then imports a valid
+package successfully.
+
+Logs: `/tmp/web-native-diagnostics-unit.log`,
+`/tmp/web-native-diagnostics-check.log`, `/tmp/web-native-diagnostics-build.log`,
+`/tmp/web-native-diagnostics-browser.log`. This is scoped post-audit evidence,
+not a fresh full-suite run. General project-validator field messages and the
+remaining physical/native/release requirements are still open.

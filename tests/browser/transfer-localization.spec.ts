@@ -15,10 +15,15 @@ test('Portuguese package rejection leaves saved records unchanged and allows ano
   const dialog = page.getByRole('dialog', { name: 'Importar pacote de projeto', exact: true });
   const missingAttachment = readPackageZip(await readFile('tests/fixtures/native-project-package.zip'));
   delete missingAttachment['assets/chair.png'];
+  const invalidGeometry = readPackageZip(await readFile('tests/fixtures/native-project-package.zip'));
+  const plan = JSON.parse(new TextDecoder().decode(invalidGeometry['plan.json']));
+  plan.walls[0].height = -1;
+  invalidGeometry['plan.json'] = new TextEncoder().encode(JSON.stringify(plan));
   for (const [buffer, message] of [
     [Buffer.from('invalid'), 'O arquivo deve ser um pacote ZIP com menos de 64 MiB.'],
     [Buffer.alloc(22), 'Estrutura ZIP incompatível. Exporte um novo pacote de projeto do OpenPlan3D.'],
     [Buffer.from(writePackageZip(missingAttachment)), 'Anexo ausente: chair.png.'],
+    [Buffer.from(writePackageZip(invalidGeometry)), 'A planta editada no iPhone contém geometria ou referências inválidas.'],
   ] as const) {
     const chooser = page.waitForEvent('filechooser');
     await dialog.getByRole('button', { name: 'Escolher pacote de projeto', exact: true }).click();

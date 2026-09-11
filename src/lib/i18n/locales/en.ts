@@ -1150,4 +1150,7 @@ export const en = {
   "projectService.packageUnknownFile": "Unrecognized package file: {name}.",
   "projectService.packageNotice": "Photos, item notes and costs travel with this package and can be edited in Item details. Retained native metadata stays available on iPhone. The iPhone preview simplifies web-only features; their original data stays in the package for return to the web.",
   "projectService.packageTracingNotice": "The tracing image format is retained for iPhone but cannot be previewed here.",
+  "projectService.packageGeometry": "The edited iPhone plan contains invalid geometry or references.",
+  "projectService.packageIdentity": "Invalid identity map.",
+  "projectService.packageDuplicateIdentity": "Duplicate mapped identity.",
 } as const;

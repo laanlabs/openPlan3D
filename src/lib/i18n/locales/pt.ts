@@ -1150,4 +1150,7 @@ export const pt = {
   "projectService.packageUnknownFile": "Arquivo de pacote não reconhecido: {name}.",
   "projectService.packageNotice": "Fotos, notas dos itens e custos acompanham este pacote e podem ser editados em Detalhes do item. Os metadados nativos retidos continuam disponíveis no iPhone. A prévia no iPhone simplifica os recursos exclusivos da web; seus dados originais permanecem no pacote para retornar à versão web.",
   "projectService.packageTracingNotice": "O formato da imagem de referência é mantido para o iPhone, mas não pode ser visualizado aqui.",
+  "projectService.packageGeometry": "A planta editada no iPhone contém geometria ou referências inválidas.",
+  "projectService.packageIdentity": "Mapa de identificadores inválido.",
+  "projectService.packageDuplicateIdentity": "Identificador mapeado duplicado.",
 } as const;

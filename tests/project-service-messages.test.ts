@@ -6,8 +6,19 @@ import { prepareLibraryRestore } from '../src/lib/services/libraryRestore';
 import { readFileSync } from 'node:fs';
 import { packageJSON, readPackageZip, writePackageZip } from '../src/lib/utils/projectPackageZip';
 import { readProjectPackage, PACKAGE_NOTICE } from '../src/lib/services/projectPackage';
+import { validatePackagePlan, validatePackageMapping } from '../src/lib/utils/projectPackageBridge';
 
 describe('project service diagnostics', () => {
+  it.each([
+    [() => validatePackagePlan({ walls: [{}] }), 'A planta editada no iPhone contém geometria ou referências inválidas.'],
+    [() => validatePackageMapping({}), 'Mapa de identificadores inválido.'],
+    [() => validatePackageMapping(Array(2).fill({ id: '00000000-0000-4000-8000-000000000001', kind: 'walls', floorId: 'floor', webId: 'wall' })), 'Identificador mapeado duplicado.'],
+  ] as const)('translates native bridge validation errors: %s', (validate, expected) => {
+    let message = '';
+    try { validate(); } catch (error) { message = (error as Error).message; }
+    expect(projectServiceMessage(message, 'pt')).toBe(`Pacote de projeto inválido: ${expected}`);
+    expect(projectServiceMessage(message, 'en')).toBe(message);
+  });
   it.each(['missing', 'unknown'] as const)('translates actual %s attachment/file errors', kind => {
     const files = readPackageZip(readFileSync('tests/fixtures/native-project-package.zip'));
     if (kind === 'missing') delete files['assets/chair.png'];
