@@ -572,5 +572,16 @@ export const en = {
   "roomChoices.kitchen": "Kitchen",
   "roomChoices.bathroom": "Bathroom",
   "roomChoices.office": "Office",
-  "roomChoices.dining": "Dining Room"
+  "roomChoices.dining": "Dining Room",
+  "objectControls.search": "Search furniture...",
+  "objectControls.clear": "Clear search",
+  "objectControls.all": "All",
+  "objectControls.favorites": "Favorites",
+  "objectControls.recent": "Recent",
+  "objectControls.result": "{count} result for \"{query}\"",
+  "objectControls.results": "{count} results for \"{query}\"",
+  "objectControls.add": "Add {name} to favorites",
+  "objectControls.remove": "Remove {name} from favorites",
+  "objectControls.addHint": "Add to favorites",
+  "objectControls.removeHint": "Remove from favorites"
 } as const;

@@ -1,21 +1,27 @@
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
-for (const recent of [false, true]) test(`favorites support keyboard without starting placement (${recent ? 'recent' : 'catalog'})`, async ({ page, browserName }) => {
+for (const locale of ['en', 'pt']) for (const recent of [false, true]) test(`${locale}: favorites support keyboard without starting placement (${recent ? 'recent' : 'catalog'})`, async ({ page, browserName }) => {
   await page.addInitScript(recent => {
     localStorage.setItem('hasSeenWelcome', 'true');
     if (recent) localStorage.setItem('o3d_recent_furniture', JSON.stringify(['sofa']));
   }, recent);
+  await page.addInitScript(locale => localStorage.setItem('o3d_locale', locale), locale);
   await page.goto('/editor');
   await page.getByRole('button', { name: /^(?:Objects|Objetos)$/, exact: true }).click();
+  const search = page.getByRole('textbox', { name: locale === 'pt' ? 'Pesquisar móveis...' : 'Search furniture...', exact: true });
+  await search.fill('{number}');
+  await expect(page.getByText(locale === 'pt' ? '0 resultados para "{number}"' : '0 results for "{number}"', { exact: true })).toBeVisible();
+  await page.getByTitle(locale === 'pt' ? 'Limpar pesquisa' : 'Clear search', { exact: true }).click();
+  await expect(search).toHaveValue('');
   const canvas = page.getByLabel('Floor plan editor canvas', { exact: true });
-  const favorite = page.getByRole('button', { name: 'Add Sofa to favorites', exact: true }).first();
+  const favorite = page.getByRole('button', { name: locale === 'pt' ? 'Adicionar Sofa aos favoritos' : 'Add Sofa to favorites', exact: true }).first();
   await canvas.focus(); await page.keyboard.down('Space');
   await expect(canvas).toHaveCSS('cursor', 'grab');
   await favorite.focus(); await page.keyboard.up('Space');
   await expect(canvas).not.toHaveCSS('cursor', 'grab');
   await favorite.press('Space');
-  const selected = page.getByRole('button', { name: 'Remove Sofa from favorites', exact: true }).first();
+  const selected = page.getByRole('button', { name: locale === 'pt' ? 'Remover Sofa dos favoritos' : 'Remove Sofa from favorites', exact: true }).first();
   await expect(selected).toHaveAttribute('aria-pressed', 'true');
   await expect(canvas).not.toHaveCSS('cursor', 'copy');
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('o3d_favorite_furniture')!))).toEqual(['sofa']);

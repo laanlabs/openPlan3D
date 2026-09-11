@@ -589,7 +589,7 @@
         <div class="relative">
           <input
             type="text"
-            placeholder="Search furniture..."
+            placeholder={$t('objectControls.search')} aria-label={$t('objectControls.search')}
             class="w-full px-3 py-2 pr-8 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none"
             bind:value={search}
           />
@@ -597,25 +597,25 @@
             <button
               class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 w-5 h-5 flex items-center justify-center rounded-full hover:bg-gray-100"
               onclick={() => search = ''}
-              title="Clear search"
+              title={$t('objectControls.clear')}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           {/if}
         </div>
         {#if search}
-          <div class="text-[10px] text-gray-400 px-1">{filtered.length} result{filtered.length !== 1 ? 's' : ''} for "{search}"</div>
+          <div class="text-[10px] text-gray-400 px-1">{$t(filtered.length === 1 ? 'objectControls.result' : 'objectControls.results', { count: filtered.length, query: search })}</div>
         {/if}
         <!-- Category filter -->
         <div class="flex flex-wrap gap-1 max-h-24 overflow-y-auto">
           <button
             class="px-2 py-0.5 rounded-full text-[10px] font-medium {selectedCategory === 'All' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}"
             onclick={() => selectedCategory = 'All'}
-          >All</button>
+          >{$t('objectControls.all')}</button>
           <button
             class="px-2 py-0.5 rounded-full text-[10px] font-medium {selectedCategory === 'Favorites' ? 'bg-pink-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}"
             onclick={() => selectedCategory = 'Favorites'}
-          >♥ Favorites{favoriteIds.length ? ` (${favoriteIds.length})` : ''}</button>
+          >♥ {$t('objectControls.favorites')}{favoriteIds.length ? ` (${favoriteIds.length})` : ''}</button>
           {#each furnitureCategories as cat}
             <button
               class="px-2 py-0.5 rounded-full text-[10px] font-medium {selectedCategory === cat ? 'text-white' : 'text-gray-600 hover:bg-gray-200'}"
@@ -628,7 +628,7 @@
         <!-- Recent Items -->
         {#if !search && selectedCategory === 'All' && recentItems.length > 0}
           <div class="mt-1">
-            <h4 class="text-[10px] font-semibold text-gray-400 uppercase mb-1.5">Recent</h4>
+            <h4 class="text-[10px] font-semibold text-gray-400 uppercase mb-1.5">{$t('objectControls.recent')}</h4>
             <div class="grid grid-cols-2 gap-2">
               {#each recentItems as item}
                 <div class="relative">
@@ -647,9 +647,9 @@
                   <button
                     class="absolute top-1 right-1 text-[12px] leading-none cursor-pointer {favoriteIds.includes(item.id) ? 'text-pink-500' : 'text-gray-300 hover:text-pink-400'}"
                     onclick={() => toggleFavorite(item.id)}
-                    aria-label={`${favoriteIds.includes(item.id) ? 'Remove' : 'Add'} ${item.name} ${favoriteIds.includes(item.id) ? 'from' : 'to'} favorites`}
+                    aria-label={$t(favoriteIds.includes(item.id) ? 'objectControls.remove' : 'objectControls.add', { name: item.name })}
                     aria-pressed={favoriteIds.includes(item.id)}
-                    title={favoriteIds.includes(item.id) ? 'Remove from favorites' : 'Add to favorites'}
+                    title={$t(favoriteIds.includes(item.id) ? 'objectControls.removeHint' : 'objectControls.addHint')}
                   >{favoriteIds.includes(item.id) ? '♥' : '♡'}</button>
                 </div>
               {/each}
@@ -684,9 +684,9 @@
               <button
                 class="absolute top-1 right-1 text-[12px] leading-none cursor-pointer {favoriteIds.includes(item.id) ? 'text-pink-500' : 'text-gray-300 hover:text-pink-400'}"
                 onclick={() => toggleFavorite(item.id)}
-                aria-label={`${favoriteIds.includes(item.id) ? 'Remove' : 'Add'} ${item.name} ${favoriteIds.includes(item.id) ? 'from' : 'to'} favorites`}
+                aria-label={$t(favoriteIds.includes(item.id) ? 'objectControls.remove' : 'objectControls.add', { name: item.name })}
                 aria-pressed={favoriteIds.includes(item.id)}
-                title={favoriteIds.includes(item.id) ? 'Remove from favorites' : 'Add to favorites'}
+                title={$t(favoriteIds.includes(item.id) ? 'objectControls.removeHint' : 'objectControls.addHint')}
               >{favoriteIds.includes(item.id) ? '♥' : '♡'}</button>
             </div>
           {/each}

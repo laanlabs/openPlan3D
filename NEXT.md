@@ -3147,3 +3147,11 @@ counts. Five unit tests, zero-warning check, production build and six browser
 cases pass (36.5 seconds), covering desktop/phone placement, original geometry and
 furniture IDs, and grouped undo. Object catalogs, dialogs, remaining editor text
 and device/release requirements remain open.
+
+### Object search/favorites localization — 2026-09-10
+
+Translated search/results/favorites controls and accessible names while preserving
+search and stored IDs. Five unit tests, zero-warning check, production build and
+12 bilingual browser cases pass (1.2 minutes), including keyboard focus, literal
+search text and independent favorite/placement actions. Item/category names,
+remaining dialogs/editor panels and physical-device requirements remain open.

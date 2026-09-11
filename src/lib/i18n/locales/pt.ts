@@ -572,5 +572,16 @@ export const pt = {
   "roomChoices.kitchen": "Cozinha",
   "roomChoices.bathroom": "Banheiro",
   "roomChoices.office": "Escritório",
-  "roomChoices.dining": "Sala de jantar"
+  "roomChoices.dining": "Sala de jantar",
+  "objectControls.search": "Pesquisar móveis...",
+  "objectControls.clear": "Limpar pesquisa",
+  "objectControls.all": "Todos",
+  "objectControls.favorites": "Favoritos",
+  "objectControls.recent": "Recentes",
+  "objectControls.result": "{count} resultado para \"{query}\"",
+  "objectControls.results": "{count} resultados para \"{query}\"",
+  "objectControls.add": "Adicionar {name} aos favoritos",
+  "objectControls.remove": "Remover {name} dos favoritos",
+  "objectControls.addHint": "Adicionar aos favoritos",
+  "objectControls.removeHint": "Remover dos favoritos"
 } as const;

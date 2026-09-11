@@ -595,3 +595,18 @@ records unchanged. Logs: `/tmp/web-build-panel-integration-unit.log`,
 `/tmp/web-build-panel-integration-browser.log`. This supplements the focused
 Portuguese placement checks; it does not qualify the full browser suite, physical
 devices, or the earlier intermittent WebKit grid-click observation.
+
+## Object search and favorites controls
+
+Translated search/clear labels, result captions, All/Favorites/Recent controls and
+item-specific favorite accessibility labels/tooltips. Search input now has an
+explicit accessible name. Search logic, raw item/category names, favorites IDs and
+placement handlers are unchanged; full catalog localization remains open.
+
+Five localization unit tests, zero-warning Svelte check and production build pass.
+Twelve English/Portuguese browser cases pass across three engines (1.2 minutes):
+literal-brace zero-result search and clear, catalog/recent favorite keyboard
+toggling and persistence, focus order and independent placement activation. This
+uses the existing desktop viewport, not phone or physical-device qualification.
+Logs: `/tmp/web-object-controls-unit.log`, `/tmp/web-object-controls-check.log`,
+`/tmp/web-object-controls-build.log`, `/tmp/web-object-controls-browser.log`.
