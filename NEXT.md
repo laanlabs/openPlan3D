@@ -2809,3 +2809,12 @@ All 12 wall/floor × 2D/3D recovery cases pass across Chromium, Firefox and WebK
 above so their changed surface is visible. Shared texture callbacks rebuild the
 3D scene without further input; no additional production change was needed.
 See [report](docs/reviews/2026-09-10-texture-recovery.md).
+
+### Furniture download recovery — 2026-09-10
+
+Failed GLB downloads no longer stay cached until page reload. Later requests can
+retry after a 30-second cooldown while concurrent callers still share one load
+and cloned resources remain independent. Existing fallback instances stay intact
+until rebuilt. The new regression failed before the change; all 14 focused
+model/texture tests, zero-warning Svelte checks, catalog checks and production
+build pass. See [report](docs/reviews/2026-09-10-model-recovery.md).

@@ -6,6 +6,8 @@ const loader = new GLTFLoader();
 // Only bundled catalog filenames reach this cache. Templates live for the page session;
 // thumbnails and placed instances own their disposable geometry, materials and textures.
 const sources = new Map<string, Promise<THREE.Group | null>>();
+const retryAfter = new Map<string, number>();
+const MODEL_RETRY_DELAY_MS = 30_000;
 const disposed = new WeakSet<THREE.Object3D>();
 const ownedTextures = new WeakSet<THREE.Texture>();
 
@@ -42,10 +44,18 @@ export function cloneModel(source: THREE.Group): THREE.Group {
   return clone;
 }
 
-/** A failed file stays a procedural fallback until reload, avoiding retries on every edit. */
+/** Failed files retain a fallback during cooldown; a later request may retry. */
 export async function loadCatalogModel(file: string): Promise<THREE.Group | null> {
+  const retryAt = retryAfter.get(file);
+  if (retryAt !== undefined && Date.now() >= retryAt) {
+    retryAfter.delete(file);
+    sources.delete(file);
+  }
   if (!sources.has(file)) sources.set(file, loader.loadAsync(catalogAssetUrl(`/models/${file}.glb`))
-    .then(gltf => gltf.scene).catch(() => null));
+    .then(gltf => gltf.scene).catch(() => {
+      retryAfter.set(file, Date.now() + MODEL_RETRY_DELAY_MS);
+      return null;
+    }));
   const source = await sources.get(file)!;
   return source ? cloneModel(source) : null;
 }

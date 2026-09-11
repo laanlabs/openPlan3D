@@ -148,3 +148,36 @@ it('continues omitting explicitly 2D-only catalog symbols from placed 3D furnitu
   const symbol = furnitureCatalog.find(item => item.symbol)!;
   expect(createPlacedFurnitureModel({ id: 'symbol', catalogId: symbol.id, position: { x: 0, y: 0 }, rotation: 0, scale: { x: 1, y: 1, z: 1 } })).toBeNull();
 });
+
+it('retries a failed model after a cooldown and shares the recovered source', async () => {
+  let now = 0;
+  vi.spyOn(Date, 'now').mockImplementation(() => now);
+  const source = template();
+  const load = vi.spyOn(GLTFLoader.prototype, 'loadAsync')
+    .mockRejectedValueOnce(new Error('temporary network failure'))
+    .mockResolvedValue({ scene: source.group } as any);
+  const { createFurnitureModelWithGLB } = await import('$lib/utils/furnitureModelLoader');
+  const originalLoaded = vi.fn();
+  const original = createFurnitureModelWithGLB('chair', getCatalogItem('chair')!, originalLoaded);
+  const fallback = original.children[0];
+  await settle();
+  now = 29_999;
+  createFurnitureModelWithGLB('chair', getCatalogItem('chair')!);
+  await settle();
+  expect(load).toHaveBeenCalledTimes(1);
+  expect(original.children).toEqual([fallback]);
+  now = 30_001;
+  const loaded = vi.fn();
+  const a = createFurnitureModelWithGLB('chair', getCatalogItem('chair')!, loaded);
+  const b = createFurnitureModelWithGLB('chair', getCatalogItem('chair')!, loaded);
+  await settle();
+  expect(load).toHaveBeenCalledTimes(2);
+  expect(loaded).toHaveBeenCalledTimes(2);
+  expect(firstMesh(a).geometry).not.toBe(firstMesh(b).geometry);
+  expect(firstMesh(a).geometry).not.toBe(source.geometry);
+  createFurnitureModelWithGLB('chair', getCatalogItem('chair')!);
+  await settle();
+  expect(load).toHaveBeenCalledTimes(2);
+  expect(original.children).toEqual([fallback]);
+  expect(originalLoaded).not.toHaveBeenCalled();
+});
