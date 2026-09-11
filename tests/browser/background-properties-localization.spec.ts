@@ -22,6 +22,17 @@ test('Portuguese background controls preserve image bytes and restore removed im
   }
   const original = await exported();
   const canvas = page.getByLabel('Floor plan editor canvas', { exact: true });
+  let unexpectedPrompts = 0;
+  const dismissUnexpected = async (dialog: import('@playwright/test').Dialog) => { unexpectedPrompts++; await dialog.dismiss(); };
+  page.on('dialog', dismissUnexpected);
+  await panel.getByRole('button', { name: '📏 Definir escala', exact: true }).click();
+  await canvas.click({ position: { x: 200, y: 200 } });
+  await page.keyboard.press('Escape');
+  await canvas.click({ position: { x: 400, y: 200 } });
+  page.off('dialog', dismissUnexpected);
+  expect(unexpectedPrompts).toBe(0);
+  expect((await exported()).backgroundImage).toEqual(original.backgroundImage);
+
   for (const answer of ['Infinity', '0', '-5', null]) {
     await panel.getByRole('button', { name: '📏 Definir escala', exact: true }).click();
     await canvas.click({ position: { x: 200, y: 200 } });

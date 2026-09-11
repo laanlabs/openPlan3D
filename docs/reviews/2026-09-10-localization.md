@@ -1086,3 +1086,16 @@ Logs: `/tmp/web-calibration-infinity-repro.log`, `/tmp/web-calibration-check.log
 `/tmp/web-calibration-build.log`, `/tmp/web-calibration-unit.log`,
 `/tmp/web-calibration-browser.log`. Physical touch calibration and remaining native/
 localization/release requirements stay open.
+
+## Escape cancels unfinished calibration
+
+Reproduced at `c49d67d`: after choosing one calibration point and pressing Escape,
+the next canvas click still opened the distance prompt. Canvas Escape now clears
+calibration mode and points alongside other transient interactions. Three browser
+cases pass (51.8 seconds, exit 0): Escape produces no later prompt and preserves the
+image, followed by invalid/cancelled inputs and successful fresh calibration.
+Production check has zero errors/warnings and build passes.
+Logs: `/tmp/web-calibration-escape-repro.log`, `/tmp/web-calibration-escape-check.log`,
+`/tmp/web-calibration-escape-build.log`, `/tmp/web-calibration-escape-browser.log`.
+This does not qualify physical touch or all project/floor-change cancellation paths;
+remaining NEXT requirements stay open.

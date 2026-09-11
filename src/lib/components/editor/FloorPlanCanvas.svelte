@@ -3396,6 +3396,8 @@
 
     // Canvas-specific Escape handling (before global shortcut eats it)
     if (e.code === 'Escape') {
+      calibrationMode.set(false);
+      calibrationPoints.set([]);
       finishCanvasGesture();
       clearAuxiliarySelection();
       selectedRoomId.set(null);

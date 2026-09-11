@@ -3392,3 +3392,10 @@ positive distance/result checks and translated the prompt. Check/build, five
 localization unit tests and three browser cases pass (46.8 seconds), checking
 invalid/cancelled input preservation and valid scale doubling. Physical calibration
 and remaining device/release requirements stay open.
+
+### Escape cancels unfinished image calibration — 2026-09-11
+
+Reproduced a stale calibration prompt after Escape. The canvas Escape handler now
+clears calibration mode and points. Check/build and three browser cases pass
+(51.8 seconds), preserving image data and allowing fresh calibration afterward.
+Other cancellation/device/release requirements remain open.
