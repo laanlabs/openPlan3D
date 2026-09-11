@@ -997,3 +997,20 @@ Logs: `/tmp/web-item-detail-labels-check.log`, `/tmp/web-item-detail-labels-buil
 `/tmp/web-item-detail-labels-unit.log`, `/tmp/web-item-detail-labels-browser.log`.
 Construction-material editing/native round-trip, photo localization, physical touch
 and broader release requirements remain open.
+
+## Bilingual native metadata package verification
+
+Extended the actual Swift-return fixture scenario to both English and Portuguese.
+Six cases pass across all engines (54.6 seconds), preserving native follow-up data,
+editing room notes/use/ceiling, choosing Madeira/wood construction material and
+opening cost, then checking native plan.json identifiers, meter conversion and
+price precision. Runtime source remains `488a648`; no new Swift execution occurred.
+
+The existing test file initially could not load because importing the production
+photo service pulled in browser-only virtual modules. Removed that test dependency:
+exported JPEG signature and 512KiB contract are checked directly, and the browser
+image decoder checks 1600x800 dimensions. Six existing photo/metadata cases pass at
+1440/390px across all engines (1.6 minutes), including undo/save/export and attachment
+retention. Logs: `/tmp/web-detail-native-localization-browser-final.log`,
+`/tmp/web-detail-photo-decoder-browser.log`. Photo/control diagnostic translation,
+physical devices and remaining NEXT requirements stay open.

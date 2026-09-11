@@ -3348,3 +3348,11 @@ retaining identifiers and values. Check/build, five localization unit tests and
 six browser cases pass (56.1 seconds), verifying literal notes, cost precision,
 room-use ID and ceiling override. Photos/diagnostics and broader native/device/release
 requirements stay open.
+
+### Bilingual native metadata package verification — 2026-09-11
+
+Six English/Portuguese Swift-return fixture cases pass (54.6 seconds), checking
+translated construction material, native room-use/height and cost export. Fixed a
+test-loading dependency by validating exported photos with the browser decoder;
+six desktop/compact photo integration cases pass (1.6 minutes). Runtime unchanged;
+new physical/native runs and remaining photo/localization/release gates stay open.

@@ -2,7 +2,6 @@ import { test, expect, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { packageJSON, readPackageZip } from '../../src/lib/utils/projectPackageZip';
-import { photoHeader, PHOTO_STORED_LIMIT } from '../../src/lib/services/itemPhotos';
 import { readSnapshotStorage } from '../../src/lib/utils/snapshotStorage';
 import { savedProjects, storedRecords, failProjectWrites } from './storage';
 
@@ -133,8 +132,14 @@ for (const width of [1440, 390]) test(`item metadata and optimized photos surviv
   expect(plan.walls[0].extension.future).toBe(true);
   const photoName = plan.furniture[0].photos.find((name: string) => name !== 'chair.png');
   const added = files[`assets/${photoName}`];
-  expect(photoHeader(added)).toMatchObject({ width: 1600, height: 800, mime: 'image/jpeg' });
-  expect(added.length).toBeLessThanOrEqual(PHOTO_STORED_LIMIT);
+  expect(Array.from(added.slice(0, 3))).toEqual([0xff, 0xd8, 0xff]);
+  const dimensions = await page.evaluate(async dataUrl => {
+    const image = new Image(); image.src = dataUrl; await image.decode();
+    return { width: image.naturalWidth, height: image.naturalHeight };
+  }, `data:image/jpeg;base64,${Buffer.from(added).toString('base64')}`);
+  expect(dimensions).toEqual({ width: 1600, height: 800 });
+  expect(added.length).toBeLessThanOrEqual(512 * 1024); // Stored-photo contract: 512 KiB.
+
   expect(Object.keys(files).filter(name => name.startsWith('assets/'))).toHaveLength(3);
 
   await page.getByRole('button', { name: 'Remove photo 2 from item', exact: true }).click();
@@ -160,22 +165,31 @@ for (const width of [1440, 390]) test(`item metadata and optimized photos surviv
   check();
 });
 
-test('room, wall and opening metadata can be edited after an actual Swift return', async ({ page }) => {
+for (const locale of ['en', 'pt']) test(`${locale}: room, wall and opening metadata can be edited after an actual Swift return`, async ({ page }) => {
   const check = observe(page);
   const source = await openPackage(page, resolve('tests/fixtures/swift-metadata-return.zip')); await selectFurniture(page);
   await expect(page.getByRole('textbox', { name: 'Item notes', exact: true })).toHaveValue('Native follow-up');
   await expect(page.getByRole('spinbutton', { name: 'Item cost', exact: true })).toHaveValue('');
   await expect(page.getByRole('region', { name: 'Item details', exact: true })).toContainText('Item photos (0)');
-  await page.getByRole('button', { name: `Select room ${source.floors[0].rooms[0].name}`, exact: true }).click();
-  await fill(page, 'Item notes', 'Web room update');
-  await fill(page, 'Room ceiling height (cm)', '297.625', true);
-  await page.getByRole('combobox', { name: 'Room use', exact: true }).selectOption('office');
-  await page.getByRole('button', { name: '─ Wall 1', exact: true }).click();
-  await expect(page.getByRole('combobox', { name: 'Construction material', exact: true })).toHaveValue('concrete');
-  await page.getByRole('combobox', { name: 'Construction material', exact: true }).selectOption('wood');
-  await page.getByRole('button', { name: '🚪 single door 1', exact: true }).click();
-  await fill(page, 'Item cost', '12.345', true);
-  const plan = packageJSON((await packageFiles(page))['plan.json']);
+  const tr = (en: string, pt: string) => locale === 'pt' ? pt : en;
+  if (locale === 'pt') {
+    await page.getByRole('button', { name: 'Settings', exact: true }).click();
+    await page.getByRole('button', { name: 'Appearance', exact: true }).click();
+    await page.getByRole('combobox', { name: 'Language', exact: true }).selectOption('pt');
+    await page.keyboard.press('Escape');
+  }
+  await page.getByRole('button', { name: `${tr('Select room', 'Selecionar ambiente')} ${source.floors[0].rooms[0].name}`, exact: true }).click();
+  await fill(page, tr('Item notes', 'Notas do item'), 'Web room update');
+  await fill(page, tr('Room ceiling height (cm)', 'Pé-direito do ambiente (cm)'), '297.625', true);
+  await page.getByRole('combobox', { name: tr('Room use', 'Uso do ambiente'), exact: true }).selectOption('office');
+  await page.getByRole('button', { name: tr('─ Wall 1', '─ Parede 1'), exact: true }).click();
+  await expect(page.getByRole('combobox', { name: tr('Construction material', 'Material de construção'), exact: true })).toHaveValue('concrete');
+  await page.getByRole('combobox', { name: tr('Construction material', 'Material de construção'), exact: true }).selectOption({ label: tr('Wood', 'Madeira') });
+  await page.getByRole('button', { name: tr('🚪 single door 1', '🚪 Porta simples 1'), exact: true }).click();
+  await fill(page, tr('Item cost', 'Custo do item'), '12.345', true);
+  await page.getByRole('button', { name: tr('Export', 'Exportar'), exact: true }).click();
+  const files = await readPackageZip(new Uint8Array(await download(page, tr('Download project package', 'Baixar pacote de projeto'))));
+  const plan = packageJSON(files['plan.json']);
   expect(plan.rooms[0]).toMatchObject({ note: 'Web room update', ceilingHeight: 2.97625, type: 'office' });
   expect(plan.walls[0].material).toBe('wood'); expect(plan.openings[0].price).toBe(12.345);
   check();
