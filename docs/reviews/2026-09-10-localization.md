@@ -1415,3 +1415,16 @@ values, invalid drafts, imperial input, Undo precision, persistence and 3D entry
 Logs: `/tmp/web-context-integration-unit.log`,
 `/tmp/web-context-integration-browser.log`. No runtime changes in this checkpoint.
 Full-browser, physical-device and remaining NEXT requirements stay open.
+
+## Contextual swing and midpoint split verification
+
+At `2c620e9`, three Portuguese browser cases pass (24.2 seconds, exit 0).
+The swing action changes the saved opening swingDirection only; Undo restores
+the exact floor. Splitting a 600.5cm sloped wall at its midpoint produces matching
+300.25cm endpoints and 250/300/350cm interpolated heights. A door at one quarter
+and a window at three quarters retain dimensions and their along-wall centers
+through updated wall references/positions. Undo restores the exact original floor.
+The first run used an incorrect layer name; the fixture's actual name is
+“Porta aberta 1”. Log: `/tmp/web-canvas-wall-actions-browser-final.log`.
+No runtime changes were needed. This does not cover an opening spanning the split
+point, curved-wall splitting or physical gestures; remaining NEXT scope stays open.

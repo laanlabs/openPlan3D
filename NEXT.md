@@ -3578,3 +3578,10 @@ five localization unit tests and six Portuguese browser cases pass (56.3 seconds
 covering mixed/symbol duplication and deletion with IDs, wall references and
 Undo/Redo preservation. Swing/split, device and remaining release qualification
 stay open.
+
+### Contextual swing and wall split verification — 2026-09-11
+
+Three Portuguese browser cases pass at `2c620e9` (24.2 seconds), checking saved
+swing changes, midpoint endpoints and sloped heights, opening dimensions/centers
+and exact Undo restoration. No runtime changes were needed. Openings spanning
+the split point, curved splitting and device/release requirements stay open.
