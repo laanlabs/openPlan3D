@@ -2745,3 +2745,11 @@ default centimetre dimensions, web representation, asset hashes and embedded
 metadata. CI checks drift through `npm run catalog:check`. Provenance is explicitly
 unverified; source/license curation, product measurements, native support and
 unmapped/texture assets remain open. See [inventory scope](docs/furniture-inventory.md).
+
+### Mapped furniture source verification — 2026-09-10
+
+All 93 mapped GLBs exactly match official Kenney archive members (29 Furniture
+Kit, 64 Nature Kit). Added durable archive/member/model hashes and local CC0
+notices; inventory generation validates source evidence and license-notice hashes.
+See [provenance scope](docs/furniture-inventory.md). Unmapped assets, textures,
+product dimensions and native representation remain separate curation work.

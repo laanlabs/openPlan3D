@@ -20,14 +20,23 @@ bottom at zero; see [the loader](../src/lib/utils/furnitureModelLoader.ts).
 Entries distinguish 2D-only symbols, procedural models and GLBs with a procedural
 fallback. Native visual support is not inferred from a web mapping.
 
-GLB generator/copyright strings are copied as embedded metadata. Provenance is
-explicitly **unverified**: a generator name does not identify the original author,
-source pack or redistribution license. Do not apply the repository's code license
-to an asset merely because the asset is committed here. Before marking provenance
-complete, add durable source/author/license evidence and any attribution text to
-a reviewed source record consumed by the generator. Also verify product dimensions,
-asset orientation and native representation independently. Do not edit the generated
-JSON by hand; a regeneration would discard those edits.
+The [provenance record](furniture-provenance.json) now maps all 93 referenced
+GLBs to exact byte matches in official Kenney archives: 29 Furniture Kit models
+and 64 Nature Kit models. It records source/download URLs, archive hashes,
+member paths and per-model hashes. Both official pack pages list CC0:
+[Furniture Kit](https://kenney.nl/assets/furniture-kit) and
+[Nature Kit](https://kenney.nl/assets/nature-kit). The downloaded notices are
+included locally with whitespace normalized:
+[Furniture Kit notice](../static/models/furniture-kit-License.txt) and
+[Nature Kit notice](../static/models/nature-kit-License.txt). Original archive
+notice hashes and included notice hashes are both recorded.
+
+The generator rejects changed model bytes under an existing provenance record
+and altered license notices. New unmapped provenance remains explicitly unverified
+until source evidence is recorded. Embedded generator/copyright strings alone are
+not attribution. Do not edit generated inventory JSON by hand; update source
+records and regenerate it. Product measurements, asset orientation and native
+representation still need independent qualification.
 
 This inventory covers furniture catalog mappings only. It does not certify
 unmapped files, textures, entourage, native assets, catalog completeness or release
@@ -38,3 +47,10 @@ remains in [NEXT](../NEXT.md).
 Initial check on September 10, 2026: 189 catalog entries and 93 distinct mapped
 GLBs. Generation followed by check mode passed; an intentionally stale manifest
 was rejected and the original regenerated output restored. No editor code changed.
+
+Provenance verification on September 10, 2026 matched all 93 model hashes against
+GLB members read directly from the official downloaded ZIPs. Repository import
+commits `4c1589742e2bf1c718a2c98483dd9479767db31e` and
+`927315f2db8e89c9be2f63b8a602cc9c39b093fa` independently name the two packs.
+The archives were inspected locally, not executed. CI verifies the committed
+evidence without downloading source packs.

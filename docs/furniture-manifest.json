@@ -5,7 +5,8 @@
   "modelMappingSource": "src/lib/utils/furnitureModelFiles.ts",
   "modelPlacement": "Runtime fits catalog dimensions, centers the footprint and places the bottom at zero; see furnitureModelLoader.ts.",
   "nativeSupport": "Not certified by this inventory; native package preservation and visual support require separate validation.",
-  "provenanceNote": "Embedded metadata is recorded verbatim, not verified attribution or a license determination. Asset provenance remains open.",
+  "provenanceSource": "docs/furniture-provenance.json",
+  "provenanceNote": "Matched models have exact official archive byte evidence; embedded generator metadata alone is not attribution.",
   "items": [
     {
       "id": "sofa",
@@ -2472,7 +2473,8 @@
       "sha256": "39d4f19608cab7e0fed52303b2c689f5f51fae1bad9b6913cb53d838875e797e",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "bathtub": {
       "path": "static/models/bathtub.glb",
@@ -2480,7 +2482,8 @@
       "sha256": "54c405c7035aab63dc41e709dc3c50fc5bcfbc4cddc91ffc54188075a6d25d01",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "bedDouble": {
       "path": "static/models/bedDouble.glb",
@@ -2488,7 +2491,8 @@
       "sha256": "c49b33e7d797d2ba1111895587dba7ff63b17a712eb9b4ceeb40a598f73e476c",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "bedSingle": {
       "path": "static/models/bedSingle.glb",
@@ -2496,7 +2500,8 @@
       "sha256": "ca00c63f9a12da3138d902b2f5f18e0360fb6e8a5ac42ccb4bc3f185724b65d1",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "bookcaseClosed": {
       "path": "static/models/bookcaseClosed.glb",
@@ -2504,7 +2509,8 @@
       "sha256": "9d210448de5e1179541da895450bbc7a39f4cd673d677654cd6b134e4ea0e047",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "bookcaseClosedDoors": {
       "path": "static/models/bookcaseClosedDoors.glb",
@@ -2512,7 +2518,8 @@
       "sha256": "ff33f535acdb1825c0e958a293642b39665adcae0b1317b650e83d2bb687f4e2",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "bookcaseOpen": {
       "path": "static/models/bookcaseOpen.glb",
@@ -2520,7 +2527,8 @@
       "sha256": "750702218d68c062b15dfef6ab06a4014d1cfa8bd05f02e57c53b7e13bec157c",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "cabinetBedDrawer": {
       "path": "static/models/cabinetBedDrawer.glb",
@@ -2528,7 +2536,8 @@
       "sha256": "e3dfd2e120af3d4d29b66509e317452cd15bd3f57ac8945575462c582adc6de8",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "cabinetBedDrawerTable": {
       "path": "static/models/cabinetBedDrawerTable.glb",
@@ -2536,7 +2545,8 @@
       "sha256": "fec6271639df5aff9f8ac75d6679385eab2abb7c8d2f51abeba3ed689ddb6f0d",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "cabinetTelevision": {
       "path": "static/models/cabinetTelevision.glb",
@@ -2544,7 +2554,8 @@
       "sha256": "811719593d676ff76f7b5904d52c845ce0396af2bc9a6a2636c4818ead320b99",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "chair": {
       "path": "static/models/chair.glb",
@@ -2552,7 +2563,8 @@
       "sha256": "c8a11eec93e89e31250ba91afc1b8d56c3bec7ae86640fd1239f595ff4180883",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "chairDesk": {
       "path": "static/models/chairDesk.glb",
@@ -2560,7 +2572,8 @@
       "sha256": "46406619186034cbe92b19b79a5f1a8e3f442a17a70a7524ef2c0ad0f35095c6",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "kitchenCabinet": {
       "path": "static/models/kitchenCabinet.glb",
@@ -2568,7 +2581,8 @@
       "sha256": "7238c57778935ae25db5e57e9f7af3ba7068c71b005ff7cfbff3b6f3b1a13200",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "kitchenCabinetDrawer": {
       "path": "static/models/kitchenCabinetDrawer.glb",
@@ -2576,7 +2590,8 @@
       "sha256": "6f784807e3cadb15b4d2d3db726d93357ea5e6c4f2b6e4c9c064048a2d1d9cfc",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "kitchenFridgeLarge": {
       "path": "static/models/kitchenFridgeLarge.glb",
@@ -2584,7 +2599,8 @@
       "sha256": "5851cc59c7e12f6f34a01a2ea93d5b9540be4078c1b703f517239fcede98fb32",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "kitchenSink": {
       "path": "static/models/kitchenSink.glb",
@@ -2592,7 +2608,8 @@
       "sha256": "7b9610277d71f00dcf1bba49cf4d98d77ce5177e84bf76c7da2f8893e542f743",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "kitchenStove": {
       "path": "static/models/kitchenStove.glb",
@@ -2600,7 +2617,8 @@
       "sha256": "3239edb36295dfca9530a9b9a6ad0aff98ce62e7cf8d13ca2a5a1a6b2a904656",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "kitchenStoveElectric": {
       "path": "static/models/kitchenStoveElectric.glb",
@@ -2608,7 +2626,8 @@
       "sha256": "cf646b960d7dfed1fac27898ff6de1f0671cfa33beecbed06ead7d0684517392",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "loungeChair": {
       "path": "static/models/loungeChair.glb",
@@ -2616,7 +2635,8 @@
       "sha256": "ddfe6bc4b3451bca61666d7b614552d6ed2a03d82fc76244b72ae3155874dc6c",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "loungeDesignSofa": {
       "path": "static/models/loungeDesignSofa.glb",
@@ -2624,7 +2644,8 @@
       "sha256": "b4f4e6850118e409da301df678228c703b6ac02e94fbb9dbde61543af817fa53",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "outdoor_cactus_short": {
       "path": "static/models/outdoor_cactus_short.glb",
@@ -2632,7 +2653,8 @@
       "sha256": "81ac9fc4c66eacceaf4aebcb6df3468ea450a2f5081151bb11400282efbc51bd",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_cactus_tall": {
       "path": "static/models/outdoor_cactus_tall.glb",
@@ -2640,7 +2662,8 @@
       "sha256": "d43a1aca5952e1f8a104d64a0edfec09c39f15102ca6bdc531460dd5a2c53d25",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_campfire_logs": {
       "path": "static/models/outdoor_campfire_logs.glb",
@@ -2648,7 +2671,8 @@
       "sha256": "98d87cdcf9095b94fd348d0946e911dd4ca6c0956bac3318cfd2b0030b86055a",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_campfire_stones": {
       "path": "static/models/outdoor_campfire_stones.glb",
@@ -2656,7 +2680,8 @@
       "sha256": "54869db23243a3f4905bc00bd4cd93b1037b28556ab3ef93e7a893a093791e35",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_crop_pumpkin": {
       "path": "static/models/outdoor_crop_pumpkin.glb",
@@ -2664,7 +2689,8 @@
       "sha256": "5b4878c5996033629419c26ac32153ce8ac06bbbdac98e4fa8a5cbab98f78077",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_crops_cornStageD": {
       "path": "static/models/outdoor_crops_cornStageD.glb",
@@ -2672,7 +2698,8 @@
       "sha256": "d90d9cbba85e99526b254adee638495f914480831ab41d00807378c004c112c3",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_fence_corner": {
       "path": "static/models/outdoor_fence_corner.glb",
@@ -2680,7 +2707,8 @@
       "sha256": "f37060de68c5680e518183d44e7ac498e0bfe7b04f3fe71e355d8a4670ef83f1",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_fence_gate": {
       "path": "static/models/outdoor_fence_gate.glb",
@@ -2688,7 +2716,8 @@
       "sha256": "34d10d5620179b8a211a01eea837caa828c0782422f0b408e1a5838788888436",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_fence_planks": {
       "path": "static/models/outdoor_fence_planks.glb",
@@ -2696,7 +2725,8 @@
       "sha256": "2db68f60d24443dbeab05dedd92fcc665d0e21bd261c6a668ea9022a732a06a9",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_fence_simple": {
       "path": "static/models/outdoor_fence_simple.glb",
@@ -2704,7 +2734,8 @@
       "sha256": "ecaf6c29532aa9fd305a8ef71df769d60748bd797f2eb1c63bdefc4edb8062a7",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_flower_purpleA": {
       "path": "static/models/outdoor_flower_purpleA.glb",
@@ -2712,7 +2743,8 @@
       "sha256": "f6fc34c96a03420a74fe36d4c2d0ec88f15204fcad99cd1416c3c4ecb22e48c4",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_flower_purpleB": {
       "path": "static/models/outdoor_flower_purpleB.glb",
@@ -2720,7 +2752,8 @@
       "sha256": "2afb10cd68a9a7b185fc46110be0da550ea2aef86ef9ac6b7339f217eb4b636a",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_flower_redA": {
       "path": "static/models/outdoor_flower_redA.glb",
@@ -2728,7 +2761,8 @@
       "sha256": "171930b7789ddbf735af3745576b5393750beb9133b9ff4a444bb6bb2986c020",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_flower_redB": {
       "path": "static/models/outdoor_flower_redB.glb",
@@ -2736,7 +2770,8 @@
       "sha256": "1ed430a4ee2be9e86649e1ce22ec23162814a3f8c2ad133117315db19293fc16",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_flower_yellowA": {
       "path": "static/models/outdoor_flower_yellowA.glb",
@@ -2744,7 +2779,8 @@
       "sha256": "8a3b08cd2ca411c21f9c581d5bda651d78b13c50cba45ad8fa0389398ead6d1d",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_flower_yellowB": {
       "path": "static/models/outdoor_flower_yellowB.glb",
@@ -2752,7 +2788,8 @@
       "sha256": "aaa8707779a5de59f881f80185bc507b35ec3fd5f23a39d6447ef61141dcd4f5",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_grass": {
       "path": "static/models/outdoor_grass.glb",
@@ -2760,7 +2797,8 @@
       "sha256": "260e41d3e5f2472492ed7b475c5b92a30b13ce2bad408535b5ff50574d4575e7",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_grass_large": {
       "path": "static/models/outdoor_grass_large.glb",
@@ -2768,7 +2806,8 @@
       "sha256": "af49a595624abca7249824eeefb944d4baf974abeeb5b16110d175da3563d6cd",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_grass_leafs": {
       "path": "static/models/outdoor_grass_leafs.glb",
@@ -2776,7 +2815,8 @@
       "sha256": "8bc4c0b17c2e64c34e1acbf7c4a2fd8c04cfcd7155328e61767887b2ced112c7",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_grass_leafsLarge": {
       "path": "static/models/outdoor_grass_leafsLarge.glb",
@@ -2784,7 +2824,8 @@
       "sha256": "a68b9b3d9639afaeb4ace840d5a8e3f21ffc4e8afc1eab15566500fbb2bee3e3",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_hanging_moss": {
       "path": "static/models/outdoor_hanging_moss.glb",
@@ -2792,7 +2833,8 @@
       "sha256": "2124c2d038054f1ea89d470a6095d35c2fbdb2674916db93400ea6ed5f499cb0",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_lily_large": {
       "path": "static/models/outdoor_lily_large.glb",
@@ -2800,7 +2842,8 @@
       "sha256": "c8f7080df0ae3166e9d33f523b66360c2ac7556dff36cc9c8ee78b6a676c7db2",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_log": {
       "path": "static/models/outdoor_log.glb",
@@ -2808,7 +2851,8 @@
       "sha256": "8c8fe8f6adfc03a3c0cd6cb24961ff74be96c2da284d70322f05797d049972d6",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_log_large": {
       "path": "static/models/outdoor_log_large.glb",
@@ -2816,7 +2860,8 @@
       "sha256": "e7a92369062d491e5a31a163d390e07db04ee573605bbfa84c00660d18896b4c",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_log_stack": {
       "path": "static/models/outdoor_log_stack.glb",
@@ -2824,7 +2869,8 @@
       "sha256": "90eaae4a01ba1f25c2f0c6d83087e4a7a8fac684f2452615245333968d118d68",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_mushroom_red": {
       "path": "static/models/outdoor_mushroom_red.glb",
@@ -2832,7 +2878,8 @@
       "sha256": "843e2de43dce78920a5675a67bac4b72f500e6220315e713fe08381642cfc571",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_mushroom_redGroup": {
       "path": "static/models/outdoor_mushroom_redGroup.glb",
@@ -2840,7 +2887,8 @@
       "sha256": "29f02df0589dd2b09e8d2aff6a4662394dac5cfcf1fec701640dcbd6127e0802",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_mushroom_tan": {
       "path": "static/models/outdoor_mushroom_tan.glb",
@@ -2848,7 +2896,8 @@
       "sha256": "455cbacdcdac82cc20420c3f21eaba3ff2fbceadb2e13d35a39d52130dba5a80",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_plant_bush": {
       "path": "static/models/outdoor_plant_bush.glb",
@@ -2856,7 +2905,8 @@
       "sha256": "ae7b1beb39e242b13f5f29e3ec23ef21034b814f82297b8aa00a9bf4e1b09590",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_plant_bushDetailed": {
       "path": "static/models/outdoor_plant_bushDetailed.glb",
@@ -2864,7 +2914,8 @@
       "sha256": "2e0487020d68ccf664435db9d829c78ae00e6d2785ee3ec10b9f89cc70a10406",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_plant_bushLarge": {
       "path": "static/models/outdoor_plant_bushLarge.glb",
@@ -2872,7 +2923,8 @@
       "sha256": "10e1d9fbf29d96d1d1a56fb2ce25ae66537505101759229afe01ae22c6c45e02",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_plant_bushLargeTriangle": {
       "path": "static/models/outdoor_plant_bushLargeTriangle.glb",
@@ -2880,7 +2932,8 @@
       "sha256": "098af3618e20e5a2cb5f6e24a7c67c0a80663f989137d86430bc9e2b1b2d52e4",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_plant_bushSmall": {
       "path": "static/models/outdoor_plant_bushSmall.glb",
@@ -2888,7 +2941,8 @@
       "sha256": "a9620a7d1fb165ae68d323676f80dbb2a9e3aafb21110d18d18d90b07026b91d",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_plant_bushTriangle": {
       "path": "static/models/outdoor_plant_bushTriangle.glb",
@@ -2896,7 +2950,8 @@
       "sha256": "e944e19adda28436fdc63d77019aa490e6591358659a14abea8aa654181fc417",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_pot_large": {
       "path": "static/models/outdoor_pot_large.glb",
@@ -2904,7 +2959,8 @@
       "sha256": "57e60214bc6ab1dc3764c9ffe80091ff45f2bfd49fbc313c1b68dcaab1537aef",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_pot_small": {
       "path": "static/models/outdoor_pot_small.glb",
@@ -2912,7 +2968,8 @@
       "sha256": "1141d9e16099c2103f1a177de0cae4ea979a3246439e33074923e4cfe3098df8",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_rock_largeA": {
       "path": "static/models/outdoor_rock_largeA.glb",
@@ -2920,7 +2977,8 @@
       "sha256": "6dd15390fd96501dcd1454765a17ba61dbbd8d47705dfe5149c8dd92b353ce25",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_rock_largeB": {
       "path": "static/models/outdoor_rock_largeB.glb",
@@ -2928,7 +2986,8 @@
       "sha256": "caa8b025833d4dabf6d98fe2e96cf2fbd886693ac990df0db75f9d827194374b",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_rock_smallA": {
       "path": "static/models/outdoor_rock_smallA.glb",
@@ -2936,7 +2995,8 @@
       "sha256": "df9fff9d711e61370e8df0caa2514c89b8f8a8dc6c6fafaf4eb2ec79c5ae07c1",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_rock_smallB": {
       "path": "static/models/outdoor_rock_smallB.glb",
@@ -2944,7 +3004,8 @@
       "sha256": "11b26bc0a12e971a3b69df1401e530e24432d528c262df94b99c412e7f372763",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_rock_tallA": {
       "path": "static/models/outdoor_rock_tallA.glb",
@@ -2952,7 +3013,8 @@
       "sha256": "88250f236a3b75f8b55c1d8afb6af020f8a91b1e81f9fb51f7ef513420d45a2d",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_sign": {
       "path": "static/models/outdoor_sign.glb",
@@ -2960,7 +3022,8 @@
       "sha256": "c658c21672ecd63c5d3e53f06f875d68e6509edb1ab7e3b75374df7c61e7dd0c",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_statue_column": {
       "path": "static/models/outdoor_statue_column.glb",
@@ -2968,7 +3031,8 @@
       "sha256": "5d7f6c8bce8d1dc7ee62b1841376cda331c4359acfa2b9a11dd7e78c14ea9dbb",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_statue_obelisk": {
       "path": "static/models/outdoor_statue_obelisk.glb",
@@ -2976,7 +3040,8 @@
       "sha256": "e18013044ad6453a1850226be29f63c37d67e0002141f5f6a4d14a46bde69e00",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_stone_largeA": {
       "path": "static/models/outdoor_stone_largeA.glb",
@@ -2984,7 +3049,8 @@
       "sha256": "fe486a13775e833b1aca99413a89e013f300841de80f42ecd44ceaf43720f17b",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_stone_tallA": {
       "path": "static/models/outdoor_stone_tallA.glb",
@@ -2992,7 +3058,8 @@
       "sha256": "3070bd574104abce19f5e3c82c917cb7f52801720377beba7aad76058408d5db",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_stump_old": {
       "path": "static/models/outdoor_stump_old.glb",
@@ -3000,7 +3067,8 @@
       "sha256": "4c2d2da34804c1662c6a776a9d60fe4449e6f6fdd50914bfec7d5cca3e9ceddb",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_stump_round": {
       "path": "static/models/outdoor_stump_round.glb",
@@ -3008,7 +3076,8 @@
       "sha256": "e9b0f385f0ef98493ef716a055aa51e0b99efb8445279be7bb8bd83329a4c4af",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_tent_detailedOpen": {
       "path": "static/models/outdoor_tent_detailedOpen.glb",
@@ -3016,7 +3085,8 @@
       "sha256": "d54d9665d07e0ff9680e56731c9f5338fc25d93788504d63b8375f54e6444193",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_tree_blocks": {
       "path": "static/models/outdoor_tree_blocks.glb",
@@ -3024,7 +3094,8 @@
       "sha256": "cb74bda3024bbe396c01b3d5b381a93e6d7c73241079868c19ac420ad52e475c",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_tree_cone": {
       "path": "static/models/outdoor_tree_cone.glb",
@@ -3032,7 +3103,8 @@
       "sha256": "90be4d214ee2cbf79d317677cb87fc11dac9873b73e446b75e8c12825a374272",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_tree_default": {
       "path": "static/models/outdoor_tree_default.glb",
@@ -3040,7 +3112,8 @@
       "sha256": "562d29638c902de3c7bee465d3a53bb77117efbc392ae04ed894faf6b5dc691d",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_tree_detailed": {
       "path": "static/models/outdoor_tree_detailed.glb",
@@ -3048,7 +3121,8 @@
       "sha256": "c041daf2f0fb1d49e4325227cbcd58667adbe51e9b55e8c1f0a94b74cc521b3b",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_tree_fat": {
       "path": "static/models/outdoor_tree_fat.glb",
@@ -3056,7 +3130,8 @@
       "sha256": "84b262c5dda3a91ac6c95f9d8b23a0ebbb1951d678c0e1375d3e32623cc43ee2",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_tree_oak": {
       "path": "static/models/outdoor_tree_oak.glb",
@@ -3064,7 +3139,8 @@
       "sha256": "d7fd8773674928c50c11b66d12c636d49bdcc15a8b1c7fbb98e6f63a3439a3f3",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_tree_palm": {
       "path": "static/models/outdoor_tree_palm.glb",
@@ -3072,7 +3148,8 @@
       "sha256": "27bbb23d26ed788d84de6df2f7fab0acc3fe0ff16c7d08cdcfa1fffcb11de324",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_tree_palmBend": {
       "path": "static/models/outdoor_tree_palmBend.glb",
@@ -3080,7 +3157,8 @@
       "sha256": "8af9dae16ce3c03183f9457996ebdd135167199514e8f4f944ee2bd82828d5c9",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_tree_palmTall": {
       "path": "static/models/outdoor_tree_palmTall.glb",
@@ -3088,7 +3166,8 @@
       "sha256": "cbd2c2ea7d0316be7514d44699527c566ce91e0542e8b6c6bf431a155e5655f6",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_tree_pineRoundA": {
       "path": "static/models/outdoor_tree_pineRoundA.glb",
@@ -3096,7 +3175,8 @@
       "sha256": "7dc9711f31585eafdcb965d0649c30af5e19f2def1955f7a915081d30759ef8e",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_tree_pineTallA_detailed": {
       "path": "static/models/outdoor_tree_pineTallA_detailed.glb",
@@ -3104,7 +3184,8 @@
       "sha256": "9ba6337460e718b8baf165b23c02f39455e3d5757b1911505410c46bc88a86b5",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_tree_simple": {
       "path": "static/models/outdoor_tree_simple.glb",
@@ -3112,7 +3193,8 @@
       "sha256": "93891ea740447634930de19c31a7c1c9f4add94122e6db03aca9f75aea32f9d6",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_tree_small": {
       "path": "static/models/outdoor_tree_small.glb",
@@ -3120,7 +3202,8 @@
       "sha256": "d26c0eeed65cc681667f50042ef23ec72ce47ae3b39837bfeec170b05ba6ab6a",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_tree_tall": {
       "path": "static/models/outdoor_tree_tall.glb",
@@ -3128,7 +3211,8 @@
       "sha256": "3515a8826044d91e84e011186c86878f62024a487a079b4e32c9ac2e71994411",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "outdoor_tree_thin": {
       "path": "static/models/outdoor_tree_thin.glb",
@@ -3136,7 +3220,8 @@
       "sha256": "f0f1f6861fe0446963d3be216cc628324f538bb0841bc9a8e14140313f64e2f3",
       "embeddedGenerator": "UniGLTF-1.27",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "nature-kit"
     },
     "plantSmall1": {
       "path": "static/models/plantSmall1.glb",
@@ -3144,7 +3229,8 @@
       "sha256": "2b9c022feb47be857b2c4fdc29f36522766ba9b70c578c31d7c05d71b4377d15",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "pottedPlant": {
       "path": "static/models/pottedPlant.glb",
@@ -3152,7 +3238,8 @@
       "sha256": "5b760eda2766f75fda36b2c5df652a1662f82981ef64cd8fa7fe7bcd386b3a15",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "shower": {
       "path": "static/models/shower.glb",
@@ -3160,7 +3247,8 @@
       "sha256": "25c1cebad681fe369dc04839a8f08f5da2ccbd99b3a70aa83fe2e4d1590c6951",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "sideTable": {
       "path": "static/models/sideTable.glb",
@@ -3168,7 +3256,8 @@
       "sha256": "8227810584f7d37582e4e9ec821c56f1dc54b99c88a8dc74242ea3b7402bc472",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "tableCoffee": {
       "path": "static/models/tableCoffee.glb",
@@ -3176,7 +3265,8 @@
       "sha256": "e38bea760fbd514efbb75528d09b4752c91af44677bbb97e6d4386c263525179",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "tableCross": {
       "path": "static/models/tableCross.glb",
@@ -3184,7 +3274,8 @@
       "sha256": "f0d83392aff5df82f6c9585cadff694643dbd30a4ff2b8bb01a00a7a161338a3",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "televisionModern": {
       "path": "static/models/televisionModern.glb",
@@ -3192,7 +3283,8 @@
       "sha256": "d89519ad0a5f28b5b0dccb0d83209dccf610cda959578238dd21bbf9e219cfc6",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "toilet": {
       "path": "static/models/toilet.glb",
@@ -3200,7 +3292,8 @@
       "sha256": "16165cfd03c56c2cb443b800570810a22ef770f65e7a468f6761d9dc14eaaeae",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     },
     "washerDryerStacked": {
       "path": "static/models/washerDryerStacked.glb",
@@ -3208,7 +3301,8 @@
       "sha256": "efcc2155ef170092dc2602a98179380de3442c2500998a6ca37cc5554d275676",
       "embeddedGenerator": "UniGLTF-1.24",
       "embeddedCopyright": null,
-      "provenanceStatus": "unverified"
+      "provenanceStatus": "official-archive-byte-match",
+      "sourcePack": "furniture-kit"
     }
   }
 }

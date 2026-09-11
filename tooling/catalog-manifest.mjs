@@ -6,6 +6,7 @@ import { getModelFile } from '../src/lib/utils/furnitureModelFiles.ts';
 
 const root = new URL('../', import.meta.url);
 const output = new URL('docs/furniture-manifest.json', root);
+const provenance = JSON.parse(readFileSync(new URL('docs/furniture-provenance.json', root), 'utf8'));
 const ids = new Set(), models = new Map();
 const items = furnitureCatalog.map(item => {
   if (ids.has(item.id)) throw new Error(`Duplicate catalog ID: ${item.id}`);
@@ -23,10 +24,23 @@ const items = furnitureCatalog.map(item => {
       throw new Error(`Invalid GLB header: ${path}`);
     }
     const asset = JSON.parse(bytes.subarray(20, 20 + bytes.readUInt32LE(12)).toString()).asset ?? {};
+    const sha256 = createHash('sha256').update(bytes).digest('hex');
+    const evidence = provenance.models[model];
+    if (evidence && (evidence.sha256 !== sha256 || !provenance.packs[evidence.pack] || !evidence.archiveMembers?.length)) {
+      throw new Error(`Model changed or provenance is incomplete: ${model}. Reverify the source bytes.`);
+    }
+    if (evidence) {
+      const pack = provenance.packs[evidence.pack];
+      const notice = readFileSync(new URL(pack.licenseFile, root));
+      if (createHash('sha256').update(notice).digest('hex') !== pack.includedLicenseSha256) {
+        throw new Error(`License notice changed: ${evidence.pack}`);
+      }
+    }
     models.set(model, {
-      path, bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex'),
+      path, bytes: bytes.length, sha256,
       embeddedGenerator: asset.generator ?? null, embeddedCopyright: asset.copyright ?? null,
-      provenanceStatus: 'unverified',
+      provenanceStatus: evidence ? 'official-archive-byte-match' : 'unverified',
+      sourcePack: evidence?.pack ?? null,
     });
   }
   return {
@@ -37,13 +51,17 @@ const items = furnitureCatalog.map(item => {
     model: model ?? null,
   };
 });
+for (const model of Object.keys(provenance.models)) {
+  if (!models.has(model)) throw new Error(`Provenance entry is no longer mapped: ${model}`);
+}
 const manifest = {
   format: 'openplan3d-furniture-inventory', version: 1,
   catalogSource: 'src/lib/utils/furnitureCatalog.ts',
   modelMappingSource: 'src/lib/utils/furnitureModelFiles.ts',
   modelPlacement: 'Runtime fits catalog dimensions, centers the footprint and places the bottom at zero; see furnitureModelLoader.ts.',
   nativeSupport: 'Not certified by this inventory; native package preservation and visual support require separate validation.',
-  provenanceNote: 'Embedded metadata is recorded verbatim, not verified attribution or a license determination. Asset provenance remains open.',
+  provenanceSource: 'docs/furniture-provenance.json',
+  provenanceNote: 'Matched models have exact official archive byte evidence; embedded generator metadata alone is not attribution.',
   items, models: Object.fromEntries([...models].sort(([a], [b]) => a.localeCompare(b, 'en'))),
 };
 const text = JSON.stringify(manifest, null, 2) + '\n';
