@@ -1,5 +1,14 @@
 # Browser qualification after shared history fixes
 
+## Chromium milestone
+
+All **366 Chromium cases** now pass across the initial run, focused recovery
+correction and continuation. Completed identities exactly match the Chromium
+portion of the 1,098-case inventory. At this checkpoint Firefox and WebKit each
+also have their focused editor-recovery pass; the continuation has moved to
+Firefox. This is staged coverage, not an uninterrupted full-suite pass. Session
+`10120` remains the active continuation handle; runtime sources remain unchanged.
+
 Runtime under test: `ddf7d9094bb9ae1b27596e6a69b0473c737cdc91`.
 
 The current full unit suite passed 1,032 tests in 97 files (24.08 seconds),
