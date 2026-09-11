@@ -41,3 +41,34 @@ test('Portuguese swing and midpoint split actions preserve openings and undo', a
   await page.getByRole('button', { name: 'Desfazer', exact: true }).click();
   expect(await exported()).toEqual(original);
 });
+
+for (const kind of ['door', 'window']) test(`midpoint split explains and preserves a crossing ${kind}`, async ({ page }) => {
+  const plan = JSON.parse(await readFile('tests/fixtures/connected-dimensions.openplan.json', 'utf8'));
+  const floor = plan.floors[0];
+  floor.doors = kind === 'door' ? floor.doors : [];
+  floor.windows = kind === 'window' ? floor.windows : [];
+  const opening = [...floor.doors, ...floor.windows][0];
+  opening.wallId = floor.walls[0].id;
+  opening.position = .5;
+  await page.addInitScript(() => localStorage.setItem('o3d_locale', 'pt'));
+  await page.goto('/editor');
+  await page.getByRole('button', { name: 'Exportar', exact: true }).click();
+  const chooser = page.waitForEvent('filechooser');
+  await page.getByRole('button', { name: 'Importar JSON', exact: true }).click();
+  await (await chooser).setFiles({ name: 'crossing.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(plan)) });
+  async function exported() {
+    await page.getByRole('button', { name: 'Exportar', exact: true }).click();
+    const pending = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Baixar JSON', exact: true }).click();
+    return JSON.parse(await readFile((await (await pending).path())!, 'utf8')).floors[0];
+  }
+  const before = await exported();
+  await page.getByRole('button', { name: 'Salvar', exact: true }).press('l');
+  await page.getByRole('button', { name: '─ Parede 1', exact: true }).click();
+  await page.getByRole('button', { name: 'Dividir parede ao meio', exact: true }).click();
+  const notice = page.getByRole('status').filter({ hasText: 'Escolha um ponto de divisão fora de portas e janelas.' });
+  await expect(notice).toBeVisible();
+  expect(await exported()).toEqual(before);
+  await notice.getByRole('button').click();
+  await expect(notice).toHaveCount(0);
+});

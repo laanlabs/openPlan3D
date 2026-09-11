@@ -992,6 +992,20 @@ export function moveWallParallel(id: string, dx: number, dy: number) {
   }
 }
 
+/** An opening belongs to one wall, so a split cannot cross its interior. */
+export function wallSplitIntersectsOpening(id: string, t: number): boolean {
+  const p = get(currentProject);
+  const floor = p?.floors.find(f => f.id === p.activeFloorId);
+  const wall = floor?.walls.find(w => w.id === id);
+  if (!floor || !wall || !Number.isFinite(t)) return false;
+  const length = Math.hypot(wall.end.x - wall.start.x, wall.end.y - wall.start.y);
+  const splitDistance = t * length;
+  return [...floor.doors, ...floor.windows].some(opening =>
+    opening.wallId === id &&
+    Math.abs(splitDistance - opening.position * length) < opening.width / 2 - 1e-7
+  );
+}
+
 /** Split a wall into two segments at a given parameter t (0-1) */
 export function splitWall(id: string, t: number): string | null {
   const p = get(currentProject);
@@ -1001,6 +1015,7 @@ export function splitWall(id: string, t: number): string | null {
   const w = floor.walls.find((w) => w.id === id);
   if (!w || w.curvePoint) return null; // don't split curved walls
   if (!Number.isFinite(t) || t <= 0.001 || t >= 0.999) return null; // prevent division by zero at extremes
+  if (wallSplitIntersectsOpening(id, t)) return null;
   snapshot('Split wall');
   const midPt: Point = {
     x: w.start.x + (w.end.x - w.start.x) * t,

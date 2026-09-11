@@ -1075,6 +1075,7 @@ export const pt = {
   "canvasStatus.objectsMany": "{count} objetos",
   "canvasStatus.selected": "{count} selecionados",
   "canvasStatus.zoom": "Zoom: {value}%",
+  "canvasActions.splitBlocked": "Escolha um ponto de divisão fora de portas e janelas. Dividir uma abertura alteraria sua geometria.",
   "canvasActions.flipSwing": "Inverter abertura",
   "canvasActions.splitMidpoint": "Dividir parede ao meio"
 } as const;

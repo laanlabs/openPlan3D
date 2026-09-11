@@ -163,7 +163,13 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
-Latest full web unit checkpoint: **939 tests across 87 files passed** at `85f42dc`
+Latest full web unit checkpoint: **943 tests across 87 files passed** with the
+opening-safe wall split change (5.06 seconds). Check/build and nine contextual
+wall-action browser cases across Chromium, Firefox and WebKit also pass (52.9
+seconds). Splits crossing opening interiors are rejected without mutation; exact
+opening-edge splits remain supported. Full browser/device/release gates remain.
+
+Earlier full web unit checkpoint: **939 tests across 87 files passed** at `85f42dc`
 (4.48 seconds). Six existing English wall-dimension cases pass across three
 engines at desktop/narrow widths (2.3 minutes), retaining connected edits,
 opening values, invalid-input recovery, imperial precision and persistence.
@@ -3585,3 +3591,14 @@ Three Portuguese browser cases pass at `2c620e9` (24.2 seconds), checking saved
 swing changes, midpoint endpoints and sloped heights, opening dimensions/centers
 and exact Undo restoration. No runtime changes were needed. Openings spanning
 the split point, curved splitting and device/release requirements stay open.
+
+### Prevent splits from clipping openings — 2026-09-11
+
+Reproduced door/window crossing splits mutating their owning wall. Since an
+opening has one wall reference, splitting through its interior now returns null
+before taking an undo snapshot. Splits exactly at opening edges remain allowed.
+All three canvas split entry points use a shared wrapper with an English/Portuguese
+dismissible explanation. Check/build, 943 unit tests and nine browser cases pass;
+browser checks cover crossing door/window preservation, notice dismissal and
+existing safe split/swing/Undo behavior. Curved splitting, physical gestures and
+the remaining native/release backlog stay open.

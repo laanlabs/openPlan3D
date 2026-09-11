@@ -1428,3 +1428,22 @@ The first run used an incorrect layer name; the fixture's actual name is
 “Porta aberta 1”. Log: `/tmp/web-canvas-wall-actions-browser-final.log`.
 No runtime changes were needed. This does not cover an opening spanning the split
 point, curved-wall splitting or physical gestures; remaining NEXT scope stays open.
+
+## Opening-safe wall split — 2026-09-11
+
+A failing unit reproduction at c6fc1d3 showed splits through doors/windows changed
+their owning wall. The store now rejects crossing splits before snapshot/mutation;
+edge-touching splits remain valid. Toolbar, context menu and double-click use a
+shared wrapper showing a dismissible translated explanation (also cleared by
+Escape). The schema still associates each opening with one wall.
+
+Check/build pass with no Svelte diagnostics. All 943 tests in 87 unit files pass
+(5.06 seconds), including unchanged data on rejection and center/width preservation
+at either edge. Nine browser cases pass on Chromium, Firefox and WebKit (52.9
+seconds): safe split and swing Undo, crossing door/window exact floor preservation,
+Portuguese feedback and dismissal. Browser coverage exercises the floating toolbar;
+context-menu/double-click entry points share the wrapper but were not separately
+driven in this batch. Curved splitting and physical-device qualification remain.
+Logs: `/tmp/web-split-opening-repro.log`, `/tmp/web-split-opening-check.log`,
+`/tmp/web-split-opening-build.log`, `/tmp/web-split-opening-all-unit.log`,
+`/tmp/web-split-opening-browser.log`.

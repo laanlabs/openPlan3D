@@ -1075,6 +1075,7 @@ export const en = {
   "canvasStatus.objectsMany": "{count} objects",
   "canvasStatus.selected": "{count} selected",
   "canvasStatus.zoom": "Zoom: {value}%",
+  "canvasActions.splitBlocked": "Choose a split point outside doors and windows. Splitting through an opening would change its geometry.",
   "canvasActions.flipSwing": "Flip swing",
   "canvasActions.splitMidpoint": "Split wall at midpoint"
 } as const;

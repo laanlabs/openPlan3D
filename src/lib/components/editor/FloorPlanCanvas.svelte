@@ -7,7 +7,7 @@
   import { planContentBounds, hasPlanContent } from '$lib/utils/planContentBounds';
   import { connectedWallEndpoints } from '$lib/utils/wallEditing';
   import { createDrawScheduler } from '$lib/utils/drawScheduler';
-  import { activeFloor, selectedTool, selectedElementId, selectedElementIds, selectedRoomId, addWall, addDoor, addWindow, updateWall, moveWallEndpoint, moveWallGeometryDuringDrag, updateDoor, updateWindow, addFurniture, moveFurniture, transformFurnitureDuringDrag, rotateFurniture, rotateSelection, setFurnitureRotation, scaleFurniture, removeElement, placingFurnitureId, placingRotation, placingDoorType, placingWindowType, detectedRoomsStore, duplicateDoor, duplicateWindow, duplicateFurniture, duplicateSelection, pasteSelection, moveWallParallel, splitWall, snapEnabled, placingStair, addStair, moveStair, updateStair, placingColumn, placingColumnShape, addColumn, moveColumn, updateColumn, calibrationMode, calibrationPoints, updateBackgroundImage, setBackgroundImage, canvasZoom, canvasMinimumZoom, canvasCamX, canvasCamY, panMode, showFurnitureStore, addGuide, moveGuide, removeGuide, beginUndoGroup, endUndoGroup, layerVisibility, updateRoom, addMeasurement, updateMeasurement, removeMeasurement, addAnnotation, removeAnnotation, updateAnnotation, addTextAnnotation, removeTextAnnotation, updateTextAnnotation, moveTextAnnotation, toggleFurnitureLock, toggleSelectionLock, createGroup, ungroupElements, findGroupForElement, placingEntourageId, addEntourageItem, moveEntourage, resizeEntourage, currentProject, elevationWallId, elevationPickMode } from '$lib/stores/project';
+  import { activeFloor, selectedTool, selectedElementId, selectedElementIds, selectedRoomId, addWall, addDoor, addWindow, updateWall, moveWallEndpoint, moveWallGeometryDuringDrag, updateDoor, updateWindow, addFurniture, moveFurniture, transformFurnitureDuringDrag, rotateFurniture, rotateSelection, setFurnitureRotation, scaleFurniture, removeElement, placingFurnitureId, placingRotation, placingDoorType, placingWindowType, detectedRoomsStore, duplicateDoor, duplicateWindow, duplicateFurniture, duplicateSelection, pasteSelection, moveWallParallel, splitWall, wallSplitIntersectsOpening, snapEnabled, placingStair, addStair, moveStair, updateStair, placingColumn, placingColumnShape, addColumn, moveColumn, updateColumn, calibrationMode, calibrationPoints, updateBackgroundImage, setBackgroundImage, canvasZoom, canvasMinimumZoom, canvasCamX, canvasCamY, panMode, showFurnitureStore, addGuide, moveGuide, removeGuide, beginUndoGroup, endUndoGroup, layerVisibility, updateRoom, addMeasurement, updateMeasurement, removeMeasurement, addAnnotation, removeAnnotation, updateAnnotation, addTextAnnotation, removeTextAnnotation, updateTextAnnotation, moveTextAnnotation, toggleFurnitureLock, toggleSelectionLock, createGroup, ungroupElements, findGroupForElement, placingEntourageId, addEntourageItem, moveEntourage, resizeEntourage, currentProject, elevationWallId, elevationPickMode } from '$lib/stores/project';
   import type { Point, Wall, Door, Window as Win, FurnitureItem, Stair, Column, GuideLine, Measurement, Annotation, TextAnnotation, CustomEntourageDef } from '$lib/models/types';
   import type { Floor, Room } from '$lib/models/types';
   import { resolveRoomGeometry, roomLabelPosition, roomCentroid } from '$lib/utils/roomDetection';
@@ -33,6 +33,12 @@
 
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
+  let splitBlocked = $state(false);
+  function trySplitWall(id: string, t: number): string | null {
+    splitBlocked = wallSplitIntersectsOpening(id, t);
+    return splitWall(id, t);
+  }
+
   let width = $state(800);
   let height = $state(600);
   let zoomControlsBottom = $state(12);
@@ -2707,7 +2713,7 @@
       if (wall && !wall.curvePoint) {
         const t = positionOnWall(wp, wall);
         if (t > 0.05 && t < 0.95) {
-          const newId = splitWall(wall.id, t);
+          const newId = trySplitWall(wall.id, t);
           if (newId) {
             selectedElementId.set(null);
             return;
@@ -3396,6 +3402,7 @@
 
     // Canvas-specific Escape handling (before global shortcut eats it)
     if (e.code === 'Escape') {
+      splitBlocked = false;
       calibrationMode.set(false);
       calibrationPoints.set([]);
       finishCanvasGesture();
@@ -3749,7 +3756,7 @@
 
       // Wall actions
       case 'split-wall':
-        if (id) { const newId = splitWall(id, 0.5); if (newId) selectedElementId.set(null); }
+        if (id) { const newId = trySplitWall(id, 0.5); if (newId) selectedElementId.set(null); }
         break;
       case 'toggle-curve':
         if (id && ctxMenuWall) {
@@ -4151,7 +4158,7 @@
             aria-label={$t('canvasActions.splitMidpoint')}
             onclick={() => {
               if (currentSelectedId) {
-                const newId = splitWall(currentSelectedId, 0.5);
+                const newId = trySplitWall(currentSelectedId, 0.5);
                 if (newId) selectedElementId.set(null);
               }
             }}
@@ -4254,6 +4261,13 @@
       onclick={() => zoomToFit(true)}
     >⊡</button>
   </div>
+
+  {#if splitBlocked}
+    <div role="status" class="absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 shadow-md max-w-[90%]">
+      <span>{$t('canvasActions.splitBlocked')}</span>
+      <button class="shrink-0 underline" onclick={() => { splitBlocked = false; }}>{$t('editorRecovery.dismiss')}</button>
+    </div>
+  {/if}
 
   <!-- Context Menu -->
   <ContextMenu
