@@ -1365,3 +1365,17 @@ Logs: `/tmp/web-viewer-export-check.log`, `/tmp/web-viewer-export-build.log`,
 `/tmp/web-viewer-export-unit.log`, `/tmp/web-viewer-export-browser.log`.
 Export failure branches and external Blender rendering were not requalified here;
 physical-device and remaining NEXT requirements stay open.
+
+## Known AI render error localization
+
+Added a display map for five known app-owned render messages: cancellation, model
+storage failure, generic render failure, missing Gemini key and empty image
+response. Unknown provider diagnostics and copied raw diagnostic text remain
+unchanged. Production check reports zero errors/warnings; build and five
+localization unit tests pass. Three browser cases pass (35.8 seconds, exit 0),
+including a missing-key render attempt with Portuguese guidance, enabled retry
+button and no external request, alongside previous prompt-preservation checks.
+Logs: `/tmp/web-ai-errors-check.log`, `/tmp/web-ai-errors-build.log`,
+`/tmp/web-ai-errors-unit.log`, `/tmp/web-ai-errors-browser.log`.
+Other mapped failure branches were not newly fault-injected; physical-device,
+provider and remaining NEXT qualification stay open.

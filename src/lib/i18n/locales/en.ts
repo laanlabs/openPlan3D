@@ -1057,5 +1057,10 @@ export const en = {
   "viewerExport.success": "Exported neutral geometry for the local Blender worker. Textures and photo cameras are omitted.",
   "viewerExport.notReady": "The 3D scene is not ready.",
   "viewerExport.failed": "Could not export the render scene.",
-  "viewerExport.elevation": "{name} · {value} cm elevation"
+  "viewerExport.elevation": "{name} · {value} cm elevation",
+  "aiRenderMessage.cancelled": "Request cancelled. The provider may still finish and charge for work already started.",
+  "aiRenderMessage.storage": "Browser storage is unavailable. This model will be used for this render only.",
+  "aiRenderMessage.failed": "Rendering failed.",
+  "aiRenderMessage.key": "Please add your Gemini API key in Settings → AI first.",
+  "aiRenderMessage.noImage": "No image returned. Try a different model or prompt."
 } as const;

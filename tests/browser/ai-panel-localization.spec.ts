@@ -27,6 +27,11 @@ test('Portuguese AI choices preserve provider prompt values without sending an i
   await expect(viewer.getByRole('button', { name: '✨ Gerar renderização fotorrealista', exact: true })).toBeVisible();
   await viewer.getByRole('button', { name: 'OpenAI', exact: true }).click();
   await expect(viewer.getByText('A imagem da câmera é enviada diretamente a este provedor. O provedor pode cobrar pelo serviço.', { exact: true })).toBeVisible();
+  await viewer.getByRole('button', { name: 'Gemini', exact: true }).click();
+  await viewer.getByRole('button', { name: '✨ Gerar renderização fotorrealista', exact: true }).click();
+  await expect(viewer.getByText('❌ Falha na renderização com IA', { exact: true })).toBeVisible();
+  await expect(viewer.locator('pre')).toHaveText('Adicione sua chave de API do Gemini em Configurações → IA primeiro.');
+  await expect(viewer.getByRole('button', { name: '✨ Gerar renderização fotorrealista', exact: true })).toBeEnabled();
   await viewer.getByRole('button', { name: 'Ocultar IA', exact: true }).click();
   await expect(prompt).toHaveCount(0);
   expect(external).toEqual([]);

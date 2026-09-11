@@ -1057,5 +1057,10 @@ export const pt = {
   "viewerExport.success": "Geometria neutra exportada para o processador local do Blender. Texturas e câmeras de fotos não são incluídas.",
   "viewerExport.notReady": "A cena 3D ainda não está pronta.",
   "viewerExport.failed": "Não foi possível exportar a cena de renderização.",
-  "viewerExport.elevation": "{name} · elevação de {value} cm"
+  "viewerExport.elevation": "{name} · elevação de {value} cm",
+  "aiRenderMessage.cancelled": "Solicitação cancelada. O provedor ainda pode concluir e cobrar pelo trabalho já iniciado.",
+  "aiRenderMessage.storage": "O armazenamento do navegador está indisponível. Este modelo será usado apenas nesta renderização.",
+  "aiRenderMessage.failed": "Falha na renderização.",
+  "aiRenderMessage.key": "Adicione sua chave de API do Gemini em Configurações → IA primeiro.",
+  "aiRenderMessage.noImage": "Nenhuma imagem foi retornada. Tente outro modelo ou prompt."
 } as const;

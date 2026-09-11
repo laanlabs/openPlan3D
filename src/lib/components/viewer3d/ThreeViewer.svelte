@@ -2,6 +2,7 @@
   import { t, type TranslationKey } from '$lib/i18n';
   import { catalogCategoryLabels } from '$lib/i18n/catalogCategories';
   import { aiRenderLabels } from '$lib/i18n/aiRenderLabels';
+  import { aiRenderMessages } from '$lib/i18n/aiRenderMessages';
   import { hasOpenModal } from '$lib/utils/modalDialog';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
@@ -2348,7 +2349,7 @@
           {#if aiRenderError}
             <div class="bg-red-900/30 border border-red-700 rounded-lg p-3 space-y-2">
               <div class="text-xs font-medium text-red-400">{$t('viewerAI.failed')}</div>
-              <pre class="text-[10px] text-red-300 whitespace-pre-wrap break-all max-h-32 overflow-y-auto select-all cursor-text font-mono bg-red-950/40 rounded p-2">{aiRenderError}</pre>
+              <pre class="text-[10px] text-red-300 whitespace-pre-wrap break-all max-h-32 overflow-y-auto select-all cursor-text font-mono bg-red-950/40 rounded p-2">{aiRenderMessages[aiRenderError] ? $t(aiRenderMessages[aiRenderError]) : aiRenderError}</pre>
               <button
                 class="text-[10px] text-red-400 hover:text-red-300 underline"
                 onclick={() => { navigator.clipboard.writeText(aiRenderError ?? ''); }}
