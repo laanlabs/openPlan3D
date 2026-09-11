@@ -163,6 +163,13 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+Project-service translation now has a successful production build and **nine
+passing browser cases** across Chromium, Firefox and WebKit (3.0 minutes):
+desktop/phone quota-blocked opening, reactive language changes, original-byte
+preservation, backup/retry/import and existing save-status localization. The phone
+test now opens Settings from More actions. Broader opening qualification remains
+pending after one diagnostic-screenshot timeout in the first combined run.
+
 The seventh audit stopped after 577 additional passes on WebKit's native form
 Undo grouping. A plain HTML form reproduces its grouped note/numeric-draft Undo.
 The keyboard regression now saves/verifies/reloads numeric edits before testing

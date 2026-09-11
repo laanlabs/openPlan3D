@@ -2089,3 +2089,22 @@ The seventh audit is terminal. Including its passes and the successful follow-up
 gives 846 distinct cases in the original 1,050-case inventory, leaving 204.
 The translation build/qualification is now the next batch; preserve the distinction
 between the old runtime audit and the new source's six additional recovery cases.
+
+### 2026-09-11: Project-service translations built and browser-qualified
+
+The production build passed (`/tmp/web-project-service-messages-build.log`). The
+first combined 30-case run was deliberately stopped after a new phone selector
+omission: Settings lives inside More actions at 390px. It recorded eight passes,
+two failures and one interrupted case. The other failure was the existing
+Chromium desktop same-ID workflow timing out during its final diagnostic screenshot
+after behavioral assertions; broader opening verification remains pending.
+Log: `/tmp/web-project-service-recovery-browser.log`.
+
+The phone selector now opens More actions before Settings. All nine focused
+translation/save cases pass across Chromium, Firefox and WebKit in 3.0 minutes.
+They verify quota rejection at the IndexedDB boundary, unchanged original bytes,
+language changes with an existing alert, backup geometry, retry persistence and
+successful later import, plus existing relative save-time localization.
+Log: `/tmp/web-project-service-localization-browser.log`.
+The new source has 987 passing unit cases and zero Svelte diagnostics from the
+earlier checks. Full browser audit completion and physical-device gates remain open.

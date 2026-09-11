@@ -46,6 +46,7 @@ for (const width of [1440, 390]) {
     expect(page.url()).toBe(originalURL);
     expect(await storedRecords(page)).toEqual(original);
 
+    if (width < 1280) await page.getByRole('button', { name: 'Mais ações', exact: true }).click();
     await page.getByRole('button', { name: 'Configurações', exact: true }).click();
     await page.getByRole('button', { name: 'Aparência', exact: true }).click();
     await page.getByRole('combobox', { name: 'Idioma', exact: true }).selectOption('en');
