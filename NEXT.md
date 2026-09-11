@@ -163,6 +163,14 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+Package diagnostics now translate the invalid-package prefix, known ZIP/JSON
+validation, size limits, unsupported manifests and damaged filenames. Unknown
+details remain intact. Thirty focused unit/dictionary checks, zero Svelte
+diagnostics, the production build and 15 transfer browser cases pass across three
+engines (2.4 minutes). Rejected packages leave records unchanged and a subsequent
+valid package imports successfully. This is scoped post-audit verification;
+native-plan/attachment-specific validation and package preview notices remain open.
+
 Backup preview warnings now translate known damaged-project/version counts,
 missing attachments, recovery archives, unreadable history, mismatched IDs and
 unsupported thumbnails. Twenty-three focused unit/dictionary checks, zero Svelte

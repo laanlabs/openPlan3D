@@ -14,6 +14,30 @@ const keys: ServiceKey[] = [
   'projectService.backupHistoryUnreadable', 'projectService.backupPreviewUnsupported',
 ];
 const messages = new Map(keys.map(key => [translate('en', key), key]));
+const packageKeys: ServiceKey[] = [
+  'projectService.packageOversized',
+  'projectService.packagePathDirectory', 'projectService.packageSize',
+  'projectService.packageLayout', 'projectService.packageDirectory',
+  'projectService.packageDirectoryDamaged', 'projectService.packageCompression',
+  'projectService.packagePath', 'projectService.packageHeaders',
+  'projectService.packageBoundaries', 'projectService.packageUnexpected',
+  'projectService.packageTooMany', 'projectService.packageLimit',
+  'projectService.packageJSONSize', 'projectService.packageJSONUnreadable',
+  'projectService.packageJSONDepth', 'projectService.packageJSONDuplicate',
+  'projectService.packageJSONObject', 'projectService.packageManifest',
+];
+const packageMessages = new Map(packageKeys.map(key => [translate('en', key), key]));
+
+function packageMessage(message: string, language: Locale): string {
+  const prefix = `${translate('en', 'projectService.packageInvalid')} `;
+  if (!message.startsWith(prefix)) return message;
+  const detail = message.slice(prefix.length);
+  const key = packageMessages.get(detail);
+  const damaged = /^The file ([\s\S]+) is damaged\.$/.exec(detail);
+  const translated = key ? translate(language, key) : damaged
+    ? translate(language, 'projectService.packageFileDamaged', { name: damaged[1] }) : detail;
+  return `${translate(language, 'projectService.packageInvalid')} ${translated}`;
+}
 const counts: { pattern: RegExp; one: ServiceKey; many: ServiceKey }[] = [
   { pattern: /^(\d+) damaged versions? kept for recovery\.$/, one: 'projectService.backupDamagedVersionOne', many: 'projectService.backupDamagedVersionMany' },
   { pattern: /^(\d+) damaged projects? will be kept for recovery instead of opened\.$/, one: 'projectService.backupDamagedProjectOne', many: 'projectService.backupDamagedProjectMany' },
@@ -26,7 +50,7 @@ function countedMessage(message: string, language: Locale): string {
     const match = pattern.exec(message);
     if (match) return translate(language, match[1] === '1' ? one : many, { count: match[1] });
   }
-  return message;
+  return packageMessage(message, language);
 }
 const outcomes = (['welcome.noImport', 'restore.retry', 'package.retry'] as const)
   .flatMap(key => (['en', 'pt'] as const).map(locale => ({ key, text: ` ${translate(locale, key)}` })));

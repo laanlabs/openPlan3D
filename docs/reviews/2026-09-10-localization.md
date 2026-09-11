@@ -2257,3 +2257,24 @@ Logs: `/tmp/web-backup-warnings-unit.log` (initial fixture failure),
 This is scoped post-audit evidence, not a fresh full-suite result. General
 project-validator diagnostics, package-specific messages and device/release gates
 remain open.
+
+### 2026-09-11: Package ZIP and JSON diagnostics
+
+The shared display translator now recognizes the invalid-package prefix and
+known ZIP/JSON reader/writer diagnostics, file-size limits and unsupported
+manifests. Damaged-file messages preserve the original filename; unknown details
+retain their original text within the translated prefix. Package parsing,
+validation rules, export bytes and storage behavior are unchanged.
+
+Thirty focused service-message/dictionary checks pass. New cases invoke the real
+ZIP/JSON readers with malformed data and a checksum-corrupted file. Svelte reports
+zero errors/warnings and the production build passes. All 15 transfer browser
+cases pass across Chromium, Firefox and WebKit (2.4 minutes). The new case verifies
+two rejected uploads, Portuguese messages, disabled confirmation, unchanged saved
+records, then a successful valid-file import without reopening the dialog.
+
+Logs: `/tmp/web-package-validation-unit.log`,
+`/tmp/web-package-validation-check.log`, `/tmp/web-package-validation-build.log`,
+`/tmp/web-package-validation-browser.log`. This is scoped post-audit verification,
+not a fresh full-suite result. Native-plan and attachment-specific diagnostics,
+package preview notices and physical/native/release gates remain open.

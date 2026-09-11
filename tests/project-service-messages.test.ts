@@ -4,8 +4,32 @@ import { storageErrorMessage, ProjectConflictError } from '../src/lib/services/d
 import { translate } from '../src/lib/i18n';
 import { prepareLibraryRestore } from '../src/lib/services/libraryRestore';
 import { readFileSync } from 'node:fs';
+import { packageJSON, readPackageZip, writePackageZip } from '../src/lib/utils/projectPackageZip';
 
 describe('project service diagnostics', () => {
+  it.each([
+    [() => readPackageZip(new Uint8Array()), 'O arquivo deve ser um pacote ZIP com menos de 64 MiB.'],
+    [() => readPackageZip(new Uint8Array(22)), 'Estrutura ZIP incompatível. Exporte um novo pacote de projeto do OpenPlan3D.'],
+    [() => packageJSON(undefined), 'Documento JSON ausente ou grande demais.'],
+    [() => packageJSON(new TextEncoder().encode('{')), 'Um documento JSON está ilegível.'],
+    [() => packageJSON(new TextEncoder().encode('{"a":1,"a":2}')), 'Um documento JSON contém chaves duplicadas.'],
+    [() => packageJSON(new TextEncoder().encode('[]')), 'Era esperado um objeto JSON.'],
+  ] as const)('translates package reader errors: %s', (read, expected) => {
+    let message = '';
+    try { read(); } catch (error) { message = (error as Error).message; }
+    expect(projectServiceMessage(message, 'pt')).toBe(`Pacote de projeto inválido: ${expected}`);
+    expect(projectServiceMessage(message, 'en')).toBe(message);
+  });
+
+  it('retains the damaged package filename and unknown details', () => {
+    const bytes = writePackageZip({ 'assets/photo.png': new Uint8Array([1, 2, 3]) });
+    bytes[30 + 'assets/photo.png'.length] ^= 1;
+    let message = '';
+    try { readPackageZip(bytes); } catch (error) { message = (error as Error).message; }
+    expect(projectServiceMessage(message, 'pt')).toBe('Pacote de projeto inválido: O arquivo assets/photo.png está danificado.');
+    expect(projectServiceMessage(message, 'en')).toBe(message);
+    expect(projectServiceMessage('Invalid project package: Unknown {detail}.', 'pt')).toBe('Pacote de projeto inválido: Unknown {detail}.');
+  });
   it.each([1, 2])('translates real recovery warnings with %i damaged records', count => {
     const data = JSON.parse(readFileSync('tests/fixtures/library-backup.json', 'utf8'));
     const id = Object.keys(data.projects)[0];

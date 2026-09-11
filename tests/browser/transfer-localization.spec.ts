@@ -2,6 +2,37 @@ import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { failProjectWrites, savedProjects, storedRecords } from './storage';
 
+test('Portuguese package rejection leaves saved records unchanged and allows another file', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('hasSeenWelcome', 'true');
+    localStorage.setItem('o3d_locale', 'pt');
+  });
+  await page.goto('/');
+  await expect(page.getByText('Nenhum projeto ainda', { exact: true })).toBeVisible();
+  const before = await storedRecords(page);
+  await page.getByRole('button', { name: 'Importar pacote de projeto', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: 'Importar pacote de projeto', exact: true });
+  for (const [buffer, message] of [
+    [Buffer.from('invalid'), 'O arquivo deve ser um pacote ZIP com menos de 64 MiB.'],
+    [Buffer.alloc(22), 'Estrutura ZIP incompatível. Exporte um novo pacote de projeto do OpenPlan3D.'],
+  ] as const) {
+    const chooser = page.waitForEvent('filechooser');
+    await dialog.getByRole('button', { name: 'Escolher pacote de projeto', exact: true }).click();
+    await (await chooser).setFiles({ name: 'invalid.zip', mimeType: 'application/zip', buffer });
+    await expect(dialog.getByRole('alert')).toHaveText(`Pacote de projeto inválido: ${message}`);
+    await expect(dialog.getByRole('button', { name: 'Importar como cópia', exact: true })).toBeDisabled();
+    expect(await storedRecords(page)).toEqual(before);
+  }
+  const chooser = page.waitForEvent('filechooser');
+  await dialog.getByRole('button', { name: 'Escolher pacote de projeto', exact: true }).click();
+  await (await chooser).setFiles('tests/fixtures/native-project-package.zip');
+  await expect(dialog).toContainText('arquivos anexos');
+  await expect(dialog.getByRole('alert')).toHaveCount(0);
+  await dialog.getByRole('button', { name: 'Importar como cópia', exact: true }).click();
+  await expect(dialog.getByRole('status')).toContainText('Projeto importado.');
+  expect(Object.keys(await savedProjects(page))).toHaveLength(1);
+});
+
 test('Portuguese recovery preview explains damage and preserves the backup', async ({ page }) => {
   const data = JSON.parse(await readFile('tests/fixtures/library-backup.json', 'utf8'));
   const id = Object.keys(data.projects)[0];
