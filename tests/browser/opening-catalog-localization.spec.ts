@@ -8,7 +8,7 @@ test('Portuguese opening catalog places original door and window types', async (
   });
   await page.goto('/editor');
   await page.getByRole('button', { name: /^Desenhar parede W/ }).click();
-  const canvas = page.getByLabel('Floor plan editor canvas', { exact: true });
+  const canvas = page.getByLabel(/^(?:Floor plan editor canvas|Área de edição da planta baixa)$/, { exact: true });
   await canvas.click({ position: { x: 100, y: 250 } });
   await canvas.click({ position: { x: 700, y: 250 } });
   await page.keyboard.press('Escape');

@@ -20,7 +20,7 @@ for (const method of ['drop', 'click']) for (const kind of ['door', 'window']) t
   }
   const before = await exported();
   await page.getByRole('button', { name: 'Zoom em 100%', exact: true }).click();
-  const canvas = page.getByLabel('Floor plan editor canvas', { exact: true });
+  const canvas = page.getByLabel(/^(?:Floor plan editor canvas|Área de edição da planta baixa)$/, { exact: true });
   const bounds = (await canvas.boundingBox())!;
   const card = page.getByRole('button', { name: kind === 'door' ? 'Simples 90cm de abrir' : 'Fixa 100×100cm', exact: true });
   const position = { x: bounds.width / 2, y: bounds.height / 2 + 150 };

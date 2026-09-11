@@ -11,7 +11,7 @@ test('Portuguese presentation symbols retain their IDs and sizes through placeme
   const person = page.getByRole('button', { name: 'Pessoa', exact: true });
   await expect(person).toHaveAttribute('title', 'Pessoa (55 cm) — clique na planta para posicionar; Shift+clique para inserir vários');
   await person.click();
-  const canvas = page.getByLabel('Floor plan editor canvas', { exact: true });
+  const canvas = page.getByLabel(/^(?:Floor plan editor canvas|Área de edição da planta baixa)$/, { exact: true });
   await canvas.click({ position: { x: 300, y: 250 } });
   await page.getByRole('button', { name: 'Alternar painel de camadas', exact: true }).click();
   await expect(page.getByRole('button', { name: '🌳 Pessoa', exact: true })).toBeVisible();

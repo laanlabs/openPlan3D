@@ -8,7 +8,7 @@ for (const locale of ['en', 'pt']) for (const width of [1440, 390]) {
     await page.addInitScript(() => {
       const fill = CanvasRenderingContext2D.prototype.fillText;
       CanvasRenderingContext2D.prototype.fillText = function(text, x, y, maxWidth) {
-        if ((text.startsWith('Left') || text.startsWith('Right')) && this.canvas.getAttribute('aria-label') === 'Floor plan editor canvas') {
+        if ((text.startsWith('Left') || text.startsWith('Right')) && /^(?:Floor plan editor canvas|Área de edição da planta baixa)$/.test(this.canvas.getAttribute('aria-label') ?? '')) {
           const p = new DOMPoint(x, y).matrixTransform(this.getTransform()), b = this.canvas.getBoundingClientRect();
           const points = (window as any).__extentPoints ??= {};
           const metrics = this.measureText(text), key = text.startsWith('Left') ? 'Left' : 'Right';
@@ -41,7 +41,7 @@ for (const locale of ['en', 'pt']) for (const width of [1440, 390]) {
     await expect.poll(async () => (await span()) / initial).toBeCloseTo(.8, 2);
     await page.getByRole('button', { name: locale === 'pt' ? 'Ampliar zoom' : 'Zoom in', exact: true }).click();
     await expect.poll(async () => (await span()) / initial).toBeCloseTo(1, 2);
-    const canvas = page.getByLabel('Floor plan editor canvas', { exact: true });
+    const canvas = page.getByLabel(/^(?:Floor plan editor canvas|Área de edição da planta baixa)$/, { exact: true });
     const bounds = (await canvas.boundingBox())!;
     await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
     await page.mouse.wheel(0, 100);

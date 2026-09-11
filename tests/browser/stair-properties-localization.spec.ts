@@ -5,7 +5,7 @@ test('Portuguese stair properties preserve layout IDs and edited geometry', asyn
   await page.addInitScript(() => localStorage.setItem('o3d_locale', 'pt'));
   await page.goto('/editor');
   await page.getByRole('button', { name: /^Adicionar escada Clique para posicionar a escada$/ }).click();
-  await page.getByLabel('Floor plan editor canvas', { exact: true }).click({ position: { x: 300, y: 250 } });
+  await page.getByLabel(/^(?:Floor plan editor canvas|Área de edição da planta baixa)$/, { exact: true }).click({ position: { x: 300, y: 250 } });
   const panel = page.locator('[data-plan-properties]');
   await expect(panel.getByRole('heading', { name: /Propriedades da escada/ })).toBeVisible();
   async function exported() {

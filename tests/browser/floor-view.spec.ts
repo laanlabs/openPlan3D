@@ -8,7 +8,7 @@ for (const locale of ['en', 'pt']) for (const width of [1440, 390]) {
     await page.addInitScript(() => {
       const fill = CanvasRenderingContext2D.prototype.fillText;
       CanvasRenderingContext2D.prototype.fillText = function(text, x, y, maxWidth) {
-        if (text.startsWith('QA floor ') && this.canvas.getAttribute('aria-label') === 'Floor plan editor canvas') {
+        if (text.startsWith('QA floor ') && /^(?:Floor plan editor canvas|Área de edição da planta baixa)$/.test(this.canvas.getAttribute('aria-label') ?? '')) {
           const p = new DOMPoint(x, y).matrixTransform(this.getTransform()), b = this.canvas.getBoundingClientRect();
           (window as any).__floorPoint = { text, x: b.x + p.x * b.width / this.canvas.width, y: b.y + p.y * b.height / this.canvas.height };
         }

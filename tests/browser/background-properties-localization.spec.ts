@@ -24,7 +24,7 @@ test('Portuguese background controls preserve image bytes and restore removed im
     return JSON.parse(await readFile((await (await pending).path())!, 'utf8')).floors[floorIndex];
   }
   const original = await exported();
-  const canvas = page.getByLabel('Floor plan editor canvas', { exact: true });
+  const canvas = page.getByLabel(/^(?:Floor plan editor canvas|Área de edição da planta baixa)$/, { exact: true });
   let unexpectedPrompts = 0;
   const dismissUnexpected = async (dialog: import('@playwright/test').Dialog) => { unexpectedPrompts++; await dialog.dismiss(); };
   page.on('dialog', dismissUnexpected);

@@ -22,7 +22,7 @@ for (const width of [1440, 390]) test(`keyboard room rename and floor materials 
   const before = await exported();
   await page.getByRole('button', { name: 'Salvar', exact: true }).press('l');
   await page.getByRole('button', { name: /Original \{name\}/ }).click();
-  const canvas = page.getByLabel('Floor plan editor canvas', { exact: true });
+  const canvas = page.getByLabel(/^(?:Floor plan editor canvas|Área de edição da planta baixa)$/, { exact: true });
   const editor = page.locator('input.absolute[aria-label="Nome do ambiente"]');
   async function rename() {
     await canvas.focus(); await canvas.press('Shift+F10');

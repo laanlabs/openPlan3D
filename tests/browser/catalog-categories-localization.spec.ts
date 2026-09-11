@@ -23,6 +23,6 @@ test('Portuguese category filters and accent-free search retain original catalog
   await expect(stove).toHaveCount(1);
   await expect(outlet).toHaveCount(0);
   await stove.click();
-  await expect(page.getByLabel('Floor plan editor canvas', { exact: true })).toHaveCSS('cursor', 'copy');
+  await expect(page.getByLabel(/^(?:Floor plan editor canvas|Área de edição da planta baixa)$/, { exact: true })).toHaveCSS('cursor', 'copy');
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('o3d_recent_furniture')!))).toEqual(['stove']);
 });

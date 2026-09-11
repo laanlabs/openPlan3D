@@ -2405,3 +2405,24 @@ Logs: `/tmp/web-history-outcomes-unit.log`, `/tmp/web-history-outcomes-check.log
 (initial test baseline failure), `/tmp/web-history-outcomes-browser-retry.log`.
 This is scoped post-checkpoint evidence, not a new full-suite result. Broader
 localization, physical-device/native and release requirements remain open.
+
+### 2026-09-11: Canvas accessible name — browser verification pending
+
+FloorPlanCanvas now translates its accessible name. English is unchanged;
+Portuguese is Área de edição da planta baixa. Seventeen test files with bilingual
+flows relied on the English name and now use bilingual selectors/instrumentation.
+The canvas-hint cases explicitly assert the Portuguese accessible name before
+drawing and verifying the exported wall.
+
+Five dictionary tests pass, Svelte checking reports zero errors/warnings and the
+production build passes. An affected-file run contains 141 cases across three
+engines, with max-failures=1. It remains active at this commit; the first ten
+Chromium cases passed, including both canvas-hint viewport cases, background
+image recovery, wall splits, catalog filtering and initial keyboard cases.
+This is a checked-in implementation checkpoint, not completed qualification.
+
+Logs: `/tmp/web-canvas-label-unit.log`, `/tmp/web-canvas-label-check.log`,
+`/tmp/web-canvas-label-build.log`, `/tmp/web-canvas-label-inventory.log`,
+`/tmp/web-canvas-label-browser.log`. Resume the existing browser process before
+any rebuild or new browser suite. Broader localization and device/release gates
+remain open.

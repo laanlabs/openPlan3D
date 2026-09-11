@@ -35,7 +35,7 @@ for (const curved of [false, true]) test(`Portuguese ${curved ? 'curved' : 'stra
   expect(await exported()).toEqual(original);
   await page.getByRole('button', { name: '─ Parede 1', exact: true }).click();
   if (curved) {
-    const canvas = page.getByLabel('Floor plan editor canvas', { exact: true });
+    const canvas = page.getByLabel(/^(?:Floor plan editor canvas|Área de edição da planta baixa)$/, { exact: true });
     await canvas.focus(); await canvas.press('Shift+F10');
     const splitAction = page.getByRole('menuitem', { name: '✂️ Dividir Parede', exact: true });
     await expect(splitAction).toBeFocused(); await splitAction.press('Enter');
@@ -99,7 +99,7 @@ for (const kind of ['door', 'window']) test(`midpoint split explains and preserv
   expect(await exported()).toEqual(before);
   await notice.getByRole('button').click();
   await expect(notice).toHaveCount(0);
-  const canvas = page.getByLabel('Floor plan editor canvas', { exact: true });
+  const canvas = page.getByLabel(/^(?:Floor plan editor canvas|Área de edição da planta baixa)$/, { exact: true });
   await canvas.focus();
   await canvas.press(kind === 'door' ? 'Shift+F10' : 'ContextMenu');
   const menu = page.getByRole('menu');

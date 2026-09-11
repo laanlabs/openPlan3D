@@ -1188,4 +1188,5 @@ export const pt = {
   "projectService.historyWrongProject": "Esta versão pertence a outro projeto.",
   "projectService.historyRead": "Não foi possível ler esta versão.",
   "projectService.historyUnchanged": "Sua planta atual não foi alterada.",
+  "canvas.editorLabel": "Área de edição da planta baixa",
 } as const;

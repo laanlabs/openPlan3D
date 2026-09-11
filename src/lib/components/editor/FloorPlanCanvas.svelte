@@ -3928,7 +3928,7 @@
     bind:this={canvas}
     class="block w-full h-full touch-none"
     tabindex="0"
-    aria-label="Floor plan editor canvas"
+    aria-label={$t('canvas.editorLabel')}
     style="cursor: {cursorStyle}"
     onmousedown={onMouseDown}
     onmousemove={onMouseMove}

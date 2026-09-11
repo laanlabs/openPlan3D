@@ -16,7 +16,7 @@ test('dragging a furnished room template places walls and furniture in one undo'
   const before = await exported();
   await page.getByRole('button', { name: 'Ambientes', exact: true }).click();
   const template = page.getByRole('button', { name: /Quarto 5 itens$/ });
-  const canvas = page.getByLabel('Floor plan editor canvas', { exact: true });
+  const canvas = page.getByLabel(/^(?:Floor plan editor canvas|Área de edição da planta baixa)$/, { exact: true });
   const bounds = (await canvas.boundingBox())!;
   await template.dragTo(canvas, { targetPosition: { x: bounds.width / 2 + 100, y: bounds.height / 2 + 50 } });
   const placed = await exported();

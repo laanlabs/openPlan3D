@@ -61,7 +61,7 @@ for (const width of [1440, 390]) test(`modal focus and keys preserve the selecte
     }
     // Playwright's role queries do not account for native modal inertness.
     // Test the browser's actual focus boundary instead of DOM accessibility heuristics.
-    await page.getByLabel('Floor plan editor canvas', { exact: true }).evaluate((canvas: HTMLCanvasElement) => canvas.focus());
+    await page.getByLabel(/^(?:Floor plan editor canvas|Área de edição da planta baixa)$/, { exact: true }).evaluate((canvas: HTMLCanvasElement) => canvas.focus());
     await focusInside(page, name);
     for (const key of ['Delete', 'Backspace', 'w', 'r', 'l', 'ControlOrMeta+z']) {
       await page.keyboard.press(key);
@@ -103,7 +103,7 @@ for (const width of [1440, 390]) test(`command palette and modal field editing r
   await expect(page.getByRole('option', { name: /Wall Tool/ })).toHaveAttribute('aria-selected', 'true');
   await page.keyboard.press('Enter');
   await expect(page.getByRole('dialog')).toHaveCount(0);
-  await expect(page.getByLabel('Floor plan editor canvas', { exact: true })).toHaveCSS('cursor', 'crosshair');
+  await expect(page.getByLabel(/^(?:Floor plan editor canvas|Área de edição da planta baixa)$/, { exact: true })).toHaveCSS('cursor', 'crosshair');
   await save.press('ControlOrMeta+k'); await search.fill('settings'); await page.keyboard.press('Enter');
   const dialog = await focusInside(page, 'Settings');
   const name = dialog.getByRole('textbox', { name: 'Project Name', exact: true });

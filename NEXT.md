@@ -163,6 +163,16 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+**Canvas accessible-name verification is in progress.** The drawing canvas now
+uses the selected language for its accessible name; English remains unchanged.
+Seventeen affected bilingual browser test files now accept either language, and
+the desktop/phone canvas-hint cases explicitly require the Portuguese name.
+Five dictionary tests, zero-diagnostic Svelte checking and the production build
+pass. The 141-case affected-file browser run is still active, with its first ten
+Chromium cases passing at this checkpoint. Do not treat this as completed browser
+qualification. Resume the existing process and inspect
+`/tmp/web-canvas-label-browser.log` before starting another suite or rebuilding.
+
 Remaining version-history diagnostics now translate missing history, changed or
 foreign snapshots, unreadable versions and the unchanged-current-plan outcome.
 Forty-seven focused unit/dictionary checks, zero Svelte diagnostics and the

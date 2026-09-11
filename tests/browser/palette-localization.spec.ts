@@ -22,7 +22,7 @@ test('Portuguese palette searches without accents and executes after closing', a
   await search.fill('parede');
   await expect(page.getByRole('option', { name: /Parede/ })).toHaveAttribute('aria-selected', 'true');
   await search.press('Enter');
-  await expect(page.getByLabel('Floor plan editor canvas', { exact: true })).toHaveCSS('cursor', 'crosshair');
+  await expect(page.getByLabel(/^(?:Floor plan editor canvas|Área de edição da planta baixa)$/, { exact: true })).toHaveCSS('cursor', 'crosshair');
   const grid = page.getByTitle('Alternar grade (G)', { exact: true });
   const before = await grid.textContent();
   await save.press('ControlOrMeta+k');

@@ -14,7 +14,7 @@ for (const locale of ['en', 'pt']) for (const recent of [false, true]) test(`${l
   await expect(page.getByText(locale === 'pt' ? '0 resultados para "{number}"' : '0 results for "{number}"', { exact: true })).toBeVisible();
   await page.getByTitle(locale === 'pt' ? 'Limpar pesquisa' : 'Clear search', { exact: true }).click();
   await expect(search).toHaveValue('');
-  const canvas = page.getByLabel('Floor plan editor canvas', { exact: true });
+  const canvas = page.getByLabel(/^(?:Floor plan editor canvas|Área de edição da planta baixa)$/, { exact: true });
   const favorite = page.getByRole('button', { name: locale === 'pt' ? 'Adicionar Sofa aos favoritos' : 'Add Sofa to favorites', exact: true }).first();
   await canvas.focus(); await page.keyboard.down('Space');
   await expect(canvas).toHaveCSS('cursor', 'grab');
@@ -44,7 +44,7 @@ for (const locale of ['en', 'pt']) test(`${locale}: requested annotation editing
   await page.getByRole('button', { name: locale === 'pt' ? 'Salvar' : 'Save', exact: true }).press('ControlOrMeta+k');
   await page.getByRole('combobox', { name: locale === 'pt' ? 'Pesquisar comandos' : 'Search commands', exact: true }).fill(locale === 'pt' ? 'Ferramenta de Texto' : 'Text Tool');
   await page.getByRole('option', { name: locale === 'pt' ? /Ferramenta de Texto/ : /Text Tool/ }).click();
-  const canvas = page.getByLabel('Floor plan editor canvas', { exact: true });
+  const canvas = page.getByLabel(/^(?:Floor plan editor canvas|Área de edição da planta baixa)$/, { exact: true });
   await canvas.click({ position: { x: 250, y: 250 } });
   const input = page.getByRole('textbox', { name: locale === 'pt' ? 'Texto da anotação' : 'Annotation text', exact: true });
   await expect(input).toBeFocused();

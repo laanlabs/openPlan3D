@@ -1188,4 +1188,5 @@ export const en = {
   "projectService.historyWrongProject": "This version belongs to a different project.",
   "projectService.historyRead": "Could not read this version.",
   "projectService.historyUnchanged": "Your current plan has not changed.",
+  "canvas.editorLabel": "Floor plan editor canvas",
 } as const;
