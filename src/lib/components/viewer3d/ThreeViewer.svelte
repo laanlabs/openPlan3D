@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { t, type TranslationKey } from '$lib/i18n';
+  import { t, locale, type TranslationKey } from '$lib/i18n';
+  import { furnitureName } from '$lib/i18n/furnitureNames';
   import { catalogCategoryLabels } from '$lib/i18n/catalogCategories';
   import { aiRenderLabels } from '$lib/i18n/aiRenderLabels';
   import { aiRenderMessages } from '$lib/i18n/aiRenderMessages';
@@ -2431,7 +2432,7 @@
           <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
         </svg>
         {#if furniturePlacementMode}
-          {$t('viewerFurniture.hint', { name: (selectedCatalogId ? getCatalogItem(selectedCatalogId)?.name : null) ?? $t('viewerFurniture.fallback') })}
+          {$t('viewerFurniture.hint', { name: selectedCatalogId ? furnitureName(selectedCatalogId, $locale) : $t('viewerFurniture.fallback') })}
         {:else}
           {$t('viewerFurniture.paint')}
         {/if}
@@ -2478,7 +2479,7 @@
               class="w-full text-left px-2 py-1.5 rounded text-xs flex items-center gap-2 transition-colors {selectedCatalogId === item.id ? 'bg-green-600/80 text-white' : 'hover:bg-white/10 text-white/80'}"
             >
               <span class="text-base">{item.icon}</span>
-              <span>{item.name}</span>
+              <span>{furnitureName(item.id, $locale)}</span>
               <span class="ml-auto text-[10px] text-white/40">{item.width}×{item.depth}</span>
             </button>
           {/each}

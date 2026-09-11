@@ -10,7 +10,7 @@ test('Portuguese item photo controls preserve downloads and retained bytes', asy
   await page.getByRole('button', { name: 'Importar JSON', exact: true }).click();
   await (await chooser).setFiles(resolve('tests/fixtures/furniture-fidelity.openplan.json'));
   await page.getByRole('button', { name: 'Salvar', exact: true }).press('l');
-  await page.getByRole('button', { name: '💺 Armchair', exact: true }).first().click();
+  await page.getByRole('button', { name: '💺 Poltrona', exact: true }).first().click();
   const panel = page.getByRole('region', { name: 'Detalhes do item', exact: true });
   const photoChooser = page.waitForEvent('filechooser');
   await panel.getByRole('button', { name: 'Adicionar foto', exact: true }).click();

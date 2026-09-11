@@ -18,7 +18,7 @@ test('Portuguese furniture properties preserve finish IDs and reset original app
   }
   const original = await exported();
   await page.getByRole('button', { name: 'Salvar', exact: true }).press('l');
-  await page.getByRole('button', { name: '💺 Armchair', exact: true }).first().click();
+  await page.getByRole('button', { name: '💺 Poltrona', exact: true }).first().click();
   await expect(page.getByRole('heading', { name: /Propriedades de Poltrona/ })).toBeVisible();
   const material = page.getByRole('combobox', { name: 'Material', exact: true });
   await expect(material.locator('option')).toHaveText(['Materiais originais','Madeira','Metal','Tecido','Couro','Vidro','Plástico','Pedra','Cerâmica']);

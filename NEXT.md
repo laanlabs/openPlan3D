@@ -1,5 +1,20 @@
 # Next work and pause handoff
 
+## Furniture names in Layers and 3D — September 11
+
+Layers, the 3D furniture picker and its placement hint now share the Portuguese
+catalog names used by object cards and properties. Unknown identifiers retain
+their original text. Three focused unit tests, production check (zero diagnostics)
+and build pass. All nine affected Chromium/Firefox/WebKit cases pass (5.0 minutes),
+covering translated Layers selection, finish persistence, exact photo bytes and
+3D placement with catalog identity and full Undo/Redo export equality.
+
+The first Chromium 3D run exhausted its 60-second deadline during the final Redo
+export after earlier assertions passed. Its bounded slow-test allowance is now
+180 seconds; the rerun retained every assertion and passed. This is scoped
+browser evidence, not a fresh full-suite checkpoint. Fluent Portuguese review,
+remaining interface text, physical accessibility and wider NEXT work remain open.
+
 ## Portuguese furniture catalog names — September 11
 
 Added display names for all 191 built-in and import-preview catalog IDs. Object
