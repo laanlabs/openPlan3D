@@ -2690,3 +2690,12 @@ Exported the saved trace project through the native Save dialog. ZIP integrity,
 complete plan value and exact original JPEG bytes passed independent checks.
 The options sheet required Escape before the queued export proceeded, so
 unassisted dismissal remains open. See native `docs/native-trace-file-import.md`.
+
+### Native trace bitmap pixel budget — 2026-09-10
+
+Fixed the cached trace preview's 2,000-pixel limit: UIKit points and default
+Retina renderer scale previously allowed oversized bitmaps. Import/reload now
+check source pixel dimensions and render at scale 1, preserving original saved
+image bytes. Four new preview regressions reproduced the defect; all 14 preview
+and package tests pass on Catalyst and iOS Simulator. See native
+`docs/native-trace-preview-pixels.md`. Peak import memory/device budgets remain open.
