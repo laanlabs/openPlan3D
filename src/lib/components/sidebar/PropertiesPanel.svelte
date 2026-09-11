@@ -389,16 +389,16 @@
       </label>
       <div class="grid grid-cols-2 gap-2">
         <label class="block">
-          <span class="text-xs text-gray-500">Start Height ({unitLabel()})</span>
+          <span class="text-xs text-gray-500">{$t('wallProperties.startHeight')} ({unitLabel()})</span>
           <input type="number" value={displayValue(getWallStartHeight(selectedWall))} min="0" step="any" oninput={onWallStartHeight} onblur={onWallStartHeight} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
         </label>
         <label class="block">
-          <span class="text-xs text-gray-500">End Height ({unitLabel()})</span>
+          <span class="text-xs text-gray-500">{$t('wallProperties.endHeight')} ({unitLabel()})</span>
           <input type="number" value={displayValue(getWallEndHeight(selectedWall))} min="0" step="any" oninput={onWallEndHeight} onblur={onWallEndHeight} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
         </label>
       </div>
       {#if clippedOpenings}
-        <p role="status" class="text-xs text-amber-800 bg-amber-50 rounded p-2">Some openings do not fit this wall. Elevation and 3D clip their preview; saved dimensions stay unchanged. Raise the wall or resize/reposition the openings.</p>
+        <p role="status" class="text-xs text-amber-800 bg-amber-50 rounded p-2">{$t('wallProperties.clipped')}</p>
       {/if}
       <div class="flex items-center gap-2">
         {#if getWallStartHeight(selectedWall) !== getWallEndHeight(selectedWall)}
@@ -406,15 +406,15 @@
             onclick={equalizeWallHeights}
             class="text-xs text-blue-600 hover:text-blue-800 underline flex items-center gap-1"
           >
-            ↔️ Equalize ({displayValue(getWallStartHeight(selectedWall))} {unitLabel()})
+            ↔️ {$t('wallProperties.equalize', { height: displayValue(getWallStartHeight(selectedWall)), unit: unitLabel() })}
           </button>
         {/if}
         <button
           onclick={() => { if (selectedWall) reverseWall(selectedWall.id); }}
           class="text-xs text-gray-600 hover:text-gray-900 border border-gray-200 px-2 py-0.5 rounded flex items-center gap-1 ml-auto"
-          title="Reverse wall direction (swap start/end points and heights)"
+          title={$t('wallProperties.reverseHint')}
         >
-          🔄 Reverse direction
+          🔄 {$t('wallProperties.reverse')}
         </button>
       </div>
       <button

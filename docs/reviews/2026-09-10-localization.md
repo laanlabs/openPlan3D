@@ -926,3 +926,17 @@ Logs: `/tmp/web-wall-length-localization-check.log`,
 `/tmp/web-wall-length-localization-build.log`, `/tmp/web-wall-length-localization-unit.log`,
 `/tmp/web-wall-length-localization-browser.log`. Other wall controls, diagnostics,
 physical touch and remaining release requirements stay open.
+
+## Wall height and direction localization
+
+Translated endpoint heights, clipped-opening warning, equalize label and reverse
+label/hint. Geometry and opening handlers are unchanged. Production check reports
+zero errors/warnings; build and five localization unit tests pass. Three desktop
+browser cases pass (40.0 seconds, exit 0), extending the connected-wall scenario
+with a low sloped wall, warning visibility, unchanged opening dimensions, endpoint
+and height reversal, then equalized heights. This is saved-data/UI evidence, not a
+new visual rendering qualification.
+Logs: `/tmp/web-wall-height-localization-check.log`,
+`/tmp/web-wall-height-localization-build.log`, `/tmp/web-wall-height-localization-unit.log`,
+`/tmp/web-wall-height-localization-browser.log`. Wall material/curve/elevation labels,
+service diagnostics and broader device/release requirements remain open.

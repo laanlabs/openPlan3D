@@ -3311,3 +3311,10 @@ length validation. Check/build, five localization unit tests and three browser
 cases pass (33.0 seconds), retaining connected geometry/opening values and invalid
 input undo behavior. Other wall controls/diagnostics and broader device/release
 requirements remain open.
+
+### Wall height and direction localization — 2026-09-11
+
+Translated endpoint-height controls, clipping warning, equalize and reverse actions.
+Check/build, five localization unit tests and three browser cases pass (40.0 seconds),
+verifying saved opening dimensions, swapped endpoints/heights and equalized heights.
+Remaining wall controls/diagnostics and broader device/release scope stay open.

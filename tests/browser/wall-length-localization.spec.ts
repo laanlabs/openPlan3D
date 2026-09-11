@@ -39,4 +39,26 @@ test('Portuguese wall length controls preserve connections and reject invalid dr
   expect((await exported()).walls).toEqual(edited.walls);
   await page.getByRole('button', { name: 'Desfazer', exact: true }).click();
   await expect(length).toHaveValue('650.25');
+
+  for (const [label,value] of [['Altura inicial (cm)','100'],['Altura final (cm)','200']]) {
+    const input = page.getByRole('spinbutton', { name: label, exact: true });
+    await input.fill(value); await input.press('Tab');
+  }
+  await expect(page.getByRole('status')).toContainText('Algumas aberturas não cabem nesta parede.');
+  const sloped = await exported();
+  expect(sloped.doors).toEqual(original.doors);
+  expect(sloped.windows).toEqual(original.windows);
+  await page.getByRole('button', { name: '🔄 Inverter direção', exact: true }).click();
+  const reversed = await exported();
+  expect(reversed.walls[0].start).toEqual(sloped.walls[0].end);
+  expect(reversed.walls[0].end).toEqual(sloped.walls[0].start);
+  expect(reversed.walls[0].startHeight).toBe(200);
+  expect(reversed.walls[0].endHeight).toBe(100);
+  for (const key of ['doors','windows']) {
+    expect(reversed[key][0].width).toBe(sloped[key][0].width);
+    expect(reversed[key][0].height).toBe(sloped[key][0].height);
+  }
+  await page.getByRole('button', { name: '↔️ Igualar (200 cm)', exact: true }).click();
+  const equalized = await exported();
+  expect(equalized.walls[0]).toMatchObject({ startHeight: 200, endHeight: 200 });
 });

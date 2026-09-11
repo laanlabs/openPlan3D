@@ -783,5 +783,11 @@ export const pt = {
   "wallProperties.end": "Fim (B)",
   "wallProperties.joinedHelp": "Os cantos conectados acompanham a extremidade móvel. As aberturas mantêm suas posições relativas.",
   "wallProperties.minimum": "Digite um comprimento de parede de pelo menos 1 cm.",
-  "wallProperties.thickness": "Espessura"
+  "wallProperties.thickness": "Espessura",
+  "wallProperties.startHeight": "Altura inicial",
+  "wallProperties.endHeight": "Altura final",
+  "wallProperties.equalize": "Igualar ({height} {unit})",
+  "wallProperties.reverse": "Inverter direção",
+  "wallProperties.reverseHint": "Inverter a direção da parede (trocar extremidades e alturas iniciais/finais)",
+  "wallProperties.clipped": "Algumas aberturas não cabem nesta parede. A elevação e a vista 3D recortam a prévia; as dimensões salvas permanecem iguais. Aumente a altura da parede ou redimensione/reposicione as aberturas."
 } as const;

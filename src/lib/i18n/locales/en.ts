@@ -783,5 +783,11 @@ export const en = {
   "wallProperties.end": "End (B)",
   "wallProperties.joinedHelp": "Joined corners follow the moving endpoint. Openings keep their relative positions.",
   "wallProperties.minimum": "Enter a wall length of at least 1 cm.",
-  "wallProperties.thickness": "Thickness"
+  "wallProperties.thickness": "Thickness",
+  "wallProperties.startHeight": "Start Height",
+  "wallProperties.endHeight": "End Height",
+  "wallProperties.equalize": "Equalize ({height} {unit})",
+  "wallProperties.reverse": "Reverse direction",
+  "wallProperties.reverseHint": "Reverse wall direction (swap start/end points and heights)",
+  "wallProperties.clipped": "Some openings do not fit this wall. Elevation and 3D clip their preview; saved dimensions stay unchanged. Raise the wall or resize/reposition the openings."
 } as const;
