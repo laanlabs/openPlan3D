@@ -168,6 +168,12 @@ wall splitting (3.65 seconds). Check/build and 12 wall-action browser cases pass
 across Chromium, Firefox and WebKit (54.4 seconds), including curved split controls,
 opening/room/group preservation, Undo/Redo and save/reopen. Device/release gates remain.
 
+Follow-up curved-split mesh qualification passes in all three browser engines
+(three cases, 17.1 seconds). After a toolbar split, exported meshes retain clear
+sampled door/window apertures, solid wall at the split and trim along the curve,
+including stacked floors and active-floor changes. This checks exported geometry;
+pixel-level rendering and physical-device qualification remain open.
+
 Earlier full web unit checkpoint: **955 tests across 90 files passed** at `f54d739`
 (3.63 seconds). Three sloped-wall browser cases pass across Chromium, Firefox and
 WebKit (22.3 seconds), covering height edits, opening preservation, Undo/Redo,

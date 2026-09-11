@@ -20,7 +20,7 @@ function intersections(scene: any, parameter: number, height: number, wallsOnly 
   return count;
 }
 
-test('curved openings and trim follow the curve in active and stacked browser meshes', async ({ page }, testInfo) => {
+for (const split of [false, true]) test(`curved openings and trim follow the curve in active and stacked browser meshes${split ? ' after splitting' : ''}`, async ({ page }, testInfo) => {
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/editor');
@@ -28,6 +28,12 @@ test('curved openings and trim follow the curve in active and stacked browser me
   const chooser = page.waitForEvent('filechooser');
   await page.getByRole('button', { name: 'Import JSON', exact: true }).click();
   await (await chooser).setFiles(resolve('tests/fixtures/curved-openings.openplan.json'));
+  if (split) {
+    await page.getByRole('button', { name: 'Toggle Layers Panel', exact: true }).click();
+    await page.getByRole('button', { name: '─ Wall 1', exact: true }).click();
+    await page.getByRole('button', { name: 'Split wall at midpoint', exact: true }).click();
+    await expect(page.getByText('2 walls', { exact: true })).toBeVisible();
+  }
   await page.getByRole('button', { name: '3D', exact: true }).click();
   await page.waitForLoadState('networkidle');
   const hint = page.getByRole('button', { name: 'Got it', exact: true });

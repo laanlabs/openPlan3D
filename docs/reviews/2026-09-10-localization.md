@@ -1730,3 +1730,15 @@ in Chromium, Firefox and WebKit. Together with the existing unsplit curved-openi
 3D mesh checks, six cases pass (46.6 seconds).
 Log: `/tmp/web-curve-split-integration-browser.log`.
 Exported 3D meshes after a curved split and physical gestures remain unqualified.
+
+### 2026-09-11: Exported geometry after curved splitting
+
+The curved-opening mesh browser test now also splits the lower floor's curved
+wall through the toolbar before entering 3D. Raycasts through the exported mesh
+verify the sampled door aperture (including trim), window aperture and solid wall
+at the split. Trim remains along the curve. The same aperture checks pass for the
+split lower floor and unchanged upper floor while stacked and after switching the
+active floor. Three cases pass across Chromium, Firefox and WebKit (17.1 seconds).
+Log: `/tmp/web-curve-split-mesh-browser.log`.
+This closes the preceding exported-mesh check; physical gestures and pixel-level
+rendering remain unqualified. No runtime changes were required.
