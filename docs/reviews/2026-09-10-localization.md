@@ -969,3 +969,15 @@ Logs: `/tmp/web-wall-materials-check.log`, `/tmp/web-wall-materials-build.log`,
 `/tmp/web-wall-materials-unit.log`, `/tmp/web-wall-materials-browser.log`.
 Service diagnostics, child detail panels, broader localization and release gates
 remain open.
+
+## Wall Properties integration checkpoint
+
+At `4cc7a2c`, all 938 unit tests across 87 files pass (24.53 seconds, exit 0).
+Six existing English wall-dimension cases pass across all engines at 1440/390px
+(2.6 minutes, exit 0). Coverage includes joined-wall topology, opening numeric
+validation, invalid drafts not consuming undo, imperial focus preserving precision,
+explicit-unit overrides, full-precision undo, save/reload and opening the 3D viewer.
+Logs: `/tmp/web-wall-properties-integration-unit.log`,
+`/tmp/web-wall-properties-integration-browser.log`. No runtime changes here.
+These complement focused Portuguese controls tests; they do not qualify remaining
+service diagnostics, detail panels, full-browser or physical-device/release work.
