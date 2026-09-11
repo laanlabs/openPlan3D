@@ -1500,3 +1500,19 @@ changes in the exported floor. Undo restores the entire original floor exactly.
 Furniture/room action coverage and physical accessibility remain open.
 Logs: `/tmp/web-context-properties-repro.log`, `/tmp/web-context-properties-check.log`,
 `/tmp/web-context-properties-build.log`, `/tmp/web-context-properties-browser.log`.
+
+## Room rename completion focus — 2026-09-11
+
+At 57ac949, room menu keyboard targeting and initial rename focus worked, but
+Escape left the canvas inactive after removing the field. Enter/Escape now
+prevent default and focus the canvas after committing/cancelling. The blur path
+retains normal focus movement to other controls.
+
+Check/build pass with zero Svelte diagnostics. Six Portuguese browser cases pass
+on Chromium, Firefox and WebKit at 1440px/390px (48.5 seconds), covering room
+selection through Layers, keyboard menu rename, focus transfer, cancellation
+without data changes, blur to Save without stealing focus, literal-token name
+preservation and exact Undo restoration. Room material/reset/delete keyboard
+flows and physical assistive-technology qualification remain open.
+Logs: `/tmp/web-context-room-repro.log`, `/tmp/web-context-room-check.log`,
+`/tmp/web-context-room-build.log`, `/tmp/web-context-room-browser.log`.

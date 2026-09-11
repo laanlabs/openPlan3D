@@ -3638,3 +3638,14 @@ cases pass across Chromium/Firefox/WebKit at 1440px/390px (1.1 minutes), checkin
 selected door/window menu targeting, focus transfer, width edits and exact floor
 Undo restoration. Check/build pass with zero Svelte diagnostics. Furniture/room
 menu actions and physical assistive-technology checks remain open.
+
+### Room rename keyboard focus — 2026-09-11
+
+Reproduced Escape from inline room rename leaving focus outside the canvas.
+Enter/Escape now prevent their default action and restore canvas focus after
+commit/cancel. Blur still allows focus to move to the requested control.
+Check/build and six Portuguese browser cases across Chromium/Firefox/WebKit at
+1440px/390px pass (48.5 seconds). They cover room-menu keyboard targeting, rename
+focus, cancellation with exact floor preservation, ordinary blur focus transfer,
+name-only updates and exact Undo restoration. Other room-menu actions and physical
+accessibility remain open.

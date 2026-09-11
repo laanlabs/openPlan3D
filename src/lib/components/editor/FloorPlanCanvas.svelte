@@ -3965,11 +3965,15 @@
       oninput={(e) => { editingRoomName = (e.target as HTMLInputElement).value; }}
       onkeydown={(e) => {
         if (e.key === 'Enter') {
+          e.preventDefault();
           updateRoom(editingRoomId!, { name: editingRoomName });
           detectedRoomsStore.update(rooms => rooms.map(r => r.id === editingRoomId ? { ...r, name: editingRoomName } : r));
           editingRoomId = null;
+          canvas.focus();
         } else if (e.key === 'Escape') {
+          e.preventDefault();
           editingRoomId = null;
+          canvas.focus();
         }
       }}
       onblur={() => {
