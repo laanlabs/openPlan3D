@@ -163,7 +163,15 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
-Latest full web unit checkpoint: **938 tests across 87 files passed** at `7809b06`
+Latest full web unit checkpoint: **938 tests across 87 files passed** at `6efa2a7`
+after Layers and canvas-control changes (3.41 seconds). Nine English browser cases
+also pass across all engines (1.3 minutes): large-plan zoom at both widths and
+sloped-wall edits, reversal, elevation, reload and stacked-view navigation.
+See the [localization integration record](docs/reviews/2026-09-10-localization.md).
+This does not qualify a full browser suite, physical device or deployment; the
+previous intermittent WebKit grid-click observation remains unresolved.
+
+Earlier full web unit checkpoint: **938 tests across 87 files passed** at `7809b06`
 after export, view, floor and save-toolbar localization (11.89 seconds). Nine
 English browser cases also pass across all engines (1.2 minutes), covering
 failed-save/deployment recovery and floor-camera preservation at both widths.

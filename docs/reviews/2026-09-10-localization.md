@@ -477,3 +477,14 @@ physical-device qualification. Logs: `/tmp/web-canvas-display-unit.log`,
 `/tmp/web-canvas-display-check.log`, `/tmp/web-canvas-display-build.log`,
 `/tmp/web-canvas-display-browser.log` (initial failure),
 `/tmp/web-canvas-display-webkit-repro.log`, `/tmp/web-canvas-display-browser-final.log`.
+
+## Full Layers/canvas integration checkpoint
+
+At source `6efa2a7`, all 938 web unit tests across 87 files pass (3.41 seconds,
+exit 0). Nine English browser cases pass across Chromium, Firefox and WebKit
+(1.3 minutes, exit 0): large-plan framing/zoom at 1440px/390px and the existing
+sloped-wall workflow covering height edits, undo/redo, reversal, elevation, reload,
+export equality and stacked-view navigation. Logs:
+`/tmp/web-canvas-integration-unit.log`, `/tmp/web-canvas-integration-english.log`.
+These integration checks do not resolve the earlier intermittent WebKit grid
+click or qualify the full browser suite, physical devices or deployment.
