@@ -3628,3 +3628,13 @@ Delete isolation and exact floor preservation, plus English/Portuguese canvas
 menus, keyboard activation, Escape/Tab dismissal and annotation persistence.
 Furniture/opening/room keyboard target branches and physical assistive-technology
 qualification remain to be exercised; broader NEXT scope stays open.
+
+### Context-menu Properties focus — 2026-09-11
+
+Reproduced Properties leaving keyboard focus on the canvas. The explicit action
+now waits for the selected panel to render and focuses its first enabled control,
+with guards against teardown or a changed selection. Twelve Portuguese browser
+cases pass across Chromium/Firefox/WebKit at 1440px/390px (1.1 minutes), checking
+selected door/window menu targeting, focus transfer, width edits and exact floor
+Undo restoration. Check/build pass with zero Svelte diagnostics. Furniture/room
+menu actions and physical assistive-technology checks remain open.

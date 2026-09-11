@@ -1,7 +1,7 @@
 <script lang="ts">
   import { t } from '$lib/i18n';
   import { multiSelectionBounds } from '$lib/utils/multiSelectionBounds';
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount, onDestroy, tick } from 'svelte';
   import { get } from 'svelte/store';
   import { selectionContentBounds } from '$lib/utils/selectionContentBounds';
   import { planContentBounds, hasPlanContent } from '$lib/utils/planContentBounds';
@@ -3887,8 +3887,16 @@
         if (id) { removeElement(id); selectedElementId.set(null); }
         break;
       case 'properties':
-        // Select element so PropertiesPanel shows it
-        if (id) selectedElementId.set(id);
+        if (id) {
+          selectedElementId.set(id);
+          void tick().then(() => {
+            if (!canvas.isConnected || get(selectedElementId) !== id) return;
+            const panel = document.querySelector('[data-plan-properties]:not(.hidden)');
+            panel?.querySelector<HTMLElement>(
+              'input:not(:disabled):not([type="hidden"]), select:not(:disabled), textarea:not(:disabled), button:not(:disabled)'
+            )?.focus();
+          });
+        }
         break;
     }
   }

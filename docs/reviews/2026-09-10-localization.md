@@ -1483,3 +1483,20 @@ Furniture/opening/room target branches and physical accessibility were not drive
 in this batch. Logs: `/tmp/web-context-invoke-repro.log`,
 `/tmp/web-context-invoke-check.log`, `/tmp/web-context-invoke-build.log`,
 `/tmp/web-context-invoke-browser.log`.
+
+## Properties action focus — 2026-09-11
+
+A failing browser reproduction at a879f53 found zero focused controls inside the
+Properties panel after keyboard activation of Properties. The action now waits
+for Svelte's update and focuses the first enabled form control, provided the
+canvas remains connected and the requested selection is still current. Ordinary
+selection does not invoke this explicit focus transfer.
+
+Check/build pass with zero Svelte diagnostics. Twelve Portuguese browser cases
+pass across Chromium, Firefox and WebKit at 1440px and 390px (1.1 minutes). They
+select doors/windows through Layers, open their context menu with Shift+F10,
+activate Properties, assert panel focus, edit width and verify that only width
+changes in the exported floor. Undo restores the entire original floor exactly.
+Furniture/room action coverage and physical accessibility remain open.
+Logs: `/tmp/web-context-properties-repro.log`, `/tmp/web-context-properties-check.log`,
+`/tmp/web-context-properties-build.log`, `/tmp/web-context-properties-browser.log`.
