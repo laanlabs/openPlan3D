@@ -290,3 +290,13 @@ Logs: `/tmp/web-deployment-localization-unit.log`,
 `/tmp/web-deployment-localization-check.log`,
 `/tmp/web-deployment-localization-build.log`,
 `/tmp/web-deployment-localization-browser.log`.
+
+## Full unit and English reload integration checkpoint
+
+At source `e12cff4`, all 938 web unit tests across 87 files pass in 11.98 seconds
+(exit 0), including the printed-sheet and typed-notice changes. The existing
+English failed-save/recovery/reload flow also passes in Chromium, Firefox and
+WebKit: three cases, 26.6 seconds, exit 0, against the isolated deployment server.
+Logs: `/tmp/web-full-print-notice-integration.log` and
+`/tmp/web-english-reload-integration.log`. This supplements the focused Portuguese
+checks; it is not a full-browser, deployed-release or physical-device claim.

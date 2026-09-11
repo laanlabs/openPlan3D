@@ -163,7 +163,13 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
-Latest full web unit checkpoint: **936 tests across 87 files passed** at `31e263d`
+Latest full web unit checkpoint: **938 tests across 87 files passed** at `e12cff4`
+after printed-sheet and typed-notice localization. The English failed-save/reload
+flow also passed across all three engines (three cases). See the
+[localization integration record](docs/reviews/2026-09-10-localization.md).
+This does not qualify a full browser suite, physical device or deployment.
+
+Earlier full web unit checkpoint: **936 tests across 87 files passed** at `31e263d`
 after the initial localization batches. The existing English palette/modal-field
 flow also passed in all three engines at desktop/phone widths (six cases). See the
 [localization integration record](docs/reviews/2026-09-10-localization.md).
@@ -2975,3 +2981,10 @@ build pass. Three Portuguese browser cases pass across all engines using an
 isolated server, verifying blocked navigation on save failure, JSON recovery and
 successful retry to the intended destination. No live deployment changed; wider
 localization remains open.
+
+### Print/notice integration checkpoint — 2026-09-10
+
+All 938 unit tests across 87 files pass at `e12cff4` (11.98 seconds, exit 0).
+Three English reload-safety browser cases also pass across all engines (26.6
+seconds), covering failed-save protection, JSON recovery and retry navigation.
+Remaining localization, device and release gates stay open.
