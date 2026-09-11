@@ -58,6 +58,7 @@ test('Portuguese recovery preview explains damage and preserves the backup', asy
   const id = Object.keys(data.projects)[0];
   data.projects = { [id]: data.projects[id] };
   data.projects['damaged {name}'] = '{';
+  data.projects['invalid-field'] = JSON.stringify({ id: 'invalid-field', name: 42 });
   data.history = { [id]: JSON.stringify([{ data: 'broken' }]) };
   data.thumbnails = { [id]: 'unsupported', missing: 'retained thumbnail' };
   const raw = JSON.stringify(data);
@@ -75,12 +76,13 @@ test('Portuguese recovery preview explains damage and preserves the backup', asy
   await dialog.getByRole('button', { name: 'Escolher arquivo de backup', exact: true }).click();
   await (await chooser).setFiles({ name: 'mixed.json', mimeType: 'application/json', buffer: Buffer.from(raw) });
   for (const message of [
-    '1 projeto danificado será mantido para recuperação em vez de ser aberto.',
+    '2 projetos danificados serão mantidos para recuperação em vez de serem abertos.',
     'Os anexos de 1 projeto ausente serão mantidos para recuperação.',
     '1 arquivo de recuperação será incluído nos próximos backups da biblioteca.',
     '1 versão danificada mantida para recuperação.',
     'Imagem de prévia incompatível mantida para recuperação.',
     'Este projeto salvo não contém JSON legível.',
+    'Projeto inválido: name deve ser um texto.',
     'damaged {name}',
   ]) await expect(dialog).toContainText(message);
   expect(await storedRecords(page)).toEqual(before);
@@ -95,6 +97,7 @@ test('Portuguese recovery preview explains damage and preserves the backup', asy
   expect(archives).toHaveLength(1);
   const archive = JSON.parse(archives[0]);
   expect(archive.projects['damaged {name}']).toBe('{');
+  expect(archive.projects['invalid-field']).toBe(data.projects['invalid-field']);
   expect(archive.history[id]).toBe(data.history[id]);
   expect(archive.thumbnails).toEqual(data.thumbnails);
 });

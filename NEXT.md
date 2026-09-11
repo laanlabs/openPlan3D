@@ -163,6 +163,14 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+General project-validation explanations now translate while preserving exact
+field paths and unknown details. Forty-three focused unit/dictionary checks,
+zero Svelte diagnostics, the production build and 15 transfer browser cases pass
+across three engines (2.5 minutes). Mixed-backup verification includes a Portuguese
+field error and exact invalid-project bytes in the recovery archive. This scoped
+post-audit batch does not close other service diagnostics or physical/native/release
+requirements.
+
 The native package bridge's geometry/reference, invalid identity-map and duplicate
 identity diagnostics now translate into Portuguese. Thirty-six focused unit and
 dictionary checks pass; Svelte reports zero diagnostics and the production build

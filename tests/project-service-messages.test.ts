@@ -7,8 +7,24 @@ import { readFileSync } from 'node:fs';
 import { packageJSON, readPackageZip, writePackageZip } from '../src/lib/utils/projectPackageZip';
 import { readProjectPackage, PACKAGE_NOTICE } from '../src/lib/services/projectPackage';
 import { validatePackagePlan, validatePackageMapping } from '../src/lib/utils/projectPackageBridge';
+import { readProject } from '../src/lib/utils/projectValidation';
 
 describe('project service diagnostics', () => {
+  it.each([
+    [null, 'document deve ser um objeto.'],
+    [{ id: '' }, 'id deve ser um texto não vazio.'],
+    [{ id: 'project', name: 4 }, 'name deve ser um texto.'],
+    [{ id: 'project', floors: [] }, 'floors deve conter pelo menos um andar.'],
+    [{ id: 'project', floors: {} }, 'document.floors deve ser uma lista.'],
+    [{ id: 'project', floors: [{ id: 'floor', level: 1.5 }] }, 'floors[0].level deve ser um número inteiro.'],
+    [{ id: 'project', attachmentNames: { '{path}\n<unsafe>': false } }, 'attachmentNames.{path}\n<unsafe> deve ser um texto.'],
+  ])('translates actual project field errors while preserving paths: %j', (value, expected) => {
+    let message = '';
+    try { readProject(value); } catch (error) { message = (error as Error).message; }
+    expect(projectServiceMessage(message, 'pt')).toBe(`Projeto inválido: ${expected}`);
+    expect(projectServiceMessage(message, 'en')).toBe(message);
+    expect(projectServiceMessage(`${message} No project was imported.`, 'pt')).toBe(`Projeto inválido: ${expected} Nenhum projeto foi importado.`);
+  });
   it.each([
     [() => validatePackagePlan({ walls: [{}] }), 'A planta editada no iPhone contém geometria ou referências inválidas.'],
     [() => validatePackageMapping({}), 'Mapa de identificadores inválido.'],

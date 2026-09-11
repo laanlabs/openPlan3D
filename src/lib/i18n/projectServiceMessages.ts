@@ -1,4 +1,5 @@
 import { translate, type Locale, type TranslationKey } from './index';
+import { projectValidationMessage } from './projectValidationMessages';
 
 type ServiceKey = Extract<TranslationKey, `projectService.${string}`>;
 const keys: ServiceKey[] = [
@@ -69,7 +70,7 @@ function countedMessage(message: string, language: Locale): string {
     const match = pattern.exec(message);
     if (match) return translate(language, match[1] === '1' ? one : many, { count: match[1] });
   }
-  return packageMessage(message, language);
+  return projectValidationMessage(packageMessage(message, language), language);
 }
 const outcomes = (['welcome.noImport', 'restore.retry', 'package.retry'] as const)
   .flatMap(key => (['en', 'pt'] as const).map(locale => ({ key, text: ` ${translate(locale, key)}` })));

@@ -2319,3 +2319,24 @@ Logs: `/tmp/web-native-diagnostics-unit.log`,
 `/tmp/web-native-diagnostics-browser.log`. This is scoped post-audit evidence,
 not a fresh full-suite run. General project-validator field messages and the
 remaining physical/native/release requirements are still open.
+
+### 2026-09-11: General project-validation explanations
+
+The shared service translator now delegates Invalid project diagnostics to a
+field-message translator. It matches the validator's known reason suffixes and
+preserves the exact field path, including user-defined attachment names, braces,
+newlines and markup-like text. Unknown reasons remain intact within the translated
+prefix. Validation rules and original service errors are unchanged.
+
+All 43 focused service-message/dictionary checks pass; new tests use actual
+readProject failures and verify English preservation plus the translated import
+outcome. Svelte reports zero errors/warnings and the production build passes.
+All 15 transfer browser cases pass across three engines (2.5 minutes). The mixed
+backup now includes an invalid name field, shows its Portuguese explanation,
+restores only the valid project and retains the invalid project bytes exactly
+in the recovery archive.
+
+Logs: `/tmp/web-project-fields-unit.log`, `/tmp/web-project-fields-check.log`,
+`/tmp/web-project-fields-build.log`, `/tmp/web-project-fields-browser.log`.
+This is scoped post-audit evidence, not a fresh full-suite result. Other service
+diagnostics and the physical/native/release requirements remain open.
