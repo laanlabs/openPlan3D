@@ -2152,3 +2152,25 @@ changed. Physical touch scrolling remains a separate qualification requirement.
 Logs: `/tmp/web-full-browser-audit-8.log`, `/tmp/web-layers-toggle-repro.log`,
 `/tmp/web-layers-scroll-settle-browser.log`, `/tmp/web-layers-scroll-settle-repeat.log`.
 The exclusion list now contains 873 distinct passes of 1,056, leaving 183 cases.
+
+### 2026-09-11: Read-only browser storage observation
+
+Continuation nine passed 156 WebKit cases in 31.8 minutes before the Portuguese
+package-transfer test's initial storedRecords call timed out. The failure snapshot
+showed the app reporting a missing object store: the test observer had opened
+version 1 before app hydration and inadvertently created an empty database.
+Its onsuccess exception was uncaught by the promise and left the read hanging.
+
+The observer now aborts onupgradeneeded, rejects blocked/open/transaction failures,
+closes failed connections and handles version changes. It never initializes a
+schema. The transfer test waits for the library's ready empty-state UI before
+reading baseline bytes. A separate same-origin document without app scripts
+reproduces observation before initialization, verifies a subsequent valid schema
+can be created, checks raw records and missing-store rejection, and proves a
+later version upgrade is not blocked by leaked observer connections.
+
+All nine observer/transfer cases pass in three engines (1.7 minutes). No app
+runtime code changed. Logs: `/tmp/web-full-browser-audit-9.log` and
+`/tmp/web-storage-observation-browser.log`. The expanded inventory has 1,059 cases;
+the exclusion list now contains 1,033 distinct passes, leaving 26. Prior-runtime
+and current-build evidence remain distinguished in the audit history above.

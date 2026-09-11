@@ -163,6 +163,14 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+The ninth audit passed 156 WebKit cases before a test-only IndexedDB observer
+raced app hydration and created an empty database. The helper now aborts schema
+creation, rejects failed reads and closes connections; transfer tests wait for the
+library's ready state. Nine helper/transfer cases pass across all engines
+(1.7 minutes), including a direct pre-initialization regression. No runtime code
+changed. Combined evidence covers 1,033 of the expanded 1,059 browser cases,
+leaving 26 audit cases; physical-device and release gates remain open.
+
 The eighth browser audit added 12 WebKit passes before the phone Layers test
 clicked a status control while its horizontal scrolling layer had stale hit-test
 positions. A focused reproduction failed on a different toggle. The test now

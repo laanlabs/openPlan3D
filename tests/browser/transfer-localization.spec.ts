@@ -13,6 +13,7 @@ for (const flow of [
     });
     await page.setViewportSize({ width: 390, height: 900 });
     await page.goto('/');
+    await expect(page.getByText('Nenhum projeto ainda', { exact: true })).toBeVisible();
     const before = await storedRecords(page);
     await page.getByRole('button', { name: flow.title, exact: true }).click();
     const dialog = page.getByRole('dialog', { name: flow.title, exact: true });
