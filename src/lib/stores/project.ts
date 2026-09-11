@@ -772,6 +772,16 @@ export function updateItemDetails(target: DetailTarget, patch: ItemDetails) {
 }
 
 export function updateRoom(id: string, updates: Partial<{ name: string; floorTexture: string; floorOpening: boolean; color: string; roomType: import('$lib/models/types').RoomCategory; labelOffset: import('$lib/models/types').Point | undefined }>) {
+  const floor = get(activeFloor);
+  if (!floor || Object.keys(updates).length === 0) return;
+  const saved = floor.rooms.find(room => room.id === id);
+  if (!saved && !get(detectedRoomsStore).some(room => room.id === id)) return;
+  if (saved && Object.entries(updates).every(([key, value]) => {
+    if (key === 'labelOffset' && value && typeof value === 'object' && saved.labelOffset) {
+      return value.x === saved.labelOffset.x && value.y === saved.labelOffset.y;
+    }
+    return saved[key as keyof typeof updates] === value;
+  })) return;
   mutate((f) => {
     let r = f.rooms.find((r) => r.id === id);
     if (r) {

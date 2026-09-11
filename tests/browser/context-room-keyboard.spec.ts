@@ -62,7 +62,14 @@ for (const width of [1440, 390]) test(`keyboard room rename and floor materials 
   await rename();
   await editor.fill('Meu {name} ambiente'); await editor.press('Enter');
   await expect(editor).toHaveCount(0); await expect(canvas).toBeFocused();
-  expect(await exported()).toEqual({ ...before, rooms: before.rooms.map((room: any, index: number) => index === 0 ? { ...room, name: 'Meu {name} ambiente' } : room) });
+  const renamed = { ...before, rooms: before.rooms.map((room: any, index: number) => index === 0 ? { ...room, name: 'Meu {name} ambiente' } : room) };
+  expect(await exported()).toEqual(renamed);
+  await page.getByRole('button', { name: 'Desfazer', exact: true }).click();
+  expect(await exported()).toEqual(before);
+  // Accepting an unchanged name must preserve the redo of the actual rename.
+  await rename(); await editor.press('Enter');
+  await page.getByRole('button', { name: 'Refazer', exact: true }).click();
+  expect(await exported()).toEqual(renamed);
   await page.getByRole('button', { name: 'Desfazer', exact: true }).click();
   expect(await exported()).toEqual(before);
   await page.getByRole('button', { name: /Original \{name\}/ }).click();

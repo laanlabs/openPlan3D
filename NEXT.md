@@ -163,7 +163,12 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
-Latest full web unit checkpoint: **945 tests across 88 files passed** with the
+Latest full web unit checkpoint: **949 tests across 89 files passed** with the
+unchanged-room update guard (3.62 seconds). Check/build and six room-menu browser
+cases at 1440px/390px across three engines pass (26.8 seconds), including Redo
+preservation after accepting an unchanged room name. Full release gates remain.
+
+Earlier full web unit checkpoint: **945 tests across 88 files passed** with the
 room-deletion metadata fix (3.20 seconds). Check/build and six room keyboard-menu
 cases across three browser engines at 1440px/390px pass (24.6 seconds), including
 label reset, full deletion and exact Undo. Device/release gates remain open.
@@ -1226,6 +1231,15 @@ preservation. Check/build and six browser cases at 1440px/390px across three eng
 pass (17.0 seconds). In a four-room grid, deleting a corner removes only its two
 exclusive walls, preserving three neighbors, shared openings and all furniture.
 Imported duplicate/coincident wall topology and physical/release gates remain open.
+
+### Preserve room Undo/Redo for unchanged fields — 2026-09-11
+
+Unchanged saved-room updates, empty patches and nonexistent room IDs now return
+before a snapshot or save notification. Label offsets compare their coordinates,
+not object identity. First-time metadata persistence for detected rooms remains.
+The regression verifies that unchanged fields add no Undo step and preserve Redo.
+All 949 unit tests, check/build and six desktop/narrow browser cases pass. Other
+item types and remaining NEXT scope are not qualified by this room-specific fix.
 
 ### Minimap for object-only content — 2026-09-09
 

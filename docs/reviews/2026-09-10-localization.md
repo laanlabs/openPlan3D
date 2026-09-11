@@ -1584,3 +1584,19 @@ Imported coincident/duplicate topology and physical qualification remain open.
 Logs: `/tmp/web-shared-room-repro.log`, `/tmp/web-shared-room-unit.log`,
 `/tmp/web-shared-room-check.log`, `/tmp/web-shared-room-build.log`,
 `/tmp/web-shared-room-browser.log`.
+
+## Unchanged room updates preserve history — 2026-09-11
+
+A unit regression at c52980a reproduced redundant room updates consuming Undo
+and clearing Redo. updateRoom now skips unchanged saved fields, equivalent label
+offset coordinates, empty patches and nonexistent IDs before mutation. Newly
+detected room metadata still persists when an explicit field update first saves it.
+
+Check/build pass with zero Svelte diagnostics; all 949 tests in 89 files pass
+(3.62 seconds). Six Portuguese browser cases at 1440px/390px pass across Chromium,
+Firefox and WebKit (26.8 seconds). They rename, Undo, accept the unchanged original
+name, then Redo the real rename and verify the exact exported floor. Existing
+room reset/delete/material/focus checks remain in the same cases.
+Logs: `/tmp/web-room-noop-repro.log`, `/tmp/web-room-noop-all-unit.log`,
+`/tmp/web-room-noop-check.log`, `/tmp/web-room-noop-build.log`,
+`/tmp/web-room-noop-browser.log`. Remaining NEXT requirements stay open.
