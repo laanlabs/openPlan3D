@@ -407,10 +407,11 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
 
 ## 5. Repository and release maintenance
 
-- Replace stale `FEATURES.md` and comparison checklists with a tested capability
-  matrix. Refresh README counts/import features and add contributor guidance,
-  fixture-oriented issue/PR templates and a release checklist. Historical review
-  findings and original package metadata are not authoritative current status.
+- `FEATURES.md` now provides implementation scope linked to regression coverage;
+  `COMPARISON_REVIEW.md` is explicitly historical. README links the matrix and
+  package import/export contract and uses the catalog source instead of a stale
+  item count. Contributor guidance, fixture-oriented issue/PR templates and a
+  release checklist remain. Historical findings are not current release status.
 - The seven remaining Svelte warnings are resolved in the local keyboard/component
   cleanup batch: native favorite buttons, protected control activation/Tab, explicit
   inline-editor focus, reactive menu bounds and removal of the retired material
@@ -2708,3 +2709,12 @@ UIImage drawing path. Source bytes stay intact; missing/corrupt files return
 no preview. All 17 preview/package tests pass on Catalyst and iOS Simulator,
 including file dimensions and EXIF rotation. See native
 `docs/native-trace-preview-pixels.md`; peak import/device measurements remain open.
+
+### Capability documentation refresh — 2026-09-10
+
+Replaced the obsolete FEATURES mockup checklist with a web capability matrix
+linked to regression tests, source and validation reports. Marked the old
+comparison as historical, refreshed README package import/export coverage and
+removed its fixed catalog count. Inspected the linked test scopes and verified
+all 44 matrix file targets; `git diff --check` passed. No runtime tests were rerun
+for documentation-only edits. Contributor/release templates and device gates remain open.
