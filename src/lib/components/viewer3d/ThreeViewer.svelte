@@ -2190,12 +2190,12 @@
   {#if cameraPreviewOpen && cameraPlaced}
     <div class="absolute bottom-4 right-4 z-[60] bg-gray-900/95 rounded-xl shadow-2xl backdrop-blur-sm overflow-y-auto max-w-[calc(100vw-2rem)]" style="width: 420px; max-height: calc(100vh - 8rem);">
       <div class="flex items-center justify-between px-3 py-2 border-b border-gray-700">
-        <span class="text-white text-sm font-medium">📷 Interior Camera</span>
+        <span class="text-white text-sm font-medium">{$t('viewerCamera.title')}</span>
         <div class="flex gap-2">
           <button class="text-xs text-blue-400 hover:text-blue-300" onclick={() => { cancelAIRender(); aiRenderOpen = !aiRenderOpen; }}>
             {aiRenderOpen ? 'Hide AI' : '✨ AI Render'}
           </button>
-          <button class="text-gray-400 hover:text-white text-lg leading-none" onclick={closeCamera} aria-label="Close camera">✕</button>
+          <button class="text-gray-400 hover:text-white text-lg leading-none" onclick={closeCamera} aria-label={$t('viewerCamera.close')}>✕</button>
         </div>
       </div>
       <!-- Preview canvas with drag-to-rotate -->
@@ -2205,24 +2205,24 @@
         onpointermove={(e) => { if (!previewDragStart) return; const dx = e.clientX - previewDragStart.x; const dy = e.clientY - previewDragStart.y; cameraYaw = previewDragStart.yaw + dx * 0.5; cameraPitch = Math.max(-45, Math.min(45, previewDragStart.pitch - dy * 0.3)); cameraPreviewDirty = true; }}
         onpointerup={() => { previewDragStart = null; }}
       >
-        <canvas use:attachCameraPreview aria-label="Interior camera preview" width="384" height="216" class="w-full pointer-events-none"></canvas>
-        <div class="absolute bottom-1 left-1 text-[10px] text-white/50 pointer-events-none">Drag to look around</div>
+        <canvas use:attachCameraPreview aria-label={$t('viewerCamera.preview')} width="384" height="216" class="w-full pointer-events-none"></canvas>
+        <div class="absolute bottom-1 left-1 text-[10px] text-white/50 pointer-events-none">{$t('viewerCamera.look')}</div>
       </div>
 
       <!-- Movement arrows -->
       <div class="flex items-center justify-center gap-1 py-1.5 border-b border-gray-800">
-        <span class="text-[10px] text-gray-500 mr-2">Move:</span>
-        <button class="w-7 h-7 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-xs flex items-center justify-center" onclick={() => moveCameraRelative(0, -10)} title="Move left">←</button>
+        <span class="text-[10px] text-gray-500 mr-2">{$t('viewerCamera.move')}</span>
+        <button class="w-7 h-7 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-xs flex items-center justify-center" onclick={() => moveCameraRelative(0, -10)} title={$t('viewerCamera.left')} aria-label={$t('viewerCamera.left')}>←</button>
         <div class="flex flex-col gap-0.5">
-          <button class="w-7 h-7 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-xs flex items-center justify-center" onclick={() => moveCameraRelative(10, 0)} title="Move forward">↑</button>
-          <button class="w-7 h-7 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-xs flex items-center justify-center" onclick={() => moveCameraRelative(-10, 0)} title="Move backward">↓</button>
+          <button class="w-7 h-7 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-xs flex items-center justify-center" onclick={() => moveCameraRelative(10, 0)} title={$t('viewerCamera.forward')} aria-label={$t('viewerCamera.forward')}>↑</button>
+          <button class="w-7 h-7 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-xs flex items-center justify-center" onclick={() => moveCameraRelative(-10, 0)} title={$t('viewerCamera.back')} aria-label={$t('viewerCamera.back')}>↓</button>
         </div>
-        <button class="w-7 h-7 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-xs flex items-center justify-center" onclick={() => moveCameraRelative(0, 10)} title="Move right">→</button>
+        <button class="w-7 h-7 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-xs flex items-center justify-center" onclick={() => moveCameraRelative(0, 10)} title={$t('viewerCamera.right')} aria-label={$t('viewerCamera.right')}>→</button>
       </div>
 
       <div class="px-3 py-2 space-y-1.5">
         <label class="flex items-center justify-between text-xs text-gray-300">
-          <span>FOV</span>
+          <span>{$t('viewerCamera.fov')}</span>
           <div class="flex items-center gap-2">
             <input type="range" min="50" max="120" bind:value={cameraFOV} class="w-28 h-1 accent-blue-400"
               oninput={() => { cameraPreviewDirty = true; }} />
@@ -2230,7 +2230,7 @@
           </div>
         </label>
         <label class="flex items-center justify-between text-xs text-gray-300">
-          <span>Height</span>
+          <span>{$t('viewerCamera.height')}</span>
           <div class="flex items-center gap-2">
             <input type="range" min="80" max="220" bind:value={cameraHeight} class="w-28 h-1 accent-blue-400"
               oninput={() => { cameraPreviewDirty = true; }} />
@@ -2239,20 +2239,20 @@
         </label>
         <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer select-none">
           <input type="checkbox" bind:checked={cameraXrayWalls} class="accent-blue-400" onchange={() => { cameraPreviewDirty = true; }} />
-          <span>X-ray walls (see through)</span>
+          <span>{$t('viewerCamera.xray')}</span>
         </label>
         <div class="flex gap-2 pt-1">
           <button
             class="flex-1 px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-500 transition-colors"
             onclick={captureInteriorPhoto}
           >
-            📸 Capture 1920×1080
+            {$t('viewerCamera.capture')}
           </button>
           <button
             class="px-3 py-1.5 bg-gray-700 text-gray-300 text-sm rounded-lg hover:bg-gray-600 transition-colors"
             onclick={() => { cameraPlacementMode = true; cameraPlaced = false; }}
           >
-            Reposition
+            {$t('viewerCamera.reposition')}
           </button>
         </div>
       </div>

@@ -984,5 +984,19 @@ export const pt = {
   "viewerLighting.morning": "manhã",
   "viewerLighting.noon": "meio-dia",
   "viewerLighting.evening": "entardecer",
-  "viewerLighting.night": "noite"
+  "viewerLighting.night": "noite",
+  "viewerCamera.title": "📷 Câmera interna",
+  "viewerCamera.close": "Fechar câmera",
+  "viewerCamera.preview": "Prévia da câmera interna",
+  "viewerCamera.look": "Arraste para olhar ao redor",
+  "viewerCamera.move": "Mover:",
+  "viewerCamera.left": "Mover para a esquerda",
+  "viewerCamera.forward": "Mover para frente",
+  "viewerCamera.back": "Mover para trás",
+  "viewerCamera.right": "Mover para a direita",
+  "viewerCamera.fov": "Campo de visão",
+  "viewerCamera.height": "Altura",
+  "viewerCamera.xray": "Paredes transparentes (ver através)",
+  "viewerCamera.capture": "📸 Capturar 1920×1080",
+  "viewerCamera.reposition": "Reposicionar"
 } as const;

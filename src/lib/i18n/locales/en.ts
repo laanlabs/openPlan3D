@@ -984,5 +984,19 @@ export const en = {
   "viewerLighting.morning": "morning",
   "viewerLighting.noon": "noon",
   "viewerLighting.evening": "evening",
-  "viewerLighting.night": "night"
+  "viewerLighting.night": "night",
+  "viewerCamera.title": "📷 Interior Camera",
+  "viewerCamera.close": "Close camera",
+  "viewerCamera.preview": "Interior camera preview",
+  "viewerCamera.look": "Drag to look around",
+  "viewerCamera.move": "Move:",
+  "viewerCamera.left": "Move left",
+  "viewerCamera.forward": "Move forward",
+  "viewerCamera.back": "Move backward",
+  "viewerCamera.right": "Move right",
+  "viewerCamera.fov": "FOV",
+  "viewerCamera.height": "Height",
+  "viewerCamera.xray": "X-ray walls (see through)",
+  "viewerCamera.capture": "📸 Capture 1920×1080",
+  "viewerCamera.reposition": "Reposition"
 } as const;

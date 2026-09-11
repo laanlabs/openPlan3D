@@ -1272,3 +1272,17 @@ Logs: `/tmp/web-walkthrough-portuguese.log`,
 `/tmp/web-walkthrough-english-integration.log`. This does not qualify physical
 mouse-lock permission, touch navigation, active FPS or battery. Remaining NEXT
 requirements stay open.
+
+## Interior camera preview localization
+
+Translated camera preview heading, canvas name, guidance, movement, FOV/height,
+x-ray, capture/reposition and close controls. Movement arrows now have explicit
+accessible names matching their tooltips. Production check reports zero errors/
+warnings; build and five localization unit tests pass. Three browser cases pass
+(58.6 seconds, exit 0), opening a rendering preview, clicking movement controls,
+keyboard-adjusting FOV/height, toggling x-ray, downloading a 1920×1080 PNG, then
+repositioning/reopening and closing with preview WebGL context release.
+Logs: `/tmp/web-camera-labels-check.log`, `/tmp/web-camera-labels-build.log`,
+`/tmp/web-camera-labels-unit.log`, `/tmp/web-camera-labels-browser.log`.
+Movement displacement and visual image quality are not measured in this test;
+AI panel, physical touch and remaining NEXT requirements stay open.
