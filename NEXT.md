@@ -163,7 +163,15 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
-Latest full web unit checkpoint: **960 tests across 90 files passed** with furniture
+Latest full web unit checkpoint: **967 tests across 91 files passed** with furnished
+room layout corrections (3.82 seconds). Default 400×300cm templates now keep
+catalog footprints inside the walls without furniture overlap and apply specified
+rotations. Nine browser cases pass across all three engines (20.1 seconds), with
+click/drag placement, bedroom rotations, Undo/Redo and save/reopen coverage.
+Check/build pass with zero Svelte diagnostics. Circulation, physical-device use
+and arbitrary room-size layout adaptation remain unqualified.
+
+Earlier full web unit checkpoint: **960 tests across 90 files passed** with furniture
 context-menu mirror and stacking fixes (3.92 seconds). Check/build pass with zero
 Svelte diagnostics; six browser cases across Chromium, Firefox and WebKit pass
 (21.8 seconds). Mirroring preserves signed scale, and front/back changes now use

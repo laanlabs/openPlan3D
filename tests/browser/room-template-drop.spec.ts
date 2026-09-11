@@ -22,6 +22,7 @@ test('dragging a furnished room template places walls and furniture in one undo'
   const placed = await exported();
   expect(placed[0].walls).toHaveLength(4);
   expect(placed[0].furniture.map((item: any) => item.catalogId)).toEqual(['bed_queen', 'nightstand', 'nightstand', 'dresser', 'wardrobe']);
+  expect(placed[0].furniture.map((item: any) => item.rotation)).toEqual([0, 0, 0, 180, 180]);
   const points = placed[0].walls.flatMap((wall: any) => [wall.start, wall.end]);
   expect(Math.min(...points.map((p: any) => p.x))).toBe(-100);
   expect(Math.max(...points.map((p: any) => p.x))).toBe(300);

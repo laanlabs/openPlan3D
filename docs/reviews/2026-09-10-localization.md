@@ -1805,3 +1805,22 @@ pass with zero Svelte diagnostics. The drag case uses desktop mouse input;
 physical touch dragging remains unqualified.
 Logs: `/tmp/web-template-drop-repro.log`, `/tmp/web-template-drop-check.log`,
 `/tmp/web-template-drop-build.log`, `/tmp/web-template-drop-browser.log`.
+
+### 2026-09-11: Default furnished-room layout corrections
+
+Catalog-footprint checks reproduced wall crossings in living/bedroom/office
+templates and furniture overlap in kitchen/dining templates. Placement also
+discarded every template rotation. Layout offsets and orientations now keep the
+default 400×300cm rooms' furniture inside the wall faces without overlap.
+Dining chairs face the table, office seating faces the desk, and wall storage
+faces into the room. Placement applies rotations within the existing Undo group.
+
+All 967 unit tests across 91 files pass (3.82 seconds), including each default
+layout's footprint bounds/overlap and rotated placement with exact Undo/Redo.
+Nine browser cases pass across Chromium, Firefox and WebKit (20.1 seconds),
+including updated bedroom rotations in drag placement and save/reopen. Check/build
+pass with zero Svelte diagnostics. These bounds checks do not qualify circulation,
+arbitrary room dimensions, rendered-model fidelity or physical-device usability.
+Logs: `/tmp/web-template-layout-repro.log`, `/tmp/web-template-layout-all-unit.log`,
+`/tmp/web-template-layout-check.log`, `/tmp/web-template-layout-build.log`,
+`/tmp/web-template-layout-browser.log`.
