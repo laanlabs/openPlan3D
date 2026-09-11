@@ -65,7 +65,7 @@ for (const width of [1440, 390]) test(`furniture tint, finish and resource reuse
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect.poll(async () => Object.values(await savedProjects(page)).some(project => project.floors[0].furniture.some((item: any) => item.id === 'chair-red' && item.color === '#191970' && item.material === 'Fabric'))).toBe(true);
   await open3D(page);
-  await expect.poll(async () => (await colors(page)).blue).toBeGreaterThan(50);
+  await expect.poll(async () => (await colors(page)).blue, { timeout: 60_000 }).toBeGreaterThan(50);
   expect((await colors(page)).green).toBeGreaterThan(50);
   expect(observed.models.filter(url => chairURL.test(url))).toHaveLength(1);
   await testInfo.attach(`furniture-${width}`, { body: await page.screenshot(), contentType: 'image/png' });
@@ -82,7 +82,7 @@ for (const width of [1440, 390]) test(`furniture tint, finish and resource reuse
   await page.getByRole('button', { name: '💺 Armchair', exact: true }).first().click();
   await expect(page.getByRole('combobox', { name: 'Material', exact: true })).toHaveValue('Fabric');
   await open3D(page);
-  await expect.poll(async () => (await colors(page)).blue).toBeGreaterThan(50);
+  await expect.poll(async () => (await colors(page)).blue, { timeout: 60_000 }).toBeGreaterThan(50);
   expect((await colors(page)).green).toBeGreaterThan(50);
   observed.check();
 });

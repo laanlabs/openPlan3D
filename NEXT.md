@@ -35,7 +35,10 @@ earlier edit/reload/stack checks. That workflow now has a 180-second allowance.
 That continuation passed 20 cases before the furniture-fidelity workflow
 reached its total deadline during the second 3D color check. Both viewport
 variants now have a 180-second allowance with all assertions retained. There
-are 124 retained passes; 983 remaining cases run in session `49049`.
+are 124 retained passes. That rerun reached the blue-pixel probe’s own
+10-second deadline; its screenshot shows the navy chair. Blue-pixel readiness
+now allows 60 seconds without changing color thresholds. The same 983 cases
+run in session `34370`; `49049` is terminal with zero added passes.
 Poll the actual process before starting competing tests or rebuilding;
 sessions `93960`, `85756`, `76158`, `6878`, `49725`, `23537`, `41767`, `47598`, `22444`, `35782` and `7225` are terminal.
 See [the live report](docs/reviews/2026-09-11-catalog-browser-qualification.md).
