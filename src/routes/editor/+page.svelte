@@ -209,7 +209,7 @@
 
 {#if ready}
   <div class="h-screen flex flex-col overflow-hidden">
-    <TopBar />
+    <TopBar onToggleLayers={() => showLayers = !showLayers} layersOpen={showLayers} />
     <!-- Keep canvas/viewer controls beneath toolbar menus and project dialogs. -->
     <div class="flex flex-1 overflow-hidden isolate">
       {#if mode === '2d'}

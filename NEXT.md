@@ -3042,9 +3042,20 @@ production build and six browser cases pass, using the L shortcut at both widths
 to verify visibility/selection and exported-data preservation. Catalog names
 and the separate canvas visibility popover remain untranslated.
 
-**Open touch issue:** at 390px, clicking the canvas “Layers” control is blocked
+**Reproduced issue, subsequently fixed in browser checks (see below):** at 390px, clicking the canvas “Layers” control is blocked
 by the floating zoom toolbar (Fit selection intercepts the click in Chromium).
 The item-list toggle is desktop-only; its keyboard shortcut works on the narrow
 layout but does not establish touch access. Fix control overlap and make item-list
 access clear on touch devices; verify real clicks without force or DOM dispatch.
 See the localization record for failed/successful run evidence.
+
+### Narrow-layout Layers access correction — 2026-09-10
+
+The canvas status/actions strip scrolls horizontally above the zoom controls on
+phones; its visibility popover opens above both strips. Added a Layers entry to
+the compact toolbar menu to open/close the item list without a keyboard. Six
+browser cases pass across Chromium, Firefox and WebKit at 1440px/390px (60.0s).
+The narrow cases use normal pointer clicks to open/close the visibility popover,
+toggle walls and open the item list, then verify selection and exported floor
+data. Production build and zero-warning Svelte check pass. Physical touch devices,
+other narrow viewport combinations and general toolbar localization remain open.

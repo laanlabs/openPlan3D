@@ -407,3 +407,22 @@ Chromium. Logs `/tmp/web-layers-browser.log` and
 `/tmp/web-layers-browser-final.log` preserve those failures. The successful test
 is keyboard/list coverage, not evidence of touch access. Fixing the overlap and
 providing clear touch access to the item list remain open.
+
+## Narrow-layout Layers access follow-up
+
+Corrected the reproduced overlap: the phone canvas status/actions strip is
+width-constrained and horizontally scrollable above the zoom controls, following
+the existing visible-canvas bottom offset. Its visibility popover opens above the
+actions strip. A compact TopBar menu entry now toggles the item list via a parent
+callback, exposing its pressed state and closing the menu after activation.
+
+The browser test now opens the list through actual UI buttons rather than L.
+At 390px it also opens/closes the canvas visibility popover and toggles its Walls
+checkbox with normal clicks. All six cases pass across three engines at both
+widths (60.0 seconds), retaining the selection and exported-data assertions.
+An intermediate run reproduced the popover covering its toggle; that run was
+stopped (exit 130), the popover offset corrected, and the final build/run passed.
+Logs: `/tmp/web-mobile-layers-build-final.log`,
+`/tmp/web-mobile-layers-check-final.log`, `/tmp/web-mobile-layers-browser-final.log`.
+This resolves the observed browser overlap and keyboard-only item-list entry,
+without claiming physical-device qualification or all viewport combinations.

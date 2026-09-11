@@ -19,7 +19,20 @@ for (const width of [1440, 390]) test(`Portuguese layers preserve visibility, se
     return JSON.parse(await readFile((await (await pending).path())!, 'utf8'));
   }
   const before = await exported();
-  await page.getByRole('button', { name: 'Salvar', exact: true }).press('l');
+  if (width < 768) {
+    const visibility = page.getByRole('button', { name: '🗂 Layers', exact: true });
+    await visibility.click();
+    const walls = page.getByRole('checkbox', { name: 'Walls', exact: true });
+    await expect(walls).toBeChecked();
+    await walls.click();
+    await expect(walls).not.toBeChecked();
+    await walls.click();
+    await visibility.click();
+    await expect(walls).toHaveCount(0);
+
+    await page.getByRole('button', { name: 'Mais ações', exact: true }).click();
+    await page.getByRole('button', { name: 'Camadas', exact: true }).click();
+  } else await page.getByRole('button', { name: 'Toggle Layers Panel', exact: true }).click();
   await expect(page.getByText('🗂 Camadas', { exact: true })).toBeVisible();
   const hide = page.getByTitle('Ocultar Paredes', { exact: true });
   await hide.focus();
