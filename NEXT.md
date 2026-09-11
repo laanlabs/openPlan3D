@@ -3541,3 +3541,11 @@ translated status, supports retry and ignores late results after dialog reopen.
 Check/build, five localization unit tests and six browser cases pass (28.6 seconds),
 including delayed completion and no page errors. Actual OS permissions and
 remaining device/release requirements stay open.
+
+### Blender scene export localization — 2026-09-11
+
+Translated export labels/status and stacked-floor elevation. Check/build, five
+localization unit tests and six Portuguese browser cases pass (52.0 seconds),
+covering deterministic scene downloads, geometry/height/scope and backup heights
+at desktop/narrow widths. External rendering, failure branches and remaining
+device/release qualification stay open.

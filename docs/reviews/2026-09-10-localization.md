@@ -1351,3 +1351,17 @@ Logs: `/tmp/web-shortcut-copy-repro.log`, `/tmp/web-shortcut-copy-check.log`,
 `/tmp/web-shortcut-copy-build.log`, `/tmp/web-shortcut-copy-unit.log`,
 `/tmp/web-shortcut-copy-browser.log`. Clipboard permission is simulated; actual
 OS clipboard permissions and remaining NEXT requirements stay open.
+
+## Blender scene export localization
+
+Translated export action/help, known status messages and stacked-floor elevation
+label. Original errors not owned by this view remain unchanged. Production check
+reports zero errors/warnings; build and five localization unit tests pass. Six
+Portuguese browser cases pass at desktop/narrow widths across all engines
+(52.0 seconds, exit 0), verifying schema/coordinates, wall and floor meshes,
+expected heights, identical repeated downloads, stacked-floor expansion and
+ordinary project backup heights. The existing test retains its English cases.
+Logs: `/tmp/web-viewer-export-check.log`, `/tmp/web-viewer-export-build.log`,
+`/tmp/web-viewer-export-unit.log`, `/tmp/web-viewer-export-browser.log`.
+Export failure branches and external Blender rendering were not requalified here;
+physical-device and remaining NEXT requirements stay open.

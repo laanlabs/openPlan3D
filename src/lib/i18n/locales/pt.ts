@@ -1051,5 +1051,11 @@ export const pt = {
   "viewerFurniture.paint": "🪣 Clique nas paredes para aplicar materiais • Esc para fechar o seletor ou sair",
   "shortcuts.copying": "Copiando atalhos…",
   "shortcuts.copied": "Atalhos copiados.",
-  "shortcuts.failed": "Não foi possível copiar os atalhos. Tente novamente."
+  "shortcuts.failed": "Não foi possível copiar os atalhos. Tente novamente.",
+  "viewerExport.button": "Exportar cena para Blender",
+  "viewerExport.help": "Exportar os pavimentos exibidos como geometria neutra para o processador local do Blender",
+  "viewerExport.success": "Geometria neutra exportada para o processador local do Blender. Texturas e câmeras de fotos não são incluídas.",
+  "viewerExport.notReady": "A cena 3D ainda não está pronta.",
+  "viewerExport.failed": "Não foi possível exportar a cena de renderização.",
+  "viewerExport.elevation": "{name} · elevação de {value} cm"
 } as const;

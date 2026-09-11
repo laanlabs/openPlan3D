@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { t } from '$lib/i18n';
+  import { t, type TranslationKey } from '$lib/i18n';
   import { catalogCategoryLabels } from '$lib/i18n/catalogCategories';
   import { aiRenderLabels } from '$lib/i18n/aiRenderLabels';
   import { hasOpenModal } from '$lib/utils/modalDialog';
@@ -45,6 +45,12 @@
   // Dirty flag — only render when scene changes or camera moves
   let sceneDirty = true;
   let renderExportMessage = $state('');
+  const renderExportLabels: Record<string, TranslationKey> = {
+    "Exported neutral geometry for the local Blender worker. Textures and photo cameras are omitted.": "viewerExport.success",
+    "The 3D scene is not ready.": "viewerExport.notReady",
+    "Could not export the render scene.": "viewerExport.failed"
+  };
+
   let viewerMounted = false;
   let animId: number | undefined;
   function requestRender() {
@@ -2048,13 +2054,13 @@
 
 <div bind:this={container} class="w-full h-full relative" role="region" aria-label={$t('viewerNav.region')}>
   <div class="absolute bottom-16 left-4 z-10 max-w-xs">
-    {#if renderExportMessage}<p role="status" class="mb-2 rounded bg-black/80 p-2 text-xs text-white">{renderExportMessage}</p>{/if}
+    {#if renderExportMessage}<p role="status" class="mb-2 rounded bg-black/80 p-2 text-xs text-white">{renderExportLabels[renderExportMessage] ? $t(renderExportLabels[renderExportMessage]) : renderExportMessage}</p>{/if}
     <button class="rounded bg-black/70 px-3 py-2 text-sm text-white hover:bg-black/80" onclick={exportBlenderScene}
-      title="Export displayed floors as neutral geometry for the local Blender worker">Export Blender Scene</button>
+      title={$t('viewerExport.help')}>{$t('viewerExport.button')}</button>
   </div>
   {#if showAllFloors && currentFloor}
     <div class="absolute bottom-4 right-4 z-10 rounded bg-black/70 px-3 py-2 text-xs text-white pointer-events-none">
-      {currentFloor.name} · {activeFloorElevation} cm elevation
+      {$t('viewerExport.elevation', { name: currentFloor.name, value: activeFloorElevation })}
     </div>
   {/if}
   <!-- 3D Toolbar Row -->

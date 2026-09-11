@@ -2,22 +2,23 @@ import { test, expect } from '@playwright/test';
 import { resolve } from 'node:path';
 import { readFile } from 'node:fs/promises';
 
-for (const width of [1440, 390]) test(`downloads neutral geometry without changing the project at ${width}px`, async ({ page }, testInfo) => {
+for (const locale of ['en', 'pt']) for (const width of [1440, 390]) test(`${locale} downloads neutral geometry without changing the project at ${width}px`, async ({ page }, testInfo) => {
+  await page.addInitScript(locale => localStorage.setItem('o3d_locale', locale), locale);
   await page.setViewportSize({ width, height: 900 });
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/editor');
-  await page.getByRole('button', { name: 'Export', exact: true }).click();
+  await page.getByRole('button', { name: locale === 'pt' ? 'Exportar' : 'Export', exact: true }).click();
   const chooser = page.waitForEvent('filechooser');
-  await page.getByRole('button', { name: 'Import JSON', exact: true }).click();
+  await page.getByRole('button', { name: locale === 'pt' ? 'Importar JSON' : 'Import JSON', exact: true }).click();
   await (await chooser).setFiles(resolve('tests/fixtures/sloped-walls.openplan.json'));
   await page.getByRole('button', { name: '3D', exact: true }).click();
   await page.waitForLoadState('networkidle');
-  const hint = page.getByRole('button', { name: 'Got it', exact: true });
+  const hint = page.getByRole('button', { name: locale === 'pt' ? 'Entendi' : 'Got it', exact: true });
   if (await hint.isVisible()) await hint.click();
   const download = async () => {
     const pending = page.waitForEvent('download');
-    await page.getByRole('button', { name: 'Export Blender Scene', exact: true }).click();
+    await page.getByRole('button', { name: locale === 'pt' ? 'Exportar cena para Blender' : 'Export Blender Scene', exact: true }).click();
     const file = await pending;
     expect(file.suggestedFilename()).toBe('openplan3d-render-scene.json');
     return readFile((await file.path())!, 'utf8');
@@ -30,18 +31,18 @@ for (const width of [1440, 390]) test(`downloads neutral geometry without changi
   expect(scene.meshes.some((m: any) => m.material === 'floor')).toBe(true);
   expect(Math.max(...scene.meshes.filter((m: any) => m.material === 'wall').flatMap((m: any) => m.vertices.map((v: number[]) => v[1])))).toBeCloseTo(3.4);
   expect(await download()).toBe(first);
-  await expect(page.getByRole('status').filter({ hasText: 'Exported neutral geometry' })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: locale === 'pt' ? 'Geometria neutra exportada' : 'Exported neutral geometry' })).toBeVisible();
   await testInfo.attach('portable-render-scene.json', { body: first, contentType: 'application/json' });
-  await page.getByRole('button', { name: 'Show All Floors Stacked', exact: true }).click();
+  await page.getByRole('button', { name: locale === 'pt' ? 'Mostrar todos os pavimentos empilhados' : 'Show All Floors Stacked', exact: true }).click();
   const stacked = JSON.parse(await download());
   expect(stacked.scope).toBe('stacked-floors');
   expect(stacked.meshes.length).toBeGreaterThan(scene.meshes.length);
   expect(Math.max(...stacked.meshes.flatMap((m: any) => m.vertices.map((v: number[]) => v[1])))).toBeGreaterThan(3.4);
   await testInfo.attach('portable-stacked-scene.json', { body: JSON.stringify(stacked), contentType: 'application/json' });
   // The ordinary project backup remains a project, with the same editable dimensions.
-  await page.getByRole('button', { name: 'Export', exact: true }).click();
+  await page.getByRole('button', { name: locale === 'pt' ? 'Exportar' : 'Export', exact: true }).click();
   const backupDownload = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Download JSON', exact: true }).click();
+  await page.getByRole('button', { name: locale === 'pt' ? 'Baixar JSON' : 'Download JSON', exact: true }).click();
   const backup = JSON.parse(await readFile((await (await backupDownload).path())!, 'utf8'));
   expect(backup.floors[0].walls[0].startHeight).toBe(160);
   expect(backup.floors[0].walls[0].endHeight).toBe(340);

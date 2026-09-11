@@ -1051,5 +1051,11 @@ export const en = {
   "viewerFurniture.paint": "🪣 Click walls to paint materials • ESC to close picker or exit",
   "shortcuts.copying": "Copying shortcuts…",
   "shortcuts.copied": "Shortcuts copied.",
-  "shortcuts.failed": "Could not copy shortcuts. Try again."
+  "shortcuts.failed": "Could not copy shortcuts. Try again.",
+  "viewerExport.button": "Export Blender Scene",
+  "viewerExport.help": "Export displayed floors as neutral geometry for the local Blender worker",
+  "viewerExport.success": "Exported neutral geometry for the local Blender worker. Textures and photo cameras are omitted.",
+  "viewerExport.notReady": "The 3D scene is not ready.",
+  "viewerExport.failed": "Could not export the render scene.",
+  "viewerExport.elevation": "{name} · {value} cm elevation"
 } as const;
