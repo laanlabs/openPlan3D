@@ -1720,3 +1720,13 @@ Pixel-level 3D and physical-device qualification remain open.
 Logs: `/tmp/web-curve-split-repro.log`, `/tmp/web-curve-split-all-unit.log`,
 `/tmp/web-curve-split-check.log`, `/tmp/web-curve-split-build.log`,
 `/tmp/web-curve-split-browser.log`.
+
+### 2026-09-11: Curved split keyboard integration
+
+The Portuguese curved-split browser case now opens the selected wall's context
+menu with Shift+F10, activates Split with Enter and verifies canvas focus returns.
+Its existing geometry, opening, room/group, Undo/Redo and save/reopen checks pass
+in Chromium, Firefox and WebKit. Together with the existing unsplit curved-opening
+3D mesh checks, six cases pass (46.6 seconds).
+Log: `/tmp/web-curve-split-integration-browser.log`.
+Exported 3D meshes after a curved split and physical gestures remain unqualified.

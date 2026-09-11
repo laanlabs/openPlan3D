@@ -34,7 +34,15 @@ for (const curved of [false, true]) test(`Portuguese ${curved ? 'curved' : 'stra
   await page.getByRole('button', { name: 'Desfazer', exact: true }).click();
   expect(await exported()).toEqual(original);
   await page.getByRole('button', { name: '─ Parede 1', exact: true }).click();
-  await page.getByRole('button', { name: 'Dividir parede ao meio', exact: true }).click();
+  if (curved) {
+    const canvas = page.getByLabel('Floor plan editor canvas', { exact: true });
+    await canvas.focus(); await canvas.press('Shift+F10');
+    const splitAction = page.getByRole('menuitem', { name: '✂️ Dividir Parede', exact: true });
+    await expect(splitAction).toBeFocused(); await splitAction.press('Enter');
+    await expect(canvas).toBeFocused();
+  } else {
+    await page.getByRole('button', { name: 'Dividir parede ao meio', exact: true }).click();
+  }
   const split = await exported();
   expect(split.walls).toHaveLength(original.walls.length + 1);
   const first = split.walls[0], second = split.walls.at(-1);
