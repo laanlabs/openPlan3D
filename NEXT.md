@@ -29,9 +29,12 @@ workflow reached its total deadline during offline reload. It now has a
 The asset-cache workflow passed, including offline reload. The sloped-wall
 workflow then exceeded its 10-second 3D readiness wait after edit/reload checks.
 That wait now allows 60 seconds within a 180-second workflow. There are 103
-distinct retained passes; 1,004 remaining cases run in session `35782`.
+distinct retained passes at that launch. Sloped walls passed; the floor-elevation
+workflow then hit its total deadline during a walkthrough screenshot after its
+earlier edit/reload/stack checks. That workflow now has a 180-second allowance.
+There are 104 retained passes; 1,003 remaining cases run in session `7225`.
 Poll the actual process before starting competing tests or rebuilding;
-sessions `93960`, `85756`, `76158`, `6878`, `49725`, `23537`, `41767`, `47598` and `22444` are terminal.
+sessions `93960`, `85756`, `76158`, `6878`, `49725`, `23537`, `41767`, `47598`, `22444` and `35782` are terminal.
 See [the live report](docs/reviews/2026-09-11-catalog-browser-qualification.md).
 No full-suite completion is claimed; broader NEXT requirements remain open.
 

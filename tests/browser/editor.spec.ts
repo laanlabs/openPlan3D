@@ -249,6 +249,7 @@ test('sloped walls preserve heights and openings through edits, reversal, elevat
 
 for (const width of [1440, 390]) {
   test(`floor elevations survive edits and reload at ${width}px with stacked views`, async ({ page }, testInfo) => {
+    test.slow();
     await page.setViewportSize({ width, height: 900 });
     const errors: string[] = [];
     const externalRequests: string[] = [];

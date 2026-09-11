@@ -82,11 +82,19 @@ That boundary now allows 60 seconds within a 180-second workflow. Assertions
 are unchanged. There are 103 retained distinct passes and 1,004 remaining cases,
 confirmed by Playwright.
 
+The sloped-wall workflow passed in 1.9 minutes. The floor-elevation workflow
+then exhausted its 60-second total deadline while capturing a walkthrough
+screenshot, after edit/Undo/reload/import/stacked-view assertions. Both viewport
+variants now have a 180-second allowance, with every assertion retained.
+There are 104 distinct retained passes and 1,003 remaining cases, confirmed
+by Playwright.
+
 ## Resume the running process
 
 - Command: `npx playwright test --test-list /tmp/web-localization-remaining.txt --max-failures=1`
-- Unified execution session: `35782`; poll this handle before assuming it ended.
-- Active log: `/tmp/web-localization-full-browser-11.log`
+- Unified execution session: `7225`; poll this handle before assuming it ended.
+- Active log: `/tmp/web-localization-full-browser-12.log`
+- Completed sloped-wall pass: `/tmp/web-localization-full-browser-11.log` (session `35782`, terminal exit 1).
 - Completed asset-cache pass: `/tmp/web-localization-full-browser-10.log` (session `22444`, terminal exit 1).
 - Completed 13-pass continuation: `/tmp/web-localization-full-browser-9.log` (session `47598`, terminal exit 1).
 - Completed seven-pass continuation: `/tmp/web-localization-full-browser-8.log` (session `41767`, terminal exit 1).
