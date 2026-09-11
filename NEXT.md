@@ -170,10 +170,11 @@ Svelte diagnostics; six browser cases across Chromium, Firefox and WebKit pass
 Undo history without clearing Redo for unchanged order.
 
 Rotated furniture placement now groups creation and its initial angle into one
-Undo entry. Six browser cases pass across all three engines for zero/30-degree
-placement, exact removal on Undo and restoration on Redo (21.4 seconds).
-Check/build pass; wall-snapped placement and physical gestures remain separate
-qualification cases.
+Undo entry. Nine browser cases pass across all three engines for zero/30-degree
+and wall-snapped placement, exact removal on Undo, restoration on Redo and
+save/reopen (33.6 seconds). The wall case checks that snapping overrides the
+preview angle and keeps the sofa flush with the wall surface. Check/build passed
+for the implementation; physical gestures remain separate qualification cases.
 
 Earlier full web unit checkpoint: **958 tests across 90 files passed** with curved
 wall splitting (3.65 seconds). Check/build and 12 wall-action browser cases pass

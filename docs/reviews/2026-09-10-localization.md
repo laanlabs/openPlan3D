@@ -1776,3 +1776,16 @@ placement uses the same group but was not separately driven; physical-device
 gestures remain unqualified.
 Logs: `/tmp/web-rotated-placement-repro.log`, `/tmp/web-rotated-placement-check.log`,
 `/tmp/web-rotated-placement-build.log`, `/tmp/web-rotated-placement-browser.log`.
+
+### 2026-09-11: Wall-snapped placement and persistence
+
+The placement browser test now also imports a vertical wall, starts a sofa preview
+at 30 degrees and places it near the wall. The exported sofa aligns at 270 degrees
+and its center is 55cm from the wall centerline: 10cm wall half-thickness plus
+45cm sofa half-depth. One Undo restores the entire prior floor; one Redo restores
+the final placement. All zero-degree, 30-degree and wall-snapped cases now save
+and reopen the project, comparing all exported floors with the placed state.
+Nine cases pass across Chromium, Firefox and WebKit (33.6 seconds).
+Logs: `/tmp/web-wall-placement-browser.log`, `/tmp/web-placement-persistence-browser.log`.
+No runtime change was required. This qualifies the sampled straight-wall case;
+physical touch and broader visual/device behavior remain open.
