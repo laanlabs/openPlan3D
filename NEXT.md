@@ -2940,3 +2940,12 @@ production build pass. Three phone-width browser cases pass across all engines,
 comparing measurements across languages and retaining unknown room categories.
 The older 931-test checkpoint above is explicitly historical; the latest full
 unit baseline remains 936 tests at `31e263d`. Wider localization remains open.
+
+### Print-layout control localization — 2026-09-10
+
+Translated print entry/controls, warnings and fallback errors. Paper IDs, scale
+values and project content are unchanged. Five localization unit tests,
+zero-warning Svelte check and production build pass. Three phone-width browser
+cases pass across all engines, verifying overflow/fit behavior, A4 portrait
+proportions and PDF download. Printed sheet/schedule text and physical print
+qualification remain open.

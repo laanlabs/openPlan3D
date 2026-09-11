@@ -211,3 +211,20 @@ test needed the mobile overflow menu to reach Settings; the final test follows
 that navigation. Logs: `/tmp/web-area-localization-unit.log`,
 `/tmp/web-area-localization-check.log`, `/tmp/web-area-localization-build.log` and
 `/tmp/web-area-localization-browser-final.log`.
+
+## Print-layout control migration
+
+Print-layout entry, paper/orientation/scale controls, preview label, fit warnings
+and dialog-owned fallback errors now follow the selected language. Paper IDs,
+orientation values, scale denominators, geometry and download filenames are
+unchanged. The rendered sheet and generated room-schedule text are still separate
+localization work; translating the controls does not claim a localized PDF body.
+
+Print-control validation: five localization unit tests pass, Svelte check has zero
+errors/warnings and production build exits 0. Three 390-pixel browser cases pass
+across Chromium, Firefox and WebKit (53.6 seconds). They select A4 portrait, verify
+that 1:25 overflow disables download, recover with Fit to page, check the canvas
+paper aspect ratio and download a nonempty PDF with a valid PDF header. This does
+not verify physical printer output or every PDF page's visual layout. Logs:
+`/tmp/web-print-localization-unit.log`, `/tmp/web-print-localization-check.log`,
+`/tmp/web-print-localization-build.log`, `/tmp/web-print-localization-browser.log`.
