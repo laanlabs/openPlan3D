@@ -1154,3 +1154,18 @@ modal dismissal preserves elevation/3D editing modes and PDF print stays usable.
 Logs: `/tmp/web-elevation-integration-unit.log`,
 `/tmp/web-elevation-integration-browser.log`. No runtime changes in this checkpoint.
 Full-browser, physical-device, remaining localization and release work stay open.
+
+## Keyboard shortcut reference localization
+
+Translated shortcut dialog headings, action descriptions, pointer gesture names,
+copy/close labels and footer, sharing translation keys with the copied reference.
+Keyboard bindings are unchanged. The 3D viewer loading message is translated too.
+Production check reports zero errors/warnings; build and five localization unit
+tests pass. Three browser cases pass (22.6 seconds, exit 0), checking Portuguese
+help opened by ?, translated clipboard payload, button close/reopen and Escape.
+The test intercepts clipboard.writeText to inspect its payload; OS clipboard
+permissions and every documented command are not qualified by this test.
+Logs: `/tmp/web-shortcuts-check.log`, `/tmp/web-shortcuts-build.log`,
+`/tmp/web-shortcuts-unit.log`, `/tmp/web-shortcuts-browser.log`.
+Remaining editor loading/error actions, viewer UI, physical-device and release
+requirements remain open.

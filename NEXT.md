@@ -3430,3 +3430,11 @@ its elevation drag. View teardown now closes the pending drag's undo group.
 Production check/build and three browser cases pass (41.3 seconds), checking
 position/sill changes, retained dimensions and exact whole-floor Undo/Redo.
 Other gesture exits, physical-device and remaining release work stay open.
+
+### Keyboard shortcut reference localization — 2026-09-11
+
+Translated shortcut help and copied reference together, plus the 3D loading
+message. Production check/build, five localization unit tests and three browser
+cases pass (22.6 seconds), verifying help entry/dismissal and the translated
+clipboard payload. OS clipboard permissions, remaining UI/device/release work
+stay open.
