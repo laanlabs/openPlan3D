@@ -569,3 +569,18 @@ current canvas bounds. This is representative placement coverage, not every
 opening type or phone placement qualification. Logs:
 `/tmp/web-opening-catalog-unit.log`, `/tmp/web-opening-catalog-check-final.log`,
 `/tmp/web-opening-catalog-build.log`, `/tmp/web-opening-catalog-browser-final.log`.
+
+## Room shapes and furnished templates
+
+Translated room-tab headings/help, four shape names, six furnished-template names
+and item-count captions. Typed display-label maps preserve the original preset
+IDs and template names used for placement and drag payloads, with original-name
+fallbacks for unmapped entries. Factory geometry/furniture data is unchanged.
+
+Five localization unit tests, zero-warning Svelte check and production build pass.
+Six browser cases pass across all engines at 1440px/390px (36.5 seconds), placing
+a rectangle and a furnished bedroom, verifying exported 400×300cm bounds and
+original furniture IDs, and undoing each grouped addition. Other shapes/templates,
+drag placement and physical devices are not newly qualified by this run. Logs:
+`/tmp/web-room-choices-unit.log`, `/tmp/web-room-choices-check.log`,
+`/tmp/web-room-choices-build.log`, `/tmp/web-room-choices-browser.log`.

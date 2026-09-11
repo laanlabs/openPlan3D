@@ -556,5 +556,21 @@ export const en = {
   "openingCatalog.pocketDescription": "90cm recess",
   "openingCatalog.bifoldDescription": "180cm fold",
   "openingCatalog.doorwayDescription": "100cm open",
-  "openingCatalog.garageDescription": "240cm overhead"
+  "openingCatalog.garageDescription": "240cm overhead",
+  "roomChoices.presets": "Room Presets",
+  "roomChoices.presetsHelp": "Click to add a room shape to the canvas",
+  "roomChoices.templates": "Room Templates",
+  "roomChoices.templatesHelp": "Pre-furnished rooms — walls + furniture in one click",
+  "roomChoices.items": "{count} items",
+  "roomChoices.item": "{count} item",
+  "roomChoices.rectangle": "Rectangle",
+  "roomChoices.lShape": "L-Shape",
+  "roomChoices.tShape": "T-Shape",
+  "roomChoices.uShape": "U-Shape",
+  "roomChoices.living": "Living Room",
+  "roomChoices.bedroom": "Bedroom",
+  "roomChoices.kitchen": "Kitchen",
+  "roomChoices.bathroom": "Bathroom",
+  "roomChoices.office": "Office",
+  "roomChoices.dining": "Dining Room"
 } as const;

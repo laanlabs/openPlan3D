@@ -556,5 +556,21 @@ export const pt = {
   "openingCatalog.pocketDescription": "90cm embutida",
   "openingCatalog.bifoldDescription": "180cm dobrável",
   "openingCatalog.doorwayDescription": "100cm livre",
-  "openingCatalog.garageDescription": "240cm basculante"
+  "openingCatalog.garageDescription": "240cm basculante",
+  "roomChoices.presets": "Formatos de ambientes",
+  "roomChoices.presetsHelp": "Clique para adicionar um formato de ambiente à planta",
+  "roomChoices.templates": "Ambientes mobiliados",
+  "roomChoices.templatesHelp": "Ambientes mobiliados — paredes e móveis em um clique",
+  "roomChoices.items": "{count} itens",
+  "roomChoices.item": "{count} item",
+  "roomChoices.rectangle": "Retângulo",
+  "roomChoices.lShape": "Formato de L",
+  "roomChoices.tShape": "Formato de T",
+  "roomChoices.uShape": "Formato de U",
+  "roomChoices.living": "Sala de estar",
+  "roomChoices.bedroom": "Quarto",
+  "roomChoices.kitchen": "Cozinha",
+  "roomChoices.bathroom": "Banheiro",
+  "roomChoices.office": "Escritório",
+  "roomChoices.dining": "Sala de jantar"
 } as const;

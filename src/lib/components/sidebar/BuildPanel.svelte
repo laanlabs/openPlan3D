@@ -1,5 +1,6 @@
 <script lang="ts">
   import { t } from '$lib/i18n';
+  import { roomPresetLabels, roomTemplateLabels } from '$lib/i18n/roomLabels';
   import { modalDialog } from '$lib/utils/modalDialog';
   import { openProject } from '$lib/services/projectOpening';
   import ImportError from '$lib/components/ImportError.svelte';
@@ -537,8 +538,8 @@
 
     {:else if activeTab === 'rooms'}
       <div class="space-y-2">
-        <h3 class="text-xs font-semibold text-gray-400 uppercase mb-2">Room Presets</h3>
-        <p class="text-xs text-gray-400 mb-3">Click to add a room shape to the canvas</p>
+        <h3 class="text-xs font-semibold text-gray-400 uppercase mb-2">{$t('roomChoices.presets')}</h3>
+        <p class="text-xs text-gray-400 mb-3">{$t('roomChoices.presetsHelp')}</p>
         <div class="grid grid-cols-2 gap-2">
           {#each roomPresets as preset}
             <button
@@ -548,15 +549,15 @@
               ondragstart={(e) => { e.dataTransfer?.setData('application/o3d-type', 'room'); e.dataTransfer?.setData('application/o3d-id', preset.id); }}
             >
               <div class="w-12 h-12 rounded-lg bg-gray-50 flex items-center justify-center text-2xl font-mono">{preset.icon}</div>
-              <span class="text-xs font-medium text-gray-600">{preset.name}</span>
+              <span class="text-xs font-medium text-gray-600">{roomPresetLabels[preset.id] ? $t(roomPresetLabels[preset.id]) : preset.name}</span>
             </button>
           {/each}
         </div>
 
         <hr class="my-3 border-gray-200" />
 
-        <h3 class="text-xs font-semibold text-gray-400 uppercase mb-2">Room Templates</h3>
-        <p class="text-xs text-gray-400 mb-3">Pre-furnished rooms — walls + furniture in one click</p>
+        <h3 class="text-xs font-semibold text-gray-400 uppercase mb-2">{$t('roomChoices.templates')}</h3>
+        <p class="text-xs text-gray-400 mb-3">{$t('roomChoices.templatesHelp')}</p>
         <div class="grid grid-cols-2 gap-2">
           {#each roomTemplates as tmpl}
             <button
@@ -575,8 +576,8 @@
                 {:else}🏠
                 {/if}
               </div>
-              <span class="text-xs font-medium text-gray-600">{tmpl.name}</span>
-              <span class="text-[10px] text-gray-400">{tmpl.furniture.length} items</span>
+              <span class="text-xs font-medium text-gray-600">{roomTemplateLabels[tmpl.name] ? $t(roomTemplateLabels[tmpl.name]) : tmpl.name}</span>
+              <span class="text-[10px] text-gray-400">{$t(tmpl.furniture.length === 1 ? 'roomChoices.item' : 'roomChoices.items', { count: tmpl.furniture.length })}</span>
             </button>
           {/each}
         </div>

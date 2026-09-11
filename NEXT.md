@@ -3132,3 +3132,11 @@ semantic types, dimensions and drag payloads. Five unit tests, zero-warning chec
 production build and three desktop browser cases pass (10.3 seconds), checking
 all labels plus representative door/window placement and exported types/widths.
 Remaining room/object catalogs, dialogs and device qualification stay open.
+
+### Room-choice localization — 2026-09-10
+
+Translated room shapes/templates through display-only maps and localized item
+counts. Five unit tests, zero-warning check, production build and six browser
+cases pass (36.5 seconds), covering desktop/phone placement, original geometry and
+furniture IDs, and grouped undo. Object catalogs, dialogs, remaining editor text
+and device/release requirements remain open.
