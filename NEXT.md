@@ -163,7 +163,13 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
-Latest full web unit checkpoint: **949 tests across 89 files passed** with the
+Latest full web unit checkpoint: **952 tests across 90 files passed** at `9620cb2`
+(3.60 seconds). Six crossing/curved-room browser cases pass across Chromium,
+Firefox and WebKit (25.0 seconds), checking exported 3D slab geometry through
+stacking and active-floor changes. No runtime changes in this checkpoint;
+physical-device, native area agreement and release gates remain open.
+
+Earlier full web unit checkpoint: **949 tests across 89 files passed** with the
 unchanged-room update guard (3.62 seconds). Check/build and six room-menu browser
 cases at 1440px/390px across three engines pass (26.8 seconds), including Redo
 preservation after accepting an unchanged room name. Full release gates remain.

@@ -1638,3 +1638,15 @@ Logs: `/tmp/web-wall-room-split-repro.log`, `/tmp/web-wall-room-split-unit.log`,
 `/tmp/web-wall-room-split-browser.log`, `/tmp/web-wall-room-reopen-browser-final.log`.
 Room partition/merge identity, curved-wall splitting and physical qualification
 remain open.
+
+## Room geometry integration checkpoint — 2026-09-11
+
+At 9620cb2, all 952 unit tests across 90 files pass (3.60 seconds). Six existing
+English crossing/curved-room browser cases pass across Chromium, Firefox and
+WebKit (25.0 seconds). They check exported Blender-scene slab geometry on the
+active floor, both stacked floors, and after switching the active floor. No page
+errors were observed. No runtime changes were needed for this checkpoint.
+Logs: `/tmp/web-room-geometry-integration-unit.log` and
+`/tmp/web-room-geometry-integration-browser.log`. This integrates recent saved-room
+reference/history work; it does not establish native area equality, physical-device
+qualification or completion of the remaining NEXT requirements.
