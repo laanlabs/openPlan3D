@@ -327,33 +327,33 @@
 
   <!-- Floor selector as buttons (in overflow menu on mobile) -->
   <div class="flex items-center gap-1 max-xl:hidden">
-    <select aria-label="Current floor" value={activeFloorId} onchange={(e) => setActiveFloor(e.currentTarget.value)}
-      class="w-32 rounded bg-slate-700 px-2 py-1 text-xs text-white" title="Switch floor">
+    <select aria-label={$t('floorControls.current')} value={activeFloorId} onchange={(e) => setActiveFloor(e.currentTarget.value)}
+      class="w-32 rounded bg-slate-700 px-2 py-1 text-xs text-white" title={$t('floorControls.switch')}>
       {#each floors as fl}<option value={fl.id}>{fl.name}</option>{/each}
     </select>
     <div class="relative" bind:this={floorMenuRef}>
       <button
         onclick={() => floorMenuOpen = !floorMenuOpen}
         class="text-white/80 hover:text-white text-xs hover:bg-white/10 px-1.5 py-0.5 rounded transition-colors"
-        title="Add Floor"
-        aria-label="Add Floor"
+        title={$t('floorControls.add')}
+        aria-label={$t('floorControls.add')}
         aria-expanded={floorMenuOpen}
       >+</button>
       {#if floorMenuOpen}
         <div class="absolute left-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 w-64 z-50">
-          <div class="px-3 pt-1 pb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Add Top Floor</div>
+          <div class="px-3 pt-1 pb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">{$t('floorControls.top')}</div>
           <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => onAddFloor('outer')}>
-            Exterior walls <span class="text-gray-400">— current footprint</span>
+            {$t('floorControls.exterior')} <span class="text-gray-400">{$t('floorControls.footprint')}</span>
           </button>
           <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => onAddFloor('copy')}>
-            All walls <span class="text-gray-400">— includes partitions</span>
+            {$t('floorControls.all')} <span class="text-gray-400">{$t('floorControls.partitions')}</span>
           </button>
           <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => onAddFloor('empty')}>
-            Empty floor
+            {$t('floorControls.empty')}
           </button>
           <hr class="my-1 border-gray-100" />
           <button class="w-full px-3 py-2 text-sm text-red-700 hover:bg-gray-100 text-left disabled:opacity-40" disabled={floors.length <= 1}
-            onclick={() => { onRemoveFloor(activeFloorId); floorMenuOpen = false; }}>Remove current floor</button>
+            onclick={() => { onRemoveFloor(activeFloorId); floorMenuOpen = false; }}>{$t('floorControls.remove')}</button>
         </div>
       {/if}
     </div>
@@ -501,17 +501,17 @@
     {#if moreOpen}
       <div class="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 w-56 z-50 max-h-[70vh] overflow-y-auto">
         {#if floors.length > 1 || mode === '2d'}
-          <div class="px-3 pt-1.5 pb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Floors</div>
+          <div class="px-3 pt-1.5 pb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">{$t('floorControls.floors')}</div>
           {#each floors as fl}
             <button class="w-full px-3 py-2 text-sm hover:bg-gray-100 text-left flex items-center gap-2 {fl.id === activeFloorId ? 'text-blue-600 font-semibold' : 'text-gray-700'}" onclick={() => { setActiveFloor(fl.id); moreOpen = false; }}>
               {fl.name}{fl.id === activeFloorId ? ' ✓' : ''}
             </button>
           {/each}
-          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => { onAddFloor('outer'); }}>+ Add Floor <span class="text-gray-400">(outer walls)</span></button>
-          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => { onAddFloor('copy'); }}>+ Add Floor <span class="text-gray-400">(all walls)</span></button>
-          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => { onAddFloor('empty'); }}>+ Add Floor <span class="text-gray-400">(empty)</span></button>
+          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => { onAddFloor('outer'); }}>+ {$t('floorControls.add')} <span class="text-gray-400">{$t('floorControls.outerHint')}</span></button>
+          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => { onAddFloor('copy'); }}>+ {$t('floorControls.add')} <span class="text-gray-400">{$t('floorControls.allHint')}</span></button>
+          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => { onAddFloor('empty'); }}>+ {$t('floorControls.add')} <span class="text-gray-400">{$t('floorControls.emptyHint')}</span></button>
           <button class="w-full px-3 py-2 text-sm text-red-700 hover:bg-gray-100 text-left disabled:opacity-40" disabled={floors.length <= 1}
-            onclick={() => { onRemoveFloor(activeFloorId); moreOpen = false; }}>Remove current floor</button>
+            onclick={() => { onRemoveFloor(activeFloorId); moreOpen = false; }}>{$t('floorControls.remove')}</button>
           <div class="h-px bg-gray-100 my-1"></div>
         {/if}
         {#if mode === '2d'}

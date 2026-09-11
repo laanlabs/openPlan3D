@@ -1,8 +1,9 @@
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
-for (const width of [1440, 390]) {
-  test(`floor switching frames new floors and restores camera at ${width}px`, async ({ page }) => {
+for (const locale of ['en', 'pt']) for (const width of [1440, 390]) {
+  test(`${locale}: floor switching frames new floors and restores camera at ${width}px`, async ({ page }) => {
+    await page.addInitScript(locale => localStorage.setItem('o3d_locale', locale), locale);
     await page.setViewportSize({ width, height: 900 });
     await page.addInitScript(() => {
       const fill = CanvasRenderingContext2D.prototype.fillText;
@@ -23,19 +24,34 @@ for (const width of [1440, 390]) {
     }));
     plan.activeFloorId = 'floor-0';
     await page.goto('/editor');
-    await page.getByRole('button', { name: 'Export', exact: true }).click();
+    await page.getByRole('button', { name: locale === 'pt' ? 'Exportar' : 'Export', exact: true }).click();
     const chooser = page.waitForEvent('filechooser');
-    await page.getByRole('button', { name: 'Import JSON', exact: true }).click();
+    await page.getByRole('button', { name: locale === 'pt' ? 'Importar JSON' : 'Import JSON', exact: true }).click();
     await (await chooser).setFiles({ name: 'floors.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(plan)) });
+    if (locale === 'pt') {
+      if (width < 1280) {
+        await page.getByRole('button', { name: 'Mais ações', exact: true }).click();
+        for (const label of ['+ Adicionar pavimento (paredes externas)', '+ Adicionar pavimento (todas as paredes)', '+ Adicionar pavimento (vazio)', 'Remover pavimento atual']) {
+          await expect(page.getByRole('button', { name: label, exact: true })).toBeVisible();
+        }
+        await page.getByRole('button', { name: 'Mais ações', exact: true }).click();
+      } else {
+        await page.getByRole('button', { name: 'Adicionar pavimento', exact: true }).click();
+        for (const label of ['Paredes externas — contorno atual', 'Todas as paredes — inclui divisórias', 'Pavimento vazio', 'Remover pavimento atual']) {
+          await expect(page.getByRole('button', { name: label, exact: true })).toBeVisible();
+        }
+        await page.getByRole('button', { name: 'Adicionar pavimento', exact: true }).click();
+      }
+    }
     const point = () => page.evaluate(() => (window as any).__floorPoint);
     async function expectFramed(text: string) {
       await expect.poll(async () => { const p = await point(); return p?.text === text && p.x > 20 && p.x < width - 20 && p.y > 80 && p.y < 850; }).toBe(true);
     }
     async function selectFloor(index: number) {
       if (width < 1280) {
-        await page.getByRole('button', { name: 'More actions', exact: true }).click();
+        await page.getByRole('button', { name: locale === 'pt' ? 'Mais ações' : 'More actions', exact: true }).click();
         await page.getByRole('button', { name: `Level ${index + 1}`, exact: true }).click();
-      } else await page.getByRole('combobox', { name: 'Current floor', exact: true }).selectOption(`floor-${index}`);
+      } else await page.getByRole('combobox', { name: locale === 'pt' ? 'Pavimento atual' : 'Current floor', exact: true }).selectOption(`floor-${index}`);
     }
     await expectFramed('QA floor 1');
     const initial = await point();
@@ -49,9 +65,9 @@ for (const width of [1440, 390]) {
     await expect.poll(async () => (await point()).x).toBeCloseTo(panned.x, 1);
     expect((await point()).y).toBeCloseTo(panned.y, 1);
     await selectFloor(1); await expectFramed('QA floor 2');
-    await page.getByRole('button', { name: 'Export', exact: true }).click();
+    await page.getByRole('button', { name: locale === 'pt' ? 'Exportar' : 'Export', exact: true }).click();
     const pending = page.waitForEvent('download');
-    await page.getByRole('button', { name: 'Download JSON', exact: true }).click();
+    await page.getByRole('button', { name: locale === 'pt' ? 'Baixar JSON' : 'Download JSON', exact: true }).click();
     const saved = JSON.parse(await readFile((await (await pending).path())!, 'utf8'));
     expect(saved.floors).toEqual(plan.floors);
   });

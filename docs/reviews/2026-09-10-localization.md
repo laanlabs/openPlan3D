@@ -341,3 +341,18 @@ that switches language while retaining measurements and imported names. This is
 not physical-device or elevation-rendering qualification. Logs:
 `/tmp/web-toolbar-view-unit.log`, `/tmp/web-toolbar-view-check.log`,
 `/tmp/web-toolbar-view-build.log`, `/tmp/web-toolbar-view-browser.log`.
+
+## Floor controls
+
+Translated desktop floor selector/accessibility labels and desktop/compact
+add-floor seed descriptions, section headings and remove action. Stored names,
+seed IDs and add/remove handlers are unchanged. The existing floor-view browser
+flow now runs in both languages; Portuguese additionally checks seed labels.
+
+Five localization and ten floor unit tests pass, along with zero-warning Svelte
+check and production build. Six Portuguese browser cases pass across all three
+engines at 1440px/390px (57.8 seconds), verifying floor framing, per-floor camera
+restoration and exported floor-data equality. This run does not qualify physical
+devices. Logs: `/tmp/web-floor-controls-unit.log`,
+`/tmp/web-floor-controls-floor-unit.log`, `/tmp/web-floor-controls-check.log`,
+`/tmp/web-floor-controls-build.log`, `/tmp/web-floor-controls-browser.log`.

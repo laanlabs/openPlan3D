@@ -389,5 +389,19 @@ export const pt = {
   "toolbarView.on": "Ativado",
   "toolbarView.off": "Desativado",
   "toolbarView.visible": "Visível",
-  "toolbarView.hidden": "Oculto"
+  "toolbarView.hidden": "Oculto",
+  "floorControls.current": "Pavimento atual",
+  "floorControls.switch": "Trocar de pavimento",
+  "floorControls.add": "Adicionar pavimento",
+  "floorControls.top": "Adicionar pavimento superior",
+  "floorControls.exterior": "Paredes externas",
+  "floorControls.footprint": "— contorno atual",
+  "floorControls.all": "Todas as paredes",
+  "floorControls.partitions": "— inclui divisórias",
+  "floorControls.empty": "Pavimento vazio",
+  "floorControls.remove": "Remover pavimento atual",
+  "floorControls.floors": "Pavimentos",
+  "floorControls.outerHint": "(paredes externas)",
+  "floorControls.allHint": "(todas as paredes)",
+  "floorControls.emptyHint": "(vazio)"
 } as const;

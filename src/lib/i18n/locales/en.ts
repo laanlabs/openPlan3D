@@ -389,5 +389,19 @@ export const en = {
   "toolbarView.on": "On",
   "toolbarView.off": "Off",
   "toolbarView.visible": "Visible",
-  "toolbarView.hidden": "Hidden"
+  "toolbarView.hidden": "Hidden",
+  "floorControls.current": "Current floor",
+  "floorControls.switch": "Switch floor",
+  "floorControls.add": "Add Floor",
+  "floorControls.top": "Add Top Floor",
+  "floorControls.exterior": "Exterior walls",
+  "floorControls.footprint": "— current footprint",
+  "floorControls.all": "All walls",
+  "floorControls.partitions": "— includes partitions",
+  "floorControls.empty": "Empty floor",
+  "floorControls.remove": "Remove current floor",
+  "floorControls.floors": "Floors",
+  "floorControls.outerHint": "(outer walls)",
+  "floorControls.allHint": "(all walls)",
+  "floorControls.emptyHint": "(empty)"
 } as const;

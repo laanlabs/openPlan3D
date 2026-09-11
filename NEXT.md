@@ -3011,3 +3011,11 @@ Five localization unit tests, zero-warning check, production build and nine
 browser cases pass across all engines, including 390px/1440px controls and
 language-switching area-summary preservation. Other editor localization, fluent
 review and physical-device/release requirements remain open.
+
+### Floor-control localization — 2026-09-10
+
+Translated floor controls without changing stored names or seed behavior. Fifteen
+focused unit tests, zero-warning check, production build and six Portuguese
+browser cases pass, covering both toolbar widths, floor framing/camera restoration
+and exported data preservation. Broader localization and device/release gates
+remain open.
