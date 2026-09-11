@@ -17,7 +17,7 @@ test('Portuguese editor recovery preserves legacy bytes and retries migration', 
     };
   }, legacy);
   await page.goto(`/editor?id=${source.id}`);
-  await expect(page.getByRole('alert')).toContainText('Browser storage is full');
+  await expect(page.getByRole('alert')).toContainText('O armazenamento do navegador está cheio.');
   await expect(page.getByRole('link', { name: 'Voltar aos projetos', exact: true })).toBeVisible();
   const pending = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Baixar backup da biblioteca', exact: true }).click();

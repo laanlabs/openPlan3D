@@ -8,15 +8,29 @@ geometry/elevation drag coverage passed 24 cases across all three engines.
 
 The full Playwright inventory contains **1,098 cases in 136 files**. A fresh
 `npx playwright test --max-failures=1` run started against that production build.
-This report is a running checkpoint, **not a full-suite pass claim**. At the
-initial checkpoint, the first three Chromium cases passed and the run remained
-active; Firefox and WebKit had not started.
+This report is a running checkpoint, **not a full-suite pass claim**. The first
+run terminated after 98 Chromium passes and one failure (16.6 minutes); 999 cases
+did not run. The Portuguese editor recovery test still expected an English
+storage-full error although the UI correctly displayed Portuguese. Updating that
+expectation retained the exact backup-byte, migration-retry and stored-project
+assertions. The focused recovery test passed in all three engines (24 seconds).
+
+There are now **101 distinct completed cases and 997 remaining**, matched against
+the original inventory without duplicates or extra identities. Runtime remains
+`ddf7d90`; only the stale test expectation and this report changed. Qualification
+will continue with the explicit remaining-case list.
 
 Local continuation evidence:
 
-- Process session: `42176`; poll this exact session while it remains live.
+- Initial process session: `42176` (terminal, exit 1).
+- Continuation process session: `10120` (active at launch; poll this handle).
+- Continuation output: `/tmp/web-history-full-browser-2.log`.
 - Inventory: `/tmp/web-history-current-browser-inventory.log`.
 - Run output: `/tmp/web-history-full-browser.log`.
+- Focused recovery output: `/tmp/web-history-editor-recovery.log` (3 passed).
+- Completed identities: `/tmp/web-history-browser-completed.txt`.
+- Remaining list: `/tmp/web-history-browser-remaining.txt`.
+- Continuation inventory: `/tmp/web-history-browser-continuation-inventory.log`.
 - Unit output: `/tmp/web-undo-groups-full-unit.log`.
 - Check/build: `/tmp/web-undo-groups-check.log`, `/tmp/web-undo-groups-build.log`.
 
