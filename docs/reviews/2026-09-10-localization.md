@@ -1212,3 +1212,21 @@ walls against only floor zero; corrected assertions cover every floor and wall I
 Log: `/tmp/web-capture-save-recovery-browser-final.log`. This uses a routed fixture,
 not live cloud capture or physical-device storage pressure. Those and remaining
 NEXT requirements stay open.
+
+## Editor panel toggles
+
+Translated tools, layers and undo-history toggle labels/titles and exposed panel
+state through aria-expanded. Updated six affected localized browser workflows.
+Production check reports zero errors/warnings; build and five localization unit
+tests pass. All 30 affected browser cases have passing results: nine Chromium
+cases passed before stopping the first run to correct the bilingual narrow
+RoomPlan test's locale-dependent selector; that remaining Chromium case passed
+separately (17.4 seconds), then all 20 Firefox/WebKit cases passed (1.8 minutes).
+Coverage includes tools/layers expanded state, narrow layouts, drawing, symbols,
+opening catalog, room choices and bilingual RoomPlan import data preservation.
+History's new expanded attribute has type-check coverage but no new interaction
+assertion in this batch. Logs: `/tmp/web-panel-labels-check.log`,
+`/tmp/web-panel-labels-build.log`, `/tmp/web-panel-labels-unit.log`,
+`/tmp/web-panel-labels-browser.log`, `/tmp/web-panel-labels-chromium-final.log`,
+`/tmp/web-panel-labels-other-engines.log`. Physical touch and remaining NEXT
+requirements stay open.

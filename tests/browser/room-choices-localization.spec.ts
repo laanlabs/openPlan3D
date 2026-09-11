@@ -5,7 +5,7 @@ for (const width of [1440, 390]) test(`Portuguese room choices preserve geometry
   await page.addInitScript(() => localStorage.setItem('o3d_locale', 'pt'));
   await page.setViewportSize({ width, height: 900 });
   await page.goto('/editor');
-  if (width < 768) await page.getByRole('button', { name: 'Toggle tools panel', exact: true }).click();
+  if (width < 768) await page.getByRole('button', { name: 'Alternar painel de ferramentas', exact: true }).click();
   await page.getByRole('button', { name: 'Ambientes', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Formatos de ambientes', exact: true })).toBeVisible();
   await page.getByRole('button', { name: /Retângulo$/ }).click();

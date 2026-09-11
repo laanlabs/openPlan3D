@@ -19,7 +19,12 @@ for (const width of [1440, 390]) test(`Portuguese canvas hints guide drawing and
   await expect(pick).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(pick).toHaveCount(0);
-  if (width < 768) await page.getByRole('button', { name: 'Toggle tools panel', exact: true }).click();
+  if (width < 768) {
+    const tools = page.getByRole('button', { name: 'Alternar painel de ferramentas', exact: true });
+    await expect(tools).toHaveAttribute('aria-expanded', 'false');
+    await tools.click();
+    await expect(tools).toHaveAttribute('aria-expanded', 'true');
+  }
   for (const label of ['Construir', 'Ambientes', 'Objetos']) await expect(page.getByRole('button', { name: label, exact: true })).toBeVisible();
   await page.getByRole('button', { name: /^Desenhar parede W/ }).click();
   if (width < 768) await expect(page.getByRole('button', { name: /^Desenhar parede W/ })).not.toBeInViewport();

@@ -13,7 +13,7 @@ test('Portuguese presentation symbols retain their IDs and sizes through placeme
   await person.click();
   const canvas = page.getByLabel('Floor plan editor canvas', { exact: true });
   await canvas.click({ position: { x: 300, y: 250 } });
-  await page.getByRole('button', { name: 'Toggle Layers Panel', exact: true }).click();
+  await page.getByRole('button', { name: 'Alternar painel de camadas', exact: true }).click();
   await expect(page.getByRole('button', { name: '🌳 Pessoa', exact: true })).toBeVisible();
   async function exported() {
     await page.getByRole('button', { name: 'Exportar', exact: true }).click();

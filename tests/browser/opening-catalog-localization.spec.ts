@@ -33,7 +33,7 @@ test('Portuguese opening catalog places original door and window types', async (
   expect(saved.windows[0]).toMatchObject({ type: 'fixed', width: 100 });
   expect(saved.doors[0].wallId).toBe(saved.walls[0].id);
   expect(saved.windows[0].wallId).toBe(saved.walls[0].id);
-  await page.getByRole('button', { name: 'Toggle Layers Panel', exact: true }).click();
+  await page.getByRole('button', { name: 'Alternar painel de camadas', exact: true }).click();
   await page.getByRole('button', { name: '🚪 Porta simples 1', exact: true }).click();
   const width = page.getByRole('spinbutton', { name: 'Largura (cm)', exact: true });
   await width.fill('95.25'); await width.press('Tab');

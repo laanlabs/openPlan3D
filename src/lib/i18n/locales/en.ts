@@ -948,5 +948,9 @@ export const en = {
   "captureImport.json": "The downloaded capture is not valid JSON.",
   "captureImport.format": "The downloaded file is not a valid RoomPlan export.",
   "captureImport.fallback": "Failed to import capture.",
-  "captureImport.code": "Invalid import code in URL."
+  "captureImport.code": "Invalid import code in URL.",
+  "editorPanels.tools": "Toggle tools panel",
+  "editorPanels.layers": "Toggle Layers Panel",
+  "editorPanels.history": "Toggle Undo History",
+  "editorPanels.layersTitle": "Layers Panel (L)"
 } as const;

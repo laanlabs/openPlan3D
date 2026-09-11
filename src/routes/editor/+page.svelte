@@ -255,8 +255,9 @@
     <button
       class="md:hidden fixed bottom-4 left-4 w-12 h-12 rounded-full bg-blue-600 text-white shadow-lg active:bg-blue-700 transition-colors z-40 flex items-center justify-center"
       onclick={() => buildPanelOpen = !buildPanelOpen}
-      title="Tools"
-      aria-label="Toggle tools panel"
+      title={$t('buildTools.tools')}
+      aria-label={$t('editorPanels.tools')}
+      aria-expanded={buildPanelOpen}
     >
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
     </button>
@@ -271,8 +272,9 @@
       class:bg-slate-700={!showLayers}
       class:text-gray-300={!showLayers}
       onclick={() => showLayers = !showLayers}
-      title="Layers Panel (L)"
-      aria-label="Toggle Layers Panel"
+      title={$t('editorPanels.layersTitle')}
+      aria-label={$t('editorPanels.layers')}
+      aria-expanded={showLayers}
     >🗂</button>
   {/if}
 
@@ -284,8 +286,9 @@
     class:bg-slate-700={!showUndoHistory}
     class:text-gray-300={!showUndoHistory}
     onclick={() => showUndoHistory = !showUndoHistory}
-    title="Undo History"
-    aria-label="Toggle Undo History"
+    title={$t('undoHistory.title')}
+    aria-label={$t('editorPanels.history')}
+      aria-expanded={showUndoHistory}
   >⟲</button>
 
   <UndoHistoryPanel bind:visible={showUndoHistory} />

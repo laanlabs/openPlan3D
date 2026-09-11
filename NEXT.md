@@ -3462,3 +3462,11 @@ multi-floor capture remains exportable after a project-write quota failure. Retr
 saves one project with exact backup floor data, and reload avoids re-downloading
 the capture. No runtime changes were needed. Live cloud/device and remaining
 release qualification stay open.
+
+### Editor panel toggle localization and state — 2026-09-11
+
+Translated tools/layers/history controls and exposed expanded state. Check/build
+and five localization unit tests pass. All 30 affected browser cases pass across
+three engines in split runs, including desktop/narrow panel use, catalog placement
+and bilingual RoomPlan preservation. See the localization record for run details.
+Physical touch and remaining UI/release requirements stay open.

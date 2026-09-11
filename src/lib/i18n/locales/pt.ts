@@ -948,5 +948,9 @@ export const pt = {
   "captureImport.json": "A captura baixada não é um JSON válido.",
   "captureImport.format": "O arquivo baixado não é uma exportação válida do RoomPlan.",
   "captureImport.fallback": "Não foi possível importar a captura.",
-  "captureImport.code": "Código de importação inválido na URL."
+  "captureImport.code": "Código de importação inválido na URL.",
+  "editorPanels.tools": "Alternar painel de ferramentas",
+  "editorPanels.layers": "Alternar painel de camadas",
+  "editorPanels.history": "Alternar histórico de ações",
+  "editorPanels.layersTitle": "Painel de camadas (L)"
 } as const;
