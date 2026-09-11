@@ -372,3 +372,14 @@ failed-save/deployment recovery flow. Copy-conflict and physical-device coverage
 are not claimed by this run. Logs: `/tmp/web-save-controls-unit.log`,
 `/tmp/web-save-controls-check.log`, `/tmp/web-save-controls-build.log`,
 `/tmp/web-save-controls-browser.log`.
+
+## Full toolbar integration checkpoint
+
+At source `7809b06`, all 938 unit tests across 87 files pass (11.89 seconds,
+exit 0). Nine English browser cases pass across Chromium, Firefox and WebKit
+(1.2 minutes, exit 0), covering failed-save/deployment recovery, floor framing
+and per-floor camera restoration at 1440px/390px, and exported floor equality.
+These checks supplement the Portuguese coverage for the export/view/floor/save
+controls. Logs: `/tmp/web-toolbar-full-unit.log` and
+`/tmp/web-toolbar-english-integration.log`. Remaining panels, raw diagnostics,
+fluent-speaker review and physical-device qualification remain open.

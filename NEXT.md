@@ -163,7 +163,14 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
-Latest full web unit checkpoint: **938 tests across 87 files passed** at `e12cff4`
+Latest full web unit checkpoint: **938 tests across 87 files passed** at `7809b06`
+after export, view, floor and save-toolbar localization (11.89 seconds). Nine
+English browser cases also pass across all engines (1.2 minutes), covering
+failed-save/deployment recovery and floor-camera preservation at both widths.
+See the [localization integration record](docs/reviews/2026-09-10-localization.md).
+This does not qualify a full browser suite, physical device or deployment.
+
+Earlier full web unit checkpoint: **938 tests across 87 files passed** at `e12cff4`
 after printed-sheet and typed-notice localization. The English failed-save/reload
 flow also passed across all three engines (three cases). See the
 [localization integration record](docs/reviews/2026-09-10-localization.md).
