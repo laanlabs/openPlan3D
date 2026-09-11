@@ -3201,6 +3201,8 @@
   // compatibility mouse events (which would double-fire the handlers).
   let pinchState: { dist: number; cx: number; cy: number } | null = null;
   let singleTouchActive = false;
+  let singleTouchOrigin: { clientX: number; clientY: number } | null = null;
+  let singleTouchMoved = false;
   let lastTapTime = 0;
   let lastTapX = 0;
   let lastTapY = 0;
@@ -3220,8 +3222,12 @@
     e.preventDefault();
     if (e.touches.length === 1) {
       singleTouchActive = true;
+      singleTouchOrigin = { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY };
+      singleTouchMoved = false;
       dispatchMouse('mousedown', e.touches[0].clientX, e.touches[0].clientY);
     } else if (e.touches.length === 2) {
+      lastTapTime = 0;
+      singleTouchOrigin = null;
       // Second finger landed: abandon any single-finger drag and start pinching
       if (singleTouchActive) {
         dispatchMouse('mouseup', e.touches[0].clientX, e.touches[0].clientY);
@@ -3258,21 +3264,39 @@
       pinchState = { dist, cx, cy };
       markDirty();
     } else if (singleTouchActive && e.touches.length === 1) {
+      if (singleTouchOrigin && Math.hypot(e.touches[0].clientX - singleTouchOrigin.clientX,
+          e.touches[0].clientY - singleTouchOrigin.clientY) > 10) singleTouchMoved = true;
       dispatchMouse('mousemove', e.touches[0].clientX, e.touches[0].clientY);
     }
   }
 
   function onTouchEnd(e: TouchEvent) {
     e.preventDefault();
+    if (e.type === 'touchcancel') {
+      pinchState = null;
+      lastTapTime = 0;
+      if (singleTouchActive) {
+        singleTouchActive = false;
+        const touch = e.changedTouches[0] ?? singleTouchOrigin;
+        if (touch) dispatchMouse('mouseup', touch.clientX, touch.clientY);
+      }
+      singleTouchOrigin = null;
+      return;
+    }
     if (pinchState) {
       // Leaving pinch: ignore the remaining finger until it lifts too
       if (e.touches.length < 2) pinchState = null;
       return;
     }
     if (singleTouchActive && e.touches.length === 0) {
-      const t = e.changedTouches[0];
+      const t = e.changedTouches[0] ?? singleTouchOrigin;
       singleTouchActive = false;
+      if (t && singleTouchOrigin && Math.hypot(t.clientX - singleTouchOrigin.clientX,
+          t.clientY - singleTouchOrigin.clientY) > 10) singleTouchMoved = true;
+      singleTouchOrigin = null;
+      if (!t) return;
       dispatchMouse('mouseup', t.clientX, t.clientY);
+      if (singleTouchMoved) { lastTapTime = 0; return; }
       // Synthesize click so document-level click-outside handlers (menus) fire
       dispatchMouse('click', t.clientX, t.clientY);
       // Double-tap → dblclick (finish wall chains, rename rooms, …)

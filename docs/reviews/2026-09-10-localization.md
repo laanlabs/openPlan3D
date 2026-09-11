@@ -1877,3 +1877,21 @@ pass with zero Svelte diagnostics, and 21 browser cases pass across all three
 engines (1.4 minutes). Physical device/frame-time qualification remains open.
 Logs: `/tmp/web-curve-hit-bounds-all-unit.log`, `/tmp/web-curve-hit-bounds-check.log`,
 `/tmp/web-curve-hit-bounds-build.log`, `/tmp/web-curve-hit-bounds-browser.log`.
+
+### 2026-09-11: Cancelled touches and drags are not taps
+
+The canvas used the same completion handler for touchend and touchcancel. A
+Chromium reproduction showed cancellation after a tap emitted another click and
+a double-click. Cancellation now clears pinch/tap state and releases an active
+mouse gesture without synthesizing clicks. Single-finger motion beyond 10 screen
+pixels marks a drag and breaks the tap sequence even when it returns to the start.
+Pinch initiation also breaks the sequence. Normal double-taps still emit dblclick.
+
+Nine browser cases pass across Chromium, Firefox and WebKit (26.6 seconds),
+checking cancelled/dragged/completed tap event sequences, pinch/pan redraw and idle
+behavior, and delayed tracing images across floor changes. Check/build pass with
+zero Svelte diagnostics. Touch lists are synthetic; physical iPhone/iPad gestures
+and OS interruption behavior remain unqualified. Cancellation releases the drag;
+it does not roll back edits already made while the finger was down.
+Logs: `/tmp/web-touch-cancel-repro.log`, `/tmp/web-touch-cancel-check.log`,
+`/tmp/web-touch-cancel-build.log`, `/tmp/web-touch-cancel-browser.log`.

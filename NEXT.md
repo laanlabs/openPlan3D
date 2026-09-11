@@ -163,6 +163,13 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+Touch cancellation now releases the mouse pipeline without synthesizing clicks or
+double-taps. Drags beyond 10 screen pixels also break the tap chain, including a
+drag that returns to its start; ordinary double-taps remain supported. Nine browser
+cases pass across all three engines (26.6 seconds), covering synthetic touch
+classification, pinch/pan idle behavior and delayed tracing-image floor isolation.
+Check/build pass with zero Svelte diagnostics. Actual device gestures remain open.
+
 Follow-up curve hit-testing performance: a conservative bounds check now skips
 distant curves before exact projection. Local 400-wall median lookup cost fell
 from roughly 0.75ms to 0.002–0.006ms; see the reproducible
