@@ -584,3 +584,14 @@ original furniture IDs, and undoing each grouped addition. Other shapes/template
 drag placement and physical devices are not newly qualified by this run. Logs:
 `/tmp/web-room-choices-unit.log`, `/tmp/web-room-choices-check.log`,
 `/tmp/web-room-choices-build.log`, `/tmp/web-room-choices-browser.log`.
+
+## Full Build-panel integration checkpoint
+
+At source `8b8e707`, all 938 unit tests across 87 files pass (5.03 seconds, exit 0).
+Twelve English browser cases pass across all engines (1.1 minutes, exit 0):
+catalog/recent favorite keyboard interactions, independent placement activation,
+and RoomPlan/template cancellation/focus at desktop and phone widths with stored
+records unchanged. Logs: `/tmp/web-build-panel-integration-unit.log`,
+`/tmp/web-build-panel-integration-browser.log`. This supplements the focused
+Portuguese placement checks; it does not qualify the full browser suite, physical
+devices, or the earlier intermittent WebKit grid-click observation.

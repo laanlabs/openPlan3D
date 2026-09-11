@@ -163,7 +163,14 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
-Latest full web unit checkpoint: **938 tests across 87 files passed** at `6efa2a7`
+Latest full web unit checkpoint: **938 tests across 87 files passed** at `8b8e707`
+after Build tools, opening catalogs and room-choice localization (5.03 seconds).
+Twelve English browser cases pass across all engines (1.1 minutes), covering
+catalog/recent favorites and RoomPlan/template modal cancellation and focus.
+See the [localization integration record](docs/reviews/2026-09-10-localization.md).
+Full-browser and physical-device qualification remain open.
+
+Earlier full web unit checkpoint: **938 tests across 87 files passed** at `6efa2a7`
 after Layers and canvas-control changes (3.41 seconds). Nine English browser cases
 also pass across all engines (1.3 minutes): large-plan zoom at both widths and
 sloped-wall edits, reversal, elevation, reload and stacked-view navigation.
