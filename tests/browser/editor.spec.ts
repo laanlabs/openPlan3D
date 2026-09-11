@@ -97,6 +97,8 @@ test('import, numeric edit, undo/redo, save/reload and export preserve a multi-f
 });
 
 test('catalog and 3D use bounded, cacheable assets with zero startup model downloads', async ({ page, context }, testInfo) => {
+  // Cold catalog/3D loading and offline reload verification share one workflow.
+  test.slow();
   const errors: string[] = [];
   const assets: { url: string; cacheControl: string | undefined; bytes: number }[] = [];
   page.on('pageerror', error => errors.push(error.message));

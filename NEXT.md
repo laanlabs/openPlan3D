@@ -23,9 +23,12 @@ and retains all slab/export checks within a 180-second workflow. There are 82
 retained passes at that launch. Seven further cases passed, then curved-opening
 export hit the same tip-dismissal race. All eight remaining identical optional
 tip-click patterns now wait for dismissal. There are 89 distinct retained
-passes; the 1,018-case remainder runs in session `47598`.
+passes at that launch. Thirteen further cases passed before the asset-cache
+workflow reached its total deadline during offline reload. It now has a
+180-second allowance with all asset and offline checks retained. There are
+102 distinct retained passes; 1,005 remaining cases run in session `22444`.
 Poll the actual process before starting competing tests or rebuilding;
-sessions `93960`, `85756`, `76158`, `6878`, `49725`, `23537` and `41767` are terminal.
+sessions `93960`, `85756`, `76158`, `6878`, `49725`, `23537`, `41767` and `47598` are terminal.
 See [the live report](docs/reviews/2026-09-11-catalog-browser-qualification.md).
 No full-suite completion is claimed; broader NEXT requirements remain open.
 
