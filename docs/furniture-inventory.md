@@ -66,7 +66,7 @@ check passed. No assets were removed or runtime mappings changed.
 
 The generated manifest also includes all 20 bundled material textures, their
 SHA-256 hashes, ambientCG asset IDs from the existing credit file, and material
-IDs found in textureGenerator.ts. Every current file has one material mapping.
+IDs from the shared textureFiles.ts mappings. Every current file has one material mapping.
 CI rejects missing mapped/credited files, duplicate credits and bundled images
 without a credit record. Unmapped textures remain visible through an empty
 materialIds list rather than being silently omitted.
@@ -77,3 +77,10 @@ images to ambientCG source archives or certify physical texture scale. It does
 not elevate the local credit claims to the GLB archive-match evidence level.
 A synthetic missing-credit case was rejected, and the complete catalog check
 passed after generation. No texture files or rendering behavior were changed.
+
+Runtime and inventory now import the same `textureFiles.ts` mapping module.
+The inventory no longer scrapes source formatting with a regular expression;
+changes in quote style or formatting cannot silently remove material associations.
+The generated manifest remained byte-for-byte unchanged after this refactor.
+Catalog verification, the catalog asset regression, zero-warning Svelte checks
+and the production build passed on September 10, 2026.

@@ -2777,3 +2777,10 @@ material IDs and source asset IDs from existing credits. Each has one current
 material mapping. CI rejects missing/duplicate credit records and missing mapped
 files. Attribution remains documented locally, not independently source-byte
 verified; conversion/source comparison and physical scale remain open.
+
+### Shared runtime texture mapping — 2026-09-10
+
+Runtime texture loading and the inventory now share a typed filename module,
+replacing formatting-dependent source scraping. Existing 20 material/file
+associations and the generated manifest are unchanged. Catalog check, asset
+regression, Svelte check (zero errors/warnings) and production build passed.
