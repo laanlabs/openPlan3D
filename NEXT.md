@@ -421,10 +421,11 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
   traced to default Backspace navigation on buttons and are fixed; text deletion
   remains native in editable fields. The CI artifact actions use pinned Node 24
   releases; continue dependency auditing.
-- Decide whether to publish/license the currently private iOS repository, add a
-  root contributor README, and clarify the two native targets/release branding.
-  Review the current iOS 26.2 minimum before distribution; lowering it requires
-  an API-availability audit and device testing. These are product/release decisions.
+- The native root README documents setup, both targets and bundle identities;
+  its computer handoff now separates current resume guidance from historical
+  instructions. Repository publication/licensing and final release branding still
+  require project decisions. Review the current iOS 26.2 minimum before distribution;
+  lowering it requires an API-availability audit and device testing.
 
 ## Resume checklist
 
@@ -2728,3 +2729,11 @@ package scripts/Playwright/CI; the release checklist links the existing native,
 Storage migration and billing gates rather than asserting they are complete.
 README links both guides. Local links/frontmatter and diff checks passed; no
 application tests were repeated for documentation-only changes.
+
+### Native onboarding/handoff correction — 2026-09-10
+
+Verified the existing native root README against shared schemes, bundle IDs and
+platform minimums. Updated the linked native handoff with current resume guidance,
+marked stale pause instructions historical, and qualified old test counts as dated
+checkpoints. Setup documentation is present; native licensing/publication, final
+release branding and device gates remain open.
