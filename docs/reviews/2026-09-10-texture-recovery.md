@@ -38,3 +38,19 @@ and WebKit (23.8 seconds total). Logs: `/tmp/web-texture-recovery-browser.log` a
 `/tmp/web-texture-recovery-other-engines.log`. These are controlled network-error
 tests with a clock offset, not physical-device or elapsed-30-second outage tests.
 No production source changed in this validation batch.
+
+## 3D recovery and settled-view qualification
+
+The same test now covers switching to 3D after the failed request/cooldown.
+It waits for actual WebGL draws to settle before fulfilling the held retry, then
+compares canvas hashes without another UI action. Wall cases use the default
+view; floor cases use Top-Down View so the affected room surface is visible.
+The initial floor cases failed because the default camera obscured that surface;
+the top-down Chromium control passed before the final run. Hash comparisons also
+avoid embedding full base64 screenshots in assertion errors.
+
+The final complete test file passes all 12 cases (wall/floor × 2D/3D ×
+Chromium/Firefox/WebKit) in 1.5 minutes. Log:
+`/tmp/web-texture-recovery-all-views.log`. This confirms scene rebuild/redraw for
+3D texture arrival using the shared loader; no separate production 3D fix was
+needed. Controlled time/network conditions and device limits above still apply.

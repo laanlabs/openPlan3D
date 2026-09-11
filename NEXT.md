@@ -2801,3 +2801,11 @@ and floor texture requests recover after an injected abort; cooldown redraws
 do not add requests, and fulfilled retries update canvas pixels without further
 input. The test advances Date.now past the cooldown; physical-device/outage
 qualification remains separate. See [report](docs/reviews/2026-09-10-texture-recovery.md).
+
+### 2D/3D texture recovery across engines — 2026-09-10
+
+All 12 wall/floor × 2D/3D recovery cases pass across Chromium, Firefox and WebKit.
+3D checks settle WebGL drawing before releasing the retry and view floors from
+above so their changed surface is visible. Shared texture callbacks rebuild the
+3D scene without further input; no additional production change was needed.
+See [report](docs/reviews/2026-09-10-texture-recovery.md).

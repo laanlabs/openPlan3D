@@ -1,8 +1,11 @@
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { observeGPU, gpu } from './gpu';
 
-for (const kind of ['wall', 'floor']) {
-  test(`${kind} photo texture recovers from an aborted request and wakes the canvas`, async ({ page }) => {
+for (const view of ['2D', '3D']) for (const kind of ['wall', 'floor']) {
+  test(`${kind} photo texture recovers from an aborted request and wakes the ${view} canvas`, async ({ page }) => {
+    if (view === '3D') await observeGPU(page);
     await page.addInitScript(() => {
       localStorage.setItem('o3d_tips_seen', JSON.stringify(['first-wall', 'first-furniture', 'first-3d', 'first-export', 'first-door']));
       const now = Date.now.bind(Date);
@@ -35,13 +38,26 @@ for (const kind of ['wall', 'floor']) {
       await grid.press('Enter'); await grid.press('Enter');
       expect(attempts).toBe(1);
       await page.evaluate(() => { (window as any).__textureClockOffset = 31_000; });
-      await grid.press('Enter');
+      if (view === '3D') await page.getByRole('button', { name: '3D', exact: true }).click();
+      else await grid.press('Enter');
       await expect.poll(() => attempts).toBe(2);
-      const canvas = page.locator('canvas[aria-label="Floor plan editor canvas"]');
-      const before = await canvas.evaluate((node: HTMLCanvasElement) => node.toDataURL());
+      const canvas = view === '3D'
+        ? page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').last()
+        : page.locator('canvas[aria-label="Floor plan editor canvas"]');
+      if (view === '3D') {
+        if (kind === 'floor') await page.getByRole('button', { name: 'Top-Down View', exact: true }).click();
+        await expect(async () => {
+          const active = (await gpu(page)).find((entry: any) => entry.connected && !entry.lost);
+          expect(active?.draws).toBeGreaterThan(0);
+          await page.waitForTimeout(300);
+          expect((await gpu(page)).find((entry: any) => entry.connected && !entry.lost)?.draws).toBe(active.draws);
+        }).toPass({ timeout: 15_000 });
+      }
+      const pixels = async () => createHash('sha256').update(await canvas.evaluate((node: HTMLCanvasElement) => node.toDataURL())).digest('hex');
+      const before = await pixels();
       release();
       // No pointer movement or further UI action supplies the redraw.
-      await expect.poll(() => canvas.evaluate((node: HTMLCanvasElement) => node.toDataURL())).not.toBe(before);
+      await expect.poll(pixels).not.toBe(before);
       expect(attempts).toBe(2);
     } finally { release(); }
   });
