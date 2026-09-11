@@ -1,5 +1,6 @@
 <script lang="ts">
   import { t } from '$lib/i18n';
+  import { catalogCategoryLabels, normalizeCatalogSearch } from '$lib/i18n/catalogCategories';
   import { roomPresetLabels, roomTemplateLabels } from '$lib/i18n/roomLabels';
   import { modalDialog } from '$lib/utils/modalDialog';
   import { openProject } from '$lib/services/projectOpening';
@@ -104,7 +105,7 @@
 
   let filtered = $derived(
     (() => {
-      const s = search.toLowerCase();
+      const s = normalizeCatalogSearch(search);
       let items = selectedCategory === 'Favorites'
         ? favoriteItems
         : furnitureCatalog.filter((f) => {
@@ -112,7 +113,8 @@
             return matchCat;
           });
       if (s) {
-        items = items.filter(f => f.name.toLowerCase().includes(s));
+        items = items.filter(f => [f.name, f.category, catalogCategoryLabels[f.category] ? $t(catalogCategoryLabels[f.category]) : f.category]
+          .some(value => normalizeCatalogSearch(value).includes(s)));
       }
       return items;
     })()
@@ -621,7 +623,7 @@
               class="px-2 py-0.5 rounded-full text-[10px] font-medium {selectedCategory === cat ? 'text-white' : 'text-gray-600 hover:bg-gray-200'}"
               style={selectedCategory === cat ? `background-color: ${categoryColors[cat] ?? '#6b7280'}` : 'background-color: #f3f4f6'}
               onclick={() => selectedCategory = cat}
-            >{cat}</button>
+            >{catalogCategoryLabels[cat] ? $t(catalogCategoryLabels[cat]) : cat}</button>
           {/each}
         </div>
 
@@ -760,7 +762,7 @@
           <span
             class="px-1.5 py-0.5 rounded-full text-[9px] font-semibold text-white"
             style="background-color: {categoryColors[item.category] ?? '#6b7280'}"
-          >{item.category}</span>
+          >{catalogCategoryLabels[item.category] ? $t(catalogCategoryLabels[item.category]) : item.category}</span>
         </div>
         <div class="text-xs text-gray-500">
           {item.width} × {item.depth} × {item.height} cm

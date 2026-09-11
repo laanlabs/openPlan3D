@@ -3155,3 +3155,11 @@ search and stored IDs. Five unit tests, zero-warning check, production build and
 12 bilingual browser cases pass (1.2 minutes), including keyboard focus, literal
 search text and independent favorite/placement actions. Item/category names,
 remaining dialogs/editor panels and physical-device requirements remain open.
+
+### Catalog-category localization and search — 2026-09-10
+
+Translated category filters/preview labels while preserving identifiers. Search
+accepts original/translated categories without requiring accents. Five unit tests,
+zero-warning check, production build and three browser cases pass (36.3 seconds),
+including category isolation and original recent-item IDs. Individual object names,
+remaining editor panels/dialogs and device/release gates remain open.

@@ -610,3 +610,20 @@ toggling and persistence, focus order and independent placement activation. This
 uses the existing desktop viewport, not phone or physical-device qualification.
 Logs: `/tmp/web-object-controls-unit.log`, `/tmp/web-object-controls-check.log`,
 `/tmp/web-object-controls-build.log`, `/tmp/web-object-controls-browser.log`.
+
+## Catalog category labels and search
+
+Translated all 20 category filter/preview labels through a typed display map,
+keeping category identifiers and colors unchanged. Search now matches original
+item names, original categories and translated categories, ignoring accents and
+case. Unknown categories retain their original label. Individual item names
+remain untranslated work.
+
+Five localization unit tests, zero-warning Svelte check and production build pass.
+Three desktop browser cases pass across all engines (36.3 seconds), verifying
+Elétrica/Cozinha filters, accent-free `eletrica` and original `Electrical` queries,
+a one-result name search, clear/reset behavior and original `stove` recent-item ID
+after placement activation. Logs: `/tmp/web-catalog-categories-unit.log`,
+`/tmp/web-catalog-categories-check.log`, `/tmp/web-catalog-categories-build.log`,
+`/tmp/web-catalog-categories-browser.log`. Physical-device/search usability review
+and individual furniture-name localization remain open.
