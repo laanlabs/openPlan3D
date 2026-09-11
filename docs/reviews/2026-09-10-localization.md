@@ -1143,3 +1143,14 @@ Logs: `/tmp/web-elevation-drag-repro.log`, `/tmp/web-elevation-drag-check.log`,
 `/tmp/web-elevation-drag-build.log`, `/tmp/web-elevation-drag-browser-final.log`.
 This covers desktop Escape during a window drag, not all gesture exits or physical
 touch. Remaining NEXT requirements stay open.
+
+## Elevation and calibration integration checkpoint
+
+At `97e7b2b`, all 939 unit tests across 87 files pass (22.56 seconds, exit 0).
+Six existing English integration cases pass across Chromium, Firefox and WebKit
+(1.8 minutes, exit 0). Coverage includes sloped wall heights, invalid drafts,
+reversal and opening preservation, elevation display, save/reload and 3D viewing;
+modal dismissal preserves elevation/3D editing modes and PDF print stays usable.
+Logs: `/tmp/web-elevation-integration-unit.log`,
+`/tmp/web-elevation-integration-browser.log`. No runtime changes in this checkpoint.
+Full-browser, physical-device, remaining localization and release work stay open.
