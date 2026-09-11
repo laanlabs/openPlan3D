@@ -1760,3 +1760,19 @@ overlap appearance and physical-device interactions remain separate checks.
 Logs: `/tmp/web-context-furniture-repro.log`, `/tmp/web-context-furniture-all-unit.log`,
 `/tmp/web-context-furniture-check.log`, `/tmp/web-context-furniture-build.log`,
 `/tmp/web-context-furniture-browser.log`.
+
+### 2026-09-11: One-step Undo for rotated furniture placement
+
+A Chromium reproduction placed a sofa at 30 degrees and showed that Undo left
+the sofa at zero degrees. The canvas created the item and rotated it as separate
+history mutations. The placement path now encloses creation, initial rotation and
+selection in an Undo group, closed in finally. Zero-degree placement retains its
+one-step behavior.
+
+Six browser cases pass across Chromium, Firefox and WebKit (21.4 seconds), checking
+zero/30-degree placement, exact pre-placement floor restoration on Undo and exact
+placed state on Redo. Check/build pass with zero Svelte diagnostics. Wall-snapped
+placement uses the same group but was not separately driven; physical-device
+gestures remain unqualified.
+Logs: `/tmp/web-rotated-placement-repro.log`, `/tmp/web-rotated-placement-check.log`,
+`/tmp/web-rotated-placement-build.log`, `/tmp/web-rotated-placement-browser.log`.

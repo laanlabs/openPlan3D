@@ -169,6 +169,12 @@ Svelte diagnostics; six browser cases across Chromium, Firefox and WebKit pass
 (21.8 seconds). Mirroring preserves signed scale, and front/back changes now use
 Undo history without clearing Redo for unchanged order.
 
+Rotated furniture placement now groups creation and its initial angle into one
+Undo entry. Six browser cases pass across all three engines for zero/30-degree
+placement, exact removal on Undo and restoration on Redo (21.4 seconds).
+Check/build pass; wall-snapped placement and physical gestures remain separate
+qualification cases.
+
 Earlier full web unit checkpoint: **958 tests across 90 files passed** with curved
 wall splitting (3.65 seconds). Check/build and 12 wall-action browser cases pass
 across Chromium, Firefox and WebKit (54.4 seconds), including curved split controls,

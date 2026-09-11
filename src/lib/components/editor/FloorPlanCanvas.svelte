@@ -2416,11 +2416,14 @@
       const wallSnap = placingCat ? snapFurnitureToWall(wp, placingCat) : null;
       const pos = wallSnap ? wallSnap.position : { x: snap(wp.x), y: snap(wp.y) };
       const rot = wallSnap ? wallSnap.rotation : currentPlacingRotation;
-      const id = addFurniture(currentPlacingId, pos);
-      if (rot !== 0) {
-        rotateFurniture(id, rot);
+      beginUndoGroup();
+      try {
+        const id = addFurniture(currentPlacingId, pos);
+        if (rot !== 0) rotateFurniture(id, rot);
+        selectedElementId.set(id);
+      } finally {
+        endUndoGroup('Placed furniture');
       }
-      selectedElementId.set(id);
       return;
     }
 
