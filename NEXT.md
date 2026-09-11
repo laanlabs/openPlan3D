@@ -504,8 +504,11 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
   quality. Current finishes are visual controls, not physical material simulation.
 - **Localization and usability:** revive English/Portuguese localization from
   closed community [PR #15](https://github.com/laanlabs/openPlan3D/pull/15) as a
-  focused string-system change. The typed store, Settings shell and nested Settings panels are now migrated;
-  broader interface translation remains open. See the
+  focused string-system change. The typed store, Settings, library/recovery,
+  editor controls and property panels, and major 3D controls now have translated
+  interfaces with scoped browser checks. Remaining catalog text and service
+  errors, full interface review and physical accessibility qualification remain
+  open. See the
   [localization record](docs/reviews/2026-09-10-localization.md). Recheck first-use navigation, dense toolbars,
   readable labels, accessibility and touch property editing. Earlier interaction
   fixes are already merged; reproduce any remaining problem before changing them.
