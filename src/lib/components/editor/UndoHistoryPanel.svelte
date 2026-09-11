@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import { t, locale, type Locale } from '$lib/i18n';
+  import { undoMessage } from '$lib/i18n/undoMessages';
   import { undoHistoryStore, jumpToUndoStep } from '$lib/stores/project';
 
   let { visible = $bindable(false) } : { visible?: boolean } = $props();
@@ -55,7 +56,7 @@
               onclick={() => handleClick(i)}
             >
               <span class="w-5 text-[10px] text-gray-400 text-right shrink-0">{i + 1}</span>
-              <span class="truncate flex-1">{entry.description}</span>
+              <span class="truncate flex-1">{undoMessage(entry.description, $locale)}</span>
               <time datetime={new Date(entry.timestamp).toISOString()} class="text-[10px] text-gray-300 shrink-0">{formatTime(entry.timestamp, $locale)}</time>
             </button>
           {/each}

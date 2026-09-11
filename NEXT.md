@@ -1,5 +1,16 @@
 # Next work and pause handoff
 
+## Undo action descriptions — September 11 checkpoint
+
+Undo History now translates 33 recognized built-in descriptions for English and
+Portuguese at display time. Unknown descriptions and stored history remain intact.
+Six focused unit tests, check (zero diagnostics), production build and all six
+English/Portuguese Chromium/Firefox/WebKit history cases pass. The browser run
+took 4.5 minutes with a bounded slow-test allowance after the initial 60-second
+deadline expired during the final export; all preservation assertions remain.
+Dynamic action descriptions, broader interface/catalog review and physical-device
+and release qualification remain open. This checkpoint does not close the backlog.
+
 Updated September 9, 2026. This is the current backlog for the web app and iPhone
 companion. It supersedes the historical “next” sections in the
 [original review and batch log](docs/reviews/2026-09-05-current-state-and-roadmap.md).

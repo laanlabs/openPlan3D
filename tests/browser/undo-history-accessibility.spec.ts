@@ -2,6 +2,8 @@ import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
 for (const language of ['en', 'pt'] as const) test(`${language}: named undo history exposes the current step and restores a floor change`, async ({ page }) => {
+  // Keep all before/after export assertions on slower production-browser runs.
+  test.slow();
   const project = JSON.parse(await readFile('tests/fixtures/save-conflicts.openplan.json', 'utf8'));
   await page.addInitScript(({ project, language }) => {
     localStorage.setItem('o3d_locale', language);
@@ -24,7 +26,9 @@ for (const language of ['en', 'pt'] as const) test(`${language}: named undo hist
   const history = page.getByRole('region', { name: language === 'en' ? 'Undo History' : 'Histórico de Ações', exact: true });
   await expect(history).toBeVisible();
   await expect(history.locator('[aria-current="step"]')).toHaveText(language === 'en' ? /Current state/ : /Estado atual/);
-  await history.getByRole('button', { name: /Added floor/ }).click();
+  const action = history.getByRole('button', { name: language === 'en' ? /Added floor/ : /Pavimento adicionado/ });
+  await expect(action).toBeVisible();
+  await action.click();
   expect((await exported()).floors).toEqual(before.floors);
   await history.getByRole('button', { name: language === 'en' ? 'Close history' : 'Fechar histórico', exact: true }).click();
   await expect(history).toHaveCount(0);

@@ -2539,3 +2539,14 @@ Logs: `/tmp/web-undo-region-check.log`, `/tmp/web-undo-region-build.log`,
 `/tmp/web-undo-region-browser.log`. This is scoped verification, not a fresh full
 unit/browser run. Actual screen-reader use, visual contrast review, action-label
 translation and broader NEXT.md gates remain open.
+# Undo action descriptions — September 11 checkpoint
+
+Added display-only English/Portuguese translations for 33 recognized built-in
+Undo History descriptions. Unknown text passes through unchanged; stored history
+is not rewritten. Six focused unit tests pass, Svelte check reports zero errors
+and warnings, and production build passes. All six bilingual history browser
+cases pass across Chromium, Firefox and WebKit (4.5 minutes), including translated
+floor actions and exact restoration of exported floor data. The initial run hit
+the 60-second test deadline during its final export; the rerun uses Playwright's
+bounded slow-test allowance and retains every assertion. Dynamic descriptions,
+catalog/interface review and physical accessibility qualification remain open.
