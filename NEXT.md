@@ -2761,3 +2761,11 @@ to all 204 bundled GLBs (140 Furniture Kit, 64 Nature Kit). All match official
 archive members. The 111 unmapped assets are identified by empty catalogIds;
 an altered unmapped-asset provenance hash is rejected. Textures, product
 measurements and native representation remain separate work.
+
+### Full native trace integration baseline — 2026-09-10
+
+The complete FloorPlanTests target passed at native b6ee323 on Catalyst and
+iPhone 17 Pro / iOS 26.5 Simulator: 248 executed, two optional external-worker
+checks skipped, zero failures on each platform. Suite durations were 65.894 s
+and 55.705 s respectively. See native `docs/native-trace-integration-baseline.md`.
+UI dismissal, physical-device and release gates remain open.
