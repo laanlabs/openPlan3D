@@ -1,5 +1,20 @@
 # Next work and pause handoff
 
+## Full unit checkpoint after catalog localization — September 11
+
+Source `5980437` passed all **1,034 unit tests in 98 files** (76.05 seconds).
+The process finished successfully; no unit runner remains active. This covers the
+catalog-name and history-label changes together with the existing unit suite.
+The latest scoped browser evidence remains 24 catalog cases and nine Layers/3D/
+photo cases; the earlier 1,098-case full browser audit applies to `ddf7d90`.
+
+The naming audit found remaining direct catalog-name reads in
+`canvasRenderer.ts` (2D furniture captions), `export.ts` (SVG labels), and
+`cadExport.ts` (DXF labels). Extend those deliberately with locale-aware redraw
+and export checks while preserving geometry and unknown/source identifiers.
+This checkpoint does not close those gaps, fluent review, physical accessibility,
+native/device work or release gates.
+
 ## Furniture names in Layers and 3D — September 11
 
 Layers, the 3D furniture picker and its placement hint now share the Portuguese
