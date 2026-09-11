@@ -1,5 +1,13 @@
 # Next work and pause handoff
 
+## Full browser qualification in progress — September 11
+
+A fresh full browser run is active against runtime `ddf7d90` after the shared
+history fixes. The inventory has 1,098 cases in 136 files. This is not yet a
+completed qualification; follow the exact live process and evidence recorded in
+[the running report](docs/reviews/2026-09-11-history-browser-qualification.md).
+The broader backlog, physical-device and release gates remain open.
+
 ## Undo group lifecycle — September 11 checkpoint
 
 Reproduced unchanged groups clearing Redo and pending groups inserting an old
