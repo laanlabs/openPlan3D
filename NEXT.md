@@ -163,6 +163,15 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+Undo History now exposes a translated named region and current-step marker to
+assistive technology, and uses semantic timestamps formatted for the selected
+language. Zero-error/warning application checking, the production build and six
+English/Portuguese browser cases pass across three engines (3.8 minutes). Tests
+add a floor, navigate back through history, compare original floor exports and
+verify panel close/expanded state. This is scoped verification after the previous
+full checkpoint; action-description translation and physical accessibility review
+remain open.
+
 **Canvas accessible-name qualification is complete:** all **141 affected cases,
 47 per engine**, have passing evidence with exact inventory agreement. The final
 116-case continuation passed in 28.5 minutes; no browser process from this batch

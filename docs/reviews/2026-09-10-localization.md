@@ -2520,3 +2520,22 @@ timeout reproduction, retained assertions, subscription cleanup and limitations.
 This completes the affected canvas qualification, not the entire NEXT.md scope
 or a fresh full browser suite. Physical/native/release and broader interface
 review requirements remain open.
+
+### 2026-09-11: Undo History region and current-step semantics
+
+UndoHistoryPanel now exposes a region named with its translated title, marks the
+current state with aria-current=step, and renders semantic time elements formatted
+for the selected locale. The existing history-navigation and subscription cleanup
+behavior remain in place. Stored action descriptions are unchanged and still need
+further localization.
+
+Svelte checking reports zero errors/warnings and the production build passes.
+Six English/Portuguese browser cases pass across Chromium, Firefox and WebKit
+(3.8 minutes). Each adds an empty floor, locates the named history region and
+current marker, chooses the prior state, compares its exported floors with the
+baseline, then checks close and aria-expanded behavior.
+
+Logs: `/tmp/web-undo-region-check.log`, `/tmp/web-undo-region-build.log`,
+`/tmp/web-undo-region-browser.log`. This is scoped verification, not a fresh full
+unit/browser run. Actual screen-reader use, visual contrast review, action-label
+translation and broader NEXT.md gates remain open.

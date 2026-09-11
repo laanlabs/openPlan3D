@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
-  import { t } from '$lib/i18n';
+  import { t, locale, type Locale } from '$lib/i18n';
   import { undoHistoryStore, jumpToUndoStep } from '$lib/stores/project';
 
   let { visible = $bindable(false) } : { visible?: boolean } = $props();
@@ -9,9 +9,9 @@
 
   onDestroy(undoHistoryStore.subscribe((h) => { history = h; }));
 
-  function formatTime(ts: number) {
+  function formatTime(ts: number, language: Locale) {
     const d = new Date(ts);
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    return d.toLocaleTimeString(language === 'pt' ? 'pt-BR' : 'en', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   }
 
   function handleClick(index: number) {
@@ -20,7 +20,7 @@
 </script>
 
 {#if visible}
-  <div class="fixed bottom-12 left-4 w-64 max-h-80 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 flex flex-col overflow-hidden">
+  <div role="region" aria-label={$t('undoHistory.title')} class="fixed bottom-12 left-4 w-64 max-h-80 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 flex flex-col overflow-hidden">
     <!-- Header -->
     <div class="flex items-center justify-between px-3 py-2 border-b border-gray-100 bg-gray-50">
       <div class="flex items-center gap-1.5">
@@ -56,11 +56,12 @@
             >
               <span class="w-5 text-[10px] text-gray-400 text-right shrink-0">{i + 1}</span>
               <span class="truncate flex-1">{entry.description}</span>
-              <span class="text-[10px] text-gray-300 shrink-0">{formatTime(entry.timestamp)}</span>
+              <time datetime={new Date(entry.timestamp).toISOString()} class="text-[10px] text-gray-300 shrink-0">{formatTime(entry.timestamp, $locale)}</time>
             </button>
           {/each}
           <!-- Current state indicator -->
           <div
+            aria-current="step"
             class="w-full px-3 py-1.5 flex items-center gap-2 text-xs"
             class:bg-blue-100={history.currentIndex === history.entries.length}
             class:text-blue-700={history.currentIndex === history.entries.length}
