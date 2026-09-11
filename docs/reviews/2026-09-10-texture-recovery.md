@@ -22,3 +22,19 @@ warnings (`/tmp/web-texture-recovery-check.log`). These tests use controlled ima
 load/error events; they are not a real-network outage or physical-device run.
 
 Production build, catalog inventory check and `git diff --check` passed. Build log: `/tmp/web-texture-recovery-build.log`.
+
+## Production-browser recovery checks
+
+Added separate wall/floor Playwright cases against the production build. Each
+aborts the first actual texture request, imports a synthetic room, verifies
+repeated redraws do not issue extra requests, advances only the Date.now offset
+past the cooldown, and triggers a later draw. The retry is held until the fallback
+canvas is recorded, then fulfilled with the actual bundled WebP. Canvas pixels
+change without subsequent pointer movement/UI input, verifying the texture-load
+notification wakes rendering. Each case sees exactly two requests.
+
+All six cases passed: two in Chromium (22.1 seconds total) and four across Firefox
+and WebKit (23.8 seconds total). Logs: `/tmp/web-texture-recovery-browser.log` and
+`/tmp/web-texture-recovery-other-engines.log`. These are controlled network-error
+tests with a clock offset, not physical-device or elapsed-30-second outage tests.
+No production source changed in this validation batch.

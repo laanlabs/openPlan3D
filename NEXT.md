@@ -2793,3 +2793,11 @@ per-frame requests; success wakes rendering and reuses the cached image.
 Both regression cases failed before the fix; all three focused recovery/asset
 tests, zero-warning Svelte check, catalog check and production build passed.
 See [validation](docs/reviews/2026-09-10-texture-recovery.md).
+
+### Texture recovery browser validation — 2026-09-10
+
+Six production-browser cases pass across Chromium, Firefox and WebKit. Wall
+and floor texture requests recover after an injected abort; cooldown redraws
+do not add requests, and fulfilled retries update canvas pixels without further
+input. The test advances Date.now past the cooldown; physical-device/outage
+qualification remains separate. See [report](docs/reviews/2026-09-10-texture-recovery.md).
