@@ -163,6 +163,22 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+**Fresh full unit checkpoint:** all **1,021 tests in 94 files pass** on `5ca61a4`
+with `npx vitest run --maxWorkers=1` (106.30 seconds). This verifies the accumulated
+validation/localization batches together. The existing successful check/build and
+15 transfer browser cases also apply to this source; the full browser audit remains
+the earlier staged checkpoint, not a fresh full browser run.
+
+The next recovery-message gaps are now identified in source: blocked database
+upgrades, unreadable legacy libraries and recovery-ID allocation in
+`src/lib/services/localDatabase.ts`; save-copy ID allocation and saved-project ID
+mismatch in `src/lib/services/datastore.ts`; restored-ID allocation and recovery
+archive preservation in `src/lib/services/libraryRestore.ts`; item-detail/retained
+state errors in `src/lib/utils/itemDetails.ts`; and unreadable/oversized history
+in `src/lib/utils/snapshotStorage.ts`. Their error strings are absent from the
+current dictionaries and still need display translation and recovery verification.
+These remaining gaps do not change the broader physical/native/release scope.
+
 General project-validation explanations now translate while preserving exact
 field paths and unknown details. Forty-three focused unit/dictionary checks,
 zero Svelte diagnostics, the production build and 15 transfer browser cases pass

@@ -2340,3 +2340,19 @@ Logs: `/tmp/web-project-fields-unit.log`, `/tmp/web-project-fields-check.log`,
 `/tmp/web-project-fields-build.log`, `/tmp/web-project-fields-browser.log`.
 This is scoped post-audit evidence, not a fresh full-suite result. Other service
 diagnostics and the physical/native/release requirements remain open.
+
+### 2026-09-11: Full unit checkpoint after validation localization
+
+On source commit `5ca61a4`, `npx vitest run --maxWorkers=1` passes all **1,021
+tests across 94 files** in 106.30 seconds. No source changed during this run.
+Log: `/tmp/web-validation-full-unit.log`. This is fresh full unit evidence for the
+accumulated batches; the earlier check/build and 15-case transfer result apply to
+the same source. It is not a fresh full browser audit or a completion claim for
+the broader NEXT.md objective.
+
+A source/dictionary review identified the next untranslated errors: blocked
+database upgrades, damaged legacy-library reads, recovery/copy/restored-ID
+allocation, saved-ID mismatch, recovery-archive preservation, invalid item details,
+invalid retained package state, and unreadable/oversized saved history. The owning
+source files are listed in the current NEXT.md baseline. Further translation and
+recovery testing remain open, as do physical-device/native/release gates.
