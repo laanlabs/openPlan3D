@@ -762,3 +762,16 @@ room wall references and unchanged walls/openings/furniture. Logs:
 `/tmp/web-room-properties-unit.log`, `/tmp/web-room-properties-browser.log`.
 This does not qualify 3D slab rendering, physical touch editing, every material,
 fluent-speaker review or the remaining Properties sections.
+
+## Properties integration checkpoint
+
+At `b671dfc`, all 938 unit tests across 87 files pass (4.74 seconds, exit 0).
+Fifteen existing English browser integration cases pass across Chromium, Firefox
+and WebKit (3.4 minutes, exit 0). Furniture checks cover 1440/390px tint/finish
+editing, rendered color, reload persistence, rebuild resource reuse and delayed
+model completion. Room slab checks exercise nested-room unique coverage,
+floor-opening intent, recesses, disconnected rooms and active/stacked floor exports.
+Logs: `/tmp/web-properties-integration-unit.log`,
+`/tmp/web-properties-integration-browser.log`. No runtime changes in this checkpoint.
+These tests complement the focused Portuguese Properties cases; they do not close
+remaining localization, full-browser, physical-device or release requirements.
