@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { roomTypeLabels, roomColorLabels, floorGroupLabels, floorMaterialLabels } from '$lib/i18n/roomPropertyLabels';
   import { t, type TranslationKey } from '$lib/i18n';
   const furnitureFinishLabels: Record<string, TranslationKey> = {"Wood": "furnitureFinish.Wood", "Metal": "furnitureFinish.Metal", "Fabric": "furnitureFinish.Fabric", "Leather": "furnitureFinish.Leather", "Glass": "furnitureFinish.Glass", "Plastic": "furnitureFinish.Plastic", "Stone": "furnitureFinish.Stone", "Ceramic": "furnitureFinish.Ceramic"};
   import { furnitureFinishes } from '$lib/utils/furnitureFinishes';
@@ -765,61 +766,61 @@
   {:else if selectedRoom}
     <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
       <span class="w-6 h-6 bg-green-100 rounded flex items-center justify-center text-xs">⬜</span>
-      Room Properties
+      {$t('roomProperties.heading')}
     </h3>
     <div class="space-y-3">
       <label class="block">
-        <span class="text-xs text-gray-500">Room Type</span>
+        <span class="text-xs text-gray-500">{$t('roomProperties.type')}</span>
         <select value={selectedRoomType()} onchange={onRoomType} class="w-full px-2 py-1 border border-gray-200 rounded text-sm">
           {#each roomTypes as rt}
-            <option value={rt.id}>{rt.icon} {rt.label}</option>
+            <option value={rt.id}>{rt.icon} {$t(roomTypeLabels[rt.id])}</option>
           {/each}
         </select>
       </label>
       <label class="block">
-        <span class="text-xs text-gray-500">Room Name</span>
+        <span class="text-xs text-gray-500">{$t('roomProperties.name')}</span>
         <input type="text" value={selectedRoom.name} oninput={onRoomName} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
-        <span class="text-xs text-gray-500">Category</span>
+        <span class="text-xs text-gray-500">{$t('roomProperties.category')}</span>
         <select value={selectedRoom.roomType ?? 'indoor'} onchange={(e) => { if (selectedRoom) { const v = (e.target as HTMLSelectElement).value as RoomCategory; updateRoom(selectedRoom.id, { roomType: v }); updateDetectedRoom(selectedRoom.id, { roomType: v } as any); } }} class="w-full px-2 py-1 border border-gray-200 rounded text-sm">
-          <option value="indoor">🏠 Indoor</option>
-          <option value="outdoor">🌳 Outdoor</option>
-          <option value="garage">🚗 Garage</option>
-          <option value="utility">🔧 Utility</option>
+          <option value="indoor">🏠 {$t('areaSummary.indoor')}</option>
+          <option value="outdoor">🌳 {$t('areaSummary.outdoor')}</option>
+          <option value="garage">🚗 {$t('areaSummary.garage')}</option>
+          <option value="utility">🔧 {$t('areaSummary.utility')}</option>
         </select>
       </label>
       <div>
-        <span class="text-xs text-gray-500">Area</span>
+        <span class="text-xs text-gray-500">{$t('roomProperties.area')}</span>
         <p class="text-sm text-gray-700">{formatArea(selectedRoom.area, settings.units)}</p>
       </div>
       <!-- Room Color -->
       <label class="flex items-center gap-2 text-sm text-gray-700">
         <input type="checkbox" checked={selectedRoom.floorOpening ?? false}
           onchange={(e) => { if (selectedRoom) updateRoom(selectedRoom.id, { floorOpening: e.currentTarget.checked }); }} />
-        Open to floor below
+        {$t('roomProperties.opening')}
       </label>
-      <p class="text-xs text-gray-500">Removes the floor slab inside these walls and excludes it from floor area.</p>
+      <p class="text-xs text-gray-500">{$t('roomProperties.openingHelp')}</p>
       <div>
-        <span class="text-xs text-gray-500 mb-1.5 block">Room Color{selectedRoom.floorTexture === 'none' ? ' (used as floor color)' : ''}</span>
+        <span class="text-xs text-gray-500 mb-1.5 block">{$t('roomProperties.color')}{selectedRoom.floorTexture === 'none' ? $t('roomProperties.floorColor') : ''}</span>
         <div class="grid grid-cols-5 gap-1.5 mb-2">
           {#each roomColorPresets as preset}
             <button
               class="w-7 h-7 rounded-md border-2 hover:border-gray-300 transition-colors {selectedRoom.color === preset.color ? 'border-blue-500 ring-1 ring-blue-200' : 'border-gray-200'}"
               style="background-color: {preset.color}"
-              title={preset.name}
+              title={$t(roomColorLabels[preset.name])}
               onclick={() => onRoomColor(preset.color)}
             ></button>
           {/each}
         </div>
         <div class="flex items-center gap-2">
-          <span class="text-xs text-gray-500">Custom:</span>
-          <input type="color" value={selectedRoom.color ?? '#ffffff'} oninput={(e) => onRoomColor((e.target as HTMLInputElement).value)} class="w-8 h-6 rounded border border-gray-200 cursor-pointer" />
+          <span class="text-xs text-gray-500">{$t('furnitureProperties.custom')}</span>
+          <input type="color" aria-label={$t('furnitureProperties.customColor')} value={selectedRoom.color ?? '#ffffff'} oninput={(e) => onRoomColor((e.target as HTMLInputElement).value)} class="w-8 h-6 rounded border border-gray-200 cursor-pointer" />
         </div>
       </div>
       <div>
         <div class="flex items-center gap-1 mb-2">
-          <span class="text-xs text-gray-500">Floor Material</span>
+          <span class="text-xs text-gray-500">{$t('roomProperties.floorMaterial')}</span>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-400">
             <path d="M3 3h18v18H3z"/>
             <path d="M8 8h8v8H8z"/>
@@ -828,7 +829,7 @@
         <div class="space-y-3">
           {#each textureGroups as group}
             <div>
-              <span class="text-xs font-medium text-gray-600 mb-1.5 block">{group.label}</span>
+              <span class="text-xs font-medium text-gray-600 mb-1.5 block">{$t(floorGroupLabels[group.label])}</span>
               <div class="grid grid-cols-3 gap-1.5">
                 {#each group.ids as matId}
                   {@const mat = floorMaterials.find(m => m.id === matId)}
@@ -836,14 +837,14 @@
                     {@const texPath = floorTexPaths[mat.id] ?? ''}
                     <button
                       class="p-1 rounded-lg border-2 hover:border-gray-300 transition-all text-xs {selectedRoom.floorTexture === mat.id ? 'border-blue-500 ring-2 ring-blue-200 shadow-sm' : 'border-gray-200'}"
-                      title={mat.name}
+                      title={$t(floorMaterialLabels[mat.id])}
                       onclick={() => onRoomFloor(mat.id)}
                     >
                       <div
                         class="w-full h-12 rounded-md mb-1 overflow-hidden"
                         style={texPath ? `background-image: url(${texPath}); background-size: cover; background-position: center;` : `background-color: ${mat.id === 'none' ? (selectedRoom.color ?? mat.color) : mat.color}`}
                       ></div>
-                      <div class="text-center leading-3 text-[10px] text-gray-600 truncate">{mat.name}</div>
+                      <div class="text-center leading-3 text-[10px] text-gray-600 truncate">{$t(floorMaterialLabels[mat.id])}</div>
                     </button>
                   {/if}
                 {/each}

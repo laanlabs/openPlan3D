@@ -744,3 +744,21 @@ Logs: `/tmp/web-furniture-properties-check.log`,
 `/tmp/web-furniture-properties-build.log`, `/tmp/web-furniture-properties-unit.log`,
 `/tmp/web-furniture-properties-browser-final.log`. This does not qualify 3D visual
 appearance, every control, physical touch editing or remaining Properties sections.
+
+## Room Properties localization
+
+Translated room controls, room-type choices, category labels, color presets and
+floor material/group names. Display mappings retain original type names and
+material IDs; choosing Bedroom still writes the existing Bedroom preset name,
+while user-entered names remain literal. Added an accessible custom-color label.
+No geometry, room-detection or floor-opening handler changes.
+
+Production check has zero errors/warnings; production build and all five
+localization unit tests pass. Three desktop browser cases pass (35.6 seconds,
+exit 0), verifying literal-brace names, type selection, outdoor category, light-oak
+material, sage color and reversible floor-opening edits. Export comparisons retain
+room wall references and unchanged walls/openings/furniture. Logs:
+`/tmp/web-room-properties-check.log`, `/tmp/web-room-properties-build.log`,
+`/tmp/web-room-properties-unit.log`, `/tmp/web-room-properties-browser.log`.
+This does not qualify 3D slab rendering, physical touch editing, every material,
+fluent-speaker review or the remaining Properties sections.

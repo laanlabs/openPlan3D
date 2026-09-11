@@ -3225,3 +3225,11 @@ IDs and catalog names. Production check/build, five localization unit tests and
 three desktop browser cases pass (25.8 seconds). Export comparisons verify
 appearance/transform edits, reset behavior and unchanged neighboring furniture.
 Other Properties sections, 3D/device qualification and remaining NEXT gates stay open.
+
+### Room Properties localization — 2026-09-10
+
+Translated room controls and type/color/material choices while retaining original
+preset names and material IDs. Production check/build and five localization unit
+tests pass. Three desktop browser cases pass (35.6 seconds), checking literal names,
+category/material/color edits, reversible floor openings and unchanged geometry.
+Remaining Properties sections and broader usability/device/release gates stay open.
