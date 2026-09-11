@@ -832,3 +832,22 @@ Logs: `/tmp/web-stair-properties-check.log`, `/tmp/web-stair-properties-build.lo
 `/tmp/web-stair-properties-unit.log`, `/tmp/web-stair-properties-browser-final.log`.
 Other Properties sections, rendered stair geometry and physical touch/release
 qualification remain open.
+
+## Column Properties localization and shape accessibility
+
+Translated column heading, shape/dimension/rotation controls and ten color presets.
+The browser check exposed an existing label wrapping two buttons: Chromium exposed
+the round button as Formato plus the square button text. Replaced that form label
+with a named group and added aria-pressed to each shape button. This preserves
+handlers while giving both buttons stable accessible names and selected states.
+
+Final production check reports zero errors/warnings; production build and five
+localization unit tests pass. Three desktop browser cases pass (29.4 seconds,
+exit 0), checking round-to-square-to-round changes, dimension retention, height,
+rotation, navy color, pressed states and unchanged other exported elements.
+The square-only rotation field disappears on round selection without erasing data.
+Logs: `/tmp/web-column-properties-check-final.log`,
+`/tmp/web-column-properties-build-final.log`, `/tmp/web-column-properties-unit.log`,
+`/tmp/web-column-properties-browser-final.log`; initial accessibility failure in
+`/tmp/web-column-properties-browser.log`. Other grouped controls, rendered geometry,
+physical touch and remaining release requirements need separate qualification.

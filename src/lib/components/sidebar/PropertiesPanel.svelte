@@ -268,6 +268,7 @@
     { name: 'Butter Yellow', color: '#fff8dc' },
   ];
 
+  const columnColorLabels: Record<string, TranslationKey> = {"White": "columnColor.White", "Light Gray": "columnColor.Light Gray", "Concrete": "columnColor.Concrete", "Charcoal": "columnColor.Charcoal", "Black": "columnColor.Black", "Cream": "columnColor.Cream", "Wood": "columnColor.Wood", "Bronze": "columnColor.Bronze", "Silver": "columnColor.Silver", "Navy": "columnColor.Navy"};
   const columnColorPresets = [
     { name: 'White', color: '#ffffff' },
     { name: 'Light Gray', color: '#d1d5db' },
@@ -926,44 +927,44 @@
   {:else if selectedColumn}
     <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
       <span class="w-6 h-6 bg-gray-200 rounded flex items-center justify-center text-xs">🏛️</span>
-      Column Properties
+      {$t('columnProperties.heading')}
     </h3>
     <div class="space-y-3">
-      <label class="block">
-        <span class="text-xs text-gray-500">Shape</span>
+      <div role="group" aria-label={$t('columnProperties.shape')}>
+        <span class="text-xs text-gray-500">{$t('columnProperties.shape')}</span>
         <div class="flex gap-2">
-          <button onclick={() => updateColumn(selectedColumn!.id, { shape: 'round' })} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedColumn.shape === 'round' ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">⭕ Round</button>
-          <button onclick={() => updateColumn(selectedColumn!.id, { shape: 'square' })} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedColumn.shape === 'square' ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">⬜ Square</button>
+          <button aria-pressed={selectedColumn.shape === 'round'} onclick={() => updateColumn(selectedColumn!.id, { shape: 'round' })} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedColumn.shape === 'round' ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">⭕ {$t('columnProperties.round')}</button>
+          <button aria-pressed={selectedColumn.shape === 'square'} onclick={() => updateColumn(selectedColumn!.id, { shape: 'square' })} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedColumn.shape === 'square' ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">⬜ {$t('columnProperties.square')}</button>
         </div>
-      </label>
+      </div>
       <label class="block">
-        <span class="text-xs text-gray-500">{selectedColumn.shape === 'round' ? 'Diameter' : 'Side Length'} ({unitLabel()})</span>
+        <span class="text-xs text-gray-500">{selectedColumn.shape === 'round' ? $t('columnProperties.diameter') : $t('columnProperties.side')} ({unitLabel()})</span>
         <input type="number" value={displayValue(selectedColumn.diameter)} min={settings.units === 'imperial' ? 10 / 2.54 : 10} max={settings.units === 'imperial' ? 200 / 2.54 : 200} step="any" oninput={onColumnDiameter} onblur={onColumnDiameter} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
-        <span class="text-xs text-gray-500">Height ({unitLabel()})</span>
+        <span class="text-xs text-gray-500">{$t('openingProperties.height')} ({unitLabel()})</span>
         <input type="number" value={displayValue(selectedColumn.height)} min={settings.units === 'imperial' ? 50 / 2.54 : 50} max={settings.units === 'imperial' ? 1000 / 2.54 : 1000} step="any" oninput={onColumnHeight} onblur={onColumnHeight} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <div>
-        <span class="text-xs text-gray-500 mb-1.5 block">Color</span>
+        <span class="text-xs text-gray-500 mb-1.5 block">{$t('furnitureProperties.color')}</span>
         <div class="grid grid-cols-5 gap-1.5 mb-2">
           {#each columnColorPresets as preset}
             <button
               class="w-7 h-7 rounded-md border-2 hover:border-gray-300 transition-colors {selectedColumn.color === preset.color ? 'border-blue-500 ring-1 ring-blue-200' : 'border-gray-200'}"
               style="background-color: {preset.color}"
-              title={preset.name}
+              title={$t(columnColorLabels[preset.name])}
               onclick={() => updateColumn(selectedColumn!.id, { color: preset.color })}
             ></button>
           {/each}
         </div>
         <div class="flex items-center gap-2">
-          <span class="text-xs text-gray-500">Custom:</span>
-          <input type="color" value={selectedColumn.color} oninput={(e) => updateColumn(selectedColumn!.id, { color: (e.target as HTMLInputElement).value })} class="w-8 h-6 rounded border border-gray-200 cursor-pointer" />
+          <span class="text-xs text-gray-500">{$t('furnitureProperties.custom')}</span>
+          <input type="color" aria-label={$t('furnitureProperties.customColor')} value={selectedColumn.color} oninput={(e) => updateColumn(selectedColumn!.id, { color: (e.target as HTMLInputElement).value })} class="w-8 h-6 rounded border border-gray-200 cursor-pointer" />
         </div>
       </div>
       {#if selectedColumn.shape === 'square'}
         <label class="block">
-          <span class="text-xs text-gray-500">Rotation (degrees)</span>
+          <span class="text-xs text-gray-500">{$t('furnitureProperties.rotation')}</span>
           <input type="number" value={selectedColumn.rotation} oninput={(e) => scalarInput(e, selectedColumn!.rotation, value => updateColumn(selectedColumn!.id, { rotation: value }))} onblur={(e) => scalarInput(e, selectedColumn!.rotation, value => updateColumn(selectedColumn!.id, { rotation: value }))} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
         </label>
       {/if}

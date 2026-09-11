@@ -749,5 +749,21 @@ export const pt = {
   "stairProperties.risers": "Espelhos",
   "stairProperties.direction": "Direção",
   "stairProperties.up": "Subir ↑",
-  "stairProperties.down": "Descer ↓"
+  "stairProperties.down": "Descer ↓",
+  "columnProperties.heading": "Propriedades da coluna",
+  "columnProperties.shape": "Formato",
+  "columnProperties.round": "Redonda",
+  "columnProperties.square": "Quadrada",
+  "columnProperties.diameter": "Diâmetro",
+  "columnProperties.side": "Comprimento do lado",
+  "columnColor.White": "Branco",
+  "columnColor.Light Gray": "Cinza claro",
+  "columnColor.Concrete": "Concreto",
+  "columnColor.Charcoal": "Carvão",
+  "columnColor.Black": "Preto",
+  "columnColor.Cream": "Creme",
+  "columnColor.Wood": "Madeira",
+  "columnColor.Bronze": "Bronze",
+  "columnColor.Silver": "Prata",
+  "columnColor.Navy": "Azul-marinho"
 } as const;

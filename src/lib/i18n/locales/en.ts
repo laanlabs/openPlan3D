@@ -749,5 +749,21 @@ export const en = {
   "stairProperties.risers": "Risers",
   "stairProperties.direction": "Direction",
   "stairProperties.up": "Up ↑",
-  "stairProperties.down": "Down ↓"
+  "stairProperties.down": "Down ↓",
+  "columnProperties.heading": "Column Properties",
+  "columnProperties.shape": "Shape",
+  "columnProperties.round": "Round",
+  "columnProperties.square": "Square",
+  "columnProperties.diameter": "Diameter",
+  "columnProperties.side": "Side Length",
+  "columnColor.White": "White",
+  "columnColor.Light Gray": "Light Gray",
+  "columnColor.Concrete": "Concrete",
+  "columnColor.Charcoal": "Charcoal",
+  "columnColor.Black": "Black",
+  "columnColor.Cream": "Cream",
+  "columnColor.Wood": "Wood",
+  "columnColor.Bronze": "Bronze",
+  "columnColor.Silver": "Silver",
+  "columnColor.Navy": "Navy"
 } as const;

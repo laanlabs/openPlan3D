@@ -3266,3 +3266,11 @@ Translated stair editing controls while retaining layout IDs and handlers. Check
 build and five localization unit tests pass; three desktop browser cases pass
 (18.5 seconds), verifying dimensions, riser count, layout, rotation, direction and
 undo through exported data. Remaining Properties and device/release gates stay open.
+
+### Column Properties localization and accessible shape controls — 2026-09-10
+
+Translated column labels/color presets and corrected a reproduced accessible-name
+issue caused by a label wrapping both shape buttons. Shape controls now use a
+named group and pressed states. Check/build, five localization unit tests and
+three browser cases pass (29.4 seconds), retaining dimensions/rotation/color across
+shape changes. Other Properties/accessibility/device/release work remains open.
