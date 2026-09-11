@@ -2233,3 +2233,27 @@ Logs: `/tmp/web-backup-validation-unit.log`, `/tmp/web-backup-dictionary-unit.lo
 `/tmp/web-backup-validation-browser.log`. This is scoped verification after the
 staged browser audit, not a fresh full-suite run. Package-specific diagnostics,
 preview warnings and physical-device review remain open.
+
+### 2026-09-11: Backup recovery preview warnings
+
+LibraryRestoreDialog now translates known global and per-project warnings at
+display time. Singular/plural counts cover damaged versions/projects, missing
+project attachments and retained recovery archives. Static messages cover invalid
+saved JSON, mismatched IDs, unreadable or truncated history and unsupported
+preview images. Unknown validator details and user names remain unchanged.
+
+The first new unit run had two fixture-count failures: the shared backup already
+contained a damaged project. The test now explicitly selects the valid source
+project before adding the intended one or two damaged records. The corrected run
+passes all 23 service-message/dictionary checks. Check/build pass with zero Svelte
+errors or warnings. All 12 transfer browser cases pass across Chromium, Firefox
+and WebKit (1.9 minutes). The new phone preview case verifies Portuguese warnings,
+unchanged input downloads, confirmation before writes, a single restored project,
+and exact damaged project/history/thumbnail records in the recovery archive.
+
+Logs: `/tmp/web-backup-warnings-unit.log` (initial fixture failure),
+`/tmp/web-backup-warnings-unit-retry.log`, `/tmp/web-backup-warnings-check.log`,
+`/tmp/web-backup-warnings-build.log`, `/tmp/web-backup-warnings-browser.log`.
+This is scoped post-audit evidence, not a fresh full-suite result. General
+project-validator diagnostics, package-specific messages and device/release gates
+remain open.

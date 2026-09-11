@@ -3,8 +3,47 @@ import { projectServiceMessage } from '../src/lib/i18n/projectServiceMessages';
 import { storageErrorMessage, ProjectConflictError } from '../src/lib/services/datastore';
 import { translate } from '../src/lib/i18n';
 import { prepareLibraryRestore } from '../src/lib/services/libraryRestore';
+import { readFileSync } from 'node:fs';
 
 describe('project service diagnostics', () => {
+  it.each([1, 2])('translates real recovery warnings with %i damaged records', count => {
+    const data = JSON.parse(readFileSync('tests/fixtures/library-backup.json', 'utf8'));
+    const id = Object.keys(data.projects)[0];
+    data.projects = { [id]: data.projects[id] };
+    data.history = { [id]: JSON.stringify(Array(count).fill({ data: 'broken' })) };
+    data.thumbnails = { [id]: 'unsupported' };
+    data.recovery = Object.fromEntries(Array.from({ length: count - 1 }, (_, i) => [`archive-${i}`, 'retained']));
+    for (let i = 0; i < count; i++) {
+      data.projects[`damaged-${i}`] = '{';
+      data.thumbnails[`missing-${i}`] = 'retained thumbnail';
+    }
+    const preview = prepareLibraryRestore(JSON.stringify(data));
+    const warnings = [...preview.warnings, ...preview.entries.flatMap(entry => entry.warnings)];
+    const translated = warnings.map(message => projectServiceMessage(message, 'pt'));
+    const number = count === 1 ? 'One' : 'Many';
+    for (const kind of ['backupDamagedVersion', 'backupDamagedProject', 'backupMissingProject', 'backupArchive']) {
+      expect(translated).toContain(translate('pt', `projectService.${kind}${number}` as Parameters<typeof translate>[1], { count }));
+    }
+    expect(translated).toContain('Imagem de prévia incompatível mantida para recuperação.');
+    expect(translated).toContain('Este projeto salvo não contém JSON legível.');
+    for (const message of warnings) expect(projectServiceMessage(message, 'en')).toBe(message);
+    expect(preview.projectCount).toBe(1);
+    expect(preview.recoveryArchives).toBe(count);
+  });
+
+  it('translates retained history and mismatched project identities from the preview', () => {
+    const data = JSON.parse(readFileSync('tests/fixtures/library-backup.json', 'utf8'));
+    const id = Object.keys(data.projects)[0];
+    data.projects.mismatch = data.projects[id];
+    data.history = { [id]: JSON.stringify(Array.from({ length: 11 }, (_, timestamp) => ({ timestamp, description: 'unchanged', data: data.projects[id] }))) };
+    let preview = prepareLibraryRestore(JSON.stringify(data));
+    expect(projectServiceMessage(preview.entries.find(entry => entry.id === 'mismatch')!.warnings[0], 'pt')).toContain('não corresponde');
+    expect(projectServiceMessage(preview.entries[0].warnings[0], 'pt')).toContain('As 10 versões válidas mais recentes');
+    expect(preview.entries[0].versions).toBe(10);
+    data.history[id] = '{';
+    preview = prepareLibraryRestore(JSON.stringify(data));
+    expect(projectServiceMessage(preview.entries[0].warnings[0], 'pt')).toBe('Histórico de versões ilegível mantido para recuperação.');
+  });
   it.each([
     ['{', 'backupJSON'], ['[]', 'backupFile'],
     [JSON.stringify({ format: 'openplan3d-library', version: 2 }), 'backupVersion'],

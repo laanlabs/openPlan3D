@@ -9,8 +9,25 @@ const keys: ServiceKey[] = [
   'projectService.backupJSON', 'projectService.backupFile', 'projectService.backupVersion',
   'projectService.backupProjects', 'projectService.backupThumbnails',
   'projectService.backupHistory', 'projectService.backupRecovery', 'projectService.backupEmpty',
+  'projectService.backupSavedJSON', 'projectService.backupSavedUnreadable',
+  'projectService.backupIdMismatch', 'projectService.backupHistoryLimit',
+  'projectService.backupHistoryUnreadable', 'projectService.backupPreviewUnsupported',
 ];
 const messages = new Map(keys.map(key => [translate('en', key), key]));
+const counts: { pattern: RegExp; one: ServiceKey; many: ServiceKey }[] = [
+  { pattern: /^(\d+) damaged versions? kept for recovery\.$/, one: 'projectService.backupDamagedVersionOne', many: 'projectService.backupDamagedVersionMany' },
+  { pattern: /^(\d+) damaged projects? will be kept for recovery instead of opened\.$/, one: 'projectService.backupDamagedProjectOne', many: 'projectService.backupDamagedProjectMany' },
+  { pattern: /^Attachments for (\d+) missing projects? will be kept for recovery\.$/, one: 'projectService.backupMissingProjectOne', many: 'projectService.backupMissingProjectMany' },
+  { pattern: /^(\d+) recovery archives? will be included in future library backups\.$/, one: 'projectService.backupArchiveOne', many: 'projectService.backupArchiveMany' },
+];
+
+function countedMessage(message: string, language: Locale): string {
+  for (const { pattern, one, many } of counts) {
+    const match = pattern.exec(message);
+    if (match) return translate(language, match[1] === '1' ? one : many, { count: match[1] });
+  }
+  return message;
+}
 const outcomes = (['welcome.noImport', 'restore.retry', 'package.retry'] as const)
   .flatMap(key => (['en', 'pt'] as const).map(locale => ({ key, text: ` ${translate(locale, key)}` })));
 
@@ -24,6 +41,6 @@ export function projectServiceMessage(message: string, language: Locale): string
   const key = messages.get(detail);
   const repeatedKey = /^This backup repeats the key “([\s\S]*)”\. No projects were restored\.$/.exec(detail);
   const localized = key ? translate(language, key) : repeatedKey
-    ? translate(language, 'projectService.backupRepeatedKey', { key: repeatedKey[1] }) : detail;
+    ? translate(language, 'projectService.backupRepeatedKey', { key: repeatedKey[1] }) : countedMessage(detail, language);
   return `${unsaved ? `${translate(language, 'projectService.openUnsaved')} ` : ''}${localized}${suffix ? ` ${translate(language, suffix.key)}` : ''}`;
 }

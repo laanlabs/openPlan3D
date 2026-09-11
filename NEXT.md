@@ -163,6 +163,14 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+Backup preview warnings now translate known damaged-project/version counts,
+missing attachments, recovery archives, unreadable history, mismatched IDs and
+unsupported thumbnails. Twenty-three focused unit/dictionary checks, zero Svelte
+diagnostics, the production build and 12 transfer browser cases pass across three
+engines (1.9 minutes). A mixed-backup restore verifies original downloads and exact
+damaged records in the stored recovery archive. This scoped post-audit batch leaves
+general project-validator diagnostics and package-specific messages open.
+
 Library-backup validation now translates malformed JSON, unsupported versions,
 invalid saved-text sections, empty-backup errors and duplicate-key diagnostics.
 Literal key contents remain unchanged. Fifteen service-message unit cases and five

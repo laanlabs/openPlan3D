@@ -89,7 +89,7 @@
           <p class="text-sm font-semibold">{$t(preview.projectCount === 1 ? 'restore.readyOne' : 'restore.readyMany', { count: preview.projectCount })}</p>
           {#if preview.warnings.length}
             <div class="space-y-1 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
-              {#each preview.warnings as warning}<p>{warning}</p>{/each}
+              {#each preview.warnings as warning}<p>{projectServiceMessage(warning, $locale)}</p>{/each}
             </div>
           {/if}
           <ul class="space-y-2" aria-label={$t('restore.projects')}>
@@ -97,7 +97,7 @@
               <li class="rounded-lg border border-gray-200 px-3 py-2">
                 <p class="break-words text-sm font-semibold">{entry.name}</p>
                 <p class="mt-0.5 text-xs text-gray-500">{entry.restorable ? $t(entry.versions === 1 ? 'restore.versionOne' : 'restore.versionMany', { count: entry.versions }) : $t('restore.recoveryOnly')}</p>
-                {#each entry.warnings as warning}<p class="mt-1 break-words text-xs text-amber-800">{warning}</p>{/each}
+                {#each entry.warnings as warning}<p class="mt-1 break-words text-xs text-amber-800">{projectServiceMessage(warning, $locale)}</p>{/each}
               </li>
             {/each}
           </ul>
