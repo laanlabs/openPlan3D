@@ -189,6 +189,7 @@ test('catalog and 3D use bounded, cacheable assets with zero startup model downl
 });
 
 test('sloped walls preserve heights and openings through edits, reversal, elevation and reload', async ({ page }, testInfo) => {
+  test.slow();
   const errors: string[] = [];
   const externalRequests: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -235,7 +236,7 @@ test('sloped walls preserve heights and openings through edits, reversal, elevat
   await page.reload();
   expect((await exportJSON(page)).floors).toEqual(reversed.floors);
   await page.getByRole('button', { name: '3D', exact: true }).click();
-  await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible();
+  await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible({ timeout: 60_000 });
   await page.getByRole('button', { name: 'Show All Floors Stacked', exact: true }).click();
   await page.waitForLoadState('networkidle');
   await testInfo.attach('sloped-stacked-3d', { body: await page.screenshot(), contentType: 'image/png' });

@@ -75,11 +75,19 @@ cache headers and decoded texture checks. It now has a 180-second allowance;
 all offline, byte-limit and cache assertions remain. There are 102 distinct
 retained passes and 1,005 remaining cases, confirmed by Playwright.
 
+The asset-cache workflow passed in 2.1 minutes, including offline reload. The
+sloped-wall workflow then exceeded its 10-second 3D canvas readiness wait after
+height edits, invalid-input handling, reversal, elevation and save/reload checks.
+That boundary now allows 60 seconds within a 180-second workflow. Assertions
+are unchanged. There are 103 retained distinct passes and 1,004 remaining cases,
+confirmed by Playwright.
+
 ## Resume the running process
 
 - Command: `npx playwright test --test-list /tmp/web-localization-remaining.txt --max-failures=1`
-- Unified execution session: `22444`; poll this handle before assuming it ended.
-- Active log: `/tmp/web-localization-full-browser-10.log`
+- Unified execution session: `35782`; poll this handle before assuming it ended.
+- Active log: `/tmp/web-localization-full-browser-11.log`
+- Completed asset-cache pass: `/tmp/web-localization-full-browser-10.log` (session `22444`, terminal exit 1).
 - Completed 13-pass continuation: `/tmp/web-localization-full-browser-9.log` (session `47598`, terminal exit 1).
 - Completed seven-pass continuation: `/tmp/web-localization-full-browser-8.log` (session `41767`, terminal exit 1).
 - Completed 30-pass continuation: `/tmp/web-localization-full-browser-7.log` (session `23537`, terminal exit 1).

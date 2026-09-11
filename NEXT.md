@@ -26,9 +26,12 @@ tip-click patterns now wait for dismissal. There are 89 distinct retained
 passes at that launch. Thirteen further cases passed before the asset-cache
 workflow reached its total deadline during offline reload. It now has a
 180-second allowance with all asset and offline checks retained. There are
-102 distinct retained passes; 1,005 remaining cases run in session `22444`.
+The asset-cache workflow passed, including offline reload. The sloped-wall
+workflow then exceeded its 10-second 3D readiness wait after edit/reload checks.
+That wait now allows 60 seconds within a 180-second workflow. There are 103
+distinct retained passes; 1,004 remaining cases run in session `35782`.
 Poll the actual process before starting competing tests or rebuilding;
-sessions `93960`, `85756`, `76158`, `6878`, `49725`, `23537`, `41767` and `47598` are terminal.
+sessions `93960`, `85756`, `76158`, `6878`, `49725`, `23537`, `41767`, `47598` and `22444` are terminal.
 See [the live report](docs/reviews/2026-09-11-catalog-browser-qualification.md).
 No full-suite completion is claimed; broader NEXT requirements remain open.
 
