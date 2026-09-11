@@ -480,5 +480,16 @@ export const en = {
   "canvasZoom.fit": "Zoom to fit",
   "canvasZoom.fitHint": "Zoom to Fit (F)",
   "canvasZoom.selection": "Fit selection",
-  "canvasZoom.selectionHint": "Fit Selection (Shift+F)"
+  "canvasZoom.selectionHint": "Fit Selection (Shift+F)",
+  "canvasDisplay.grid": "Grid",
+  "canvasDisplay.snap": "Snap",
+  "canvasDisplay.furniture": "Furniture",
+  "canvasDisplay.rulers": "Rulers",
+  "canvasDisplay.map": "Map",
+  "canvasDisplay.fit": "Fit",
+  "canvasDisplay.gridHint": "Toggle Grid (G)",
+  "canvasDisplay.snapHint": "Toggle Snap to Grid (S)",
+  "canvasDisplay.furnitureHint": "Toggle Furniture",
+  "canvasDisplay.rulersHint": "Toggle Rulers",
+  "canvasDisplay.mapHint": "Toggle Mini-map"
 } as const;

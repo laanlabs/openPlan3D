@@ -3075,3 +3075,13 @@ math or limits. Five unit tests, zero-warning check, production build and six
 Portuguese large-fit browser cases pass (36.3 seconds) across all engines and both
 widths, covering small zoom values, extents and zoom/fit restoration. Remaining
 canvas/editor localization and physical-device gates stay open.
+
+### Canvas display localization and toggle states — 2026-09-10
+
+Translated canvas display toggles and exposed their on/off state with aria-pressed.
+Five unit tests, zero-warning check, production build and the final nine-case
+focused browser run pass, including pointer toggles and unchanged exported settings.
+An initial WebKit phone-width grid click did not toggle; isolated and full reruns
+passed unchanged. Keep this intermittent observation in view during broader
+WebKit/touch qualification; its cause is not established. Remaining translation
+and physical-device gates stay open.

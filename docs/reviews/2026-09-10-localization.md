@@ -458,3 +458,22 @@ zoom-button ratios, wheel zoom, fit restoration, compact-menu zoom and the minim
 zoom bound. Selection-fit behavior and physical devices are not qualified by this
 run. Logs: `/tmp/web-canvas-zoom-unit.log`, `/tmp/web-canvas-zoom-check.log`,
 `/tmp/web-canvas-zoom-build.log`, `/tmp/web-canvas-zoom-browser.log`.
+
+## Canvas display toggles
+
+Translated grid, snap, furniture, ruler, minimap and fit captions/tooltips. The
+five display toggles now expose aria-pressed from their existing state (the
+minimap previously used the same glyph for both states). No toggle handlers or
+persistence behavior changed. The narrow-layout test clicks and restores all five
+toggles and compares exported settings as well as floor data.
+
+Five localization unit tests, zero-warning Svelte check and production build pass.
+The final focused browser run passes nine cases across all engines (1.2 minutes),
+including the existing Portuguese command-palette workflow. An earlier run had a
+WebKit 390px grid click leave aria-pressed unchanged. The isolated WebKit rerun and
+the full focused rerun both passed without code or test changes. Its cause remains
+unproven; this is an intermittent observation, not a fixed WebKit defect or a
+physical-device qualification. Logs: `/tmp/web-canvas-display-unit.log`,
+`/tmp/web-canvas-display-check.log`, `/tmp/web-canvas-display-build.log`,
+`/tmp/web-canvas-display-browser.log` (initial failure),
+`/tmp/web-canvas-display-webkit-repro.log`, `/tmp/web-canvas-display-browser-final.log`.

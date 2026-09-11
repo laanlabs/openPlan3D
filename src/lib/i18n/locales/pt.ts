@@ -480,5 +480,16 @@ export const pt = {
   "canvasZoom.fit": "Ajustar à tela",
   "canvasZoom.fitHint": "Ajustar à tela (F)",
   "canvasZoom.selection": "Ajustar à seleção",
-  "canvasZoom.selectionHint": "Ajustar à seleção (Shift+F)"
+  "canvasZoom.selectionHint": "Ajustar à seleção (Shift+F)",
+  "canvasDisplay.grid": "Grade",
+  "canvasDisplay.snap": "Ajuste",
+  "canvasDisplay.furniture": "Móveis",
+  "canvasDisplay.rulers": "Réguas",
+  "canvasDisplay.map": "Mapa",
+  "canvasDisplay.fit": "Enquadrar",
+  "canvasDisplay.gridHint": "Alternar grade (G)",
+  "canvasDisplay.snapHint": "Alternar ajuste à grade (S)",
+  "canvasDisplay.furnitureHint": "Alternar móveis",
+  "canvasDisplay.rulersHint": "Alternar réguas",
+  "canvasDisplay.mapHint": "Alternar minimapa"
 } as const;

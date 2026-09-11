@@ -20,6 +20,14 @@ for (const width of [1440, 390]) test(`Portuguese layers preserve visibility, se
   }
   const before = await exported();
   if (width < 768) {
+    for (const title of ['Alternar grade (G)', 'Alternar ajuste à grade (S)', 'Alternar móveis', 'Alternar réguas', 'Alternar minimapa']) {
+      const toggle = page.getByTitle(title, { exact: true });
+      const before = await toggle.getAttribute('aria-pressed');
+      await toggle.click();
+      await expect(toggle).toHaveAttribute('aria-pressed', before === 'true' ? 'false' : 'true');
+      await toggle.click();
+      await expect(toggle).toHaveAttribute('aria-pressed', before!);
+    }
     const visibility = page.getByRole('button', { name: '🗂 Camadas', exact: true });
     await visibility.click();
     const walls = page.getByRole('checkbox', { name: 'Paredes', exact: true });
@@ -53,5 +61,6 @@ for (const width of [1440, 390]) test(`Portuguese layers preserve visibility, se
   await expect(note).toHaveClass(/bg-blue-100/);
   const after = await exported();
   expect(after.floors).toEqual(before.floors);
+  expect(after.settings).toEqual(before.settings);
   expect(after.floors[0].textAnnotations[0].text).toBe('Original {number} note');
 });
