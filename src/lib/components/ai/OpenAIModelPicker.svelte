@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '$lib/i18n';
   import { onDestroy } from 'svelte';
   import { fetchOpenAIModels, DEFAULT_OPENAI_MODEL, OPENAI_MODEL_SUGGESTIONS, type OpenAIConfig } from '$lib/utils/openaiClient';
 
@@ -26,9 +27,9 @@
       const result = await fetchOpenAIModels(config, fetch, current.signal);
       if (controller !== current) return;
       models = result;
-      message = result.length ? `${result.length} models found. Type to search or enter another model ID.` : 'No models listed. Enter a model ID manually.';
+      message = result.length ? $t('models.found', { count: result.length }) : $t('models.empty');
     } catch (error) {
-      if (controller === current) message = error instanceof Error ? error.message : 'Could not load models. Enter a model ID manually.';
+      if (controller === current) message = error instanceof Error ? error.message : $t('models.failed');
     } finally {
       if (controller === current) { loading = false; controller = null; }
     }
@@ -36,14 +37,14 @@
 </script>
 
 <div class="space-y-2">
-  <label for={id} class="block text-xs font-medium">OpenAI model</label>
+  <label for={id} class="block text-xs font-medium">{$t('models.title')}</label>
   <div class="flex gap-2">
-    <input {id} list={`${id}-models`} bind:value={model} {disabled} onblur={onchange} aria-label="OpenAI model"
+    <input {id} list={`${id}-models`} bind:value={model} {disabled} onblur={onchange} aria-label={$t('models.title')}
       placeholder={DEFAULT_OPENAI_MODEL} autocomplete="off" spellcheck="false"
       class="min-w-0 flex-1 rounded-lg border border-gray-500/50 bg-transparent px-2 py-1.5 text-sm" />
     <button type="button" onclick={loadModels} disabled={disabled || loading}
       class="shrink-0 rounded-lg border border-gray-500/50 px-2 py-1.5 text-xs hover:bg-gray-500/20 disabled:opacity-50">
-      {loading ? 'Loading…' : 'Load models'}
+      {loading ? $t('models.loading') : $t('models.load')}
     </button>
   </div>
   <datalist id={`${id}-models`}>
@@ -52,5 +53,5 @@
     {/each}
   </datalist>
   {#if message}<p role="status" class="text-xs break-words">{message}</p>{/if}
-  <p class="text-xs opacity-70">Requires Responses with image generation. A listed model may not support images.</p>
+  <p class="text-xs opacity-70">{$t('models.help')}</p>
 </div>

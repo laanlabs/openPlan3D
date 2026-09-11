@@ -17,8 +17,8 @@ English. English remains the default while migration is incomplete.
 
 This is the first migration batch, not full application localization. Main
 navigation, welcome/library flows, editor tools, properties, canvas text, 3D,
-export/print, error messages, and nested floor-elevation/OpenAI settings still
-need migration. Keep project IDs, user content, serialized enum values, numeric
+export/print and error messages still need migration. The nested Settings
+panels were migrated in the subsequent batch below. Keep project IDs, user content, serialized enum values, numeric
 measurement parsing and package data independent of UI language. Portuguese
 copy needs fluent-speaker review and narrow-screen qualification as coverage
 expands.
@@ -34,3 +34,27 @@ language-selector focus remains, translated labels appear, Escape closes the
 modal, and reload restores Portuguese before switching back to English. Log:
 `/tmp/web-localization-browser.log`. This does not establish complete translated
 UI coverage or real-device accessibility.
+
+## Nested Settings migration
+
+Floor elevations, slab thickness, wall snapping, provider configuration and the
+shared OpenAI model picker now use the same dictionaries. Desktop and overflow
+Settings entry points follow the selected language. Floor names and model IDs
+remain user content; interpolation preserves braces within those values and
+numeric input continues to use the existing measurement logic. Provider-returned
+errors and lower-level validation messages retain their original diagnostic text.
+The broader interface migration and fluent Portuguese review remain open.
+
+Validation for the nested batch: five localization unit tests pass; Svelte check
+has zero errors/warnings and the production build exits 0. Language switching
+passes in all three engines. The Portuguese floor/provider case passes in Firefox
+and, after correcting the model-field locator and explicitly committing the
+native datalist with Tab, Chromium and WebKit. The test edits and retains a floor
+elevation, saves provider settings, loads mocked model IDs and removes settings.
+No real provider call is made. Logs: `/tmp/web-localization-nested-unit.log`,
+`/tmp/web-localization-nested-check.log`, `/tmp/web-localization-nested-build.log`,
+`/tmp/web-localization-nested-browser.log`,
+`/tmp/web-localization-nested-browser-corrected.log`,
+`/tmp/web-localization-nested-chromium-final.log`, and
+`/tmp/web-localization-nested-webkit-final.log`. Initial browser failures were test
+interaction issues; they are retained in the earlier logs, not reported as passes.

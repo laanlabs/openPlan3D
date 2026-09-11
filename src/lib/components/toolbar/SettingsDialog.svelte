@@ -163,7 +163,7 @@
           <!-- Snapping controls -->
           <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl divide-y divide-gray-200 dark:divide-gray-600 mb-5">
             <label class="flex items-center justify-between px-4 py-3.5 cursor-pointer">
-              <span class="text-sm text-gray-700 dark:text-gray-300" title="Furniture automatically aligns its back edge with nearby walls">Wall snapping</span>
+              <span class="text-sm text-gray-700 dark:text-gray-300" title={$t('settings.wallSnapHelp')}>{$t('settings.wallSnap')}</span>
               <input
                 type="checkbox"
                 checked={settings.snapToWalls}

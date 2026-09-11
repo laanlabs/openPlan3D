@@ -7,6 +7,11 @@ import { pt } from '../src/lib/i18n/locales/pt';
 afterEach(() => { vi.unstubAllGlobals(); locale.set('en'); });
 
 describe('locale preferences', () => {
+  it('preserves user content and substitutes numbers without recursively translating values', () => {
+    expect(translate('pt', 'floors.elevation', { name: 'My {value} floor' })).toBe('Elevação de My {value} floor (cm)');
+    expect(translate('pt', 'floors.default', { value: 125.5 })).toBe('Usar padrão (125.5 cm)');
+    expect(translate('en', 'floors.default', { value: 125.5 })).toBe('Use default (125.5 cm)');
+  });
   it('keeps dictionary keys and substitution tokens in agreement', () => {
     expect(Object.keys(pt).sort()).toEqual(Object.keys(en).sort());
     for (const key of Object.keys(en) as (keyof typeof en)[]) {

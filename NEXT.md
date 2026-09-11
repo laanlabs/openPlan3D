@@ -391,8 +391,8 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
   quality. Current finishes are visual controls, not physical material simulation.
 - **Localization and usability:** revive English/Portuguese localization from
   closed community [PR #15](https://github.com/laanlabs/openPlan3D/pull/15) as a
-  focused string-system change. The typed store and Settings shell are now migrated;
-  broader interface and nested Settings panels remain open. See the
+  focused string-system change. The typed store, Settings shell and nested Settings panels are now migrated;
+  broader interface translation remains open. See the
   [localization record](docs/reviews/2026-09-10-localization.md). Recheck first-use navigation, dense toolbars,
   readable labels, accessibility and touch property editing. Earlier interaction
   fixes are already merged; reproduce any remaining problem before changing them.
@@ -2852,3 +2852,13 @@ identity/focus and initialize after hydration. Four unit tests, zero-warning
 Svelte check, production build and all three browser-engine cases passed.
 The remaining interface, nested settings panels, Portuguese review and device
 coverage are still open; see `docs/reviews/2026-09-10-localization.md`.
+
+### Nested Settings localization — 2026-09-10
+
+Translated floor elevations/slab thickness, wall snapping, OpenAI provider settings
+and the shared model picker, plus both Settings entry points. Floor names, model
+IDs and numeric measurement inputs stay unchanged. Five unit tests, zero-warning
+Svelte check and production build pass. Language switching and Portuguese
+floor/provider interactions are verified across all three engines, with native
+model suggestions committed before the next button action. Broader localization
+and diagnostic-message translation remain open. See the localization record.
