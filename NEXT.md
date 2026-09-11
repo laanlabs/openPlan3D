@@ -163,6 +163,15 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+The recovery-error gaps listed below now have display translations, and the
+version-history panel applies the shared translator. Forty-six focused unit and
+dictionary checks pass, Svelte reports zero diagnostics, and the production build
+passes. Six history browser cases pass across three engines (1.4 minutes), checking
+translated damaged-history guidance, exact backup text, canceled deletion and
+successful version restoration. This is scoped verification after the full unit
+checkpoint below. Missing-history and failed-restore outcome messages in
+`src/lib/stores/versionHistory.ts` remain to be translated; broader gates stay open.
+
 **Fresh full unit checkpoint:** all **1,021 tests in 94 files pass** on `5ca61a4`
 with `npx vitest run --maxWorkers=1` (106.30 seconds). This verifies the accumulated
 validation/localization batches together. The existing successful check/build and

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { t, locale, translate, type Locale } from '$lib/i18n';
+  import { projectServiceMessage } from '$lib/i18n/projectServiceMessages';
   import { modalDialog } from '$lib/utils/modalDialog';
   import { onDestroy } from 'svelte';
   import { snapshotError, downloadSnapshotBackup, snapshotsStore, refreshSnapshots, restoreSnapshot, deleteAllSnapshots, type Snapshot } from '$lib/stores/versionHistory';
@@ -62,7 +63,7 @@
 
     {#if $snapshotError}
       <div role="alert" class="mx-4 my-2 rounded-lg bg-red-50 p-3 text-sm text-red-800">
-        <p>{$snapshotError}</p>
+        <p>{projectServiceMessage($snapshotError, $locale)}</p>
         <button class="mt-2 underline font-semibold" onclick={backupHistory}>{$t('versions.backup')}</button>
       </div>
     {/if}

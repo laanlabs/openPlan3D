@@ -2356,3 +2356,25 @@ allocation, saved-ID mismatch, recovery-archive preservation, invalid item detai
 invalid retained package state, and unreadable/oversized saved history. The owning
 source files are listed in the current NEXT.md baseline. Further translation and
 recovery testing remain open, as do physical-device/native/release gates.
+
+### 2026-09-11: Recovery and saved-history diagnostics
+
+Added display translations for the eleven gaps identified in the prior source
+review: blocked storage upgrades, unreadable libraries, recovery/copy/restored-ID
+allocation, saved-ID mismatch, recovery archive preservation, invalid item details,
+invalid retained state, unreadable history and oversized snapshot attachments.
+VersionHistoryPanel now applies the shared translator to its snapshot error.
+Original service errors and recovery/storage behavior are unchanged.
+
+All 46 focused service-message/dictionary checks pass, including actual item-detail,
+retained-state and history parser failures. Svelte has zero errors/warnings and
+the production build passes. Six history browser cases pass across Chromium,
+Firefox and WebKit (1.4 minutes). The new phone case verifies Portuguese damaged
+history guidance, an exact original-text backup, unchanged history after canceled
+deletion and a persistent error; the existing version restoration case also passes.
+
+Logs: `/tmp/web-recovery-errors-unit.log`, `/tmp/web-recovery-errors-check.log`,
+`/tmp/web-recovery-errors-build.log`, `/tmp/web-recovery-errors-browser.log`.
+This is scoped evidence after the full unit checkpoint, not a new full-suite run.
+Missing-history and failed-restore outcome messages in versionHistory.ts remain
+open, along with physical/native/release requirements.

@@ -8,8 +8,20 @@ import { packageJSON, readPackageZip, writePackageZip } from '../src/lib/utils/p
 import { readProjectPackage, PACKAGE_NOTICE } from '../src/lib/services/projectPackage';
 import { validatePackagePlan, validatePackageMapping } from '../src/lib/utils/projectPackageBridge';
 import { readProject } from '../src/lib/utils/projectValidation';
+import { validateItemDetails, validateRetainedDetailState } from '../src/lib/utils/itemDetails';
+import { readSnapshotStorage } from '../src/lib/utils/snapshotStorage';
 
 describe('project service diagnostics', () => {
+  it.each([
+    [() => validateItemDetails({ price: -1 }, 'furniture'), 'Detalhes do item inválidos. Verifique notas, custos, metadados dos ambientes e referências a fotos.'],
+    [() => validateRetainedDetailState({}), 'Dados retidos do pacote de projeto inválidos. Mantenha um backup JSON antes da recuperação.'],
+    [() => readSnapshotStorage('{'), 'Não foi possível ler o histórico de versões. Baixe um backup antes de limpar as versões danificadas.'],
+  ] as const)('translates real recovery diagnostics: %s', (validate, expected) => {
+    let message = '';
+    try { validate(); } catch (error) { message = (error as Error).message; }
+    expect(projectServiceMessage(message, 'pt')).toBe(expected);
+    expect(projectServiceMessage(message, 'en')).toBe(message);
+  });
   it.each([
     [null, 'document deve ser um objeto.'],
     [{ id: '' }, 'id deve ser um texto não vazio.'],

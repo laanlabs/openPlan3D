@@ -2,6 +2,33 @@ import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { storedRecords } from './storage';
 
+test('Portuguese damaged-history guidance preserves the recovery download', async ({ page }) => {
+  const current = JSON.parse(await readFile('tests/fixtures/save-conflicts.openplan.json', 'utf8'));
+  const history = '{original damaged history {name}';
+  await page.addInitScript(({ current, history }) => {
+    localStorage.setItem('o3d_locale', 'pt');
+    localStorage.setItem('floorplan_projects', JSON.stringify({ [current.id]: JSON.stringify(current) }));
+    localStorage.setItem(`vh_${current.id}`, history);
+  }, { current, history });
+  await page.setViewportSize({ width: 390, height: 900 });
+  await page.goto(`/editor?id=${current.id}`);
+  await page.getByRole('button', { name: /^(?:More actions|Mais ações)$/, exact: true }).click();
+  await page.getByRole('button', { name: 'Histórico de versões', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: 'Histórico de versões', exact: true });
+  await expect(dialog.getByRole('alert')).toContainText('Não foi possível ler o histórico de versões. Baixe um backup antes de limpar as versões danificadas.');
+  const before = await storedRecords(page, 'history');
+  const downloading = page.waitForEvent('download');
+  await dialog.getByRole('alert').getByRole('button').click();
+  const downloaded = await readFile((await (await downloading).path())!, 'utf8');
+  expect(downloaded).toBe(history);
+  expect(await storedRecords(page, 'history')).toEqual(before);
+  const cancel = page.waitForEvent('dialog').then(confirmation => confirmation.dismiss());
+  await dialog.getByRole('button', { name: 'Limpar todas as versões', exact: true }).click();
+  await cancel;
+  expect(await storedRecords(page, 'history')).toEqual(before);
+  await expect(dialog.getByRole('alert')).toBeVisible();
+});
+
 test('Portuguese history confirmations preserve cancellation and restore the selected version', async ({ page }) => {
   const current = JSON.parse(await readFile('tests/fixtures/save-conflicts.openplan.json', 'utf8'));
   const prior = structuredClone(current);

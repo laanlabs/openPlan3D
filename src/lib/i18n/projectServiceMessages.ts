@@ -3,6 +3,17 @@ import { projectValidationMessage } from './projectValidationMessages';
 
 type ServiceKey = Extract<TranslationKey, `projectService.${string}`>;
 const keys: ServiceKey[] = [
+  'projectService.upgradeBlocked',
+  'projectService.libraryUnreadable',
+  'projectService.recoveryId',
+  'projectService.copyId',
+  'projectService.savedIdMismatch',
+  'projectService.restoredId',
+  'projectService.recoveryPreserve',
+  'projectService.itemDetails',
+  'projectService.retainedDetails',
+  'projectService.historyUnreadable',
+  'projectService.historySize',
   'projectService.packageNotice', 'projectService.packageTracingNotice',
   'projectService.storageFull', 'projectService.storageUnavailable',
   'projectService.storageFailed', 'projectService.conflict',
