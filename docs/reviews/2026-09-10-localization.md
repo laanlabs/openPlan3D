@@ -119,3 +119,24 @@ explicit confirmation before creating one copy, translated completion and remova
 of the repeat-import action. Logs: `/tmp/web-transfer-localization-unit.log`,
 `/tmp/web-transfer-localization-check.log`, `/tmp/web-transfer-localization-build.log`
 and `/tmp/web-transfer-localization-browser.log`.
+
+## Alignment and selection controls
+
+Alignment/distribution labels, selection-toolbar actions, contextual menus and
+Undo History controls now use English/Portuguese dictionaries adapted from the
+community strings. Alignment button descriptors are reactive without recreating
+the toolbar. Action identifiers, shortcuts and geometry operations are unchanged.
+Saved history descriptions retain their existing text; structured history-message
+translation remains open. Broader toolbars, properties, canvas and 3D still need
+migration.
+
+Selection-control validation: five localization unit tests pass, Svelte check
+reports zero errors/warnings and production build exits 0. Twelve Portuguese
+alignment cases pass across Chromium, Firefox and WebKit at 1440 and 390 pixels
+(1.3 minutes). Actual exports verify alignment/distribution of scaled/rotated
+items, locked-item preservation, Undo and Redo. Context-menu and history-label
+changes are type checked; this run does not qualify every contextual operation.
+Logs: `/tmp/web-editor-controls-localization-unit.log`,
+`/tmp/web-editor-controls-localization-check.log`,
+`/tmp/web-editor-controls-localization-build.log` and
+`/tmp/web-editor-controls-localization-browser.log`.

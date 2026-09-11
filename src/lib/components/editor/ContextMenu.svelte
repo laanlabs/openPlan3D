@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '$lib/i18n';
   import { onMount } from 'svelte';
   import {
     selectedElementId, selectedElementIds, selectedTool,
@@ -78,96 +79,96 @@
   >
     {#if targetType === 'furniture'}
       <button class="ctx-item" role="menuitem" onclick={() => clickItem('duplicate-furniture')}>
-        <span class="ctx-icon">📋</span> Duplicate
+        <span class="ctx-icon">📋</span> {$t('contextMenu.duplicate')}
       </button>
       <button class="ctx-item" role="menuitem" onclick={() => clickItem('rotate-furniture-90')}>
-        <span class="ctx-icon">🔄</span> Rotate 90°
+        <span class="ctx-icon">🔄</span> {$t('contextMenu.rotate90')}
       </button>
       <button class="ctx-item" role="menuitem" onclick={() => clickItem('flip-horizontal')}>
-        <span class="ctx-icon">↔️</span> Flip Horizontal
+        <span class="ctx-icon">↔️</span> {$t('contextMenu.flipHorizontal')}
       </button>
       <div class="ctx-sep"></div>
       <button class="ctx-item" role="menuitem" onclick={() => clickItem('bring-to-front')}>
-        <span class="ctx-icon">⬆️</span> Bring to Front
+        <span class="ctx-icon">⬆️</span> {$t('contextMenu.bringToFront')}
       </button>
       <button class="ctx-item" role="menuitem" onclick={() => clickItem('send-to-back')}>
-        <span class="ctx-icon">⬇️</span> Send to Back
+        <span class="ctx-icon">⬇️</span> {$t('contextMenu.sendToBack')}
       </button>
       <div class="ctx-sep"></div>
       <div class="ctx-sep"></div>
       <button class="ctx-item" role="menuitem" onclick={() => clickItem('toggle-lock')}>
-        <span class="ctx-icon">{targetFurniture?.locked ? '🔓' : '🔒'}</span> {targetFurniture?.locked ? 'Unlock' : 'Lock'}
+        <span class="ctx-icon">{targetFurniture?.locked ? '🔓' : '🔒'}</span> {targetFurniture?.locked ? $t('contextMenu.unlock') : $t('contextMenu.lock')}
       </button>
       <button class="ctx-item" role="menuitem" onclick={() => clickItem('properties')}>
-        <span class="ctx-icon">⚙️</span> Properties
+        <span class="ctx-icon">⚙️</span> {$t('contextMenu.properties')}
       </button>
       <div class="ctx-sep"></div>
       <button class="ctx-item ctx-danger" role="menuitem" onclick={() => clickItem('delete')}>
-        <span class="ctx-icon">🗑️</span> Delete
+        <span class="ctx-icon">🗑️</span> {$t('contextMenu.delete')}
       </button>
 
     {:else if targetType === 'wall'}
       <button class="ctx-item" role="menuitem" onclick={() => clickItem('split-wall')}>
-        <span class="ctx-icon">✂️</span> Split Wall
+        <span class="ctx-icon">✂️</span> {$t('contextMenu.splitWall')}
       </button>
       <button class="ctx-item" role="menuitem" onclick={() => clickItem('toggle-curve')}>
-        <span class="ctx-icon">〰️</span> Curve {targetWall?.curvePoint ? 'Off' : 'On'}
+        <span class="ctx-icon">〰️</span> {$t(targetWall?.curvePoint ? 'contextMenu.curveOff' : 'contextMenu.curveOn')}
       </button>
       <div class="ctx-sep"></div>
       <button class="ctx-item" role="menuitem" onclick={() => clickItem('properties')}>
-        <span class="ctx-icon">⚙️</span> Properties
+        <span class="ctx-icon">⚙️</span> {$t('contextMenu.properties')}
       </button>
       <div class="ctx-sep"></div>
       <button class="ctx-item ctx-danger" role="menuitem" onclick={() => clickItem('delete')}>
-        <span class="ctx-icon">🗑️</span> Delete Wall
+        <span class="ctx-icon">🗑️</span> {$t('contextMenu.deleteWall')}
       </button>
 
     {:else if targetType === 'door' || targetType === 'window'}
       <button class="ctx-item" role="menuitem" onclick={() => clickItem('properties')}>
-        <span class="ctx-icon">⚙️</span> Properties
+        <span class="ctx-icon">⚙️</span> {$t('contextMenu.properties')}
       </button>
       <div class="ctx-sep"></div>
       <button class="ctx-item ctx-danger" role="menuitem" onclick={() => clickItem('delete')}>
-        <span class="ctx-icon">🗑️</span> Delete
+        <span class="ctx-icon">🗑️</span> {$t('contextMenu.delete')}
       </button>
 
     {:else if targetType === 'room'}
       <button class="ctx-item" role="menuitem" onclick={() => clickItem('reset-room-label')}>
-        <span class="ctx-icon">↺</span> Reset Label Position
+        <span class="ctx-icon">↺</span> {$t('contextMenu.resetLabel')}
       </button>
       <button class="ctx-item" role="menuitem" onclick={() => clickItem('rename-room')}>
-        <span class="ctx-icon">✏️</span> Rename Room
+        <span class="ctx-icon">✏️</span> {$t('contextMenu.renameRoom')}
       </button>
       <button class="ctx-item" role="menuitem" onclick={() => clickItem('change-floor-texture')}>
-        <span class="ctx-icon">🎨</span> Change Floor Texture
+        <span class="ctx-icon">🎨</span> {$t('contextMenu.changeFloorTexture')}
       </button>
       <div class="ctx-sep"></div>
       <button class="ctx-item ctx-danger" role="menuitem" onclick={() => clickItem('delete-room')}>
-        <span class="ctx-icon">🗑️</span> Delete Room
+        <span class="ctx-icon">🗑️</span> {$t('contextMenu.deleteRoom')}
       </button>
 
     {:else if targetType === 'canvas'}
       {#if clipboard}
         <button class="ctx-item" role="menuitem" onclick={() => clickItem('paste')}>
-          <span class="ctx-icon">📋</span> Paste
+          <span class="ctx-icon">📋</span> {$t('contextMenu.paste')}
         </button>
         <div class="ctx-sep"></div>
       {/if}
       <button class="ctx-item" role="menuitem" onclick={() => clickItem('select-all')}>
-        <span class="ctx-icon">⬜</span> Select All
+        <span class="ctx-icon">⬜</span> {$t('contextMenu.selectAll')}
       </button>
       <button class="ctx-item" role="menuitem" onclick={() => clickItem('group')}>
-        <span class="ctx-icon">📦</span> Group Selected (Ctrl+G)
+        <span class="ctx-icon">📦</span> {$t('contextMenu.groupSelected')}
       </button>
       <button class="ctx-item" role="menuitem" onclick={() => clickItem('ungroup')}>
-        <span class="ctx-icon">📤</span> Ungroup (Ctrl+Shift+G)
+        <span class="ctx-icon">📤</span> {$t('contextMenu.ungroup')}
       </button>
       <button class="ctx-item" role="menuitem" onclick={() => clickItem('add-wall')}>
-        <span class="ctx-icon">🧱</span> Add Wall
+        <span class="ctx-icon">🧱</span> {$t('contextMenu.addWall')}
       </button>
       <div class="ctx-sep"></div>
       <button class="ctx-item" role="menuitem" onclick={() => clickItem('zoom-to-fit')}>
-        <span class="ctx-icon">🔍</span> Zoom to Fit
+        <span class="ctx-icon">🔍</span> {$t('contextMenu.zoomToFit')}
       </button>
     {/if}
   </div>

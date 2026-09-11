@@ -1,8 +1,9 @@
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
-for (const width of [1440,390]) for (const op of ['Align Left','Distribute Horizontally']) {
-  test(`${op} respects geometry and locks at ${width}px`, async ({page}) => {
+for (const locale of ['en', 'pt']) for (const width of [1440,390]) for (const op of ['Align Left','Distribute Horizontally']) {
+  test(`${locale}: ${op} respects geometry and locks at ${width}px`, async ({page}) => {
     test.setTimeout(90_000); await page.setViewportSize({width,height:900});
+    await page.addInitScript(locale => localStorage.setItem('o3d_locale', locale), locale);
     await page.addInitScript(() => localStorage.setItem('o3d_tips_seen',JSON.stringify(['first-wall','first-furniture','first-3d','first-export','first-door'])));
     const plan=JSON.parse(await readFile('tests/fixtures/connected-dimensions.openplan.json','utf8')),floor=plan.floors[0];
     for (const key of ['walls','doors','windows','rooms','stairs','columns']) floor[key]=[];
@@ -21,7 +22,7 @@ for (const width of [1440,390]) for (const op of ['Align Left','Distribute Horiz
     }
     const before=await exported();
     await page.getByRole('button',{name:'Save',exact:true}).press('ControlOrMeta+a');
-    await page.getByRole('button',{name:op,exact:true}).click();
+    await page.getByRole('button',{name:locale === 'pt' ? (op === 'Align Left' ? 'Alinhar à Esquerda' : 'Distribuir Horizontalmente') : op,exact:true}).click();
     const moved=await exported();
     expect(moved.entourage[0]).toEqual(before.entourage[0]);
     expect(moved.entourage[1].position).toEqual({x:op==='Align Left'?0:200,y:100});

@@ -2891,3 +2891,12 @@ Svelte check and production build pass. Six browser cases pass across all engine
 at 390 × 900, verifying unchanged library data before confirmation, byte-identical
 original downloads and one imported/restored copy. Service diagnostics/warnings
 and broader editor translation remain open; see the localization record.
+
+### Alignment and selection localization — 2026-09-10
+
+Translated alignment/distribution, selection-toolbar actions, contextual menus
+and Undo History controls. Saved history descriptions and wider editor UI remain
+open. Five localization unit tests, zero-warning Svelte check and production build
+pass. Twelve Portuguese alignment cases pass at desktop/phone widths across all
+three engines, verifying scaled/rotated geometry, locked items, Undo and Redo.
+See the localization record for the exact coverage limits.
