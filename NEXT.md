@@ -17,9 +17,12 @@ inside a 180-second workflow, preserving capture and teardown checks. There are
 52 distinct passes preserved after the camera and canvas-hint cases passed.
 The canvas-idle case then reached its 10-second 3D loading deadline; the snapshot
 showed the loading message. That boundary now allows 60 seconds within a
-180-second workflow. The verified 1,055-case remainder runs in session `23537`.
+180-second workflow. That continuation passed 30 cases, then the crossing-room test raced the
+automatic dismissal of an onboarding tip. It now waits for the tip to close
+and retains all slab/export checks within a 180-second workflow. There are 82
+retained passes; the verified 1,025-case remainder runs in session `41767`.
 Poll the actual process before starting competing tests or rebuilding;
-sessions `93960`, `85756`, `76158`, `6878` and `49725` are terminal.
+sessions `93960`, `85756`, `76158`, `6878`, `49725` and `23537` are terminal.
 See [the live report](docs/reviews/2026-09-11-catalog-browser-qualification.md).
 No full-suite completion is claimed; broader NEXT requirements remain open.
 

@@ -51,11 +51,21 @@ That boundary now allows 60 seconds within a 180-second total workflow; idle,
 pixel-change, saved-state and teardown checks remain intact. There are 52
 retained distinct passes and 1,055 remaining cases, confirmed by Playwright.
 
+The 1,055-case continuation passed 30 cases, including the full canvas-idle
+workflow (2.6 minutes). The crossing-room case then timed out clicking an
+onboarding tip after checking visibility. Its final snapshot contains no tip;
+OnboardingTooltip.svelte automatically dismisses tips after eight seconds. The
+test now waits for the transient tip to become hidden instead of racing its
+removal. Its three scene exports and all slab geometry assertions remain;
+the full workflow has a 180-second allowance. The inventory union now contains
+82 distinct passes; Playwright confirms 1,025 remaining cases.
+
 ## Resume the running process
 
 - Command: `npx playwright test --test-list /tmp/web-localization-remaining.txt --max-failures=1`
-- Unified execution session: `23537`; poll this handle before assuming it ended.
-- Active log: `/tmp/web-localization-full-browser-7.log`
+- Unified execution session: `41767`; poll this handle before assuming it ended.
+- Active log: `/tmp/web-localization-full-browser-8.log`
+- Completed 30-pass continuation: `/tmp/web-localization-full-browser-7.log` (session `23537`, terminal exit 1).
 - Completed three-pass continuation: `/tmp/web-localization-full-browser-6.log` (session `49725`, terminal exit 1).
 - Completed background pass: `/tmp/web-localization-full-browser-5.log` (session `6878`, terminal exit 1).
 - Completed 41-pass continuation: `/tmp/web-localization-full-browser-4.log` (session `76158`, terminal exit 1).

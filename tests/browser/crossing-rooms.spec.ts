@@ -28,6 +28,7 @@ function checkCrossingRooms(scene: any, elevation: number) {
 }
 
 test('crossing dividers produce four room slabs across active-floor switches', async ({ page }, testInfo) => {
+  test.slow();
   const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
   await page.goto('/editor');
   await page.getByRole('button', { name: 'Export', exact: true }).click();
@@ -37,7 +38,8 @@ test('crossing dividers produce four room slabs across active-floor switches', a
   await page.getByRole('button', { name: '3D', exact: true }).click();
   await page.waitForLoadState('networkidle');
   const hint = page.getByRole('button', { name: 'Got it', exact: true });
-  if (await hint.isVisible()) await hint.click();
+  // The tip auto-dismisses after eight seconds; clicking it races that timer.
+  await expect(hint).toBeHidden({ timeout: 15_000 });
   async function exported() {
     const pending = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Export Blender Scene', exact: true }).click();
