@@ -6,7 +6,8 @@ import { observeGPU, gpu } from './gpu';
 
 test.use({ viewport: { width: 844, height: 480 } });
 
-async function openWalkthrough(page: Page, pointerLock = false) {
+async function openWalkthrough(page: Page, pointerLock = false, locale = 'en') {
+  await page.addInitScript(locale => localStorage.setItem('o3d_locale', locale), locale);
   // CI-only control of RAF timestamps and observation of WebGL's view uniform.
   // No camera references, application internals or production debug hooks.
   await page.addInitScript(pointerLock => {
@@ -73,12 +74,12 @@ async function openWalkthrough(page: Page, pointerLock = false) {
     } else HTMLCanvasElement.prototype.requestPointerLock = () => Promise.reject(new DOMException('Denied', 'NotAllowedError'));
   }, pointerLock);
   await page.goto('/editor');
-  await page.getByRole('button', { name: 'Export', exact: true }).click();
+  await page.getByRole('button', { name: locale === 'pt' ? 'Exportar' : 'Export', exact: true }).click();
   const chooser = page.waitForEvent('filechooser');
-  await page.getByRole('button', { name: 'Import JSON', exact: true }).click();
+  await page.getByRole('button', { name: locale === 'pt' ? 'Importar JSON' : 'Import JSON', exact: true }).click();
   await (await chooser).setFiles(resolve('tests/fixtures/top-down-framing.openplan.json'));
   await page.getByRole('button', { name: '3D', exact: true }).click();
-  const hint = page.getByRole('button', { name: 'Got it', exact: true });
+  const hint = page.getByRole('button', { name: locale === 'pt' ? 'Entendi' : 'Got it', exact: true });
   if (await hint.isVisible()) await hint.click();
   await page.waitForLoadState('networkidle');
   await expect.poll(() => page.evaluate(() => (window as any).__walkAudit.ready())).toBe(true);
@@ -259,4 +260,33 @@ test('opening a modal releases walkthrough mouse capture and stops held movement
   const restarted = await step(page, 100, 30);
   expect(await step(page, 100, 30)).toEqual(restarted);
   expect(errors).toEqual([]);
+});
+
+
+test('Portuguese walkthrough keeps keyboard movement and field controls usable without mouse lock', async ({ page }) => {
+  test.setTimeout(120_000);
+  await openWalkthrough(page, false, 'pt');
+  await page.getByRole('button', { name: 'Entrar no modo de passeio', exact: true }).click();
+  await expect(page.getByText('Controles de passeio', { exact: true })).toBeVisible();
+  await expect(page.getByRole('status')).toContainText('Use WASD para olhar e as setas para se mover.');
+  const initial = position(await step(page, 0, 1));
+  await page.keyboard.down('ArrowUp');
+  const moved = position(await step(page));
+  await page.keyboard.up('ArrowUp');
+  expect(moved.distanceTo(initial)).toBeGreaterThan(20);
+  await step(page, 1000 / 60, 120);
+  const height = page.getByRole('slider', { name: /Altura dos olhos/ });
+  const before = position(await step(page));
+  const value = Number(await height.inputValue());
+  await height.focus(); await height.press('ArrowUp');
+  await expect(height).toHaveValue(String(value + 1));
+  const after = position(await step(page));
+  expect(after.x).toBeCloseTo(before.x, 4);
+  expect(after.z).toBeCloseTo(before.z, 4);
+  expect(after.y - before.y).toBeCloseTo(1, 4);
+  await expect(page.getByRole('slider', { name: /Velocidade de caminhada/ })).toBeVisible();
+  await expect(page.getByRole('slider', { name: /Velocidade de corrida/ })).toBeVisible();
+  await page.getByRole('button', { name: 'Vista superior', exact: true }).click();
+  await expect(page.getByText('Controles de passeio', { exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Entrar no modo de passeio', exact: true })).toBeVisible();
 });

@@ -1258,3 +1258,17 @@ Logs: `/tmp/web-viewer-lighting-check.log`, `/tmp/web-viewer-lighting-build.log`
 `/tmp/web-viewer-lighting-unit.log`, `/tmp/web-viewer-lighting-browser.log`.
 This checks UI state, not physical lighting accuracy or visual render quality.
 Remaining viewer panels, physical-device and release requirements stay open.
+
+## Portuguese walkthrough interaction verification
+
+At `9cf4ec2`, three Portuguese walkthrough cases pass (35.0 seconds, exit 0).
+With simulated mouse-lock denial and controlled animation timestamps, rendered
+view-matrix observation confirms arrow movement and an eye-height adjustment
+without lateral movement. Translated fallback guidance and speed labels are
+visible; Top-Down exits walkthrough. Existing English pause/exit/field tests also
+pass across all engines (39.2 seconds), covering held-input cleanup and sprint
+reset through the shared setup helper. No runtime changes were needed.
+Logs: `/tmp/web-walkthrough-portuguese.log`,
+`/tmp/web-walkthrough-english-integration.log`. This does not qualify physical
+mouse-lock permission, touch navigation, active FPS or battery. Remaining NEXT
+requirements stay open.

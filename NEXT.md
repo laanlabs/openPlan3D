@@ -3486,3 +3486,11 @@ five localization unit tests and three browser cases pass (57.5 seconds), coveri
 all preset values, keyboard ambient adjustment, selection reset and unchanged
 exported project data. Render-quality, remaining viewer UI and device/release
 requirements stay open.
+
+### Portuguese walkthrough interaction verification — 2026-09-11
+
+Three Portuguese browser cases pass at `9cf4ec2` (35.0 seconds), observing
+rendered camera movement, isolated eye-height changes and Top-Down exit under
+simulated mouse-lock denial. Three existing English input-reset cases also pass
+(39.2 seconds). No runtime changes were needed. Physical input/performance and
+remaining release requirements stay open.
