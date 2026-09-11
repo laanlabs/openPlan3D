@@ -3274,3 +3274,11 @@ issue caused by a label wrapping both shape buttons. Shape controls now use a
 named group and pressed states. Check/build, five localization unit tests and
 three browser cases pass (29.4 seconds), retaining dimensions/rotation/color across
 shape changes. Other Properties/accessibility/device/release work remains open.
+
+### Door and stair button-group accessibility — 2026-09-10
+
+Reproduced missing accessible names for the first hinge/direction buttons. Replaced
+wrapping form labels with named groups for door hinge/opening and stair direction;
+added selected-state semantics. Production check/build and six browser cases pass
+(51.2 seconds), including edited-data export and stair undo. Remaining accessibility,
+localization and device/release requirements stay open.

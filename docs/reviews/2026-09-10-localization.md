@@ -851,3 +851,19 @@ Logs: `/tmp/web-column-properties-check-final.log`,
 `/tmp/web-column-properties-browser-final.log`; initial accessibility failure in
 `/tmp/web-column-properties-browser.log`. Other grouped controls, rendered geometry,
 physical touch and remaining release requirements need separate qualification.
+
+## Door and stair button-group accessibility
+
+At `b484f63`, added checks reproduced missing accessible names for the first door
+hinge button (Esquerda) and stair direction button (Subir). Both were inside form
+labels wrapping two buttons, like the column issue. Door hinge/opening direction
+and stair direction now use named groups with aria-pressed on each button.
+Handlers and saved values are unchanged.
+
+Production check reports zero errors/warnings; production build passes. Six browser
+cases pass across all engines (51.2 seconds, exit 0), verifying names, pressed states,
+stair undo and the existing door/window/stair export comparisons. Reproduction log:
+`/tmp/web-properties-groups-repro.log`; final logs:
+`/tmp/web-properties-groups-check.log`, `/tmp/web-properties-groups-build.log`,
+`/tmp/web-properties-groups-browser.log`. Screen-reader hardware, physical touch
+and the remaining editor/release scope still require separate qualification.

@@ -23,10 +23,13 @@ test('Portuguese stair properties preserve layout IDs and edited geometry', asyn
     const input = panel.getByRole('spinbutton', { name: label, exact: true });
     await input.fill(value); await input.press('Tab');
   }
+  await expect(panel.getByRole('button', { name: 'Subir ↑', exact: true })).toHaveCount(1);
   await panel.getByRole('button', { name: 'Descer ↓', exact: true }).click();
+  await expect(panel.getByRole('button', { name: 'Descer ↓', exact: true })).toHaveAttribute('aria-pressed', 'true');
   const edited = await exported();
   expect(edited.stairs[0]).toEqual({ ...original.stairs[0], stairType: 'u-shaped', width: 122.5, depth: 310.5, riserCount: 18, rotation: 27.5, direction: 'down' });
   for (const key of ['walls','doors','windows','rooms','furniture']) expect(edited[key]).toEqual(original[key]);
   await page.getByRole('button', { name: 'Desfazer', exact: true }).click();
   expect((await exported()).stairs[0]).toEqual({ ...edited.stairs[0], direction: original.stairs[0].direction });
+  await expect(panel.getByRole('button', { name: 'Subir ↑', exact: true })).toHaveAttribute('aria-pressed', 'true');
 });

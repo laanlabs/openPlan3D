@@ -38,8 +38,12 @@ test('Portuguese opening catalog places original door and window types', async (
   const width = page.getByRole('spinbutton', { name: 'Largura (cm)', exact: true });
   await width.fill('95.25'); await width.press('Tab');
   await page.getByRole('combobox', { name: 'Tipo', exact: true }).selectOption('french');
+  await expect(page.getByRole('button', { name: 'Esquerda', exact: true })).toHaveCount(1);
+  await expect(page.getByRole('button', { name: 'Para dentro', exact: true })).toHaveCount(1);
   await page.getByRole('button', { name: 'Direita', exact: true }).click();
   await page.getByRole('button', { name: 'Para fora', exact: true }).click();
+  for (const label of ['Direita', 'Para fora']) await expect(page.getByRole('button', { name: label, exact: true })).toHaveAttribute('aria-pressed', 'true');
+  for (const label of ['Esquerda', 'Para dentro']) await expect(page.getByRole('button', { name: label, exact: true })).toHaveAttribute('aria-pressed', 'false');
   await page.getByRole('button', { name: '🪟 Janela fixa 1', exact: true }).click();
   const sill = page.getByRole('spinbutton', { name: 'Altura do peitoril (cm)', exact: true });
   await sill.fill('85.5'); await sill.press('Tab');

@@ -568,20 +568,20 @@
         </select>
       </label>
       {#if selectedDoor.type !== 'opening' && selectedDoor.type !== 'garage'}
-      <label class="block">
+      <div role="group" aria-label={$t('openingProperties.hinge')}>
         <span class="text-xs text-gray-500">{$t('openingProperties.hinge')}</span>
         <div class="flex gap-2">
-          <button onclick={() => { if (selectedDoor) updateDoor(selectedDoor.id, { swingDirection: 'left' }); }} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedDoor?.swingDirection === 'left' ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">{$t('openingProperties.left')}</button>
-          <button onclick={() => { if (selectedDoor) updateDoor(selectedDoor.id, { swingDirection: 'right' }); }} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedDoor?.swingDirection === 'right' ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">{$t('openingProperties.right')}</button>
+          <button aria-pressed={selectedDoor.swingDirection === 'left'} onclick={() => { if (selectedDoor) updateDoor(selectedDoor.id, { swingDirection: 'left' }); }} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedDoor?.swingDirection === 'left' ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">{$t('openingProperties.left')}</button>
+          <button aria-pressed={selectedDoor.swingDirection === 'right'} onclick={() => { if (selectedDoor) updateDoor(selectedDoor.id, { swingDirection: 'right' }); }} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedDoor?.swingDirection === 'right' ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">{$t('openingProperties.right')}</button>
         </div>
-      </label>
-      <label class="block">
+      </div>
+      <div role="group" aria-label={$t('openingProperties.opens')}>
         <span class="text-xs text-gray-500">{$t('openingProperties.opens')}</span>
         <div class="flex gap-2">
-          <button onclick={() => { if (selectedDoor) updateDoor(selectedDoor.id, { flipSide: false }); }} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {!(selectedDoor?.flipSide) ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">{$t('openingProperties.inward')}</button>
-          <button onclick={() => { if (selectedDoor) updateDoor(selectedDoor.id, { flipSide: true }); }} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedDoor?.flipSide ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">{$t('openingProperties.outward')}</button>
+          <button aria-pressed={!selectedDoor.flipSide} onclick={() => { if (selectedDoor) updateDoor(selectedDoor.id, { flipSide: false }); }} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {!(selectedDoor?.flipSide) ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">{$t('openingProperties.inward')}</button>
+          <button aria-pressed={!!selectedDoor.flipSide} onclick={() => { if (selectedDoor) updateDoor(selectedDoor.id, { flipSide: true }); }} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedDoor?.flipSide ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">{$t('openingProperties.outward')}</button>
         </div>
-      </label>
+      </div>
       {/if}
     </div>
 
@@ -912,13 +912,13 @@
         <span class="text-xs text-gray-500">{$t('stairProperties.risers')}</span>
         <input type="number" value={selectedStair.riserCount} min="3" max="30" step="1" oninput={onStairRisers} onblur={onStairRisers} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
-      <label class="block">
+      <div role="group" aria-label={$t('stairProperties.direction')}>
         <span class="text-xs text-gray-500">{$t('stairProperties.direction')}</span>
         <div class="flex gap-2">
-          <button onclick={() => updateStair(selectedStair!.id, { direction: 'up' })} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedStair.direction === 'up' ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">{$t('stairProperties.up')}</button>
-          <button onclick={() => updateStair(selectedStair!.id, { direction: 'down' })} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedStair.direction === 'down' ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">{$t('stairProperties.down')}</button>
+          <button aria-pressed={selectedStair.direction === 'up'} onclick={() => updateStair(selectedStair!.id, { direction: 'up' })} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedStair.direction === 'up' ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">{$t('stairProperties.up')}</button>
+          <button aria-pressed={selectedStair.direction === 'down'} onclick={() => updateStair(selectedStair!.id, { direction: 'down' })} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedStair.direction === 'down' ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">{$t('stairProperties.down')}</button>
         </div>
-      </label>
+      </div>
       <label class="block">
         <span class="text-xs text-gray-500">{$t('furnitureProperties.rotation')}</span>
         <input type="number" value={selectedStair.rotation} step="any" oninput={onStairRotation} onblur={onStairRotation} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
