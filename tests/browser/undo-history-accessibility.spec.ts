@@ -1,9 +1,10 @@
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
-for (const language of ['en', 'pt'] as const) test(`${language}: named undo history exposes the current step and restores a floor change`, async ({ page }) => {
+for (const width of [1440, 390]) for (const language of ['en', 'pt'] as const) test(`${language} ${width}: named undo history exposes the current step and restores a floor change`, async ({ page }) => {
   // Keep all before/after export assertions on slower production-browser runs.
   test.slow();
+  await page.setViewportSize({ width, height: 900 });
   const project = JSON.parse(await readFile('tests/fixtures/save-conflicts.openplan.json', 'utf8'));
   await page.addInitScript(({ project, language }) => {
     localStorage.setItem('o3d_locale', language);
@@ -17,14 +18,24 @@ for (const language of ['en', 'pt'] as const) test(`${language}: named undo hist
     return JSON.parse(await readFile((await (await downloading).path())!, 'utf8'));
   }
   const before = await exported();
-  await page.getByRole('button', { name: /^(?:Add Floor|Adicionar pavimento)$/, exact: true }).click();
-  await page.getByRole('button', { name: /^(?:Empty floor|Pavimento vazio)$/, exact: true }).click();
+  const more = page.getByRole('button', { name: /^(More actions|Mais ações)$/ });
+  if (width < 768) {
+    await more.click();
+    await page.getByRole('button', { name: /^\+ (Add Floor \(empty\)|Adicionar pavimento \(vazio\))$/ }).click();
+  } else {
+    await page.getByRole('button', { name: /^(?:Add Floor|Adicionar pavimento)$/, exact: true }).click();
+    await page.getByRole('button', { name: /^(?:Empty floor|Pavimento vazio)$/, exact: true }).click();
+  }
   expect((await exported()).floors).toHaveLength(before.floors.length + 1);
   const toggle = page.getByRole('button', { name: language === 'en' ? 'Toggle Undo History' : 'Alternar histórico de ações', exact: true });
+  if (width < 768) await more.click();
   await toggle.click();
-  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  if (width >= 768) await expect(toggle).toHaveAttribute('aria-expanded', 'true');
   const history = page.getByRole('region', { name: language === 'en' ? 'Undo History' : 'Histórico de Ações', exact: true });
   await expect(history).toBeVisible();
+  const bounds = await history.boundingBox();
+  expect(bounds!.x).toBeGreaterThanOrEqual(0);
+  expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
   await expect(history.locator('[aria-current="step"]')).toHaveText(language === 'en' ? /Current state/ : /Estado atual/);
   const action = history.getByRole('button', { name: language === 'en' ? /Added floor/ : /Pavimento adicionado/ });
   await expect(action).toBeVisible();
@@ -65,8 +76,11 @@ for (const language of ['en', 'pt'] as const) test(`${language}: named undo hist
   await action.focus();
   await expect(action).toBeFocused();
   await action.press('Enter');
-  expect((await exported()).floors).toEqual(before.floors);
-  await history.getByRole('button', { name: language === 'en' ? 'Close history' : 'Fechar histórico', exact: true }).click();
+  const close = history.getByRole('button', { name: language === 'en' ? 'Close history' : 'Fechar histórico', exact: true });
+  await expect(close).toBeFocused();
+  await close.press('Escape');
   await expect(history).toHaveCount(0);
-  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  await expect(width < 768 ? more : toggle).toBeFocused();
+  expect((await exported()).floors).toEqual(before.floors);
+  if (width >= 768) await expect(toggle).toHaveAttribute('aria-expanded', 'false');
 });

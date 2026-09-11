@@ -1,5 +1,17 @@
 # Next work and pause handoff
 
+## Populated mobile Undo History — September 11 checkpoint
+
+Reproduced keyboard focus disappearing when a selected history entry is removed.
+History activation now focuses Close after the DOM update, with guards against
+a closed panel or focus already moved elsewhere. Check/build pass with zero
+diagnostics and 24 bilingual Chromium/Firefox/WebKit cases pass (2.4 minutes).
+Populated-panel checks now cover 1440/390px, light/dark text contrast, mobile
+overflow entry, Enter activation, Escape dismissal, restored opener focus and
+exact exported floor restoration. Existing empty-panel keyboard cases also pass.
+Physical touch/assistive-technology qualification and the full native/release
+and remaining interface backlog are still open.
+
 ## Undo History mobile entry and focus — September 11 checkpoint
 
 Added Undo History to the phone overflow menu. Opening the panel focuses Close;

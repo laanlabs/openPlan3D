@@ -2541,6 +2541,16 @@ unit/browser run. Actual screen-reader use, visual contrast review, action-label
 translation and broader NEXT.md gates remain open.
 # Undo action descriptions — September 11 checkpoint
 
+Populated-phone follow-up: a Chromium regression reproduced focus being lost
+after selecting an entry removed from the history list. The panel now focuses
+Close after that update, unless it has closed or focus moved to another control.
+Check/build pass without diagnostics. All 24 English/Portuguese cases pass across
+Chromium/Firefox/WebKit (2.4 minutes), including populated and empty panels at
+1440/390px. Populated checks cover light/dark contrast, mobile overflow entry,
+Enter activation, Escape/return focus and exact restored floor exports. This
+closes the earlier populated-phone automated-check gap; physical input and
+assistive-technology qualification remain open.
+
 Mobile/focus follow-up: Undo History is now available in the phone overflow menu,
 with its existing translated label. Opening focuses Close; Escape/Close restore
 the desktop trigger or persistent More actions button. A failing desktop focus

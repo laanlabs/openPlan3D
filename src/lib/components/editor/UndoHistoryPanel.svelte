@@ -36,8 +36,16 @@
     return d.toLocaleTimeString(language === 'pt' ? 'pt-BR' : 'en', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   }
 
-  function handleClick(index: number) {
+  async function handleClick(index: number) {
+    const focused = document.activeElement;
+    const hadPanelFocus = focused && panel?.contains(focused);
     jumpToUndoStep(index);
+    await tick();
+    // The selected entry is removed. Preserve keyboard access without taking
+    // focus back if the user has already moved to another control.
+    if (visible && hadPanelFocus && (document.activeElement === document.body || document.activeElement === focused)) {
+      panel?.querySelector('button')?.focus();
+    }
   }
 </script>
 
