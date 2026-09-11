@@ -163,6 +163,14 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+All **21 project-opening cases pass** across three engines on the translated
+production build (6.6 minutes). The multi-stage same-ID import/reload/3D case now
+uses Playwright's bounded slow-test budget after traces showed the default minute
+expiring during renderer/screenshot work; all assertions and screenshots remain.
+Combined audit evidence now covers 860 distinct cases in the expanded 1,056-case
+inventory. The next continuation has 196 cases remaining; physical-device and
+release gates remain open.
+
 Project-service translation now has a successful production build and **nine
 passing browser cases** across Chromium, Firefox and WebKit (3.0 minutes):
 desktop/phone quota-blocked opening, reactive language changes, original-byte

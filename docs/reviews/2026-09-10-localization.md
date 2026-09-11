@@ -2108,3 +2108,27 @@ successful later import, plus existing relative save-time localization.
 Log: `/tmp/web-project-service-localization-browser.log`.
 The new source has 987 passing unit cases and zero Svelte diagnostics from the
 earlier checks. Full browser audit completion and physical-device gates remain open.
+
+### 2026-09-11: Complete opening regression on the translated build
+
+The repeated desktop same-ID case again reached its final 3D/screenshot phase
+before the default minute expired. The trace recorded roughly 48 seconds through
+the data workflows and 18 seconds for cold viewer visibility. This multi-stage
+case alone now uses test.slow() (a bounded three-minute test budget), retaining
+every persistence, geometry, URL, rendering and screenshot check. No production
+code changed for the timeout. Retry log before adjustment:
+`/tmp/web-project-opening-post-translation-browser.log`.
+
+All 21 opening cases pass in 6.6 minutes across Chromium, Firefox and WebKit.
+The first desktop Chromium case took 59.2 seconds; other same-ID cases took
+11.6–34.4 seconds. Log: `/tmp/web-project-opening-bounded-browser.log`.
+Together with the nine translation/save cases, this completes the focused
+post-translation recovery verification. Broader library/error UI and remaining
+browser cases still need their own coverage; these results do not prove the full
+interface qualified on every engine.
+
+The deduplicated exclusion list now contains 860 passes across the expanded
+1,056-case inventory, combining prior-runtime audit evidence and the focused new
+build checks. There are 196 remaining cases. Path:
+`/tmp/web-browser-audit-passed.txt`. Preserve this provenance rather than describing
+the aggregate as one clean full-suite run against a single commit.
