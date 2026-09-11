@@ -38,7 +38,10 @@ variants now have a 180-second allowance with all assertions retained. There
 are 124 retained passes. That rerun reached the blue-pixel probe’s own
 10-second deadline; its screenshot shows the navy chair. Blue-pixel readiness
 now allows 60 seconds without changing color thresholds. The same 983 cases
-run in session `80619`. The previous attempt stopped at the helper’s initial
+ran in session `80619`, which passed six cases before a stair-drag test raced
+tip dismissal. Four remaining `tip`-named click variants now wait for hidden
+state. There are 130 retained passes; 977 cases run in session `83767`.
+Session `80619` is terminal. The previous attempt stopped at the helper’s initial
 10-second 3D readiness wait, now 60 seconds. Sessions `49049` and `34370`
 are terminal with zero added passes.
 Poll the actual process before starting competing tests or rebuilding;

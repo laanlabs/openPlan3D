@@ -34,7 +34,7 @@ for (const width of [1440, 390]) for (const kind of ['l-shaped', 'u-shaped']) {
       return { count: rects?.length, inside: rects?.flat().every((p: any) => p.x > b.left+24 && p.x < b.right-24 && p.y > b.top+24 && p.y < b.bottom-24) };
     })).toEqual({ count: 3, inside: true });
     const tip = page.getByRole('button', { name: 'Got it', exact: true });
-    if (await tip.isVisible()) await tip.click();
+    await expect(tip).toBeHidden({ timeout: 15_000 });
     const target = await page.evaluate(() => {
       const r = (window as any).__stairRects[2];
       return { x: (r[0].x+r[2].x)/2, y: (r[0].y+r[2].y)/2 };

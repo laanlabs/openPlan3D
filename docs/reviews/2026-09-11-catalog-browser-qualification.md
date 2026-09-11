@@ -107,11 +107,20 @@ The subsequent attempt stopped earlier at the shared open3D helper's initial
 No case passed in that attempt, so the same 983-case inventory remains and
 retained passes are still 124. The blue-pixel readiness result remains unproven.
 
+The next continuation passed six cases, including both furniture-fidelity
+variants and late model reuse. The stair-drag case then raced tooltip dismissal;
+the click log explicitly records DOM detachment. Four remaining `tip`-named
+variants in geometry-drag-undo, stair-footprint, stair-ghost and stair-direction
+now wait for hidden state (15 seconds). Geometry and Undo assertions remain.
+There are 130 retained distinct passes and 977 remaining cases, confirmed by
+Playwright.
+
 ## Resume the running process
 
 - Command: `npx playwright test --test-list /tmp/web-localization-remaining.txt --max-failures=1`
-- Unified execution session: `80619`; poll this handle before assuming it ended.
-- Active log: `/tmp/web-localization-full-browser-15.log`
+- Unified execution session: `83767`; poll this handle before assuming it ended.
+- Active log: `/tmp/web-localization-full-browser-16.log`
+- Completed six-pass continuation: `/tmp/web-localization-full-browser-15.log` (session `80619`, terminal exit 1).
 - Completed initial-readiness failure: `/tmp/web-localization-full-browser-14.log` (session `34370`, terminal exit 1).
 - Completed zero-pass rerun: `/tmp/web-localization-full-browser-13.log` (session `49049`, terminal exit 1).
 - Completed 20-pass continuation: `/tmp/web-localization-full-browser-12.log` (session `7225`, terminal exit 1).

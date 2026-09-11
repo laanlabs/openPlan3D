@@ -29,7 +29,7 @@ for (const kind of ['stair','column','text','endpoint','parallel','curve','room'
     await page.getByRole('button',{name:'Import JSON',exact:true}).click();
     await (await chooser).setFiles({name:'drag.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(plan))});
     await expect(page.getByRole('button',{name:plan.name,exact:true})).toBeVisible();
-    const tip=page.getByRole('button',{name:'Got it',exact:true}); if(await tip.isVisible()) await tip.click();
+    const tip=page.getByRole('button',{name:'Got it',exact:true}); await expect(tip).toBeHidden({ timeout: 15_000 });
     async function fit() {
       const frame = await page.evaluate(() => (window as any).__mapFrame ?? 0);
       await page.getByTitle('Zoom to Fit (F)', { exact:true }).first().press('Enter');

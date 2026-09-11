@@ -45,7 +45,7 @@ for (const kind of ['straight','l-shaped','u-shaped','spiral']) {
     await page.getByRole('button', { name: 'Redo',exact: true }).click();
     await expect.poll(heads).not.toEqual(up);
     const tip = page.getByRole('button', { name: 'Got it',exact: true });
-    if (await tip.isVisible()) await tip.click();
+    await expect(tip).toBeHidden({ timeout: 15_000 });
     await page.getByRole('button', { name: 'Save',exact: true }).press('l');
     await page.getByTitle('Zoom to Fit (F)', { exact: true }).first().press('Enter');
     await testInfo.attach(`stair-down-${kind}`, { body: await page.screenshot(),contentType: 'image/png' });
