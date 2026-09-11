@@ -5,7 +5,7 @@ import { getFurnitureSize } from '$lib/utils/furnitureCatalog';
 import { resizeFurnitureFromHandle, type HandleType } from '$lib/utils/canvasInteraction';
 import { snapFurnitureToWalls } from '$lib/utils/furnitureGeometry';
 import { findFurnitureAt, findHandleAt } from '$lib/utils/hitTesting';
-import { beginUndoGroup, endUndoGroup, loadProject, currentProject, transformFurnitureDuringDrag, undo, redo } from '$lib/stores/project';
+import { beginUndoGroup, endUndoGroup, loadProject, currentProject, transformFurnitureDuringDrag, updateFurniture, undo, redo } from '$lib/stores/project';
 import { roomProject } from './fixtures/project';
 
 const item = (updates: Partial<FurnitureItem> = {}): FurnitureItem => ({
@@ -13,6 +13,23 @@ const item = (updates: Partial<FurnitureItem> = {}): FurnitureItem => ({
   scale: { x: 1, y: 1, z: 1 }, width: 100, depth: 60, height: 80, color: '#2563eb', ...updates,
 });
 const wall: Wall = { id: 'wall', start: { x: 0, y: 0 }, end: { x: 600, y: 0 }, thickness: 20, height: 250, color: '#eee' };
+
+it('unchanged furniture appearance and transforms preserve Undo and Redo', () => {
+  const project = roomProject();
+  project.floors[0].furniture = [item()];
+  currentProject.set(project);
+  const before = structuredClone(project.floors[0]);
+  const original = before.furniture[0];
+  updateFurniture(original.id, { color: '#abcdef' });
+  const edited = structuredClone(get(currentProject)!.floors[0]);
+  updateFurniture(original.id, { position: { ...original.position } });
+  updateFurniture(original.id, { scale: { ...original.scale } });
+  undo(); expect(get(currentProject)!.floors[0]).toEqual(before);
+  updateFurniture(original.id, { color: original.color });
+  updateFurniture('missing', { rotation: 45 });
+  updateFurniture(original.id, {});
+  redo(); expect(get(currentProject)!.floors[0]).toEqual(edited);
+});
 
 const world = (point: Point, position: Point, rotation: number) => {
   const a = rotation * Math.PI / 180;

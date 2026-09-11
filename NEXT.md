@@ -1241,6 +1241,15 @@ The regression verifies that unchanged fields add no Undo step and preserve Redo
 All 949 unit tests, check/build and six desktop/narrow browser cases pass. Other
 item types and remaining NEXT scope are not qualified by this room-specific fix.
 
+### Preserve furniture Undo/Redo for unchanged fields — 2026-09-11
+
+Furniture updates now skip missing targets, empty patches, unchanged scalar values
+and equal position/scale coordinates before snapshotting. Fifty furniture unit
+cases pass, including the reproduced Undo/Redo regression and existing geometry
+interactions. Check/build and three Portuguese browser cases pass (13.1 seconds),
+verifying redo after reapplying a color, dimensions, rotation/mirroring, appearance
+reset and retained item details. Other item types and physical qualification remain.
+
 ### Minimap for object-only content — 2026-09-09
 
 The desktop minimap now uses shared content bounds for drawing and navigation,

@@ -1600,3 +1600,20 @@ room reset/delete/material/focus checks remain in the same cases.
 Logs: `/tmp/web-room-noop-repro.log`, `/tmp/web-room-noop-all-unit.log`,
 `/tmp/web-room-noop-check.log`, `/tmp/web-room-noop-build.log`,
 `/tmp/web-room-noop-browser.log`. Remaining NEXT requirements stay open.
+
+## Unchanged furniture updates preserve history — 2026-09-11
+
+A unit regression at ffc1923 reproduced redundant furniture updates consuming
+Undo and clearing Redo. updateFurniture now skips missing IDs, empty patches,
+unchanged scalars and equal position/scale coordinates before mutation. Metadata
+continues through the separate item-details workflow.
+
+All 50 furniture-interaction unit cases pass; check/build report zero Svelte
+diagnostics. Three Portuguese browser cases pass across Chromium, Firefox and
+WebKit (13.1 seconds). They Undo a mirror, reapply its existing color, Redo the
+mirror, and verify the exact floor. Existing material IDs, dimension overrides,
+rotation, appearance reset and note/cost validation also pass. This focused run
+does not replace the preceding full unit checkpoint or physical qualification.
+Logs: `/tmp/web-furniture-noop-repro.log`, `/tmp/web-furniture-noop-unit.log`,
+`/tmp/web-furniture-noop-check.log`, `/tmp/web-furniture-noop-build.log`,
+`/tmp/web-furniture-noop-browser.log`.

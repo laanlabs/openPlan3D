@@ -739,6 +739,17 @@ export function updateWindow(id: string, updates: Partial<Win>) {
 }
 
 export function updateFurniture(id: string, updates: Partial<FurnitureItem>) {
+  const item = get(activeFloor)?.furniture.find(item => item.id === id);
+  if (!item) return;
+  if (Object.keys(updates).every(key => {
+    if (key === 'position' && updates.position) {
+      return item.position.x === updates.position.x && item.position.y === updates.position.y;
+    }
+    if (key === 'scale' && updates.scale) {
+      return item.scale.x === updates.scale.x && item.scale.y === updates.scale.y && item.scale.z === updates.scale.z;
+    }
+    return item[key as keyof FurnitureItem] === updates[key as keyof FurnitureItem];
+  })) return;
   mutate((f) => {
     const fi = f.furniture.find((fi) => fi.id === id);
     if (fi) Object.assign(fi, updates);

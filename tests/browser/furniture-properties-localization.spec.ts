@@ -31,6 +31,11 @@ test('Portuguese furniture properties preserve finish IDs and reset original app
   const edited = await exported();
   expect(edited.furniture[0]).toEqual({ ...original.furniture[0], material: 'Fabric', color: '#191970', depth: 112.5, rotation: 90, scale: { ...original.furniture[0].scale, x: -1 } });
   expect(edited.furniture.slice(1)).toEqual(original.furniture.slice(1));
+  await page.getByRole('button', { name: 'Desfazer', exact: true }).click();
+  // Reapplying the existing color must retain the redo of the mirror operation.
+  await page.getByRole('button', { name: 'Cor: #191970', exact: true }).click();
+  await page.getByRole('button', { name: 'Refazer', exact: true }).click();
+  expect(await exported()).toEqual(edited);
   await page.getByRole('button', { name: 'Restaurar padrões', exact: true }).click();
   const reset = await exported();
   const expected = { ...edited.furniture[0] };
