@@ -4032,7 +4032,7 @@
       <span class="text-gray-300">|</span>
     {/if}
     <span>Zoom: {Math.round(zoom * 100)}%</span>
-    <button class="hover:text-gray-700" onclick={() => zoomToFit()} title="Zoom to Fit (F)">⊞ Fit</button>
+    <button class="hover:text-gray-700" onclick={() => zoomToFit()} title={$t('canvasZoom.fitHint')}>⊞ Fit</button>
     <button class="hover:text-gray-700" onclick={() => showGrid = !showGrid} title="Toggle Grid (G)">
       {showGrid ? '▦' : '▢'} Grid
     </button>
@@ -4211,8 +4211,8 @@
   <div style:bottom={`${zoomControlsBottom}px`} class="absolute left-3 max-md:left-20 z-20 flex items-center gap-1 bg-white rounded-lg shadow-lg border border-gray-200 px-1 py-0.5">
     <button
       class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-600 hover:text-gray-800 font-bold text-lg"
-      title="Zoom Out (−)"
-      aria-label="Zoom out"
+      title={$t('canvasZoom.outHint')}
+      aria-label={$t('canvasZoom.out')}
       onclick={() => {
         const newZoom = Math.max(minimumZoom, zoom * 0.8);
         // Zoom towards canvas center
@@ -4225,14 +4225,14 @@
     >−</button>
     <button
       class="min-w-[3.5rem] h-7 flex items-center justify-center rounded hover:bg-gray-100 text-xs font-medium text-gray-600 hover:text-gray-800 tabular-nums"
-      title="Reset to 100%"
-      aria-label="Zoom to 100%"
+      title={$t('canvasZoom.resetHint')}
+      aria-label={$t('canvasZoom.reset')}
       onclick={() => { zoom = 1; }}
     >{zoom < 0.01 ? (zoom * 100).toPrecision(2) : Math.round(zoom * 100)}%</button>
     <button
       class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-600 hover:text-gray-800 font-bold text-lg"
-      title="Zoom In (+)"
-      aria-label="Zoom in"
+      title={$t('canvasZoom.inHint')}
+      aria-label={$t('canvasZoom.in')}
       onclick={() => {
         const newZoom = Math.min(10, zoom * 1.25);
         zoom = newZoom;
@@ -4241,14 +4241,14 @@
     <div class="w-px h-5 bg-gray-200"></div>
     <button
       class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700 text-sm"
-      title="Zoom to Fit (F)"
-      aria-label="Zoom to fit"
+      title={$t('canvasZoom.fitHint')}
+      aria-label={$t('canvasZoom.fit')}
       onclick={() => zoomToFit()}
     >⊞</button>
     <button
       class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700 text-sm disabled:opacity-30 disabled:cursor-not-allowed"
-      title="Fit Selection (Shift+F)"
-      aria-label="Fit selection"
+      title={$t('canvasZoom.selectionHint')}
+      aria-label={$t('canvasZoom.selection')}
       disabled={fitSelectionIds().size === 0}
       onclick={() => zoomToFit(true)}
     >⊡</button>

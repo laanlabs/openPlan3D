@@ -1,8 +1,9 @@
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
-for (const width of [1440, 390]) {
-  test(`large floor fits and zooms smoothly below ten percent at ${width}px`, async ({ page }, testInfo) => {
+for (const locale of ['en', 'pt']) for (const width of [1440, 390]) {
+  test(`${locale}: large floor fits and zooms smoothly below ten percent at ${width}px`, async ({ page }, testInfo) => {
+    await page.addInitScript(locale => localStorage.setItem('o3d_locale', locale), locale);
     await page.setViewportSize({ width, height: 900 });
     await page.addInitScript(() => {
       const fill = CanvasRenderingContext2D.prototype.fillText;
@@ -22,13 +23,13 @@ for (const width of [1440, 390]) {
     floor.walls = []; floor.doors = []; floor.windows = []; floor.rooms = [];
     floor.textAnnotations = [-1, 1].map(sign => ({ id: `note-${sign}`, x: sign * 1_000_000, y: 0, text: sign < 0 ? 'Left boundary note' : 'Right boundary note', fontSize: 20, rotation: 0, color: '#123456' }));
     await page.goto('/editor');
-    await page.getByRole('button', { name: 'Export', exact: true }).click();
+    await page.getByRole('button', { name: locale === 'pt' ? 'Exportar' : 'Export', exact: true }).click();
     const chooser = page.waitForEvent('filechooser');
-    await page.getByRole('button', { name: 'Import JSON', exact: true }).click();
+    await page.getByRole('button', { name: locale === 'pt' ? 'Importar JSON' : 'Import JSON', exact: true }).click();
     await (await chooser).setFiles({ name: 'large.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(plan)) });
     const span = () => page.evaluate(() => { const p = (window as any).__extentPoints; return p?.Right?.x - p?.Left?.x; });
     await expect.poll(async () => { const s = await span(); return s > 50 && s < width - 40; }).toBe(true);
-    await expect(page.getByRole('button', { name: 'Zoom to 100%', exact: true })).not.toHaveText('0%');
+    await expect(page.getByRole('button', { name: locale === 'pt' ? 'Zoom em 100%' : 'Zoom to 100%', exact: true })).not.toHaveText('0%');
     const edges = await page.evaluate(() => (window as any).__extentPoints);
     expect(edges.Left.left).toBeGreaterThan(24);
     expect(edges.Right.right).toBeLessThan(width - 24);
@@ -36,26 +37,26 @@ for (const width of [1440, 390]) {
     expect(edges.Right.x).toBeLessThan(width - 36);
     const initial = await span();
     await testInfo.attach(`large-fit-${width}`, { body: await page.screenshot(), contentType: 'image/png' });
-    await page.getByRole('button', { name: 'Zoom out', exact: true }).click();
+    await page.getByRole('button', { name: locale === 'pt' ? 'Reduzir zoom' : 'Zoom out', exact: true }).click();
     await expect.poll(async () => (await span()) / initial).toBeCloseTo(.8, 2);
-    await page.getByRole('button', { name: 'Zoom in', exact: true }).click();
+    await page.getByRole('button', { name: locale === 'pt' ? 'Ampliar zoom' : 'Zoom in', exact: true }).click();
     await expect.poll(async () => (await span()) / initial).toBeCloseTo(1, 2);
     const canvas = page.getByLabel('Floor plan editor canvas', { exact: true });
     const bounds = (await canvas.boundingBox())!;
     await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
     await page.mouse.wheel(0, 100);
     await expect.poll(async () => (await span()) / initial).toBeCloseTo(.9, 2);
-    await page.getByTitle('Zoom to Fit (F)', { exact: true }).first().press('Enter');
+    await page.getByTitle(locale === 'pt' ? 'Ajustar à tela (F)' : 'Zoom to Fit (F)', { exact: true }).first().press('Enter');
     await expect.poll(async () => (await span()) / initial).toBeCloseTo(1, 2);
     if (width < 768) {
-      await page.getByRole('button', { name: 'More actions', exact: true }).click();
-      await page.getByRole('button', { name: 'Zoom Out', exact: true }).click();
+      await page.getByRole('button', { name: locale === 'pt' ? 'Mais ações' : 'More actions', exact: true }).click();
+      await page.getByRole('button', { name: locale === 'pt' ? 'Reduzir' : 'Zoom Out', exact: true }).click();
       await expect.poll(async () => (await span()) / initial).toBeCloseTo(.8, 2);
-      await page.getByRole('button', { name: 'Zoom In', exact: true }).click();
+      await page.getByRole('button', { name: locale === 'pt' ? 'Ampliar' : 'Zoom In', exact: true }).click();
       await expect.poll(async () => (await span()) / initial).toBeCloseTo(1, 2);
-      await page.getByRole('button', { name: 'More actions', exact: true }).click();
+      await page.getByRole('button', { name: locale === 'pt' ? 'Mais ações' : 'More actions', exact: true }).click();
     }
-    for (let i = 0; i < 10; i++) await page.getByRole('button', { name: 'Zoom out', exact: true }).click();
+    for (let i = 0; i < 10; i++) await page.getByRole('button', { name: locale === 'pt' ? 'Reduzir zoom' : 'Zoom out', exact: true }).click();
     await expect.poll(async () => (await span()) / initial).toBeCloseTo(.25, 2);
   });
 }

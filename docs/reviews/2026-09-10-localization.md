@@ -443,3 +443,18 @@ Logs: `/tmp/web-visibility-localization-unit.log`,
 `/tmp/web-visibility-localization-check.log`, `/tmp/web-visibility-localization-build.log`,
 `/tmp/web-visibility-localization-browser-final.log`. Physical-device and the
 remaining canvas/editor translation work remain open.
+
+## Canvas zoom control labels
+
+Translated zoom/reset/fit/selection accessibility labels and shortcut hints,
+including the shared fit tooltip in the status strip. Camera calculations, zoom
+limits, percentage formatting and keyboard shortcuts are unchanged. The existing
+large-fit test now supports English and Portuguese.
+
+Five localization unit tests, zero-warning Svelte check and production build pass.
+Six Portuguese large-fit browser cases pass across three engines at 1440px/390px
+(36.3 seconds), verifying nonzero tiny zoom percentages, visible plan extents,
+zoom-button ratios, wheel zoom, fit restoration, compact-menu zoom and the minimum
+zoom bound. Selection-fit behavior and physical devices are not qualified by this
+run. Logs: `/tmp/web-canvas-zoom-unit.log`, `/tmp/web-canvas-zoom-check.log`,
+`/tmp/web-canvas-zoom-build.log`, `/tmp/web-canvas-zoom-browser.log`.

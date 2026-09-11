@@ -3067,3 +3067,11 @@ Five unit tests, zero-warning check, production build and six browser cases pass
 (57.5 seconds), including narrow-layout pointer access, room-label toggles and the
 disabled no-lower-floor option. Remaining canvas/editor strings and physical-device
 qualification stay open.
+
+### Canvas zoom localization — 2026-09-10
+
+Translated canvas zoom/reset/fit labels and shortcut hints without changing camera
+math or limits. Five unit tests, zero-warning check, production build and six
+Portuguese large-fit browser cases pass (36.3 seconds) across all engines and both
+widths, covering small zoom values, extents and zoom/fit restoration. Remaining
+canvas/editor localization and physical-device gates stay open.

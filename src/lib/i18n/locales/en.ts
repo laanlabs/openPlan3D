@@ -470,5 +470,15 @@ export const en = {
   "layerVisibility.dimensions": "Dimensions",
   "layerVisibility.below": "Floor Below",
   "layerVisibility.belowNamed": "Floor Below ({name})",
-  "layerVisibility.roomLabels": "Room Labels"
+  "layerVisibility.roomLabels": "Room Labels",
+  "canvasZoom.out": "Zoom out",
+  "canvasZoom.outHint": "Zoom Out (−)",
+  "canvasZoom.in": "Zoom in",
+  "canvasZoom.inHint": "Zoom In (+)",
+  "canvasZoom.reset": "Zoom to 100%",
+  "canvasZoom.resetHint": "Reset to 100%",
+  "canvasZoom.fit": "Zoom to fit",
+  "canvasZoom.fitHint": "Zoom to Fit (F)",
+  "canvasZoom.selection": "Fit selection",
+  "canvasZoom.selectionHint": "Fit Selection (Shift+F)"
 } as const;

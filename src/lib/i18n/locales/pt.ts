@@ -470,5 +470,15 @@ export const pt = {
   "layerVisibility.dimensions": "Dimensões",
   "layerVisibility.below": "Pavimento abaixo",
   "layerVisibility.belowNamed": "Pavimento abaixo ({name})",
-  "layerVisibility.roomLabels": "Nomes dos ambientes"
+  "layerVisibility.roomLabels": "Nomes dos ambientes",
+  "canvasZoom.out": "Reduzir zoom",
+  "canvasZoom.outHint": "Reduzir zoom (−)",
+  "canvasZoom.in": "Ampliar zoom",
+  "canvasZoom.inHint": "Ampliar zoom (+)",
+  "canvasZoom.reset": "Zoom em 100%",
+  "canvasZoom.resetHint": "Redefinir para 100%",
+  "canvasZoom.fit": "Ajustar à tela",
+  "canvasZoom.fitHint": "Ajustar à tela (F)",
+  "canvasZoom.selection": "Ajustar à seleção",
+  "canvasZoom.selectionHint": "Ajustar à seleção (Shift+F)"
 } as const;
