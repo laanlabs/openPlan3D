@@ -175,3 +175,19 @@ closure and focus restoration. Log: `/tmp/web-english-palette-integration.log`.
 These are a full-unit and targeted-browser baseline, not a full-browser, physical
 device or deployment qualification. Remaining localization and NEXT release gates
 are unchanged.
+
+## Saved version-history migration
+
+The saved version panel, toolbar/overflow entry points, relative times, empty
+state, restore/clear confirmations and panel-owned errors now use Portuguese or
+English. Snapshot descriptions and snapshot contents remain unchanged. Service
+validation messages remain original diagnostics pending their own migration.
+
+Validation: five localization unit tests pass, Svelte check has zero errors and
+warnings, and production build exits 0. Three 390-pixel browser cases pass across
+Chromium, Firefox and WebKit (24.5 seconds). They verify translated confirmation
+text, identical saved history after cancelling restore and clear, and actual
+restoration of the selected snapshot's project name and wall height through JSON
+export. Logs: `/tmp/web-versions-localization-unit.log`,
+`/tmp/web-versions-localization-check.log`, `/tmp/web-versions-localization-build.log`
+and `/tmp/web-versions-localization-browser.log`.

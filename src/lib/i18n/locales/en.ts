@@ -282,5 +282,19 @@ export const en = {
   "commandPalette.select": "select",
   "commandPalette.close": "close",
   "commandPalette.searchLabel": "Search commands",
-  "commandPalette.resultsLabel": "Commands"
+  "commandPalette.resultsLabel": "Commands",
+  "versions.title": "Version History",
+  "versions.close": "Close",
+  "versions.restore": "Restore",
+  "versions.clear": "Clear all versions",
+  "versions.backup": "Download version backup",
+  "versions.empty": "No snapshots yet.",
+  "versions.interval": "Versions are saved automatically every 5 minutes.",
+  "versions.restoreConfirm": "Restore this version? Current unsaved changes will be lost.",
+  "versions.clearConfirm": "Delete all version history for this project?",
+  "versions.clearFailed": "Could not clear version history. Allow site storage and try again.",
+  "versions.backupFailed": "Could not download version history.",
+  "versions.now": "Just now",
+  "versions.minutes": "{count} min ago",
+  "versions.hours": "{count}h ago"
 } as const;

@@ -282,5 +282,19 @@ export const pt = {
   "commandPalette.select": "selecionar",
   "commandPalette.close": "fechar",
   "commandPalette.searchLabel": "Pesquisar comandos",
-  "commandPalette.resultsLabel": "Comandos"
+  "commandPalette.resultsLabel": "Comandos",
+  "versions.title": "Histórico de versões",
+  "versions.close": "Fechar",
+  "versions.restore": "Restaurar",
+  "versions.clear": "Limpar todas as versões",
+  "versions.backup": "Baixar backup das versões",
+  "versions.empty": "Ainda não há versões salvas.",
+  "versions.interval": "As versões são salvas automaticamente a cada 5 minutos.",
+  "versions.restoreConfirm": "Restaurar esta versão? As alterações atuais não salvas serão perdidas.",
+  "versions.clearConfirm": "Excluir todo o histórico de versões deste projeto?",
+  "versions.clearFailed": "Não foi possível limpar o histórico de versões. Permita o armazenamento do site e tente novamente.",
+  "versions.backupFailed": "Não foi possível baixar o histórico de versões.",
+  "versions.now": "Agora mesmo",
+  "versions.minutes": "há {count} min",
+  "versions.hours": "há {count} h"
 } as const;

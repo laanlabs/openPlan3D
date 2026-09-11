@@ -2922,3 +2922,12 @@ All 936 web unit tests across 87 files pass at `31e263d` (21.68 seconds, exit 0)
 The existing English palette/modal-field flow passes in all three engines at
 1440 and 390 pixels (six cases, 46.4 seconds). This supplements the focused
 Portuguese checks; it does not close the remaining localization or release gates.
+
+### Saved version-history localization — 2026-09-10
+
+Translated the version panel, entry points, time labels, confirmations and
+panel-owned errors. Snapshot descriptions/data remain unchanged. Five localization
+unit tests, zero-warning Svelte check and production build pass. Three phone-width
+browser cases pass across all engines, verifying cancellation preserves history
+and confirmed restore recovers the selected project name and wall height.
+Service diagnostics and wider editor translation remain open.
