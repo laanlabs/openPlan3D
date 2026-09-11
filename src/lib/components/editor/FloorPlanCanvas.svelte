@@ -3323,6 +3323,11 @@
 
   function onKeyDown(e: KeyboardEvent) {
     if (hasOpenModal()) return;
+    if (e.target === canvas && (e.key === 'ContextMenu' || (e.key === 'F10' && e.shiftKey))) {
+      e.preventDefault();
+      openKeyboardContextMenu();
+      return;
+    }
     // This listener is on window, so field keystrokes reach it too. Keep every
     // canvas action (including Space, select/copy/paste and annotation deletion)
     // out of focused inputs; only the explicit Save shortcut is global there.
@@ -3637,6 +3642,46 @@
       measureEnd = null;
     }
     markDirty();
+  }
+
+  function openKeyboardContextMenu() {
+    const floor = currentFloor;
+    if (!floor) return;
+    ctxMenuTargetType = 'canvas';
+    ctxMenuTargetId = null;
+    ctxMenuFurniture = null;
+    ctxMenuWall = null;
+    ctxMenuRoom = null;
+    let anchor: Point | null = null;
+    // Use the selected element, not whatever happens to be under the pointer.
+    if (currentSelectedIds.size <= 1) {
+      const id = currentSelectedId ?? [...currentSelectedIds][0];
+      const furniture = floor.furniture.find(item => item.id === id);
+      const wall = floor.walls.find(item => item.id === id);
+      const door = floor.doors.find(item => item.id === id);
+      const win = floor.windows.find(item => item.id === id);
+      const room = detectedRooms.find(item => item.id === currentSelectedRoomId);
+      if (furniture) {
+        ctxMenuTargetType = 'furniture'; ctxMenuTargetId = furniture.id;
+        ctxMenuFurniture = furniture; anchor = furniture.position;
+      } else if (wall) {
+        ctxMenuTargetType = 'wall'; ctxMenuTargetId = wall.id;
+        ctxMenuWall = wall; anchor = wallPointAt(wall, .5);
+      } else if (door || win) {
+        const opening = (door ?? win)!;
+        ctxMenuTargetType = door ? 'door' : 'window'; ctxMenuTargetId = opening.id;
+        const owner = floor.walls.find(item => item.id === opening.wallId);
+        if (owner) anchor = wallPointAt(owner, opening.position);
+      } else if (room) {
+        ctxMenuTargetType = 'room'; ctxMenuTargetId = room.id; ctxMenuRoom = room;
+        anchor = roomLabelPosition(room, roomPolygons.get(room.id) ?? [], roomHolePolygons.get(room.id));
+      }
+    }
+    const rect = canvas.getBoundingClientRect();
+    const point = anchor ? worldToScreen(anchor.x, anchor.y) : { x: rect.width / 2, y: rect.height / 2 };
+    ctxMenuX = rect.left + Math.max(8, Math.min(rect.width - 8, point.x));
+    ctxMenuY = rect.top + Math.max(8, Math.min(rect.height - 8, point.y));
+    ctxMenuVisible = true;
   }
 
   function onContextMenu(e: MouseEvent) {

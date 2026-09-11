@@ -3613,3 +3613,18 @@ Check/build and six English/Portuguese Chromium/Firefox/WebKit cases pass (52.4
 seconds), including keyboard activation, Escape, viewport bounds and annotation
 save/reload/edit preservation. These tests open the menu with a pointer; native
 keyboard context-menu invocation and physical accessibility checks remain open.
+
+### Open context menus from the keyboard — 2026-09-11
+
+Shift+F10 and the Menu key now open a context menu from the focused canvas. The
+menu targets the selected supported element (or canvas for multi-selection),
+with its anchor clamped to the canvas. It does not depend on pointer position or
+place measurement points. A regression at 211fb0f could not find the wall menu
+after Shift+F10; the fixed checks pass.
+
+Check/build and 12 Chromium/Firefox/WebKit cases pass (1.4 minutes), covering
+selected-wall keyboard invocation with both keys, opening-safe split activation,
+Delete isolation and exact floor preservation, plus English/Portuguese canvas
+menus, keyboard activation, Escape/Tab dismissal and annotation persistence.
+Furniture/opening/room keyboard target branches and physical assistive-technology
+qualification remain to be exercised; broader NEXT scope stays open.

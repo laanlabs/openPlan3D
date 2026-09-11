@@ -74,12 +74,16 @@ for (const locale of ['en', 'pt']) test(`${locale}: requested annotation editing
   await page.keyboard.press('Escape');
   await expect(menu).toHaveCount(0);
   await expect(canvas).toBeFocused();
-  await canvas.click({ button: 'right', position: { x: bounds.width - 10, y: bounds.height - 40 } });
+  await canvas.press('Shift+F10');
   await expect(items.first()).toBeFocused();
   await page.keyboard.press('End');
   await page.keyboard.press('Enter');
   await expect(menu).toHaveCount(0);
   await expect(canvas).toBeFocused();
+  await canvas.press('ContextMenu');
+  await expect(items.first()).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(menu).toHaveCount(0);
   await page.getByRole('button', { name: locale === 'pt' ? 'Salvar' : 'Save', exact: true }).click();
   async function exported() {
     await page.getByRole('button', { name: locale === 'pt' ? 'Exportar' : 'Export', exact: true }).click();

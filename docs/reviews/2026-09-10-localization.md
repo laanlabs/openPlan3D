@@ -1465,3 +1465,21 @@ not independently exercised here. Full unit baseline remains the preceding 943
 passing tests; no new full unit run was needed for this component-only change.
 Logs: `/tmp/web-context-keyboard-repro.log`, `/tmp/web-context-keyboard-check.log`,
 `/tmp/web-context-keyboard-build.log`, `/tmp/web-context-keyboard-browser.log`.
+
+## Keyboard invocation of context menus — 2026-09-11
+
+At 211fb0f, Shift+F10 did not open the selected wall menu. FloorPlanCanvas now
+handles Shift+F10 and ContextMenu only when the canvas owns focus. It uses the
+selected furniture/wall/opening/room context, with a canvas fallback for groups
+or unsupported selection types, and clamps the anchor to canvas bounds. Unlike
+pointer measurement handling, keyboard invocation does not add a measurement.
+
+Check/build pass with zero Svelte diagnostics. Twelve browser cases pass across
+Chromium, Firefox and WebKit (1.4 minutes). Selected-wall tests exercise both keys,
+menu Delete isolation, keyboard activation of blocked splits and exact exported
+floor preservation. English/Portuguese canvas cases cover keyboard invocation,
+Enter activation and Escape/Tab dismissal alongside annotation save/reload/edit.
+Furniture/opening/room target branches and physical accessibility were not driven
+in this batch. Logs: `/tmp/web-context-invoke-repro.log`,
+`/tmp/web-context-invoke-check.log`, `/tmp/web-context-invoke-build.log`,
+`/tmp/web-context-invoke-browser.log`.

@@ -71,4 +71,18 @@ for (const kind of ['door', 'window']) test(`midpoint split explains and preserv
   expect(await exported()).toEqual(before);
   await notice.getByRole('button').click();
   await expect(notice).toHaveCount(0);
+  const canvas = page.getByLabel('Floor plan editor canvas', { exact: true });
+  await canvas.focus();
+  await canvas.press(kind === 'door' ? 'Shift+F10' : 'ContextMenu');
+  const menu = page.getByRole('menu');
+  const splitAction = menu.getByRole('menuitem', { name: '✂️ Dividir Parede', exact: true });
+  await expect(splitAction).toBeFocused();
+  // An editor Delete shortcut must not remove the selected wall behind a menu.
+  await page.keyboard.press('Delete');
+  await expect(menu).toBeVisible();
+  await splitAction.press('Enter');
+  await expect(menu).toHaveCount(0);
+  await expect(canvas).toBeFocused();
+  await expect(notice).toBeVisible();
+  expect(await exported()).toEqual(before);
 });
