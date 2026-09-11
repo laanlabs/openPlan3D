@@ -941,5 +941,12 @@ export const pt = {
   "editorRecovery.importing": "Importando captura do app iOS…",
   "editorRecovery.loading": "Carregando...",
   "editorRecovery.failed": "Falha ao importar captura",
-  "editorRecovery.dismiss": "Dispensar erro"
+  "editorRecovery.dismiss": "Dispensar erro",
+  "captureImport.network": "Erro de rede ao baixar a captura. Verifique sua conexão e tente novamente.",
+  "captureImport.missing": "O código de captura {code} não foi encontrado. Ele pode ter expirado — compartilhe novamente pelo app iOS.",
+  "captureImport.http": "Não foi possível baixar a captura (HTTP {status}).",
+  "captureImport.json": "A captura baixada não é um JSON válido.",
+  "captureImport.format": "O arquivo baixado não é uma exportação válida do RoomPlan.",
+  "captureImport.fallback": "Não foi possível importar a captura.",
+  "captureImport.code": "Código de importação inválido na URL."
 } as const;

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { t } from '$lib/i18n';
+  import { CaptureImportError } from '$lib/i18n/captureImportError';
   import { modalDialog, hasOpenModal } from '$lib/utils/modalDialog';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
@@ -53,7 +54,7 @@
 
   // iOS capture handoff (?import=CODE → fetch RoomPlan JSON from Firebase Storage inbox)
   let importingCapture = $state(false);
-  let importError = $state<string | null>(null);
+  let importError = $state<string | CaptureImportError | null>(null);
   let loadError = $state<string | null>(null);
 
   async function backupLibrary() {
@@ -70,22 +71,22 @@
       try {
         res = await fetch(url);
       } catch {
-        throw new Error('Network error while downloading the capture. Check your connection and try again.');
+        throw new CaptureImportError('captureImport.network');
       }
       if (res.status === 404) {
-        throw new Error(`Capture code ${code} was not found. It may have expired — share it again from the iOS app.`);
+        throw new CaptureImportError('captureImport.missing', { code });
       }
       if (!res.ok) {
-        throw new Error(`Failed to download the capture (HTTP ${res.status}).`);
+        throw new CaptureImportError('captureImport.http', { status: res.status });
       }
       let data: any;
       try {
         data = await res.json();
       } catch {
-        throw new Error('The downloaded capture is not valid JSON.');
+        throw new CaptureImportError('captureImport.json');
       }
       if (!isRoomPlanJson(data)) {
-        throw new Error('The downloaded file is not a valid RoomPlan export.');
+        throw new CaptureImportError('captureImport.format');
       }
       const project = createProjectFromRoomPlan(data, `Room Capture ${code}`);
       loadProject(project);
@@ -95,7 +96,7 @@
       replaceState(`${base}/editor?id=${project.id}`, page.state);
       return true;
     } catch (e: any) {
-      importError = e?.message ?? 'Failed to import capture.';
+      importError = e instanceof CaptureImportError ? e : e?.message ?? new CaptureImportError('captureImport.fallback');
       return false;
     } finally {
       importingCapture = false;
@@ -130,7 +131,7 @@
           }
           // Import failed — fall through to the normal load flow (error shown via toast)
         } else {
-          importError = 'Invalid import code in URL.';
+          importError = new CaptureImportError('captureImport.code');
         }
       }
 
@@ -491,7 +492,7 @@
     <svg class="w-5 h-5 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
     <div class="flex-1 text-sm">
       <p class="font-semibold">{$t('editorRecovery.failed')}</p>
-      <p>{importError}</p>
+      <p>{importError instanceof CaptureImportError ? $t(importError.key, importError.variables) : importError}</p>
     </div>
     <button class="text-red-400 hover:text-red-600 text-lg leading-none" onclick={() => importError = null} aria-label={$t('editorRecovery.dismiss')}>✕</button>
   </div>

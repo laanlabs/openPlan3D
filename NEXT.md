@@ -3446,3 +3446,11 @@ shell controls. Check/build, five localization unit tests and three browser case
 pass (22.3 seconds). Injected migration failure preserves exact backup bytes;
 retry opens the original project without duplication or saved-data changes.
 Service diagnostics, physical-device recovery and other release work remain open.
+
+### Capture import diagnostics localization — 2026-09-11
+
+Translated known capture-import errors with code/status parameters while retaining
+unexpected diagnostics. Check/build, five localization unit tests and three
+browser cases pass (35.8 seconds), each covering six routed failure paths and
+dismissal back to an available editor. Live handoff, physical-device and remaining
+release requirements stay open.

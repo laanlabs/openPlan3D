@@ -1183,3 +1183,18 @@ available afterward. Logs: `/tmp/web-editor-recovery-check.log`,
 `/tmp/web-editor-recovery-build.log`, `/tmp/web-editor-recovery-unit.log`,
 `/tmp/web-editor-recovery-browser.log`. Capture-network branches, physical-device
 recovery and remaining NEXT requirements stay open.
+
+## Capture import diagnostics localization
+
+Known capture-import failures now retain typed translation keys and parameters
+for rendering; their Error.message remains English and unexpected errors retain
+the original diagnostic. Stored project names and import recovery flow are
+unchanged. Production check reports zero errors/warnings; build and five
+localization unit tests pass. Three browser cases pass (35.8 seconds, exit 0),
+each exercising invalid code, network failure, 404, HTTP 503, malformed JSON and
+invalid RoomPlan content. Invalid codes make no capture request; routed failures
+show the expected Portuguese message, dismiss cleanly and leave Save visible.
+No live cloud download was used. Logs: `/tmp/web-capture-errors-check.log`,
+`/tmp/web-capture-errors-build.log`, `/tmp/web-capture-errors-unit.log`,
+`/tmp/web-capture-errors-browser.log`. Generic fallback/unknown-error branches,
+live handoff, physical-device and remaining NEXT requirements stay open.
