@@ -1,13 +1,14 @@
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
-test('Portuguese swing and midpoint split actions preserve openings and undo', async ({ page }) => {
+for (const curved of [false, true]) test(`Portuguese ${curved ? 'curved' : 'straight'} wall split preserves openings and undo`, async ({ page }) => {
   const plan = JSON.parse(await readFile('tests/fixtures/connected-dimensions.openplan.json', 'utf8'));
   const floor = plan.floors[0];
   floor.doors[0].position = .25;
   floor.windows[0].wallId = floor.walls[0].id;
   floor.windows[0].position = .75;
   floor.walls[0].startHeight = 250; floor.walls[0].endHeight = 350; floor.walls[0].height = 350;
+  if (curved) floor.walls[0].curvePoint = { x: 300.25, y: 100 };
   floor.groups = [{ id: 'wall-group', elementIds: [floor.walls[0].id, floor.walls[1].id] }];
   await page.addInitScript(() => localStorage.setItem('o3d_locale', 'pt'));
   await page.goto('/editor');
@@ -37,7 +38,11 @@ test('Portuguese swing and midpoint split actions preserve openings and undo', a
   const split = await exported();
   expect(split.walls).toHaveLength(original.walls.length + 1);
   const first = split.walls[0], second = split.walls.at(-1);
-  expect(first.end).toEqual({ x: 300.25, y: 0 });
+  expect(first.end).toEqual({ x: 300.25, y: curved ? 50 : 0 });
+  if (curved) {
+    expect(first.curvePoint).toEqual({ x: 150.125, y: 50 });
+    expect(second.curvePoint).toEqual({ x: 450.375, y: 50 });
+  }
   expect(second.start).toEqual(first.end); expect(second.end).toEqual(original.walls[0].end);
   expect([first.startHeight, first.endHeight, second.startHeight, second.endHeight]).toEqual([250,300,300,350]);
   expect(split.doors[0]).toEqual({ ...original.doors[0], position: .5 });

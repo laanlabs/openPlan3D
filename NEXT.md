@@ -163,7 +163,12 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
-Latest full web unit checkpoint: **955 tests across 90 files passed** at `f54d739`
+Latest full web unit checkpoint: **958 tests across 90 files passed** with curved
+wall splitting (3.65 seconds). Check/build and 12 wall-action browser cases pass
+across Chromium, Firefox and WebKit (54.4 seconds), including curved split controls,
+opening/room/group preservation, Undo/Redo and save/reopen. Device/release gates remain.
+
+Earlier full web unit checkpoint: **955 tests across 90 files passed** at `f54d739`
 (3.63 seconds). Three sloped-wall browser cases pass across Chromium, Firefox and
 WebKit (22.3 seconds), covering height edits, opening preservation, Undo/Redo,
 elevation, save/reload and stacked-3D entry. No runtime changes in this checkpoint;
@@ -498,15 +503,21 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
   and test room split/merge identity and schedules. Matching area totals are not
   yet an established cross-platform guarantee.
 
-  Straight-wall splitting now updates saved room references while retaining room
+  Straight and curved wall splitting now updates saved room references while retaining room
   identity, names and finishes. Unit cases include two rooms using different
   portions of a long wall; browser cases verify export, Undo/Redo and save/reopen.
   Dividing/merging rooms themselves remains separate work.
 
-  Splitting a grouped straight wall now keeps both child segments in the original
+  Splitting a grouped wall now keeps both child segments in the original
   group. Unit coverage checks group copying and exact Undo/Redo; three browser
   cases check membership, geometry and save/reopen (14.1 seconds). Group gesture
   behavior on physical devices remains to be qualified.
+
+  Curved walls now split through exact quadratic subdivision. Opening clearance
+  uses each child's curved path, and controls/heights/positions are remapped
+  without changing the underlying curve. The existing fixed facet count per wall
+  can yield a finer rendered approximation and slightly different estimated area
+  after subdivision. Physical gestures and pixel-level visual qualification remain.
 - **Building completeness:** implement slabs, stair voids and common roof forms.
   Floor elevations and variable endpoint wall heights already exist. Extend native
   editing/preview fidelity for curves, slopes, elevations, opening styles and

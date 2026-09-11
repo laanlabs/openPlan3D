@@ -2711,7 +2711,7 @@
     if (currentTool === 'select') {
       const wp = selectionPoint;
       const wall = findWallAt(wp);
-      if (wall && !wall.curvePoint) {
+      if (wall) {
         const t = positionOnWall(wp, wall);
         if (t > 0.05 && t < 0.95) {
           const newId = trySplitWall(wall.id, t);

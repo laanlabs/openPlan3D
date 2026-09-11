@@ -1,5 +1,7 @@
 import { selectionRotation } from '$lib/utils/selectionRotation';
 import { splitWallRoomReferences } from '$lib/utils/splitWallRooms';
+import { splitWallGeometry } from '$lib/utils/splitWallGeometry';
+import { wallPathProfile } from '$lib/utils/wallProfiles';
 import { duplicatePlanSelection, pastePlanSelection } from '$lib/utils/duplicateSelection';
 import { writable, derived, get } from 'svelte/store';
 import type { Project, Floor, Wall, Door, Window as Win, FurnitureItem, Point, Stair, Column, BackgroundImage, GuideLine, ElementGroup, EntourageItem } from '$lib/models/types';
@@ -1049,13 +1051,17 @@ export function wallSplitIntersectsOpening(id: string, t: number): boolean {
   const p = get(currentProject);
   const floor = p?.floors.find(f => f.id === p.activeFloorId);
   const wall = floor?.walls.find(w => w.id === id);
-  if (!floor || !wall || !Number.isFinite(t)) return false;
-  const length = Math.hypot(wall.end.x - wall.start.x, wall.end.y - wall.start.y);
-  const splitDistance = t * length;
-  return [...floor.doors, ...floor.windows].some(opening =>
-    opening.wallId === id &&
-    Math.abs(splitDistance - opening.position * length) < opening.width / 2 - 1e-7
-  );
+  if (!floor || !wall || !Number.isFinite(t) || t <= 0 || t >= 1) return false;
+  const geometry = splitWallGeometry(wall, t);
+  const first = wallPathProfile({ ...wall, ...geometry.first });
+  const second = wallPathProfile({ ...wall, ...geometry.second });
+  return [...floor.doors, ...floor.windows].some(opening => {
+    if (opening.wallId !== id) return false;
+    const clearance = opening.position <= t
+      ? first.length - first.distanceAt(opening.position / t)
+      : second.distanceAt((opening.position - t) / (1-t));
+    return clearance < opening.width / 2 - 1e-7;
+  });
 }
 
 /** Split a wall into two segments at a given parameter t (0-1) */
@@ -1065,14 +1071,12 @@ export function splitWall(id: string, t: number): string | null {
   const floor = p.floors.find((f) => f.id === p.activeFloorId);
   if (!floor) return null;
   const w = floor.walls.find((w) => w.id === id);
-  if (!w || w.curvePoint) return null; // don't split curved walls
+  if (!w) return null;
   if (!Number.isFinite(t) || t <= 0.001 || t >= 0.999) return null; // prevent division by zero at extremes
   if (wallSplitIntersectsOpening(id, t)) return null;
   snapshot('Split wall');
-  const midPt: Point = {
-    x: w.start.x + (w.end.x - w.start.x) * t,
-    y: w.start.y + (w.end.y - w.start.y) * t,
-  };
+  const geometry = splitWallGeometry(w, t);
+  const midPt = geometry.first.end;
   const startH = getWallStartHeight(w);
   const endH = getWallEndHeight(w);
   const midH = getWallHeightAt(w, t);
@@ -1081,6 +1085,7 @@ export function splitWall(id: string, t: number): string | null {
   // New wall from midpoint to original end
   floor.walls.push({
     ...w,
+    ...geometry.second,
     id: newId,
     start: { ...midPt },
     end: { ...w.end },
@@ -1105,6 +1110,7 @@ export function splitWall(id: string, t: number): string | null {
     }
   }
   w.end = { ...midPt };
+  if (geometry.first.curvePoint) w.curvePoint = geometry.first.curvePoint;
   w.startHeight = startH;
   w.endHeight = midH;
   w.height = Math.max(startH, midH);

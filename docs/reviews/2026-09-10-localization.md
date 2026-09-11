@@ -1694,3 +1694,29 @@ were observed. The 3D portion checks workflow entry, not pixel-perfect geometry.
 No runtime changes were needed. Logs: `/tmp/web-wall-height-integration-unit.log`
 and `/tmp/web-wall-height-integration-browser.log`. Remaining NEXT requirements,
 including physical-device and native release qualification, remain open.
+
+## Curved wall splitting — 2026-09-11
+
+The store previously rejected every curved-wall split. It now subdivides the
+quadratic path exactly with interpolated control points, remaps opening parameters
+and sloped endpoint heights, and preserves group and saved-room references. Room
+reference matching uses the original wall facets, including partial boundaries.
+Opening clearance is evaluated on the proposed child paths so width checks follow
+curve distance rather than chord distance. Toolbar, context-menu and double-click
+entry points share the supported store operation.
+
+All 958 unit tests across 90 files pass (3.65 seconds). New cases compare sampled
+points along the original and subdivided curves, heights, opening fields, metadata
+and Undo; door/window guards distinguish chord distance from curve distance.
+Check/build pass with zero Svelte diagnostics. Twelve Portuguese browser cases
+pass across Chromium, Firefox and WebKit (54.4 seconds), including straight and
+curved splits, control points, openings, room/group references, Undo/Redo and
+save/reopen. Browser curved-split activation uses the floating toolbar; the shared
+context-menu/double-click paths and physical gestures were not separately driven.
+
+The analytic curve remains exact, but each child gets the viewer's fixed facet
+count, so rendered approximation and calculated polygon area can become finer.
+Pixel-level 3D and physical-device qualification remain open.
+Logs: `/tmp/web-curve-split-repro.log`, `/tmp/web-curve-split-all-unit.log`,
+`/tmp/web-curve-split-check.log`, `/tmp/web-curve-split-build.log`,
+`/tmp/web-curve-split-browser.log`.
