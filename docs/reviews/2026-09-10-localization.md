@@ -383,3 +383,27 @@ These checks supplement the Portuguese coverage for the export/view/floor/save
 controls. Logs: `/tmp/web-toolbar-full-unit.log` and
 `/tmp/web-toolbar-english-integration.log`. Remaining panels, raw diagnostics,
 fluent-speaker review and physical-device qualification remain open.
+
+## Layers item list
+
+Translated category headings, generated element descriptions (including opening
+types, stair direction, column shape and guide orientation), visibility tooltips,
+empty states and room selection labels. User room/note/annotation text and catalog
+names remain intact; catalog-name localization remains open.
+
+Five localization unit tests, zero-warning Svelte check and production build pass.
+Six browser cases pass across all engines at 1440px/390px (59.1 seconds), opening
+the item list through the existing L shortcut, toggling visibility by keyboard,
+selecting a hidden wall to reveal it, selecting a literal-brace text note, and
+verifying exported floor equality. Logs: `/tmp/web-layers-unit.log`,
+`/tmp/web-layers-check.log`, `/tmp/web-layers-build.log`,
+`/tmp/web-layers-browser-keyboard.log`.
+
+Initial test entry points were incorrect: the desktop Layers button is hidden on
+phones, and the canvas Layers control opens a separate visibility popover. The
+second run additionally reproduced that canvas button being overlapped by the
+zoom controls at 390px: the disabled Fit selection button intercepted clicks in
+Chromium. Logs `/tmp/web-layers-browser.log` and
+`/tmp/web-layers-browser-final.log` preserve those failures. The successful test
+is keyboard/list coverage, not evidence of touch access. Fixing the overlap and
+providing clear touch access to the item list remain open.

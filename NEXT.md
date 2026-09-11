@@ -3034,3 +3034,17 @@ language changes immediately. Five localization unit tests, zero-warning check,
 production build and six browser cases pass, including storage-failure backup,
 retry, persisted edits and deployment recovery. Raw storage diagnostics, remaining
 editor localization and device/release gates stay open.
+
+### Layers localization and reproduced phone control overlap — 2026-09-10
+
+Layers item-list labels are translated. Five unit tests, zero-warning check,
+production build and six browser cases pass, using the L shortcut at both widths
+to verify visibility/selection and exported-data preservation. Catalog names
+and the separate canvas visibility popover remain untranslated.
+
+**Open touch issue:** at 390px, clicking the canvas “Layers” control is blocked
+by the floating zoom toolbar (Fit selection intercepts the click in Chromium).
+The item-list toggle is desktop-only; its keyboard shortcut works on the narrow
+layout but does not establish touch access. Fix control overlap and make item-list
+access clear on touch devices; verify real clicks without force or DOM dispatch.
+See the localization record for failed/successful run evidence.
