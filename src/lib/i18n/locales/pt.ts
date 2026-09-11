@@ -1088,5 +1088,14 @@ export const pt = {
   "projectService.newId": "Não foi possível escolher um novo identificador para o projeto. Tente abrir o arquivo novamente.",
   "projectService.changed": "Sua planta mudou durante a preparação para abrir outra. Tente novamente para salvar primeiro as alterações mais recentes.",
   "projectService.newFailed": "Não foi possível abrir um novo projeto.",
-  "projectService.fileFailed": "Não foi possível ler este arquivo."
+  "projectService.fileFailed": "Não foi possível ler este arquivo.",
+  "projectService.backupJSON": "Este backup não contém JSON legível. Nenhum projeto foi restaurado.",
+  "projectService.backupFile": "Escolha um arquivo JSON de backup da biblioteca. Nenhum projeto foi restaurado.",
+  "projectService.backupVersion": "Esta versão do backup da biblioteca não é compatível. Nenhum projeto foi restaurado.",
+  "projectService.backupProjects": "A biblioteca de projetos deve conter identificadores de projetos e texto salvo. Nenhum projeto foi restaurado.",
+  "projectService.backupThumbnails": "As miniaturas devem conter identificadores de projetos e texto salvo. Nenhum projeto foi restaurado.",
+  "projectService.backupHistory": "O histórico de versões deve conter identificadores de projetos e texto salvo. Nenhum projeto foi restaurado.",
+  "projectService.backupRecovery": "Os arquivos de recuperação devem conter identificadores de projetos e texto salvo. Nenhum projeto foi restaurado.",
+  "projectService.backupEmpty": "Este backup não contém projetos nem dados de recuperação.",
+  "projectService.backupRepeatedKey": "Este backup repete a chave “{key}”. Nenhum projeto foi restaurado.",
 } as const;

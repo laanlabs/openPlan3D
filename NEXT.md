@@ -163,6 +163,15 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+Library-backup validation now translates malformed JSON, unsupported versions,
+invalid saved-text sections, empty-backup errors and duplicate-key diagnostics.
+Literal key contents remain unchanged. Fifteen service-message unit cases and five
+dictionary checks pass, along with zero Svelte diagnostics, the production build
+and nine transfer browser cases across three engines (1.7 minutes). Rejected
+uploads retain their original downloads and leave project/history records intact.
+This is scoped post-audit verification; package-specific validation and preview
+warnings remain open. See the localization integration record for evidence.
+
 Restore-library and project-package dialogs now translate known storage failures
 together with their retry guidance at display time. Unknown diagnostic details
 remain intact. Six focused unit cases, zero-error/warning Svelte checking, the
@@ -177,7 +186,7 @@ evidence: **1,059 distinct cases, 353 per engine**. The final inventory comparis
 found no missing or extra cases. This aggregates staged runs and focused
 follow-ups across the documented runtime versions; it is not one uninterrupted
 full-suite result. See [the audit report](docs/reviews/2026-09-11-browser-audit.md)
-for provenance and limits. The latest source also has 987 passing unit tests,
+for provenance and limits. That audit checkpoint also has 987 passing unit tests,
 zero Svelte diagnostics and a successful production build. Physical-device,
 native, performance, usability and release/cost gates remain open.
 The paragraphs below retain earlier checkpoints and their then-pending counts.

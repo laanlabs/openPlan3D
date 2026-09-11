@@ -6,6 +6,9 @@ const keys: ServiceKey[] = [
   'projectService.storageFailed', 'projectService.conflict',
   'projectService.openRetry', 'projectService.newId', 'projectService.changed',
   'projectService.newFailed', 'projectService.fileFailed',
+  'projectService.backupJSON', 'projectService.backupFile', 'projectService.backupVersion',
+  'projectService.backupProjects', 'projectService.backupThumbnails',
+  'projectService.backupHistory', 'projectService.backupRecovery', 'projectService.backupEmpty',
 ];
 const messages = new Map(keys.map(key => [translate('en', key), key]));
 const outcomes = (['welcome.noImport', 'restore.retry', 'package.retry'] as const)
@@ -19,6 +22,8 @@ export function projectServiceMessage(message: string, language: Locale): string
   const unsaved = body.startsWith(`${prefix} `);
   const detail = unsaved ? body.slice(prefix.length + 1) : body;
   const key = messages.get(detail);
-  const localized = key ? translate(language, key) : detail;
+  const repeatedKey = /^This backup repeats the key “([\s\S]*)”\. No projects were restored\.$/.exec(detail);
+  const localized = key ? translate(language, key) : repeatedKey
+    ? translate(language, 'projectService.backupRepeatedKey', { key: repeatedKey[1] }) : detail;
   return `${unsaved ? `${translate(language, 'projectService.openUnsaved')} ` : ''}${localized}${suffix ? ` ${translate(language, suffix.key)}` : ''}`;
 }

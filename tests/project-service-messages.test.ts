@@ -2,8 +2,38 @@ import { describe, expect, it } from 'vitest';
 import { projectServiceMessage } from '../src/lib/i18n/projectServiceMessages';
 import { storageErrorMessage, ProjectConflictError } from '../src/lib/services/datastore';
 import { translate } from '../src/lib/i18n';
+import { prepareLibraryRestore } from '../src/lib/services/libraryRestore';
 
 describe('project service diagnostics', () => {
+  it.each([
+    ['{', 'backupJSON'], ['[]', 'backupFile'],
+    [JSON.stringify({ format: 'openplan3d-library', version: 2 }), 'backupVersion'],
+    ...(['projects', 'thumbnails', 'history', 'recovery'] as const).map((field, index) => [
+      JSON.stringify({ format: 'openplan3d-library', version: 1, projects: {}, [field]: [] }),
+      ['backupProjects', 'backupThumbnails', 'backupHistory', 'backupRecovery'][index],
+    ]),
+  ])('translates actual backup validation failures: %s', (raw, key) => {
+    let message = '';
+    try { prepareLibraryRestore(raw); } catch (error) { message = (error as Error).message; }
+    expect(message).not.toBe('');
+    expect(projectServiceMessage(message, 'en')).toBe(message);
+    expect(projectServiceMessage(message, 'pt')).toBe(translate('pt', `projectService.${key}` as Parameters<typeof translate>[1]));
+  });
+
+  it('preserves literal repeated keys while translating the actual validation failure', () => {
+    const key = '{key}\n<unsafe> “quoted”';
+    let message = '';
+    try { prepareLibraryRestore(`{${JSON.stringify(key)}:"one",${JSON.stringify(key)}:"two"}`); }
+    catch (error) { message = (error as Error).message; }
+    expect(projectServiceMessage(message, 'pt')).toBe(`Este backup repete a chave “${key}”. Nenhum projeto foi restaurado.`);
+    expect(projectServiceMessage(message, 'en')).toBe(message);
+  });
+
+  it('translates empty backup rejection before any database write', async () => {
+    const error = await prepareLibraryRestore('{}').restore().catch(error => error as Error);
+    expect(error).toBeInstanceOf(Error);
+    expect(projectServiceMessage((error as Error).message, 'pt')).toBe('Este backup não contém projetos nem dados de recuperação.');
+  });
   it.each(['restore.retry', 'package.retry'] as const)('translates the cause and %s outcome without losing unknown details', key => {
     const cause = storageErrorMessage({ name: 'QuotaExceededError' });
     for (const sourceLocale of ['en', 'pt'] as const) {

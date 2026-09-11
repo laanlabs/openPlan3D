@@ -1088,5 +1088,14 @@ export const en = {
   "projectService.newId": "Could not choose a new project ID. Try opening the file again.",
   "projectService.changed": "Your plan changed while preparing to open another one. Try again so the latest edits can be saved first.",
   "projectService.newFailed": "Could not open a new project.",
-  "projectService.fileFailed": "Could not read this file."
+  "projectService.fileFailed": "Could not read this file.",
+  "projectService.backupJSON": "This backup is not readable JSON. No projects were restored.",
+  "projectService.backupFile": "Choose a library backup JSON file. No projects were restored.",
+  "projectService.backupVersion": "This library backup version is not supported. No projects were restored.",
+  "projectService.backupProjects": "The project library must contain project IDs and saved text. No projects were restored.",
+  "projectService.backupThumbnails": "Thumbnails must contain project IDs and saved text. No projects were restored.",
+  "projectService.backupHistory": "Version history must contain project IDs and saved text. No projects were restored.",
+  "projectService.backupRecovery": "Recovery archives must contain project IDs and saved text. No projects were restored.",
+  "projectService.backupEmpty": "This backup contains no projects or recovery data.",
+  "projectService.backupRepeatedKey": "This backup repeats the key “{key}”. No projects were restored.",
 } as const;

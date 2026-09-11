@@ -2210,3 +2210,26 @@ Logs: `/tmp/web-transfer-diagnostics-unit.log`,
 This runtime change follows the completed staged audit and has scoped verification;
 the prior audit must not be represented as a fresh full run of this source.
 Other validation messages, preview warnings and physical-device usability remain open.
+
+### 2026-09-11: Library-backup validation diagnostics
+
+The shared display translator now recognizes all fatal library-backup validation
+messages: malformed JSON, wrong root type, unsupported version, invalid projects,
+thumbnails, history or recovery maps, empty content and repeated keys. Repeated
+keys retain literal braces, quotes, newlines and markup-like text through single-pass
+substitution. Unknown diagnostic strings remain unchanged; service validation and
+stored data are unchanged.
+
+Fifteen service-message unit cases pass, including errors produced by the actual
+restore validator, plus five dictionary tests. Svelte checking reports zero errors
+and warnings, and the production build passes. Nine transfer browser cases pass
+across Chromium, Firefox and WebKit (1.7 minutes). The new phone case uploads three
+invalid backups sequentially, verifies Portuguese errors and disabled restoration,
+downloads each original unchanged, and compares saved project/history records.
+Existing quota-failure/retry cases also pass for both transfer dialogs.
+
+Logs: `/tmp/web-backup-validation-unit.log`, `/tmp/web-backup-dictionary-unit.log`,
+`/tmp/web-backup-validation-check.log`, `/tmp/web-backup-validation-build.log`,
+`/tmp/web-backup-validation-browser.log`. This is scoped verification after the
+staged browser audit, not a fresh full-suite run. Package-specific diagnostics,
+preview warnings and physical-device review remain open.
