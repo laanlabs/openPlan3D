@@ -391,7 +391,9 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
   quality. Current finishes are visual controls, not physical material simulation.
 - **Localization and usability:** revive English/Portuguese localization from
   closed community [PR #15](https://github.com/laanlabs/openPlan3D/pull/15) as a
-  focused string-system change. Recheck first-use navigation, dense toolbars,
+  focused string-system change. The typed store and Settings shell are now migrated;
+  broader interface and nested Settings panels remain open. See the
+  [localization record](docs/reviews/2026-09-10-localization.md). Recheck first-use navigation, dense toolbars,
   readable labels, accessibility and touch property editing. Earlier interaction
   fixes are already merged; reproduce any remaining problem before changing them.
 
@@ -2841,3 +2843,12 @@ including PNG/JPEG package round trips. Original metadata/transparency and sourc
 resolution are preserved; larger package sizes, other-format conversion and
 physical-device peak memory remain open. See native
 `docs/native-trace-preview-pixels.md`. No new picker UI qualification is claimed.
+
+### English/Portuguese string system — 2026-09-10
+
+Added typed reactive translations and a persisted Settings language selector,
+adapting the relevant community PR #15 strings. Language changes preserve dialog
+identity/focus and initialize after hydration. Four unit tests, zero-warning
+Svelte check, production build and all three browser-engine cases passed.
+The remaining interface, nested settings panels, Portuguese review and device
+coverage are still open; see `docs/reviews/2026-09-10-localization.md`.
