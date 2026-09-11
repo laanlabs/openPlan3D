@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
-for (const kind of ['door', 'window']) test(`dropping a ${kind} uses the curved wall path and supports Undo`, async ({ page }) => {
+for (const method of ['drop', 'click']) for (const kind of ['door', 'window']) test(`${method} a ${kind} uses the curved wall path and supports Undo`, async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('o3d_locale', 'pt'));
   const plan = JSON.parse(await readFile('tests/fixtures/connected-dimensions.openplan.json', 'utf8'));
   const floor = plan.floors[0];
@@ -23,7 +23,9 @@ for (const kind of ['door', 'window']) test(`dropping a ${kind} uses the curved 
   const canvas = page.getByLabel('Floor plan editor canvas', { exact: true });
   const bounds = (await canvas.boundingBox())!;
   const card = page.getByRole('button', { name: kind === 'door' ? 'Simples 90cm de abrir' : 'Fixa 100×100cm', exact: true });
-  await card.dragTo(canvas, { targetPosition: { x: bounds.width / 2, y: bounds.height / 2 + 150 } });
+  const position = { x: bounds.width / 2, y: bounds.height / 2 + 150 };
+  if (method === 'drop') await card.dragTo(canvas, { targetPosition: position });
+  else { await card.click(); await canvas.click({ position }); await canvas.press('Escape'); }
   const placed = await exported(), key = kind === 'door' ? 'doors' : 'windows';
   expect(placed[0][key]).toHaveLength(1);
   expect(placed[0][key][0]).toMatchObject({ wallId: floor.walls[0].id, type: kind === 'door' ? 'single' : 'fixed' });

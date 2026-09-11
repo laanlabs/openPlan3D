@@ -163,7 +163,14 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
-Latest full web unit checkpoint: **976 tests across 92 files passed** with curved
+Latest full web unit checkpoint: **983 tests across 93 files passed** with continuous
+curved-wall hit testing and opening positioning (3.82 seconds). Exact-path
+projection replaces the 20/40-point sampling used for selection and placement.
+Fifteen browser cases pass across all three engines (54.1 seconds), covering
+curved opening click/drop, Undo/Redo and curved split persistence. Check/build
+pass with zero Svelte diagnostics. Physical gesture/performance qualification remains.
+
+Earlier full web unit checkpoint: **976 tests across 92 files passed** with curved
 door/window drag placement (3.84 seconds). Drops now use the closest point on the
 quadratic wall path instead of the endpoint chord, retaining the endpoint margin
 and drop radius. Nine browser cases pass across all three engines (21.9 seconds),

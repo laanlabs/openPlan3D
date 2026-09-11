@@ -11,6 +11,7 @@ import { getFurnitureSize } from '$lib/utils/furnitureCatalog';
 import { getRoomPolygon, roomLabelPosition } from '$lib/utils/roomDetection';
 import { wallPointAt, wallTangentAt } from '$lib/utils/canvasRenderer';
 import type { HandleType } from '$lib/utils/canvasInteraction';
+import { projectOntoWall } from './wallProjection';
 
 export function pointInPolygon(p: Point, poly: Point[]): boolean {
   let inside = false;
@@ -34,14 +35,7 @@ export function pointToSegmentDist(p: Point, a: Point, b: Point): number {
 
 export function positionOnWall(p: Point, w: Wall): number {
   if (w.curvePoint) {
-    let bestT = 0.5, bestDist = Infinity;
-    for (let i = 0; i <= 40; i++) {
-      const t = i / 40;
-      const pt = wallPointAt(w, t);
-      const d = Math.hypot(p.x - pt.x, p.y - pt.y);
-      if (d < bestDist) { bestDist = d; bestT = t; }
-    }
-    return Math.max(0.1, Math.min(0.9, bestT));
+    return projectOntoWall(p, w, .1, .9)?.position ?? .5;
   }
   const dx = w.end.x - w.start.x, dy = w.end.y - w.start.y;
   const len2 = dx * dx + dy * dy;
@@ -53,10 +47,8 @@ export function findWallAt(p: Point, walls: Wall[], zoom: number): Wall | null {
   const threshold = 15 / zoom;
   for (const w of walls) {
     if (w.curvePoint) {
-      for (let i = 0; i <= 20; i++) {
-        const pt = wallPointAt(w, i / 20);
-        if (Math.hypot(p.x - pt.x, p.y - pt.y) < threshold + w.thickness / 2) return w;
-      }
+      const projected = projectOntoWall(p, w);
+      if (projected && projected.distance < threshold + w.thickness / 2) return w;
     } else {
       if (pointToSegmentDist(p, w.start, w.end) < threshold) return w;
     }

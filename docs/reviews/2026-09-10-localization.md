@@ -1844,3 +1844,21 @@ broader geometry/render qualification remain separate.
 Logs: `/tmp/web-curved-drop-repro.log`, `/tmp/web-curved-drop-all-unit.log`,
 `/tmp/web-curved-drop-check.log`, `/tmp/web-curved-drop-build.log`,
 `/tmp/web-curved-drop-browser.log`.
+
+### 2026-09-11: Continuous curved-wall selection and opening positions
+
+Unit reproductions showed clicks on long curves missed between the old 20 sample
+points at normal/high zoom, while opening positions snapped to a 40-point grid.
+The quadratic projection helper now serves hit testing, opening positioning and
+drop placement. The original curve hit radius and placement endpoint limits remain.
+Straight-wall hit testing retains its existing segment calculation.
+
+All 983 unit tests across 93 files pass (3.82 seconds), including off-grid curve
+points at two zoom levels, continuous parameters and hit-radius/endpoint limits.
+Fifteen browser cases pass across Chromium, Firefox and WebKit (54.1 seconds),
+covering door/window click/drop, exact Undo/Redo and the existing curved split
+save/reopen workflow. Check/build pass with zero Svelte diagnostics. Physical
+gestures and sustained editing performance remain separate qualification work.
+Logs: `/tmp/web-curve-hit-repro.log`, `/tmp/web-curve-hit-all-unit.log`,
+`/tmp/web-curve-hit-check.log`, `/tmp/web-curve-hit-build.log`,
+`/tmp/web-curve-hit-browser.log`.
