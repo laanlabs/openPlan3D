@@ -501,5 +501,15 @@ export const pt = {
   "projectToolbar.redo": "Refazer",
   "projectToolbar.redoHint": "Refazer (Ctrl+Y)",
   "projectToolbar.openError": "Não foi possível abrir a planta",
-  "projectToolbar.packageError": "Não foi possível exportar o pacote"
+  "projectToolbar.packageError": "Não foi possível exportar o pacote",
+  "canvasHints.pick": "Clique em uma parede para ver sua elevação — Esc para cancelar",
+  "canvasHints.pickTouch": "Toque em uma parede para ver sua elevação",
+  "canvasHints.start": "Comece a criar sua planta baixa",
+  "canvasHints.draw": "Desenhe paredes com",
+  "canvasHints.drag": "ou arraste itens da barra lateral",
+  "canvasHints.room": "Nome do ambiente",
+  "canvasHints.dimension": "Rótulo da dimensão (opcional)",
+  "canvasHints.distance": "Deixe vazio para usar a distância medida",
+  "canvasHints.annotation": "Texto da anotação",
+  "canvasHints.minimap": "Minimapa da planta baixa"
 } as const;

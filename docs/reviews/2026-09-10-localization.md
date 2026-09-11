@@ -505,3 +505,18 @@ Portuguese deployment/back-navigation protection and recovery. This run checks
 undo/redo labels, not a new undo/redo behavioral qualification. Logs:
 `/tmp/web-project-toolbar-unit.log`, `/tmp/web-project-toolbar-check.log`,
 `/tmp/web-project-toolbar-build.log`, `/tmp/web-project-toolbar-browser.log`.
+
+## Canvas guidance and inline editor labels
+
+Translated empty-plan drawing guidance, desktop/phone elevation-picking hints,
+room/text annotation input labels, dimension label/placeholder and minimap
+accessibility label. Existing keyboard keys, editor handlers and stored user text
+are unchanged.
+
+Five localization unit tests, zero-warning Svelte check and production build pass.
+Six browser cases pass across all engines at both widths (30.5 seconds), verifying
+Portuguese empty guidance, entering/canceling elevation-pick mode, drawing a wall,
+hiding empty guidance and downloading exactly one wall. Inline text-edit behavior
+is not newly qualified by this focused run. Logs:
+`/tmp/web-canvas-hints-unit.log`, `/tmp/web-canvas-hints-check.log`,
+`/tmp/web-canvas-hints-build.log`, `/tmp/web-canvas-hints-browser.log`.

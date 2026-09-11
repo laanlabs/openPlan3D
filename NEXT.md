@@ -3101,3 +3101,10 @@ headings. Five unit tests, zero-warning check, production build and six browser
 cases pass (36.4 seconds), verifying preserved names, backup/retry and guarded
 back-navigation. Raw diagnostics, remaining editor panels and device/release
 requirements stay open.
+
+### Canvas guidance localization — 2026-09-10
+
+Translated empty-plan/elevation-picking guidance and inline editor labels. Five
+unit tests, zero-warning check, production build and six browser cases pass
+(30.5 seconds), including drawing a real wall and canceling elevation picking at
+both widths. Remaining editor strings and physical-device gates remain open.

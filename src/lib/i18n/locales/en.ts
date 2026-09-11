@@ -501,5 +501,15 @@ export const en = {
   "projectToolbar.redo": "Redo",
   "projectToolbar.redoHint": "Redo (Ctrl+Y)",
   "projectToolbar.openError": "Couldn’t open plan",
-  "projectToolbar.packageError": "Couldn’t export package"
+  "projectToolbar.packageError": "Couldn’t export package",
+  "canvasHints.pick": "Click a wall to view its elevation — Esc to cancel",
+  "canvasHints.pickTouch": "Tap a wall to view its elevation",
+  "canvasHints.start": "Start building your floor plan",
+  "canvasHints.draw": "Draw walls with",
+  "canvasHints.drag": "or drag items from the sidebar",
+  "canvasHints.room": "Room name",
+  "canvasHints.dimension": "Dimension label (optional)",
+  "canvasHints.distance": "Leave empty for measured distance",
+  "canvasHints.annotation": "Annotation text",
+  "canvasHints.minimap": "Floor plan minimap"
 } as const;

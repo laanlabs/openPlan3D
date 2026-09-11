@@ -3889,8 +3889,8 @@
   {#if pickingElevation}
     <div class="absolute top-3 left-1/2 -translate-x-1/2 z-30 bg-slate-800/90 text-white text-xs font-medium px-3.5 py-1.5 rounded-full shadow-lg pointer-events-none flex items-center gap-1.5">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9H3z"/><rect x="10" y="14" width="4" height="6"/><rect x="5.5" y="13" width="3" height="3"/></svg>
-      <span class="max-md:hidden">Click a wall to view its elevation — Esc to cancel</span>
-      <span class="md:hidden">Tap a wall to view its elevation</span>
+      <span class="max-md:hidden">{$t('canvasHints.pick')}</span>
+      <span class="md:hidden">{$t('canvasHints.pickTouch')}</span>
     </div>
   {/if}
   <!-- Inline room name editor -->
@@ -3899,7 +3899,7 @@
       type="text"
       class="absolute bg-white border-2 border-blue-500 rounded px-2 py-1 text-sm text-center shadow-lg outline-none"
       style="left: {editingRoomPos.x}px; top: {editingRoomPos.y}px; transform: translate(-50%, -50%); z-index: 20; min-width: 100px;"
-      aria-label="Room name"
+      aria-label={$t('canvasHints.room')}
       value={editingRoomName}
       oninput={(e) => { editingRoomName = (e.target as HTMLInputElement).value; }}
       onkeydown={(e) => {
@@ -3923,11 +3923,11 @@
   {/if}
   {#if editingDimensionId}
     <div class="absolute top-14 left-1/2 -translate-x-1/2 z-20 rounded-lg border border-blue-300 bg-white p-3 shadow-lg">
-      <label class="block text-xs text-gray-600" for="dimension-label">Dimension label (optional)</label>
+      <label class="block text-xs text-gray-600" for="dimension-label">{$t('canvasHints.dimension')}</label>
       <input
         id="dimension-label"
         class="mt-1 w-60 max-w-[70vw] rounded border border-gray-300 px-2 py-1 text-sm outline-blue-500"
-        placeholder="Leave empty for measured distance"
+        placeholder={$t('canvasHints.distance')}
         bind:value={dimensionLabel}
         use:focusInlineEditor
         onkeydown={(event) => {
@@ -3944,7 +3944,7 @@
       type="text"
       class="absolute bg-white border-2 border-blue-500 rounded px-2 py-1 text-sm text-center shadow-lg outline-none"
       style="left: {editingTextAnnotationPos.x}px; top: {editingTextAnnotationPos.y}px; transform: translate(-50%, -50%); z-index: 20; min-width: 120px;"
-      aria-label="Annotation text"
+      aria-label={$t('canvasHints.annotation')}
       value={editingTextAnnotationValue}
       oninput={(e) => { editingTextAnnotationValue = (e.target as HTMLInputElement).value; }}
       onkeydown={(e) => {
@@ -3991,8 +3991,8 @@
     <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
       <div class="text-center opacity-60">
         <div class="text-5xl mb-3">🏠</div>
-        <div class="text-sm font-medium text-gray-500">Start building your floor plan</div>
-        <div class="text-xs text-gray-400 mt-1">Draw walls with <span class="font-mono bg-gray-100 px-1 rounded">W</span> or drag items from the sidebar</div>
+        <div class="text-sm font-medium text-gray-500">{$t('canvasHints.start')}</div>
+        <div class="text-xs text-gray-400 mt-1">{$t('canvasHints.draw')} <span class="font-mono bg-gray-100 px-1 rounded">W</span> {$t('canvasHints.drag')}</div>
       </div>
     </div>
   {/if}
@@ -4000,7 +4000,7 @@
   {#if showMinimap && currentFloor && hasPlanContent(currentFloor)}
     <canvas
       bind:this={minimapCanvas}
-      aria-label="Floor plan minimap"
+      aria-label={$t('canvasHints.minimap')}
       width="180"
       height="120"
       class="absolute bottom-10 right-2 rounded-lg shadow-lg border border-gray-300 cursor-crosshair bg-white max-md:hidden"
