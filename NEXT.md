@@ -1269,6 +1269,15 @@ interactions. Check/build and three Portuguese browser cases pass (13.1 seconds)
 verifying redo after reapplying a color, dimensions, rotation/mirroring, appearance
 reset and retained item details. Other item types and physical qualification remain.
 
+### Wall coordinate history and uniform height — 2026-09-11
+
+Equivalent start/end/curve coordinates now skip wall snapshots. Explicit uniform
+height updates still flatten a slope when the requested height equals the stored
+maximum; that is a geometry change, not an unchanged edit. Two regressions
+reproduced endpoint-history loss and skipped flattening. All 43 focused wall unit
+cases, check/build and three Portuguese wall-control browser cases pass (16.3
+seconds). Physical interaction and the broader NEXT scope remain open.
+
 ### Minimap for object-only content — 2026-09-09
 
 The desktop minimap now uses shared content bounds for drawing and navigation,

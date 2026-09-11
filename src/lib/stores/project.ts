@@ -662,7 +662,17 @@ function unchangedFields(current: object, updates: object): boolean {
 
 export function updateWall(id: string, updates: Partial<Wall>) {
   const wall = get(activeFloor)?.walls.find(w => w.id === id);
-  if (!wall || unchangedFields(wall, updates)) return;
+  if (!wall) return;
+  const unchanged = Object.entries(updates).every(([key, value]) => {
+    if (key === 'start' || key === 'end' || key === 'curvePoint') {
+      const point = updates[key], previous = wall[key];
+      if (point && previous) return point.x === previous.x && point.y === previous.y;
+    }
+    return Object.is(wall[key as keyof Wall], value);
+  });
+  const flattening = updates.height !== undefined && updates.startHeight === undefined && updates.endHeight === undefined
+    && (getWallStartHeight(wall) !== updates.height || getWallEndHeight(wall) !== updates.height);
+  if (unchanged && !flattening) return;
   if ('thickness' in updates && !validPositiveDimension(updates.thickness)) return;
   if (['start', 'end'].some(key => key in updates && !finitePoint(updates[key as 'start' | 'end']))) return;
   if (updates.curvePoint !== undefined && !finitePoint(updates.curvePoint)) return;

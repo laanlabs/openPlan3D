@@ -1665,3 +1665,20 @@ gestures and broader NEXT qualification remain open.
 Logs: `/tmp/web-wall-group-split-repro.log`, `/tmp/web-wall-group-split-unit.log`,
 `/tmp/web-wall-group-split-check.log`, `/tmp/web-wall-group-split-build.log`,
 `/tmp/web-wall-group-split-browser.log`.
+
+## Wall coordinate history and uniform-height intent — 2026-09-11
+
+Two unit regressions at 389aca0 reproduced redundant endpoint snapshots and a
+uniform-height update being skipped when its scalar matched the sloped wall's
+maximum. Wall update equality now compares point coordinates. A uniform-height
+request remains an actual edit whenever either endpoint height differs.
+
+All 43 focused wall-editing/profile unit cases pass, including exact Undo/Redo for
+unchanged endpoints and Undo of flattening. Check/build pass with zero Svelte
+diagnostics. Three existing Portuguese wall-control cases pass across Chromium,
+Firefox and WebKit (16.3 seconds), exercising connected length edits, invalid
+drafts, height controls, reversal and curve toggling. Broader device/release
+qualification remains open.
+Logs: `/tmp/web-wall-noop-repro.log`, `/tmp/web-wall-noop-unit.log`,
+`/tmp/web-wall-noop-check.log`, `/tmp/web-wall-noop-build.log`,
+`/tmp/web-wall-noop-browser.log`.
