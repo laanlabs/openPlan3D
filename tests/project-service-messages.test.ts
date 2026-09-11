@@ -1,8 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import { projectServiceMessage } from '../src/lib/i18n/projectServiceMessages';
 import { storageErrorMessage, ProjectConflictError } from '../src/lib/services/datastore';
+import { translate } from '../src/lib/i18n';
 
 describe('project service diagnostics', () => {
+  it.each(['restore.retry', 'package.retry'] as const)('translates the cause and %s outcome without losing unknown details', key => {
+    const cause = storageErrorMessage({ name: 'QuotaExceededError' });
+    for (const sourceLocale of ['en', 'pt'] as const) {
+      const message = `${cause} ${translate(sourceLocale, key)}`;
+      expect(projectServiceMessage(message, 'pt')).toBe(`${translate('pt', 'projectService.storageFull')} ${translate('pt', key)}`);
+      expect(projectServiceMessage(message, 'en')).toBe(`${cause} ${translate('en', key)}`);
+    }
+    expect(projectServiceMessage(`Unknown detail {name}. ${translate('en', key)}`, 'pt'))
+      .toBe(`Unknown detail {name}. ${translate('pt', key)}`);
+  });
   it('translates real storage failures and keeps the original English diagnostic', () => {
     const quota = storageErrorMessage({ name: 'QuotaExceededError' });
     expect(projectServiceMessage(quota, 'en')).toBe(quota);

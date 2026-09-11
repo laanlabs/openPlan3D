@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
-import { savedProjects, storedRecords } from './storage';
+import { failProjectWrites, savedProjects, storedRecords } from './storage';
 
 for (const flow of [
   { title: 'Restaurar backup da biblioteca', choose: 'Escolher arquivo de backup', original: 'Baixar backup original', confirm: 'Restaurar como cópias', success: '1 projeto restaurado.', file: 'tests/fixtures/library-backup.json', preview: '1 projeto pronto para restaurar' },
@@ -15,6 +15,7 @@ for (const flow of [
     await page.goto('/');
     await expect(page.getByText('Nenhum projeto ainda', { exact: true })).toBeVisible();
     const before = await storedRecords(page);
+    const historyBefore = await storedRecords(page, 'history');
     await page.getByRole('button', { name: flow.title, exact: true }).click();
     const dialog = page.getByRole('dialog', { name: flow.title, exact: true });
     const chooser = page.waitForEvent('filechooser');
@@ -26,6 +27,17 @@ for (const flow of [
     await dialog.getByRole('button', { name: flow.original, exact: true }).click();
     const original = await readFile((await (await downloading).path())!);
     expect(original.equals(await readFile(flow.file))).toBe(true);
+    await failProjectWrites(page);
+    await dialog.getByRole('button', { name: flow.confirm, exact: true }).click();
+    await expect(dialog.getByRole('alert')).toContainText('O armazenamento do navegador está cheio.');
+    await expect(dialog.getByRole('alert')).toContainText('Você pode tentar novamente.');
+    await expect(dialog.getByRole('alert')).not.toContainText('Browser storage');
+    expect(await storedRecords(page)).toEqual(before);
+    expect(await storedRecords(page, 'history')).toEqual(historyBefore);
+    const retainedDownload = page.waitForEvent('download');
+    await dialog.getByRole('button', { name: flow.original, exact: true }).click();
+    expect((await readFile((await (await retainedDownload).path())!)).equals(original)).toBe(true);
+    await page.evaluate(() => { (window as any).failProjectWrites = false; });
     await dialog.getByRole('button', { name: flow.confirm, exact: true }).click();
     await expect(dialog.getByRole('status')).toContainText(flow.success);
     await expect(dialog.getByRole('button', { name: flow.confirm, exact: true })).toHaveCount(0);

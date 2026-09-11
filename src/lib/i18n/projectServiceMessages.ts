@@ -8,17 +8,17 @@ const keys: ServiceKey[] = [
   'projectService.newFailed', 'projectService.fileFailed',
 ];
 const messages = new Map(keys.map(key => [translate('en', key), key]));
+const outcomes = (['welcome.noImport', 'restore.retry', 'package.retry'] as const)
+  .flatMap(key => (['en', 'pt'] as const).map(locale => ({ key, text: ` ${translate(locale, key)}` })));
 
 /** Translate known service diagnostics without altering unknown error details. */
 export function projectServiceMessage(message: string, language: Locale): string {
-  const suffix = (['en', 'pt'] as const)
-    .map(locale => ` ${translate(locale, 'welcome.noImport')}`)
-    .find(value => message.endsWith(value));
-  const body = suffix ? message.slice(0, -suffix.length) : message;
+  const suffix = outcomes.find(value => message.endsWith(value.text));
+  const body = suffix ? message.slice(0, -suffix.text.length) : message;
   const prefix = translate('en', 'projectService.openUnsaved');
   const unsaved = body.startsWith(`${prefix} `);
   const detail = unsaved ? body.slice(prefix.length + 1) : body;
   const key = messages.get(detail);
   const localized = key ? translate(language, key) : detail;
-  return `${unsaved ? `${translate(language, 'projectService.openUnsaved')} ` : ''}${localized}${suffix ? ` ${translate(language, 'welcome.noImport')}` : ''}`;
+  return `${unsaved ? `${translate(language, 'projectService.openUnsaved')} ` : ''}${localized}${suffix ? ` ${translate(language, suffix.key)}` : ''}`;
 }

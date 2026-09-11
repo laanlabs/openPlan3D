@@ -2188,3 +2188,25 @@ See [the audit checkpoint report](2026-09-11-browser-audit.md) for the scope,
 runtime provenance, corrections and remaining gates. This completes inventory
 coverage through staged qualification, not a single uninterrupted run or the
 broader NEXT.md objective. Physical-device, native and release requirements remain.
+
+### 2026-09-11: Translate restore and package storage failures
+
+LibraryRestoreDialog and ProjectPackageDialog now apply the shared service-message
+translator at display time. The translator recognizes each dialog's retry-outcome
+suffix in either language, translates known storage causes and preserves unknown
+details. Backend diagnostics and transaction behavior remain unchanged.
+
+The transfer regressions now inject quota failure at the IndexedDB write boundary,
+require Portuguese cause/retry text, compare project and history records with the
+baseline, download the original bytes again after failure, and then retry to a
+single successful import. Existing opening-error language-change cases also run
+to protect the shared translator's prior behavior.
+
+Six focused unit cases pass. Svelte reports zero errors/warnings, the Node build
+passes, and all 12 focused browser cases pass across three engines (3.4 minutes).
+Logs: `/tmp/web-transfer-diagnostics-unit.log`,
+`/tmp/web-transfer-diagnostics-check.log`, `/tmp/web-transfer-diagnostics-build.log`,
+`/tmp/web-transfer-diagnostics-browser.log`.
+This runtime change follows the completed staged audit and has scoped verification;
+the prior audit must not be represented as a fresh full run of this source.
+Other validation messages, preview warnings and physical-device usability remain open.

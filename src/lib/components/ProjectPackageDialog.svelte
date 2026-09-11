@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { t } from '$lib/i18n';
+  import { t, locale } from '$lib/i18n';
+  import { projectServiceMessage } from '$lib/i18n/projectServiceMessages';
   import { onDestroy } from 'svelte';
   import { modalDialog } from '$lib/utils/modalDialog';
   import { prepareProjectPackage } from '$lib/services/projectPackage';
@@ -66,7 +67,7 @@
           <p class="text-sm text-gray-500">{$t('package.copyHelp')}</p>
         {/if}
       {/if}
-      {#if error}<p role="alert" class="rounded-lg bg-red-50 p-3 text-sm text-red-900">{error}</p>{/if}
+      {#if error}<p role="alert" class="rounded-lg bg-red-50 p-3 text-sm text-red-900">{projectServiceMessage(error, $locale)}</p>{/if}
       {#if preview}<button onclick={original} class="text-sm font-semibold text-blue-600 underline">{$t('package.original')}</button>{/if}
     </div>
     <div class="flex flex-wrap justify-end gap-3 border-t border-gray-100 px-5 py-4">

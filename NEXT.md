@@ -163,6 +163,15 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+Restore-library and project-package dialogs now translate known storage failures
+together with their retry guidance at display time. Unknown diagnostic details
+remain intact. Six focused unit cases, zero-error/warning Svelte checking, the
+production build and 12 browser cases pass across all three engines (3.4 minutes).
+Quota-injected transfer checks verify unchanged project/history bytes, retained
+original downloads and successful retry. This is a scoped runtime change after
+the browser audit checkpoint below; other service validation messages and warnings
+remain to be translated.
+
 **Browser audit checkpoint:** every case in the expanded inventory has passing
 evidence: **1,059 distinct cases, 353 per engine**. The final inventory comparison
 found no missing or extra cases. This aggregates staged runs and focused
