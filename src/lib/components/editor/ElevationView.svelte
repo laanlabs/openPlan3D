@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '$lib/i18n';
   import { hasOpenModal } from '$lib/utils/modalDialog';
   /**
    * ElevationView — integrated face-on view + editor for a single wall.
@@ -495,25 +496,26 @@
         class="w-7 h-7 flex items-center justify-center rounded-md text-slate-500 hover:text-slate-800 hover:bg-slate-200 transition-colors disabled:opacity-30 disabled:pointer-events-none text-lg leading-none"
         onclick={() => cycleWall(-1)}
         disabled={wallCount < 2}
-        title="Previous wall"
-        aria-label="Previous wall"
+        title={$t('elevationView.previous')}
+        aria-label={$t('elevationView.previous')}
       >‹</button>
-      <span class="text-sm font-semibold text-slate-700 tabular-nums">Wall {wallIndex + 1} of {wallCount}</span>
+      <span class="text-sm font-semibold text-slate-700 tabular-nums">{$t('elevationView.wall', { index: wallIndex + 1, count: wallCount })}</span>
       <button
         class="w-7 h-7 flex items-center justify-center rounded-md text-slate-500 hover:text-slate-800 hover:bg-slate-200 transition-colors disabled:opacity-30 disabled:pointer-events-none text-lg leading-none"
         onclick={() => cycleWall(1)}
         disabled={wallCount < 2}
-        title="Next wall"
-        aria-label="Next wall"
+        title={$t('elevationView.next')}
+        aria-label={$t('elevationView.next')}
       >›</button>
       <span class="text-xs text-gray-400 ml-1">{formatLength(wallLen, units)} × {startH === endH ? formatLength(startH, units) : `${formatLength(startH, units)} → ${formatLength(endH, units)}`}</span>
       <div class="flex-1"></div>
-      <span class="text-[11px] text-gray-400 max-lg:hidden">Drag openings to move · drag windows up/down for sill · Esc for plan</span>
+      <span class="text-[11px] text-gray-400 max-lg:hidden">{$t('elevationView.help')}</span>
     </div>
 
     <!-- Elevation canvas -->
     <div class="flex-1 min-h-0 relative" bind:clientWidth={cw} bind:clientHeight={ch}>
       <canvas
+        aria-label={$t('elevationView.canvas')}
         bind:this={canvas}
         class="absolute inset-0 w-full h-full touch-none select-none"
         style="cursor: {cursor}"

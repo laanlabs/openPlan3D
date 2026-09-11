@@ -886,5 +886,10 @@ export const pt = {
   "itemDetailMessage.references": "Não foi possível verificar as referências do anexo.",
   "itemDetailMessage.deleted": "Arquivo removido das futuras exportações deste projeto. Salve para manter esta alteração.",
   "itemDetailMessage.delete": "Não foi possível excluir o anexo.",
-  "backgroundProperties.distancePrompt": "Digite a distância real entre estes dois pontos (em cm):"
+  "backgroundProperties.distancePrompt": "Digite a distância real entre estes dois pontos (em cm):",
+  "elevationView.previous": "Parede anterior",
+  "elevationView.next": "Próxima parede",
+  "elevationView.wall": "Parede {index} de {count}",
+  "elevationView.help": "Arraste as aberturas para mover · arraste as janelas para cima/baixo para ajustar o peitoril · Esc para a planta",
+  "elevationView.canvas": "Tela de edição da elevação da parede"
 } as const;

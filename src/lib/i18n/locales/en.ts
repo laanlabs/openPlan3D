@@ -886,5 +886,10 @@ export const en = {
   "itemDetailMessage.references": "Could not check attachment references.",
   "itemDetailMessage.deleted": "File removed from this project’s future exports. Save to keep this change.",
   "itemDetailMessage.delete": "Could not delete the attachment.",
-  "backgroundProperties.distancePrompt": "Enter the real-world distance between these two points (in cm):"
+  "backgroundProperties.distancePrompt": "Enter the real-world distance between these two points (in cm):",
+  "elevationView.previous": "Previous wall",
+  "elevationView.next": "Next wall",
+  "elevationView.wall": "Wall {index} of {count}",
+  "elevationView.help": "Drag openings to move · drag windows up/down for sill · Esc for plan",
+  "elevationView.canvas": "Wall elevation editor canvas"
 } as const;

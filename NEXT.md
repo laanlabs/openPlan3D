@@ -3407,3 +3407,11 @@ now discards calibration mode and points. All 11 floor unit tests pass, includin
 switch/add/remove and floor-changing undo/redo. Production check/build and three
 browser cases pass (59.2 seconds), preserving both floors' background images and
 allowing fresh calibration. Physical-device and remaining release work stay open.
+
+### Elevation navigation localization — 2026-09-11
+
+Translated wall cycling, wall counter and interaction guidance, and named the
+elevation canvas for accessibility. Check/build, five localization unit tests
+and three browser cases pass (51.3 seconds), covering navigation, wraparound and
+Escape with unchanged exported floor data. Opening drag/device qualification and
+the remaining localization/release work remain open.

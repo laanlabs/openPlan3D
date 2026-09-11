@@ -1114,3 +1114,16 @@ works. Logs: `/tmp/web-calibration-floor-repro.log`,
 `/tmp/web-calibration-floor-build.log`, `/tmp/web-calibration-floor-browser.log`.
 Physical touch, other project/tool cancellation paths and the remaining NEXT
 requirements remain open.
+
+## Elevation navigation localization
+
+Translated previous/next wall buttons, wall counter and drag/Escape guidance,
+and added a translated accessible name to the elevation canvas. Wall geometry,
+opening drag handlers and dimensional formatting are unchanged. Production check
+has zero errors/warnings, build and five localization unit tests pass. Three
+browser cases pass (51.3 seconds, exit 0), checking Portuguese navigation in both
+directions, wraparound, Escape returning to plan and unchanged exported floor
+data. Logs: `/tmp/web-elevation-labels-check.log`,
+`/tmp/web-elevation-labels-build.log`, `/tmp/web-elevation-labels-unit.log`,
+`/tmp/web-elevation-labels-browser.log`. This navigation test does not qualify
+opening drag interactions or physical touch; remaining NEXT scope stays open.
