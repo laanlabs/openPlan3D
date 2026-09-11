@@ -163,6 +163,15 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+Follow-up curve hit-testing performance: a conservative bounds check now skips
+distant curves before exact projection. Local 400-wall median lookup cost fell
+from roughly 0.75ms to 0.002–0.006ms; see the reproducible
+[measurement](docs/curved-wall-hit-performance.md) and its scope limits.
+All 983 unit tests pass (3.68 seconds), check/build pass, and 21 browser cases
+pass across all three engines (1.4 minutes), including curve click/drop, automatic
+dimension fit and canvas idle/wakeup behavior. The duplicate visibility label now
+distinguishes automatic dimensions from saved dimension annotations in EN/PT.
+
 Latest full web unit checkpoint: **983 tests across 93 files passed** with continuous
 curved-wall hit testing and opening positioning (3.82 seconds). Exact-path
 projection replaces the 20/40-point sampling used for selection and placement.

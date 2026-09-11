@@ -468,6 +468,7 @@ export const pt = {
   "layers.value.vertical": "vertical",
   "layerVisibility.title": "Visibilidade das camadas",
   "layerVisibility.dimensions": "Dimensões",
+  "layerVisibility.automaticDimensions": "Dimensões automáticas",
   "layerVisibility.below": "Pavimento abaixo",
   "layerVisibility.belowNamed": "Pavimento abaixo ({name})",
   "layerVisibility.roomLabels": "Nomes dos ambientes",

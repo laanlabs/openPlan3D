@@ -47,8 +47,15 @@ export function findWallAt(p: Point, walls: Wall[], zoom: number): Wall | null {
   const threshold = 15 / zoom;
   for (const w of walls) {
     if (w.curvePoint) {
+      // A quadratic stays inside the hull of its endpoints and control point.
+      // Reject distant pointer positions before solving for the closest point.
+      const radius = threshold + w.thickness / 2;
+      if (p.x < Math.min(w.start.x, w.end.x, w.curvePoint.x) - radius ||
+          p.x > Math.max(w.start.x, w.end.x, w.curvePoint.x) + radius ||
+          p.y < Math.min(w.start.y, w.end.y, w.curvePoint.y) - radius ||
+          p.y > Math.max(w.start.y, w.end.y, w.curvePoint.y) + radius) continue;
       const projected = projectOntoWall(p, w);
-      if (projected && projected.distance < threshold + w.thickness / 2) return w;
+      if (projected && projected.distance < radius) return w;
     } else {
       if (pointToSegmentDist(p, w.start, w.end) < threshold) return w;
     }

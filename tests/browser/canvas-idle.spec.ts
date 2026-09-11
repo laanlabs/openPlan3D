@@ -63,7 +63,7 @@ test('2D sleeps between display, camera, tool, geometry and history changes', as
   }
   await changed(page, () => page.getByTitle('Zoom to Fit (F)', { exact: true }).first().press('Enter'));
   await page.getByTitle('Layer Visibility', { exact: true }).press('Enter');
-  for (const label of ['Room Labels', 'Dimensions']) {
+  for (const label of ['Room Labels', 'Automatic dimensions']) {
     await changed(page, () => page.getByRole('checkbox', { name: label, exact: true }).press('Space'));
   }
   await page.getByTitle('Layer Visibility', { exact: true }).press('Enter');

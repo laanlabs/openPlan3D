@@ -468,6 +468,7 @@ export const en = {
   "layers.value.vertical": "vertical",
   "layerVisibility.title": "Layer Visibility",
   "layerVisibility.dimensions": "Dimensions",
+  "layerVisibility.automaticDimensions": "Automatic dimensions",
   "layerVisibility.below": "Floor Below",
   "layerVisibility.belowNamed": "Floor Below ({name})",
   "layerVisibility.roomLabels": "Room Labels",

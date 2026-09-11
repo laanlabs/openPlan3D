@@ -4108,7 +4108,7 @@
       </label>
       <label class="flex items-center gap-2 py-0.5 cursor-pointer hover:bg-gray-50 rounded px-1">
         <input type="checkbox" bind:checked={showDimensions} class="accent-blue-500" />
-        <span>{$t('layerVisibility.dimensions')}</span>
+        <span>{$t('layerVisibility.automaticDimensions')}</span>
       </label>
     </div>
   {/if}

@@ -1862,3 +1862,18 @@ gestures and sustained editing performance remain separate qualification work.
 Logs: `/tmp/web-curve-hit-repro.log`, `/tmp/web-curve-hit-all-unit.log`,
 `/tmp/web-curve-hit-check.log`, `/tmp/web-curve-hit-build.log`,
 `/tmp/web-curve-hit-browser.log`.
+
+### 2026-09-11: Curve lookup cost and dimension-control naming
+
+A synthetic 40/400-curve benchmark measured the new exact lookup before/after a
+conservative bounds rejection. See the [measurement](../curved-wall-hit-performance.md)
+for timings, command and exclusions. Nearby curves still use exact projection.
+
+The broader idle browser run found two visibility checkboxes named Dimensions:
+saved dimension annotations and automatic dimensions. The latter is now named
+Automatic dimensions / Dimensões automáticas. Idle and fit tests select the
+intended control explicitly. All 983 unit tests pass (3.68 seconds), check/build
+pass with zero Svelte diagnostics, and 21 browser cases pass across all three
+engines (1.4 minutes). Physical device/frame-time qualification remains open.
+Logs: `/tmp/web-curve-hit-bounds-all-unit.log`, `/tmp/web-curve-hit-bounds-check.log`,
+`/tmp/web-curve-hit-bounds-build.log`, `/tmp/web-curve-hit-bounds-browser.log`.
