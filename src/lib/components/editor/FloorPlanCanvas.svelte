@@ -24,6 +24,7 @@
   import ContextMenu from './ContextMenu.svelte';
   import { roomPresets, placePreset } from '$lib/utils/roomPresets';
   import { roomTemplates, placeRoomTemplate } from '$lib/utils/roomTemplates';
+  import { openingDropTarget } from '$lib/utils/openingDrop';
   import { getWallTextureCanvas, getFloorTextureCanvas, setTextureLoadCallback } from '$lib/utils/textureGenerator';
   import { projectSettings, formatLength, formatArea } from '$lib/stores/settings';
   import type { ProjectSettings } from '$lib/stores/settings';
@@ -3579,52 +3580,14 @@
       selectedElementId.set(id);
       selectedTool.set('select');
       placingFurnitureId.set(null);
-    } else if (itemType === 'door') {
-      // Find nearest wall to drop point and add door there
-      const floor = currentFloor;
-      if (floor) {
-        let bestWall: Wall | null = null;
-        let bestDist = Infinity;
-        let bestT = 0.5;
-        for (const w of floor.walls) {
-          const dx = w.end.x - w.start.x;
-          const dy = w.end.y - w.start.y;
-          const lenSq = dx * dx + dy * dy;
-          if (lenSq < 1) continue;
-          const t = Math.max(0.05, Math.min(0.95, ((wp.x - w.start.x) * dx + (wp.y - w.start.y) * dy) / lenSq));
-          const px = w.start.x + t * dx;
-          const py = w.start.y + t * dy;
-          const dist = Math.hypot(wp.x - px, wp.y - py);
-          if (dist < bestDist) { bestDist = dist; bestWall = w; bestT = t; }
-        }
-        if (bestWall && bestDist < 100) {
-          const id = addDoor(bestWall.id, bestT, itemId as Door['type']);
-          selectedElementId.set(id);
-          selectedTool.set('select');
-        }
-      }
-    } else if (itemType === 'window') {
-      const floor = currentFloor;
-      if (floor) {
-        let bestWall: Wall | null = null;
-        let bestDist = Infinity;
-        let bestT = 0.5;
-        for (const w of floor.walls) {
-          const dx = w.end.x - w.start.x;
-          const dy = w.end.y - w.start.y;
-          const lenSq = dx * dx + dy * dy;
-          if (lenSq < 1) continue;
-          const t = Math.max(0.05, Math.min(0.95, ((wp.x - w.start.x) * dx + (wp.y - w.start.y) * dy) / lenSq));
-          const px = w.start.x + t * dx;
-          const py = w.start.y + t * dy;
-          const dist = Math.hypot(wp.x - px, wp.y - py);
-          if (dist < bestDist) { bestDist = dist; bestWall = w; bestT = t; }
-        }
-        if (bestWall && bestDist < 100) {
-          const id = addWindow(bestWall.id, bestT, itemId as Win['type']);
-          selectedElementId.set(id);
-          selectedTool.set('select');
-        }
+    } else if (itemType === 'door' || itemType === 'window') {
+      const target = openingDropTarget(wp, currentFloor?.walls ?? []);
+      if (target) {
+        const id = itemType === 'door'
+          ? addDoor(target.wallId, target.position, itemId as Door['type'])
+          : addWindow(target.wallId, target.position, itemId as Win['type']);
+        selectedElementId.set(id);
+        selectedTool.set('select');
       }
     } else if (itemType === 'room') {
       const preset = roomPresets.find(p => p.id === itemId);

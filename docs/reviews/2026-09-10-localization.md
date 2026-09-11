@@ -1824,3 +1824,23 @@ arbitrary room dimensions, rendered-model fidelity or physical-device usability.
 Logs: `/tmp/web-template-layout-repro.log`, `/tmp/web-template-layout-all-unit.log`,
 `/tmp/web-template-layout-check.log`, `/tmp/web-template-layout-build.log`,
 `/tmp/web-template-layout-browser.log`.
+
+### 2026-09-11: Door/window drops follow curved walls
+
+A Chromium reproduction dragged a door onto the middle of a bowed wall and
+exported no door. The duplicated door/window handlers measured distance to the
+endpoint chord, 300cm away in this fixture. Both now share a closest-path helper.
+It considers endpoints and stationary points of squared distance to the quadratic,
+isolating roots between derivative roots. Saved positions remain quadratic
+parameters; the existing 5% endpoint margin and strict 100cm drop radius remain.
+
+All 976 unit tests across 92 files pass (3.84 seconds), including off-grid curve
+parameters, competing wall targets, straight/end-margin behavior, degenerate walls
+and multiple minima. Nine browser cases pass across Chromium, Firefox and WebKit
+(21.9 seconds), checking curved door/window drop IDs, positions, unchanged walls,
+exact Undo/Redo and the existing Portuguese opening catalog workflow. Check/build
+pass with zero Svelte diagnostics. This changes drag placement; physical touch and
+broader geometry/render qualification remain separate.
+Logs: `/tmp/web-curved-drop-repro.log`, `/tmp/web-curved-drop-all-unit.log`,
+`/tmp/web-curved-drop-check.log`, `/tmp/web-curved-drop-build.log`,
+`/tmp/web-curved-drop-browser.log`.

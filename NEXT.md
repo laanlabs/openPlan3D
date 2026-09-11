@@ -163,7 +163,14 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
-Latest full web unit checkpoint: **967 tests across 91 files passed** with furnished
+Latest full web unit checkpoint: **976 tests across 92 files passed** with curved
+door/window drag placement (3.84 seconds). Drops now use the closest point on the
+quadratic wall path instead of the endpoint chord, retaining the endpoint margin
+and drop radius. Nine browser cases pass across all three engines (21.9 seconds),
+covering both opening kinds, Undo/Redo and existing catalog interactions.
+Check/build pass with zero Svelte diagnostics. Physical touch remains unqualified.
+
+Earlier full web unit checkpoint: **967 tests across 91 files passed** with furnished
 room layout corrections (3.82 seconds). Default 400×300cm templates now keep
 catalog footprints inside the walls without furniture overlap and apply specified
 rotations. Nine browser cases pass across all three engines (20.1 seconds), with
