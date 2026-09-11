@@ -1099,3 +1099,18 @@ Logs: `/tmp/web-calibration-escape-repro.log`, `/tmp/web-calibration-escape-chec
 `/tmp/web-calibration-escape-build.log`, `/tmp/web-calibration-escape-browser.log`.
 This does not qualify physical touch or all project/floor-change cancellation paths;
 remaining NEXT requirements stay open.
+
+## Floor transitions cancel unfinished calibration
+
+At `2dae36a`, the new floor-store regression failed because calibration remained
+active after adding a floor. The shared floor-context reset now clears calibration
+mode and points. All 11 floor unit tests pass, including switching, adding,
+removing the active floor, and floor-changing undo/redo. Production check reports
+zero errors/warnings and build passes. Three browser cases pass (59.2 seconds,
+exit 0), verifying a point chosen on one floor does not prompt after switching,
+both background images retain their original data, and fresh calibration still
+works. Logs: `/tmp/web-calibration-floor-repro.log`,
+`/tmp/web-calibration-floor-unit.log`, `/tmp/web-calibration-floor-check.log`,
+`/tmp/web-calibration-floor-build.log`, `/tmp/web-calibration-floor-browser.log`.
+Physical touch, other project/tool cancellation paths and the remaining NEXT
+requirements remain open.

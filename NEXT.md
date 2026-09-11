@@ -3399,3 +3399,11 @@ Reproduced a stale calibration prompt after Escape. The canvas Escape handler no
 clears calibration mode and points. Check/build and three browser cases pass
 (51.8 seconds), preserving image data and allowing fresh calibration afterward.
 Other cancellation/device/release requirements remain open.
+
+### Floor changes cancel image calibration — 2026-09-11
+
+Reproduced calibration surviving floor addition. The shared floor-context reset
+now discards calibration mode and points. All 11 floor unit tests pass, including
+switch/add/remove and floor-changing undo/redo. Production check/build and three
+browser cases pass (59.2 seconds), preserving both floors' background images and
+allowing fresh calibration. Physical-device and remaining release work stay open.

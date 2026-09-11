@@ -172,6 +172,8 @@ function reviveDates(p: Project): Project {
 
 /** Selections and elevation targets belong to one floor, never the one switched to. */
 function clearFloorContext() {
+  calibrationMode.set(false);
+  calibrationPoints.set([]);
   selectedElementId.set(null);
   selectedElementIds.set(new Set());
   selectedRoomId.set(null);

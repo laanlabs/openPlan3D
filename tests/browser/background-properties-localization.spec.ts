@@ -5,6 +5,9 @@ test('Portuguese background controls preserve image bytes and restore removed im
   const plan = JSON.parse(await readFile('tests/fixtures/connected-dimensions.openplan.json', 'utf8'));
   const dataUrl = `data:image/png;base64,${(await readFile('tests/fixtures/item-photo.png')).toString('base64')}`;
   plan.floors[0].backgroundImage = { dataUrl, position: { x: 200, y: 150 }, scale: 1, opacity: .5, rotation: 0, locked: false };
+  const upper = structuredClone(plan.floors[0]);
+  upper.id = 'calibration-upper'; upper.name = 'Upper'; upper.level = 1;
+  plan.floors.push(upper);
   await page.addInitScript(() => localStorage.setItem('o3d_locale', 'pt'));
   await page.goto('/editor');
   await page.getByRole('button', { name: 'Exportar', exact: true }).click();
@@ -14,11 +17,11 @@ test('Portuguese background controls preserve image bytes and restore removed im
   const panel = page.locator('[data-plan-properties]');
   await expect(panel.getByRole('heading', { name: /Imagem de fundo/ })).toBeVisible();
   await expect(panel.getByRole('button', { name: '📏 Definir escala', exact: true })).toBeVisible();
-  async function exported() {
+  async function exported(floorIndex = 0) {
     await page.getByRole('button', { name: 'Exportar', exact: true }).click();
     const pending = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Baixar JSON', exact: true }).click();
-    return JSON.parse(await readFile((await (await pending).path())!, 'utf8')).floors[0];
+    return JSON.parse(await readFile((await (await pending).path())!, 'utf8')).floors[floorIndex];
   }
   const original = await exported();
   const canvas = page.getByLabel('Floor plan editor canvas', { exact: true });
@@ -31,6 +34,16 @@ test('Portuguese background controls preserve image bytes and restore removed im
   await canvas.click({ position: { x: 400, y: 200 } });
   page.off('dialog', dismissUnexpected);
   expect(unexpectedPrompts).toBe(0);
+  page.on('dialog', dismissUnexpected);
+  await panel.getByRole('button', { name: '📏 Definir escala', exact: true }).click();
+  await canvas.click({ position: { x: 200, y: 200 } });
+  await page.getByRole('combobox', { name: 'Pavimento atual', exact: true }).selectOption(upper.id);
+  await canvas.click({ position: { x: 400, y: 200 } });
+  page.off('dialog', dismissUnexpected);
+  expect(unexpectedPrompts).toBe(0);
+  expect((await exported(1)).backgroundImage).toEqual(upper.backgroundImage);
+  await page.getByRole('combobox', { name: 'Pavimento atual', exact: true }).selectOption(plan.floors[0].id);
+
   expect((await exported()).backgroundImage).toEqual(original.backgroundImage);
 
   for (const answer of ['Infinity', '0', '-5', null]) {

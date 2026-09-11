@@ -3,6 +3,7 @@ import { get } from 'svelte/store';
 import { addFloor, createDefaultFloor, currentProject, loadProject, removeFloor, setActiveFloor, undo, redo, selectedElementId, selectedElementIds, elevationWallId, selectedTool } from '$lib/stores/project';
 import { roomProject } from './fixtures/project';
 import { updateFloorElevation, updateFloorSlabThickness } from '$lib/stores/project';
+import { calibrationMode, calibrationPoints } from '$lib/stores/project';
 import { floorElevations } from '$lib/utils/floors';
 
 beforeEach(() => loadProject(roomProject()));
@@ -152,4 +153,17 @@ it('edits slab depths independently, validates input and restores defaults with 
   expect(get(currentProject)!.floors[1]).not.toHaveProperty('slabThickness');
   undo();
   expect(get(currentProject)!.floors[1].slabThickness).toBe(32.5);
+});
+
+it('discards calibration points across floor switches, additions, removal and history', () => {
+  const ground = get(currentProject)!.activeFloorId;
+  const begin = () => { calibrationMode.set(true); calibrationPoints.set([{ x: 10, y: 20 }]); };
+  const cleared = () => { expect(get(calibrationMode)).toBe(false); expect(get(calibrationPoints)).toEqual([]); };
+  begin(); addFloor(undefined, 'empty'); cleared();
+  const upper = get(currentProject)!.activeFloorId;
+  begin(); setActiveFloor(ground); cleared();
+  begin(); setActiveFloor(upper); cleared();
+  begin(); removeFloor(upper); cleared();
+  begin(); undo(); cleared();
+  begin(); redo(); cleared();
 });
