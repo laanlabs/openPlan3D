@@ -163,7 +163,14 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
-Latest full web unit checkpoint: **938 tests across 87 files passed** at `8b8e707`
+Latest full web unit checkpoint: **938 tests across 87 files passed** at `dae6421`
+(runtime source `950fc36`, 7.02 seconds). Twelve symbol-export browser cases pass
+across all engines (1.2 minutes), covering PNG/SVG/PDF image readiness, framing,
+embedding and failed-image export handling.
+See the [localization integration record](docs/reviews/2026-09-10-localization.md).
+Full-browser and physical-device qualification remain open.
+
+Earlier full web unit checkpoint: **938 tests across 87 files passed** at `8b8e707`
 after Build tools, opening catalogs and room-choice localization (5.03 seconds).
 Twelve English browser cases pass across all engines (1.1 minutes), covering
 catalog/recent favorites and RoomPlan/template modal cancellation and focus.

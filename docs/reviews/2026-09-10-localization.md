@@ -700,3 +700,13 @@ corrupt-image and oversized-file checks, against production source `950fc36`.
 Log: `/tmp/web-symbol-reader-recovery-browser.log`. This tests the browser error
 handler contract using fault injection; it does not simulate hardware failure or
 qualify physical devices. Runtime source is unchanged.
+
+## Symbol-export integration checkpoint
+
+At `dae6421` (runtime source `950fc36`), all 938 unit tests across 87 files pass
+(7.02 seconds, exit 0). Twelve existing English browser cases pass across all
+engines (1.2 minutes, exit 0), checking PNG custom-image readiness and framing,
+SVG image embedding/rotated-symbol framing, and PDF image readiness/failure
+handling. Logs: `/tmp/web-symbol-integration-unit.log`,
+`/tmp/web-symbol-integration-browser.log`. No runtime changes in this checkpoint;
+full-browser, physical-device and deployment qualification remain open.
