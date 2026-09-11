@@ -1549,3 +1549,20 @@ cancel and focus cases remain in the same tests. Room reset/delete and physical
 assistive-technology qualification remain open.
 Logs: `/tmp/web-room-material-repro.log`, `/tmp/web-room-material-check.log`,
 `/tmp/web-room-material-build.log`, `/tmp/web-room-material-browser.log`.
+
+## Room reset/delete keyboard verification — 2026-09-11
+
+At 87c0ea3, the browser regression found a saved room record still referencing
+walls removed by Delete Room. The new store operation groups boundary removal,
+opening cascades and saved metadata removal into one undo entry and clears the
+deleted detected-room entry. Unrelated saved data stays intact.
+
+Check/build pass with zero Svelte diagnostics. All 945 tests across 88 unit files
+pass (3.20 seconds), including saved/detected room deletion and exact Undo/Redo.
+Six Portuguese browser cases pass at 1440px/390px across Chromium, Firefox and
+WebKit (24.6 seconds), checking label-offset reset, deletion of the complete
+single-room fixture and exact Undo, alongside rename and material actions.
+The initial deletion failure is in `/tmp/web-room-actions-browser.log`; final
+logs are `/tmp/web-room-delete-unit.log`, `/tmp/web-room-delete-check.log`,
+`/tmp/web-room-delete-build.log`, `/tmp/web-room-delete-browser.log`.
+This does not qualify shared-boundary deletion semantics or physical accessibility.

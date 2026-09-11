@@ -6,6 +6,7 @@ for (const width of [1440, 390]) test(`keyboard room rename and floor materials 
   const plan = JSON.parse(await readFile('tests/fixtures/connected-dimensions.openplan.json', 'utf8'));
   plan.floors[0].rooms[0].name = 'Original {name}';
   plan.floors[0].rooms[0].floorTexture = 'none';
+  plan.floors[0].rooms[0].labelOffset = { x: 35, y: -20 };
   await page.addInitScript(() => localStorage.setItem('o3d_locale', 'pt'));
   await page.goto('/editor');
   await page.getByRole('button', { name: 'Exportar', exact: true }).click();
@@ -34,6 +35,26 @@ for (const width of [1440, 390]) test(`keyboard room rename and floor materials 
   await editor.fill('Discarded name'); await editor.press('Escape');
   await expect(editor).toHaveCount(0); await expect(canvas).toBeFocused();
   expect(await exported()).toEqual(before);
+  await page.getByRole('button', { name: /Original \{name\}/ }).click();
+  await canvas.focus(); await canvas.press('Shift+F10');
+  const resetLabel = page.getByRole('menuitem', { name: '↺ Redefinir posição do rótulo', exact: true });
+  await expect(resetLabel).toBeFocused(); await resetLabel.press('Enter');
+  expect(await exported()).toEqual({ ...before, rooms: before.rooms.map((room: any, index: number) => {
+    if (index !== 0) return room;
+    const { labelOffset, ...rest } = room;
+    return rest;
+  }) });
+  await page.getByRole('button', { name: 'Desfazer', exact: true }).click();
+  expect(await exported()).toEqual(before);
+  await page.getByRole('button', { name: /Original \{name\}/ }).click();
+  await canvas.focus(); await canvas.press('Shift+F10');
+  await page.keyboard.press('End');
+  const deleteRoom = page.getByRole('menuitem', { name: '🗑️ Excluir Cômodo', exact: true });
+  await expect(deleteRoom).toBeFocused(); await deleteRoom.press('Enter');
+  expect(await exported()).toEqual({ ...before, rooms: [], walls: [], doors: [], windows: [] });
+  await page.getByRole('button', { name: 'Desfazer', exact: true }).click();
+  expect(await exported()).toEqual(before);
+  await page.getByRole('button', { name: /Original \{name\}/ }).click();
   await rename();
   const save = page.getByRole('button', { name: 'Salvar', exact: true });
   await save.focus();

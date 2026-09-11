@@ -3,6 +3,7 @@
   import { multiSelectionBounds } from '$lib/utils/multiSelectionBounds';
   import { onMount, onDestroy, tick } from 'svelte';
   import { get } from 'svelte/store';
+  import { removeRoom } from '$lib/stores/project';
   import { selectionContentBounds } from '$lib/utils/selectionContentBounds';
   import { planContentBounds, hasPlanContent } from '$lib/utils/planContentBounds';
   import { connectedWallEndpoints } from '$lib/utils/wallEditing';
@@ -3853,9 +3854,7 @@
         break;
       case 'delete-room':
         if (ctxMenuRoom) {
-          beginUndoGroup();
-          for (const wid of ctxMenuRoom.walls) removeElement(wid);
-          endUndoGroup();
+          removeRoom(ctxMenuRoom.id);
           selectedRoomId.set(null);
         }
         break;

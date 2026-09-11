@@ -163,7 +163,12 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
-Latest full web unit checkpoint: **943 tests across 87 files passed** at `6a59c00`
+Latest full web unit checkpoint: **945 tests across 88 files passed** with the
+room-deletion metadata fix (3.20 seconds). Check/build and six room keyboard-menu
+cases across three browser engines at 1440px/390px pass (24.6 seconds), including
+label reset, full deletion and exact Undo. Device/release gates remain open.
+
+Earlier full web unit checkpoint: **943 tests across 87 files passed** at `6a59c00`
 (5.66 seconds). Nine existing English browser cases pass across Chromium,
 Firefox and WebKit (1.4 minutes): modal keyboard isolation at 1440px/390px,
 stored/exported floor preservation, and room-label positioning, reset, drag and
@@ -1201,6 +1206,16 @@ attempts. After the initial fit, subsequent edits retain the camera.
 See [validation](docs/initial-content-fit-validation.md). Per-floor/selection
 reframing, caption/room-label bounds, minimap parity and extreme zoom limits
 remain open.
+
+### Room deletion metadata and keyboard verification — 2026-09-11
+
+A browser regression found that Delete Room removed the walls/openings while
+leaving a saved room record referencing deleted walls. The store now removes the
+room boundary, attached openings and saved room metadata in one undo operation.
+Two unit cases cover saved/detected rooms, unrelated data preservation and exact
+Undo/Redo. All 945 unit tests and six desktop/narrow browser cases pass. Keyboard
+label reset also preserves other room fields and restores its offset with Undo.
+Full browser, shared-boundary deletion semantics and physical/release gates remain.
 
 ### Minimap for object-only content — 2026-09-09
 
