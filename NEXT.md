@@ -3209,3 +3209,11 @@ Added asynchronous read-error fault injection to upload recovery coverage. Three
 browser cases pass (33.4 seconds), retaining prior data and verifying successful
 retry after restoring the native reader. Runtime source remains `950fc36`; real
 hardware/device failure qualification and remaining NEXT requirements stay open.
+
+### Opening Properties localization — 2026-09-10
+
+Translated door/window Properties controls while retaining numeric handlers and
+stored type IDs. Production check/build and five localization unit tests pass;
+three desktop browser cases pass (12.2 seconds), verifying width, sill height,
+type, hinge and opening direction edits through JSON export with host walls
+unchanged. Other Properties sections and physical-device/release gates remain open.

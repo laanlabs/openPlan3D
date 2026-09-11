@@ -710,3 +710,19 @@ SVG image embedding/rotated-symbol framing, and PDF image readiness/failure
 handling. Logs: `/tmp/web-symbol-integration-unit.log`,
 `/tmp/web-symbol-integration-browser.log`. No runtime changes in this checkpoint;
 full-browser, physical-device and deployment qualification remain open.
+
+## Door and window Properties panel
+
+Translated opening headings, dimensions, endpoint distances, type options, hinge
+side and opening direction. Unit suffixes, numeric handlers and stored type IDs
+remain unchanged. The opening catalog browser scenario now edits door width to
+95.25 cm, selects French/right/outward, edits window sill height to 85.5 cm and
+selects casement, then compares exported objects and unchanged host walls.
+
+Production check reports zero errors/warnings; production build and all five
+localization unit tests pass. Three desktop browser cases pass across Chromium,
+Firefox and WebKit (12.2 seconds, exit 0). Logs:
+`/tmp/web-opening-properties-check.log`, `/tmp/web-opening-properties-build.log`,
+`/tmp/web-opening-properties-unit.log`, `/tmp/web-opening-properties-browser.log`.
+Other Properties sections, physical-device editing and broader release gates
+remain open.

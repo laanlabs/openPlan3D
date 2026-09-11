@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '$lib/i18n';
   import { furnitureFinishes } from '$lib/utils/furnitureFinishes';
   import { resolveRooms } from '$lib/utils/roomDetection';
   import { onDestroy } from 'svelte';
@@ -530,51 +531,51 @@
   {:else if selectedDoor}
     <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
       <span class="w-6 h-6 bg-amber-100 rounded flex items-center justify-center text-xs">🚪</span>
-      Door Properties
+      {$t('openingProperties.door')}
     </h3>
     <div class="space-y-3">
       <label class="block">
-        <span class="text-xs text-gray-500">Width ({unitLabel()})</span>
+        <span class="text-xs text-gray-500">{$t('openingProperties.width')} ({unitLabel()})</span>
         <input type="number" value={displayValue(selectedDoor.width)} oninput={onDoorWidth} onblur={onDoorWidth} step="any" min="0" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
-        <span class="text-xs text-gray-500">Distance from A ({unitLabel()})</span>
+        <span class="text-xs text-gray-500">{$t('openingProperties.fromA')} ({unitLabel()})</span>
         <input type="number" value={displayValue(doorDistFromA)} oninput={onDoorDistFromA} onblur={onDoorDistFromA} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
-        <span class="text-xs text-gray-500">Distance from B ({unitLabel()})</span>
+        <span class="text-xs text-gray-500">{$t('openingProperties.fromB')} ({unitLabel()})</span>
         <input type="number" value={displayValue(doorDistFromB)} oninput={onDoorDistFromB} onblur={onDoorDistFromB} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
-        <span class="text-xs text-gray-500">Height ({unitLabel()})</span>
+        <span class="text-xs text-gray-500">{$t('openingProperties.height')} ({unitLabel()})</span>
         <input type="number" value={displayValue(selectedDoor.height ?? 210)} oninput={onDoorHeight} onblur={onDoorHeight} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
-        <span class="text-xs text-gray-500">Type</span>
+        <span class="text-xs text-gray-500">{$t('openingProperties.type')}</span>
         <select value={selectedDoor.type} onchange={onDoorType} class="w-full px-2 py-1 border border-gray-200 rounded text-sm">
-          <option value="single">Single</option>
-          <option value="double">Double</option>
-          <option value="sliding">Sliding</option>
-          <option value="french">French</option>
-          <option value="pocket">Pocket</option>
-          <option value="bifold">Bifold</option>
-          <option value="opening">Doorway (no door)</option>
-          <option value="garage">Garage</option>
+          <option value="single">{$t('openingCatalog.single')}</option>
+          <option value="double">{$t('openingCatalog.double')}</option>
+          <option value="sliding">{$t('openingCatalog.sliding')}</option>
+          <option value="french">{$t('openingCatalog.french')}</option>
+          <option value="pocket">{$t('openingCatalog.pocket')}</option>
+          <option value="bifold">{$t('openingCatalog.bifold')}</option>
+          <option value="opening">{$t('openingProperties.doorway')}</option>
+          <option value="garage">{$t('openingCatalog.garage')}</option>
         </select>
       </label>
       {#if selectedDoor.type !== 'opening' && selectedDoor.type !== 'garage'}
       <label class="block">
-        <span class="text-xs text-gray-500">Hinge Side</span>
+        <span class="text-xs text-gray-500">{$t('openingProperties.hinge')}</span>
         <div class="flex gap-2">
-          <button onclick={() => { if (selectedDoor) updateDoor(selectedDoor.id, { swingDirection: 'left' }); }} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedDoor?.swingDirection === 'left' ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">Left</button>
-          <button onclick={() => { if (selectedDoor) updateDoor(selectedDoor.id, { swingDirection: 'right' }); }} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedDoor?.swingDirection === 'right' ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">Right</button>
+          <button onclick={() => { if (selectedDoor) updateDoor(selectedDoor.id, { swingDirection: 'left' }); }} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedDoor?.swingDirection === 'left' ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">{$t('openingProperties.left')}</button>
+          <button onclick={() => { if (selectedDoor) updateDoor(selectedDoor.id, { swingDirection: 'right' }); }} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedDoor?.swingDirection === 'right' ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">{$t('openingProperties.right')}</button>
         </div>
       </label>
       <label class="block">
-        <span class="text-xs text-gray-500">Opens</span>
+        <span class="text-xs text-gray-500">{$t('openingProperties.opens')}</span>
         <div class="flex gap-2">
-          <button onclick={() => { if (selectedDoor) updateDoor(selectedDoor.id, { flipSide: false }); }} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {!(selectedDoor?.flipSide) ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">Inward</button>
-          <button onclick={() => { if (selectedDoor) updateDoor(selectedDoor.id, { flipSide: true }); }} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedDoor?.flipSide ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">Outward</button>
+          <button onclick={() => { if (selectedDoor) updateDoor(selectedDoor.id, { flipSide: false }); }} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {!(selectedDoor?.flipSide) ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">{$t('openingProperties.inward')}</button>
+          <button onclick={() => { if (selectedDoor) updateDoor(selectedDoor.id, { flipSide: true }); }} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedDoor?.flipSide ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">{$t('openingProperties.outward')}</button>
         </div>
       </label>
       {/if}
@@ -583,37 +584,37 @@
   {:else if selectedWindow}
     <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
       <span class="w-6 h-6 bg-cyan-100 rounded flex items-center justify-center text-xs">🪟</span>
-      Window Properties
+      {$t('openingProperties.window')}
     </h3>
     <div class="space-y-3">
       <label class="block">
-        <span class="text-xs text-gray-500">Type</span>
+        <span class="text-xs text-gray-500">{$t('openingProperties.type')}</span>
         <select value={selectedWindow.type ?? 'standard'} onchange={onWindowType} class="w-full px-2 py-1 border border-gray-200 rounded text-sm">
-          <option value="standard">Standard</option>
-          <option value="fixed">Fixed</option>
-          <option value="casement">Casement</option>
-          <option value="sliding">Sliding</option>
-          <option value="bay">Bay</option>
+          <option value="standard">{$t('openingCatalog.standard')}</option>
+          <option value="fixed">{$t('openingCatalog.fixed')}</option>
+          <option value="casement">{$t('openingCatalog.casement')}</option>
+          <option value="sliding">{$t('openingCatalog.sliding')}</option>
+          <option value="bay">{$t('openingCatalog.bay')}</option>
         </select>
       </label>
       <label class="block">
-        <span class="text-xs text-gray-500">Width ({unitLabel()})</span>
+        <span class="text-xs text-gray-500">{$t('openingProperties.width')} ({unitLabel()})</span>
         <input type="number" value={displayValue(selectedWindow.width)} oninput={onWindowWidth} onblur={onWindowWidth} step="any" min="0" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
-        <span class="text-xs text-gray-500">Distance from A ({unitLabel()})</span>
+        <span class="text-xs text-gray-500">{$t('openingProperties.fromA')} ({unitLabel()})</span>
         <input type="number" value={displayValue(windowDistFromA)} oninput={onWindowDistFromA} onblur={onWindowDistFromA} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
-        <span class="text-xs text-gray-500">Distance from B ({unitLabel()})</span>
+        <span class="text-xs text-gray-500">{$t('openingProperties.fromB')} ({unitLabel()})</span>
         <input type="number" value={displayValue(windowDistFromB)} oninput={onWindowDistFromB} onblur={onWindowDistFromB} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
-        <span class="text-xs text-gray-500">Height ({unitLabel()})</span>
+        <span class="text-xs text-gray-500">{$t('openingProperties.height')} ({unitLabel()})</span>
         <input type="number" value={displayValue(selectedWindow.height)} oninput={onWindowHeight} onblur={onWindowHeight} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
-        <span class="text-xs text-gray-500">Sill Height ({unitLabel()})</span>
+        <span class="text-xs text-gray-500">{$t('openingProperties.sill')} ({unitLabel()})</span>
         <input type="number" value={displayValue(selectedWindow.sillHeight)} oninput={onWindowSill} onblur={onWindowSill} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
     </div>

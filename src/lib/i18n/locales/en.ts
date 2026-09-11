@@ -634,5 +634,20 @@ export const en = {
   "entourageLabels.item.grass-tuft": "Grass",
   "entourageLabels.item.patio-umbrella": "Patio Umbrella",
   "entourageLabels.readFailed": "Could not read this image. Choose the file again.",
-  "entourageLabels.invalid": "Could not open this image. Choose a valid PNG, JPEG or WebP file."
+  "entourageLabels.invalid": "Could not open this image. Choose a valid PNG, JPEG or WebP file.",
+  "openingProperties.door": "Door Properties",
+  "openingProperties.window": "Window Properties",
+  "openingProperties.width": "Width",
+  "openingProperties.height": "Height",
+  "openingProperties.fromA": "Distance from A",
+  "openingProperties.fromB": "Distance from B",
+  "openingProperties.sill": "Sill Height",
+  "openingProperties.type": "Type",
+  "openingProperties.hinge": "Hinge Side",
+  "openingProperties.opens": "Opens",
+  "openingProperties.left": "Left",
+  "openingProperties.right": "Right",
+  "openingProperties.inward": "Inward",
+  "openingProperties.outward": "Outward",
+  "openingProperties.doorway": "Doorway (no door)"
 } as const;

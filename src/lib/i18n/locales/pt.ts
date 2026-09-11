@@ -634,5 +634,20 @@ export const pt = {
   "entourageLabels.item.grass-tuft": "Grama",
   "entourageLabels.item.patio-umbrella": "Ombrelone",
   "entourageLabels.readFailed": "Não foi possível ler esta imagem. Escolha o arquivo novamente.",
-  "entourageLabels.invalid": "Não foi possível abrir esta imagem. Escolha um arquivo PNG, JPEG ou WebP válido."
+  "entourageLabels.invalid": "Não foi possível abrir esta imagem. Escolha um arquivo PNG, JPEG ou WebP válido.",
+  "openingProperties.door": "Propriedades da porta",
+  "openingProperties.window": "Propriedades da janela",
+  "openingProperties.width": "Largura",
+  "openingProperties.height": "Altura",
+  "openingProperties.fromA": "Distância de A",
+  "openingProperties.fromB": "Distância de B",
+  "openingProperties.sill": "Altura do peitoril",
+  "openingProperties.type": "Tipo",
+  "openingProperties.hinge": "Lado da dobradiça",
+  "openingProperties.opens": "Abertura",
+  "openingProperties.left": "Esquerda",
+  "openingProperties.right": "Direita",
+  "openingProperties.inward": "Para dentro",
+  "openingProperties.outward": "Para fora",
+  "openingProperties.doorway": "Vão de passagem (sem porta)"
 } as const;
