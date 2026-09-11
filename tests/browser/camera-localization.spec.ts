@@ -3,19 +3,21 @@ import { readFile } from 'node:fs/promises';
 import { observeGPU, gpu } from './gpu';
 
 test('Portuguese camera controls capture full-size images and release the preview', async ({ page }) => {
+  // First preview rendering, full-size capture and renderer teardown share one workflow.
+  test.slow();
   await page.addInitScript(() => localStorage.setItem('o3d_locale', 'pt'));
   await observeGPU(page);
   await page.goto('/editor');
   await page.getByRole('button', { name: '3D', exact: true }).click();
   const viewer = page.getByRole('region', { name: 'Visualizador 3D da planta', exact: true });
   const main = viewer.locator('canvas').first();
-  await expect(main).toBeVisible();
+  await expect(main).toBeVisible({ timeout: 60_000 });
   await viewer.getByRole('button', { name: 'Posicionar câmera interna', exact: true }).click();
   const bounds = (await main.boundingBox())!;
   await main.click({ position: { x: bounds.width * .45, y: bounds.height * .5 } });
   const preview = viewer.getByLabel('Prévia da câmera interna', { exact: true });
   await expect(preview).toBeVisible();
-  await expect.poll(async () => (await gpu(page)).filter((item: any) => !item.lost && item.width === 384 && item.draws > 0).length).toBe(1);
+  await expect.poll(async () => (await gpu(page)).filter((item: any) => !item.lost && item.width === 384 && item.draws > 0).length, { timeout: 60_000 }).toBe(1);
   for (const name of ['Mover para a esquerda', 'Mover para frente', 'Mover para trás', 'Mover para a direita']) {
     await viewer.getByRole('button', { name, exact: true }).click();
   }

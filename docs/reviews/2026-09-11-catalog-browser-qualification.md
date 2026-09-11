@@ -36,11 +36,20 @@ test without a separate diagnostic; this is not treated as passing evidence.
 The union of completed stages contains 48 distinct inventory cases. Playwright
 confirms the next continuation contains 1,059 cases. Production is unchanged.
 
+The 1,059-case continuation passed the complete background workflow in 1.8
+minutes, then the camera case timed out at its 10-second first-preview GPU poll.
+The trace shows the preview controls visible and a GPU evaluation started with
+no returned result before that deadline; it does not prove a rendering defect.
+The first-frame poll and initial canvas readiness now allow 60 seconds within a
+180-second workflow. Capture dimensions and renderer cleanup assertions remain.
+There are 49 distinct retained passes; Playwright confirms 1,058 remaining cases.
+
 ## Resume the running process
 
 - Command: `npx playwright test --test-list /tmp/web-localization-remaining.txt --max-failures=1`
-- Unified execution session: `6878`; poll this handle before assuming it ended.
-- Active log: `/tmp/web-localization-full-browser-5.log`
+- Unified execution session: `49725`; poll this handle before assuming it ended.
+- Active log: `/tmp/web-localization-full-browser-6.log`
+- Completed background pass: `/tmp/web-localization-full-browser-5.log` (session `6878`, terminal exit 1).
 - Completed 41-pass continuation: `/tmp/web-localization-full-browser-4.log` (session `76158`, terminal exit 1).
 - Completed one-pass continuation: `/tmp/web-localization-full-browser-3.log` (session `85756`, terminal exit 1).
 - Completed six-pass run: `/tmp/web-localization-full-browser-2.log` (session `93960`, terminal exit 1).
