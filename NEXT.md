@@ -3517,3 +3517,11 @@ while preserving model IDs and provider prompt values. Check/build, five
 localization unit tests and three browser cases pass (37.8 seconds), with literal
 extra instructions retained and no external requests. Render execution, remaining
 diagnostics/device and release qualification stay open.
+
+### AI render execution integration checkpoint — 2026-09-11
+
+Six existing English local-provider browser cases pass at `edd0846` across
+three engines and desktop/narrow layouts (2.1 minutes), covering image output,
+byte-identical download, failure/cancellation and settings cleanup. No runtime
+changes or live AI requests were needed. Portuguese execution, device and
+remaining release qualification stay open.

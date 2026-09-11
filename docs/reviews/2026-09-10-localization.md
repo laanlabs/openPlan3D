@@ -1312,3 +1312,15 @@ Logs: `/tmp/web-ai-panel-check.log`, `/tmp/web-ai-panel-build.log`,
 `/tmp/web-ai-panel-unit.log`, `/tmp/web-ai-panel-browser.log`.
 This did not invoke rendering or qualify result/error handlers. Model descriptions,
 service diagnostics, physical-device and remaining NEXT requirements stay open.
+
+## AI render execution integration checkpoint
+
+At `edd0846`, six existing English local-provider browser cases pass across all
+engines at 1440px and 390px (2.1 minutes, exit 0). They check provider settings,
+request construction, image display, byte-identical download, missing-image
+feedback, cancellation, retry-button availability and setting removal. Render
+requests go to the loopback test provider; no live AI service was used. The
+retired hosting proxy still returns 404. No runtime changes in this checkpoint.
+Log: `/tmp/web-ai-render-integration-browser.log`. This preserves execution
+coverage after panel localization; Portuguese execution, live providers, physical
+devices and remaining NEXT requirements stay open.
