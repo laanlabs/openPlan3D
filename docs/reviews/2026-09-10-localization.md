@@ -300,3 +300,13 @@ WebKit: three cases, 26.6 seconds, exit 0, against the isolated deployment serve
 Logs: `/tmp/web-full-print-notice-integration.log` and
 `/tmp/web-english-reload-integration.log`. This supplements the focused Portuguese
 checks; it is not a full-browser, deployed-release or physical-device claim.
+
+## Singular model-discovery result
+
+A one-result model list now reports “1 model found” / “1 modelo encontrado”;
+zero and multiple results retain their existing messages. Five localization unit
+tests, zero-warning Svelte check and production build pass. The provider browser
+flow passes across all three engines with the singular response assertion (three
+cases, 25.8 seconds). Logs: `/tmp/web-model-count-unit.log`,
+`/tmp/web-model-count-check.log`, `/tmp/web-model-count-build.log`,
+`/tmp/web-model-count-browser.log`.

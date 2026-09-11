@@ -27,7 +27,7 @@
       const result = await fetchOpenAIModels(config, fetch, current.signal);
       if (controller !== current) return;
       models = result;
-      message = result.length ? $t('models.found', { count: result.length }) : $t('models.empty');
+      message = result.length ? $t(result.length === 1 ? 'models.foundOne' : 'models.found', { count: result.length }) : $t('models.empty');
     } catch (error) {
       if (controller === current) message = error instanceof Error ? error.message : $t('models.failed');
     } finally {

@@ -354,5 +354,6 @@ export const en = {
   "deployment.saving": "Saving…",
   "deployment.reload": "Save and reload",
   "deployment.backup": "Download JSON backup",
-  "deployment.stay": "Keep editing"
+  "deployment.stay": "Keep editing",
+  "models.foundOne": "{count} model found. Type to search or enter another model ID."
 } as const;

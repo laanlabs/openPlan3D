@@ -2988,3 +2988,10 @@ All 938 unit tests across 87 files pass at `e12cff4` (11.98 seconds, exit 0).
 Three English reload-safety browser cases also pass across all engines (26.6
 seconds), covering failed-save protection, JSON recovery and retry navigation.
 Remaining localization, device and release gates stay open.
+
+### Model-result singular wording — 2026-09-10
+
+Corrected one-result model-discovery wording in English and Portuguese. Five
+localization unit tests, zero-warning Svelte check, production build and all three
+provider browser cases pass. Broader localization and fluent-speaker review remain
+open.

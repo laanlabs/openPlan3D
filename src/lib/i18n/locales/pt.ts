@@ -354,5 +354,6 @@ export const pt = {
   "deployment.saving": "Salvando…",
   "deployment.reload": "Salvar e recarregar",
   "deployment.backup": "Baixar backup JSON",
-  "deployment.stay": "Continuar editando"
+  "deployment.stay": "Continuar editando",
+  "models.foundOne": "{count} modelo encontrado. Digite para pesquisar ou insira outro ID de modelo."
 } as const;

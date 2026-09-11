@@ -43,7 +43,7 @@ test('Portuguese settings edit floor values and configure a provider', async ({ 
   await provider.getByRole('button', { name: 'Salvar configurações OpenAI' }).click();
   await expect(provider.getByRole('status')).toHaveText('Configurações OpenAI salvas.');
   await provider.getByRole('button', { name: 'Carregar modelos', exact: true }).click();
-  await expect(provider.getByRole('status').filter({ hasText: '1 modelos encontrados.' })).toBeVisible();
+  await expect(provider.getByRole('status').filter({ hasText: '1 modelo encontrado.' })).toBeVisible();
   await provider.getByLabel('Modelo OpenAI', { exact: true }).fill('qa-image-model');
   await provider.getByLabel('Modelo OpenAI', { exact: true }).press('Tab');
   await provider.getByRole('button', { name: 'Remover configurações OpenAI' }).click();
