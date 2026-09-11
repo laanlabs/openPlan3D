@@ -1286,3 +1286,15 @@ Logs: `/tmp/web-camera-labels-check.log`, `/tmp/web-camera-labels-build.log`,
 `/tmp/web-camera-labels-unit.log`, `/tmp/web-camera-labels-browser.log`.
 Movement displacement and visual image quality are not measured in this test;
 AI panel, physical touch and remaining NEXT requirements stay open.
+
+## Viewer localization resource integration checkpoint
+
+At `6026e66`, all 939 unit tests across 87 files pass (21.12 seconds, exit 0).
+Six existing English camera resource cases pass across Chromium, Firefox and
+WebKit at 1440px and 390px (2.6 minutes, exit 0). Repeated preview open/close,
+reposition, full-size capture and 2D/3D transitions retain context release and
+resource allocation invariants. No runtime changes in this checkpoint.
+Logs: `/tmp/web-viewer-localization-integration-unit.log`,
+`/tmp/web-viewer-localization-integration-browser.log`. Browser viewport coverage
+is not physical-touch, memory/battery or full-browser qualification. Remaining
+NEXT requirements stay open.
