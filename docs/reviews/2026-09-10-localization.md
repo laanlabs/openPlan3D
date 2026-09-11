@@ -1405,3 +1405,13 @@ English cases. Logs: `/tmp/web-canvas-actions-check.log`,
 `/tmp/web-canvas-actions-build.log`, `/tmp/web-canvas-actions-unit.log`,
 `/tmp/web-canvas-actions-browser.log`. Swing/split actions were not exercised
 in this batch; physical-device and remaining NEXT requirements stay open.
+
+## Contextual editor integration checkpoint
+
+At `85f42dc`, all 939 unit tests across 87 files pass (4.48 seconds, exit 0).
+Six existing English wall-dimension browser cases pass across three engines at
+1440px/390px (2.3 minutes, exit 0), covering joined-room geometry, valid opening
+values, invalid drafts, imperial input, Undo precision, persistence and 3D entry.
+Logs: `/tmp/web-context-integration-unit.log`,
+`/tmp/web-context-integration-browser.log`. No runtime changes in this checkpoint.
+Full-browser, physical-device and remaining NEXT requirements stay open.

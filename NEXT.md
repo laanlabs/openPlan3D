@@ -163,7 +163,14 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
-Latest full web unit checkpoint: **939 tests across 87 files passed** at `6026e66`
+Latest full web unit checkpoint: **939 tests across 87 files passed** at `85f42dc`
+(4.48 seconds). Six existing English wall-dimension cases pass across three
+engines at desktop/narrow widths (2.3 minutes), retaining connected edits,
+opening values, invalid-input recovery, imperial precision and persistence.
+See the [localization integration record](docs/reviews/2026-09-10-localization.md).
+Full-browser and physical-device qualification remain open.
+
+Earlier full web unit checkpoint: **939 tests across 87 files passed** at `6026e66`
 (21.12 seconds). Six existing camera resource cases pass across all engines at
 1440px and 390px (2.6 minutes), covering repeated preview/capture/reposition and
 2D/3D transitions. See the
