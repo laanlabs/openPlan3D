@@ -9,6 +9,9 @@ import { base } from '$app/paths';
 const cache = new Map<string, HTMLCanvasElement>();
 const imageCache = new Map<string, HTMLImageElement>();
 const loadingSet = new Set<string>();
+// Failed requests can retry on a later draw without producing a request per frame.
+const retryAfter = new Map<string, number>();
+const TEXTURE_RETRY_DELAY_MS = 30_000;
 
 /** Photo texture paths (served from /textures/) */
 const PHOTO_TEXTURES: Record<string, string> = Object.fromEntries(
@@ -34,14 +37,20 @@ function loadPhotoTexture(id: string, onLoad?: () => void): HTMLCanvasElement | 
   }
 
   // Start loading if not already
-  if (!loadingSet.has(id)) {
+  if (!loadingSet.has(id) && Date.now() >= (retryAfter.get(id) ?? 0)) {
     loadingSet.add(id);
     const img = new Image();
     img.onload = () => {
+      loadingSet.delete(id);
+      retryAfter.delete(id);
       imageCache.set(id, img);
       cache.delete(cacheKey); // clear so next call rebuilds
       cache.delete(id); // clear procedural fallback too
       if (onLoad) onLoad();
+    };
+    img.onerror = () => {
+      loadingSet.delete(id);
+      retryAfter.set(id, Date.now() + TEXTURE_RETRY_DELAY_MS);
     };
     img.src = url;
   }
@@ -514,13 +523,19 @@ export function getFloorTextureCanvas(materialId: string): HTMLCanvasElement | n
   }
 
   const loadKey = `floor-${resolvedId}`;
-  if (!loadingSet.has(loadKey)) {
+  if (!loadingSet.has(loadKey) && Date.now() >= (retryAfter.get(loadKey) ?? 0)) {
     loadingSet.add(loadKey);
     const img = new Image();
     img.onload = () => {
+      loadingSet.delete(loadKey);
+      retryAfter.delete(loadKey);
       imageCache.set(loadKey, img);
       cache.delete(cacheKey);
       notifyTextureLoad();
+    };
+    img.onerror = () => {
+      loadingSet.delete(loadKey);
+      retryAfter.set(loadKey, Date.now() + TEXTURE_RETRY_DELAY_MS);
     };
     img.src = url;
   }

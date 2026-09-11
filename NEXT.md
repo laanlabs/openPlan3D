@@ -2784,3 +2784,12 @@ Runtime texture loading and the inventory now share a typed filename module,
 replacing formatting-dependent source scraping. Existing 20 material/file
 associations and the generated manifest are unchanged. Catalog check, asset
 regression, Svelte check (zero errors/warnings) and production build passed.
+
+### Wall/floor texture request recovery — 2026-09-10
+
+Fixed permanently pending texture IDs after image-load errors. Wall and floor
+loaders now permit a later draw to retry after a 30-second cooldown, avoiding
+per-frame requests; success wakes rendering and reuses the cached image.
+Both regression cases failed before the fix; all three focused recovery/asset
+tests, zero-warning Svelte check, catalog check and production build passed.
+See [validation](docs/reviews/2026-09-10-texture-recovery.md).
