@@ -973,25 +973,25 @@
     <div class="space-y-3">
       <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
         <span class="w-6 h-6 bg-emerald-100 rounded flex items-center justify-center text-xs">🏷️</span>
-        Text Annotation
+        {$t('annotationProperties.heading')}
       </h3>
       <label class="block">
-        <span class="text-xs text-gray-500">Text</span>
+        <span class="text-xs text-gray-500">{$t('annotationProperties.text')}</span>
         <textarea rows="3" value={selectedTextAnnotation.text} oninput={(e) => updateTextAnnotation(selectedTextAnnotation!.id, { text: (e.target as HTMLTextAreaElement).value })} class="w-full px-2 py-1 border border-gray-200 rounded text-sm resize-y"></textarea>
       </label>
       <label class="block">
-        <span class="text-xs text-gray-500">Font Size</span>
+        <span class="text-xs text-gray-500">{$t('annotationProperties.fontSize')}</span>
         <input type="number" value={selectedTextAnnotation.fontSize} min="8" max="72" oninput={(e) => scalarInput(e, selectedTextAnnotation!.fontSize, value => updateTextAnnotation(selectedTextAnnotation!.id, { fontSize: value }))} onblur={(e) => scalarInput(e, selectedTextAnnotation!.fontSize, value => updateTextAnnotation(selectedTextAnnotation!.id, { fontSize: value }))} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
-        <span class="text-xs text-gray-500">Color</span>
+        <span class="text-xs text-gray-500">{$t('furnitureProperties.color')}</span>
         <div class="flex items-center gap-2">
           <input type="color" value={selectedTextAnnotation.color} oninput={(e) => updateTextAnnotation(selectedTextAnnotation!.id, { color: (e.target as HTMLInputElement).value })} class="w-8 h-6 rounded border border-gray-200 cursor-pointer" />
           <span class="text-xs text-gray-400">{selectedTextAnnotation.color}</span>
         </div>
       </label>
       <label class="block">
-        <span class="text-xs text-gray-500">Rotation (°)</span>
+        <span class="text-xs text-gray-500">{$t('symbolProperties.rotation')}</span>
         <input type="number" value={selectedTextAnnotation.rotation} oninput={(e) => scalarInput(e, selectedTextAnnotation!.rotation, value => updateTextAnnotation(selectedTextAnnotation!.id, { rotation: value }))} onblur={(e) => scalarInput(e, selectedTextAnnotation!.rotation, value => updateTextAnnotation(selectedTextAnnotation!.id, { rotation: value }))} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">

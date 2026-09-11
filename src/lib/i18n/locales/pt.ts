@@ -765,5 +765,8 @@ export const pt = {
   "columnColor.Wood": "Madeira",
   "columnColor.Bronze": "Bronze",
   "columnColor.Silver": "Prata",
-  "columnColor.Navy": "Azul-marinho"
+  "columnColor.Navy": "Azul-marinho",
+  "annotationProperties.heading": "Anotação de texto",
+  "annotationProperties.text": "Texto",
+  "annotationProperties.fontSize": "Tamanho da fonte"
 } as const;

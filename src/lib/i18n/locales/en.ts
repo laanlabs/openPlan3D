@@ -765,5 +765,8 @@ export const en = {
   "columnColor.Wood": "Wood",
   "columnColor.Bronze": "Bronze",
   "columnColor.Silver": "Silver",
-  "columnColor.Navy": "Navy"
+  "columnColor.Navy": "Navy",
+  "annotationProperties.heading": "Text Annotation",
+  "annotationProperties.text": "Text",
+  "annotationProperties.fontSize": "Font Size"
 } as const;

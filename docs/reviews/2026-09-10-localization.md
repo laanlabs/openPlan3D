@@ -867,3 +867,19 @@ stair undo and the existing door/window/stair export comparisons. Reproduction l
 `/tmp/web-properties-groups-check.log`, `/tmp/web-properties-groups-build.log`,
 `/tmp/web-properties-groups-browser.log`. Screen-reader hardware, physical touch
 and the remaining editor/release scope still require separate qualification.
+
+## Text annotation Properties localization
+
+Translated annotation heading/text/font-size labels and reused translated color
+and rotation labels. Text, coordinates and numeric handlers remain unchanged.
+The existing bilingual inline-annotation test now reselects the saved annotation
+through Layers after reopening, edits multiline text with literal braces plus
+font size/rotation/X/Y, then compares its full exported object.
+
+Production check reports zero errors/warnings; build and five localization unit
+tests pass. Six English/Portuguese browser cases pass across all engines
+(53.2 seconds, exit 0), retaining the existing focus/context-menu/persistence checks.
+Logs: `/tmp/web-annotation-properties-check.log`,
+`/tmp/web-annotation-properties-build.log`, `/tmp/web-annotation-properties-unit.log`,
+`/tmp/web-annotation-properties-browser.log`. Physical touch, rendered multiline
+layout, remaining Properties sections and release requirements stay open.

@@ -73,4 +73,16 @@ for (const locale of ['en', 'pt']) test(`${locale}: requested annotation editing
   await page.goto(`/editor?id=${encodeURIComponent(before.id)}`);
   await expect(page.getByRole('button', { name: locale === 'pt' ? 'Salvar' : 'Save', exact: true })).toBeVisible();
   expect((await exported()).floors[0].textAnnotations).toEqual(before.floors[0].textAnnotations);
+  await page.getByRole('button', { name: locale === 'pt' ? 'Salvar' : 'Save', exact: true }).press('l');
+  await page.getByRole('button', { name: /Keyboard \{number\} annotation/ }).click();
+  const panel = page.locator('[data-plan-properties]');
+  const text = panel.getByRole('textbox', { name: locale === 'pt' ? 'Texto' : 'Text', exact: true });
+  await text.fill('Updated {name}\nSecond line'); await text.press('Tab');
+  for (const [label,value] of [[locale === 'pt' ? 'Tamanho da fonte' : 'Font Size','23.5'],[locale === 'pt' ? 'Rotação (°)' : 'Rotation (°)','27.5'],['X','125.5'],['Y','-75.5']]) {
+    const field = panel.getByRole('spinbutton', { name: label, exact: true });
+    await field.fill(value); await field.press('Tab');
+  }
+  const edited = await exported();
+  expect(edited.floors[0].textAnnotations[0]).toEqual({ ...before.floors[0].textAnnotations[0], text: 'Updated {name}\nSecond line', fontSize: 23.5, rotation: 27.5, x: 125.5, y: -75.5 });
+
 });

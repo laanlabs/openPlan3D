@@ -3282,3 +3282,10 @@ wrapping form labels with named groups for door hinge/opening and stair directio
 added selected-state semantics. Production check/build and six browser cases pass
 (51.2 seconds), including edited-data export and stair undo. Remaining accessibility,
 localization and device/release requirements stay open.
+
+### Text annotation Properties localization — 2026-09-10
+
+Translated annotation Properties labels. Production check/build and five
+localization unit tests pass. Six bilingual browser cases pass (53.2 seconds),
+checking focus, reopen, literal multiline text and font/rotation/position edits
+through exported data. Remaining Properties/device/release gates stay open.
