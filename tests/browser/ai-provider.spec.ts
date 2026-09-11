@@ -19,6 +19,8 @@ async function openSettings(page: Page, width: number) {
 
 for (const width of [1440, 390]) {
   test(`direct AI provider settings and camera render work at ${width}px without hosting requests`, async ({ page, request }, testInfo) => {
+    // Settings, three render outcomes, download and reload share one workflow.
+    test.slow();
     await page.setViewportSize({ width, height: 900 });
     const errors: string[] = [], hostingPosts: string[] = [];
     page.on('pageerror', error => errors.push(error.message));

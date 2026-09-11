@@ -7,9 +7,12 @@ An initial cold 3D load exceeded the 10-second canvas assertion; the test now
 waits up to 60 seconds for that boundary without weakening its assertions.
 The rerun finished with six passes, then encountered the same loading-state
 deadline in the AI-panel case. Its specific readiness wait is also now bounded
-at 60 seconds. A verified 1,101-case continuation retains the six completed
-cases and runs in session `85756`. Poll the actual process before starting
-competing tests or rebuilding; session `93960` is terminal.
+at 60 seconds. That continuation passed the AI-panel case, then the multi-stage
+AI-provider test hit its overall deadline after successful render/download
+assertions. It now has a 180-second allowance with all checks retained. Seven
+distinct passes are preserved; the verified 1,100-case remainder runs in session
+`76158`. Poll the actual process before starting competing tests or rebuilding;
+sessions `93960` and `85756` are terminal.
 See [the live report](docs/reviews/2026-09-11-catalog-browser-qualification.md).
 No full-suite completion is claimed; broader NEXT requirements remain open.
 

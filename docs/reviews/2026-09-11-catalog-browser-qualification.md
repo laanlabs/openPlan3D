@@ -18,11 +18,21 @@ network-request guard remain intact. Six distinct completed case identities were
 matched against the original inventory and excluded from a 1,101-case continuation.
 Playwright's own list command confirms that continuation count.
 
+The 1,101-case continuation passed the AI-panel case, then exhausted the direct
+AI-provider test's 60-second overall deadline while starting its no-image
+recovery step. The successful render, request checks and byte-exact download
+assertions had completed. This multi-stage workflow now has a 180-second
+slow-test allowance; success, failure, cancellation, reload and network guards
+remain intact. The two completed runs contain seven distinct passes. Their
+union was checked against the original inventory; Playwright confirms 1,100
+remaining cases for the next continuation.
+
 ## Resume the running process
 
 - Command: `npx playwright test --test-list /tmp/web-localization-remaining.txt --max-failures=1`
-- Unified execution session: `85756`; poll this handle before assuming it ended.
-- Active log: `/tmp/web-localization-full-browser-3.log`
+- Unified execution session: `76158`; poll this handle before assuming it ended.
+- Active log: `/tmp/web-localization-full-browser-4.log`
+- Completed one-pass continuation: `/tmp/web-localization-full-browser-3.log` (session `85756`, terminal exit 1).
 - Completed six-pass run: `/tmp/web-localization-full-browser-2.log` (session `93960`, terminal exit 1).
 - Retained pass identities: `/tmp/web-localization-passed.txt`
 - Continuation inventory: `/tmp/web-localization-continuation-inventory.log`
