@@ -1,5 +1,14 @@
 # Browser qualification after shared history fixes
 
+## Firefox milestone
+
+All **366 Firefox cases** now pass, including the focused recovery correction.
+Completed identities exactly match both the Chromium and Firefox portions of
+the original inventory: 732 cases across those two engines. WebKit already has
+its focused recovery pass and the continuation is now entering its remaining
+cases. Session `10120` remains active on the unchanged `ddf7d90` runtime. Full
+browser qualification is still incomplete.
+
 ## Chromium milestone
 
 All **366 Chromium cases** now pass across the initial run, focused recovery
