@@ -1682,3 +1682,15 @@ qualification remains open.
 Logs: `/tmp/web-wall-noop-repro.log`, `/tmp/web-wall-noop-unit.log`,
 `/tmp/web-wall-noop-check.log`, `/tmp/web-wall-noop-build.log`,
 `/tmp/web-wall-noop-browser.log`.
+
+## Wall-height integration checkpoint — 2026-09-11
+
+At f54d739, all 955 unit tests across 90 files pass (3.63 seconds). Three existing
+English sloped-wall browser cases pass across Chromium, Firefox and WebKit (22.3
+seconds). They cover valid/invalid endpoint height edits, Undo/Redo, reversed wall
+and opening values, elevation labels, exact floor preservation after save/reload,
+stacked-3D entry and active-floor switching. No page errors or external requests
+were observed. The 3D portion checks workflow entry, not pixel-perfect geometry.
+No runtime changes were needed. Logs: `/tmp/web-wall-height-integration-unit.log`
+and `/tmp/web-wall-height-integration-browser.log`. Remaining NEXT requirements,
+including physical-device and native release qualification, remain open.

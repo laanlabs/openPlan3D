@@ -163,7 +163,13 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
-Latest full web unit checkpoint: **952 tests across 90 files passed** at `9620cb2`
+Latest full web unit checkpoint: **955 tests across 90 files passed** at `f54d739`
+(3.63 seconds). Three sloped-wall browser cases pass across Chromium, Firefox and
+WebKit (22.3 seconds), covering height edits, opening preservation, Undo/Redo,
+elevation, save/reload and stacked-3D entry. No runtime changes in this checkpoint;
+physical-device and broader release gates remain open.
+
+Earlier full web unit checkpoint: **952 tests across 90 files passed** at `9620cb2`
 (3.60 seconds). Six crossing/curved-room browser cases pass across Chromium,
 Firefox and WebKit (25.0 seconds), checking exported 3D slab geometry through
 stacking and active-floor changes. No runtime changes in this checkpoint;
