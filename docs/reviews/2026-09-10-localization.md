@@ -1929,3 +1929,21 @@ Logs: `/tmp/web-full-browser-audit-2.log`,
 `/tmp/web-editor-save-confirmation-browser.log`.
 The audit's first-pass exclusion list is `/tmp/web-browser-audit-passed.txt`;
 it contains 55 cases and has not yet incorporated the second run's 47 passes.
+
+### 2026-09-11: Geometry drag coordinates after panel/fit redraws
+
+The third audit run excluded 111 verified cases and ran the remaining 939. It
+passed 27 Chromium cases before the curve-handle drag made no geometry change.
+A diagnostic screenshot before dragging showed the selected handle and allowed
+the same drag to pass. The test now waits for the queued resize/fit redraws before
+reading its canvas coordinate markers, rather than relying on the first frame
+counter increment. Its geometry-change and exact Undo/Redo assertions remain.
+
+All 21 geometry-drag cases pass across Chromium, Firefox and WebKit (46.1 seconds).
+No persistent curve-handle runtime defect was established, and no editor code was
+changed. The union of the three audit logs and completed slope/elevation and
+geometry follow-ups contains 154 distinct passes; full qualification is unfinished.
+Logs: `/tmp/web-full-browser-audit-3.log`, `/tmp/web-curve-handle-repro.log`,
+`/tmp/web-geometry-drag-fit-browser.log`.
+The current exclusion list has 111 entries; add the third run and geometry
+follow-up passes before the next continuation.

@@ -34,6 +34,9 @@ for (const kind of ['stair','column','text','endpoint','parallel','curve','room'
       const frame = await page.evaluate(() => (window as any).__mapFrame ?? 0);
       await page.getByTitle('Zoom to Fit (F)', { exact:true }).first().press('Enter');
       await expect.poll(() => page.evaluate(() => (window as any).__mapFrame ?? 0)).toBeGreaterThan(frame);
+      // Panel changes can queue a resize after the first fit frame. Use the
+      // settled canvas transform before converting world coordinates to pixels.
+      await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
     }
     await fit();
     async function point(x:number,y:number) {

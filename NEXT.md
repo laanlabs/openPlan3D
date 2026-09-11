@@ -163,6 +163,14 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+Browser audit continuation at `ef2feff`: 27 more Chromium cases passed before a
+curve-handle drag coordinate failure. The geometry-drag test now lets panel
+resize/fit redraws settle before converting world coordinates into pointer
+positions. All 21 geometry-drag cases pass across the three engines (46.1 seconds),
+including exact Undo/Redo for stairs, columns, text, wall endpoints, parallel walls,
+curves and rooms. No editor code changed. The accumulated audit/follow-up evidence
+now covers 154 distinct cases; the complete 1,050-case suite remains unfinished.
+
 Browser audit continuation at `c47207e`: 47 more Chromium cases passed before a
 save/reload timing failure in the sloped-wall test (102 distinct audit passes so
 far). Slope/elevation tests now await completed saves, including the hidden status
