@@ -299,10 +299,10 @@
   <a
     href={base || '/'}
     class="flex items-center gap-1 text-white/70 hover:text-white text-sm transition-colors"
-    title="Back to Projects"
+    title={$t('projectToolbar.back')}
   >
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-    <span class="hidden sm:inline">Projects</span>
+    <span class="hidden sm:inline">{$t('projectToolbar.projects')}</span>
   </a>
 
   <div class="h-5 w-px bg-white/20 max-xl:hidden"></div>
@@ -310,7 +310,7 @@
   {#if editingName}
     <input
       type="text"
-      aria-label="Project name"
+      aria-label={$t('projectToolbar.name')}
       bind:value={projectName}
       onblur={onNameBlur}
       onkeydown={onNameKeydown}
@@ -320,7 +320,7 @@
     <button
       class="font-semibold text-white text-sm hover:bg-white/10 px-2 py-0.5 rounded transition-colors max-w-[12rem] truncate max-xl:max-w-[4rem]"
       onclick={() => editingName = true}
-      title="Click to rename"
+      title={$t('projectToolbar.rename')}
     >{projectName}</button>
   {/if}
 
@@ -363,10 +363,10 @@
 
   <div class="flex-1"></div>
 
-  <button onclick={undo} class="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded transition-colors" title="Undo (Ctrl+Z)" aria-label="Undo">
+  <button onclick={undo} class="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded transition-colors" title={$t('projectToolbar.undoHint')} aria-label={$t('projectToolbar.undo')}>
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
   </button>
-  <button onclick={redo} class="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded transition-colors" title="Redo (Ctrl+Y)" aria-label="Redo">
+  <button onclick={redo} class="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded transition-colors" title={$t('projectToolbar.redoHint')} aria-label={$t('projectToolbar.redo')}>
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/></svg>
   </button>
 
@@ -646,8 +646,8 @@
 {/if}
 
 {#if importError}
-  <ImportError title="Couldn’t open plan" message={importError} onDismiss={() => importError = null} />
+  <ImportError title={$t('projectToolbar.openError')} message={importError} onDismiss={() => importError = null} />
 {/if}
-{#if packageError}<ImportError title="Couldn’t export package" message={packageError} onDismiss={() => packageError = null} />{/if}
+{#if packageError}<ImportError title={$t('projectToolbar.packageError')} message={packageError} onDismiss={() => packageError = null} />{/if}
 
 <ExportNotice />

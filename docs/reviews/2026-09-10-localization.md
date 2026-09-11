@@ -488,3 +488,20 @@ export equality and stacked-view navigation. Logs:
 `/tmp/web-canvas-integration-unit.log`, `/tmp/web-canvas-integration-english.log`.
 These integration checks do not resolve the earlier intermittent WebKit grid
 click or qualify the full browser suite, physical devices or deployment.
+
+## Project navigation, rename and history toolbar labels
+
+Translated project/back-navigation text, project-name input label, rename hint,
+undo/redo accessibility labels and shortcut hints, plus import/package error
+headings. Actual names, navigation/save guards and undo/redo handlers are unchanged;
+raw service diagnostics remain separate untranslated work. Bilingual workflow
+locators now recognize these controls, while the save-recovery test explicitly
+asserts Portuguese names.
+
+Five localization unit tests, zero-warning Svelte check and production build pass.
+Six browser cases pass across three engines (36.4 seconds), covering literal-brace
+renaming, failed-save backup, retry/persisted name, reactive saved tooltip and
+Portuguese deployment/back-navigation protection and recovery. This run checks
+undo/redo labels, not a new undo/redo behavioral qualification. Logs:
+`/tmp/web-project-toolbar-unit.log`, `/tmp/web-project-toolbar-check.log`,
+`/tmp/web-project-toolbar-build.log`, `/tmp/web-project-toolbar-browser.log`.

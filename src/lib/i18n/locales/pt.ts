@@ -491,5 +491,15 @@ export const pt = {
   "canvasDisplay.snapHint": "Alternar ajuste à grade (S)",
   "canvasDisplay.furnitureHint": "Alternar móveis",
   "canvasDisplay.rulersHint": "Alternar réguas",
-  "canvasDisplay.mapHint": "Alternar minimapa"
+  "canvasDisplay.mapHint": "Alternar minimapa",
+  "projectToolbar.back": "Voltar aos projetos",
+  "projectToolbar.projects": "Projetos",
+  "projectToolbar.name": "Nome do projeto",
+  "projectToolbar.rename": "Clique para renomear",
+  "projectToolbar.undo": "Desfazer",
+  "projectToolbar.undoHint": "Desfazer (Ctrl+Z)",
+  "projectToolbar.redo": "Refazer",
+  "projectToolbar.redoHint": "Refazer (Ctrl+Y)",
+  "projectToolbar.openError": "Não foi possível abrir a planta",
+  "projectToolbar.packageError": "Não foi possível exportar o pacote"
 } as const;

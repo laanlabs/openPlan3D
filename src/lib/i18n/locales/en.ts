@@ -491,5 +491,15 @@ export const en = {
   "canvasDisplay.snapHint": "Toggle Snap to Grid (S)",
   "canvasDisplay.furnitureHint": "Toggle Furniture",
   "canvasDisplay.rulersHint": "Toggle Rulers",
-  "canvasDisplay.mapHint": "Toggle Mini-map"
+  "canvasDisplay.mapHint": "Toggle Mini-map",
+  "projectToolbar.back": "Back to Projects",
+  "projectToolbar.projects": "Projects",
+  "projectToolbar.name": "Project name",
+  "projectToolbar.rename": "Click to rename",
+  "projectToolbar.undo": "Undo",
+  "projectToolbar.undoHint": "Undo (Ctrl+Z)",
+  "projectToolbar.redo": "Redo",
+  "projectToolbar.redoHint": "Redo (Ctrl+Y)",
+  "projectToolbar.openError": "Couldn’t open plan",
+  "projectToolbar.packageError": "Couldn’t export package"
 } as const;

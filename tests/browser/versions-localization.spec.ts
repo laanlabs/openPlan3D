@@ -40,7 +40,7 @@ test('Portuguese history confirmations preserve cancellation and restore the sel
   await entry.getByRole('button', { name: 'Restaurar', exact: true }).click();
   await restore;
   await expect(dialog).toHaveCount(0);
-  await expect(page.getByTitle('Click to rename', { exact: true })).toHaveText(prior.name);
+  await expect(page.getByTitle(/^(?:Click\ to\ rename|Clique\ para\ renomear)$/, { exact: true })).toHaveText(prior.name);
   await page.getByRole('button', { name: /^(?:Export|Exportar)$/, exact: true }).click();
   const downloading = page.waitForEvent('download');
   await page.getByRole('button', { name: /^(?:Download\ JSON|Baixar\ JSON)$/, exact: true }).click();

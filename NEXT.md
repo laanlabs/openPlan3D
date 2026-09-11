@@ -3093,3 +3093,11 @@ An initial WebKit phone-width grid click did not toggle; isolated and full rerun
 passed unchanged. Keep this intermittent observation in view during broader
 WebKit/touch qualification; its cause is not established. Remaining translation
 and physical-device gates stay open.
+
+### Project-toolbar navigation localization — 2026-09-10
+
+Translated project navigation/rename, undo/redo labels and import/export error
+headings. Five unit tests, zero-warning check, production build and six browser
+cases pass (36.4 seconds), verifying preserved names, backup/retry and guarded
+back-navigation. Raw diagnostics, remaining editor panels and device/release
+requirements stay open.

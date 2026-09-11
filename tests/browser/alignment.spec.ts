@@ -30,9 +30,9 @@ for (const locale of ['en', 'pt']) for (const width of [1440,390]) for (const op
     expect(moved.entourage[2].position.y).toBe(150);
     expect(moved.furniture[0].position.x).toBeCloseTo(op==='Align Left'?-29.75:600);
     expect(moved.furniture[0].position.y).toBe(200);
-    await page.getByRole('button',{name:'Undo',exact:true}).click();
+    await page.getByRole('button',{name: /^(?:Undo|Desfazer)$/,exact:true}).click();
     const undone=await exported();expect(undone.entourage).toEqual(before.entourage);expect(undone.furniture).toEqual(before.furniture);
-    await page.getByRole('button',{name:'Redo',exact:true}).click();
+    await page.getByRole('button',{name: /^(?:Redo|Refazer)$/,exact:true}).click();
     const redone=await exported();expect(redone.entourage).toEqual(moved.entourage);expect(redone.furniture).toEqual(moved.furniture);
   });
 }

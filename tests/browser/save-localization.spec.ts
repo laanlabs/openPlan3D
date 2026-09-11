@@ -7,9 +7,12 @@ test('Portuguese save recovery retains edits and translates the elapsed tooltip 
   await page.clock.install();
   await page.goto('/editor');
   await expect(page.getByRole('button', { name: 'Salvar', exact: true })).toBeVisible();
+  await expect(page.getByTitle('Voltar aos projetos', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Desfazer', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Refazer', exact: true })).toBeVisible();
   await failProjectWrites(page);
-  await page.getByTitle('Click to rename', { exact: true }).click();
-  const name = page.getByRole('textbox', { name: 'Project name', exact: true });
+  await page.getByTitle('Clique para renomear', { exact: true }).click();
+  const name = page.getByRole('textbox', { name: 'Nome do projeto', exact: true });
   await name.fill('Original {count} recovery');
   await name.press('Enter');
   await page.getByRole('button', { name: 'Salvar', exact: true }).click();

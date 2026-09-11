@@ -40,9 +40,9 @@ async function advanceCheck(page: Page) {
 }
 
 async function rename(page: Page, name: string) {
-  await page.getByTitle('Click to rename', { exact: true }).click();
-  await page.getByRole('textbox', { name: 'Project name' }).fill(name);
-  await page.getByRole('textbox', { name: 'Project name' }).press('Enter');
+  await page.getByTitle(/^(?:Click\ to\ rename|Clique\ para\ renomear)$/, { exact: true }).click();
+  await page.getByRole('textbox', { name: /^(?:Project\ name|Nome\ do\ projeto)$/ }).fill(name);
+  await page.getByRole('textbox', { name: /^(?:Project\ name|Nome\ do\ projeto)$/ }).press('Enter');
 }
 
 cacheTest('real cached validators cannot create a false update or hide a later deployment', async ({ page, context }) => {
@@ -80,7 +80,7 @@ cacheTest('real cached validators cannot create a false update or hide a later d
     await page.clock.install();
     await page.goto(`${server.url}/editor?id=qa-deployment-cache`);
     await expect(page.getByRole('button', { name: /^(?:Save|Salvar)$/, exact: true })).toBeVisible();
-    await expect(page.getByTitle('Click to rename', { exact: true })).toHaveText('QA Save Conflicts');
+    await expect(page.getByTitle(/^(?:Click\ to\ rename|Clique\ para\ renomear)$/, { exact: true })).toHaveText('QA Save Conflicts');
     await advanceCheck(page);
     expect(server.requests.at(-1)).toEqual({ status: 200, etag: undefined, modified: undefined });
     await expect(page.getByRole('button', { name: 'Save and reload', exact: true })).toHaveCount(0);
@@ -103,7 +103,7 @@ cacheTest('real cached validators cannot create a false update or hide a later d
       page.waitForEvent('framenavigated', frame => frame === page.mainFrame()),
       page.getByRole('button', { name: 'Save and reload', exact: true }).click(),
     ]);
-    await expect(page.getByTitle('Click to rename', { exact: true })).toHaveText('Saved across deployment');
+    await expect(page.getByTitle(/^(?:Click\ to\ rename|Clique\ para\ renomear)$/, { exact: true })).toHaveText('Saved across deployment');
     await advanceCheck(page);
     await expect(page.getByRole('button', { name: 'Save and reload', exact: true })).toHaveCount(0);
     expect((await savedProjects(page))['qa-deployment-cache'].name).toBe('Saved across deployment');
@@ -138,7 +138,7 @@ for (const locale of ['en', 'pt']) test(`${locale}: update reload preserves fail
     expect(backup.name).toBe('Unsaved deployment recovery');
     expect(backup.id).toBe('qa-deployment-save');
     await page.getByRole('button', { name: locale === 'pt' ? 'Continuar editando' : 'Keep editing', exact: true }).click();
-    await page.getByTitle('Back to Projects', { exact: true }).click();
+    await page.getByTitle(/^(?:Back\ to\ Projects|Voltar\ aos\ projetos)$/, { exact: true }).click();
     await expect(page.getByRole('status')).toContainText(locale === 'pt' ? 'Não foi possível salvar suas alterações' : 'Your changes could not be saved');
     await expect(page).toHaveURL(/editor\?id=qa-deployment-save$/);
     await page.evaluate(() => { (window as any).failProjectWrites = false; });
