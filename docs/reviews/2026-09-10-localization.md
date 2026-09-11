@@ -79,3 +79,23 @@ reload. Logs: `/tmp/web-welcome-localization-unit.log`,
 `/tmp/web-welcome-localization-check.log`, `/tmp/web-welcome-localization-build.log`
 and `/tmp/web-welcome-localization-browser.log`. Contextual tooltip translations
 are type checked; this batch does not claim a new interactive tooltip/device run.
+
+## Project library migration
+
+The library shell, empty/loading states, counts, relative dates, template picker,
+project action menus and rename/delete dialogs now use the selected language.
+Menu typeahead follows the translated visible labels; internal action values and
+project data keep their existing meanings. The library header wraps on narrow
+screens to accommodate the action labels. Backup/restore/package buttons are
+translated; their separate dialogs and storage-layer diagnostic text remain open.
+
+Library validation: five localization unit tests pass; Svelte check has zero
+errors/warnings and the production build exits 0. Three browser cases pass in
+Chromium, Firefox and WebKit at 390 × 900 (26.7 seconds). They verify no horizontal
+page overflow, translated count/menu/typeahead, focus restoration, renaming with
+literal braces in user content and unchanged floor geometry, cancellation of
+deletion with identical saved records, and the translated template picker. The
+fixture includes the current door flipSide default to avoid confusing a legacy
+migration with the rename operation. Logs: `/tmp/web-library-localization-unit.log`,
+`/tmp/web-library-localization-check.log`, `/tmp/web-library-localization-build.log`
+and `/tmp/web-library-localization-browser-final.log`.

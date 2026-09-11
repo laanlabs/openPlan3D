@@ -2872,3 +2872,13 @@ check and production build pass. Six Portuguese browser cases pass across all
 three engines at 390 × 900, including bad-import recovery, template export and
 tour dismissal persistence. Library/package dialogs, wider editor translation
 and fluent-speaker/device review remain open. See the localization record.
+
+### Project library localization — 2026-09-10
+
+Translated the library shell, counts/dates, template picker, action menus and
+rename/delete dialogs. Menu typeahead uses visible Portuguese labels; project
+content and action identifiers remain unchanged. Header controls wrap on narrow
+screens. Five localization unit tests, zero-warning Svelte check and production
+build pass. Three 390-pixel browser cases pass across all engines, covering menu
+keyboard behavior, geometry-preserving rename, deletion cancellation and template
+labels. Restore/package dialogs and broader editor translation remain open.
