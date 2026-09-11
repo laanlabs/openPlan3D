@@ -1895,3 +1895,19 @@ and OS interruption behavior remain unqualified. Cancellation releases the drag;
 it does not roll back edits already made while the finger was down.
 Logs: `/tmp/web-touch-cancel-repro.log`, `/tmp/web-touch-cancel-check.log`,
 `/tmp/web-touch-cancel-build.log`, `/tmp/web-touch-cancel-browser.log`.
+
+### 2026-09-11: Broader browser audit and room-coordinate synchronization
+
+The 1,050-case browser run at `78d3ad0` stopped after 55 Chromium passes when the
+floor-switch room-label case opened Room 3,3 while expecting Room 1,1. Newly
+visited floors queue their initial camera fit before a subsequent draw. The test
+now waits for that frame sequence before using recorded label coordinates and
+attaches its observed coordinates for diagnosis. Exact room-name and cross-floor
+rename checks remain unchanged. No persistent runtime geometry defect was
+established by the subsequent checks, so no editor code was changed here.
+
+The focused case passes across all three engines (12.6 seconds), followed by
+three repetitions per engine: nine passes (37.2 seconds). The broader suite is
+not yet qualified. Catalog manifest validation also passes.
+Logs: `/tmp/web-full-browser-audit.log`, `/tmp/web-room-floor-hit-browser.log`,
+`/tmp/web-room-floor-hit-repeat.log`, `/tmp/web-catalog-audit.log`.

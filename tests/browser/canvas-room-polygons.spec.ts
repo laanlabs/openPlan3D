@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { benchmarkProject } from '../fixtures/render-benchmark';
 
-test('room hit polygons and names stay synchronized across floor switches', async ({ page }) => {
+test('room hit polygons and names stay synchronized across floor switches', async ({ page }, testInfo) => {
  await page.addInitScript(() => {
   const fill = CanvasRenderingContext2D.prototype.fillText, clear = CanvasRenderingContext2D.prototype.clearRect;
   (window as any).__roomLabels = [];
@@ -30,7 +30,12 @@ test('room hit polygons and names stay synchronized across floor switches', asyn
  async function edit(name: string, replacement: string) {
   const label = () => page.evaluate(name => (window as any).__roomLabels.find((p: any) => p.text === name), name);
   await expect.poll(label).toBeTruthy();
+  const firstFrame = await label();
+  // A newly visited floor queues its initial fit and then redraws. Coordinates
+  // from the first frame belong to the previous camera, not the settled view.
+  await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
   const p = await label(); await page.mouse.dblclick(p.x, p.y);
+  await testInfo.attach(`label-${replacement}.json`, { body: JSON.stringify({ firstFrame, clicked: p }), contentType: 'application/json' });
   const editor = page.getByRole('textbox', { name: 'Room name', exact: true });
   await expect(editor).toHaveValue(name);
   await editor.fill(replacement); await editor.press('Enter');

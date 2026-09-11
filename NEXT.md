@@ -163,6 +163,13 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+Broader browser audit at `78d3ad0`: the 1,050-case run stopped after 55 Chromium
+passes on a room-label coordinate check following a floor switch. The test now
+waits for the queued initial fit/redraw before clicking a rendered label, retaining
+its exact name and cross-floor checks. Three cases pass, followed by nine repeated
+cases across all three engines (37.2 seconds). No runtime change was made.
+The complete browser audit remains unfinished; catalog manifest validation passed.
+
 Touch cancellation now releases the mouse pipeline without synthesizing clicks or
 double-taps. Drags beyond 10 screen pixels also break the tap chain, including a
 drag that returns to its start; ordinary double-taps remain supported. Nine browser
