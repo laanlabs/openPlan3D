@@ -1947,3 +1947,16 @@ Logs: `/tmp/web-full-browser-audit-3.log`, `/tmp/web-curve-handle-repro.log`,
 `/tmp/web-geometry-drag-fit-browser.log`.
 The current exclusion list has 111 entries; add the third run and geometry
 follow-up passes before the next continuation.
+
+### 2026-09-11: Localized panel selector in modal qualification
+
+The fourth audit run excluded 154 verified cases. It passed 47 more Chromium
+cases before the Portuguese phone RoomPlan/modal case searched for the English
+Toggle tools panel name. The selector now uses Alternar painel de ferramentas
+for Portuguese, matching the shipped interface. All 12 EN/PT desktop/phone-width
+cases pass across three engines (20.9 seconds), retaining cancellation, saved-data
+preservation and modal focus assertions. No runtime code changed.
+
+The accumulated audit/follow-up logs now contain 210 distinct passes out of 1,050.
+Logs: `/tmp/web-full-browser-audit-4.log`, `/tmp/web-modal-localized-panel-browser.log`.
+The exclusion list still has 154 entries; add these two logs before resuming.

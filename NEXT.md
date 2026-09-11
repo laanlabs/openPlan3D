@@ -163,6 +163,13 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+Browser audit at `31f9ba4`: another 47 Chromium cases passed before a Portuguese
+phone-layout modal test searched for an obsolete English panel label. Its selector
+now follows the current locale. All 12 EN/PT desktop/phone-width modal cases pass
+across the three engines (20.9 seconds), retaining cancellation, focus and saved
+data checks. The accumulated audit covers 210 distinct cases; full qualification
+remains unfinished. No editor code changed.
+
 Browser audit continuation at `ef2feff`: 27 more Chromium cases passed before a
 curve-handle drag coordinate failure. The geometry-drag test now lets panel
 resize/fit redraws settle before converting world coordinates into pointer

@@ -157,7 +157,7 @@ test('closing a dialog preserves elevation and 3D edit modes and print remains u
 for (const locale of ['en', 'pt']) for (const width of [1440, 390]) test(`${locale}: RoomPlan cancellation and template modal focus stay local at ${width}px`, async ({ page }) => {
   await page.setViewportSize({ width, height: 900 }); const check = observe(page); await seed(page, locale);
   const before = await storedRecords(page);
-  if (width < 768) await page.getByRole('button', { name: 'Toggle tools panel', exact: true }).click();
+  if (width < 768) await page.getByRole('button', { name: locale === 'pt' ? 'Alternar painel de ferramentas' : 'Toggle tools panel', exact: true }).click();
   const pending = page.waitForEvent('filechooser');
   await page.getByRole('button', { name: locale === 'pt' ? /Importar RoomPlan Escaneamento LiDAR/ : /Import RoomPlan iOS LiDAR scan/ }).click();
   await (await pending).setFiles(resolve('tests/fixtures/handoff-roomplan.json'));
