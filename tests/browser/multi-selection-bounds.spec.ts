@@ -58,6 +58,9 @@ for (const width of [1440, 390]) {
     await expect(page.getByText('5 selected',{exact:true}).first()).toBeVisible();
     await page.getByRole('button', { name:'Save',exact:true }).press('ControlOrMeta+a');
     await expect.poll(() => page.evaluate(() => !!(window as any).__groupBox)).toBe(true);
+    // Selecting an item can open the phone Properties sheet over the old view.
+    // Fit the group into the remaining canvas before driving its visible handle.
+    await page.getByRole('button', { name: 'Fit selection', exact: true }).click();
     await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
     const regions = await page.evaluate(() => (window as any).__stairRects);
     target = { x:(regions[2][0].x+regions[2][2].x)/2,y:(regions[2][0].y+regions[2][2].y)/2 };
@@ -66,6 +69,7 @@ for (const width of [1440, 390]) {
       expect(p.x).toBeGreaterThan(box.left); expect(p.x).toBeLessThan(box.right);
       expect(p.y).toBeGreaterThan(box.top); expect(p.y).toBeLessThan(box.bottom);
     }
+    expect(await page.evaluate(p => document.elementFromPoint(p.x, p.y)?.getAttribute('aria-label'), target)).toBe('Floor plan editor canvas');
     await page.mouse.move(target.x,target.y); await page.mouse.down();
     await page.mouse.move(target.x+40,target.y+30,{steps:5}); await page.mouse.up();
     async function exported() {

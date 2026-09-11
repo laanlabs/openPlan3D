@@ -1960,3 +1960,18 @@ preservation and modal focus assertions. No runtime code changed.
 The accumulated audit/follow-up logs now contain 210 distinct passes out of 1,050.
 Logs: `/tmp/web-full-browser-audit-4.log`, `/tmp/web-modal-localized-panel-browser.log`.
 The exclusion list still has 154 entries; add these two logs before resuming.
+
+### 2026-09-11: Visible target for phone group dragging
+
+The fifth audit run excluded 210 verified cases. Its desktop group case passed,
+but the phone case attempted to drag the L stair under the open Properties sheet.
+The failure screenshot showed the sheet covering the target. The test now uses
+Fit selection after selecting the group and checks that elementFromPoint at the
+drag origin is the canvas. Group bounds, equal movement of unlocked members,
+unchanged locked members and exact Undo checks remain intact.
+
+All six desktop/phone-width cases pass across Chromium, Firefox and WebKit
+(16.3 seconds). No runtime code changed. Accumulated audit/follow-up coverage is
+216 distinct cases out of 1,050; full qualification remains unfinished.
+Logs: `/tmp/web-full-browser-audit-5.log`, `/tmp/web-group-visible-drag-browser.log`.
+The exclusion list still has 210 entries; add these logs before resuming.

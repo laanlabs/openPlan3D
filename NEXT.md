@@ -163,6 +163,13 @@ storage/quotas, project-package format or rendering engine.
 
 ## Current implementation baseline
 
+Browser audit at `b9452d0`: the phone group-drag case targeted a stair covered by
+the Properties sheet. It now uses Fit selection and asserts the drag starts on
+the canvas. All six desktop/phone-width group cases pass across three engines
+(16.3 seconds), preserving movement, locked-item and Undo assertions. No runtime
+code changed. Accumulated qualification covers 216 distinct cases; the complete
+browser suite remains unfinished.
+
 Browser audit at `31f9ba4`: another 47 Chromium cases passed before a Portuguese
 phone-layout modal test searched for an obsolete English panel label. Its selector
 now follows the current locale. All 12 EN/PT desktop/phone-width modal cases pass
