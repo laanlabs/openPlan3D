@@ -403,5 +403,19 @@ export const pt = {
   "floorControls.floors": "Pavimentos",
   "floorControls.outerHint": "(paredes externas)",
   "floorControls.allHint": "(todas as paredes)",
-  "floorControls.emptyHint": "(vazio)"
+  "floorControls.emptyHint": "(vazio)",
+  "saveControls.save": "Salvar",
+  "saveControls.saving": "Salvando…",
+  "saveControls.saved": "Salvo ✓",
+  "saveControls.unsaved": "Não salvo •",
+  "saveControls.never": "Ainda não salvo",
+  "saveControls.now": "Último salvamento: agora",
+  "saveControls.seconds": "Último salvamento: há {count}s",
+  "saveControls.minutes": "Último salvamento: há {count} min",
+  "saveControls.hours": "Último salvamento: há {count}h",
+  "saveControls.error": "As alterações não foram salvas.",
+  "saveControls.savingCopy": "Salvando cópia…",
+  "saveControls.copy": "Salvar como cópia",
+  "saveControls.retry": "Tentar salvar novamente",
+  "saveControls.backup": "Baixar backup JSON"
 } as const;

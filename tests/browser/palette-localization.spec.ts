@@ -6,7 +6,7 @@ test('Portuguese palette searches without accents and executes after closing', a
     localStorage.setItem('o3d_tips_seen', JSON.stringify(['first-wall','first-furniture','first-3d','first-export','first-door']));
   });
   await page.goto('/editor');
-  const save = page.getByRole('button', { name: 'Save', exact: true });
+  const save = page.getByRole('button', { name: /^(?:Save|Salvar)$/, exact: true });
   await save.press('ControlOrMeta+k');
   const search = page.getByRole('combobox', { name: 'Pesquisar comandos', exact: true });
   await search.fill('configuracoes');

@@ -1,0 +1,34 @@
+import { expect, test } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
+import { failProjectWrites, savedProjects } from './storage';
+
+test('Portuguese save recovery retains edits and translates the elapsed tooltip reactively', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('o3d_locale', 'pt'));
+  await page.clock.install();
+  await page.goto('/editor');
+  await expect(page.getByRole('button', { name: 'Salvar', exact: true })).toBeVisible();
+  await failProjectWrites(page);
+  await page.getByTitle('Click to rename', { exact: true }).click();
+  const name = page.getByRole('textbox', { name: 'Project name', exact: true });
+  await name.fill('Original {count} recovery');
+  await name.press('Enter');
+  await page.getByRole('button', { name: 'Salvar', exact: true }).click();
+  const alert = page.getByRole('alert');
+  await expect(alert).toContainText('As alterações não foram salvas.');
+  const pending = page.waitForEvent('download');
+  await alert.getByRole('button', { name: 'Baixar backup JSON', exact: true }).click();
+  const backup = JSON.parse(await readFile((await (await pending).path())!, 'utf8'));
+  expect(backup.name).toBe('Original {count} recovery');
+  await page.evaluate(() => { (window as any).failProjectWrites = false; });
+  await alert.getByRole('button', { name: 'Tentar salvar novamente', exact: true }).click();
+  await expect(alert).toHaveCount(0);
+  const saved = page.getByText('Salvo ✓', { exact: true });
+  await expect(saved).toHaveAttribute('title', 'Último salvamento: agora');
+  expect((await savedProjects(page))[backup.id].name).toBe(backup.name);
+  await page.clock.fastForward(65_000);
+  await expect(saved).toHaveAttribute('title', 'Último salvamento: há 1 min');
+  await page.getByRole('button', { name: 'Configurações', exact: true }).click();
+  await page.getByRole('button', { name: 'Aparência', exact: true }).click();
+  await page.getByRole('combobox', { name: 'Idioma', exact: true }).selectOption('en');
+  await expect(page.getByText('Saved ✓', { exact: true })).toHaveAttribute('title', 'Last saved: 1 min ago');
+});

@@ -3019,3 +3019,11 @@ focused unit tests, zero-warning check, production build and six Portuguese
 browser cases pass, covering both toolbar widths, floor framing/camera restoration
 and exported data preservation. Broader localization and device/release gates
 remain open.
+
+### Save-control localization — 2026-09-10
+
+Translated save-state/recovery controls and made elapsed-time tooltips react to
+language changes immediately. Five localization unit tests, zero-warning check,
+production build and six browser cases pass, including storage-failure backup,
+retry, persisted edits and deployment recovery. Raw storage diagnostics, remaining
+editor localization and device/release gates stay open.

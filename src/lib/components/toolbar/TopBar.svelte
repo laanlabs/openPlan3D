@@ -120,17 +120,17 @@
   }
 
   // Relative time for tooltip
-  let lastSavedText = $state('');
+  let secondsSinceSave = $state<number | null>(null);
   let lastSavedTime: Date | null = $state(null);
   onDestroy(lastSavedAt.subscribe(v => { lastSavedTime = v; updateLastSavedText(); }));
+  const lastSavedText = $derived(secondsSinceSave === null ? $t('saveControls.never')
+    : secondsSinceSave < 5 ? $t('saveControls.now')
+    : secondsSinceSave < 60 ? $t('saveControls.seconds', { count: secondsSinceSave })
+    : secondsSinceSave < 3600 ? $t('saveControls.minutes', { count: Math.floor(secondsSinceSave / 60) })
+    : $t('saveControls.hours', { count: Math.floor(secondsSinceSave / 3600) }));
 
   function updateLastSavedText() {
-    if (!lastSavedTime) { lastSavedText = ''; return; }
-    const diff = Math.floor((Date.now() - lastSavedTime.getTime()) / 1000);
-    if (diff < 5) lastSavedText = 'Last saved: just now';
-    else if (diff < 60) lastSavedText = `Last saved: ${diff}s ago`;
-    else if (diff < 3600) lastSavedText = `Last saved: ${Math.floor(diff / 60)} min ago`;
-    else lastSavedText = `Last saved: ${Math.floor(diff / 3600)}h ago`;
+    secondsSinceSave = lastSavedTime ? Math.floor((Date.now() - lastSavedTime.getTime()) / 1000) : null;
   }
 
   function onExport2DPNG() {
@@ -597,30 +597,30 @@
 
   <span
     class="text-[11px] font-medium transition-all duration-300 max-xl:hidden {$saveState === 'saved' ? 'text-emerald-400' : $saveState === 'saving' ? 'text-amber-300 animate-pulse' : 'text-white/50'}"
-    title={lastSavedText || 'Not saved yet'}
+    title={lastSavedText}
   >
     {#if $saveState === 'saving'}
-      Saving…
+      {$t('saveControls.saving')}
     {:else if $saveState === 'saved'}
-      Saved ✓
+      {$t('saveControls.saved')}
     {:else}
-      Unsaved •
+      {$t('saveControls.unsaved')}
     {/if}
   </span>
   <button onclick={save} class="px-3 py-1.5 max-xl:px-2.5 text-sm bg-white text-slate-800 font-semibold rounded-lg hover:bg-blue-50 transition-colors shadow-sm">
-    Save
+    {$t('saveControls.save')}
   </button>
 </div>
 
 {#if $saveError}
   <div role="alert" class="flex flex-wrap items-center gap-3 bg-red-50 border-b border-red-200 px-4 py-3 text-sm text-red-900">
-    <span class="flex-1 min-w-48">Changes are not saved. {$saveError}</span>
+    <span class="flex-1 min-w-48">{$t('saveControls.error')} {$saveError}</span>
     {#if $saveConflict}
-      <button class="font-semibold underline disabled:opacity-50" disabled={$savingCopy} onclick={saveCurrentAsCopy}>{$savingCopy ? 'Saving copy…' : 'Save as copy'}</button>
+      <button class="font-semibold underline disabled:opacity-50" disabled={$savingCopy} onclick={saveCurrentAsCopy}>{$savingCopy ? $t('saveControls.savingCopy') : $t('saveControls.copy')}</button>
     {:else}
-      <button class="font-semibold underline" onclick={save}>Retry save</button>
+      <button class="font-semibold underline" onclick={save}>{$t('saveControls.retry')}</button>
     {/if}
-    <button class="font-semibold underline" onclick={onExportJSON}>Download JSON backup</button>
+    <button class="font-semibold underline" onclick={onExportJSON}>{$t('saveControls.backup')}</button>
   </div>
 {/if}
 

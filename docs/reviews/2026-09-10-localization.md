@@ -356,3 +356,19 @@ restoration and exported floor-data equality. This run does not qualify physical
 devices. Logs: `/tmp/web-floor-controls-unit.log`,
 `/tmp/web-floor-controls-floor-unit.log`, `/tmp/web-floor-controls-check.log`,
 `/tmp/web-floor-controls-build.log`, `/tmp/web-floor-controls-browser.log`.
+
+## Save status and recovery controls
+
+Translated Save, save-state labels, recovery actions and elapsed-time tooltips.
+The tooltip derives translated text from elapsed seconds, so switching language
+updates it immediately without waiting for the next timer. Save handlers and raw
+storage diagnostics are unchanged; diagnostic localization remains open.
+
+Five localization unit tests, zero-warning Svelte check and production build pass.
+Six browser cases pass across all engines (35.2 seconds): injected IndexedDB write
+failure, original-name JSON backup, successful retry and persisted name, elapsed
+time tooltip and immediate language switch, plus the existing Portuguese
+failed-save/deployment recovery flow. Copy-conflict and physical-device coverage
+are not claimed by this run. Logs: `/tmp/web-save-controls-unit.log`,
+`/tmp/web-save-controls-check.log`, `/tmp/web-save-controls-build.log`,
+`/tmp/web-save-controls-browser.log`.

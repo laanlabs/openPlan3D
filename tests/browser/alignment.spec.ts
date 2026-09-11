@@ -21,7 +21,7 @@ for (const locale of ['en', 'pt']) for (const width of [1440,390]) for (const op
       return JSON.parse(await readFile((await (await pending).path())!,'utf8')).floors[0];
     }
     const before=await exported();
-    await page.getByRole('button',{name:'Save',exact:true}).press('ControlOrMeta+a');
+    await page.getByRole('button',{name: /^(?:Save|Salvar)$/,exact:true}).press('ControlOrMeta+a');
     await page.getByRole('button',{name:locale === 'pt' ? (op === 'Align Left' ? 'Alinhar à Esquerda' : 'Distribuir Horizontalmente') : op,exact:true}).click();
     const moved=await exported();
     expect(moved.entourage[0]).toEqual(before.entourage[0]);

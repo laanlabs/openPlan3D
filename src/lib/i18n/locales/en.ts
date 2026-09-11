@@ -403,5 +403,19 @@ export const en = {
   "floorControls.floors": "Floors",
   "floorControls.outerHint": "(outer walls)",
   "floorControls.allHint": "(all walls)",
-  "floorControls.emptyHint": "(empty)"
+  "floorControls.emptyHint": "(empty)",
+  "saveControls.save": "Save",
+  "saveControls.saving": "Saving…",
+  "saveControls.saved": "Saved ✓",
+  "saveControls.unsaved": "Unsaved •",
+  "saveControls.never": "Not saved yet",
+  "saveControls.now": "Last saved: just now",
+  "saveControls.seconds": "Last saved: {count}s ago",
+  "saveControls.minutes": "Last saved: {count} min ago",
+  "saveControls.hours": "Last saved: {count}h ago",
+  "saveControls.error": "Changes are not saved.",
+  "saveControls.savingCopy": "Saving copy…",
+  "saveControls.copy": "Save as copy",
+  "saveControls.retry": "Retry save",
+  "saveControls.backup": "Download JSON backup"
 } as const;

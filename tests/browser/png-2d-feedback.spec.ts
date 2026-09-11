@@ -29,7 +29,7 @@ for (const locale of ['en', 'pt']) test(`${locale}: 2D PNG uses the plan rendere
  await page.getByRole('button',{name: /^(?:Export\ 2D\ as\ PNG|Exportar\ 2D\ como\ PNG)$/,exact:true}).click();
  await expect(page.getByRole('alert')).toContainText(locale === 'pt' ? 'Não foi possível exportar o PNG 2D' : "Couldn't export 2D PNG");
  await page.getByRole('button',{name:locale === 'pt' ? 'Fechar aviso de exportação' : 'Dismiss export notice'}).click();
- await page.getByRole('button',{name:'Save',exact:true}).press('ControlOrMeta+k');
+ await page.getByRole('button',{name: /^(?:Save|Salvar)$/,exact:true}).press('ControlOrMeta+k');
  await page.getByRole('combobox',{name:locale === 'pt' ? 'Pesquisar comandos' : 'Search commands',exact:true}).fill(locale === 'pt' ? 'Exportar PNG' : 'Export PNG');await page.keyboard.press('Enter');
  await expect(page.getByRole('alert')).toContainText(locale === 'pt' ? 'Não foi possível exportar o PNG 2D' : "Couldn't export 2D PNG");expect(downloads).toBe(0);
  await testInfo.attach('full-plan.png',{body:png,contentType:'image/png'});

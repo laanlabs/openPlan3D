@@ -79,7 +79,7 @@ cacheTest('real cached validators cannot create a false update or hide a later d
 
     await page.clock.install();
     await page.goto(`${server.url}/editor?id=qa-deployment-cache`);
-    await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^(?:Save|Salvar)$/, exact: true })).toBeVisible();
     await expect(page.getByTitle('Click to rename', { exact: true })).toHaveText('QA Save Conflicts');
     await advanceCheck(page);
     expect(server.requests.at(-1)).toEqual({ status: 200, etag: undefined, modified: undefined });
@@ -123,7 +123,7 @@ for (const locale of ['en', 'pt']) test(`${locale}: update reload preserves fail
     await context.addInitScript(locale => localStorage.setItem('o3d_locale', locale), locale);
     await page.clock.install();
     await page.goto(`${server.url}/editor?id=qa-deployment-save`);
-    await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^(?:Save|Salvar)$/, exact: true })).toBeVisible();
     server.serve(server.different);
     await advanceCheck(page);
     await expect(page.getByRole('status')).toContainText(locale === 'pt' ? 'Uma atualização do aplicativo está disponível' : 'An app update is ready');
@@ -157,7 +157,7 @@ test('failed update requests remain quiet and retry after recovery', async ({ pa
     await seed(context, 'qa-deployment-offline');
     await page.clock.install();
     await page.goto(`${server.url}/editor?id=qa-deployment-offline`);
-    await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^(?:Save|Salvar)$/, exact: true })).toBeVisible();
     server.serve(server.different, 503);
     await advanceCheck(page);
     await expect(page.getByRole('button', { name: 'Save and reload' })).toHaveCount(0);
@@ -167,7 +167,7 @@ test('failed update requests remain quiet and retry after recovery', async ({ pa
     await failed;
     await expect(page.getByRole('button', { name: 'Save and reload' })).toHaveCount(0);
     await rename(page, 'Still editable offline');
-    await page.getByRole('button', { name: 'Save', exact: true }).click();
+    await page.getByRole('button', { name: /^(?:Save|Salvar)$/, exact: true }).click();
     await expect(page.getByText('Saved ✓', { exact: true })).toBeVisible();
     await context.setOffline(false);
     server.serve(server.different);
