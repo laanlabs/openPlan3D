@@ -185,19 +185,19 @@
 
   function onExportSVG() {
     const p = get(currentProject);
-    if (p) exportAsSVG(p);
+    if (p) exportAsSVG(p, get(locale));
     exportOpen = false;
   }
 
   function onExportDXF() {
     const p = get(currentProject);
-    if (p) exportDXF(p);
+    if (p) exportDXF(p, get(locale));
     exportOpen = false;
   }
 
   function onExportDWG() {
     const p = get(currentProject);
-    if (p) exportDWG(p);
+    if (p) exportDWG(p, get(locale));
     exportOpen = false;
   }
 

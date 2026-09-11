@@ -1,4 +1,6 @@
 import { drawEntourageDxf } from './entourageDxf';
+import type { Locale } from '$lib/i18n';
+import { furnitureName } from '$lib/i18n/furnitureNames';
 import { getEntourageDef } from './entourageCatalog';
 import { canvasSymbolDxf } from './canvasSymbolDxf';
 import { drawStair } from './canvasRenderer';
@@ -37,7 +39,7 @@ const LAYER_COLORS = {
   ROOMS: 4,       // cyan
 };
 
-export function exportDXF(project: Project) {
+export function exportDXF(project: Project, language: Locale = 'en') {
   const floor = project.floors.find(f => f.id === project.activeFloorId) ?? project.floors[0];
   if (!floor || !hasPlanExportContent(floor) && !(floor.entourage ?? []).some(e=>getEntourageDef(e.defId) && e.opacity!==0)) return;
 
@@ -227,7 +229,7 @@ export function exportDXF(project: Project) {
     }
 
     // Label
-    d.drawText(fx, fy, 4, 0, cat?.name ?? 'Unknown furniture', 'center', 'middle');
+    d.drawText(fx, fy, 4, 0, cat ? furnitureName(fi.catalogId, language) : 'Unknown furniture', 'center', 'middle');
   }
 
   d.addLayer('ENTOURAGE', 8, 'CONTINUOUS');
@@ -252,12 +254,12 @@ export function exportDXF(project: Project) {
   download(blob, `${project.name || 'floorplan'}.dxf`);
 }
 
-export function exportDWG(project: Project) {
+export function exportDWG(project: Project, language: Locale = 'en') {
   // DWG is a proprietary binary format. No good JS library exists.
   // Export as DXF — virtually all CAD software (AutoCAD, SketchUp, etc.) opens DXF natively.
   const floor = project.floors.find(f => f.id === project.activeFloorId) ?? project.floors[0];
   if (!floor || !hasPlanExportContent(floor) && !(floor.entourage ?? []).some(e=>getEntourageDef(e.defId) && e.opacity!==0)) return;
 
   alert('DWG is a proprietary binary format. Exporting as DXF instead — all major CAD tools (AutoCAD, SketchUp, FreeCAD) can open DXF files directly.');
-  exportDXF(project);
+  exportDXF(project, language);
 }

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { t } from '$lib/i18n';
+  import { t, locale } from '$lib/i18n';
   import { exportPNGWithFeedback, exportPDFWithFeedback as exportPDF } from '$lib/stores/exportNotice';
   import { tick } from 'svelte';
   import { modalDialog } from '$lib/utils/modalDialog';
@@ -40,8 +40,8 @@
   ]);
 
   const actions: ResultItem[] = $derived([
-    { id: 'a-export-svg', name: $t('commandPalette.exportSvg'), icon: '⚡', category: 'action', categoryLabel: `⚡ ${$t('commandPalette.action')}`, action: () => { const p = get(currentProject); if (p) exportAsSVG(p); } },
-    { id: 'a-export-dxf', name: $t('commandPalette.exportDxf'), icon: '⚡', category: 'action', categoryLabel: `⚡ ${$t('commandPalette.action')}`, action: () => { const p = get(currentProject); if (p) exportDXF(p); } },
+    { id: 'a-export-svg', name: $t('commandPalette.exportSvg'), icon: '⚡', category: 'action', categoryLabel: `⚡ ${$t('commandPalette.action')}`, action: () => { const p = get(currentProject); if (p) exportAsSVG(p, get(locale)); } },
+    { id: 'a-export-dxf', name: $t('commandPalette.exportDxf'), icon: '⚡', category: 'action', categoryLabel: `⚡ ${$t('commandPalette.action')}`, action: () => { const p = get(currentProject); if (p) exportDXF(p, get(locale)); } },
     { id: 'a-export-pdf', name: $t('commandPalette.exportPdf'), icon: '⚡', category: 'action', categoryLabel: `⚡ ${$t('commandPalette.action')}`, action: () => { const p = get(currentProject); if (p) exportPDF(p); } },
     { id: 'a-export-png', name: $t('commandPalette.exportPng'), icon: '⚡', category: 'action', categoryLabel: `⚡ ${$t('commandPalette.action')}`, action: () => { const p = get(currentProject); if (p) void exportPNGWithFeedback(p); } },
     { id: 'a-export-json', name: $t('commandPalette.exportJson'), icon: '⚡', category: 'action', categoryLabel: `⚡ ${$t('commandPalette.action')}`, action: () => { const p = get(currentProject); if (p) exportAsJSON(p); } },

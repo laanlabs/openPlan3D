@@ -1,5 +1,20 @@
 # Next work and pause handoff
 
+## SVG and DXF furniture captions — September 11
+
+Vector furniture labels now use the selected language from both the export menu
+and command palette. The exporters accept an explicit locale with English as
+the default for existing callers; the DWG-to-DXF fallback passes it through too.
+Unknown-item fallback text and source project data remain unchanged.
+
+All 28 focused export/catalog tests pass. The new comparison checks exact SVG
+equality apart from translated captions and every DXF tag apart from captions
+and freshly allocated entity handles/references, plus unchanged source JSON.
+Final production check reports zero diagnostics and build passes. All three
+browser engines passed real Portuguese SVG/DXF downloads and before/after floor
+equality (1.4 minutes). Other export wording, native CAD-reader review, fluent
+Portuguese review, physical accessibility and the wider NEXT backlog remain open.
+
 ## Live 2D furniture captions — September 11
 
 The 2D editor passes localized furniture names into the pure caption renderer.

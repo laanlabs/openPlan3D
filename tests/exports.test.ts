@@ -45,6 +45,31 @@ function namedProject() {
   return project;
 }
 
+it('localizes vector furniture captions while preserving geometry and source data', async () => {
+  const project = namedProject();
+  project.floors[0].furniture = [{ id: 'caption-chair', catalogId: 'chair', position: { x: 150, y: 120 }, rotation: 35, scale: { x: -1, y: 1.2, z: 1 } }];
+  const before = JSON.stringify(project);
+  exportAsSVG(project);
+  const englishSVG = await downloaded.at(-1)!.text();
+  exportAsSVG(project, 'pt');
+  const portugueseSVG = await downloaded.at(-1)!.text();
+  expect(portugueseSVG).toContain('Poltrona');
+  expect(portugueseSVG.replaceAll('Poltrona', 'Armchair')).toBe(englishSVG);
+  exportDXF(project);
+  const englishDXF = await downloaded.at(-1)!.text();
+  exportDXF(project, 'pt');
+  const portugueseDXF = await downloaded.at(-1)!.text();
+  expect(portugueseDXF).toContain('Poltrona');
+  // Entity handles are freshly allocated for every drawing; normalize references
+  // while comparing every other DXF tag, including all coordinates and layers.
+  const withoutHandles = (dxf: string) => {
+    const lines = dxf.trim().split(/\r?\n/);
+    return lines.flatMap((code, i) => i % 2 || /^(5|105|3[2345][0-9])$/.test(code.trim()) ? [] : [[code, lines[i + 1]]]);
+  };
+  expect(withoutHandles(portugueseDXF.replaceAll('Poltrona', 'Armchair'))).toEqual(withoutHandles(englishDXF));
+  expect(JSON.stringify(project)).toBe(before);
+});
+
 it('writes the saved room name into a real SVG download with XML escaping', async () => {
   exportAsSVG(namedProject());
   expect(downloaded).toHaveLength(1);
