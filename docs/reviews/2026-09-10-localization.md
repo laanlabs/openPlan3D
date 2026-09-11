@@ -794,3 +794,26 @@ open for reproduction. Logs: `/tmp/web-symbol-properties-browser.log`,
 `/tmp/web-symbol-properties-browser-final.log`, with check/build/unit logs under
 `/tmp/web-symbol-properties-*.log`. Physical touch and remaining editor/release
 requirements are still open.
+
+## Save-status layout shift and intermittent Undo click
+
+Repeated the unchanged WebKit symbol scenario at `b19055a`: the fourth run failed
+at placement Undo (three passed, one failed, one not run). Its trace shows the save
+label switching to Salvo during the Undo click and subsequent toolbar coordinates
+moving by about 19px. This supports a moving-target cause rather than a symbol
+history mutation defect. The toolbar now reserves the maximum width of all three
+translated status labels using overlapping invisible CSS-generated measurement
+text. The visible status and elapsed tooltip remain accessible without duplicate
+status text. Undo/redo behavior itself is unchanged.
+
+Added a browser assertion that Undo's bounding box is identical before saving and
+after failed-save recovery. Check has zero errors/warnings; an isolated production
+build passes. Six save/symbol cases pass across all engines (1.0 minute), followed
+by five consecutive WebKit symbol cases (47.7 seconds). A first validation build
+produced a startup data error before the editor loaded; rebuilding alone cleared
+it. Keep Svelte sync/check and production build sequential to avoid shared output
+races. No claim that this explains every prior intermittent canvas-control failure.
+
+Logs: `/tmp/web-symbol-undo-repeated.log`, `/tmp/web-save-width-check-final.log`,
+`/tmp/web-save-width-build-serial.log`, `/tmp/web-save-width-browser-final.log`,
+`/tmp/web-save-width-webkit-repeat.log`. Physical-device and broader gates remain open.

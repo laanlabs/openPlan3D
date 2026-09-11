@@ -599,10 +599,12 @@
     {/if}
   </div>
 
-  <span
-    class="text-[11px] font-medium transition-all duration-300 max-xl:hidden {$saveState === 'saved' ? 'text-emerald-400' : $saveState === 'saving' ? 'text-amber-300 animate-pulse' : 'text-white/50'}"
-    title={lastSavedText}
-  >
+  <!-- Reserve the widest translated status so autosave cannot move toolbar targets. -->
+  <span class="inline-grid shrink-0 text-[11px] font-medium max-xl:hidden">
+    {#each (['saveControls.saving', 'saveControls.saved', 'saveControls.unsaved'] as const) as key}
+      <span aria-hidden="true" data-save-label={$t(key)} class="invisible col-start-1 row-start-1 whitespace-nowrap before:content-[attr(data-save-label)]"></span>
+    {/each}
+    <span class="col-start-1 row-start-1 whitespace-nowrap transition-colors duration-300 {$saveState === 'saved' ? 'text-emerald-400' : $saveState === 'saving' ? 'text-amber-300 animate-pulse' : 'text-white/50'}" title={lastSavedText}>
     {#if $saveState === 'saving'}
       {$t('saveControls.saving')}
     {:else if $saveState === 'saved'}
@@ -610,6 +612,7 @@
     {:else}
       {$t('saveControls.unsaved')}
     {/if}
+    </span>
   </span>
   <button onclick={save} class="px-3 py-1.5 max-xl:px-2.5 text-sm bg-white text-slate-800 font-semibold rounded-lg hover:bg-blue-50 transition-colors shadow-sm">
     {$t('saveControls.save')}

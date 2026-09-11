@@ -3249,3 +3249,13 @@ for numeric/opacity/lock edits and delete/undo data preservation. An initial Web
 placement undo assertion failed before new edits, then passed unchanged in isolated
 and full reruns; its intermittent cause remains unresolved. See the localization
 record. Remaining Properties and device/release gates stay open.
+
+### Prevent save-status changes moving toolbar controls — 2026-09-10
+
+Reproduced the symbol Undo failure on WebKit run four. Trace evidence shows autosave
+changing the status label during the click and shifting toolbar targets. Reserved
+space for the widest translated status; undo/history logic is unchanged. A new
+position-stability assertion passes across all engines with save/symbol workflows
+(six cases), followed by five consecutive WebKit passes. Production check/build
+pass. This addresses the observed save-label shift; other intermittent canvas
+observations and remaining NEXT requirements remain open.
