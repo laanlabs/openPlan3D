@@ -3195,3 +3195,10 @@ caption. Five unit tests, zero-warning check, production build and three browser
 cases pass (41.8 seconds), verifying failed uploads preserve prior data and valid
 PNG retry preserves original bytes/names. Remaining editor localization and
 physical-device/release gates stay open.
+
+### Symbol FileReader recovery verification — 2026-09-10
+
+Added asynchronous read-error fault injection to upload recovery coverage. Three
+browser cases pass (33.4 seconds), retaining prior data and verifying successful
+retry after restoring the native reader. Runtime source remains `950fc36`; real
+hardware/device failure qualification and remaining NEXT requirements stay open.

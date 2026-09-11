@@ -687,3 +687,16 @@ Reader hardware failures, JPEG/WebP round trips and physical devices are not
 newly qualified by this focused run. Logs: `/tmp/web-symbol-upload-unit.log`,
 `/tmp/web-symbol-upload-check.log`, `/tmp/web-symbol-upload-build.log`,
 `/tmp/web-symbol-upload-browser.log`.
+
+## Symbol FileReader error-path verification
+
+Extended upload recovery coverage with an asynchronous FileReader error event at
+the readAsDataURL boundary. The test verifies the translated read-failure message,
+restores the native reader, compares prior floor/custom-definition data, and then
+retries the valid PNG successfully with its original bytes and name.
+
+All three desktop browser cases pass (33.4 seconds, exit 0), including the existing
+corrupt-image and oversized-file checks, against production source `950fc36`.
+Log: `/tmp/web-symbol-reader-recovery-browser.log`. This tests the browser error
+handler contract using fault injection; it does not simulate hardware failure or
+qualify physical devices. Runtime source is unchanged.

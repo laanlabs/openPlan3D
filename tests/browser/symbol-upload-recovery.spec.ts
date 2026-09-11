@@ -25,6 +25,19 @@ test('symbol upload reports invalid images and recovers without changing prior p
   await upload(Buffer.alloc(2 * 1024 * 1024 + 1));
   await expect(page.getByRole('alert')).toHaveText('Imagem muito grande (máximo de 2 MB)');
   const bytes = await readFile('tests/fixtures/item-photo.png');
+  await page.evaluate(() => {
+    const original = FileReader.prototype.readAsDataURL;
+    (window as any).restoreSymbolReader = () => { FileReader.prototype.readAsDataURL = original; };
+    FileReader.prototype.readAsDataURL = function() {
+      queueMicrotask(() => this.dispatchEvent(new ProgressEvent('error')));
+    };
+  });
+  await upload(bytes);
+  await expect(page.getByRole('alert')).toHaveText('Não foi possível ler esta imagem. Escolha o arquivo novamente.');
+  await page.evaluate(() => { (window as any).restoreSymbolReader(); delete (window as any).restoreSymbolReader; });
+  after = await exported();
+  expect(after.floors).toEqual(before.floors);
+  expect(after.customEntourage).toEqual(before.customEntourage);
   await upload(bytes);
   await expect(page.getByRole('alert')).toHaveCount(0);
   await expect(page.getByRole('button', { name: /Original \{name\}/ })).toBeVisible();
