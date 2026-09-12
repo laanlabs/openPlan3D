@@ -19,13 +19,15 @@ The pre-change full unit checkpoint passed 1,037 tests in 99 files in 3.42 secon
 also passed on `df4dfa4`: 1,037 tests in 99 files, 30.12 seconds (session `66523`,
 exit 0; `/tmp/web-mid-drag-history-unit.log`).
 
-Elevation uses its own `endDrag` handler; its capture-phase keyboard listener
-currently handles Escape only. A separate elevation Undo-while-held regression
-is prepared in `tests/browser/elevation-drag.spec.ts` for execution after the
-active suite. It has not yet been run and is not evidence of a confirmed defect.
+All 48 focused browser cases passed in 11 minutes (session `26654`, terminal
+exit 0; `/tmp/web-mid-drag-history-browser.log`): 16 per engine, covering both
+normal release and Undo while held for seven geometry types and room labels.
+The room-label case failed before the fix and now passes in all three engines.
 
-The 48 focused browser cases are active in session `26654`, log
-`/tmp/web-mid-drag-history-browser.log`. Poll that process before another browser
-run or rebuild. The 1,116-case qualification below applies to runtime `03e0ae1`,
-not this new source change. Broader NEXT requirements remain open.
+Elevation uses its own `endDrag` handler; its capture-phase keyboard listener
+currently handles Escape only. The separate Chromium elevation Undo-while-held
+regression is active in session `49556`, `/tmp/web-elevation-mid-drag-before.log`.
+It is not yet evidence of a confirmed elevation defect. Poll that process before
+another browser run or rebuild. The older 1,116-case qualification applies to
+runtime `03e0ae1`, not this source change. Broader NEXT requirements remain open.
 
