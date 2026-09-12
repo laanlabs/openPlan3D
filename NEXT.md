@@ -5,7 +5,9 @@
 The full-scan preview and Home cards now select singular wording for exactly
 one frame/pair/file, including matching calibration verbs. Zero and larger
 counts retain plural wording. Catalyst build/live verification remains pending;
-see `/tmp/native-scan-count-wording-build.log`.
+see `/tmp/native-scan-count-wording-build.log` and
+`docs/reviews/2026-09-12-scan-count-wording.md` for the active build and prepared
+singular/plural/legacy fixtures.
 
 ## Editor button-local dismissal — Catalyst checks and simulator recovery passed
 
