@@ -1,6 +1,6 @@
 # Next work and pause handoff
 
-## Orbit damping fix — focused checks passed; full browser suite active
+## Orbit damping fix — PDF viewer startup failure under investigation
 
 The unchanged Chromium idle reproduction failed again after orbit (session
 `88961`, terminal exit 1; `/tmp/web-viewer-idle-repro.log`). An isolated run with
@@ -19,11 +19,15 @@ The production build passed (session `33825`, exit 0;
 All 18 idle-rendering, framing and texture-recovery cases passed across all three
 engines in 2.3 minutes (session `54192`, terminal exit 0;
 `/tmp/web-orbit-damping-browser.log`). The original idle assertion is unchanged.
-The new 1,116-case inventory is `/tmp/web-orbit-fixed-inventory.log`; 18 unique
-passes are retained in `/tmp/web-orbit-fixed-passed.txt`. Playwright confirms
-1,098 remaining cases in 137 files. They run in session `23185`, log
-`/tmp/web-orbit-fixed-full-browser-1.log`, using
-`/tmp/web-orbit-fixed-remaining.txt`. Poll that handle before competing runs.
+The current 1,116-case inventory is `/tmp/web-orbit-fixed-inventory.log`.
+Full stage 1 is terminal (session `23185`, exit 1): 229 passed, one failed,
+868 not run, log `/tmp/web-orbit-fixed-full-browser-1.log`. Together with the
+18 focused passes, 247 distinct cases passed on this runtime. The PDF source
+case failed at `pdf-3d-source.spec.ts:31`: its 10-second canvas visibility wait
+expired while the snapshot still showed “Loading 3D viewer…”. The trace contains
+no console errors. This does not yet establish a product defect or a timing-only
+failure. An unchanged Chromium reproduction with tracing runs in session `62767`,
+log `/tmp/web-pdf-source-repro.log`. Poll that handle before competing runs.
 This production change invalidates prior-runtime browser pass credit: the 374
 passes documented below belong to the thumbnail-fixed runtime, not this fix.
 Full browser qualification, the intermittent nested-room Undo investigation,
