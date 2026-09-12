@@ -1,6 +1,6 @@
 # Next work and pause handoff
 
-## Orbit damping fix — build and unit verified; browser checks active
+## Orbit damping fix — focused checks passed; full browser suite active
 
 The unchanged Chromium idle reproduction failed again after orbit (session
 `88961`, terminal exit 1; `/tmp/web-viewer-idle-repro.log`). An isolated run with
@@ -16,8 +16,14 @@ Log: `/tmp/web-orbit-damping-unit.log`. Type checking completed with zero errors
 and warnings (session `79798`, exit 0; `/tmp/web-orbit-damping-check.log`).
 The production build passed (session `33825`, exit 0;
 `/tmp/web-orbit-damping-build.log`). Production source is `03e0ae1`.
-Idle rendering, framing and all texture-recovery cases now run across all three
-engines in session `54192`, log `/tmp/web-orbit-damping-browser.log`.
+All 18 idle-rendering, framing and texture-recovery cases passed across all three
+engines in 2.3 minutes (session `54192`, terminal exit 0;
+`/tmp/web-orbit-damping-browser.log`). The original idle assertion is unchanged.
+The new 1,116-case inventory is `/tmp/web-orbit-fixed-inventory.log`; 18 unique
+passes are retained in `/tmp/web-orbit-fixed-passed.txt`. Playwright confirms
+1,098 remaining cases in 137 files. They run in session `23185`, log
+`/tmp/web-orbit-fixed-full-browser-1.log`, using
+`/tmp/web-orbit-fixed-remaining.txt`. Poll that handle before competing runs.
 This production change invalidates prior-runtime browser pass credit: the 374
 passes documented below belong to the thumbnail-fixed runtime, not this fix.
 Full browser qualification, the intermittent nested-room Undo investigation,
