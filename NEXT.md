@@ -18,7 +18,9 @@ of this change remains pending; the active suite tests runtime `b3c7fa6`, and it
 reserved-ID case does not prove thumbnail correctness. Do not rebuild the
 production server while a browser session is active. Session `8168` is now terminal.
 Type checking passed with zero errors/warnings; log `/tmp/web-reserved-thumbnail-check.log` (session `40986` terminal).
-Production build is running in session `17657`, log `/tmp/web-reserved-thumbnail-build.log`.
+Production build passed; session `17657` is terminal, log `/tmp/web-reserved-thumbnail-build.log`.
+Focused thumbnail and save-conflict browser checks run in session `77574`,
+log `/tmp/web-reserved-thumbnail-browser.log`, across all three engines.
 After the build completes, run the new regression
 cases across all engines. The current 1,107-case run does not qualify this fix
 or include the nine new engine cases.
