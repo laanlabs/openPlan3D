@@ -32,8 +32,9 @@ projection carries placement, angle, floor and footprint; native previews remain
 simplified. This does not introduce a new package version or native GLB renderer.
 
 The web bridge tests cover native-plan edits while retaining model references and
-source bytes. A dedicated real Swift import/edit/export test has been added and
-is still being qualified. Use the [model guide](local-custom-models.md) for import
+source bytes. The dedicated simulator Swift import/edit/export test passed; a web test of its
+actual ZIP also passed for move, resize, rotation and floor changes. Native UI
+interaction and physical-device qualification remain open. Use the [model guide](local-custom-models.md) for import
 limits and the [verification record](reviews/2026-09-12-local-model-import.md) for
 current native-return evidence.
 

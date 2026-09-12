@@ -37,13 +37,14 @@ identifiers and invalid geometry diagnostics.
 Shared storage errors now refer to attachments and translate in the model dialog;
 44 translation/service-message tests passed (`13515`). The preview also adds
 labeled keyboard-operable rotation/zoom buttons and a translated image label.
-That accessibility change awaits a fresh type/build check and its keyboard browser
-case; it is newer than the running shared-storage validation sequence (`22153`).
-Native import/edit/export test `6249` is still compiling in isolated simulator
-build output; real Swift return-package qualification remains pending.
+Production build `22153` passed after those controls were added; their fresh type
+check `73539` and keyboard browser case `67983` are active. Native simulator test
+`6249` passed, and the actual Swift output passed the three web return tests
+(`17274`), preserving model references, original GLB bytes and shared edits.
+Native UI and physical-device qualification remain open.
 
 Remaining: broader browser qualification, external error/localization review,
-accessibility/physical-device testing, and full native return
+accessibility/physical-device testing, and native UI return
 qualification. See `docs/reviews/2026-09-12-local-model-import.md` for exact scope,
 logs, source checkpoints and incomplete checks. This does not close broader NEXT work.
 

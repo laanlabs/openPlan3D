@@ -48,7 +48,8 @@ footprint and placement. Native furniture rendering remains simplified.
 
 The web package test verifies that native-plan moves, rotation, resizing, floor
 changes and instance deletion preserve the model reference and original bytes.
-Actual Swift import/edit/export qualification is still running; this is not a
-claim of native GLB rendering or physical-device qualification. See the
+The simulator Swift storage test and a web test of its actual exported ZIP passed
+for move, resize, rotation and floor changes. This does not qualify native UI
+interaction, native GLB rendering or physical devices. See the
 [package contract](project-package-v1.md), [verification record](reviews/2026-09-12-local-model-import.md)
 and [remaining work](../NEXT.md) for the exact current evidence.

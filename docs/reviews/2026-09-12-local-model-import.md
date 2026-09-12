@@ -729,3 +729,29 @@ rendered canvas changes and returns to its original image, and checks cancellati
 and page errors. This code is newer than the active validation sequence and requires
 a fresh type/build check, browser run and visual inspection. No accessibility or
 physical-device completion is claimed.
+
+
+## Actual native storage round trip passed
+
+Simulator run `6249` exited 0 with `TEST SUCCEEDED`. The selected
+`testCustomModelSourceSurvivesNativeEditingAndExport` passed in 0.254 seconds after
+the app/test build. Swift imported the real web package into isolated session
+storage, saved furniture edits and exported a new package; GLB and web/baseline/
+mapping bytes remained exact. Log: `/tmp/openplan3d-custom-model-native-return-tests.log`.
+The test's actual output is checked in as
+`tests/fixtures/swift-return-custom-model-package.zip`.
+
+Web run `7041` preserved model definitions, source bytes and geometry but failed
+its last assertion on uppercase Swift UUID spelling versus normalized lowercase
+web UUID spelling. The corrected assertion follows the existing reader identity
+normalization; no runtime code changed. Fresh run `17274` passed all three tests
+in 36.88 seconds (`/tmp/web-custom-model-actual-swift-return-final.log`), including
+direct import of the actual Swift ZIP and another web export. This qualifies the
+storage/bridge contract, not native UI, native GLB rendering or physical devices.
+
+Shared-storage type check completed with zero errors/warnings, and build `22153`
+completed with exit 0, including Node adapter output. Bundling began after the
+keyboard-control changes, so that production output includes them. Fresh keyboard
+type check `73539` remains active (`/tmp/web-custom-model-keyboard-check.log`);
+Chromium keyboard case `67983` is running on that build
+(`/tmp/web-custom-model-preview-keyboard-browser.log`).

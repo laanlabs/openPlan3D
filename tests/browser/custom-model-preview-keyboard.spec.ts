@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test.setTimeout(180_000);
-test('model preview can rotate and zoom using keyboard-operated controls', async ({ page }) => {
+test('model preview can rotate and zoom using keyboard-operated controls', async ({ page }, testInfo) => {
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/editor');
@@ -11,6 +11,7 @@ test('model preview can rotate and zoom using keyboard-operated controls', async
   const preview = dialog.getByRole('img', { name: '3D model preview', exact: true });
   await expect(preview).toBeVisible();
   const initial = await preview.screenshot();
+  await testInfo.attach('custom-model-keyboard-controls', { body: await dialog.screenshot(), contentType: 'image/png' });
   for (const name of ['Rotate left', 'Rotate right', 'Rotate up', 'Rotate down', 'Zoom in', 'Zoom out']) {
     const control = dialog.getByRole('button', { name, exact: true });
     await control.focus();

@@ -59,3 +59,28 @@ it('keeps a reusable model after native instance deletion and permits explicit r
   expect(removed.customModels).toBeUndefined();
   expect(removed.projectPackage!.assets).not.toHaveProperty(`assets/${model.assetName}`);
 });
+
+
+it('reads actual Swift storage import/edit/export output with intact model source and references', async () => {
+  const swiftOutput = new Uint8Array(readFileSync('tests/fixtures/swift-return-custom-model-package.zip'));
+  const files = readPackageZip(swiftOutput);
+  const original = packageJSON(files['web.json']);
+  const returned = readProjectPackage(swiftOutput).project;
+  const model = returned.customModels![0];
+  expect(returned.customModels).toEqual(original.customModels);
+  expect(model).toMatchObject({ name: 'My custom box', sourceFilename: 'Original box.glb', attribution: 'User provenance' });
+  expect(returned.floors[0].furniture).toEqual([]);
+  expect(returned.floors.find(floor => floor.level === 1)!.furniture).toEqual([
+    expect.objectContaining({ id: original.floors[0].furniture[0].id, customModelId: model.id,
+      catalogId: 'custom-model', width: 175, depth: 62.5, height: 50,
+      position: { x: 300, y: 250 }, rotation: 45 }),
+  ]);
+  expect((await readCustomModelSource(returned, model.id)).bytes).toEqual(new Uint8Array(bytes));
+  const exported = readPackageZip(projectPackageBytes(returned));
+  expect(exported[`assets/${model.assetName}`]).toEqual(new Uint8Array(bytes));
+  expect(packageJSON(exported['plan.json']).furniture[0]).toMatchObject({
+    // Swift prints uppercase UUIDs; the web reader normalizes their spelling.
+    id: packageJSON(files['plan.json']).furniture[0].id.toLowerCase(), width: 1.75, depth: 0.625,
+    center: { x: 3, y: 2.5 }, angle: Math.PI / 4, level: 1,
+  });
+});
