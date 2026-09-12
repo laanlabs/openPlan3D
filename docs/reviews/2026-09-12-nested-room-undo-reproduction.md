@@ -61,4 +61,15 @@ test body (one directly, one via slow), leaving page fixtures under the default
 geometry/Undo/export assertions and workflow allowance are unchanged. Collection
 passed: six cases across three engines, log
 `/tmp/web-room-slabs-timeout-collection.log`. Runtime behavior remains unmodified.
-A full unchanged nested-room workflow in WebKit is next; it is not yet qualified.
+WebKit session `38782` terminated with exit 0: the full nested-room workflow
+passed in 2.8 minutes (4.3 minutes including runner setup). Log:
+`/tmp/web-nested-undo-sept12-webkit.log`; trace preserved under
+`/tmp/web-nested-undo-sept12-artifacts/webkit-pass`.
+
+The passing case retains area values, label editing and 40-pixel label drag/Undo,
+PNG/SVG/PDF checks, floor-opening Undo/Redo, project-package/JSON persistence,
+and active/stacked-floor slab ray checks. It qualifies this full workflow on
+WebKit after the timeout-scope correction; it does not explain or close the
+original intermittent Undo failure. Chromium and Firefox attempts above remain
+failed setup/workflow-timeout observations, not current passing qualification.
+All runs in this report are now terminal. No application source changed.
