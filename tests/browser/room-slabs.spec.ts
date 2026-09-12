@@ -4,6 +4,10 @@ import { readFile } from 'node:fs/promises';
 import { readPackageZip, packageJSON } from '../../src/lib/utils/projectPackageZip';
 import { BufferGeometry, DoubleSide, Float32BufferAttribute, Group, Mesh, MeshBasicMaterial, Raycaster, Vector3 } from 'three';
 
+// Both workflows include import/reload and software-rendered exports. Configure
+// their existing three-minute budget before page fixtures and beforeEach run.
+test.describe.configure({ timeout: 180_000 });
+
 test.beforeEach(async ({page}) => {
   // Geometry tests do not exercise transient onboarding hints. Seed their
   // supported seen state instead of racing the hint's automatic dismissal.
@@ -33,7 +37,6 @@ function checkSlabs(scene: any, elevation: number, thickness = .05) {
 }
 
 test('nested rooms export one slab at each point on active and stacked floors', async ({ page }) => {
-  test.setTimeout(180_000);
   await page.addInitScript(() => {
     const fill=CanvasRenderingContext2D.prototype.fillText;
     CanvasRenderingContext2D.prototype.fillText=function(text,x,y,maxWidth) {
@@ -180,8 +183,6 @@ test('nested rooms export one slab at each point on active and stacked floors', 
 });
 
 test('room slabs preserve recesses and separate rooms across active-floor switches', async ({ page }, testInfo) => {
-  // Import, reload and three software-rendered exports share one workflow budget.
-  test.slow();
   const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
   await page.goto('/editor');
   await page.getByRole('button', { name: 'Export', exact: true }).click();

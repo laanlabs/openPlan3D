@@ -39,9 +39,26 @@ Its artifacts are preserved under
 The workflow calls `test.setTimeout(180_000)` inside its body; that does not
 extend the preceding page fixture/beforeEach budget. A diagnostic rerun applies
 `--timeout=180000` at invocation so setup gets the same existing workflow
-allowance, with every behavior assertion unchanged. Session `43577` remains
-live, log `/tmp/web-nested-undo-sept12-firefox-setup-budget.log`. No runtime or
-test source was modified. Wait for the actual result before another run.
+allowance, with every behavior assertion unchanged. Session `43577` terminated with exit 1, log
+`/tmp/web-nested-undo-sept12-firefox-setup-budget.log`. It reached the first room
+name editor (correct name assertion passed) but exhausted the total budget at
+the area-visibility assertion, before Undo. The trace measures page creation
+59.33 seconds, navigation 34.65, Export click 26.97, Import JSON click 13.04,
+file input 3.77, and Area Summary click 26.16. These timeouts do not establish
+an incorrect area. Artifacts are preserved under
+`/tmp/web-nested-undo-sept12-artifacts/firefox-workflow`.
 
 Do not interpret setup timeouts or passing reruns as proof that the original
 Undo defect is fixed; retain the exact label restoration assertion.
+
+
+## Setup timeout scope correction
+
+Both workflows previously set their existing 180-second allowance inside the
+test body (one directly, one via slow), leaving page fixtures under the default
+60-second allowance. Moved that same 180-second value to file-level
+`test.describe.configure` and removed the body overrides. The test titles,
+geometry/Undo/export assertions and workflow allowance are unchanged. Collection
+passed: six cases across three engines, log
+`/tmp/web-room-slabs-timeout-collection.log`. Runtime behavior remains unmodified.
+A full unchanged nested-room workflow in WebKit is next; it is not yet qualified.

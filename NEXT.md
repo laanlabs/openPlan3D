@@ -1,13 +1,13 @@
 # Next work and pause handoff
 
-## Nested-room Undo reproduction — Chromium setup failures; Firefox running
+## Nested-room Undo reproduction — setup timeout scope corrected
 
-All three traced Chromium cases timed out at Area Summary before reaching Undo.
-The batch terminated with exit 1; traces are preserved. Firefox first timed out
-in its one-minute page fixture before loading the app. A rerun applies the
-existing three-minute workflow allowance to setup too: session `43577`, log
-`/tmp/web-nested-undo-sept12-firefox-setup-budget.log`, still active. No runtime
-change is justified by the setup failures. See `docs/reviews/2026-09-12-nested-room-undo-reproduction.md`.
+Chromium's three cases timed out before Undo. Firefox first failed during page
+setup, then reached the first room editor but exhausted the workflow budget
+before Undo. Neither establishes a new Undo or area defect. The tests' existing
+three-minute allowance now applies before fixtures too; all six cases collect.
+WebKit workflow execution is next. See
+`docs/reviews/2026-09-12-nested-room-undo-reproduction.md` for exact evidence.
 
 ## Scan-count wording correction — Catalyst build and live checks passed
 
