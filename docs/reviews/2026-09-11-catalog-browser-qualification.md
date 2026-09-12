@@ -324,3 +324,6 @@ The unchanged Firefox photo/quota reproduction passed in 39.2 seconds (session `
 
 
 All three synchronized photo/quota recovery cases passed in 2.6 minutes (session `80528`, terminal exit 0; `/tmp/web-photo-quota-all-engines.log`). Original assertions remain intact; the original layout-race hypothesis remains unproven. Exact inventory matching establishes 534 unique current-runtime passes, counting the repeated Chromium case only once. Playwright confirms 582 remaining tests in 136 files. Full stage 3 runs in session `63876`, `/tmp/web-orbit-fixed-full-browser-3.log`, using `/tmp/web-orbit-fixed-remaining.txt`. Production remains `03e0ae1`; broader NEXT work remains incomplete.
+
+
+Stage 3 terminated (session `63876`, exit 1): 33 passed, one failed, 548 not run in 10.4 minutes. Current-runtime unique passes are 567. Mobile Firefox's five-dialog modal keyboard workflow hit its total 60-second budget at the final editor Backspace action after completing the dialog-loop checks; desktop Firefox passed in 57.4 seconds. Both widths now use `test.slow()` (180 seconds), retaining every focus, keyboard, geometry, storage, export and Undo assertion. Production is unchanged. Six focused cases across all three engines run in session `25685`, `/tmp/web-modal-focus-all-engines.log`.

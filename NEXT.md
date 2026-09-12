@@ -1,5 +1,20 @@
 # Next work and pause handoff
 
+## Current browser qualification — modal workflow timeout verification
+
+Full stage 3 is terminal (session `63876`, exit 1): 33 passed, one failed,
+548 not run in 10.4 minutes; `/tmp/web-orbit-fixed-full-browser-3.log`.
+There are 567 distinct current-runtime passes. The mobile Firefox five-dialog
+keyboard workflow exhausted its 60-second total budget at the final editor
+Backspace action (modal-keyboard.spec.ts:84), after the dialog-loop focus,
+keyboard, geometry and stored-record checks completed. The desktop Firefox
+case passed in 57.4 seconds. Both widths now use `test.slow()` (180 seconds)
+for this multi-dialog/export workflow; all assertions remain unchanged.
+Six focused cases run across all three engines in session `25685`,
+`/tmp/web-modal-focus-all-engines.log`. Production remains `03e0ae1`.
+Poll that handle before competing runs. Full qualification and broader NEXT
+requirements remain incomplete.
+
 ## Current browser qualification — photo recovery verified; suite resumed
 
 Full orbit-runtime stage 2 is terminal (session `46921`, exit 1): 282 passed,

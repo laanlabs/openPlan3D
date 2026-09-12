@@ -45,6 +45,7 @@ async function focusInside(page: Page, name: string) {
 }
 
 for (const width of [1440, 390]) test(`modal focus and keys preserve the selected plan at ${width}px`, async ({ page }, testInfo) => {
+  test.slow(); // Five dialogs, keyboard focus checks and exports on each round trip.
   await page.setViewportSize({ width, height: 900 });
   const check = observe(page); await seed(page);
   const before = await exported(page), stored = await storedRecords(page);
