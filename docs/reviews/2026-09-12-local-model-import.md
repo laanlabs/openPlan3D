@@ -24,8 +24,9 @@ Log: `/tmp/web-local-glb-container-tests.log`. Initial type check `72521`
 terminated with one narrowing error in the parser (and a Vite configuration
 fallback). Changed its throwing helper to a function declaration so TypeScript
 recognizes the non-returning control-flow path. The clean-environment combined
-check is active as session `21661`, log
-`/tmp/web-local-glb-resources-check.log`, using NODE_ENV=production.
+check completed with zero errors and zero warnings, log
+`/tmp/web-local-glb-resources-check.log`, using NODE_ENV=production. It started
+before the scene module was added; the new combined check below covers current source.
 
 ## Embedded resource layer
 
@@ -48,7 +49,7 @@ quota case carrying its own explicit 15-second limit. Log:
 `/tmp/web-local-glb-photo-refactor-tests.log`, session `92179` exit 1. The two
 previously timed-out storage/history cases passed this time. No value assertion
 failed, but a single all-green item-details run has not been established.
-Type-check session `21661` remains live; do not claim completion.
+The earlier type check completed cleanly; see the current combined check below.
 
 ## Scene traversal and instance budgets
 
@@ -84,3 +85,20 @@ finishes; do not interrupt or restart the existing process merely for slowness.
   behavior, placement, editing, exports and resource cleanup in all engines.
 
 Do not label the container reader as completed custom-model import support.
+
+## Accessor storage validation
+
+`validateLocalGLBAccessors` checks component types, element shapes, alignment,
+strided byte ranges, matrix column padding (allowing omitted trailing padding),
+sparse replacement ranges and strictly increasing in-range sparse indices. It
+rejects non-finite float data before decoding, without allocating geometry arrays.
+A 64 MiB aggregate decoded-accessor budget includes zero-initialized accessors
+and interleaved stride sizes. This is an accessor allocation budget, not a bound
+on total renderer memory. Mesh semantics, bounds, extensions, materials, renderer
+compatibility and resource disposal still require implementation before import UI.
+
+Reference: [Khronos accessor storage and alignment](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#accessors).
+
+Verification: all 23 tests in four GLB unit files passed, session `35442` exit 0,
+log `/tmp/web-local-glb-accessors-tests.log`. Combined source type check `88958`
+is still running, log `/tmp/web-local-glb-accessors-check.log`; its result is pending.
