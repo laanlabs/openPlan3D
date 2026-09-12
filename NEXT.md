@@ -36,11 +36,16 @@ The label moved 40 pixels as expected but remained there after Undo. This is
 a behavioral failure, not a viewer-readiness timeout. There are 293 distinct
 current-runtime passes. Log: `/tmp/web-thumbnail-fixed-full-browser-3.log`.
 The unchanged Chromium reproduction passed the entire workflow in 2.2 minutes
-(session `32789`, terminal exit 0; `/tmp/web-nested-undo-repro.log`), bringing
-unique current-runtime passes to 294. The original failure is intermittent and
-remains under investigation. An all-engine nested-room run with traces enabled
-runs in session `59904`, log `/tmp/web-nested-undo-all-engines.log`; production
-and assertions are unchanged.
+(session `32789`, terminal exit 0; `/tmp/web-nested-undo-repro.log`). The traced
+all-engine run also passed unchanged: Chromium 2.2 minutes, Firefox 44.9 seconds,
+and WebKit 35.5 seconds (session `59904`, terminal exit 0;
+`/tmp/web-nested-undo-all-engines.log`). Saved traces are in
+`/tmp/web-nested-undo-passing-traces`. The original intermittent Undo failure
+remains unexplained and open; passing reruns are not proof of a fix.
+There are 296 unique current-runtime passes (the Chromium repeat counts once).
+Playwright confirmed 820 remaining cases. Stage 4 is active in session `42770`,
+log `/tmp/web-thumbnail-fixed-full-browser-4.log`. Production and assertions
+are unchanged.
 Inventory: `/tmp/web-thumbnail-fixed-inventory.log`; remaining list:
 `/tmp/web-thumbnail-fixed-remaining.txt`. Do not mix prior-runtime passes into
 this run. Poll the active handle before competing browser tests or rebuilds.
