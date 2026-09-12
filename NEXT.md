@@ -11,9 +11,16 @@ The Add photo click completed about five seconds into the test, but no chooser
 event arrived before the 60-second total timeout. The snapshot shows the
 expected storage-full banner after editing the note. This is not evidence that
 the test merely needs more time. Original trace and context are preserved in
-`/tmp/web-photo-chooser-failure`. An unchanged traced Firefox reproduction runs
-in session `43729`, `/tmp/web-photo-chooser-repro.log`. No runtime or assertion
-change has been made. Poll that handle before competing browser runs.
+`/tmp/web-photo-chooser-failure`. The unchanged Firefox reproduction passed in 39.2 seconds (session `43729`,
+exit 0; `/tmp/web-photo-chooser-repro.log`). The failed trace selected the old
+Add photo coordinates while the note autosave could introduce the storage-error
+banner; a layout race is a hypothesis, not a confirmed product defect. The test
+now explicitly waits for the expected storage-full alert after editing the note
+before clicking Add photo. This adds synchronization and preserves all original
+photo, saved-byte, draft-export and retry assertions. Production is unchanged.
+Traced verification across all three engines runs in session `80528`,
+`/tmp/web-photo-quota-all-engines.log`. Poll that handle before competing runs.
+The unchanged Firefox pass raises current-runtime distinct passes to 533.
 Full qualification, the intermittent nested-room Undo issue and broader NEXT
 requirements remain incomplete.
 

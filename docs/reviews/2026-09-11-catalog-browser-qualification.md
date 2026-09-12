@@ -318,3 +318,6 @@ All three PDF source cases passed in two minutes (session `77637`, terminal exit
 
 
 Orbit-runtime stage 2 terminated (session `46921`, exit 1): 282 passed, one failed, 583 not run in 56.2 minutes, bringing current-runtime passes to 532. Firefox item-details.spec.ts:224 waited for its second photo chooser until the 60-second test deadline, although the Add photo click completed about five seconds into the test. The snapshot shows the expected quota-error banner after the note edit. Trace/context are preserved in `/tmp/web-photo-chooser-failure`. An unchanged traced Firefox reproduction runs in session `43729`, `/tmp/web-photo-chooser-repro.log`. No timeout, assertion or runtime change has been made.
+
+
+The unchanged Firefox photo/quota reproduction passed in 39.2 seconds (session `43729`, exit 0). The failed trace's click used the old button coordinates while autosave could insert the quota banner; this suggests a layout race but does not prove one. The test now waits for that expected storage-full alert after the note edit and before opening the photo picker. All original assertions are retained and production is unchanged. Traced all-engine verification runs in session `80528`, `/tmp/web-photo-quota-all-engines.log`. Current-runtime unique passes are 533 including the unchanged Firefox reproduction.

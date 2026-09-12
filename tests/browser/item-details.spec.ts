@@ -221,6 +221,8 @@ test('bad photos and quota failures keep the saved project and an exportable dra
   expect(await storedRecords(page)).toEqual(before);
   await failProjectWrites(page);
   await fill(page, 'Item notes', 'Keep this unsaved photo draft');
+  // Let the expected autosave failure finish changing the layout before opening the picker.
+  await expect(page.getByRole('alert').filter({ hasText: 'Browser storage is full' })).toBeVisible();
   await addPhoto(page, resolve('tests/fixtures/item-photo.png'));
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('Browser storage is full');
