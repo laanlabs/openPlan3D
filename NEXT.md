@@ -1,5 +1,14 @@
 # Next work and pause handoff
 
+## Native export sheet dismissal — September 12
+
+Export Options now requests dismissal from inside its own sheet before the
+existing onDismiss callback starts queued work. Live isolated Catalyst checks
+verified Cancel, package export/save, PDF export and save cancellation without
+Escape. The Catalyst build and 12 iPhone simulator package tests passed. See
+`docs/reviews/2026-09-12-export-sheet-dismissal.md`. Separate editor/import-sheet
+delays, physical share-sheet checks and the broader backlog remain open.
+
 ## Floor-specific tracing image checkpoint — September 12
 
 Tracing images now support optional native floor ownership. Native rendering,
