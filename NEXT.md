@@ -8,9 +8,12 @@ plan-wide. Package exchange preserves ownership through floor reordering and
 renumbering, including image-only floors, and retains original asset bytes.
 
 Validation: 28 web package tests passed, Svelte check reported zero errors and
-warnings, and 16 selected Mac Catalyst tests passed. Simulator and interactive
-floor-switching qualification for this change remain outstanding. Earlier full
-suite results below apply to their recorded source revisions, not this change.
+warnings, and 16 selected tests passed on both Mac Catalyst and iPhone 17 Pro
+simulator. The production web build passed. Live isolated Catalyst checks
+confirmed visibility, fitting and owner-specific menu controls while switching
+floors. See `docs/reviews/2026-09-12-underlay-floor-validation.md`. Actual native
+re-export/browser UI coverage of the new owned-floor fixture remains open. Earlier
+full-suite results below apply to their recorded source revisions, not this change.
 The broader NEXT backlog remains open.
 
 ## Native full-suite checkpoint — September 12
