@@ -16,7 +16,12 @@ Production remains `03e0ae1`. Exact inventory matching establishes 570 distinct
 current-runtime passes; Playwright confirms 546 remaining tests in 136 files.
 Full stage 4 runs in session `22429`, `/tmp/web-orbit-fixed-full-browser-4.log`,
 using `/tmp/web-orbit-fixed-remaining.txt`. Poll that handle before competing runs.
-Full qualification and broader NEXT requirements remain incomplete.
+A live inventory audit during stage 4 confirms all 372 Chromium and all 372
+Firefox cases have passed on the current runtime. WebKit has 17 passes and
+355 remaining at this checkpoint (761 total). Stage 4 continues in the same
+session; do not restart it. Passing nested-room workflows does not explain the
+previous intermittent Undo failure. Full qualification and broader NEXT
+requirements remain incomplete.
 
 ## Current browser qualification — photo recovery verified; suite resumed
 

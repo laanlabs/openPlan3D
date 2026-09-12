@@ -330,3 +330,6 @@ Stage 3 terminated (session `63876`, exit 1): 33 passed, one failed, 548 not run
 
 
 All six modal keyboard cases passed in 8.6 minutes (session `25685`, terminal exit 0; `/tmp/web-modal-focus-all-engines.log`), preserving all assertions at both widths in Chromium, Firefox and WebKit. Exact inventory matching establishes 570 distinct current-runtime passes; repeated Chromium and desktop Firefox cases count once. Playwright confirms 546 remaining tests in 136 files. Full stage 4 runs in session `22429`, `/tmp/web-orbit-fixed-full-browser-4.log`, using `/tmp/web-orbit-fixed-remaining.txt`. Production remains `03e0ae1`; full qualification and broader NEXT work remain incomplete.
+
+
+Stage 4 remains live in session `22429`. Exact inventory matching across orbit-runtime logs confirms 372/372 Chromium and 372/372 Firefox cases passed; WebKit has 17 passes with 355 remaining at this checkpoint (761 total). Production remains `03e0ae1`; no competing run was started. Nested-room workflows passed in these engines, but the earlier intermittent Undo failure remains unexplained. WebKit qualification and broader NEXT requirements remain open.
