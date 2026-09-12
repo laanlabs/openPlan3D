@@ -187,11 +187,19 @@ test('slab thickness edits reach the native package in metres', async ({ page })
   check();
 });
 
-test('actual native rotated underlay return keeps its visible orientation and original bytes', async ({ page }, testInfo) => {
+for (const owned of [false, true]) test(`actual native ${owned ? 'floor-owned' : 'rotated'} underlay return keeps its visible orientation and original bytes`, async ({ page }, testInfo) => {
   // Import, editor rendering, package download and screenshot share this budget.
   test.slow();
   const check = observe(page);
   await page.addInitScript(() => {
+    const clear = CanvasRenderingContext2D.prototype.clearRect;
+    CanvasRenderingContext2D.prototype.clearRect = function(...args: Parameters<typeof clear>) {
+      if (this.canvas.getAttribute('aria-label') === 'Floor plan editor canvas') {
+        (window as any).__underlayDraw = undefined;
+        (window as any).__underlayFrame = ((window as any).__underlayFrame ?? 0) + 1;
+      }
+      return clear.apply(this, args);
+    };
     const draw = CanvasRenderingContext2D.prototype.drawImage;
     CanvasRenderingContext2D.prototype.drawImage = function(...args: any[]) {
       const image = args[0];
@@ -204,25 +212,42 @@ test('actual native rotated underlay return keeps its visible orientation and or
   });
   await page.goto('/');
   await page.getByRole('button', { name: 'Import a project package', exact: true }).click();
-  await choose(page, resolve('tests/fixtures/native-return-rotated-underlay.zip'));
+  await choose(page, resolve(`tests/fixtures/native-return-${owned ? 'floor-owned' : 'rotated'}-underlay.zip`));
   await page.getByRole('button', { name: 'Import as copy', exact: true }).click();
   await expect(page.getByRole('dialog').getByRole('status')).toContainText('Project imported.');
   await page.getByRole('button', { name: 'Done', exact: true }).click();
-  await page.getByRole('link', { name: 'QA Rotated Underlay (Imported copy) (Imported copy)', exact: true }).click();
+  await page.getByRole('link', { name: owned ? 'QA Floor-Owned Trace (Imported copy) (Imported copy)' : 'QA Rotated Underlay (Imported copy) (Imported copy)', exact: true }).click();
+  if (owned) {
+    await expect.poll(() => page.evaluate(() => (window as any).__underlayFrame ?? 0)).toBeGreaterThan(0);
+    expect(await page.evaluate(() => (window as any).__underlayDraw)).toBeUndefined();
+    await page.getByRole('combobox', { name: 'Current floor', exact: true }).selectOption({ label: 'Trace Floor' });
+  }
   await expect.poll(() => page.evaluate(() => Boolean((window as any).__underlayDraw))).toBe(true);
-  const rendered = await page.evaluate(() => {
+  // Image loading and initial fit can produce an earlier, offscreen draw.
+  // Sample the current frame until orientation and visible colors agree.
+  await expect.poll(() => page.evaluate(() => {
     const p = (window as any).__underlayDraw;
+    if (!p) return { angle: false, redAbove: false, blueBelow: false };
     const canvas = document.querySelector<HTMLCanvasElement>('[aria-label="Floor plan editor canvas"]')!;
     const ctx = canvas.getContext('2d')!;
     const offset = p.width * Math.hypot(p.a, p.b) / 8;
     // The lower sample is outside the room fill, which overlays the underlay.
-    return { angle: Math.atan2(p.b, p.a), top: [...ctx.getImageData(Math.round(p.x), Math.round(p.y - offset), 1, 1).data], bottom: [...ctx.getImageData(Math.round(p.x), Math.round(p.y + 3 * offset), 1, 1).data] };
-  });
-  // Firefox exposes the canvas transform at float32 precision.
-  expect(rendered.angle).toBeCloseTo(Math.PI / 2, 6);
-  expect(rendered.top[0] - rendered.top[2]).toBeGreaterThan(50);
-  expect(rendered.bottom[2] - rendered.bottom[0]).toBeGreaterThan(50);
+    const top = ctx.getImageData(Math.round(p.x), Math.round(p.y - offset), 1, 1).data;
+    const bottom = ctx.getImageData(Math.round(p.x), Math.round(p.y + 3 * offset), 1, 1).data;
+    // Firefox exposes the canvas transform at float32 precision.
+    return { angle: Math.abs(Math.atan2(p.b, p.a) - Math.PI / 2) < 0.0000005, redAbove: top[0] - top[2] > 50, blueBelow: bottom[2] - bottom[0] > 50 };
+  })).toEqual({ angle: true, redAbove: true, blueBelow: true });
+  if (owned) {
+    const before = await page.evaluate(() => (window as any).__underlayFrame);
+    await page.getByRole('combobox', { name: 'Current floor', exact: true }).selectOption({ label: 'Ground Floor' });
+    await expect.poll(() => page.evaluate(() => (window as any).__underlayFrame)).toBeGreaterThan(before);
+    expect(await page.evaluate(() => (window as any).__underlayDraw)).toBeUndefined();
+    await page.getByRole('combobox', { name: 'Current floor', exact: true }).selectOption({ label: 'Trace Floor' });
+    await expect.poll(() => page.evaluate(() => Boolean((window as any).__underlayDraw))).toBe(true);
+  }
   const files = await packageDownload(page), plan = packageJSON(files['plan.json']);
+  if (owned) expect(plan.underlay.level).toBe(3);
+  else expect(plan.underlay.level).toBeUndefined();
   expect(plan.underlay).toMatchObject({ angle: Math.PI / 2, center: { x: 3, y: 2 }, widthMeters: 4 });
   expect(files[`assets/${plan.underlay.imageFilename}`]).toEqual(new Uint8Array(await readFile('tests/fixtures/underlay-orientation.png')));
   await testInfo.attach('native-return-underlay', { body: await page.screenshot(), contentType: 'image/png' });

@@ -11,9 +11,11 @@ Validation: 28 web package tests passed, Svelte check reported zero errors and
 warnings, and 16 selected tests passed on both Mac Catalyst and iPhone 17 Pro
 simulator. The production web build passed. Live isolated Catalyst checks
 confirmed visibility, fitting and owner-specific menu controls while switching
-floors. See `docs/reviews/2026-09-12-underlay-floor-validation.md`. Actual native
-re-export/browser UI coverage of the new owned-floor fixture remains open. Earlier
-full-suite results below apply to their recorded source revisions, not this change.
+floors. Actual native re-export/browser checks also passed: six cases across
+Chromium, Firefox and WebKit verify owned and legacy image visibility, rotation,
+returned floor ownership and exact PNG bytes. See
+`docs/reviews/2026-09-12-underlay-floor-validation.md`. Earlier full-suite results
+below apply to their recorded source revisions, not this change.
 The broader NEXT backlog remains open.
 
 ## Native full-suite checkpoint — September 12
@@ -1403,8 +1405,8 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
   editing/preview fidelity for curves, slopes, elevations, opening styles and
   annotations while retaining unsupported data through package returns.
 - **Known package presentation limits:** native previews still use straight,
-  uniform-height walls and simplified furniture; one first-floor embedded PNG/JPEG/GIF tracing image now maps to the native
-  underlay including rotation (verified on Catalyst; physical-device qualification remains open). Other imagery
+  uniform-height walls and simplified furniture; one embedded PNG/JPEG/GIF tracing image now maps to the native
+  underlay including rotation and optional floor ownership (verified on Catalyst; physical-device qualification remains open). Other imagery
   settings remain retained. Unenclosed native room labels are preserved without
   web room fill. Room ceiling overrides travel as metadata; web wall heights
   continue to govern 3D geometry. Broaden these capabilities deliberately with

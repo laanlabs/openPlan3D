@@ -40,6 +40,40 @@ angle pi/2, center (3,2) and width 4 metres. Its PNG SHA-256 is
 `fae9c957805920000a8363cbb84d6bb929de39964a603503ff691d251b3ac80a`,
 matching the source image. The QA app was quit after inspection.
 
-Actual native re-export/browser UI qualification for this new floor-owned
-fixture remains to be done. Earlier legacy rotated-image return coverage remains
-historical evidence; physical-device and broader NEXT requirements stay open.
+The native re-export/browser UI check is completed below. Physical-device and
+broader NEXT requirements stay open.
+
+## Native return fixture and browser coverage
+
+The same isolated Catalyst app exported the imported plan through Export →
+Export Options → Export Project Package (ZIP). The options sheet needed Escape
+to reveal the queued save panel; this does not resolve the existing dismissal
+issue. The resulting `tests/fixtures/native-return-floor-owned-underlay.zip` in
+the web repository is the unmodified native output: 2,030 bytes, SHA-256
+`f793d5b81ce6afa2991295855dabefabeba0186a189844b4cd913a82ddf9fbdf`.
+It retains level 3, angle pi/2, center (3,2), width 4 metres and the source PNG
+bytes. The QA app was quit after export.
+
+Browser cases import that actual native package, verify absence on Ground Floor,
+switch to Trace Floor, inspect the canvas transform and red-above/blue-below
+pixels, switch back and forth, then re-export and assert exact floor ownership,
+placement, angle and original PNG bytes. The legacy unowned fixture runs beside
+it to verify continued omission of ownership.
+
+The first six-case run passed all three owned-floor cases and two legacy cases.
+Chromium's legacy case sampled a zero color difference despite a correct later
+screenshot. Sampling now polls the current frame for the expected orientation
+and colors, accommodating image loading/initial framing without dropping the
+visual assertions. The first run is recorded in
+`/tmp/web-native-floor-underlay-browser.log` (session `75288`, exit 1).
+
+The corrected run passed all six cases in 1.8 minutes, two each on Chromium,
+Firefox and WebKit. Session `11838` terminated with exit 0; log:
+`/tmp/web-native-floor-underlay-browser-fixed.log`. Runtime source remains web
+`7fd8570` and native `9d7a8ea`; this follow-up adds fixtures, tests and records.
+
+Reproduce with:
+
+```sh
+npx playwright test tests/browser/project-package.spec.ts --grep 'actual native .* underlay return'
+```
