@@ -524,3 +524,28 @@ interface languages; normal catalog fallback behavior remains unchanged. Type ch
 `79860` is active, log `/tmp/web-custom-model-labels-check.log`. This source change
 is newer than the running browser build and needs separate qualification; do not
 attribute current Firefox/WebKit results to the new labels.
+
+
+## WebKit workflow and admission error translations
+
+Run `63246` terminated with exit 1: WebKit passed the complete import/preview,
+source retention, placement Undo/Redo and save/reload workflow in 1.2 minutes.
+Firefox hit the 180-second test limit and a further 60-second teardown limit;
+its failure snapshot showed the initial editor Build tab, so model import was
+not qualified. Its trace archive remained unreadable even after process exit.
+No failing model value assertion or root cause was established. Keep Firefox
+qualification open rather than treating this as a model correctness failure or
+as a passing workflow. Log: `/tmp/web-custom-model-ui-other-browsers.log`.
+
+Chromium cancellation/removal run `45654` is now active, log
+`/tmp/web-custom-model-removal-ui.log`. It uses the existing production build and
+does not qualify the newer name-label or translation changes.
+
+`customModelMessages.ts` now translates 24 common file/admission, source identity,
+storage, decoder, definition and removal errors. The panel resolves these keys
+reactively for English/Portuguese and preserves unknown validator diagnostics.
+The dictionary test passed (`46336`, `/tmp/web-custom-model-messages-tests.log`).
+This is partial diagnostic localization: geometry and other validator details
+outside the registered messages remain untranslated. Label type check `79860`
+was already running before these edits and cannot qualify the new translations;
+a later final check/build and Portuguese browser check are still required.

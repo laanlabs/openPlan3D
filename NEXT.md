@@ -12,7 +12,7 @@ dimensions; furniture can reference a project model. Structural validation and
 attachment deletion protection are implemented. The focused definition/transport
 run `12846` passed. Legacy regression `57520` had 70 passes and two existing
 photo/history quota-test timeouts; project validation passed. Current type check
-`89302` passed with zero errors/warnings. The import/preview panel passed its Chromium workflow; other browsers remain pending.
+`89302` passed with zero errors/warnings. The import/preview panel passed its Chromium and WebKit workflows; Firefox timed out before import qualification.
 
 Original source byte/digest/container verification is implemented with its
 nine source/definition tests passed as `10510`. The combined static GLB loader
@@ -32,8 +32,8 @@ render through a lazy project-source lease; placement checks passed (17 catalog/
 tests); final placement type check `59212` passed with zero errors/warnings.
 UI type check `55921` passed with zero errors/warnings; production build `94629`
 passed. Chromium UI run `95224` passed preview, exact retained source/digest,
-placement Undo/Redo and confirmed save/reload. Firefox/WebKit import workflow run `63246` is active. Additional cancellation/
-removal coverage is written but not run yet. Custom model names now appear in
+placement Undo/Redo and confirmed save/reload. Firefox/WebKit run `63246` finished: WebKit passed; Firefox hit test and cleanup
+timeouts without qualifying import. Cancellation/removal UI run `45654` is active. Custom model names now appear in
 canvas, Layers and Properties; label type check `79860` is active. See
 `docs/reviews/2026-09-12-local-model-import.md` for exact scope and handles.
 
