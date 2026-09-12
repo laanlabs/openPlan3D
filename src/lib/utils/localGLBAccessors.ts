@@ -33,6 +33,7 @@ export function validateLocalGLBAccessors(container: ReturnType<typeof readLocal
     const size = integer(accessor.componentType) ? sizes[accessor.componentType] : undefined;
     const shape = typeof accessor.type === 'string' && Object.prototype.hasOwnProperty.call(shapes, accessor.type) ? shapes[accessor.type] : undefined;
     if (!size || !Array.isArray(shape) || !integer(accessor.count) || accessor.count < 1) fail('Invalid component type, shape or count.');
+    const componentSize = size;
     if (accessor.normalized !== undefined && (typeof accessor.normalized !== 'boolean' ||
         (accessor.normalized && [5125, 5126].includes(accessor.componentType)))) fail('Invalid normalization.');
     const [columns, rows] = shape;
@@ -47,7 +48,7 @@ export function validateLocalGLBAccessors(container: ReturnType<typeof readLocal
     function checkFloats(source: { offset: number; stride: number }, count: number) {
       if (accessor.componentType !== 5126) return;
       for (let i = 0; i < count; i++) for (let column = 0; column < columns; column++) for (let row = 0; row < rows; row++) {
-        if (!Number.isFinite(bytes!.getFloat32(source.offset + i * source.stride + column * columnBytes + row * size, true))) fail('Non-finite floating-point data.');
+        if (!Number.isFinite(bytes!.getFloat32(source.offset + i * source.stride + column * columnBytes + row * componentSize, true))) fail('Non-finite floating-point data.');
       }
     }
     if (accessor.bufferView !== undefined) {

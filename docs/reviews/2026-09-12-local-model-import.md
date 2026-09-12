@@ -64,9 +64,8 @@ values, and remains disconnected from the renderer until those checks exist.
 Seventeen GLB tests pass across container, resources and scene modules, including
 nested scenes, instancing limits, cycles, transform/reference errors and empty
 scenes. Log: `/tmp/web-local-glb-scene-tests.log`, session `68708` exit 0.
-The running type check started before this scene module existed and cannot alone
-qualify the combined implementation. Check the final combined source after it
-finishes; do not interrupt or restart the existing process merely for slowness.
+The earlier check started before this scene module existed; see the latest
+combined source-check status below.
 
 ## Remaining implementation
 
@@ -100,8 +99,11 @@ compatibility and resource disposal still require implementation before import U
 Reference: [Khronos accessor storage and alignment](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#accessors).
 
 Verification: all 23 tests in four GLB unit files passed, session `35442` exit 0,
-log `/tmp/web-local-glb-accessors-tests.log`. Combined source type check `88958`
-is still running, log `/tmp/web-local-glb-accessors-check.log`; its result is pending.
+log `/tmp/web-local-glb-accessors-tests.log`. Source check `88958` terminated
+with one TypeScript narrowing error in the nested float scanner. Capturing the
+validated component size in a separate numeric constant fixes that error without
+changing runtime behavior. Log: `/tmp/web-local-glb-accessors-check.log`. The
+fresh combined check is recorded below.
 
 ## Mesh geometry validation
 
@@ -123,9 +125,8 @@ The loader integration must handle those layouts faithfully rather than silently
 misreading them. No model import UI is exposed.
 
 The five-file GLB run passed all 29 tests, session `48974` exit 0, log
-`/tmp/web-local-glb-geometry-tests.log`. The earlier source check `88958` remains
-active; it began before this geometry module, so it cannot by itself qualify all
-current source. Do not restart it solely due to elapsed time.
+`/tmp/web-local-glb-geometry-tests.log`. See the latest combined source-check
+status below; the preceding check did not cover all these additions.
 
 ## Dense geometry preparation for GLTFLoader
 
@@ -144,4 +145,25 @@ texture decode and transformed-scene checks remain necessary. All 32 tests in
 the six-file run `90962` passed (exit 0), log `/tmp/web-local-glb-repack-tests.log`,
 including a real GLTFLoader parse of sparse interleaved geometry with omitted
 trailing padding, bounds derived from bytes, and source preservation.
-Source check `88958` remains active and predates the latest source additions.
+See the latest combined source-check status below.
+
+## Core material and texture-reference checks
+
+`validateLocalGLBMaterials` bounds materials (256), textures (64) and samplers
+(64), validates image/sampler/texture/material references, checks core sampler
+modes and material factor ranges, and requires the texture coordinate set used
+by each material on its primitives. The current renderer supports coordinate
+sets 0–3. Resource validation runs first, so malformed embedded images and
+external image URIs are rejected before material processing. Geometry/accessor
+validation remains responsible for the UV accessor formats and actual counts.
+
+This layer validates core metallic/roughness materials, not extensions or actual
+image decoding. It must be combined with the pending import policy and decoded
+texture checks before models are rendered. Reference:
+[Khronos materials specification](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#materials).
+
+All 38 tests in seven GLB test files passed, session `23784` exit 0, log
+`/tmp/web-local-glb-materials-tests.log`. Fresh source check `64070` is active,
+log `/tmp/web-local-glb-materials-check.log`, using NODE_ENV=production. It
+includes all geometry/repacking/material modules and the narrowing correction.
+Do not claim a clean combined type check until it terminates.

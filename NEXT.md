@@ -2,19 +2,16 @@
 
 ## Local custom-model import — validation layers in progress
 
-Container, embedded buffer/image, scene traversal/instance and accessor storage
-and mesh geometry/repacking checks have 32 passing tests. Complete import policy,
-project persistence, preview,
-placement, localization and end-to-end qualification remain to implement.
-The photo suite rerun had 18 passes and one explicit quota-test timeout; the
-earlier clean-environment type check completed with zero errors/warnings.
-Accessor storage validation is now implemented and tested, with a fresh combined
-type check running. Mesh attribute/index/draw validation is now implemented and
-its tests passed. Dense accessor preparation for loader compatibility is now
-implemented and verified through the real GLTF loader. Complete import integration remains
-outstanding. See
+Container, embedded resources, scene traversal, accessor storage, mesh geometry,
+repacking and core material checks have 38 passing tests, including real GLTF
+loader verification of sparse/interleaved geometry. Complete import policy,
+texture decoding, project persistence, preview, placement, localization and
+end-to-end qualification remain to implement. No import UI is exposed yet.
+
+The photo suite rerun had 18 passes and one explicit quota-test timeout. The
+accessor source check ended with one TypeScript narrowing error, now corrected.
+A fresh combined source check is running as `64070`. See
 `docs/reviews/2026-09-12-local-model-import.md` for exact scope and handles.
-No import UI is exposed yet.
 
 ## Nested-room Undo reproduction — WebKit passed; original issue remains open
 
