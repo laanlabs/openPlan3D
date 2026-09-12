@@ -274,3 +274,14 @@ the inventory. Playwright confirms 849 remaining tests in 138 files.
 Continuation `99630` uses `/tmp/web-thumbnail-fixed-full-browser-2.log`;
 passed/remaining files are updated, with validated list in
 `/tmp/web-thumbnail-fixed-continuation-inventory.log`. Completion remains unproven.
+
+Stage 2 (`99630`) terminated after 11 passes (5.8 minutes). Mobile damaged
+import completed its atomicity, undo/redo, reload and extension checks, then
+reached a 10-second canvas deadline while the snapshot showed loading. Both
+widths now allow 60 seconds for readiness within a 180-second workflow. All
+assertions remain and production source is unchanged. The runner also reported
+an error outside a test without a separate diagnostic; it earns no pass credit.
+There are 278 distinct current-runtime passes matched to the inventory;
+Playwright confirms 838 remaining cases. Session `76367` runs them in
+`/tmp/web-thumbnail-fixed-full-browser-3.log`. Passed/remaining/list files are
+updated. Full qualification and wider NEXT requirements remain incomplete.

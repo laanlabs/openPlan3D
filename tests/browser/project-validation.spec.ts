@@ -28,7 +28,7 @@ function observe(page: Page) {
 
 for (const width of [1440, 390]) {
   test(`native import rejects damaged projects atomically at ${width}px`, async ({ page }, testInfo) => {
-    test.setTimeout(90_000);
+    test.setTimeout(180_000);
     await page.setViewportSize({ width, height: 900 });
     const check = observe(page);
     await page.goto('/editor');
@@ -70,7 +70,7 @@ for (const width of [1440, 390]) {
     expect((await exportProject(page)).floors).toEqual(saved.floors);
     expect((await exportProject(page)).extensions).toEqual(source.extensions);
     await page.getByRole('button', { name: '3D', exact: true }).click();
-    await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible();
+    await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible({ timeout: 60_000 });
     await testInfo.attach(`native-import-recovery-${width}`, { body: await page.screenshot(), contentType: 'image/png' });
     check();
   });

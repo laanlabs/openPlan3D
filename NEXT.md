@@ -25,7 +25,13 @@ metadata and exact model-download checks. Session `44047` is terminal; log
 `/tmp/web-thumbnail-fixed-full-browser-1.log`. With the focused checks, 267
 distinct current-runtime passes match the inventory and are retained in
 `/tmp/web-thumbnail-fixed-passed.txt`. Playwright confirms 849 remaining cases;
-these run in session `99630`, log `/tmp/web-thumbnail-fixed-full-browser-2.log`.
+stage 2 ran in session `99630`, log `/tmp/web-thumbnail-fixed-full-browser-2.log`.
+It terminated after 11 passes (5.8 minutes), at the mobile damaged-import
+case’s 10-second canvas deadline while the snapshot showed the loading viewer.
+The wait now allows 60 seconds within 180 seconds overall; exact project,
+library, undo/redo and extension checks remain. There are 278 distinct retained
+passes; Playwright confirms 838 remaining cases. These run in session `76367`,
+log `/tmp/web-thumbnail-fixed-full-browser-3.log`. Production source is unchanged.
 Inventory: `/tmp/web-thumbnail-fixed-inventory.log`; remaining list:
 `/tmp/web-thumbnail-fixed-remaining.txt`. Do not mix prior-runtime passes into
 this run. Poll the active handle before competing browser tests or rebuilds.
