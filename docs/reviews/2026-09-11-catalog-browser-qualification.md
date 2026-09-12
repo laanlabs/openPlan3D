@@ -312,3 +312,6 @@ Orbit-runtime stage 1 is terminal (session `23185`, exit 1): 229 passed, one fai
 
 
 The unchanged PDF Chromium reproduction passed in 48.8 seconds (session `62767`, exit 0; `/tmp/web-pdf-source-repro.log`). Trace timing records 13.27 seconds for successful canvas visibility despite the 10-second configured wait. The test now gives lazy viewer startup 60 seconds and the multi-export workflow 180 seconds; all source-selection, page-count, recovery, notices and failed-download assertions are retained. Production is unchanged; 248 distinct current-runtime passes are established. All-engine verification is active in session `77637`, `/tmp/web-pdf-source-all-engines.log`.
+
+
+All three PDF source cases passed in two minutes (session `77637`, terminal exit 0; `/tmp/web-pdf-source-all-engines.log`): Chromium 52.5 seconds, Firefox 27.1 seconds, WebKit 21.5 seconds. Every export assertion is retained. Production remains `03e0ae1`. Exact inventory matching establishes 250 unique passes; Playwright confirms 866 remaining tests in 136 files. Full stage 2 is active in session `46921`, `/tmp/web-orbit-fixed-full-browser-2.log`, using `/tmp/web-orbit-fixed-remaining.txt`. Full qualification and broader NEXT requirements remain incomplete.

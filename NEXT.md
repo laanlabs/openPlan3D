@@ -1,6 +1,6 @@
 # Next work and pause handoff
 
-## Orbit damping fix — PDF viewer startup failure under investigation
+## Orbit damping fix — PDF checks passed; full browser suite resumed
 
 The unchanged Chromium idle reproduction failed again after orbit (session
 `88961`, terminal exit 1; `/tmp/web-viewer-idle-repro.log`). An isolated run with
@@ -31,9 +31,12 @@ the successful canvas visibility check despite the configured 10-second wait.
 This test now allows 60 seconds for lazy viewer startup and 180 seconds for the
 whole multi-export workflow; all canvas-source, page-count, recovery, notice and
 failed-download assertions remain unchanged. Production source is unchanged.
-All-engine verification runs in session `77637`, log
-`/tmp/web-pdf-source-all-engines.log`. Poll that handle before competing runs.
-The unchanged Chromium pass brings distinct current-runtime passes to 248.
+All three PDF cases passed (session `77637`, terminal exit 0, two minutes;
+`/tmp/web-pdf-source-all-engines.log`), including source selection, recovery,
+page counts and failure notices. Exact inventory matching establishes 250 unique
+current-runtime passes. Playwright confirms 866 remaining tests in 136 files.
+Full stage 2 runs in session `46921`, `/tmp/web-orbit-fixed-full-browser-2.log`,
+using `/tmp/web-orbit-fixed-remaining.txt`. Poll that handle before competing runs.
 This production change invalidates prior-runtime browser pass credit: the 374
 passes documented below belong to the thumbnail-fixed runtime, not this fix.
 Full browser qualification, the intermittent nested-room Undo investigation,
