@@ -17,9 +17,15 @@ sessions are terminal. The Firefox request assertion exempts only the exact
 favicon URL declared by the document; thumbnail and unexpected-request checks
 remain intact.
 
-The updated inventory contains 1,116 cases. Its 24 distinct focused passes are
-retained in `/tmp/web-thumbnail-fixed-passed.txt`; the remaining 1,092 run in
-session `44047`, log `/tmp/web-thumbnail-fixed-full-browser-1.log`.
+The updated inventory contains 1,116 cases. The full run passed 243 cases, then
+furniture category previews reached a 10-second canvas-readiness deadline.
+The snapshot had mounted 3D controls; the canvas assertion had not completed.
+That wait now allows 60 seconds within a 180-second workflow, retaining category,
+metadata and exact model-download checks. Session `44047` is terminal; log
+`/tmp/web-thumbnail-fixed-full-browser-1.log`. With the focused checks, 267
+distinct current-runtime passes match the inventory and are retained in
+`/tmp/web-thumbnail-fixed-passed.txt`. Playwright confirms 849 remaining cases;
+these run in session `99630`, log `/tmp/web-thumbnail-fixed-full-browser-2.log`.
 Inventory: `/tmp/web-thumbnail-fixed-inventory.log`; remaining list:
 `/tmp/web-thumbnail-fixed-remaining.txt`. Do not mix prior-runtime passes into
 this run. Poll the active handle before competing browser tests or rebuilds.

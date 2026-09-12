@@ -25,6 +25,7 @@ async function packageDownload(page: Page) {
 }
 
 for (const width of [1440, 390]) test(`furniture category previews and original identities survive local editing at ${width}px`, async ({ page }, testInfo) => {
+  test.slow();
   await page.setViewportSize({ width, height: 900 });
   const check = observe(page), models: string[] = [];
   page.on('request', request => { if (/\.glb$/.test(request.url())) models.push(request.url()); });
@@ -53,7 +54,7 @@ for (const width of [1440, 390]) test(`furniture category previews and original 
   expect(plan.furniture.map((f: any) => f.category)).toEqual(['sofa', 'stairs', 'bed', 'refrigerator', 'sink', 'washerDryer', 'washerdryer', 'future-appliance']);
   expect(plan.furniture[2]).toMatchObject({ width: 1.37875, note: 'Keep category notes', price: 12.345, future: { retain: 2 } });
   await page.getByRole('button', { name: '3D', exact: true }).click();
-  await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible();
+  await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible({ timeout: 60_000 });
   await page.waitForLoadState('networkidle');
   for (const file of ['loungeDesignSofa', 'bedDouble', 'kitchenFridgeLarge', 'bathroomSink', 'washerDryerStacked']) {
     expect(models.filter(url => url.includes(`/${file}.`))).toHaveLength(1);

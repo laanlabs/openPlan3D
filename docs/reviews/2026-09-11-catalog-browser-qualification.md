@@ -262,3 +262,15 @@ The new inventory has 1,116 cases; 24 unique current-runtime passes match it.
 Session `44047` runs the remaining 1,092 in `/tmp/web-thumbnail-fixed-full-browser-1.log`.
 The new inventory/passed/remaining files use `/tmp/web-thumbnail-fixed-` names.
 Prior-runtime results do not qualify this source; broader work remains open.
+
+Current-runtime session `44047` terminated after 243 passes (1.5 hours).
+Furniture-category preview reached its 10-second canvas readiness deadline;
+the snapshot showed mounted 3D controls. Both widths now allow 60 seconds
+for readiness in a 180-second workflow. Category, metadata and exact model
+download assertions remain unchanged. No production source changed. The
+runner also reported an error outside a test without a separate diagnostic.
+Combined with 24 focused passes, 267 distinct current-runtime cases match
+the inventory. Playwright confirms 849 remaining tests in 138 files.
+Continuation `99630` uses `/tmp/web-thumbnail-fixed-full-browser-2.log`;
+passed/remaining files are updated, with validated list in
+`/tmp/web-thumbnail-fixed-continuation-inventory.log`. Completion remains unproven.
