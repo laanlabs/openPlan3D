@@ -230,3 +230,17 @@ Playwright confirms 951 remaining cases. Session `32786` is active with log
 `/tmp/web-caption-fixed-full-browser-3.log`; `94916` is terminal. The corrected
 runtime's passed/remaining/list files have been updated. Full completion remains
 unproven; poll the active handle before competing tests or production rebuilds.
+
+Continuation `32786` terminated after 81 passes (27.0 minutes). The mobile
+same-ID import case completed its pending-edit, separate-copy, persistence and
+reopen checks, then reached the 10-second canvas-readiness deadline. The error
+snapshot showed “Loading 3D viewer…”. That assertion now allows 60 seconds
+within the existing 180-second workflow; all assertions remain. Production
+runtime remains `b3c7fa6`. The runner also reported an error outside a test
+without a separate diagnostic; no completion credit is assigned to it.
+
+Logs 1–3 contain 237 distinct passes matched against the original inventory.
+Playwright confirms 870 remaining cases. Session `8168` runs the continuation
+in `/tmp/web-caption-fixed-full-browser-4.log`; `32786` is terminal. The
+corrected-runtime passed/remaining/list files have been updated. Qualification
+and the broader NEXT scope remain incomplete.

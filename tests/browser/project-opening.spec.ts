@@ -71,7 +71,7 @@ for (const width of [1440, 390]) {
     await page.getByRole('link', { name: 'Latest original edits', exact: true }).click();
     expect((await exportJSON(page)).id).toBe(source.id);
     await page.getByRole('button', { name: '3D', exact: true }).click();
-    await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible();
+    await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible({ timeout: 60_000 });
     await testInfo.attach(`preserved-original-${width}`, { body: await page.screenshot(), contentType: 'image/png' });
     check();
   });

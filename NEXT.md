@@ -20,9 +20,12 @@ assertion now allows 60 seconds, with all geometry/reload/stack checks retained.
 That continuation passed 52 more cases, then mobile legacy-furniture recovery
 reached its 10-second 3D readiness deadline while loading. Both viewport variants
 now allow 60 seconds for readiness within a 180-second workflow; recovery-byte,
-model-download and editing assertions are unchanged. There are 156 retained
-passes. The remaining 951 cases run in session `32786`, log
-`/tmp/web-caption-fixed-full-browser-3.log`. Sessions `77795` and `94916` are terminal.
+model-download and editing assertions are unchanged. The next continuation passed
+81 cases, then mobile same-ID import recovery reached its 10-second canvas wait
+while the 3D viewer was loading. That wait now allows 60 seconds within its
+existing 180-second workflow; persistence and copy-isolation checks are unchanged.
+There are 237 retained passes. The remaining 870 cases run in session `8168`, log
+`/tmp/web-caption-fixed-full-browser-4.log`. Sessions `77795`, `94916` and `32786` are terminal.
 Poll the live handle before competing browser tests or production rebuilds.
 The previous browser session `27671` is terminal (97 passes in its last stage).
 See [the prior qualification report](docs/reviews/2026-09-11-catalog-browser-qualification.md).
