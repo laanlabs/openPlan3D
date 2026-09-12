@@ -10,6 +10,15 @@ const retryAfter = new Map<string, number>();
 const MODEL_RETRY_DELAY_MS = 30_000;
 const disposed = new WeakSet<THREE.Object3D>();
 const ownedTextures = new WeakSet<THREE.Texture>();
+const releases = new WeakMap<THREE.Object3D, Set<() => void>>();
+
+/** Attach source-lifetime cleanup to the same disposal path as scene resources. */
+export function releaseWithModel(root: THREE.Object3D, release: () => void) {
+  if (disposed.has(root)) { release(); return; }
+  let callbacks = releases.get(root);
+  if (!callbacks) { callbacks = new Set(); releases.set(root, callbacks); }
+  callbacks.add(release);
+}
 
 /** Register an instance-owned texture wrapper. Its image/canvas may still be
  * shared; disposing a THREE.Texture releases GPU state without destroying it. */
@@ -67,9 +76,12 @@ export function isModelDisposed(root: THREE.Object3D) { return disposed.has(root
 export function disposeModel(root: THREE.Object3D) {
   const geometries = new Set<THREE.BufferGeometry>(), materials = new Set<THREE.Material>();
   const textures = new Set<THREE.Texture>();
+  const callbacks = new Set<() => void>();
   root.traverse(child => {
     if (disposed.has(child)) return;
     disposed.add(child);
+    for (const release of releases.get(child) ?? []) callbacks.add(release);
+    releases.delete(child);
     const renderable = child as THREE.Mesh;
     if (renderable.geometry) geometries.add(renderable.geometry);
     if (renderable.material) for (const material of Array.isArray(renderable.material) ? renderable.material : [renderable.material]) {
@@ -80,4 +92,5 @@ export function disposeModel(root: THREE.Object3D) {
   for (const geometry of geometries) geometry.dispose();
   for (const material of materials) material.dispose();
   for (const texture of textures) { ownedTextures.delete(texture); texture.dispose(); }
+  for (const release of callbacks) release();
 }

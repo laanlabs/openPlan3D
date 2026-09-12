@@ -26,7 +26,8 @@ end-to-end/native return qualification. Unused-model removal is implemented with
 13 focused tests passed as `57563`; UI undo/save integration remains open. Source/removal type check `26892` passed;
 combined-loader type check `6285` passed with zero errors/warnings. Browser cleanup run `42690` passed after correcting the
 harness to inspect the actual renderer lighting uniform. Admission type check
-`39167` remains running. See
+`39167` passed with zero errors/warnings. Saved custom-model references now
+render through a lazy project-source lease; final placement checks are in progress. See
 `docs/reviews/2026-09-12-local-model-import.md` for exact scope and handles.
 
 ## Nested-room Undo reproduction — WebKit passed; original issue remains open

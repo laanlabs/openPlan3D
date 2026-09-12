@@ -432,3 +432,35 @@ The type check including this module is active as `39167`, log
 `/tmp/web-custom-model-import-check.log`; do not treat the earlier loader check
 as qualification of this later module. Import UI, placement, localization and
 full workflow/native return checks remain open.
+
+
+## Saved custom-model rendering and instance lifetimes
+
+Admission type check `39167` completed with zero errors and warnings.
+`createPlacedFurnitureModel` now resolves `customModelId` through the verified
+local source pipeline, with a procedural fallback while loading. It uses saved
+size overrides or model definition dimensions, centers the actual geometry at
+its base in centimeters, and preserves saved position, rotation and axis scales.
+The active-floor viewer supplies the project; scene signatures include model
+definitions without serializing attachment payloads. This adds rendering of saved
+references; no import/placement UI is exposed yet, and inactive stacked floors
+still use their existing simplified rendering.
+
+Project-source leases share decoded bitmaps while instances remain live, clone
+instance geometry/materials/texture wrappers, cancel abandoned pending loads and
+release source images after the last instance's GPU cleanup. Source/metadata
+changes bypass stale entries. Disposal callbacks use the existing recursive
+scene teardown, including containers removed before their model loads. The custom
+pipeline is dynamically imported so ordinary catalog use does not eagerly load
+its validation modules.
+
+Initial placement/catalog run `63422` had 15 passes and one existing nested-model
+fit test timing out during module import. After lazy loading, run `6699` passed
+all 17 tests (`/tmp/web-custom-model-placement-lazy-tests.log`), including shared
+instance disposal, late decoder completion after removal, real geometry fitting,
+missing size overrides and definition signature invalidation. The expanded seven-test placement file passed as `70186`
+(`/tmp/web-custom-model-placement-lifetime-tests.log`), including the additional
+shared pending-load and same-project source-change cases. Type check `77127`
+passed with zero errors/warnings but began before the final lazy-load and
+size-default edits. A final check is running in
+`/tmp/web-custom-model-placement-final-check.log`; its result remains pending.

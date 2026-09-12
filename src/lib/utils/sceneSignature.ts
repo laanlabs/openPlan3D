@@ -20,5 +20,6 @@ function renderedFloor(floor: Floor) {
  * room labels, elevations and future render fields must still invalidate. */
 export function sceneSignature(project: Project, floor: Floor, stacked: boolean, units: ProjectSettings['units']): string {
   return JSON.stringify({ projectId: project.id, activeFloorId: floor.id, stacked, units,
+    customModels: project.customModels,
     floors: (stacked ? project.floors : [floor]).map(renderedFloor) });
 }

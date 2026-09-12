@@ -1500,7 +1500,7 @@
 
     // Furniture
     for (const fi of floor.furniture) {
-      const model = createPlacedFurnitureModel(fi, markSceneDirty);
+      const model = createPlacedFurnitureModel(fi, markSceneDirty, get(currentProject) ?? undefined);
       if (model) wallGroup.add(model);
     }
 
