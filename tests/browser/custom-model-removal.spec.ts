@@ -8,7 +8,7 @@ async function exported(page: Page) {
   await page.getByRole('button', { name: 'Download JSON', exact: true }).click();
   return JSON.parse(await readFile((await (await pending).path())!, 'utf8'));
 }
-test('cancel and invalid imports preserve the project; unused removal supports full undo and redo', async ({ page }) => {
+test('cancel and invalid imports preserve the project and restore focus', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('o3d_tips_seen', JSON.stringify(['first-wall', 'first-furniture', 'first-3d', 'first-export', 'first-door'])));
   const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
   await page.goto('/editor');
@@ -29,7 +29,18 @@ test('cancel and invalid imports preserve the project; unused removal supports f
   await expect(dialog.getByRole('button', { name: 'Add to project', exact: true })).toHaveCount(0);
   await dialog.getByRole('button', { name: 'Cancel', exact: true }).click();
   expect(await exported(page)).toEqual(before);
-  await choose(); await expect(dialog.locator('canvas')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('unused model removal restores source bytes and metadata through undo and redo', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('o3d_tips_seen', JSON.stringify(['first-wall', 'first-furniture', 'first-3d', 'first-export', 'first-door'])));
+  const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/editor');
+  await page.getByRole('button', { name: 'Objects', exact: true }).click();
+  const panel = page.getByRole('region', { name: 'My 3D models', exact: true });
+  await panel.locator('input[type=file]').setInputFiles('tests/fixtures/local-model-textured-box.glb');
+  const dialog = page.getByRole('dialog', { name: 'Import GLB model', exact: true });
+  await expect(dialog.locator('canvas')).toBeVisible();
   await dialog.getByRole('textbox', { name: 'Model name', exact: true }).fill('Removable box');
   await dialog.getByRole('button', { name: 'Add to project', exact: true }).click();
   await expect(dialog).toBeHidden();

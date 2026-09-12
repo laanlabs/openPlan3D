@@ -556,3 +556,24 @@ is active for the subsequent error translations, log
 `/tmp/web-custom-model-messages-check.log`. Cancellation/removal browser run
 `45654` remains live; do not restart it or start a competing server solely because
 its output is quiet. All code through `031332f` is committed and pushed.
+
+
+## Cancellation trace and focused workflow rerun preparation
+
+Run `45654` exited 1 on the 180-second budget while exporting after the removal
+confirmation. Its readable trace showed successful Escape cancellation/focus
+restoration, exact project equality after cancellation, invalid GLB rejection
+without mutation, valid admission, then cancelled-removal equality. It did not
+reach verified removal/Undo/Redo comparisons. Ordinary toolbar clicks consumed
+large intervals (the initial Export action roughly 59 seconds); no model value
+assertion failed. This remains an incomplete workflow, not a pass.
+
+`custom-model-removal.spec.ts` now separates cancellation/invalid input from the
+removal/Undo/Redo sequence, preserving every assertion with independent test
+budgets. `custom-model-localization.spec.ts` adds Portuguese controls, translated
+invalid-source and used-model errors, retained verbatim custom names in the
+canvas/Properties heading, and no fetching of provenance URLs. These new tests
+have not run. Current production build `33714` is active at
+`/tmp/web-custom-model-labels-messages-build.log`; wait for completion before
+running tests against the new labels/messages. Type check `10317` remains active
+at `/tmp/web-custom-model-messages-check.log`.
