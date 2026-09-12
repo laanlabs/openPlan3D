@@ -1,6 +1,6 @@
 # Next work and pause handoff
 
-## Current browser qualification — Firefox photo chooser failure
+## Current browser qualification — photo recovery verified; suite resumed
 
 Full orbit-runtime stage 2 is terminal (session `46921`, exit 1): 282 passed,
 one failed, 583 not run in 56.2 minutes. Log:
@@ -18,9 +18,13 @@ banner; a layout race is a hypothesis, not a confirmed product defect. The test
 now explicitly waits for the expected storage-full alert after editing the note
 before clicking Add photo. This adds synchronization and preserves all original
 photo, saved-byte, draft-export and retry assertions. Production is unchanged.
-Traced verification across all three engines runs in session `80528`,
-`/tmp/web-photo-quota-all-engines.log`. Poll that handle before competing runs.
-The unchanged Firefox pass raises current-runtime distinct passes to 533.
+All three traced photo/quota cases passed in 2.6 minutes (session `80528`,
+terminal exit 0; `/tmp/web-photo-quota-all-engines.log`). This verifies the
+synchronized workflow but does not prove the original layout-race hypothesis.
+Exact inventory matching establishes 534 unique current-runtime passes;
+Playwright confirms 582 remaining tests in 136 files. Full stage 3 runs in
+session `63876`, `/tmp/web-orbit-fixed-full-browser-3.log`, using
+`/tmp/web-orbit-fixed-remaining.txt`. Poll that handle before competing runs.
 Full qualification, the intermittent nested-room Undo issue and broader NEXT
 requirements remain incomplete.
 

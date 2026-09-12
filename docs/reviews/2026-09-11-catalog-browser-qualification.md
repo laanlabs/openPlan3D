@@ -321,3 +321,6 @@ Orbit-runtime stage 2 terminated (session `46921`, exit 1): 282 passed, one fail
 
 
 The unchanged Firefox photo/quota reproduction passed in 39.2 seconds (session `43729`, exit 0). The failed trace's click used the old button coordinates while autosave could insert the quota banner; this suggests a layout race but does not prove one. The test now waits for that expected storage-full alert after the note edit and before opening the photo picker. All original assertions are retained and production is unchanged. Traced all-engine verification runs in session `80528`, `/tmp/web-photo-quota-all-engines.log`. Current-runtime unique passes are 533 including the unchanged Firefox reproduction.
+
+
+All three synchronized photo/quota recovery cases passed in 2.6 minutes (session `80528`, terminal exit 0; `/tmp/web-photo-quota-all-engines.log`). Original assertions remain intact; the original layout-race hypothesis remains unproven. Exact inventory matching establishes 534 unique current-runtime passes, counting the repeated Chromium case only once. Playwright confirms 582 remaining tests in 136 files. Full stage 3 runs in session `63876`, `/tmp/web-orbit-fixed-full-browser-3.log`, using `/tmp/web-orbit-fixed-remaining.txt`. Production remains `03e0ae1`; broader NEXT work remains incomplete.
