@@ -1,6 +1,6 @@
 # Next work and pause handoff
 
-## Current browser qualification — modal workflow timeout verification
+## Current browser qualification — modal checks passed; full suite resumed
 
 Full stage 3 is terminal (session `63876`, exit 1): 33 passed, one failed,
 548 not run in 10.4 minutes; `/tmp/web-orbit-fixed-full-browser-3.log`.
@@ -10,10 +10,13 @@ Backspace action (modal-keyboard.spec.ts:84), after the dialog-loop focus,
 keyboard, geometry and stored-record checks completed. The desktop Firefox
 case passed in 57.4 seconds. Both widths now use `test.slow()` (180 seconds)
 for this multi-dialog/export workflow; all assertions remain unchanged.
-Six focused cases run across all three engines in session `25685`,
-`/tmp/web-modal-focus-all-engines.log`. Production remains `03e0ae1`.
-Poll that handle before competing runs. Full qualification and broader NEXT
-requirements remain incomplete.
+All six modal cases passed in 8.6 minutes (session `25685`, terminal exit 0;
+`/tmp/web-modal-focus-all-engines.log`), covering both widths in all engines.
+Production remains `03e0ae1`. Exact inventory matching establishes 570 distinct
+current-runtime passes; Playwright confirms 546 remaining tests in 136 files.
+Full stage 4 runs in session `22429`, `/tmp/web-orbit-fixed-full-browser-4.log`,
+using `/tmp/web-orbit-fixed-remaining.txt`. Poll that handle before competing runs.
+Full qualification and broader NEXT requirements remain incomplete.
 
 ## Current browser qualification — photo recovery verified; suite resumed
 
