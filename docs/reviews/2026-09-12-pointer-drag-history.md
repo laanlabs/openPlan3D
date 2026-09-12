@@ -24,10 +24,19 @@ exit 0; `/tmp/web-mid-drag-history-browser.log`): 16 per engine, covering both
 normal release and Undo while held for seven geometry types and room labels.
 The room-label case failed before the fix and now passes in all three engines.
 
-Elevation uses its own `endDrag` handler; its capture-phase keyboard listener
-currently handles Escape only. The separate Chromium elevation Undo-while-held
-regression is active in session `49556`, `/tmp/web-elevation-mid-drag-before.log`.
-It is not yet evidence of a confirmed elevation defect. Poll that process before
-another browser run or rebuild. The older 1,116-case qualification applies to
-runtime `03e0ae1`, not this source change. Broader NEXT requirements remain open.
+The separate elevation reproduction also failed (session `49556`, terminal
+exit 1, 18 seconds; `/tmp/web-elevation-mid-drag-before.log`). After Undo and
+mouseup, the exported window retained position `0.5666111677120893` and sill
+height `110`, rather than the original `0.5` and `90`. The elevation capture-phase
+listener now ends its drag group before the global history shortcut runs.
+Focused text fields retain native Undo/Redo behavior. Type checking reports zero
+errors and warnings and the production build passed (session `28836`, exit 0).
+
+Six elevation cases, normal Escape exit and Undo while held in each engine, are
+active in session `96723`, `/tmp/web-elevation-mid-drag-browser.log`. Poll this
+process before another browser run or rebuild. The 48 passing cases above apply
+to the plan-canvas fix `df4dfa4`; the elevation change is awaiting verification.
+The older 1,116-case qualification applies to runtime `03e0ae1`. Broader NEXT
+requirements, including the earlier intermittent nested-room Undo issue, remain
+open.
 

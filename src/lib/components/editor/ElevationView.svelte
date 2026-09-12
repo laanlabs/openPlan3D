@@ -2,6 +2,7 @@
   import { t } from '$lib/i18n';
   import { onDestroy } from 'svelte';
   import { hasOpenModal } from '$lib/utils/modalDialog';
+  import { isEditingField } from '$lib/utils/shortcuts';
   /**
    * ElevationView — integrated face-on view + editor for a single wall.
    * Fills the canvas area (replaces the plan canvas while active — sidebars stay).
@@ -138,6 +139,11 @@
     if (!$elevationWallId) return;
     const onKey = (e: KeyboardEvent) => {
       if (hasOpenModal()) return;
+      // Close the elevation group before the plan's bubbling history handler.
+      // Text fields retain their own native Undo/Redo behavior.
+      if (!isEditingField(e.target) && (e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'y')) {
+        endDrag();
+      }
       if (e.key === 'Escape') {
         e.preventDefault();
         e.stopImmediatePropagation();
