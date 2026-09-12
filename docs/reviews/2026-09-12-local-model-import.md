@@ -577,3 +577,20 @@ have not run. Current production build `33714` is active at
 `/tmp/web-custom-model-labels-messages-build.log`; wait for completion before
 running tests against the new labels/messages. Type check `10317` remains active
 at `/tmp/web-custom-model-messages-check.log`.
+
+
+### Restore lazy preview loading before the next browser run
+
+Translation type check `10317` passed with zero errors/warnings. Build `33714`
+completed successfully, including adapter output, for names/messages. Review then
+found that the panel's static preview-component import pulled Three.js into the
+initial editor graph despite the existing lazy 3D-viewer design. The preview
+component now loads alongside model preparation only after file selection, with
+a generation check before decoding if the request was cancelled during imports.
+This removes the eager import; it is not a proven fix for the earlier timeouts.
+
+The revised panel compiled without Svelte warnings. Fresh source check `85089`
+(`/tmp/web-custom-model-lazy-preview-check.log`) and build `7222`
+(`/tmp/web-custom-model-lazy-preview-build.log`) are active. The split removal and
+Portuguese UI tests must run after this build finishes so their evidence applies
+to the final loading path. No browser test server is currently active.

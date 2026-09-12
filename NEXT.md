@@ -35,7 +35,9 @@ passed. Chromium UI run `95224` passed preview, exact retained source/digest,
 placement Undo/Redo and confirmed save/reload. Firefox/WebKit run `63246` finished: WebKit passed; Firefox hit test and cleanup
 timeouts without qualifying import. Cancellation/removal run `45654` timed out after passing cancellation, invalid-file
 and cancelled-removal checks. The workflows are now split into independent tests
-for the next run. A current build is running as `33714`, including names and messages. Custom model names now appear in
+for the next run. Build `33714` and translation type check `10317` passed. A subsequent change
+loads the preview component only after file selection; fresh check/build
+`85089`/`7222` are active before the next browser run. Custom model names now appear in
 canvas, Layers and Properties; label type check `79860` passed with zero errors/warnings. Common error
 translations are implemented and tested; fresh type check `10317` is active. See
 `docs/reviews/2026-09-12-local-model-import.md` for exact scope and handles.

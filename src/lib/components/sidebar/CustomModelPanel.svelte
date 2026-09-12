@@ -8,9 +8,10 @@
   import { modalDialog } from '$lib/utils/modalDialog';
   import type { PreparedCustomModel } from '$lib/services/customModelImport';
   import { placeCustomModel, removeCustomModel } from '$lib/services/customModels';
-  import CustomModelPreview from './CustomModelPreview.svelte';
+  import type CustomModelPreview from './CustomModelPreview.svelte';
 
   let input: HTMLInputElement;
+  let Preview = $state.raw<typeof CustomModelPreview>();
   let open = $state(false), busy = $state(false), saving = $state(false), error = $state(''), status = $state('');
   let prepared = $state.raw<PreparedCustomModel | null>(null);
   let name = $state(''), attribution = $state(''), license = $state(''), sourceUrl = $state('');
@@ -32,7 +33,11 @@
     name = ''; attribution = ''; license = ''; sourceUrl = '';
     const request = generation, lifetime = new AbortController(); controller = lifetime;
     try {
-      const { prepareCustomModel } = await import('$lib/services/customModelImport');
+      const [{ prepareCustomModel }, preview] = await Promise.all([
+        import('$lib/services/customModelImport'), import('./CustomModelPreview.svelte'),
+      ]);
+      if (request !== generation) return;
+      Preview = preview.default;
       const result = await prepareCustomModel(file, lifetime.signal);
       if (request !== generation) { result.dispose(); return; }
       prepared = result; name = result.sourceFilename.replace(/\.glb$/i, '');
@@ -104,7 +109,7 @@
     <h2 id="custom-model-title" class="text-lg font-semibold">{$t('customModel.import')}</h2>
     {#if busy}<p role="status" class="my-4">{$t('customModel.loading')}</p>{/if}
     {#if prepared}
-      <CustomModelPreview model={prepared} />
+      {#if Preview}<Preview model={prepared} />{/if}
       <p class="my-2 text-xs text-gray-600">{$t('customModel.dimensions', { width: (prepared.dimensions.width * 100).toFixed(1), depth: (prepared.dimensions.depth * 100).toFixed(1), height: (prepared.dimensions.height * 100).toFixed(1) })}</p>
       <form onsubmit={event => { event.preventDefault(); void admit(); }} class="space-y-2">
         <label class="block text-sm">{$t('customModel.name')}<input required maxlength="256" bind:value={name} class="block w-full rounded border p-2" /></label>
