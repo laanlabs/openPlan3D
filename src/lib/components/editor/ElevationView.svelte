@@ -281,7 +281,8 @@
         const half = drag.width / 2 / wallLen;
         const currentWallH = Math.min(getWallHeightAt(wall, newPos - half), getWallHeightAt(wall, newPos + half));
         const maxSill = Math.max(0, currentWallH - drag.winH);
-        const newSill = Math.round(Math.max(0, Math.min(maxSill, drag.startSill + dyCm)));
+        // Preserve the exact fractional clearance after snapping the requested height.
+        const newSill = Math.max(0, Math.min(maxSill, Math.round(drag.startSill + dyCm)));
         updateWindow(drag.id, { position: newPos, sillHeight: newSill });
       }
       return;
