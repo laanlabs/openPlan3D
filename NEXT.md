@@ -11,12 +11,16 @@ absent thumbnail and project ID `__proto__`, this yields the inherited prototype
 which becomes the image URL. The same lookup needs protection for other
 inherited names such as `constructor` and `toString`.
 
-Fix the library thumbnail lookup to use only own entries and add browser
-coverage for reserved IDs with absent previews, normal saved previews, and
-failed preview reads. Preserve imported IDs and project data. This remains
-unfixed; the active suite tests runtime `b3c7fa6`, and its existing passing
+The source now guards the library thumbnail lookup with `Object.hasOwn`.
+New `library-reserved-thumbnails.spec.ts` cases cover reserved and ordinary IDs
+with absent previews, saved previews, and failed preview reads. Browser validation
+of this change remains pending; the active suite tests runtime `b3c7fa6`, and its existing passing
 reserved-ID case does not prove thumbnail correctness. Do not rebuild the
 production server while session `8168` is active.
+Type-check log: `/tmp/web-reserved-thumbnail-check.log` (session `40986`).
+After the active suite stops, build the updated source and run the new regression
+cases across all engines. The current 1,107-case run does not qualify this fix
+or include the nine new engine cases.
 
 ## Unknown-furniture caption regression — September 11
 

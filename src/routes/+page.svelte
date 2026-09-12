@@ -224,7 +224,7 @@
             <!-- Thumbnail -->
             <a href={`${base}/editor?id=${encodeURIComponent(project.id)}`} aria-label={$t('library.openName', { name: project.name || $t('library.untitled') })} class="block">
               <div class="aspect-[4/3] bg-gray-100 relative overflow-hidden">
-                {#if thumbnails[project.id]}
+                {#if Object.hasOwn(thumbnails, project.id) && thumbnails[project.id]}
                   <img src={thumbnails[project.id]} alt="" class="w-full h-full object-contain" />
                 {:else}
                   <div class="w-full h-full flex items-center justify-center">
