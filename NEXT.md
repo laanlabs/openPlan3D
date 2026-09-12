@@ -60,8 +60,16 @@ for the first connected draw before the unchanged 15-second idle check, within
 remain. All six focused 3D cases passed in 3.3 minutes across Chromium, Firefox
 and WebKit (session `24549`, terminal exit 0;
 `/tmp/web-texture-startup-browser.log`). There are 350 unique current-runtime
-passes. Playwright confirms 766 remaining cases; stage 6 runs in session `43409`,
-log `/tmp/web-thumbnail-fixed-full-browser-6.log`. Production is unchanged.
+passes. Stage 6 (session `43409`) is terminal after 24 passes, bringing the
+unique current-runtime count to 374. Log: `/tmp/web-thumbnail-fixed-full-browser-6.log`.
+The viewer-idle case failed after orbit: one animation callback remained pending
+through its 40-second idle check. Trace samples show callbacks continuing to
+advance (20 to 169), about four frames per second, rather than a stalled process.
+The viewer uses fixed per-frame orbit damping (0.08); investigation must determine
+whether slow damping accounts for the failure. The idle assertion is unchanged.
+An unchanged Chromium reproduction runs in session `88961`,
+log `/tmp/web-viewer-idle-repro.log`.
+The full suite is paused. Production is unchanged.
 Inventory: `/tmp/web-thumbnail-fixed-inventory.log`; remaining list:
 `/tmp/web-thumbnail-fixed-remaining.txt`. Do not mix prior-runtime passes into
 this run. Poll the active handle before competing browser tests or rebuilds.
