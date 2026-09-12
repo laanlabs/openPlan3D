@@ -9,7 +9,8 @@ file, and retry saved successfully. See
 `docs/reviews/2026-09-12-editor-menu-dismissal.md` for exact scope and evidence.
 Home → Draw a Plan also saved a rotated chair, returned to Home, and reopened
 with the saved object. Simulator `PlanRecoveryTests` session `37936` is still live, log
-`/tmp/native-editor-local-dismiss-ios.log`. Physical UI, load-error entry,
+`/tmp/native-editor-local-dismiss-ios.log`. Load-error Close also returned to review without changing the malformed file;
+restoring its original bytes allowed Retry to reopen the editor. Physical UI,
 canvas-gesture/long-run dismissal checks and the broader backlog remain open.
 
 ## Full-scan import dismissal — Catalyst UI and both test targets verified

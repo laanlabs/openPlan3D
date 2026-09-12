@@ -87,3 +87,20 @@ The QA app was quit without Escape or debugger assistance. This additionally
 qualifies edited Done from Home's manual-plan presentation on Catalyst; it does
 not replace the remaining load-error, canvas-gesture, physical-device or long-run
 checks. Simulator session `37936` was re-polled and remains live.
+
+
+## Load-error Close and Retry follow-up
+
+In the same isolated candidate app, opened manual QA session
+`8332EE79-9FB4-48E3-9FDE-396BB73D799F` in review before temporarily replacing
+its `plan.json` with malformed JSON. The original bytes were backed up to
+`/tmp/editor-load-error-sept12-original.json`. Edit Plan showed Couldn't Open
+Plan, Export Original File, Retry and Close. Close returned to review at the
+next AX check. Reopening showed the error again; the malformed bytes had not
+changed. Restored the exact original bytes while this error screen was open.
+Retry entered the editor with Undo/Redo disabled. Close returned to review;
+the QA app was quit. Final file bytes still matched the original backup,
+SHA-256 `4ccd0455c32a9e9372c556b19616bf88519034fdcdc89b4cf82ebaeb511bf38b`.
+No Escape or debugger was used. This verifies load-error Close and restored-file
+Retry on Catalyst, not recovery from scan or original-file export.
+Simulator session `37936` was re-polled and remains live at this checkpoint.
