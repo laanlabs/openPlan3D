@@ -549,3 +549,10 @@ This is partial diagnostic localization: geometry and other validator details
 outside the registered messages remain untranslated. Label type check `79860`
 was already running before these edits and cannot qualify the new translations;
 a later final check/build and Portuguese browser check are still required.
+
+
+Label type check `79860` completed with zero errors/warnings. Fresh check `10317`
+is active for the subsequent error translations, log
+`/tmp/web-custom-model-messages-check.log`. Cancellation/removal browser run
+`45654` remains live; do not restart it or start a competing server solely because
+its output is quiet. All code through `031332f` is committed and pushed.
