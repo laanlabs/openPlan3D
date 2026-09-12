@@ -7,8 +7,9 @@ app, edited Done, no-edit Done, and Close returned to review. Close preserved
 the saved file hash; a forced save failure retained the editor and unchanged
 file, and retry saved successfully. See
 `docs/reviews/2026-09-12-editor-menu-dismissal.md` for exact scope and evidence.
-Simulator `PlanRecoveryTests` session `37936` is still live, log
-`/tmp/native-editor-local-dismiss-ios.log`. Physical UI, Home/load-error entry,
+Home → Draw a Plan also saved a rotated chair, returned to Home, and reopened
+with the saved object. Simulator `PlanRecoveryTests` session `37936` is still live, log
+`/tmp/native-editor-local-dismiss-ios.log`. Physical UI, load-error entry,
 canvas-gesture/long-run dismissal checks and the broader backlog remain open.
 
 ## Full-scan import dismissal — Catalyst UI and both test targets verified

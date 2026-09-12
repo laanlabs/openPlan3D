@@ -70,6 +70,20 @@ The installed Development app was not used.
 
 These checks qualify the review-to-editor menu-edit, discard, no-edit, and
 save-failure/retry paths on Catalyst. They do not establish physical-device,
-Home-to-editor, load-error, canvas-gesture, or long-run intermittent behavior.
+load-error, canvas-gesture, or long-run intermittent behavior.
 Simulator `PlanRecoveryTests` session `37936` remains live at this checkpoint,
 log `/tmp/native-editor-local-dismiss-ios.log`; no test result is claimed yet.
+
+
+## Home entry follow-up
+
+Using the same candidate QA app, Home → Draw a Plan created synthetic manual
+session `8332EE79-9FB4-48E3-9FDE-396BB73D799F` (Floor Plan 1). Added a chair,
+rotated right, and clicked Done. Home appeared at the next AX check with the new
+plan card. Reopening the card showed four walls, one door, one window and one
+chair. The saved `plan.json` contains chair
+`42D6DBA2-3CA5-4B39-9135-12F2A8490A62` at angle 0.2617993877991494 radians.
+The QA app was quit without Escape or debugger assistance. This additionally
+qualifies edited Done from Home's manual-plan presentation on Catalyst; it does
+not replace the remaining load-error, canvas-gesture, physical-device or long-run
+checks. Simulator session `37936` was re-polled and remains live.
