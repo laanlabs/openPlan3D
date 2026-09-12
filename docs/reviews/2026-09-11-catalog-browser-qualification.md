@@ -186,3 +186,17 @@ entries above describe historical launches; no browser run is currently live.
 Physical-device, native, release, fluent-language review and other NEXT gates
 remain separate. Earlier full browser evidence applies to its named earlier
 runtime, not automatically to this source.
+
+## Corrected-runtime qualification
+
+Production correction: `b3c7fa6`. Type checking passed with zero errors and
+warnings; the production build passed. All nine focused browser cases passed
+across Chromium, Firefox and WebKit in 2.6 minutes, covering localized known
+captions, unknown saved/default dimensions, movement, rotation, resize, deletion
+and exact undo/redo export comparisons. Log: `/tmp/web-unknown-caption-browser.log`.
+
+A fresh full 1,107-case run is active in session `77795`, with log
+`/tmp/web-caption-fixed-full-browser-1.log`. This starts qualification for the
+corrected runtime; it does not reuse the previous runtime's 343 passes.
+Poll the live handle before running competing browser tests or rebuilding.
+Full completion remains unproven.

@@ -11,9 +11,12 @@ change: the prior 343 passes do not qualify the corrected runtime.
 
 Type checking passed with zero errors/warnings and the production build passed. Logs:
 `/tmp/web-unknown-caption-check.log` and `/tmp/web-unknown-caption-build.log`.
-Unknown-furniture editing and known-caption localization now run across all
-three browsers in session `91439`, log `/tmp/web-unknown-caption-browser.log`.
-After these pass, resume full qualification against the corrected runtime.
+All nine unknown-furniture editing and known-caption localization cases passed
+across Chromium, Firefox and WebKit (2.6 minutes), log
+`/tmp/web-unknown-caption-browser.log`; session `91439` is terminal.
+Full 1,107-case qualification against corrected runtime `b3c7fa6` now runs in
+session `77795`, log `/tmp/web-caption-fixed-full-browser-1.log`. Poll this
+handle before starting competing browser tests or rebuilding production assets.
 The previous browser session `27671` is terminal (97 passes in its last stage).
 See [the prior qualification report](docs/reviews/2026-09-11-catalog-browser-qualification.md).
 Broader NEXT requirements remain open.
