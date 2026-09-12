@@ -1,5 +1,14 @@
 # Next work and pause handoff
 
+## Project-package import dismissal — September 12
+
+Initial Cancel and post-import Back to Library/Done now dismiss through a shared
+button inside the presented sheet. All three paths passed live isolated Catalyst
+checks, including two independent real package imports. Catalyst build and 12
+iPhone simulator package tests passed. See
+`docs/reviews/2026-09-12-import-sheet-dismissal.md`. Full-scan import, editor
+dismissal, physical-device UI and broader NEXT work remain open.
+
 ## Native export sheet dismissal — September 12
 
 Export Options now requests dismissal from inside its own sheet before the
