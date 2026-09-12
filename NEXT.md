@@ -1,5 +1,27 @@
 # Next work and pause handoff
 
+## Native tracing-image fitting — September 12
+
+The prior native UI check showed the tall rotated tracing image cropped below
+the walls. Native editor framing now unions the active plan geometry with the
+rotated underlay rectangle, using the same decoded-image aspect ratio as drawing.
+Image-only plans fit the actual image location, without adding default origin
+bounds. Missing/invalid dimensions fall back to the original geometry bounds.
+Measurement and export `bounds` remain unchanged. Initial loading reads image
+dimensions before fitting; importing a fresh trace also fits the complete image.
+
+New `UnderlayFitTests` project all four corners at five angles into a padded
+viewport, preserve geometry bounds, and cover remote image-only plans and invalid
+image dimensions. The first Catalyst attempt compiled the app but failed on an
+ambiguous `.infinity` test literal; it is now explicitly `CGFloat.infinity`.
+The corrected selected run (fit and package tests) is active in session `41154`,
+`/tmp/native-underlay-fit-catalyst-fixed.log`. Poll that handle before rebuilding
+or launching another test suite. It has not yet produced a test result.
+
+The updated native visual check and simulator validation remain pending. The
+previous native visual evidence and package round trip qualify source `a22c24c`,
+not this framing change. Broader NEXT/device/release work remains open.
+
 ## Rotated tracing-image package support — September 12
 
 The first web floor's PNG/JPEG/GIF tracing image now maps to the native underlay
