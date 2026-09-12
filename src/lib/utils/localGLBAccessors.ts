@@ -71,3 +71,44 @@ export function validateLocalGLBAccessors(container: ReturnType<typeof readLocal
     return { count: accessor.count as number, components: columns * rows, elementSize };
   });
 }
+
+/** Visit raw (not normalized) values after validateLocalGLBAccessors succeeds.
+ * The component array is reused; callers must copy it if retaining a value. */
+export function visitValidatedLocalGLBAccessor(container: ReturnType<typeof readLocalGLB>, id: number,
+  visit: (components: readonly number[], index: number) => void) {
+  const { document, binary } = container;
+  const accessor = document.accessors[id];
+  const size = sizes[accessor.componentType], [columns, rows] = shapes[accessor.type];
+  const columnBytes = columns === 1 ? rows * size : Math.ceil(rows * size / 4) * 4;
+  const elementBytes = columnBytes * columns;
+  const bytes = binary && new DataView(binary.buffer, binary.byteOffset, binary.byteLength);
+  function read(offset: number, type: number): number {
+    switch (type) {
+      case 5120: return bytes!.getInt8(offset);
+      case 5121: return bytes!.getUint8(offset);
+      case 5122: return bytes!.getInt16(offset, true);
+      case 5123: return bytes!.getUint16(offset, true);
+      case 5125: return bytes!.getUint32(offset, true);
+      default: return bytes!.getFloat32(offset, true);
+    }
+  }
+  const source = accessor.bufferView === undefined ? undefined : document.bufferViews[accessor.bufferView];
+  const sparse = accessor.sparse;
+  const indexView = sparse && document.bufferViews[sparse.indices.bufferView];
+  const valueView = sparse && document.bufferViews[sparse.values.bufferView];
+  let replacement = 0;
+  const nextIndex = () => !sparse || replacement >= sparse.count ? -1 : read(
+    (indexView.byteOffset || 0) + (sparse.indices.byteOffset || 0) + replacement * sizes[sparse.indices.componentType], sparse.indices.componentType);
+  let sparseIndex = nextIndex();
+  const values = new Array<number>(columns * rows);
+  for (let index = 0; index < accessor.count; index++) {
+    const replaced = index === sparseIndex;
+    const offset = replaced ? (valueView.byteOffset || 0) + (sparse.values.byteOffset || 0) + replacement * elementBytes
+      : source ? (source.byteOffset || 0) + (accessor.byteOffset || 0) + index * (source.byteStride || elementBytes) : undefined;
+    for (let column = 0; column < columns; column++) for (let row = 0; row < rows; row++) {
+      values[column * rows + row] = offset === undefined ? 0 : read(offset + column * columnBytes + row * size, accessor.componentType);
+    }
+    visit(values, index);
+    if (replaced) { replacement++; sparseIndex = nextIndex(); }
+  }
+}

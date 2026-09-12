@@ -3,12 +3,15 @@
 ## Local custom-model import — validation layers in progress
 
 Container, embedded buffer/image, scene traversal/instance and accessor storage
-checks have 23 passing unit tests. Geometry semantics, project persistence, preview,
+and mesh geometry checks have 29 passing unit tests. Complete import policy,
+project persistence, preview,
 placement, localization and end-to-end qualification remain to implement.
 The photo suite rerun had 18 passes and one explicit quota-test timeout; the
 earlier clean-environment type check completed with zero errors/warnings.
 Accessor storage validation is now implemented and tested, with a fresh combined
-type check running; geometry semantics and loader integration remain outstanding. See
+type check running. Mesh attribute/index/draw validation is now implemented and
+its tests passed; loader compatibility and complete import integration remain
+outstanding. See
 `docs/reviews/2026-09-12-local-model-import.md` for exact scope and handles.
 No import UI is exposed yet.
 

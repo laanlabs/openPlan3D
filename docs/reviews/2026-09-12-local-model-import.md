@@ -102,3 +102,27 @@ Reference: [Khronos accessor storage and alignment](https://registry.khronos.org
 Verification: all 23 tests in four GLB unit files passed, session `35442` exit 0,
 log `/tmp/web-local-glb-accessors-tests.log`. Combined source type check `88958`
 is still running, log `/tmp/web-local-glb-accessors-check.log`; its result is pending.
+
+## Mesh geometry validation
+
+`validateLocalGLBGeometry` composes the resource/accessor and scene checks, then
+checks attribute references/counts and core attribute formats, vertex alignment,
+index types and actual index values (including forbidden primitive-restart values),
+draw modes/counts, and morph target count/weight consistency. Position bounds come
+from actual bytes, including sparse overrides and zero-initialized values. Raw
+component iteration uses one reusable vector rather than allocating full decoded
+arrays. Bounds and maximum indices are cached by accessor to avoid rescanning
+shared mesh data. Coordinates outside ±1,000,000 meters are rejected.
+
+This is still not a renderer-ready import. Declared accessor bounds, extensions,
+materials/textures, skin/animation behavior and final transformed bounds need a
+combined import policy. Inspection of the installed GLTFLoader also found loader
+compatibility work: it allocates full interleaved strides (even when glTF permits
+omitted final padding) and sparse accessors over interleaved data need repacking.
+The loader integration must handle those layouts faithfully rather than silently
+misreading them. No model import UI is exposed.
+
+The five-file GLB run passed all 29 tests, session `48974` exit 0, log
+`/tmp/web-local-glb-geometry-tests.log`. The earlier source check `88958` remains
+active; it began before this geometry module, so it cannot by itself qualify all
+current source. Do not restart it solely due to elapsed time.
