@@ -1,5 +1,12 @@
 # Next work and pause handoff
 
+## Local custom-model import — container foundation in progress
+
+A bounded glTF 2.0 container reader now has six passing unit tests. Full resource
+and scene validation, project persistence, model preview/placement, localization
+and end-to-end qualification remain to implement. No import UI is exposed yet.
+See `docs/reviews/2026-09-12-local-model-import.md`; type checking is pending.
+
 ## Nested-room Undo reproduction — WebKit passed; original issue remains open
 
 After moving the existing three-minute test budget before fixtures, the full
