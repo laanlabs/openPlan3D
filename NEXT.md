@@ -1,12 +1,14 @@
 # Next work and pause handoff
 
-## Full-scan import dismissal — validation in progress
+## Full-scan import dismissal — Catalyst verified, simulator running
 
-Initial Cancel reproduces the stuck sheet before file selection. The full-scan
-import now uses SheetDismissButton; its own build and live checks are pending.
-Catalyst session `82197` remains live, log
-`/tmp/native-scan-local-dismiss-catalyst.log`. See
-`docs/reviews/2026-09-12-full-scan-dismissal.md` before resuming.
+Initial Cancel and post-import Back to Library/Done now pass live Catalyst
+checks. Two synthetic imports preserved every source hash. All 21 selected
+Catalyst dataset tests passed, including the existing 194-frame/394-file real
+scan preservation check. The iPhone simulator selection remains active in
+session `50299`, log `/tmp/native-scan-local-dismiss-ios.log`. See
+`docs/reviews/2026-09-12-full-scan-dismissal.md` before resuming. Physical UI,
+editor dismissal and broader NEXT work remain open.
 
 ## Project-package import dismissal — September 12
 

@@ -1,26 +1,51 @@
-# Full-scan import dismissal investigation — September 12, 2026
+# Full-scan import dismissal — September 12, 2026
 
-Baseline native source `734a302`, isolated app
-`/tmp/OpenPlan3D-Import-Local-Dismiss-QA.app`, bundle
-`com.laan.labs.floorplan.underlayfloorqa`: Import Full Scan Dataset → Cancel
-left the initial sheet visible at the next AX check, before any file selection.
-Escape returned to the library. The baseline app was then quit.
+Production change: native `aaafdbe`, following shared SheetDismissButton in
+`734a302`. The baseline left the initial Import Full Scan sheet visible after
+Cancel, before any file selection; Escape returned to the library. The change
+uses SheetDismissButton for Cancel/Done and Back to Library, retaining import
+protection and the dataset pipeline.
 
-ScanDatasetImportSheet now uses the already verified SheetDismissButton for
-Cancel/Done and Back to Library. Import guards and dataset processing are unchanged.
-This change is checked in pending its own build and live validation; the earlier
-package-import result alone is not proof for the full-scan workflow.
+## Catalyst automated result
 
-Catalyst build and ScanDatasetTests/LocalScanDatasetValidationTests were started
-in session `82197`, log `/tmp/native-scan-local-dismiss-catalyst.log`. At this
-checkpoint xcodebuild PID `96307` was live in Resolve Package Graph, with no
-reported error. Do not restart based on observation timeouts; poll the same
-session to a terminal result first.
+Session `82197` finished with exit 0. All 21 selected tests passed, zero failures,
+201.764 seconds of XCTest time: 20 ScanDatasetTests and one opt-in
+LocalScanDatasetValidationTests case. The real local fixture preserved 394 files
+and 194 frame pairs through export/import/re-export. Its calibration metadata
+remains legacy-incomplete; this is not physical reprojection validation.
+Log: `/tmp/native-scan-local-dismiss-catalyst.log`.
 
-The existing `/tmp/openplan3d-ui-qa/synthetic-full-scan.zip` is a valid-format
-synthetic candidate for live completion checks: manifest format openplan3d-scan,
-one frame pair and four source files. Its actual validation/import with the new
-build remains pending. Create a fresh isolated QA copy after the build finishes.
+The build was slow under heavy host load but advanced through dependency
+resolution, app compilation, test compilation and signing. Read-only compiler
+sampling showed active type checking; the run was not restarted. Diagnostic
+samples: `/tmp/swiftbuild-fullscan-sample.txt` and
+`/tmp/fullscan-swift-compiler-sample.txt`.
 
-Remaining checks: initial Cancel, dataset import, Back to Library and Done;
-then simulator build/tests. Do not mark the dismissal issue resolved yet.
+## Live Catalyst verification
+
+Created `/tmp/OpenPlan3D-Scan-Local-Dismiss-QA.app` after the app build completed,
+while the byte-preservation tests ran in their separate test host. QA bundle:
+`com.laan.labs.floorplan.underlayfloorqa`. No installed Development app was used.
+
+- Initial Cancel returned to the library without Escape.
+- Imported `/tmp/openplan3d-ui-qa/synthetic-full-scan.zip`: one frame pair, four
+  files, complete synthetic calibration metadata, physical-device status pending.
+  Back to Library returned to the library with the independent scan copy.
+- Repeated the import and used toolbar Done; it returned to the library with
+  both independent copies present. The QA app was quit after inspection.
+
+All manifest sizes and SHA-256 values matched the source archive before import.
+Both imported sessions retained all four original source hashes, including the
+original session metadata under `.openplan-scan/original-session.json`:
+`DA41A204-1086-4583-8013-27FC3AE4FDE3` and
+`F6CCA1B5-BBE0-4C84-A3B6-0AC6D057E99D`.
+
+## Still running / remaining work
+
+The equivalent iPhone 17 Pro simulator selection was started only after the
+Catalyst test process finished. Session `50299` is active; log
+`/tmp/native-scan-local-dismiss-ios.log`. Poll this run to its actual terminal
+result before any native source edits or another build. Simulator pass credit
+is pending. Physical UI, long-run presentation stress and editor dismissal stay
+open. The live preview/library also exposes singular-count wording such as
+“1 frame pairs” and “1 frames”; correct that in a later verified UI change.
