@@ -680,3 +680,18 @@ native-plan move/resize/rotation/floor edits, instance deletion, exact retained 
 bytes, and explicit unused-model removal. This edits package JSON in the web test;
 it does not establish a real Swift or physical-device round trip. Log:
 `/tmp/web-custom-model-native-edit-bridge-tests.log`. Broader NEXT work remains open.
+
+
+## Portuguese validator browser check passed
+
+Chromium run `10501` passed the new Portuguese validator case in 2.1 minutes
+(`/tmp/web-custom-model-portuguese-validator-browser.log`). Unsupported extension
+identifiers retain literal braces; invalid accessor normalization receives the
+translated diagnostic, without exposing an admission action for the invalid file.
+
+A real web package was generated through `prepareCustomModel`, `attachCustomModel`,
+`placeCustomModel`, and `projectPackageBytes` for the native test fixture
+`FloorPlanTests/Fixtures/web-custom-model-package.zip`. The fixture includes the
+original textured GLB, a placed model and a second floor. Native XCTest now checks
+actual import/save/export with move, size, rotation and floor changes, preserving
+sidecar and GLB bytes. Its simulator run is pending; no native pass claimed yet.
