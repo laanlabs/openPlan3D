@@ -638,3 +638,31 @@ at `/tmp/openplan-custom-model-ui-viewer-qualified.png` and
 `/tmp/openplan-custom-model-ui-portuguese-qualified.png`. This closes the recorded
 Chromium workflow checks, not Firefox, mobile/accessibility, other validator
 translations, native return or broader NEXT requirements.
+
+
+## Firefox passed; controlled validator translations expanded
+
+Current-build Firefox run `55495` exited 0: the full original import/preview,
+source preservation, placement Undo/Redo and confirmed save/reload workflow passed
+in 3.2 minutes (`/tmp/web-custom-model-firefox-current.log`). This resolves that
+specific unqualified workflow after the earlier timeout. It does not prove the
+lazy-loading change was the cause of the timing difference, nor qualify every
+new workflow in Firefox.
+
+The error registry adds 132 fixed messages covering GLB containers, resources,
+scene graphs, accessors, geometry, materials, definitions, static loading and
+retained-source integrity. Three pattern translations preserve variable attribute
+and extension identifiers literally, including braces. Known bounded table/field
+variants are registered explicitly. Unknown external diagnostics remain intact;
+own-property lookup avoids inherited object properties being treated as keys.
+
+Three tests across the dictionary/pattern suite and a TypeScript AST inventory
+passed (`46495`, `/tmp/web-custom-model-diagnostics-coverage.log`). The inventory
+checks every fixed error emitted directly by the 14 controlled pipeline modules;
+it does not claim coverage of all transitive project-storage or external-library
+errors. A new Portuguese browser case exercises unsupported extension identifiers
+and invalid accessor normalization. It has not run on this expanded source yet.
+Type check `12414` and build `75751` are active, with logs
+`/tmp/web-custom-model-validator-translations-check.log` and
+`/tmp/web-custom-model-validator-translations-build.log`. Fluent review and broader
+UI/native/physical-device requirements remain open.

@@ -12,3 +12,16 @@ it('retains actionable English messages and translates every registered model er
   expect(translate('pt', customModelMessages['Remove this model’s placed furniture before removing its definition.'])).toContain('Remova os móveis');
   expect(customModelMessages['Future validator detail']).toBeUndefined();
 });
+
+it('translates variable schema identifiers literally and preserves unknown errors safely', async () => {
+  const { customModelError } = await import('$lib/i18n/customModelMessages');
+  for (const name of ['TEXCOORD_9', 'CUSTOM_{name}', 'CUSTOM_<tag>']) {
+    const source = `Invalid GLB geometry: Unsupported format for ${name}.`;
+    expect(customModelError(source, 'en')).toBe(source);
+    expect(customModelError(source, 'pt')).toContain(name);
+    expect(customModelError(source, 'pt')).toContain('formato não suportado');
+  }
+  expect(customModelError('Unsupported GLB extension: KHR_draco_mesh_compression is not supported by local model import yet.', 'pt')).toContain('ainda não aceita KHR_draco_mesh_compression');
+  expect(customModelError('Unsupported GLB extension: KHR_materials_unlit is missing from extensionsUsed.', 'pt')).toContain('não está declarada em extensionsUsed');
+  for (const message of ['constructor', '__proto__', 'Unknown decoder diagnostic']) expect(customModelError(message, 'pt')).toBe(message);
+});

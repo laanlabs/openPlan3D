@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import { get } from 'svelte/store';
-  import { t } from '$lib/i18n';
-  import { customModelMessages } from '$lib/i18n/customModelMessages';
+  import { t, locale } from '$lib/i18n';
+  import { customModelError } from '$lib/i18n/customModelMessages';
   import { currentProject, commitItemDetails, canvasCamX, canvasCamY, selectedElementId, selectedElementIds, selectedTool } from '$lib/stores/project';
   import { getSnapshots } from '$lib/stores/versionHistory';
   import { modalDialog } from '$lib/utils/modalDialog';
@@ -101,7 +101,7 @@
       </div>
     </div>
   {/each}
-  {#if !open && error}<p role="alert" class="text-xs text-red-700">{customModelMessages[error] ? $t(customModelMessages[error]) : error}</p>{/if}
+  {#if !open && error}<p role="alert" class="text-xs text-red-700">{customModelError(error, $locale)}</p>{/if}
   {#if status}<p role="status" class="text-xs text-gray-600">{status}</p>{/if}
 </section>
 {#if open}
@@ -119,7 +119,7 @@
         <button disabled={saving} class="rounded bg-blue-700 px-3 py-2 text-sm text-white">{$t(saving ? 'customModel.saving' : 'customModel.add')}</button>
       </form>
     {/if}
-    {#if error}<p role="alert" class="my-2 text-sm text-red-700">{customModelMessages[error] ? $t(customModelMessages[error]) : error}</p>{/if}
+    {#if error}<p role="alert" class="my-2 text-sm text-red-700">{customModelError(error, $locale)}</p>{/if}
     <button type="button" onclick={close} class="mt-3 rounded border px-3 py-2 text-sm">{$t('customModel.cancel')}</button>
   </dialog>
 {/if}

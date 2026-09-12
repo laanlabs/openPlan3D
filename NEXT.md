@@ -8,14 +8,15 @@ model definitions, source reuse and storage/history admission checks. The Object
 panel provides preview, provenance, placement at the view center and unused-model
 removal. Saved references render through shared source leases with instance-owned
 GPU resources; leaving the viewer releases the last source owner. User model names
-now appear in canvas, Layers and Properties. Common error messages have English
-and Portuguese translations; other validator diagnostics still need translation.
+now appear in canvas, Layers and Properties. The controlled GLB validator messages now have English/Portuguese translations,
+including variable schema identifiers; external diagnostics retain their fallback.
 
 Verified: the textured loader fixture renders and cleans up across Chromium,
 Firefox and WebKit (`42690`); placement/catalog tests and expanded lifetime tests
 passed. The initial UI workflow passed in Chromium (`95224`) and WebKit (`63246`),
 including exact source retention, placement Undo/Redo and confirmed save/reload.
-Firefox's UI workflow timed out before import qualification. Legacy regression
+Firefox's earlier run timed out; current-build run `55495` subsequently passed
+the complete import/placement/Undo/Redo/save-reload workflow. Legacy regression
 `57520` had 70 passes and two photo/history quota-test timeouts, not a full green run.
 
 Cancellation/removal run `45654` passed cancellation, invalid-file rejection and
@@ -27,8 +28,12 @@ build `7222` passed. Chromium run `84773` passed all four tests, including exact
 removal Undo/Redo, untranslated user names, translated source/removal errors,
 shared decoding for two placed instances and image closure on leaving 3D.
 
-Remaining: Firefox and broader browser qualification, complete error
-localization, broader accessibility/physical-device testing, and full native return
+A fixed-diagnostic inventory and translation tests passed (`46495`). The expanded
+validator translations are newer than those browser runs; type check `12414` and
+build `75751` are active before their Portuguese browser check.
+
+Remaining: broader browser qualification, external error/localization review,
+accessibility/physical-device testing, and full native return
 qualification. See `docs/reviews/2026-09-12-local-model-import.md` for exact scope,
 logs, source checkpoints and incomplete checks. This does not close broader NEXT work.
 
