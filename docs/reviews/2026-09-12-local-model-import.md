@@ -298,3 +298,23 @@ validation tests passed. The two photo/history cases timed out at their existing
 assertions failed. These cases also timed out in earlier runs before this change,
 but that does not establish an all-green regression suite. Current type check
 `89302` is active, log `/tmp/web-custom-model-definitions-check.log`. Legacy files do not gain optional model fields.
+
+## Original source verification before loading
+
+`readCustomModelSource` resolves original bytes only from the project's retained
+attachment dictionary. It checks structural definitions, attachment presence,
+encoded/decoded byte lengths, base64 characters/padding length, SHA-256 via
+Web Crypto, and the GLB container. It does not fetch provenance URLs. Definition
+metadata and immutable encoded bytes are captured before hashing, so subsequent
+project edits cannot change the metadata returned with an earlier byte snapshot.
+Cancellation is checked before work and after hashing; Web Crypto itself cannot
+be interrupted. Missing browser crypto support produces an explicit failure.
+
+Hash/container verification is not renderer admission: geometry, material,
+extension, scene and texture checks must still be composed in the loading path.
+All nine source/definition tests passed, run `10510` exit 0, log
+`/tmp/web-custom-model-source-tests.log`. It covers exact bytes, independent
+metadata, missing/detached sources, malformed base64, same-length corruption,
+matching-hash invalid containers, cancellation and mutation during hashing.
+Type-check `89302` remains active and predates this source-verification module;
+current combined source must be checked after that run terminates.

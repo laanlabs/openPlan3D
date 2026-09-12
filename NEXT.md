@@ -14,7 +14,9 @@ run `12846` passed. Legacy regression `57520` had 70 passes and two existing
 photo/history quota-test timeouts; project validation passed. Current type check
 `89302` is pending. No import UI is exposed yet.
 
-Remaining work includes the combined bounded loader/preview, byte-digest checks,
+Original source byte/digest/container verification is implemented with its
+nine source/definition tests passed as `10510`. Remaining work includes composing
+these checks in the bounded loader/preview,
 model admission/removal with storage budgeting, placement, localization and full
 end-to-end/native return qualification. See
 `docs/reviews/2026-09-12-local-model-import.md` for exact scope and handles.
