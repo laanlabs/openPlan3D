@@ -32,11 +32,14 @@ listener now ends its drag group before the global history shortcut runs.
 Focused text fields retain native Undo/Redo behavior. Type checking reports zero
 errors and warnings and the production build passed (session `28836`, exit 0).
 
-Six elevation cases, normal Escape exit and Undo while held in each engine, are
-active in session `96723`, `/tmp/web-elevation-mid-drag-browser.log`. Poll this
-process before another browser run or rebuild. The 48 passing cases above apply
-to the plan-canvas fix `df4dfa4`; the elevation change is awaiting verification.
-The older 1,116-case qualification applies to runtime `03e0ae1`. Broader NEXT
+All six elevation cases passed in 1.1 minutes (session `96723`, terminal exit 0;
+`/tmp/web-elevation-mid-drag-browser.log`), covering normal Escape exit and Undo
+while held in Chromium, Firefox and WebKit. Exact exported geometry, Redo and
+subsequent Undo/Redo assertions passed. No browser process remains active.
+
+The 48 passing plan-canvas cases above apply to `df4dfa4`; the six elevation
+cases apply to `e6da660`. The older 1,116-case qualification applies to runtime
+`03e0ae1`; it is not a full-suite result for these new changes. Broader NEXT
 requirements, including the earlier intermittent nested-room Undo issue, remain
 open.
 
