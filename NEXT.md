@@ -1,5 +1,22 @@
 # Next work and pause handoff
 
+## Current browser qualification — Firefox photo chooser failure
+
+Full orbit-runtime stage 2 is terminal (session `46921`, exit 1): 282 passed,
+one failed, 583 not run in 56.2 minutes. Log:
+`/tmp/web-orbit-fixed-full-browser-2.log`. Including the 250 retained passes,
+532 current-runtime cases passed. The Firefox bad-photo/quota recovery test
+failed at item-details.spec.ts:224 while awaiting the second photo chooser.
+The Add photo click completed about five seconds into the test, but no chooser
+event arrived before the 60-second total timeout. The snapshot shows the
+expected storage-full banner after editing the note. This is not evidence that
+the test merely needs more time. Original trace and context are preserved in
+`/tmp/web-photo-chooser-failure`. An unchanged traced Firefox reproduction runs
+in session `43729`, `/tmp/web-photo-chooser-repro.log`. No runtime or assertion
+change has been made. Poll that handle before competing browser runs.
+Full qualification, the intermittent nested-room Undo issue and broader NEXT
+requirements remain incomplete.
+
 ## Orbit damping fix — PDF checks passed; full browser suite resumed
 
 The unchanged Chromium idle reproduction failed again after orbit (session
