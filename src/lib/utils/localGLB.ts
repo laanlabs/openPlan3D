@@ -4,7 +4,7 @@ export const LOCAL_GLB_FILE_LIMIT = 16 * 1024 * 1024;
 export const LOCAL_GLB_JSON_LIMIT = 2 * 1024 * 1024;
 const JSON_CHUNK = 0x4e4f534a;
 const BIN_CHUNK = 0x004e4942;
-const fail = (message: string): never => { throw new Error(`Invalid GLB: ${message}`); };
+function fail(message: string): never { throw new Error(`Invalid GLB: ${message}`); }
 
 /** Read a bounded glTF 2.0 container without decoding geometry or fetching URLs.
  * This is container validation, not permission to pass the result to a renderer.

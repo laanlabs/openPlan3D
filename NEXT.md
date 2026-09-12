@@ -2,10 +2,12 @@
 
 ## Local custom-model import — container foundation in progress
 
-A bounded glTF 2.0 container reader now has six passing unit tests. Full resource
-and scene validation, project persistence, model preview/placement, localization
-and end-to-end qualification remain to implement. No import UI is exposed yet.
-See `docs/reviews/2026-09-12-local-model-import.md`; type checking is pending.
+Bounded glTF 2.0 container and embedded buffer/image checks have 12 passing
+unit tests. Geometry/scene validation, project persistence, model preview and
+placement, localization and end-to-end qualification remain to implement.
+The shared photo-header regression rerun and clean-environment type check are
+still active; see `docs/reviews/2026-09-12-local-model-import.md` for handles.
+No import UI is exposed yet.
 
 ## Nested-room Undo reproduction — WebKit passed; original issue remains open
 
