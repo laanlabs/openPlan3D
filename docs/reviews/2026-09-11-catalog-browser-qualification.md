@@ -254,3 +254,11 @@ Production source now includes thumbnail fix `c14fce7`; prior passes do not
 qualify that change. Type checking passed, and build session `17657` is active
 with log `/tmp/web-reserved-thumbnail-build.log`. Validate the new thumbnail
 cases and save-conflict workflow after the build, before further qualification.
+
+Thumbnail fix `c14fce7` passed type checking, production build and all 24
+focused thumbnail/save-conflict cases across three engines. Sessions `17657`,
+`77574` and `98059` are terminal. Logs are recorded at the top of NEXT.md.
+The new inventory has 1,116 cases; 24 unique current-runtime passes match it.
+Session `44047` runs the remaining 1,092 in `/tmp/web-thumbnail-fixed-full-browser-1.log`.
+The new inventory/passed/remaining files use `/tmp/web-thumbnail-fixed-` names.
+Prior-runtime results do not qualify this source; broader work remains open.

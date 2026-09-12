@@ -1,34 +1,29 @@
 # Next work and pause handoff
 
-## Open: inherited thumbnail lookup for reserved project IDs
+## Reserved project-ID thumbnail fix — verified; full suite active
 
-The active corrected-runtime browser run logs `GET /[object%20Object]` during
-`project-validation.spec.ts`'s reserved-ID import case. That test passes its
-project-data assertions, but does not check local failed image requests.
-`localDatabase.records()` returns an ordinary `Object.fromEntries` object;
-the library uses `thumbnails[project.id]` without checking ownership. With an
-absent thumbnail and project ID `__proto__`, this yields the inherited prototype,
-which becomes the image URL. The same lookup needs protection for other
-inherited names such as `constructor` and `toString`.
+The library now uses only own thumbnail entries, preventing missing previews
+for `__proto__`, `constructor`, and `toString` from becoming inherited values
+and invalid image requests. Imported IDs and project data are unchanged.
+All nine thumbnail cases passed across Chromium, Firefox and WebKit: absent
+previews, saved previews, and preview-read failures, including ordinary IDs.
+All 15 save-conflict cases also passed. Type checking reports zero errors and
+warnings; the production build passed. Production source is `c14fce7`.
 
-The source now guards the library thumbnail lookup with `Object.hasOwn`.
-New `library-reserved-thumbnails.spec.ts` cases cover reserved and ordinary IDs
-with absent previews, saved previews, and failed preview reads. Browser validation
-of this change remains pending; the active suite tests runtime `b3c7fa6`, and its existing passing
-reserved-ID case does not prove thumbnail correctness. Do not rebuild the
-production server while a browser session is active. Session `8168` is now terminal.
-Type checking passed with zero errors/warnings; log `/tmp/web-reserved-thumbnail-check.log` (session `40986` terminal).
-Production build passed; session `17657` is terminal, log `/tmp/web-reserved-thumbnail-build.log`.
-All eight Chromium thumbnail/save-conflict checks passed. Session `77574`
-terminated when Firefox reported the legitimate document favicon as an image
-request; log `/tmp/web-reserved-thumbnail-browser.log`. The request assertion
-now exempts only the exact local favicon URL declared in `src/app.html`; all
-thumbnail ownership, image and unexpected-request checks remain. The remaining
-16 Firefox/WebKit cases run in session `98059`, log
-`/tmp/web-reserved-thumbnail-browser-2.log`. Production source is unchanged.
-After the build completes, run the new regression
-cases across all engines. The current 1,107-case run does not qualify this fix
-or include the nine new engine cases.
+Logs: `/tmp/web-reserved-thumbnail-check.log`, `/tmp/web-reserved-thumbnail-build.log`,
+`/tmp/web-reserved-thumbnail-browser.log` (eight Chromium passes), and
+`/tmp/web-reserved-thumbnail-browser-2.log` (16 Firefox/WebKit passes). All those
+sessions are terminal. The Firefox request assertion exempts only the exact
+favicon URL declared by the document; thumbnail and unexpected-request checks
+remain intact.
+
+The updated inventory contains 1,116 cases. Its 24 distinct focused passes are
+retained in `/tmp/web-thumbnail-fixed-passed.txt`; the remaining 1,092 run in
+session `44047`, log `/tmp/web-thumbnail-fixed-full-browser-1.log`.
+Inventory: `/tmp/web-thumbnail-fixed-inventory.log`; remaining list:
+`/tmp/web-thumbnail-fixed-remaining.txt`. Do not mix prior-runtime passes into
+this run. Poll the active handle before competing browser tests or rebuilds.
+Full qualification and broader NEXT requirements remain incomplete.
 
 ## Unknown-furniture caption regression — September 11
 
