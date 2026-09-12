@@ -223,9 +223,10 @@ zero network requests. This is new JPEG coverage, not an unchanged
 rerun solely to obtain passing results.
 
 The prior source check completed with zero errors/warnings. Fresh combined
-source check `85887` is active, log `/tmp/web-local-glb-combined-check.log`, using
-NODE_ENV=production. It includes every current GLB module and test file, including
-image ownership and explicit extension validation. Preserve this run to terminal.
+source check `85887` passed with zero errors and zero warnings, log
+`/tmp/web-local-glb-combined-check.log`, using NODE_ENV=production. It covers the
+GLB runtime modules including image ownership and explicit extension validation.
+The fixture/transport test files were added after it started.
 
 ## Complete textured integration fixture
 
@@ -240,8 +241,8 @@ It is a test fixture, not a catalog asset with newly asserted image licensing.
 The integration test combines extension, material, geometry and repacking checks,
 asserts known bounds and instance counts, and compares the original embedded PNG
 bytes after repacking. Its focused test passed, run `47478` exit 0, log
-`/tmp/web-local-glb-fixture-tests.log`. Runtime source has stayed unchanged while
-combined check `85887` runs; this newly added test file postdates that check.
+`/tmp/web-local-glb-fixture-tests.log`. Runtime source stayed unchanged through combined check `85887`, which passed;
+this newly added test file postdates that check.
 
 Storage/placement integration observations from current source: FurnitureItem
 stores dimensions in centimeters and resolves catalog models through
@@ -251,3 +252,18 @@ checks photo/tracing references. Model persistence must add reference validation
 and protect assets used by model instances before exposing removal controls.
 The original GLB should remain the persistence/provenance source; the repacked
 buffer is a temporary loading artifact. The import/placement UI remains absent.
+
+## Original GLB attachment transport
+
+A focused transport test now uses the complete textured fixture as a retained
+`.glb` attachment. It exercises two web package encode/decode round trips with
+JSON recovery between them, checking original bytes and attachment labels. It
+also exercises pooled saved-version storage, requiring one stored copy of the
+GLB and complete standalone projects after history hydration. Both tests passed,
+run `33713` exit 0, log `/tmp/web-local-glb-transport-tests.log`.
+
+This tests existing generic attachment transport, not model-aware persistence:
+custom-model definitions, furniture references and deletion protection remain
+unimplemented. It does not qualify a native app import/export cycle for GLB data.
+The prior combined source check passed with zero errors and warnings; no runtime
+source changed during this transport verification work.
