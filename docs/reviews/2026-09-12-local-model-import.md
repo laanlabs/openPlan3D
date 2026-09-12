@@ -616,3 +616,25 @@ covering four tests across cancellation/removal, Portuguese controls and full
 viewer image lifetime. These tests use the current name/message/lazy-preview
 source. Their outcomes remain pending; no competing browser server should start
 until this run is terminal.
+
+
+### All four current Chromium workflows passed
+
+Run `84773` exited 0: four tests passed in 6.7 minutes, log
+`/tmp/web-custom-model-current-ui.log`. Portuguese controls passed in 2.2 minutes;
+cancellation/invalid input in 43 seconds; removal Undo/Redo in 1.5 minutes; full
+viewer lifetime in 2.0 minutes. The first confirms verbatim custom names in canvas
+and Properties, translated public-source and used-model errors, and no provenance
+URL fetching. Cancellation restores focus and leaves exported project data equal.
+Unused removal deletes the definition/source/attachment label, and Undo/Redo
+restores/removes exact source and metadata. Two placed instances share one newly
+decoded model image in the full viewer, upload it through WebGL, and close it on
+leaving 3D. No page errors were reported.
+
+Both captured frames were visually inspected: the 3D viewer shows the blue model
+at its expected proportions, and the Portuguese editor shows the saved custom
+name and readable removal error without overlapping controls. Copies are retained
+at `/tmp/openplan-custom-model-ui-viewer-qualified.png` and
+`/tmp/openplan-custom-model-ui-portuguese-qualified.png`. This closes the recorded
+Chromium workflow checks, not Firefox, mobile/accessibility, other validator
+translations, native return or broader NEXT requirements.

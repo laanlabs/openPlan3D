@@ -19,16 +19,15 @@ Firefox's UI workflow timed out before import qualification. Legacy regression
 `57520` had 70 passes and two photo/history quota-test timeouts, not a full green run.
 
 Cancellation/removal run `45654` passed cancellation, invalid-file rejection and
-cancelled-removal equality before timing out. Those workflows are now split into
-independent tests. Portuguese controls and the full 3D viewer's image lifetime
-also have new browser tests awaiting execution. These tests must use the current
-build: the previously tested UI predates the name/error and lazy-preview changes.
+cancelled-removal equality before timing out. The split workflows now pass in Chromium, along with Portuguese controls and
+full-viewer image lifetime, on the current names/messages/lazy-preview source.
 Type checks for labels (`79860`) and messages (`10317`) passed with zero diagnostics.
 Lazy-preview type check `85089` passed with zero errors/warnings and production
-build `7222` passed. Chromium run `84773` is active for the split cancellation/
-removal, Portuguese and full-viewer workflows against this current build.
+build `7222` passed. Chromium run `84773` passed all four tests, including exact
+removal Undo/Redo, untranslated user names, translated source/removal errors,
+shared decoding for two placed instances and image closure on leaving 3D.
 
-Remaining: finish the current browser runs, Firefox qualification, complete error
+Remaining: Firefox and broader browser qualification, complete error
 localization, broader accessibility/physical-device testing, and full native return
 qualification. See `docs/reviews/2026-09-12-local-model-import.md` for exact scope,
 logs, source checkpoints and incomplete checks. This does not close broader NEXT work.
