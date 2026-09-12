@@ -29,8 +29,9 @@ removal Undo/Redo, untranslated user names, translated source/removal errors,
 shared decoding for two placed instances and image closure on leaving 3D.
 
 A fixed-diagnostic inventory and translation tests passed (`46495`). The expanded
-validator translations are newer than those browser runs; type check `12414` and
-build `75751` are active before their Portuguese browser check.
+validator translations are newer than those browser runs; type check `12414` passed
+with zero errors/warnings and production build `75751` passed. Their additional
+Portuguese browser check remains pending.
 
 Remaining: broader browser qualification, external error/localization review,
 accessibility/physical-device testing, and full native return

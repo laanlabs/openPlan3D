@@ -666,3 +666,17 @@ Type check `12414` and build `75751` are active, with logs
 `/tmp/web-custom-model-validator-translations-check.log` and
 `/tmp/web-custom-model-validator-translations-build.log`. Fluent review and broader
 UI/native/physical-device requirements remain open.
+
+
+## Final checkpoint verification
+
+Expanded-validator type check `12414` completed with zero errors and warnings;
+production build `75751` completed successfully (6m 18s plus adapter output).
+The additional Portuguese validator browser case remains pending.
+
+The new native-return bridge suite passes both cases after correcting its floor
+fixture to use `createDefaultFloor(1)`. It exercises UI-admitted model references,
+native-plan move/resize/rotation/floor edits, instance deletion, exact retained GLB
+bytes, and explicit unused-model removal. This edits package JSON in the web test;
+it does not establish a real Swift or physical-device round trip. Log:
+`/tmp/web-custom-model-native-edit-bridge-tests.log`. Broader NEXT work remains open.
