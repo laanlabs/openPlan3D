@@ -216,3 +216,17 @@ with log `/tmp/web-caption-fixed-full-browser-2.log`. Retained identities:
 `/tmp/web-caption-fixed-remaining.txt`; validated list:
 `/tmp/web-caption-fixed-continuation-inventory.log`. Do not mix these results
 with the older `87d3c86` runtime. Full completion is still unproven.
+
+Continuation `94916` terminated after 52 passes (25.7 minutes). Mobile legacy
+furniture recovery reached its 10-second 3D canvas wait, with the error snapshot
+showing “Loading 3D viewer…”. Its migration/edit/recovery checks had completed.
+Both viewport variants now allow 60 seconds for canvas readiness within a
+180-second workflow, preserving all byte, model-download and interaction checks.
+No production code changed. The runner also reported an error outside a test
+without a separate diagnostic; no completion credit is assigned to it.
+
+Logs 1–2 contain 156 unique passes matched against the original inventory.
+Playwright confirms 951 remaining cases. Session `32786` is active with log
+`/tmp/web-caption-fixed-full-browser-3.log`; `94916` is terminal. The corrected
+runtime's passed/remaining/list files have been updated. Full completion remains
+unproven; poll the active handle before competing tests or production rebuilds.
