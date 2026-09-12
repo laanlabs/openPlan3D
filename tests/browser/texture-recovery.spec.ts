@@ -5,7 +5,7 @@ import { observeGPU, gpu } from './gpu';
 
 for (const view of ['2D', '3D']) for (const kind of ['wall', 'floor']) {
   test(`${kind} photo texture recovers from an aborted request and wakes the ${view} canvas`, async ({ page }) => {
-    if (view === '3D') await observeGPU(page);
+    if (view === '3D') { test.slow(); await observeGPU(page); }
     await page.addInitScript(() => {
       localStorage.setItem('o3d_tips_seen', JSON.stringify(['first-wall', 'first-furniture', 'first-3d', 'first-export', 'first-door']));
       const now = Date.now.bind(Date);
@@ -45,6 +45,10 @@ for (const view of ['2D', '3D']) for (const kind of ['wall', 'floor']) {
         ? page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').last()
         : page.locator('canvas[aria-label="Floor plan editor canvas"]');
       if (view === '3D') {
+        // Software WebGL startup has its own budget; the idle/recovery checks
+        // below still require the renderer to settle and wake without input.
+        await expect.poll(async () => (await gpu(page)).find((entry: any) => entry.connected && !entry.lost)?.draws ?? 0,
+          { timeout: 60_000 }).toBeGreaterThan(0);
         if (kind === 'floor') await page.getByRole('button', { name: 'Top-Down View', exact: true }).click();
         await expect(async () => {
           const active = (await gpu(page)).find((entry: any) => entry.connected && !entry.lost);

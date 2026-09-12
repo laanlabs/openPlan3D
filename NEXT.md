@@ -50,8 +50,16 @@ Log: `/tmp/web-thumbnail-fixed-full-browser-4.log`. That multi-export workflow
 now uses `test.slow()` (180 seconds), as does the neighboring nested-room case
 via its explicit timeout. Geometry, persistence, export and page-error assertions
 are retained. No runtime change was made. The same 820 cases, confirmed again
-by Playwright, run in stage 5, session `89669`, log
-`/tmp/web-thumbnail-fixed-full-browser-5.log`.
+by Playwright, ran in stage 5, session `89669`, now terminal after 48 passes.
+Log: `/tmp/web-thumbnail-fixed-full-browser-5.log`. The wall-photo 3D recovery
+case never observed an active connected WebGL context within its 15-second
+idle check. The trace shows mounted viewer controls and only the deliberately
+aborted texture request as a console error. The 3D cases now allow 60 seconds
+for the first connected draw before the unchanged 15-second idle check, within
+180 seconds overall. Exact retry count, pixel-change and no-input redraw checks
+remain. Six focused 3D cases run in session `24549`, log
+`/tmp/web-texture-startup-browser.log`. There are 344 unique retained passes;
+full qualification is paused pending these checks. Production is unchanged.
 Inventory: `/tmp/web-thumbnail-fixed-inventory.log`; remaining list:
 `/tmp/web-thumbnail-fixed-remaining.txt`. Do not mix prior-runtime passes into
 this run. Poll the active handle before competing browser tests or rebuilds.
