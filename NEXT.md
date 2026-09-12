@@ -1,5 +1,23 @@
 # Next work and pause handoff
 
+## Open: inherited thumbnail lookup for reserved project IDs
+
+The active corrected-runtime browser run logs `GET /[object%20Object]` during
+`project-validation.spec.ts`'s reserved-ID import case. That test passes its
+project-data assertions, but does not check local failed image requests.
+`localDatabase.records()` returns an ordinary `Object.fromEntries` object;
+the library uses `thumbnails[project.id]` without checking ownership. With an
+absent thumbnail and project ID `__proto__`, this yields the inherited prototype,
+which becomes the image URL. The same lookup needs protection for other
+inherited names such as `constructor` and `toString`.
+
+Fix the library thumbnail lookup to use only own entries and add browser
+coverage for reserved IDs with absent previews, normal saved previews, and
+failed preview reads. Preserve imported IDs and project data. This remains
+unfixed; the active suite tests runtime `b3c7fa6`, and its existing passing
+reserved-ID case does not prove thumbnail correctness. Do not rebuild the
+production server while session `8168` is active.
+
 ## Unknown-furniture caption regression — September 11
 
 Browser qualification against `87d3c86` stopped after 343 distinct passes.
