@@ -35,8 +35,12 @@ is terminal: 15 passed, then nested-room label Undo failed at room-slabs.spec.ts
 The label moved 40 pixels as expected but remained there after Undo. This is
 a behavioral failure, not a viewer-readiness timeout. There are 293 distinct
 current-runtime passes. Log: `/tmp/web-thumbnail-fixed-full-browser-3.log`.
-An unchanged Chromium reproduction runs in session `32789`, log
-`/tmp/web-nested-undo-repro.log`. Production source is unchanged.
+The unchanged Chromium reproduction passed the entire workflow in 2.2 minutes
+(session `32789`, terminal exit 0; `/tmp/web-nested-undo-repro.log`), bringing
+unique current-runtime passes to 294. The original failure is intermittent and
+remains under investigation. An all-engine nested-room run with traces enabled
+runs in session `59904`, log `/tmp/web-nested-undo-all-engines.log`; production
+and assertions are unchanged.
 Inventory: `/tmp/web-thumbnail-fixed-inventory.log`; remaining list:
 `/tmp/web-thumbnail-fixed-remaining.txt`. Do not mix prior-runtime passes into
 this run. Poll the active handle before competing browser tests or rebuilds.
