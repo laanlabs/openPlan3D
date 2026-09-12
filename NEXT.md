@@ -1,27 +1,18 @@
 # Next work and pause handoff
 
-## Current browser qualification — modal checks passed; full suite resumed
+## Current browser qualification — all 1,116 cases passed
 
-Full stage 3 is terminal (session `63876`, exit 1): 33 passed, one failed,
-548 not run in 10.4 minutes; `/tmp/web-orbit-fixed-full-browser-3.log`.
-There are 567 distinct current-runtime passes. The mobile Firefox five-dialog
-keyboard workflow exhausted its 60-second total budget at the final editor
-Backspace action (modal-keyboard.spec.ts:84), after the dialog-loop focus,
-keyboard, geometry and stored-record checks completed. The desktop Firefox
-case passed in 57.4 seconds. Both widths now use `test.slow()` (180 seconds)
-for this multi-dialog/export workflow; all assertions remain unchanged.
-All six modal cases passed in 8.6 minutes (session `25685`, terminal exit 0;
-`/tmp/web-modal-focus-all-engines.log`), covering both widths in all engines.
-Production remains `03e0ae1`. Exact inventory matching establishes 570 distinct
-current-runtime passes; Playwright confirms 546 remaining tests in 136 files.
-Full stage 4 runs in session `22429`, `/tmp/web-orbit-fixed-full-browser-4.log`,
-using `/tmp/web-orbit-fixed-remaining.txt`. Poll that handle before competing runs.
-A live inventory audit during stage 4 confirms all 372 Chromium and all 372
-Firefox cases have passed on the current runtime. WebKit has 17 passes and
-355 remaining at this checkpoint (761 total). Stage 4 continues in the same
-session; do not restart it. Passing nested-room workflows does not explain the
-previous intermittent Undo failure. Full qualification and broader NEXT
-requirements remain incomplete.
+Full stage 4 finished successfully (session `22429`, terminal exit 0):
+546 passed in 1.5 hours; `/tmp/web-orbit-fixed-full-browser-4.log`.
+Exact inventory matching across the four continuation stages and focused
+verification logs confirms 1,116 unique current-runtime passes: 372 each in
+Chromium, Firefox and WebKit. Repeated cases count only once. Production
+remains `03e0ae1`; this qualification combines the resumed runs and focused
+reruns after test synchronization/budget fixes, rather than one uninterrupted
+suite run. No browser qualification process remains active.
+
+The earlier intermittent nested-room Undo failure remains unexplained despite
+passing subsequent coverage. Broader NEXT requirements remain incomplete.
 
 ## Current browser qualification — photo recovery verified; suite resumed
 

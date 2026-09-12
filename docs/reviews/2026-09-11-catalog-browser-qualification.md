@@ -333,3 +333,18 @@ All six modal keyboard cases passed in 8.6 minutes (session `25685`, terminal ex
 
 
 Stage 4 remains live in session `22429`. Exact inventory matching across orbit-runtime logs confirms 372/372 Chromium and 372/372 Firefox cases passed; WebKit has 17 passes with 355 remaining at this checkpoint (761 total). Production remains `03e0ae1`; no competing run was started. Nested-room workflows passed in these engines, but the earlier intermittent Undo failure remains unexplained. WebKit qualification and broader NEXT requirements remain open.
+
+
+## Current browser qualification — all 1,116 cases passed
+
+Full stage 4 finished successfully (session `22429`, terminal exit 0):
+546 passed in 1.5 hours; `/tmp/web-orbit-fixed-full-browser-4.log`.
+Exact inventory matching across the four continuation stages and focused
+verification logs confirms 1,116 unique current-runtime passes: 372 each in
+Chromium, Firefox and WebKit. Repeated cases count only once. Production
+remains `03e0ae1`; this qualification combines the resumed runs and focused
+reruns after test synchronization/budget fixes, rather than one uninterrupted
+suite run. No browser qualification process remains active.
+
+The earlier intermittent nested-room Undo failure remains unexplained despite
+passing subsequent coverage. Broader NEXT requirements remain incomplete.
