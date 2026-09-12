@@ -334,3 +334,32 @@ shared definitions, attachment metadata references and non-mutation. The precedi
 type check passed with zero errors/warnings. A fresh combined check is running,
 log `/tmp/web-custom-model-source-removal-check.log`, covering the new source
 and removal modules; its result is pending.
+
+## Combined static model loader
+
+`loadLocalGLBModel` now composes container, extension, material, geometry/repacking
+and decoded-image validation with GLTFLoader. It snapshots input bytes before
+asynchronous work, supplies decoded images through an embedded-texture plugin,
+sets core sampler behavior, and blocks every attempted external resource URL.
+The returned scene has measured meter dimensions and a single idempotent owner
+that disposes geometries, materials, texture wrappers and image bitmaps. Error
+paths dispose owned decoded images. Final world transforms/bounds are checked
+for finite values, nonempty geometry and the supported coordinate range.
+`loadCustomModel` first verifies a project's retained bytes/digest, then delegates
+to this same loader while returning the captured model definition.
+
+The initial furniture profile is explicitly static: animations, skins and cameras
+are rejected, rather than silently dropped. Unit quaternions, affine matrices and
+node morph-weight shapes are checked; static morph geometry remains supported.
+This restriction is not a claim of complete glTF feature support. The import UI
+must surface unsupported-profile errors without modifying the project or losing
+the original source. The owner must remain alive while any renderer uses its
+bitmaps; placement/cache lifetime integration remains to implement.
+
+Nine loader/source tests passed, run `12401` exit 0, log
+`/tmp/web-custom-model-loader-tests.log`. These use real GLTFLoader geometry and
+material construction with controlled bitmap mocks; they do not yet qualify GPU
+rendering of the combined loader. The added retained-project-to-scene test was
+not in that collected run and passed separately as `21018` (one selected test,
+five unselected), log `/tmp/web-custom-model-load-retained-test.log`. Type check `26892` remains active
+and predates the loader module; a later combined source check is required.

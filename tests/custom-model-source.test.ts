@@ -4,6 +4,7 @@ import { beforeEach, afterEach, expect, it, vi } from 'vitest';
 import { roomProject } from './fixtures/project';
 import { webToNative } from '$lib/utils/projectPackageBridge';
 import { readCustomModelSource } from '$lib/services/customModelSource';
+import { loadCustomModel } from '$lib/services/customModelLoader';
 
 const original = readFileSync('tests/fixtures/local-model-textured-box.glb');
 const hash = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest('hex');
@@ -58,4 +59,15 @@ it('captures matching metadata when the project changes while hashing', async ()
   const pending = readCustomModelSource(value, 'model'); value.customModels![0].name = 'Later name';
   finish(Uint8Array.from(Buffer.from(hash(original), 'hex')).buffer);
   expect((await pending).model.name).toBe('Original box');
+});
+
+it('loads a retained project model through digest verification and owned scene loading', async () => {
+  const value = project(), bitmap = { width: 32, height: 24, close: vi.fn() };
+  vi.stubGlobal('createImageBitmap', vi.fn().mockResolvedValue(bitmap));
+  const result = await loadCustomModel(value, 'model');
+  expect(result.definition.sha256).toBe(hash(original));
+  expect(result.dimensions.width * 100).toBe(result.definition.width);
+  expect(result.dimensions.depth * 100).toBe(result.definition.depth);
+  expect(result.dimensions.height * 100).toBe(result.definition.height);
+  result.dispose(); expect(bitmap.close).toHaveBeenCalledTimes(1);
 });

@@ -15,8 +15,10 @@ photo/history quota-test timeouts; project validation passed. Current type check
 `89302` passed with zero errors/warnings. No import UI is exposed yet.
 
 Original source byte/digest/container verification is implemented with its
-nine source/definition tests passed as `10510`. Remaining work includes composing
-these checks in the bounded loader/preview,
+nine source/definition tests passed as `10510`. The combined static GLB loader
+is implemented; nine loader/source tests passed and one added retained-project
+integration case passed separately as `21018`. Remaining work includes GPU/browser
+qualification of the combined loader, preview,
 model admission with storage budgeting, placement, localization and full
 end-to-end/native return qualification. Unused-model removal is implemented with
 13 focused tests passed as `57563`; UI undo/save integration remains open. A fresh combined type check is running
