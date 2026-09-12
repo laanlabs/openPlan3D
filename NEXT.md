@@ -25,9 +25,15 @@ Full stage 1 is terminal (session `23185`, exit 1): 229 passed, one failed,
 18 focused passes, 247 distinct cases passed on this runtime. The PDF source
 case failed at `pdf-3d-source.spec.ts:31`: its 10-second canvas visibility wait
 expired while the snapshot still showed “Loading 3D viewer…”. The trace contains
-no console errors. This does not yet establish a product defect or a timing-only
-failure. An unchanged Chromium reproduction with tracing runs in session `62767`,
-log `/tmp/web-pdf-source-repro.log`. Poll that handle before competing runs.
+no console errors. The unchanged Chromium reproduction passed in 48.8 seconds (session `62767`,
+exit 0; `/tmp/web-pdf-source-repro.log`). Its trace records 13.27 seconds for
+the successful canvas visibility check despite the configured 10-second wait.
+This test now allows 60 seconds for lazy viewer startup and 180 seconds for the
+whole multi-export workflow; all canvas-source, page-count, recovery, notice and
+failed-download assertions remain unchanged. Production source is unchanged.
+All-engine verification runs in session `77637`, log
+`/tmp/web-pdf-source-all-engines.log`. Poll that handle before competing runs.
+The unchanged Chromium pass brings distinct current-runtime passes to 248.
 This production change invalidates prior-runtime browser pass credit: the 374
 passes documented below belong to the thumbnail-fixed runtime, not this fix.
 Full browser qualification, the intermittent nested-room Undo investigation,

@@ -309,3 +309,6 @@ All 18 focused orbit-runtime checks passed in 2.3 minutes (session `54192`, exit
 
 
 Orbit-runtime stage 1 is terminal (session `23185`, exit 1): 229 passed, one failed, 868 not run in 1.2 hours. Including the 18 focused cases, 247 distinct current-runtime cases passed. The PDF source test failed at line 31 because the main 3D canvas did not appear within 10 seconds; the snapshot still showed “Loading 3D viewer…”, and trace inspection found no console errors. No test or runtime change has been made. An unchanged traced Chromium reproduction is active in session `62767`, `/tmp/web-pdf-source-repro.log`. The full suite remains incomplete.
+
+
+The unchanged PDF Chromium reproduction passed in 48.8 seconds (session `62767`, exit 0; `/tmp/web-pdf-source-repro.log`). Trace timing records 13.27 seconds for successful canvas visibility despite the 10-second configured wait. The test now gives lazy viewer startup 60 seconds and the multi-export workflow 180 seconds; all source-selection, page-count, recovery, notices and failed-download assertions are retained. Production is unchanged; 248 distinct current-runtime passes are established. All-engine verification is active in session `77637`, `/tmp/web-pdf-source-all-engines.log`.

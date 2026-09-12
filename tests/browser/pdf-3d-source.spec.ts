@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { benchmarkProject } from '../fixtures/render-benchmark';
 
 test('PDF captures only the main 3D canvas and skips unrelated canvases', async ({ page }, testInfo) => {
+ test.slow(); // Lazy 3D startup plus multiple PDF exports on software renderers.
  await page.goto('/editor');
  await page.getByRole('button',{name:'Export',exact:true}).click();
  const chooser=page.waitForEvent('filechooser');
@@ -28,7 +29,7 @@ test('PDF captures only the main 3D canvas and skips unrelated canvases', async 
  const flat=await download();
  expect(flat.toString('latin1')).not.toContain('(3D Perspective View)');
  await page.getByRole('button',{name:'3D',exact:true}).click();
- const main=page.locator('canvas[data-plan3d-canvas="true"]');await expect(main).toBeVisible();
+ const main=page.locator('canvas[data-plan3d-canvas="true"]');await expect(main).toBeVisible({timeout:60_000});
  await page.waitForLoadState('networkidle');
  await main.evaluate(canvas=>{
   const c=canvas as HTMLCanvasElement, original=c.toDataURL.bind(c);
