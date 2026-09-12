@@ -23,6 +23,20 @@ Web elements can have a `details` object for shared item metadata. Explicit `nul
 
 The web stores a flat `projectPackage` extension on the imported project containing the latest native source, identity map and base64 attachment bytes. Local project JSON and full-library backups retain it. The next package export removes this extension from `web.json`, preventing recursive snapshots. Native storage keeps retained files under the session's `.openplan-package` directory. Retained original attachments may include files no longer shown by the receiving editor; both export interfaces disclose this.
 
+## Local custom models
+
+Static GLB import retains web `customModels` definitions, furniture `customModelId`
+references, provenance and SHA-256 metadata in `web.json`. Original GLB bytes live
+under `assets/` with the other retained attachments. The shared native furniture
+projection carries placement, angle, floor and footprint; native previews remain
+simplified. This does not introduce a new package version or native GLB renderer.
+
+The web bridge tests cover native-plan edits while retaining model references and
+source bytes. A dedicated real Swift import/edit/export test has been added and
+is still being qualified. Use the [model guide](local-custom-models.md) for import
+limits and the [verification record](reviews/2026-09-12-local-model-import.md) for
+current native-return evidence.
+
 ## Fidelity and editing limits
 
 Shared edits include wall endpoints, thickness and uniform height; door/window geometry and common styles/orientation; furniture placement, angle and footprint; floor names; room names/label positions/colors; plan notes and placed text; and the shared floor's supported tracing image. Element mappings preserve identities across moves and IDs that are not native UUIDs. Unit conversion retains fractional dimensions.

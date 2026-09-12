@@ -1,6 +1,6 @@
 # Capability reference
 
-Updated September 11, 2026 for this checkout. This replaces the original UI
+Updated September 12, 2026 for this checkout. This replaces the original UI
 mockup checklist. “Implemented” means the capability has code and regression
 coverage linked below; it does not assert that this branch is deployed or that
 all devices have passed qualification. See [NEXT](NEXT.md) for remaining work,
@@ -21,6 +21,7 @@ for the commands used to run checks.
 | Properties and annotations | Implemented: property drafts, multiline text, annotation visibility and dimension/text exports. | [Property drafts](tests/browser/property-drafts.spec.ts), [multiline notes](tests/browser/multiline-note-properties.spec.ts), [text exports](tests/browser/text-annotation-exports.spec.ts), [dimensions](tests/browser/dimension-exports.spec.ts). |
 | Floors, slabs and stairs | Implemented: floor views/elevations, slab geometry/depth, floor openings and stair symbols. | [Floor views](tests/browser/floor-view.spec.ts), [slab geometry](tests/room-slab-geometry.test.ts), [floor openings](tests/floor-openings.test.ts), [stair geometry](tests/stair-plan-geometry.test.ts), [package values](tests/slab-package.test.ts). Common roof forms remain backlog work. |
 | Furniture | Implemented: categorized catalog, placement/interactions, loaded 3D assets and fallback representations for unknown items. | [Catalog inventory](docs/furniture-inventory.md), [catalog source](src/lib/utils/furnitureCatalog.ts), [interaction tests](tests/furniture-interactions.test.ts), [model tests](tests/furniture-models.test.ts), [unknown items](tests/unknown-furniture.test.ts). Asset attribution/dimension curation and native visual fidelity remain work areas. |
+| Local custom models | Implemented: static GLB preview, provenance, source deduplication, placement, saved references and unused-model removal. | [Import guide and limits](docs/local-custom-models.md), [admission tests](tests/custom-model-import.test.ts), [browser import/save](tests/browser/custom-model-import.spec.ts), [package edit return](tests/custom-model-native-return.test.ts). Expanded browser, keyboard, native-return and physical-device qualification remains in progress; see the [verification record](docs/reviews/2026-09-12-local-model-import.md). |
 | Interactive 3D | Implemented: Three.js preview and walkthrough; idle rendering stops when interaction settles. | [Walkthrough](tests/browser/walkthrough.spec.ts), [viewer idle](tests/browser/viewer-idle.spec.ts), [measured idle report](docs/reviews/2026-09-07-idle-rendering.md). Idle behavior does not establish active FPS, battery or physical-device memory budgets. |
 | Plan exports | Implemented: PNG, PDF, SVG and DXF paths, including annotations and object-only plans. | [Object-only exports](tests/browser/object-only-exports.spec.ts), [text exports](tests/browser/text-annotation-exports.spec.ts), [furniture DXF](tests/furniture-dxf.test.ts), [3D PNG capture](tests/capture-main-3d.test.ts). Formats represent different views; none implies lossless editable CAD round trips. |
 | Local project storage | Implemented: IndexedDB-backed storage, legacy localStorage migration, save feedback and recovery paths. | [Storage implementation](src/lib/services/localDatabase.ts), [save status](tests/saveStatus.test.ts), [library restore](tests/libraryRestore.test.ts), [project opening](tests/browser/project-opening.spec.ts). Browser storage can fail or be cleared; exported backups remain useful. |
@@ -46,7 +47,7 @@ as generally released browser features.
 - Native/web area agreement and broader native geometry/material fidelity.
 - Common roof forms, complete catalog provenance/dimensions and curated room sets.
 - Remaining English/Portuguese strings and first-room usability/accessibility qualification.
-- Controlled custom model import and reviewable recognition/layout assistance.
+- Broader custom-model format/device qualification and reviewable recognition/layout assistance.
 - Account-backed sync, collaboration and read-only sharing, subject to the release/cost gates.
 
 These are work areas, not assertions that every associated interaction is broken.
