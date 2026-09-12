@@ -42,10 +42,30 @@ Moved the unchanged JPG/PNG header reader to `rasterHeader.ts`; itemPhotos impor
 and re-exports it, retaining its public API. Twelve GLB container/resource tests
 pass. The combined item-details run had 29 passes and two five-second timeouts
 in storage/history cases, with no failed value assertions. Its log is
-`/tmp/web-local-glb-resources-and-photos-tests.log`. The item-details suite rerun
-with a 30-second per-test CLI allowance is active in session `92179`, log
-`/tmp/web-local-glb-photo-refactor-tests.log`. Do not claim photo regression or
-combined type-check completion until those sessions finish.
+`/tmp/web-local-glb-resources-and-photos-tests.log`. The item-details rerun
+with a 30-second CLI allowance terminated with 18 passes and one timeout in a
+quota case carrying its own explicit 15-second limit. Log:
+`/tmp/web-local-glb-photo-refactor-tests.log`, session `92179` exit 1. The two
+previously timed-out storage/history cases passed this time. No value assertion
+failed, but a single all-green item-details run has not been established.
+Type-check session `21661` remains live; do not claim completion.
+
+## Scene traversal and instance budgets
+
+`validateLocalGLBScene` bounds nodes (512), depth (64), mesh tables, per-scene
+primitive instances (1024) and rendered vertex references (2 million). It
+rejects cycles, multiple parents, duplicate/overlapping roots, bad references,
+non-finite/malformed transforms, mixed matrix/TRS representations and an empty
+active scene. Budgets count each mesh instance, not just each unique mesh.
+It does not validate accessor byte ranges, mesh attribute semantics or geometry
+values, and remains disconnected from the renderer until those checks exist.
+
+Seventeen GLB tests pass across container, resources and scene modules, including
+nested scenes, instancing limits, cycles, transform/reference errors and empty
+scenes. Log: `/tmp/web-local-glb-scene-tests.log`, session `68708` exit 0.
+The running type check started before this scene module existed and cannot alone
+qualify the combined implementation. Check the final combined source after it
+finishes; do not interrupt or restart the existing process merely for slowness.
 
 ## Remaining implementation
 

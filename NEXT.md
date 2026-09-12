@@ -1,12 +1,13 @@
 # Next work and pause handoff
 
-## Local custom-model import — container foundation in progress
+## Local custom-model import — validation layers in progress
 
-Bounded glTF 2.0 container and embedded buffer/image checks have 12 passing
-unit tests. Geometry/scene validation, project persistence, model preview and
+Container, embedded buffer/image and scene traversal/instance checks have 17
+passing unit tests. Accessor/geometry validation, project persistence, preview,
 placement, localization and end-to-end qualification remain to implement.
-The shared photo-header regression rerun and clean-environment type check are
-still active; see `docs/reviews/2026-09-12-local-model-import.md` for handles.
+The photo suite rerun had 18 passes and one explicit quota-test timeout; the
+clean-environment type check remains active. See
+`docs/reviews/2026-09-12-local-model-import.md` for exact scope and handles.
 No import UI is exposed yet.
 
 ## Nested-room Undo reproduction — WebKit passed; original issue remains open
