@@ -1,6 +1,6 @@
 # Next work and pause handoff
 
-## Orbit damping fix — unit verified; build and type checking active
+## Orbit damping fix — build and unit verified; browser checks active
 
 The unchanged Chromium idle reproduction failed again after orbit (session
 `88961`, terminal exit 1; `/tmp/web-viewer-idle-repro.log`). An isolated run with
@@ -12,9 +12,12 @@ or walkthrough takes over. The browser idle assertion has not been relaxed.
 
 All 26 focused damping/framing unit tests passed, including equal camera position
 after one second at 4–120 fps and settling within five seconds at those rates.
-Log: `/tmp/web-orbit-damping-unit.log`. Type checking runs in session `79798`,
-log `/tmp/web-orbit-damping-check.log`; production build runs in session `33825`,
-log `/tmp/web-orbit-damping-build.log`. Browser verification must follow the build.
+Log: `/tmp/web-orbit-damping-unit.log`. Type checking completed with zero errors
+and warnings (session `79798`, exit 0; `/tmp/web-orbit-damping-check.log`).
+The production build passed (session `33825`, exit 0;
+`/tmp/web-orbit-damping-build.log`). Production source is `03e0ae1`.
+Idle rendering, framing and all texture-recovery cases now run across all three
+engines in session `54192`, log `/tmp/web-orbit-damping-browser.log`.
 This production change invalidates prior-runtime browser pass credit: the 374
 passes documented below belong to the thumbnail-fixed runtime, not this fix.
 Full browser qualification, the intermittent nested-room Undo investigation,
