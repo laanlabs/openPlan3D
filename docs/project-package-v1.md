@@ -107,3 +107,13 @@ canvas/SVG omit the marked room's fill. Native areas/fills use a raster seed
 inside an explicitly associated boundary, excluding nested faces, independently
 of the label position. Legacy labels without boundary IDs still use their center.
 These additive optional fields do not change package format version 1.
+
+### Optional tracing-image floor ownership
+
+`plan.underlay.level` is an optional integer floor index from -1000 through 1000.
+Omission retains legacy plan-wide native display. Newly imported native traces
+belong to the active floor; new web packages assign the shared image to its
+exported floor. Older clients may ignore this field and show the image globally.
+The native editor still supports one tracing image. Additional web floor images
+remain in `web.json`. Floor identity preserves ownership when web floors are
+reordered or renumbered; image-only owned floors are included on import.

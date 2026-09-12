@@ -80,6 +80,7 @@ export function validatePackagePlan(plan: any): ObjectMap {
   if (result.underlay != null) {
     if (!object(result.underlay) || typeof result.underlay.imageFilename !== 'string' || !safePackagePath(result.underlay.imageFilename)) fail();
     if (result.underlay.angle != null) { num(result.underlay.angle); if (Math.abs(result.underlay.angle) > 100_000) fail(); }
+    if (result.underlay.level != null && (!Number.isInteger(result.underlay.level) || Math.abs(result.underlay.level) > 1000)) fail();
     xy(result.underlay.center); num(result.underlay.widthMeters, 0, true); if (result.underlay.widthMeters > 10_000) fail();
   }
   return result;
@@ -111,6 +112,7 @@ function inside(p: any, polygon: any[]) {
 function nativeFloorIndices(plan: ObjectMap): number[] {
   const explicit = plan.levels.map((l: any) => l.index);
   const implicit = [...plan.walls, ...plan.furniture, ...plan.rooms].map((item: any) => item.level ?? 0);
+  if (plan.underlay?.level != null) implicit.push(plan.underlay.level);
   return [...new Set<number>([...explicit, ...implicit, ...(explicit.length || implicit.length ? [] : [0])])];
 }
 /** Project only fields both editors understand. A baseline lets unchanged lossy

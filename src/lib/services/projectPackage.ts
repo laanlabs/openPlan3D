@@ -70,8 +70,15 @@ export function projectPackageBytes(value: Project): Uint8Array {
     if (assetSize > PACKAGE_LIMIT) packageError('Attachments exceed 64 MiB.');
     assets[name] = decode64(raw);
   }
-  // The native editor has one tracing image. Other floor images remain in web.json.
-  const background = project.floors[0].backgroundImage;
+  // Follow a retained image's owning floor by identity, even after floor reordering.
+  // New web packages share the first floor's image; other images remain in web.json.
+  const priorLevel = state?.native.underlay?.level;
+  const priorLevelId = state?.native.levels.find((level: any) => level.index === priorLevel)?.id;
+  const priorFloorId = state?.mapping.find(entry => entry.kind === 'levels' &&
+    (priorLevelId ? entry.id.toLowerCase() === priorLevelId.toLowerCase() : priorLevel != null && entry.webId === `native-floor-${priorLevel}`))?.webId;
+  const backgroundFloor = project.floors.find(floor => floor.id === priorFloorId) ?? project.floors[0];
+  const background = backgroundFloor.backgroundImage;
+  if (priorLevel != null && priorFloorId && !project.floors.some(floor => floor.id === priorFloorId)) delete plan.underlay;
   let underlayFloorId: string | undefined;
   if (background) {
     const match = /^data:(image\/(?:png|jpeg|gif));base64,(.*)$/.exec(background.dataUrl);
@@ -81,8 +88,8 @@ export function projectPackageBytes(value: Project): Uint8Array {
       let filename = same?.[0].slice(7) ?? `web-underlay-${crc32(bytes).toString(16)}.${info.type.split('/')[1]}`;
       if (!same && assets[`assets/${filename}`]) filename = `web-underlay-${crypto.randomUUID()}.${info.type.split('/')[1]}`;
       assets[`assets/${filename}`] = bytes;
-      plan.underlay = { imageFilename: filename, center: { x: background.position.x / 100, y: background.position.y / 100 }, widthMeters: background.scale * info.width / 100, angle: background.rotation !== 0 || plan.underlay?.angle != null ? background.rotation * Math.PI / 180 : undefined };
-      underlayFloorId = project.floors[0].id;
+      plan.underlay = { imageFilename: filename, center: { x: background.position.x / 100, y: background.position.y / 100 }, widthMeters: background.scale * info.width / 100, angle: background.rotation !== 0 || plan.underlay?.angle != null ? background.rotation * Math.PI / 180 : undefined, level: state?.native.underlay && priorLevel == null ? undefined : plan.levels.find((level: any) => level.id === mapping.find(entry => entry.kind === 'levels' && entry.webId === backgroundFloor.id)?.id)?.index };
+      underlayFloorId = backgroundFloor.id;
     }
   }
   for (const filename of nativeAssetNames(plan)) if (!assets[`assets/${filename}`]) packageError(`Missing attachment: ${filename}.`);
@@ -130,17 +137,22 @@ export function readProjectPackage(bytes: Uint8Array): { project: Project; asset
     // Native movement/size changes to a shared underlay update its web placement;
     // unchanged native previews preserve exact web values; opacity and locking stay web-only.
     const underlayFloor = project.floors.find(f => f.id === baseline.openplanUnderlayFloorId);
+    const targetId = plan.underlay?.level == null ? underlayFloor?.id : after.floors.find(f => f.level === plan.underlay.level)?.id;
+    const targetFloor = project.floors.find(f => f.id === targetId) ?? underlayFloor;
     const assetPath = plan.underlay && `assets/${plan.underlay.imageFilename}`;
     const imageChanged = assetPath && baseline.openplanAssetChecksums?.[assetPath] !== crc32(assets[assetPath]);
-    if (underlayFloor && (JSON.stringify(plan.underlay) !== JSON.stringify(baseline.underlay) || imageChanged)) {
+    if ((underlayFloor || targetFloor) && (JSON.stringify(plan.underlay) !== JSON.stringify(baseline.underlay) || imageChanged)) {
       const background = underlayBackground(plan, assets);
-      if (background) underlayFloor.backgroundImage = { ...(underlayFloor.backgroundImage ?? background), dataUrl: background.dataUrl, position: background.position, scale: background.scale, rotation: background.rotation };
-      else if (!plan.underlay && baseline.underlay) delete underlayFloor.backgroundImage;
+      if (background && targetFloor) {
+        const controls = underlayFloor?.backgroundImage ?? targetFloor.backgroundImage ?? background;
+        if (underlayFloor && targetFloor.id !== underlayFloor.id) delete underlayFloor.backgroundImage;
+        targetFloor.backgroundImage = { ...controls, dataUrl: background.dataUrl, position: background.position, scale: background.scale, rotation: background.rotation };
+      } else if (!plan.underlay && baseline.underlay && underlayFloor) delete underlayFloor.backgroundImage;
     }
   } else {
     project = nativeToWeb(plan, [], manifest.title);
     const background = underlayBackground(plan, assets);
-    if (background) project.floors[0].backgroundImage = background;
+    if (background) (project.floors.find(f => f.level === plan.underlay.level) ?? project.floors[0]).backgroundImage = background;
   }
   project.name = manifest.title;
   // Rebuild identities for the current native plan, retaining source web IDs.

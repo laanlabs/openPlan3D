@@ -1,5 +1,18 @@
 # Next work and pause handoff
 
+## Floor-specific tracing image checkpoint — September 12
+
+Tracing images now support optional native floor ownership. Native rendering,
+scaling and fitting respect the owner; legacy images without an owner remain
+plan-wide. Package exchange preserves ownership through floor reordering and
+renumbering, including image-only floors, and retains original asset bytes.
+
+Validation: 28 web package tests passed, Svelte check reported zero errors and
+warnings, and 16 selected Mac Catalyst tests passed. Simulator and interactive
+floor-switching qualification for this change remain outstanding. Earlier full
+suite results below apply to their recorded source revisions, not this change.
+The broader NEXT backlog remains open.
+
 ## Native full-suite checkpoint — September 12
 
 Both full native suites passed on production source `5838f4b`: 256 reported,
