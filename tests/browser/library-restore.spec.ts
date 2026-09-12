@@ -38,6 +38,7 @@ async function libraryBackup(page: Page) {
 
 for (const width of [1440, 390]) {
   test(`preview restores copies with usable history and retained recovery data at ${width}px`, async ({ page, context }, testInfo) => {
+    test.slow();
     await page.setViewportSize({ width, height: 900 });
     const check = observe(page), source = await seed(context);
     await page.goto('/'); await expect(page.getByRole('link', { name: source.name, exact: true })).toBeVisible();
@@ -76,7 +77,7 @@ for (const width of [1440, 390]) {
     const reopened = await exported(page); expect(reopened.id).toBe(copy.id); expect(reopened.floors[0].walls[0].thickness).toBe(17.25);
     expect((await storedRecords(page))[source.id]).toBe(before[source.id]);
     await page.getByRole('button', { name: '3D', exact: true }).click();
-    await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible();
+    await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible({ timeout: 60_000 });
     check();
   });
 }

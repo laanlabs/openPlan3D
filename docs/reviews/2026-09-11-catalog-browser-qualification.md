@@ -129,11 +129,18 @@ now allow 180 seconds, with a 60-second canvas readiness boundary. Backup and
 export assertions remain intact. There are 142 retained distinct passes and 965
 remaining cases, confirmed by Playwright.
 
+The 965-case continuation passed 24 cases, including desktop library restore.
+The mobile restore case then exceeded its final 10-second 3D readiness wait
+after restore/history/recovery-data checks. That boundary now allows 60 seconds
+within a 180-second workflow; all preservation assertions remain. There are
+166 retained distinct passes and 941 remaining cases, confirmed by Playwright.
+
 ## Resume the running process
 
 - Command: `npx playwright test --test-list /tmp/web-localization-remaining.txt --max-failures=1`
-- Unified execution session: `71904`; poll this handle before assuming it ended.
-- Active log: `/tmp/web-localization-full-browser-18.log`
+- Unified execution session: `51582`; poll this handle before assuming it ended.
+- Active log: `/tmp/web-localization-full-browser-19.log`
+- Completed 24-pass continuation: `/tmp/web-localization-full-browser-18.log` (session `71904`, terminal exit 1).
 - Completed five-pass continuation: `/tmp/web-localization-full-browser-17.log` (session `36898`, terminal exit 1).
 - Completed seven-pass continuation: `/tmp/web-localization-full-browser-16.log` (session `83767`, terminal exit 1).
 - Completed six-pass continuation: `/tmp/web-localization-full-browser-15.log` (session `80619`, terminal exit 1).

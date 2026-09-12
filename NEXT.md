@@ -46,7 +46,10 @@ within a 180-second workflow, retaining every storage assertion. There are 137
 retained passes at that launch. Five further cases passed; metadata/photo
 verification then hit its total deadline entering 3D. That workflow now allows
 180 seconds with a 60-second readiness boundary. There are 142 retained passes;
-965 cases run in session `71904`; `83767` and `36898` are terminal.
+That continuation passed 24 cases; mobile library restore then timed out at
+final 3D readiness after its restoration/recovery checks. The boundary now
+allows 60 seconds within a 180-second workflow. There are 166 retained passes;
+941 cases run in session `51582`; `83767`, `36898` and `71904` are terminal.
 Session `80619` is terminal. The previous attempt stopped at the helper’s initial
 10-second 3D readiness wait, now 60 seconds. Sessions `49049` and `34370`
 are terminal with zero added passes.
