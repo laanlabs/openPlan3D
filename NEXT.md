@@ -14,13 +14,21 @@ New `UnderlayFitTests` project all four corners at five angles into a padded
 viewport, preserve geometry bounds, and cover remote image-only plans and invalid
 image dimensions. The first Catalyst attempt compiled the app but failed on an
 ambiguous `.infinity` test literal; it is now explicitly `CGFloat.infinity`.
-The corrected selected run (fit and package tests) is active in session `41154`,
-`/tmp/native-underlay-fit-catalyst-fixed.log`. Poll that handle before rebuilding
-or launching another test suite. It has not yet produced a test result.
+The corrected Catalyst run passed all 14 selected fit/package tests (session
+`41154`, terminal exit 0; `/tmp/native-underlay-fit-catalyst-fixed.log`).
 
-The updated native visual check and simulator validation remain pending. The
-previous native visual evidence and package round trip qualify source `a22c24c`,
-not this framing change. Broader NEXT/device/release work remains open.
+Visual verification of `5838f4b` also passed using the same saved synthetic plan
+in `/tmp/OpenPlan3D-Underlay-Fit-QA.app`. The running executable path was verified.
+This new QA binary reused only the prior isolated rotated-underlay sandbox; the
+installed development app was not used. On opening the editor, the full tall
+image and all walls are visible, with the image's bottom edge above the toolbar.
+The prior build cropped the lower image in this same plan. Rotation and color
+orientation remain correct. The QA app was closed after inspection.
+
+The iPhone 17 Pro simulator run of the same 14 selected tests is active in session
+`35632`, `/tmp/native-underlay-fit-ios.log`. Poll this handle before rebuilding
+or launching another test suite. Simulator validation remains pending. Broader
+NEXT/device/release work remains open.
 
 ## Rotated tracing-image package support — September 12
 
