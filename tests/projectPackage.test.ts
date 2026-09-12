@@ -178,3 +178,27 @@ it('emits shared contract fixtures when explicitly requested', () => {
   writeFileSync(`${process.env.OPENPLAN_PACKAGE_FIXTURES}/native-project-package.zip`, writePackageZip(nativeFiles()));
   writeFileSync(`${process.env.OPENPLAN_PACKAGE_FIXTURES}/web-project-package.zip`, projectPackageBytes(webFixture()));
 });
+
+it.each([-90, 37.25, 180])('shares a tracing image rotated %s degrees without changing its bytes or web controls', rotation => {
+  const source = webFixture();
+  source.floors[0].backgroundImage!.rotation = rotation;
+  const files = readPackageZip(projectPackageBytes(source));
+  const plan = packageJSON(files['plan.json']);
+  expect(plan.underlay.angle).toBeCloseTo(rotation * Math.PI / 180, 12);
+  expect(files[`assets/${plan.underlay.imageFilename}`]).toEqual(pixel);
+  expect(readProjectPackage(writePackageZip(files)).project.floors[0].backgroundImage).toEqual(source.floors[0].backgroundImage);
+  plan.underlay.angle = -Math.PI / 4;
+  files['plan.json'] = jsonBytes(plan);
+  expect(readProjectPackage(writePackageZip(files)).project.floors[0].backgroundImage).toEqual({ ...source.floors[0].backgroundImage, rotation: -45 });
+  delete plan.underlay.angle;
+  files['plan.json'] = jsonBytes(plan);
+  expect(readProjectPackage(writePackageZip(files)).project.floors[0].backgroundImage).toEqual({ ...source.floors[0].backgroundImage, rotation: 0 });
+});
+it('rejects invalid native tracing image angles', () => {
+  for (const angle of ['90', 100_001, -100_001]) {
+    const files = nativeFiles(), plan = packageJSON(files['plan.json']);
+    plan.underlay.angle = angle;
+    files['plan.json'] = jsonBytes(plan);
+    expect(() => readProjectPackage(writePackageZip(files))).toThrow();
+  }
+});

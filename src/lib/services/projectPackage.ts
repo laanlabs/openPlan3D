@@ -44,7 +44,7 @@ function underlayBackground(plan: Record<string, any>, assets: Record<string, Ui
   if (!plan.underlay) return undefined;
   const bytes = assets[`assets/${plan.underlay.imageFilename}`], info = bytes && imageInfo(bytes);
   if (!info || !info.width) return undefined;
-  return { dataUrl: `data:${info.type};base64,${encode64(bytes)}`, position: { x: plan.underlay.center.x * 100, y: plan.underlay.center.y * 100 }, scale: plan.underlay.widthMeters * 100 / info.width, opacity: 0.4, rotation: 0, locked: true };
+  return { dataUrl: `data:${info.type};base64,${encode64(bytes)}`, position: { x: plan.underlay.center.x * 100, y: plan.underlay.center.y * 100 }, scale: plan.underlay.widthMeters * 100 / info.width, opacity: 0.4, rotation: (plan.underlay.angle ?? 0) * 180 / Math.PI, locked: true };
 }
 function readState(project: Project): PackageState | undefined {
   const state = (project as any).projectPackage;
@@ -76,12 +76,12 @@ export function projectPackageBytes(value: Project): Uint8Array {
   if (background) {
     const match = /^data:(image\/(?:png|jpeg|gif));base64,(.*)$/.exec(background.dataUrl);
     const bytes = match && decode64(match[2]), info = bytes && imageInfo(bytes);
-    if (bytes && info?.width && background.rotation === 0) {
+    if (bytes && info?.width) {
       const same = Object.entries(assets).find(([, stored]) => stored.length === bytes.length && stored.every((byte, i) => byte === bytes[i]));
       let filename = same?.[0].slice(7) ?? `web-underlay-${crc32(bytes).toString(16)}.${info.type.split('/')[1]}`;
       if (!same && assets[`assets/${filename}`]) filename = `web-underlay-${crypto.randomUUID()}.${info.type.split('/')[1]}`;
       assets[`assets/${filename}`] = bytes;
-      plan.underlay = { imageFilename: filename, center: { x: background.position.x / 100, y: background.position.y / 100 }, widthMeters: background.scale * info.width / 100 };
+      plan.underlay = { imageFilename: filename, center: { x: background.position.x / 100, y: background.position.y / 100 }, widthMeters: background.scale * info.width / 100, angle: background.rotation !== 0 || plan.underlay?.angle != null ? background.rotation * Math.PI / 180 : undefined };
       underlayFloorId = project.floors[0].id;
     }
   }
@@ -128,13 +128,13 @@ export function readProjectPackage(bytes: Uint8Array): { project: Project; asset
       }
     }
     // Native movement/size changes to a shared underlay update its web placement;
-    // unchanged native previews preserve rotation, opacity and other web-only choices.
+    // unchanged native previews preserve exact web values; opacity and locking stay web-only.
     const underlayFloor = project.floors.find(f => f.id === baseline.openplanUnderlayFloorId);
     const assetPath = plan.underlay && `assets/${plan.underlay.imageFilename}`;
     const imageChanged = assetPath && baseline.openplanAssetChecksums?.[assetPath] !== crc32(assets[assetPath]);
     if (underlayFloor && (JSON.stringify(plan.underlay) !== JSON.stringify(baseline.underlay) || imageChanged)) {
       const background = underlayBackground(plan, assets);
-      if (background) underlayFloor.backgroundImage = { ...(underlayFloor.backgroundImage ?? background), dataUrl: background.dataUrl, position: background.position, scale: background.scale };
+      if (background) underlayFloor.backgroundImage = { ...(underlayFloor.backgroundImage ?? background), dataUrl: background.dataUrl, position: background.position, scale: background.scale, rotation: background.rotation };
       else if (!plan.underlay && baseline.underlay) delete underlayFloor.backgroundImage;
     }
   } else {

@@ -79,6 +79,7 @@ export function validatePackagePlan(plan: any): ObjectMap {
   }
   if (result.underlay != null) {
     if (!object(result.underlay) || typeof result.underlay.imageFilename !== 'string' || !safePackagePath(result.underlay.imageFilename)) fail();
+    if (result.underlay.angle != null) { num(result.underlay.angle); if (Math.abs(result.underlay.angle) > 100_000) fail(); }
     xy(result.underlay.center); num(result.underlay.widthMeters, 0, true); if (result.underlay.widthMeters > 10_000) fail();
   }
   return result;

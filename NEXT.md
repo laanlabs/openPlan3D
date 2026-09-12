@@ -1,5 +1,28 @@
 # Next work and pause handoff
 
+## Rotated tracing-image package support — September 12
+
+The first web floor's PNG/JPEG/GIF tracing image now maps to the native underlay
+at arbitrary rotation using optional clockwise-radian `angle` metadata. The native
+canvas rotates the image around its existing center. Save/reopen and package
+return retain the angle and original image bytes. Omitted legacy angles remain
+omitted; native angle changes and explicit resets update web rotation without
+resetting opacity or locking. Both readers validate optional angles consistently.
+
+Validation: 24 web package tests passed after four new cases failed on the old
+implementation; web type checking reports zero errors/warnings and production
+build passed. Native package tests passed on Mac Catalyst (11 tests, session
+`58398`, exit 0) and iPhone 17 Pro simulator (12 tests including invalid-angle
+and explicit-reset coverage, session `75363`, exit 0). Rotated PNG/JPEG save,
+reopen, import and re-export preserve exact asset bytes. Logs are
+`/tmp/web-underlay-rotation-{before,unit,check,build}.log` and
+`/tmp/native-underlay-rotation-{catalyst,ios}.log`.
+
+Native visual inspection of the rotated preview and live web/native exchange
+remain to be performed; automated package tests do not prove visual placement.
+No build or test process remains active. Device, release and broader NEXT work
+remain open.
+
 ## Fractional window clearance in elevation — September 12
 
 Reproduced a window extending above a fractional wall top after an elevation
@@ -1317,8 +1340,8 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
   editing/preview fidelity for curves, slopes, elevations, opening styles and
   annotations while retaining unsupported data through package returns.
 - **Known package presentation limits:** native previews still use straight,
-  uniform-height walls and simplified furniture; only one unrotated first-floor
-  embedded PNG/JPEG/GIF tracing image maps to the native underlay. Other imagery
+  uniform-height walls and simplified furniture; one first-floor embedded PNG/JPEG/GIF tracing image now maps to the native
+  underlay including rotation (native visual verification remains open). Other imagery
   settings remain retained. Unenclosed native room labels are preserved without
   web room fill. Room ceiling overrides travel as metadata; web wall heights
   continue to govern 3D geometry. Broaden these capabilities deliberately with
