@@ -34,6 +34,14 @@ with zero errors/warnings and production build `75751` passed. Their additional
 Portuguese browser check passed in Chromium (`10501`), covering literal extension
 identifiers and invalid geometry diagnostics.
 
+Shared storage errors now refer to attachments and translate in the model dialog;
+44 translation/service-message tests passed (`13515`). The preview also adds
+labeled keyboard-operable rotation/zoom buttons and a translated image label.
+That accessibility change awaits a fresh type/build check and its keyboard browser
+case; it is newer than the running shared-storage validation sequence (`22153`).
+Native import/edit/export test `6249` is still compiling in isolated simulator
+build output; real Swift return-package qualification remains pending.
+
 Remaining: broader browser qualification, external error/localization review,
 accessibility/physical-device testing, and full native return
 qualification. See `docs/reviews/2026-09-12-local-model-import.md` for exact scope,

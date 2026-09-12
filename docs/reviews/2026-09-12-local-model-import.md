@@ -713,3 +713,19 @@ Native simulator test `6249` remains active at this checkpoint, using isolated
 derived data `/tmp/openplan3d-render-ios-build`; its log is
 `/tmp/openplan3d-custom-model-native-return-tests.log`. Read its terminal result
 before consuming the actual Swift return fixture or claiming native qualification.
+
+
+## Keyboard-operable model preview
+
+All 44 translation/service-message tests passed (`13515`, 136.53 seconds). The
+shared-storage type/build sequence `22153` and native test `6249` remain active.
+
+The preview now has native buttons for four orbit directions and two zoom actions,
+with 44px minimum target height, visible keyboard focus, English/Portuguese labels
+and a translated image name. Orbit elevation and zoom stay within bounded camera
+limits; reset restores the initial view. Preview-only controls hide if WebGL fails.
+A new browser case drives each button with Enter and reset with Space, checks the
+rendered canvas changes and returns to its original image, and checks cancellation
+and page errors. This code is newer than the active validation sequence and requires
+a fresh type/build check, browser run and visual inspection. No accessibility or
+physical-device completion is claimed.
