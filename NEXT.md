@@ -1,12 +1,15 @@
 # Next work and pause handoff
 
-## Editor dismissal reproduction — September 12
+## Editor button-local dismissal — Catalyst checks passed, simulator running
 
-Done closed without edits, but stayed open after adding and rotating a chair
-through menus. The file saved successfully; no canvas drag was involved. See
-`docs/reviews/2026-09-12-editor-menu-dismissal.md` for the reproduction and
-save-failure safeguard required for the next experiment. The simulator run completed; the editor dismissal experiment is now building in
-session `95232`, log `/tmp/native-editor-local-dismiss-build.log`.
+Native runtime `8ed0b20` builds successfully for Catalyst. In the isolated QA
+app, edited Done, no-edit Done, and Close returned to review. Close preserved
+the saved file hash; a forced save failure retained the editor and unchanged
+file, and retry saved successfully. See
+`docs/reviews/2026-09-12-editor-menu-dismissal.md` for exact scope and evidence.
+Simulator `PlanRecoveryTests` session `37936` is still live, log
+`/tmp/native-editor-local-dismiss-ios.log`. Physical UI, Home/load-error entry,
+canvas-gesture/long-run dismissal checks and the broader backlog remain open.
 
 ## Full-scan import dismissal — Catalyst UI and both test targets verified
 

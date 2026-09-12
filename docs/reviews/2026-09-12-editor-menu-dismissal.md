@@ -45,5 +45,31 @@ and both saved categories were verified. Restoration metadata is in
 
 The next experiment uses a button-local dismiss environment gated by a Bool
 save result. It retains existing callbacks and returns false on unloaded/error
-paths. Catalyst build session `95232` is running in
-`/tmp/native-editor-local-dismiss-build.log`; live validation remains pending.
+paths. Catalyst build session `95232` finished with exit 0 (`BUILD SUCCEEDED`)
+in `/tmp/native-editor-local-dismiss-build.log`.
+
+## Button-local candidate validation
+
+Runtime `8ed0b20`, isolated app
+`/tmp/OpenPlan3D-Editor-Local-Dismiss-Sept12-QA.app`, same synthetic session.
+The installed Development app was not used.
+
+- Added a sofa through the menu, rotated right, and pressed Done. Review appeared
+  at the next AX check; the file contained the sofa at angle 0.2617993877991494.
+- Added a television, recorded the saved hash, and temporarily changed only the
+  synthetic session directory from 0755 to 0555. Done showed Couldn't Save.
+  Restored 0755 immediately; the saved hash was unchanged. Acknowledging the
+  alert retained the selected television and Undo. Retrying Done saved it and
+  returned to review, with four objects (chair, table, sofa, television).
+- Added an unsaved fireplace and clicked Close. Review appeared with four objects.
+  The saved file SHA-256 stayed
+  `c630a18efaf494c7ea6560119ed8a531adb5de22627d11fa332e7161ca507366`,
+  matching `/tmp/openplan-editor-before-discard.sha256`. Directory mode was 0755.
+- Reopened with no edits and clicked Done. Review appeared at the next AX check.
+  The QA app was quit. No Escape or debugger assisted these candidate checks.
+
+These checks qualify the review-to-editor menu-edit, discard, no-edit, and
+save-failure/retry paths on Catalyst. They do not establish physical-device,
+Home-to-editor, load-error, canvas-gesture, or long-run intermittent behavior.
+Simulator `PlanRecoveryTests` session `37936` remains live at this checkpoint,
+log `/tmp/native-editor-local-dismiss-ios.log`; no test result is claimed yet.
