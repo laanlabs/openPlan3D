@@ -180,6 +180,8 @@ test('nested rooms export one slab at each point on active and stacked floors', 
 });
 
 test('room slabs preserve recesses and separate rooms across active-floor switches', async ({ page }, testInfo) => {
+  // Import, reload and three software-rendered exports share one workflow budget.
+  test.slow();
   const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
   await page.goto('/editor');
   await page.getByRole('button', { name: 'Export', exact: true }).click();

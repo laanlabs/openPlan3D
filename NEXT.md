@@ -43,9 +43,15 @@ and WebKit 35.5 seconds (session `59904`, terminal exit 0;
 `/tmp/web-nested-undo-passing-traces`. The original intermittent Undo failure
 remains unexplained and open; passing reruns are not proof of a fix.
 There are 296 unique current-runtime passes (the Chromium repeat counts once).
-Playwright confirmed 820 remaining cases. Stage 4 is active in session `42770`,
-log `/tmp/web-thumbnail-fixed-full-browser-4.log`. Production and assertions
-are unchanged.
+Playwright confirmed 820 remaining cases. Stage 4 (session `42770`) is terminal:
+its first case, room slabs across floor switches, exhausted its 60-second total
+budget during the second 3D export. The first export and slab checks had passed.
+Log: `/tmp/web-thumbnail-fixed-full-browser-4.log`. That multi-export workflow
+now uses `test.slow()` (180 seconds), as does the neighboring nested-room case
+via its explicit timeout. Geometry, persistence, export and page-error assertions
+are retained. No runtime change was made. The same 820 cases, confirmed again
+by Playwright, run in stage 5, session `89669`, log
+`/tmp/web-thumbnail-fixed-full-browser-5.log`.
 Inventory: `/tmp/web-thumbnail-fixed-inventory.log`; remaining list:
 `/tmp/web-thumbnail-fixed-remaining.txt`. Do not mix prior-runtime passes into
 this run. Poll the active handle before competing browser tests or rebuilds.
