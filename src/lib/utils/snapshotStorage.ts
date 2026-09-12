@@ -7,7 +7,7 @@ const object = (value: any) => value && typeof value === 'object' && !Array.isAr
 const unreadable = () => { throw new Error('Version history could not be read. Download a backup before clearing damaged versions.'); };
 const EXPANDED_LIMIT = 128 * 1024 * 1024;
 function checkExpandedSize(size: number) {
-  if (size > EXPANDED_LIMIT) throw new Error('These photos would make saved versions too large to reopen. Export a backup, then use smaller photos or remove unused attachments.');
+  if (size > EXPANDED_LIMIT) throw new Error('These attachments would make saved versions too large to reopen. Export a backup, then use smaller files or remove unused attachments.');
 }
 
 /** Version 1 was an array. Version 2 shares immutable attachment bytes between

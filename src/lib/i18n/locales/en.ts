@@ -1182,7 +1182,7 @@ export const en = {
   "projectService.itemDetails": "Invalid item details. Check notes, costs, room metadata and photo references.",
   "projectService.retainedDetails": "Invalid retained project-package data. Keep a JSON backup before recovery.",
   "projectService.historyUnreadable": "Version history could not be read. Download a backup before clearing damaged versions.",
-  "projectService.historySize": "These photos would make saved versions too large to reopen. Export a backup, then use smaller photos or remove unused attachments.",
+  "projectService.historySize": "These attachments would make saved versions too large to reopen. Export a backup, then use smaller files or remove unused attachments.",
   "projectService.historyMissing": "No saved version history was found.",
   "projectService.historyChanged": "This version changed. Close and reopen version history, then choose it again.",
   "projectService.historyWrongProject": "This version belongs to a different project.",

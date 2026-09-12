@@ -2,6 +2,8 @@ import { translate, type Locale, type TranslationKey } from './index';
 
 // Preserve unknown validator diagnostics instead of hiding useful detail.
 export const customModelMessages: Record<string, TranslationKey> = {
+  "These attachments would make saved versions too large to reopen. Export a backup, then use smaller files or remove unused attachments.": "projectService.historySize",
+  "Version history could not be read. Download a backup before clearing damaged versions.": "projectService.historyUnreadable",
   "Choose a GLB file up to 16 MiB.": "customModelError.file",
   "Use a model filename of at most 256 characters.": "customModelError.filename",
   "The model file changed while reading.": "customModelError.changedFile",

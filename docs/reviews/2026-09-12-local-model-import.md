@@ -695,3 +695,21 @@ A real web package was generated through `prepareCustomModel`, `attachCustomMode
 original textured GLB, a placed model and a second floor. Native XCTest now checks
 actual import/save/export with move, size, rotation and floor changes, preserving
 sidecar and GLB bytes. Its simulator run is pending; no native pass claimed yet.
+
+
+## Shared storage diagnostic correction
+
+The snapshot expansion limit now describes attachments and smaller files, so the
+same error is accurate for both photos and retained GLBs. The custom-model error
+registry now includes the shared history-size and unreadable-history diagnostics
+using existing English/Portuguese service translations. Limits and recovery
+behavior are unchanged. Translation suites (`13515`) and sequential type check /
+production build (`22153`) are running; logs are
+`/tmp/web-custom-model-shared-storage-messages.log`,
+`/tmp/web-custom-model-shared-storage-check.log`, and
+`/tmp/web-custom-model-shared-storage-build.log`.
+
+Native simulator test `6249` remains active at this checkpoint, using isolated
+derived data `/tmp/openplan3d-render-ios-build`; its log is
+`/tmp/openplan3d-custom-model-native-return-tests.log`. Read its terminal result
+before consuming the actual Swift return fixture or claiming native qualification.
