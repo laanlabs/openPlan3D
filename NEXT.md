@@ -18,8 +18,10 @@ reopen, import and re-export preserve exact asset bytes. Logs are
 `/tmp/web-underlay-rotation-{before,unit,check,build}.log` and
 `/tmp/native-underlay-rotation-{catalyst,ios}.log`.
 
-Native visual inspection of the rotated preview and live web/native exchange
-remain to be performed; automated package tests do not prove visual placement.
+Native visual inspection and live native export returned through all three
+browser engines now pass; see [the UI report](docs/reviews/2026-09-12-underlay-rotation-ui.md).
+Native fitting still excludes the image extent: the tall rotated QA underlay is
+cropped by the initial plan fit. Include the rotated image in fitting next.
 No build or test process remains active. Device, release and broader NEXT work
 remain open.
 
@@ -1341,7 +1343,7 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
   annotations while retaining unsupported data through package returns.
 - **Known package presentation limits:** native previews still use straight,
   uniform-height walls and simplified furniture; one first-floor embedded PNG/JPEG/GIF tracing image now maps to the native
-  underlay including rotation (native visual verification remains open). Other imagery
+  underlay including rotation (verified on Catalyst; physical-device qualification remains open). Other imagery
   settings remain retained. Unenclosed native room labels are preserved without
   web room fill. Room ceiling overrides travel as metadata; web wall heights
   continue to govern 3D geometry. Broaden these capabilities deliberately with

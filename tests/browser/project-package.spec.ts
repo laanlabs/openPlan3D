@@ -186,3 +186,45 @@ test('slab thickness edits reach the native package in metres', async ({ page })
   expect(plan.levels[1]).not.toHaveProperty('slabThickness');
   check();
 });
+
+test('actual native rotated underlay return keeps its visible orientation and original bytes', async ({ page }, testInfo) => {
+  // Import, editor rendering, package download and screenshot share this budget.
+  test.slow();
+  const check = observe(page);
+  await page.addInitScript(() => {
+    const draw = CanvasRenderingContext2D.prototype.drawImage;
+    CanvasRenderingContext2D.prototype.drawImage = function(...args: any[]) {
+      const image = args[0];
+      if (this.canvas.getAttribute('aria-label') === 'Floor plan editor canvas' && image.width === 200 && image.height === 100) {
+        const m = this.getTransform();
+        (window as any).__underlayDraw = { a: m.a, b: m.b, x: m.e, y: m.f, width: args[3] };
+      }
+      return (draw as any).apply(this, args);
+    };
+  });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Import a project package', exact: true }).click();
+  await choose(page, resolve('tests/fixtures/native-return-rotated-underlay.zip'));
+  await page.getByRole('button', { name: 'Import as copy', exact: true }).click();
+  await expect(page.getByRole('dialog').getByRole('status')).toContainText('Project imported.');
+  await page.getByRole('button', { name: 'Done', exact: true }).click();
+  await page.getByRole('link', { name: 'QA Rotated Underlay (Imported copy) (Imported copy)', exact: true }).click();
+  await expect.poll(() => page.evaluate(() => Boolean((window as any).__underlayDraw))).toBe(true);
+  const rendered = await page.evaluate(() => {
+    const p = (window as any).__underlayDraw;
+    const canvas = document.querySelector<HTMLCanvasElement>('[aria-label="Floor plan editor canvas"]')!;
+    const ctx = canvas.getContext('2d')!;
+    const offset = p.width * Math.hypot(p.a, p.b) / 8;
+    // The lower sample is outside the room fill, which overlays the underlay.
+    return { angle: Math.atan2(p.b, p.a), top: [...ctx.getImageData(Math.round(p.x), Math.round(p.y - offset), 1, 1).data], bottom: [...ctx.getImageData(Math.round(p.x), Math.round(p.y + 3 * offset), 1, 1).data] };
+  });
+  // Firefox exposes the canvas transform at float32 precision.
+  expect(rendered.angle).toBeCloseTo(Math.PI / 2, 6);
+  expect(rendered.top[0] - rendered.top[2]).toBeGreaterThan(50);
+  expect(rendered.bottom[2] - rendered.bottom[0]).toBeGreaterThan(50);
+  const files = await packageDownload(page), plan = packageJSON(files['plan.json']);
+  expect(plan.underlay).toMatchObject({ angle: Math.PI / 2, center: { x: 3, y: 2 }, widthMeters: 4 });
+  expect(files[`assets/${plan.underlay.imageFilename}`]).toEqual(new Uint8Array(await readFile('tests/fixtures/underlay-orientation.png')));
+  await testInfo.attach('native-return-underlay', { body: await page.screenshot(), contentType: 'image/png' });
+  check();
+});

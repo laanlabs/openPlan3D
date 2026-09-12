@@ -177,6 +177,10 @@ it('emits shared contract fixtures when explicitly requested', () => {
   mkdirSync(process.env.OPENPLAN_PACKAGE_FIXTURES, { recursive: true });
   writeFileSync(`${process.env.OPENPLAN_PACKAGE_FIXTURES}/native-project-package.zip`, writePackageZip(nativeFiles()));
   writeFileSync(`${process.env.OPENPLAN_PACKAGE_FIXTURES}/web-project-package.zip`, projectPackageBytes(webFixture()));
+  const rotated = webFixture(); rotated.name = 'QA Rotated Underlay';
+  rotated.floors[0].furniture = []; rotated.floors[0].textAnnotations = [];
+  rotated.floors[0].backgroundImage = { dataUrl: `data:image/png;base64,${readFileSync('tests/fixtures/underlay-orientation.png').toString('base64')}`, position: { x: 300, y: 200 }, scale: 2, rotation: 90, opacity: 0.45, locked: true };
+  writeFileSync(`${process.env.OPENPLAN_PACKAGE_FIXTURES}/rotated-underlay-project-package.zip`, projectPackageBytes(rotated));
 });
 
 it.each([-90, 37.25, 180])('shares a tracing image rotated %s degrees without changing its bytes or web controls', rotation => {

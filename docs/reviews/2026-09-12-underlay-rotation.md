@@ -16,7 +16,8 @@ reopen, import and re-export preserve exact asset bytes. Logs are
 `/tmp/web-underlay-rotation-{before,unit,check,build}.log` and
 `/tmp/native-underlay-rotation-{catalyst,ios}.log`.
 
-Native visual inspection of the rotated preview and live web/native exchange
-remain to be performed; automated package tests do not prove visual placement.
+Native visual inspection and a live native export returned through all three
+browser engines now pass; see [the UI report](2026-09-12-underlay-rotation-ui.md).
+Native fitting still excludes the rotated image extent and remains follow-up work.
 No build or test process remains active. Device, release and broader NEXT work
 remain open.
