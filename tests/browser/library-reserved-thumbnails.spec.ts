@@ -8,7 +8,9 @@ for (const mode of ['missing', 'saved', 'read failure'] as const) {
     const preview = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8"><rect width="8" height="8" fill="red"/></svg>');
     const imageRequests: string[] = [];
     page.on('request', request => {
-      if (request.resourceType() === 'image' && /^https?:/.test(request.url())) imageRequests.push(request.url());
+      // Firefox reports the document favicon as an image request too.
+      if (request.resourceType() === 'image' && /^https?:/.test(request.url())
+        && request.url() !== 'http://127.0.0.1:4188/favicon.svg') imageRequests.push(request.url());
     });
     await page.addInitScript(({ source, ids, preview, mode }) => {
       localStorage.setItem('hasSeenWelcome', 'true');

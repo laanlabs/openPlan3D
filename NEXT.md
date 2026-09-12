@@ -19,8 +19,13 @@ reserved-ID case does not prove thumbnail correctness. Do not rebuild the
 production server while a browser session is active. Session `8168` is now terminal.
 Type checking passed with zero errors/warnings; log `/tmp/web-reserved-thumbnail-check.log` (session `40986` terminal).
 Production build passed; session `17657` is terminal, log `/tmp/web-reserved-thumbnail-build.log`.
-Focused thumbnail and save-conflict browser checks run in session `77574`,
-log `/tmp/web-reserved-thumbnail-browser.log`, across all three engines.
+All eight Chromium thumbnail/save-conflict checks passed. Session `77574`
+terminated when Firefox reported the legitimate document favicon as an image
+request; log `/tmp/web-reserved-thumbnail-browser.log`. The request assertion
+now exempts only the exact local favicon URL declared in `src/app.html`; all
+thumbnail ownership, image and unexpected-request checks remain. The remaining
+16 Firefox/WebKit cases run in session `98059`, log
+`/tmp/web-reserved-thumbnail-browser-2.log`. Production source is unchanged.
 After the build completes, run the new regression
 cases across all engines. The current 1,107-case run does not qualify this fix
 or include the nine new engine cases.
