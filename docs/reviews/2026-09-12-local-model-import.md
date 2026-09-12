@@ -163,10 +163,10 @@ texture checks before models are rendered. Reference:
 [Khronos materials specification](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#materials).
 
 All 38 tests in seven GLB test files passed, session `23784` exit 0, log
-`/tmp/web-local-glb-materials-tests.log`. Fresh source check `64070` is active,
+`/tmp/web-local-glb-materials-tests.log`. Source check `64070` passed with zero errors and zero warnings,
 log `/tmp/web-local-glb-materials-check.log`, using NODE_ENV=production. It
-includes all geometry/repacking/material modules and the narrowing correction.
-Do not claim a clean combined type check until it terminates.
+includes geometry/repacking/material modules and the narrowing correction, but
+started before image/extension additions. See the latest combined check below.
 
 ## Decoded image ownership and cancellation
 
@@ -188,8 +188,8 @@ payload with a valid header, resource closure, and zero network requests in
 Chromium, Firefox and WebKit. All three engines returned 32×24 dimensions,
 closed bitmap width zero, the expected corrupt-payload error and zero requests.
 This run qualifies PNG decoding only; JPEG browser coverage remains to add.
-Source check `64070` remains active and started before the image module was added.
-A final combined check is still required after it terminates.
+Source check `64070` passed; it started before the image module was added.
+See the latest combined source check below.
 
 ## Explicit extension support
 
@@ -207,5 +207,21 @@ All four focused extension tests passed, session `66132` exit 0, log
 `/tmp/web-local-glb-extensions-tests.log`. The earlier eight-file run passed 44
 tests; a combined nine-file run has not yet been recorded. Browser decoder check
 `69865` passed in Chromium, Firefox and WebKit (see scope above). Source check
-`64070` remains active and predates the image/extension modules, which need a
-subsequent combined source check.
+`64070` passed but predates the image/extension modules. See the subsequent
+combined check below.
+
+## JPEG browser qualification and current source check
+
+The isolated browser script now also encodes a real JPEG from the PNG fixture,
+checks its actual decoded dimensions and disposal, inserts EXIF orientation 6
+and verifies transposed dimensions, and rejects a JPEG truncated after its valid
+SOF header. Every case runs with network requests blocked and counted. The run
+is active as `37632`, log `/tmp/web-local-glb-jpeg-browsers.log`; Chromium has
+passed all PNG/JPEG/orientation/corrupt-payload cases with zero requests, while
+Firefox and WebKit are pending. This is new JPEG coverage, not an unchanged
+rerun solely to obtain passing results.
+
+The prior source check completed with zero errors/warnings. Fresh combined
+source check `85887` is active, log `/tmp/web-local-glb-combined-check.log`, using
+NODE_ENV=production. It includes every current GLB module and test file, including
+image ownership and explicit extension validation. Preserve this run to terminal.
