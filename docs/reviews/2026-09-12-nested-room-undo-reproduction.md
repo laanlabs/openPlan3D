@@ -30,8 +30,18 @@ All three traces and error contexts are preserved under
 `/tmp/web-nested-undo-sept12-artifacts/chromium-batch`. Each stopped at the same
 line 71 action, so this batch gives no new pass/fail evidence for label Undo.
 
-An unchanged single Firefox run is active in session `42310`, log
-`/tmp/web-nested-undo-sept12-firefox.log`, using the same command with
-`--project=firefox --trace=on` and no repeat option. Its result remains pending.
+The first single Firefox comparison, session `42310`, terminated with exit 1.
+Log: `/tmp/web-nested-undo-sept12-firefox.log`. It timed out creating a page in
+the beforeEach fixture (60 seconds), before navigation to the application.
+Its artifacts are preserved under
+`/tmp/web-nested-undo-sept12-artifacts/firefox-setup`.
+
+The workflow calls `test.setTimeout(180_000)` inside its body; that does not
+extend the preceding page fixture/beforeEach budget. A diagnostic rerun applies
+`--timeout=180000` at invocation so setup gets the same existing workflow
+allowance, with every behavior assertion unchanged. Session `43577` remains
+live, log `/tmp/web-nested-undo-sept12-firefox-setup-budget.log`. No runtime or
+test source was modified. Wait for the actual result before another run.
+
 Do not interpret setup timeouts or passing reruns as proof that the original
 Undo defect is fixed; retain the exact label restoration assertion.
