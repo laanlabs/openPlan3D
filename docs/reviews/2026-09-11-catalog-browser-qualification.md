@@ -122,11 +122,19 @@ boundary now allows 60 seconds within a 180-second workflow. Every storage and
 network assertion remains. There are 137 retained distinct passes and 970
 remaining cases, confirmed by Playwright.
 
+The next continuation passed five cases (three storage and two field-keyboard
+workflows). Metadata/photo verification then hit its 60-second total deadline
+while entering 3D, after earlier editing/photo assertions. Both viewport variants
+now allow 180 seconds, with a 60-second canvas readiness boundary. Backup and
+export assertions remain intact. There are 142 retained distinct passes and 965
+remaining cases, confirmed by Playwright.
+
 ## Resume the running process
 
 - Command: `npx playwright test --test-list /tmp/web-localization-remaining.txt --max-failures=1`
-- Unified execution session: `36898`; poll this handle before assuming it ended.
-- Active log: `/tmp/web-localization-full-browser-17.log`
+- Unified execution session: `71904`; poll this handle before assuming it ended.
+- Active log: `/tmp/web-localization-full-browser-18.log`
+- Completed five-pass continuation: `/tmp/web-localization-full-browser-17.log` (session `36898`, terminal exit 1).
 - Completed seven-pass continuation: `/tmp/web-localization-full-browser-16.log` (session `83767`, terminal exit 1).
 - Completed six-pass continuation: `/tmp/web-localization-full-browser-15.log` (session `80619`, terminal exit 1).
 - Completed initial-readiness failure: `/tmp/web-localization-full-browser-14.log` (session `34370`, terminal exit 1).

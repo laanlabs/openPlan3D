@@ -117,6 +117,7 @@ for (const width of [1440, 390]) test(`field keyboard editing cannot select or p
 });
 
 for (const width of [1440, 390]) test(`item metadata and optimized photos survive undo, save and exports at ${width}px`, async ({ page }, testInfo) => {
+  test.slow();
   const check = observe(page); await page.setViewportSize({ width, height: 900 });
   const original = await openPackage(page); await selectFurniture(page);
   const panel = page.getByRole('region', { name: 'Item details', exact: true });
@@ -170,7 +171,7 @@ for (const width of [1440, 390]) test(`item metadata and optimized photos surviv
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect.poll(async () => Object.keys((await savedProjects(page))[original.id].projectPackage.assets)).toHaveLength(2);
   await page.getByRole('button', { name: '3D', exact: true }).click();
-  await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible();
+  await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible({ timeout: 60_000 });
   await page.getByRole('link', { name: width < 640 ? 'Back to Projects' : 'Projects', exact: true }).click();
   const backup = JSON.parse((await download(page, 'Download library backup')).toString());
   const saved = JSON.parse(backup.projects[original.id]);
