@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
+for (const interrupt of [false, true]) {
 for (const kind of ['stair','column','text','endpoint','parallel','curve','room']) {
-  test(`${kind} drag has one undo entry and restores geometry`, async ({ page }) => {
+  test(`${kind} drag has one undo entry and restores geometry${interrupt ? " (Undo while dragging)" : ""}`, async ({ page }) => {
     test.setTimeout(90_000);
     await page.addInitScript(() => {
       const fill = CanvasRenderingContext2D.prototype.fillText;
@@ -60,13 +61,20 @@ for (const kind of ['stair','column','text','endpoint','parallel','curve','room'
     await fit();
     const start=await point(xy[0],xy[1]);
     await page.mouse.move(start.x,start.y); await page.mouse.down();
-    await page.mouse.move(start.x+40,start.y+35,{steps:6}); await page.mouse.up();
+    await page.mouse.move(start.x+40,start.y+35,{steps:6});
+    if (interrupt) await page.keyboard.press('ControlOrMeta+z');
+    await page.mouse.up();
     async function exported() {
       await page.getByRole('button',{name:'Export',exact:true}).click(); const pending=page.waitForEvent('download');
       await page.getByRole('button',{name:'Download JSON',exact:true}).click();
       return JSON.parse(await readFile((await (await pending).path())!,'utf8')).floors[0];
     }
     const key=kind==='stair'?'stairs':kind==='column'?'columns':kind==='text'?'textAnnotations':'walls';
+    if (interrupt) {
+      const interrupted=await exported();
+      for (const key of ['walls','stairs','columns','textAnnotations']) expect(interrupted[key]).toEqual(floor[key]);
+      await page.getByRole('button',{name:'Redo',exact:true}).click();
+    }
     const moved=await exported(); expect(moved[key]).not.toEqual(floor[key]);
     await page.getByRole('button',{name:'Undo',exact:true}).click();
     const undone=await exported();
@@ -74,4 +82,5 @@ for (const kind of ['stair','column','text','endpoint','parallel','curve','room'
     await page.getByRole('button',{name:'Redo',exact:true}).click();
     expect((await exported())[key]).toEqual(moved[key]);
   });
+}
 }

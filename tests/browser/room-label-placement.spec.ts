@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { benchmarkProject } from '../fixtures/render-benchmark';
 
-test('saved room label offsets render, reset, drag and undo at the same anchor', async ({ page }) => {
+for (const release of ['mouse up', 'Undo while dragging']) {
+test(`saved room label offsets render, reset, drag and undo at the same anchor${release === 'mouse up' ? '' : ' (Undo while dragging)'}`, async ({ page }) => {
  await page.addInitScript(() => {
   const fill = CanvasRenderingContext2D.prototype.fillText, clear = CanvasRenderingContext2D.prototype.clearRect;
   (window as any).__roomLabels = [];
@@ -41,9 +42,18 @@ test('saved room label offsets render, reset, drag and undo at the same anchor',
  await expect.poll(async () => { const l = await labels(); return Math.abs(l['Room 1,1'].x - l['Room 1,2'].x); }).toBeLessThan(1);
  p = await labels(); const start = p['Room 1,1'];
  await page.mouse.move(start.x, start.y); await page.mouse.down();
- await page.mouse.move(start.x + 60, start.y + 40, { steps: 5 }); await page.mouse.up();
+ await page.mouse.move(start.x + 60, start.y + 40, { steps: 5 });
+ if (release === 'mouse up') await page.mouse.up();
  await expect.poll(async () => (await labels())['Room 1,1'].x - start.x).toBeCloseTo(60, 0);
  await expect.poll(async () => (await labels())['Room 1,1'].y - start.y).toBeCloseTo(40, 0);
+ if (release === 'Undo while dragging') {
+  await page.keyboard.press('ControlOrMeta+z');
+  await page.mouse.up();
+  await expect.poll(async () => { const l = await labels(); return Math.abs(l['Room 1,1'].x - l['Room 1,2'].x); }).toBeLessThan(1);
+  await page.getByRole('button', { name: 'Redo', exact: true }).click();
+  await expect.poll(async () => (await labels())['Room 1,1'].x - start.x).toBeCloseTo(60, 0);
+  await expect.poll(async () => (await labels())['Room 1,1'].y - start.y).toBeCloseTo(40, 0);
+ }
  p = await labels(); await page.mouse.dblclick(p['Room 1,1'].x, p['Room 1,1'].y);
  const editor = page.getByRole('textbox', { name: 'Room name', exact: true });
  await expect(editor).toHaveValue('Room 1,1');
@@ -54,3 +64,4 @@ test('saved room label offsets render, reset, drag and undo at the same anchor',
  await page.getByRole('button', { name: 'Undo', exact: true }).click();
  await expect.poll(async () => { const l = await labels(); return Math.abs(l['Room 1,1'].x - l['Room 1,2'].x); }).toBeLessThan(1);
 });
+}

@@ -3534,6 +3534,13 @@
       }
     }
 
+    // Commit and release the active pointer gesture before replaying history.
+    // Otherwise a later mouseup can write its pending label offset over Undo,
+    // or close a geometry group against a history state restored mid-drag.
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'y')) {
+      finishCanvasGesture();
+    }
+
     // Global shortcuts
     const handled = handleGlobalShortcut(e, {
       rotateFurniture: () => {
