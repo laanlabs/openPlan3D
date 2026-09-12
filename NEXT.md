@@ -12,7 +12,7 @@ dimensions; furniture can reference a project model. Structural validation and
 attachment deletion protection are implemented. The focused definition/transport
 run `12846` passed. Legacy regression `57520` had 70 passes and two existing
 photo/history quota-test timeouts; project validation passed. Current type check
-`89302` passed with zero errors/warnings. An import/preview panel is now implemented; browser workflow qualification is pending.
+`89302` passed with zero errors/warnings. The import/preview panel passed its Chromium workflow; other browsers remain pending.
 
 Original source byte/digest/container verification is implemented with its
 nine source/definition tests passed as `10510`. The combined static GLB loader
@@ -31,7 +31,8 @@ harness to inspect the actual renderer lighting uniform. Admission type check
 render through a lazy project-source lease; placement checks passed (17 catalog/placement tests, then seven expanded lifetime
 tests); final placement type check `59212` passed with zero errors/warnings.
 UI type check `55921` passed with zero errors/warnings; production build `94629`
-is running. Browser workflow qualification remains pending. See
+passed. Chromium UI run `95224` passed preview, exact retained source/digest,
+placement Undo/Redo and confirmed save/reload. Other browser UI runs remain pending. See
 `docs/reviews/2026-09-12-local-model-import.md` for exact scope and handles.
 
 ## Nested-room Undo reproduction — WebKit passed; original issue remains open

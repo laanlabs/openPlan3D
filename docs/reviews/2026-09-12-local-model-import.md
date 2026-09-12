@@ -492,3 +492,17 @@ browser test covers preview, exact retained digest/source, placement Undo/Redo,
 then confirmed storage persistence and reload. It has not run yet; wait for the
 new build rather than using the older production output. Broader browser,
 physical-device/native return and accessibility qualification remain open.
+
+
+### Production build and first UI workflow passed
+
+Production build `94629` exited 0, including adapter output, log
+`/tmp/web-custom-model-ui-build.log`. Chromium run `95224` exited 0 with one
+workflow passed in 2.9 minutes, log `/tmp/web-custom-model-ui-chromium.log`.
+The actual Objects-panel workflow verified a visible preview and dimensions,
+user-entered name/attribution, exact original digest and base64 bytes in export,
+placement dimensions/reference, full floor equality across Undo/Redo, then
+confirmed persistence before reload and restored model/source/furniture equality.
+No page errors were reported. This test does not yet exercise cancellation,
+removal, model rendering in the full 3D viewer, Portuguese controls or other browsers.
+The preview screenshot is attached to the local Playwright report.
