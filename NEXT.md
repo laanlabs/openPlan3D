@@ -1,5 +1,13 @@
 # Next work and pause handoff
 
+## Full-scan import dismissal — validation in progress
+
+Initial Cancel reproduces the stuck sheet before file selection. The full-scan
+import now uses SheetDismissButton; its own build and live checks are pending.
+Catalyst session `82197` remains live, log
+`/tmp/native-scan-local-dismiss-catalyst.log`. See
+`docs/reviews/2026-09-12-full-scan-dismissal.md` before resuming.
+
 ## Project-package import dismissal — September 12
 
 Initial Cancel and post-import Back to Library/Done now dismiss through a shared
