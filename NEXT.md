@@ -1,6 +1,6 @@
 # Next work and pause handoff
 
-## Reserved project-ID thumbnail fix — verified; full suite active
+## Reserved project-ID thumbnail fix — verified; nested-room Undo failure under investigation
 
 The library now uses only own thumbnail entries, preventing missing previews
 for `__proto__`, `constructor`, and `toString` from becoming inherited values
@@ -30,8 +30,13 @@ It terminated after 11 passes (5.8 minutes), at the mobile damaged-import
 case’s 10-second canvas deadline while the snapshot showed the loading viewer.
 The wait now allows 60 seconds within 180 seconds overall; exact project,
 library, undo/redo and extension checks remain. There are 278 distinct retained
-passes; Playwright confirms 838 remaining cases. These run in session `76367`,
-log `/tmp/web-thumbnail-fixed-full-browser-3.log`. Production source is unchanged.
+passes; Playwright confirmed 838 remaining cases. Stage 3, session `76367`,
+is terminal: 15 passed, then nested-room label Undo failed at room-slabs.spec.ts:99.
+The label moved 40 pixels as expected but remained there after Undo. This is
+a behavioral failure, not a viewer-readiness timeout. There are 293 distinct
+current-runtime passes. Log: `/tmp/web-thumbnail-fixed-full-browser-3.log`.
+An unchanged Chromium reproduction runs in session `32789`, log
+`/tmp/web-nested-undo-repro.log`. Production source is unchanged.
 Inventory: `/tmp/web-thumbnail-fixed-inventory.log`; remaining list:
 `/tmp/web-thumbnail-fixed-remaining.txt`. Do not mix prior-runtime passes into
 this run. Poll the active handle before competing browser tests or rebuilds.

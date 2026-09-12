@@ -285,3 +285,6 @@ There are 278 distinct current-runtime passes matched to the inventory;
 Playwright confirms 838 remaining cases. Session `76367` runs them in
 `/tmp/web-thumbnail-fixed-full-browser-3.log`. Passed/remaining/list files are
 updated. Full qualification and wider NEXT requirements remain incomplete.
+
+
+Stage 3 is terminal (session `76367`): 15 passed, 822 not run, and the nested-room slab workflow failed after label movement. At room-slabs.spec.ts:99, Undo left the label 40 pixels from its original position for the entire 10-second assertion. The preceding drag assertion passed. Current-runtime distinct passes total 293; the full suite is incomplete. An unchanged Chromium reproduction is active in session `32789`, `/tmp/web-nested-undo-repro.log`. No assertion or runtime change has been made while investigating.
