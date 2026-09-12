@@ -543,7 +543,7 @@
   }
 
   function drawFurniture(item: FurnitureItem, selected: boolean) {
-    drawFurnitureItem(getCS(), item, selected, furnitureName(item.catalogId, get(locale)));
+    drawFurnitureItem(getCS(), item, selected, getCatalogItem(item.catalogId) ? furnitureName(item.catalogId, get(locale)) : undefined);
   }
 
   // Track wall snap during placement preview

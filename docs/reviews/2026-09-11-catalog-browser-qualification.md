@@ -1,7 +1,7 @@
-# Catalog localization browser qualification — in progress
+# Catalog localization browser qualification — stopped on caption regression
 
 Runtime source: `87d3c8658ea7ce877354a3353d6c5503091fe428`. The working tree was
-clean at launch. Inventory: 1,107 cases in 139 files, across Chromium, Firefox
+clean at the initial launch. Inventory: 1,107 cases in 139 files, across Chromium, Firefox
 and WebKit. Production code has not changed during this qualification.
 
 The initial full run exited with one failure and 1,106 unrun cases. Its first
@@ -173,11 +173,15 @@ credit is assigned to that error.
 - Initial failed log: `/tmp/web-localization-full-browser.log`
 - Exact inventory: `/tmp/web-localization-full-inventory.log`
 
-This is a live checkpoint, not completion evidence. Do not run another competing
-browser suite, rebuild production assets, or restart this run while it is live.
-On terminal failure, inspect the exact failure before choosing a correction and
-continuation inventory. On success, verify the pass count against the inventory
-and replace this report's in-progress status with the actual outcome.
+Session `27671` terminated with 97 passes and a failure in the unknown-furniture
+saved-dimensions test. The screenshot visibly renders `missing-custom-model`;
+the caption probe correctly expected “Unknown furniture”. The localized canvas
+caller supplied the raw ID returned by `furnitureName` for an unknown catalog
+entry, overriding the renderer fallback. This is a production regression, not
+a readiness timeout. Together with prior stages, 343 cases passed on `87d3c86`.
+The correction changes production code, so these results cannot be presented
+as full qualification of the corrected runtime. Earlier active-session/log
+entries above describe historical launches; no browser run is currently live.
 
 Physical-device, native, release, fluent-language review and other NEXT gates
 remain separate. Earlier full browser evidence applies to its named earlier

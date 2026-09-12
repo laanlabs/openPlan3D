@@ -1,21 +1,22 @@
 # Next work and pause handoff
 
-## Full catalog browser qualification running — September 11
+## Unknown-furniture caption regression — September 11
 
-The 1,107-case browser qualification is running against runtime `87d3c86`.
-There are 246 distinct completed passes, verified against the original inventory.
-The latest completed continuation passed 80 cases, then the native-package
-round-trip reached its final 10-second 3D readiness deadline while the page
-showed “Loading 3D viewer…”. Its preview/import/edit/reload/export and attachment
-checks had passed. That workflow now allows 180 seconds overall and 60 seconds
-for canvas readiness, retaining all assertions.
+Browser qualification against `87d3c86` stopped after 343 distinct passes.
+The unknown-furniture editing test found that the canvas caption displayed the
+internal catalog ID instead of the established “Unknown furniture” fallback.
+The canvas now supplies a translated caption only for a known catalog entry,
+allowing the renderer to retain its unknown-item fallback. This is a production
+change: the prior 343 passes do not qualify the corrected runtime.
 
-The remaining 861 cases run in session `27671`, with log
-`/tmp/web-localization-full-browser-20.log`. Session `51582` is terminal.
-Poll the actual process before starting competing tests or rebuilding.
-See [the qualification report](docs/reviews/2026-09-11-catalog-browser-qualification.md)
-for prior failures, corrections, retained results and evidence paths.
-No full-suite completion is claimed; broader NEXT requirements remain open.
+Type checking passed with zero errors/warnings and the production build passed. Logs:
+`/tmp/web-unknown-caption-check.log` and `/tmp/web-unknown-caption-build.log`.
+Unknown-furniture editing and known-caption localization now run across all
+three browsers in session `91439`, log `/tmp/web-unknown-caption-browser.log`.
+After these pass, resume full qualification against the corrected runtime.
+The previous browser session `27671` is terminal (97 passes in its last stage).
+See [the prior qualification report](docs/reviews/2026-09-11-catalog-browser-qualification.md).
+Broader NEXT requirements remain open.
 
 ## Command-palette furniture names — September 11
 
