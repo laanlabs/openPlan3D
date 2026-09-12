@@ -187,7 +187,7 @@ check `node tooling/check-local-glb-images.mjs` passed as `69865` (exit 0), log
 payload with a valid header, resource closure, and zero network requests in
 Chromium, Firefox and WebKit. All three engines returned 32×24 dimensions,
 closed bitmap width zero, the expected corrupt-payload error and zero requests.
-This run qualifies PNG decoding only; JPEG browser coverage remains to add.
+This initial run qualified PNG decoding; the expanded JPEG results are recorded below.
 Source check `64070` passed; it started before the image module was added.
 See the latest combined source check below.
 
@@ -216,9 +216,10 @@ The isolated browser script now also encodes a real JPEG from the PNG fixture,
 checks its actual decoded dimensions and disposal, inserts EXIF orientation 6
 and verifies transposed dimensions, and rejects a JPEG truncated after its valid
 SOF header. Every case runs with network requests blocked and counted. The run
-is active as `37632`, log `/tmp/web-local-glb-jpeg-browsers.log`; Chromium has
-passed all PNG/JPEG/orientation/corrupt-payload cases with zero requests, while
-Firefox and WebKit are pending. This is new JPEG coverage, not an unchanged
+passed as `37632` (exit 0), log `/tmp/web-local-glb-jpeg-browsers.log`. Chromium,
+Firefox and WebKit all returned PNG/JPEG dimensions 32×24, EXIF-oriented JPEG
+dimensions 24×32, closed bitmap state, expected corrupt-payload rejection and
+zero network requests. This is new JPEG coverage, not an unchanged
 rerun solely to obtain passing results.
 
 The prior source check completed with zero errors/warnings. Fresh combined

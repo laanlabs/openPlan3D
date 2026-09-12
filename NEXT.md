@@ -12,7 +12,7 @@ The photo suite rerun had 18 passes and one explicit quota-test timeout. The
 accessor source check ended with one TypeScript narrowing error, now corrected.
 Source check `64070` passed with zero errors/warnings; it predates the new image decoder. The isolated
 PNG decoder check `69865` passed in Chromium, Firefox and WebKit. JPEG browser
-coverage is running as `37632` (Chromium passed). Four focused extension validation
+and EXIF-orientation checks passed in all three engines as `37632`. Four focused extension validation
 tests also passed. A fresh combined source check is running as `85887`. See
 `docs/reviews/2026-09-12-local-model-import.md` for exact scope and handles.
 
