@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
-test('leaving elevation during a window drag retains an undoable edit', async ({ page }) => {
+for (const action of ['Escape', 'Undo']) {
+test(action === 'Escape' ? 'leaving elevation during a window drag retains an undoable edit' : 'Undo during an elevation window drag restores geometry and retains Redo', async ({ page }) => {
   const plan = JSON.parse(await readFile('tests/fixtures/connected-dimensions.openplan.json', 'utf8'));
   plan.floors[0].windows[0].wallId = plan.floors[0].walls[0].id;
   plan.floors[0].doors = [];
@@ -29,6 +30,12 @@ test('leaving elevation during a window drag retains an undoable edit', async ({
   const y = floorY - (90 + 120.5 / 2) * scale;
   await page.mouse.move(x, y); await page.mouse.down();
   await page.mouse.move(x + 40 * scale, y - 20 * scale, { steps: 5 });
+  if (action === 'Undo') {
+    await page.keyboard.press('ControlOrMeta+z');
+    await page.mouse.up();
+    expect(await exported()).toEqual(original);
+    await page.getByRole('button', { name: 'Redo', exact: true }).click();
+  }
   await page.keyboard.press('Escape');
   await page.mouse.up();
   await expect(canvas).toHaveCount(0);
@@ -42,3 +49,4 @@ test('leaving elevation during a window drag retains an undoable edit', async ({
   await page.getByRole('button', { name: 'Redo', exact: true }).click();
   expect(await exported()).toEqual(moved);
 });
+}

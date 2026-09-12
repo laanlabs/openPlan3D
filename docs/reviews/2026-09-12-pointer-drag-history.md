@@ -15,7 +15,14 @@ The pre-fix Chromium case failed in 15.6 seconds (session `35372`, exit 1;
 `/tmp/web-label-mid-drag-undo-before.log`). Type checking reports zero errors
 and warnings; the production build passed (session `31291`, exit 0).
 The pre-change full unit checkpoint passed 1,037 tests in 99 files in 3.42 seconds
-(session `92756`, exit 0; `/tmp/web-sept12-full-unit.log`).
+(session `92756`, exit 0; `/tmp/web-sept12-full-unit.log`). The same full suite
+also passed on `df4dfa4`: 1,037 tests in 99 files, 30.12 seconds (session `66523`,
+exit 0; `/tmp/web-mid-drag-history-unit.log`).
+
+Elevation uses its own `endDrag` handler; its capture-phase keyboard listener
+currently handles Escape only. A separate elevation Undo-while-held regression
+is prepared in `tests/browser/elevation-drag.spec.ts` for execution after the
+active suite. It has not yet been run and is not evidence of a confirmed defect.
 
 The 48 focused browser cases are active in session `26654`, log
 `/tmp/web-mid-drag-history-browser.log`. Poll that process before another browser
