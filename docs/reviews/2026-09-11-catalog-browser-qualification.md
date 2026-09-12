@@ -138,8 +138,19 @@ within a 180-second workflow; all preservation assertions remain. There are
 ## Resume the running process
 
 - Command: `npx playwright test --test-list /tmp/web-localization-remaining.txt --max-failures=1`
-- Unified execution session: `51582`; poll this handle before assuming it ended.
-- Active log: `/tmp/web-localization-full-browser-19.log`
+The 941-case continuation terminated after 80 passes. Native package
+preview/import/edit/reload/export at 1440px passed its data and byte-exact
+attachment checks, then timed out at its final 10-second canvas assertion.
+The error snapshot showed “Loading 3D viewer…”. Both viewport variants now use
+180 seconds overall and 60 seconds for that readiness boundary; assertions and
+network guards are unchanged. Logs 2–19 contain 246 unique passes, each matched
+to the original inventory. Playwright confirms 861 remaining cases. The runner
+also reported one error outside a test without a separate diagnostic; no pass
+credit is assigned to that error.
+
+- Unified execution session: `27671`; poll this handle before assuming it ended.
+- Completed 80-pass continuation: `/tmp/web-localization-full-browser-19.log` (session `51582`, terminal exit 1).
+- Active log: `/tmp/web-localization-full-browser-20.log`
 - Completed 24-pass continuation: `/tmp/web-localization-full-browser-18.log` (session `71904`, terminal exit 1).
 - Completed five-pass continuation: `/tmp/web-localization-full-browser-17.log` (session `36898`, terminal exit 1).
 - Completed seven-pass continuation: `/tmp/web-localization-full-browser-16.log` (session `83767`, terminal exit 1).

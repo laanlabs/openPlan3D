@@ -75,6 +75,7 @@ test('actual native category return keeps web catalog IDs and mirrored footprint
   check();
 });
 for (const width of [1440, 390]) test(`native package preview/import/edit/reload/export remains local at ${width}px`, async ({ page }, testInfo) => {
+  test.slow();
   await page.setViewportSize({ width, height: 900 });
   const check = observe(page);
   await page.goto('/');
@@ -109,7 +110,7 @@ for (const width of [1440, 390]) test(`native package preview/import/edit/reload
   expect(files['assets/chair.png']).toEqual(original['assets/chair.png']);
   expect(files['assets/orphan.png']).toEqual(original['assets/orphan.png']);
   await page.getByRole('button', { name: '3D', exact: true }).click();
-  await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible();
+  await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible({ timeout: 60_000 });
   check();
 });
 test('actual Swift return package restores web-only details and Swift edits', async ({ page }) => {

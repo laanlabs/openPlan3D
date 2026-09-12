@@ -2,60 +2,19 @@
 
 ## Full catalog browser qualification running — September 11
 
-The 1,107-case full browser suite is running against runtime `87d3c86`.
-An initial cold 3D load exceeded the 10-second canvas assertion; the test now
-waits up to 60 seconds for that boundary without weakening its assertions.
-The rerun finished with six passes, then encountered the same loading-state
-deadline in the AI-panel case. Its specific readiness wait is also now bounded
-at 60 seconds. That continuation passed the AI-panel case, then the multi-stage
-AI-provider test hit its overall deadline after successful render/download
-assertions. It now has a 180-second allowance with all checks retained. The next continuation passed 41 cases before the long background-image workflow
-exhausted its overall deadline during final calibration. That workflow now has
-a 180-second allowance with all assertions retained. That case passed in 1.8 minutes. The following camera case timed out while
-waiting for its first preview GPU probe. Preview readiness now allows 60 seconds
-inside a 180-second workflow, preserving capture and teardown checks. There are
-52 distinct passes preserved after the camera and canvas-hint cases passed.
-The canvas-idle case then reached its 10-second 3D loading deadline; the snapshot
-showed the loading message. That boundary now allows 60 seconds within a
-180-second workflow. That continuation passed 30 cases, then the crossing-room test raced the
-automatic dismissal of an onboarding tip. It now waits for the tip to close
-and retains all slab/export checks within a 180-second workflow. There are 82
-retained passes at that launch. Seven further cases passed, then curved-opening
-export hit the same tip-dismissal race. All eight remaining identical optional
-tip-click patterns now wait for dismissal. There are 89 distinct retained
-passes at that launch. Thirteen further cases passed before the asset-cache
-workflow reached its total deadline during offline reload. It now has a
-180-second allowance with all asset and offline checks retained. There are
-The asset-cache workflow passed, including offline reload. The sloped-wall
-workflow then exceeded its 10-second 3D readiness wait after edit/reload checks.
-That wait now allows 60 seconds within a 180-second workflow. There are 103
-distinct retained passes at that launch. Sloped walls passed; the floor-elevation
-workflow then hit its total deadline during a walkthrough screenshot after its
-earlier edit/reload/stack checks. That workflow now has a 180-second allowance.
-That continuation passed 20 cases before the furniture-fidelity workflow
-reached its total deadline during the second 3D color check. Both viewport
-variants now have a 180-second allowance with all assertions retained. There
-are 124 retained passes. That rerun reached the blue-pixel probe’s own
-10-second deadline; its screenshot shows the navy chair. Blue-pixel readiness
-now allows 60 seconds without changing color thresholds. The same 983 cases
-ran in session `80619`, which passed six cases before a stair-drag test raced
-tip dismissal. Four remaining `tip`-named click variants now wait for hidden
-state. That continuation passed all seven geometry-drag cases, then migration
-verification timed out at final 3D readiness. That boundary now allows 60 seconds
-within a 180-second workflow, retaining every storage assertion. There are 137
-retained passes at that launch. Five further cases passed; metadata/photo
-verification then hit its total deadline entering 3D. That workflow now allows
-180 seconds with a 60-second readiness boundary. There are 142 retained passes;
-That continuation passed 24 cases; mobile library restore then timed out at
-final 3D readiness after its restoration/recovery checks. The boundary now
-allows 60 seconds within a 180-second workflow. There are 166 retained passes;
-941 cases run in session `51582`; `83767`, `36898` and `71904` are terminal.
-Session `80619` is terminal. The previous attempt stopped at the helper’s initial
-10-second 3D readiness wait, now 60 seconds. Sessions `49049` and `34370`
-are terminal with zero added passes.
-Poll the actual process before starting competing tests or rebuilding;
-sessions `93960`, `85756`, `76158`, `6878`, `49725`, `23537`, `41767`, `47598`, `22444`, `35782` and `7225` are terminal.
-See [the live report](docs/reviews/2026-09-11-catalog-browser-qualification.md).
+The 1,107-case browser qualification is running against runtime `87d3c86`.
+There are 246 distinct completed passes, verified against the original inventory.
+The latest completed continuation passed 80 cases, then the native-package
+round-trip reached its final 10-second 3D readiness deadline while the page
+showed “Loading 3D viewer…”. Its preview/import/edit/reload/export and attachment
+checks had passed. That workflow now allows 180 seconds overall and 60 seconds
+for canvas readiness, retaining all assertions.
+
+The remaining 861 cases run in session `27671`, with log
+`/tmp/web-localization-full-browser-20.log`. Session `51582` is terminal.
+Poll the actual process before starting competing tests or rebuilding.
+See [the qualification report](docs/reviews/2026-09-11-catalog-browser-qualification.md)
+for prior failures, corrections, retained results and evidence paths.
 No full-suite completion is claimed; broader NEXT requirements remain open.
 
 ## Command-palette furniture names — September 11
