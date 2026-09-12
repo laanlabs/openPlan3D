@@ -57,9 +57,11 @@ idle check. The trace shows mounted viewer controls and only the deliberately
 aborted texture request as a console error. The 3D cases now allow 60 seconds
 for the first connected draw before the unchanged 15-second idle check, within
 180 seconds overall. Exact retry count, pixel-change and no-input redraw checks
-remain. Six focused 3D cases run in session `24549`, log
-`/tmp/web-texture-startup-browser.log`. There are 344 unique retained passes;
-full qualification is paused pending these checks. Production is unchanged.
+remain. All six focused 3D cases passed in 3.3 minutes across Chromium, Firefox
+and WebKit (session `24549`, terminal exit 0;
+`/tmp/web-texture-startup-browser.log`). There are 350 unique current-runtime
+passes. Playwright confirms 766 remaining cases; stage 6 runs in session `43409`,
+log `/tmp/web-thumbnail-fixed-full-browser-6.log`. Production is unchanged.
 Inventory: `/tmp/web-thumbnail-fixed-inventory.log`; remaining list:
 `/tmp/web-thumbnail-fixed-remaining.txt`. Do not mix prior-runtime passes into
 this run. Poll the active handle before competing browser tests or rebuilds.
