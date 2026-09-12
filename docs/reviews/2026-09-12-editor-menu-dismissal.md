@@ -104,3 +104,15 @@ SHA-256 `4ccd0455c32a9e9372c556b19616bf88519034fdcdc89b4cf82ebaeb511bf38b`.
 No Escape or debugger was used. This verifies load-error Close and restored-file
 Retry on Catalyst, not recovery from scan or original-file export.
 Simulator session `37936` was re-polled and remains live at this checkpoint.
+
+
+## Simulator completion
+
+Session `37936` terminated with exit 0 and TEST SUCCEEDED. All 11
+`PlanRecoveryTests` passed with zero failures (0.881 seconds test execution;
+1.319 seconds selected suite elapsed). Log:
+`/tmp/native-editor-local-dismiss-ios.log`; result:
+`/tmp/openplan3d-autolabel-qa/Logs/Test/Test-FloorPlan-2026.09.12_13-32-01--0400.xcresult`.
+This compiles runtime `8ed0b20` for iPhone simulator and checks document
+preservation/recovery and review data behavior. UI dismissal evidence above is
+Catalyst-only; these tests do not drive simulator editor UI.

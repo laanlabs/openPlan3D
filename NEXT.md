@@ -1,6 +1,13 @@
 # Next work and pause handoff
 
-## Editor button-local dismissal — Catalyst checks passed, simulator running
+## Scan-count wording correction — build and live validation pending
+
+The full-scan preview and Home cards now select singular wording for exactly
+one frame/pair/file, including matching calibration verbs. Zero and larger
+counts retain plural wording. Catalyst build/live verification remains pending;
+see `/tmp/native-scan-count-wording-build.log`.
+
+## Editor button-local dismissal — Catalyst checks and simulator recovery passed
 
 Native runtime `8ed0b20` builds successfully for Catalyst. In the isolated QA
 app, edited Done, no-edit Done, and Close returned to review. Close preserved
@@ -8,7 +15,8 @@ the saved file hash; a forced save failure retained the editor and unchanged
 file, and retry saved successfully. See
 `docs/reviews/2026-09-12-editor-menu-dismissal.md` for exact scope and evidence.
 Home → Draw a Plan also saved a rotated chair, returned to Home, and reopened
-with the saved object. Simulator `PlanRecoveryTests` session `37936` is still live, log
+with the saved object. Simulator `PlanRecoveryTests` session `37936` completed
+with exit 0: all 11 tests passed, zero failures. Log
 `/tmp/native-editor-local-dismiss-ios.log`. Load-error Close also returned to review without changing the malformed file;
 restoring its original bytes allowed Retry to reopen the editor. Physical UI,
 canvas-gesture/long-run dismissal checks and the broader backlog remain open.
