@@ -21,8 +21,10 @@ integration case passed separately as `21018`. Remaining work includes GPU/brows
 qualification of the combined loader, preview,
 model admission with storage budgeting, placement, localization and full
 end-to-end/native return qualification. Unused-model removal is implemented with
-13 focused tests passed as `57563`; UI undo/save integration remains open. A fresh combined type check is running
-(`/tmp/web-custom-model-source-removal-check.log`). See
+13 focused tests passed as `57563`; UI undo/save integration remains open. Source/removal type check `26892` passed;
+combined-loader type check `6285` passed with zero errors/warnings. The GPU/browser
+cleanup harness remains failing on shared-texture identity verification; it is not
+a completed qualification. See
 `docs/reviews/2026-09-12-local-model-import.md` for exact scope and handles.
 
 ## Nested-room Undo reproduction — WebKit passed; original issue remains open

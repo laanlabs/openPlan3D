@@ -331,9 +331,10 @@ project through the normal undo/save transaction. No model-removal UI exists yet
 All 13 definition/removal and source tests passed, run `57563` exit 0, log
 `/tmp/web-custom-model-removal-tests.log`, including another-floor references,
 shared definitions, attachment metadata references and non-mutation. The preceding
-type check passed with zero errors/warnings. A fresh combined check is running,
-log `/tmp/web-custom-model-source-removal-check.log`, covering the new source
-and removal modules; its result is pending.
+type check passed with zero errors/warnings. The subsequent combined check
+`26892` also passed with zero errors/warnings, log
+`/tmp/web-custom-model-source-removal-check.log`, covering the source and removal
+modules but starting before the loader was added.
 
 ## Combined static model loader
 
@@ -361,5 +362,35 @@ Nine loader/source tests passed, run `12401` exit 0, log
 material construction with controlled bitmap mocks; they do not yet qualify GPU
 rendering of the combined loader. The added retained-project-to-scene test was
 not in that collected run and passed separately as `21018` (one selected test,
-five unselected), log `/tmp/web-custom-model-load-retained-test.log`. Type check `26892` remains active
-and predates the loader module; a later combined source check is required.
+five unselected), log `/tmp/web-custom-model-load-retained-test.log`. Type check `26892` passed but predates the loader module; see the subsequent
+combined check below.
+
+## Combined loader browser rendering and GPU cleanup
+
+`tooling/check-local-glb-model.mjs` bundles the actual loader, loads the complete
+textured fixture in isolated browsers, renders it with WebGL, and asserts measured
+dimensions, visible foreground pixels, uploaded geometry/textures and no graphics
+errors. It saves a frame before disposal, then removes the model and checks zero
+remaining geometry counters, texture ownership and a closed image bitmap. Network
+requests are blocked/countable and browser errors are collected. Chromium uses
+the same SwiftShader flags as the existing app browser suite.
+
+The combined source check including the loader completed with zero errors and
+zero warnings (`/tmp/web-custom-model-loader-check.log`, run `6285`).
+
+Browser qualification remains incomplete. Chromium rendered the expected dimensions
+and 13,016 foreground pixels with no GL errors, network requests or browser errors.
+Across three load/dispose cycles, geometry returned to zero, the model bitmap closed,
+and one 16×16 DataTexture remained without accumulating additional textures.
+The original zero-texture assertion failed; Three.js creates a shared DFG lighting
+lookup texture on the first PBR draw. However, the subsequent direct `getDFGLUT()`
+identity assertion also failed, so the identity of the retained texture has not yet
+been conclusively verified by the harness. Investigate module identity/bundling and
+renderer ownership before claiming a passed cleanup check. No production disposal
+change was made on the basis of these diagnostics.
+
+The latest run terminated with an assertion failure, recorded in
+`/tmp/web-custom-model-browser-render-ownership.log`. Firefox and WebKit were not
+reached by this run. The Chromium frame was visually inspected and showed the
+expected blue textured cuboid. The checked-in harness is an unfinished diagnostic,
+not a passing regression test. This harness does not qualify placement or app UI.
