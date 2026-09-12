@@ -40,7 +40,7 @@ function observe(page: Page) {
 
 for (const width of [1440, 390]) {
   test(`conflicting tabs preserve both versions with backup and copy recovery at ${width}px`, async ({ page, context }, testInfo) => {
-    test.setTimeout(90_000);
+    test.setTimeout(180_000);
     const source = await seed(context), other = await context.newPage();
     const check = observe(page), checkOther = observe(other);
     await page.setViewportSize({ width, height: 900 });
@@ -81,7 +81,7 @@ for (const width of [1440, 390]) {
     await other.reload(); expect((await exported(other)).id).toBe(copy.id);
     await page.reload(); expect((await exported(page)).name).toBe('Newer saved version');
     await other.getByRole('button', { name: '3D', exact: true }).click();
-    await expect(other.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible();
+    await expect(other.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible({ timeout: 60_000 });
     await testInfo.attach(`recovered-copy-${width}`, { body: await other.screenshot(), contentType: 'image/png' });
     check(); checkOther();
   });

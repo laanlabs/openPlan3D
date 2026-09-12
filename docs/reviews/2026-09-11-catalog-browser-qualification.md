@@ -244,3 +244,13 @@ Playwright confirms 870 remaining cases. Session `8168` runs the continuation
 in `/tmp/web-caption-fixed-full-browser-4.log`; `32786` is terminal. The
 corrected-runtime passed/remaining/list files have been updated. Qualification
 and the broader NEXT scope remain incomplete.
+
+Stage 4 (`8168`) terminated with 40 passes in 18.2 minutes, bringing runtime
+`b3c7fa6` to 277 passes. Save-conflict recovery completed its data assertions
+but timed out at the 10-second 3D canvas wait; snapshot showed loading. The
+wait now allows 60 seconds within 180 seconds overall, retaining all assertions.
+The additional runner error had no separate diagnostic and earns no credit.
+Production source now includes thumbnail fix `c14fce7`; prior passes do not
+qualify that change. Type checking passed, and build session `17657` is active
+with log `/tmp/web-reserved-thumbnail-build.log`. Validate the new thumbnail
+cases and save-conflict workflow after the build, before further qualification.

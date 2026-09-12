@@ -16,9 +16,10 @@ New `library-reserved-thumbnails.spec.ts` cases cover reserved and ordinary IDs
 with absent previews, saved previews, and failed preview reads. Browser validation
 of this change remains pending; the active suite tests runtime `b3c7fa6`, and its existing passing
 reserved-ID case does not prove thumbnail correctness. Do not rebuild the
-production server while session `8168` is active.
-Type-check log: `/tmp/web-reserved-thumbnail-check.log` (session `40986`).
-After the active suite stops, build the updated source and run the new regression
+production server while a browser session is active. Session `8168` is now terminal.
+Type checking passed with zero errors/warnings; log `/tmp/web-reserved-thumbnail-check.log` (session `40986` terminal).
+Production build is running in session `17657`, log `/tmp/web-reserved-thumbnail-build.log`.
+After the build completes, run the new regression
 cases across all engines. The current 1,107-case run does not qualify this fix
 or include the nine new engine cases.
 
@@ -46,8 +47,12 @@ model-download and editing assertions are unchanged. The next continuation passe
 81 cases, then mobile same-ID import recovery reached its 10-second canvas wait
 while the 3D viewer was loading. That wait now allows 60 seconds within its
 existing 180-second workflow; persistence and copy-isolation checks are unchanged.
-There are 237 retained passes. The remaining 870 cases run in session `8168`, log
-`/tmp/web-caption-fixed-full-browser-4.log`. Sessions `77795`, `94916` and `32786` are terminal.
+Stage 4 ended after 40 passes (277 total on runtime `b3c7fa6`), then the
+save-conflict recovery test reached a 10-second canvas wait while loading. Its
+readiness wait now allows 60 seconds within a 180-second workflow; all conflict,
+backup, copy and reload assertions remain. Session `8168` and all previous
+continuations are terminal. Log: `/tmp/web-caption-fixed-full-browser-4.log`.
+The 277 passes do not qualify the subsequent thumbnail fix.
 Poll the live handle before competing browser tests or production rebuilds.
 The previous browser session `27671` is terminal (97 passes in its last stage).
 See [the prior qualification report](docs/reviews/2026-09-11-catalog-browser-qualification.md).
