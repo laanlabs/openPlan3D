@@ -167,3 +167,24 @@ All 38 tests in seven GLB test files passed, session `23784` exit 0, log
 log `/tmp/web-local-glb-materials-check.log`, using NODE_ENV=production. It
 includes all geometry/repacking/material modules and the narrowing correction.
 Do not claim a clean combined type check until it terminates.
+
+## Decoded image ownership and cancellation
+
+`decodeLocalGLBImages` validates embedded resource headers, then decodes one image
+at a time using ImageBitmap without fetch or object URLs. It checks actual decoded
+dimensions and cumulative pixels; JPEG EXIF transposition is accepted when it
+preserves the declared dimensions' pixel count. The caller owns returned bitmaps
+and gets an idempotent disposer. Rejected images, earlier successful images on
+failure, and late results after cancellation or a 30-second decode timeout are
+closed. ImageBitmap work itself cannot be interrupted; a late result is disposed
+when the browser completes it. Untextured models do not require ImageBitmap support.
+
+All 44 tests across eight GLB test files passed, session `67909` exit 0, log
+`/tmp/web-local-glb-images-tests.log`. Decoder lifecycle tests use controlled mocks;
+they do not alone prove actual browser image decoding. The isolated real-browser
+check `node tooling/check-local-glb-images.mjs` is running as `69865`, log
+`/tmp/web-local-glb-images-browsers.log`. It checks a real embedded PNG, a truncated
+payload with a valid header, resource closure, and zero network requests in
+Chromium, Firefox and WebKit. Do not claim these browser checks passed yet.
+Source check `64070` remains active and started before the image module was added.
+A final combined check is still required after it terminates.
