@@ -10,8 +10,9 @@ end-to-end qualification remain to implement. No import UI is exposed yet.
 
 The photo suite rerun had 18 passes and one explicit quota-test timeout. The
 accessor source check ended with one TypeScript narrowing error, now corrected.
-Source check `64070` is running; it predates the new image decoder. An isolated
-real-browser decoder check is running as `69865`. See
+Source check `64070` is running; it predates the new image decoder. The isolated
+PNG decoder check `69865` passed in Chromium, Firefox and WebKit. JPEG browser
+coverage remains open. Four focused extension validation tests also passed. See
 `docs/reviews/2026-09-12-local-model-import.md` for exact scope and handles.
 
 ## Nested-room Undo reproduction — WebKit passed; original issue remains open

@@ -182,9 +182,30 @@ when the browser completes it. Untextured models do not require ImageBitmap supp
 All 44 tests across eight GLB test files passed, session `67909` exit 0, log
 `/tmp/web-local-glb-images-tests.log`. Decoder lifecycle tests use controlled mocks;
 they do not alone prove actual browser image decoding. The isolated real-browser
-check `node tooling/check-local-glb-images.mjs` is running as `69865`, log
+check `node tooling/check-local-glb-images.mjs` passed as `69865` (exit 0), log
 `/tmp/web-local-glb-images-browsers.log`. It checks a real embedded PNG, a truncated
 payload with a valid header, resource closure, and zero network requests in
-Chromium, Firefox and WebKit. Do not claim these browser checks passed yet.
+Chromium, Firefox and WebKit. All three engines returned 32×24 dimensions,
+closed bitmap width zero, the expected corrupt-payload error and zero requests.
+This run qualifies PNG decoding only; JPEG browser coverage remains to add.
 Source check `64070` remains active and started before the image module was added.
 A final combined check is still required after it terminates.
+
+## Explicit extension support
+
+`validateLocalGLBExtensions` validates used/required declarations, rejects missing
+or duplicate declarations, and checks extension placement and payload shape.
+The initial supported extension is KHR_materials_unlit on materials. Unsupported
+optional extensions are rejected explicitly rather than silently falling back to
+an appearance that might differ from the original model. Compression, texture
+transforms and other extensions remain unsupported until implemented and tested;
+this is still work toward controlled local import, not completion of that feature.
+Application-owned extras are not interpreted as renderer extensions. Original
+source bytes remain the intended persistence/provenance source.
+
+All four focused extension tests passed, session `66132` exit 0, log
+`/tmp/web-local-glb-extensions-tests.log`. The earlier eight-file run passed 44
+tests; a combined nine-file run has not yet been recorded. Browser decoder check
+`69865` passed in Chromium, Firefox and WebKit (see scope above). Source check
+`64070` remains active and predates the image/extension modules, which need a
+subsequent combined source check.
