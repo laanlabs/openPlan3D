@@ -464,3 +464,31 @@ shared pending-load and same-project source-change cases. Type check `77127`
 passed with zero errors/warnings but began before the final lazy-load and
 size-default edits. A final check is running in
 `/tmp/web-custom-model-placement-final-check.log`; its result remains pending.
+
+
+## Import, preview and retained-model interface
+
+Final placement type check `59212` passed with zero errors/warnings.
+The Objects tab now includes a custom-model panel: choose a GLB, inspect an
+orbitable preview with reset control, supply a name/optional provenance, and
+admit the original source through storage/history checks. Prepared handles use
+Svelte raw state so proxying cannot break their private source identity. Cancel,
+tab destruction and project-ID changes abort pending work and dispose previews.
+Async admission rejects a changed project before committing through the existing
+Undo transaction. The interface explicitly asks users to save afterward, matching
+other editor changes; it does not claim an automatic persistent save.
+
+Retained models expose placement at the 2D view center, selection for subsequent
+movement/resizing, and confirmed unused-model removal. A pure placement operation
+stores explicit dimensions and a procedural catalog fallback; one focused test
+passed as `28230` (`/tmp/web-custom-model-place-operation-tests.log`). All new
+interface labels are available in English and Portuguese, but detailed service
+validation diagnostics still need localization. Compiler-only checks of both new
+Svelte components reported no warnings.
+
+UI source check `55921` passed with zero errors/warnings
+(`/tmp/web-custom-model-ui-check.log`). Production build `94629` is running (`/tmp/web-custom-model-ui-build.log`). The new
+browser test covers preview, exact retained digest/source, placement Undo/Redo,
+then confirmed storage persistence and reload. It has not run yet; wait for the
+new build rather than using the older production output. Broader browser,
+physical-device/native return and accessibility qualification remain open.

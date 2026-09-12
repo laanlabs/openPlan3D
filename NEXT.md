@@ -12,7 +12,7 @@ dimensions; furniture can reference a project model. Structural validation and
 attachment deletion protection are implemented. The focused definition/transport
 run `12846` passed. Legacy regression `57520` had 70 passes and two existing
 photo/history quota-test timeouts; project validation passed. Current type check
-`89302` passed with zero errors/warnings. No import UI is exposed yet.
+`89302` passed with zero errors/warnings. An import/preview panel is now implemented; browser workflow qualification is pending.
 
 Original source byte/digest/container verification is implemented with its
 nine source/definition tests passed as `10510`. The combined static GLB loader
@@ -20,14 +20,18 @@ is implemented; nine loader/source tests passed and one added retained-project
 integration case passed separately as `21018`. The combined loader now passes GPU/browser
 rendering and three disposal cycles in Chromium, Firefox and WebKit. Model
 admission with source deduplication and storage budgeting is implemented; four
-focused tests passed. Remaining work includes preview UI, admission/save integration,
-placement, localization and full
+focused tests passed. The Objects panel now offers preview, provenance, admission, placement at the view
+center and unused-model removal through Undo. Remaining work includes browser
+qualification, complete diagnostic localization and full
 end-to-end/native return qualification. Unused-model removal is implemented with
 13 focused tests passed as `57563`; UI undo/save integration remains open. Source/removal type check `26892` passed;
 combined-loader type check `6285` passed with zero errors/warnings. Browser cleanup run `42690` passed after correcting the
 harness to inspect the actual renderer lighting uniform. Admission type check
 `39167` passed with zero errors/warnings. Saved custom-model references now
-render through a lazy project-source lease; final placement checks are in progress. See
+render through a lazy project-source lease; placement checks passed (17 catalog/placement tests, then seven expanded lifetime
+tests); final placement type check `59212` passed with zero errors/warnings.
+UI type check `55921` passed with zero errors/warnings; production build `94629`
+is running. Browser workflow qualification remains pending. See
 `docs/reviews/2026-09-12-local-model-import.md` for exact scope and handles.
 
 ## Nested-room Undo reproduction — WebKit passed; original issue remains open
