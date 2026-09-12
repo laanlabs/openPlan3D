@@ -1,5 +1,13 @@
 # Next work and pause handoff
 
+## Editor dismissal reproduction — September 12
+
+Done closed without edits, but stayed open after adding and rotating a chair
+through menus. The file saved successfully; no canvas drag was involved. See
+`docs/reviews/2026-09-12-editor-menu-dismissal.md` for the reproduction and
+save-failure safeguard required for the next experiment. Native source remains
+unchanged while simulator session `50299` runs.
+
 ## Full-scan import dismissal — Catalyst verified, simulator running
 
 Initial Cancel and post-import Back to Library/Done now pass live Catalyst
