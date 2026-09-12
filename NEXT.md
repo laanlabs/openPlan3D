@@ -1,13 +1,13 @@
 # Next work and pause handoff
 
-## Scan-count wording correction — build and live validation pending
+## Scan-count wording correction — Catalyst build and live checks passed
 
-The full-scan preview and Home cards now select singular wording for exactly
-one frame/pair/file, including matching calibration verbs. Zero and larger
-counts retain plural wording. Catalyst build/live verification remains pending;
-see `/tmp/native-scan-count-wording-build.log` and
-`docs/reviews/2026-09-12-scan-count-wording.md` for the active build and prepared
-singular/plural/legacy fixtures.
+Native `56be55b` correctly shows singular/plural frame counts and calibration
+verbs. Three synthetic previews cover one/two frame pairs and zero/one complete
+or legacy frames. A successful mixed-frame import produced a “2 frames” library
+card; existing single-frame cards show “1 frame”. Catalyst build `58073` passed.
+See `docs/reviews/2026-09-12-scan-count-wording.md` for fixture corrections and
+exact evidence. Physical iOS UI and broader NEXT work remain open.
 
 ## Editor button-local dismissal — Catalyst checks and simulator recovery passed
 
