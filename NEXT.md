@@ -5,16 +5,16 @@
 Done closed without edits, but stayed open after adding and rotating a chair
 through menus. The file saved successfully; no canvas drag was involved. See
 `docs/reviews/2026-09-12-editor-menu-dismissal.md` for the reproduction and
-save-failure safeguard required for the next experiment. Native source remains
-unchanged while simulator session `50299` runs.
+save-failure safeguard required for the next experiment. The simulator run completed; the editor dismissal experiment is now building in
+session `95232`, log `/tmp/native-editor-local-dismiss-build.log`.
 
-## Full-scan import dismissal — Catalyst verified, simulator running
+## Full-scan import dismissal — Catalyst UI and both test targets verified
 
 Initial Cancel and post-import Back to Library/Done now pass live Catalyst
 checks. Two synthetic imports preserved every source hash. All 21 selected
-Catalyst dataset tests passed, including the existing 194-frame/394-file real
-scan preservation check. The iPhone simulator selection remains active in
-session `50299`, log `/tmp/native-scan-local-dismiss-ios.log`. See
+dataset tests passed on both Catalyst and iPhone simulator, including the existing
+194-frame/394-file real scan preservation check on each. Simulator session `50299`
+finished with exit 0; log `/tmp/native-scan-local-dismiss-ios.log`. See
 `docs/reviews/2026-09-12-full-scan-dismissal.md` before resuming. Physical UI,
 editor dismissal and broader NEXT work remain open.
 

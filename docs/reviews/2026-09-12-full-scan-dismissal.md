@@ -40,12 +40,13 @@ original session metadata under `.openplan-scan/original-session.json`:
 `DA41A204-1086-4583-8013-27FC3AE4FDE3` and
 `F6CCA1B5-BBE0-4C84-A3B6-0AC6D057E99D`.
 
-## Still running / remaining work
+## Simulator result and remaining work
 
-The equivalent iPhone 17 Pro simulator selection was started only after the
-Catalyst test process finished. Session `50299` is active; log
-`/tmp/native-scan-local-dismiss-ios.log`. Poll this run to its actual terminal
-result before any native source edits or another build. Simulator pass credit
-is pending. Physical UI, long-run presentation stress and editor dismissal stay
-open. The live preview/library also exposes singular-count wording such as
-“1 frame pairs” and “1 frames”; correct that in a later verified UI change.
+The equivalent iPhone 17 Pro simulator selection finished with exit 0 in session
+`50299`. All 21 tests passed, zero failures, 168.733 seconds of XCTest time,
+including the real 194-frame/394-file preservation check. Log:
+`/tmp/native-scan-local-dismiss-ios.log`. No skip was counted as a pass.
+
+Physical UI, long-run presentation stress and editor dismissal stay open. The
+live preview/library also exposes singular-count wording such as “1 frame pairs”
+and “1 frames”; correct that in a later verified UI change.

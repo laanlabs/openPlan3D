@@ -29,5 +29,21 @@ The input/framework cause remains unseparated; one successful no-edit close does
 not overturn earlier intermittent failures. Prior gesture-reset and timed/async
 close experiments in `docs/native-editor-dismissal.md` did not establish a fix.
 
-Do not change native source or rebuild until the active full-scan simulator
-session `50299` terminates. Log: `/tmp/native-scan-local-dismiss-ios.log`.
+The full-scan simulator session `50299` subsequently terminated successfully.
+Log: `/tmp/native-scan-local-dismiss-ios.log`.
+
+## Save failure and recovery baseline
+
+Using the same isolated session, added a table in memory, recorded the existing
+plan SHA-256, and temporarily removed directory write permissions (0755 → 0555).
+Done showed Couldn't Save with a permission error. Restored 0755 immediately and
+verified the original plan bytes were unchanged. After acknowledging the alert,
+the selected table and Undo remained in the editor. Retrying Done saved both
+chair and table and returned to review. The QA app was quit; directory mode 0755
+and both saved categories were verified. Restoration metadata is in
+`/tmp/openplan-editor-save-failure-state.json`.
+
+The next experiment uses a button-local dismiss environment gated by a Bool
+save result. It retains existing callbacks and returns false on unloaded/error
+paths. Catalyst build session `95232` is running in
+`/tmp/native-editor-local-dismiss-build.log`; live validation remains pending.
