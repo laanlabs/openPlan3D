@@ -755,3 +755,18 @@ keyboard-control changes, so that production output includes them. Fresh keyboar
 type check `73539` remains active (`/tmp/web-custom-model-keyboard-check.log`);
 Chromium keyboard case `67983` is running on that build
 (`/tmp/web-custom-model-preview-keyboard-browser.log`).
+
+
+## Keyboard workflow timeout before preview
+
+Chromium run `67983` exited 1 on the 180-second whole-test budget while selecting
+the input file; it never reached the preview or keyboard assertions. Its trace
+recorded roughly 19 seconds navigating to the editor and 141 seconds opening the
+Objects tab. The final snapshot showed the Objects panel and model-import region.
+This is not evidence that rotation/zoom failed, nor proof of a product fix.
+
+The case now allows 360 seconds for editor startup and all six keyboard/image
+checks; every assertion remains. Run `82817` is active on the same verified build
+(`/tmp/web-custom-model-preview-keyboard-browser-final.log`). The original failure
+log is `/tmp/web-custom-model-preview-keyboard-browser.log`. Fresh type check
+`73539` remains active.

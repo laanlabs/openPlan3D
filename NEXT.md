@@ -38,7 +38,9 @@ Shared storage errors now refer to attachments and translate in the model dialog
 44 translation/service-message tests passed (`13515`). The preview also adds
 labeled keyboard-operable rotation/zoom buttons and a translated image label.
 Production build `22153` passed after those controls were added; their fresh type
-check `73539` and keyboard browser case `67983` are active. Native simulator test
+check `73539` is active. Keyboard case `67983` timed out before preview after a
+141-second Objects-tab action; run `82817` is active with a larger whole-test budget
+and unchanged keyboard/image assertions. Native simulator test
 `6249` passed, and the actual Swift output passed the three web return tests
 (`17274`), preserving model references, original GLB bytes and shared edits.
 Native UI and physical-device qualification remain open.

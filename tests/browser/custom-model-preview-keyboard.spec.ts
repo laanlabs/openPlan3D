@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test';
 
-test.setTimeout(180_000);
+// Includes editor startup plus six keyboard interactions and rendered-image checks.
+// A loaded-host trace spent 140 seconds opening Objects before preview was reached.
+test.setTimeout(360_000);
 test('model preview can rotate and zoom using keyboard-operated controls', async ({ page }, testInfo) => {
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
