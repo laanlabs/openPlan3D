@@ -1,5 +1,12 @@
 # Next work and pause handoff
 
+## Nested-room Undo reproduction — current Chromium run pending
+
+Two fresh traced runs timed out at Area Summary before reaching Undo. The third
+case remains active in session `13571`; no runtime change is justified by those
+setup failures. See `docs/reviews/2026-09-12-nested-room-undo-reproduction.md` for
+trace timings, the renderer sample and the next diagnostic step.
+
 ## Scan-count wording correction — Catalyst build and live checks passed
 
 Native `56be55b` correctly shows singular/plural frame counts and calibration

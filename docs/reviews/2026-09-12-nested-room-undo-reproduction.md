@@ -1,0 +1,32 @@
+# Nested-room Undo reproduction — September 12, 2026
+
+The intermittent failure at room-slabs.spec.ts:99 remains open. Production
+sources match `7fd8570` (no src diff); the production build is the September 12
+11:25 artifact. No runtime or test changes were made for this run.
+
+Command: `npm run test:browser -- tests/browser/room-slabs.spec.ts --grep
+'nested rooms export one slab' --project=chromium --repeat-each=3 --trace=on`.
+Session `13571`, log `/tmp/web-nested-undo-sept12-repeat.log`, remains active.
+
+The first two cases timed out before reaching Undo, while opening Area Summary
+at line 71. They do not reproduce the label failure. The first trace measures
+15.94 seconds for navigation, 124.92 seconds for Export click (about 120 seconds
+waiting for visible/enabled/stable), 19.91 seconds for Import JSON click, and
+1.19 seconds to set the fixture. The 180-second case budget then expired.
+The first trace and error context are preserved under
+`/tmp/web-nested-undo-sept12-artifacts/first-run`.
+
+At 14:44 local time, host load averages were 34.76/36.10/40.13; memory_pressure
+reported 65 percent free. A two-second read-only sample of the third renderer
+PID 4308 completed successfully in session `80147`, saved at
+`/tmp/web-nested-undo-renderer-third-sample.txt`. All 1,485 main-thread samples
+ended in mach_msg2_trap. This does not show sustained geometry/JavaScript work,
+but does not prove the cause of the stability wait or exclude unsampled work.
+The earlier attempt to sample second-renderer PID 4050 failed because that
+process had already exited; no evidence is claimed from that attempt.
+
+The third case and the batch result remain pending. Preserve its result before
+starting another run. Do not interpret setup timeouts or passing reruns as proof
+that the original Undo defect is fixed. A Firefox reproduction can distinguish
+Chromium-specific waiting from behavior common to both engines after this batch
+finishes; retain the exact label restoration assertion.
