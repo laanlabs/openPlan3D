@@ -126,3 +126,22 @@ The five-file GLB run passed all 29 tests, session `48974` exit 0, log
 `/tmp/web-local-glb-geometry-tests.log`. The earlier source check `88958` remains
 active; it began before this geometry module, so it cannot by itself qualify all
 current source. Do not restart it solely due to elapsed time.
+
+## Dense geometry preparation for GLTFLoader
+
+`repackLocalGLBGeometry` validates geometry and writes dense accessor storage,
+resolving sparse replacements and interleaving before GLTFLoader sees the data.
+It preserves the source document/bytes, retains original embedded buffer data
+for image views, and replaces stale min/max metadata with bounds calculated from
+actual values. Padded integer matrices become dense float matrices, including
+normalization where needed. Repacked geometry is capped at 64 MiB and derived
+JSON at 4 MiB; those limits do not claim a 64 MiB total process-memory ceiling.
+The prepared buffer is an internal loading artifact, not a change to the 16 MiB
+user input limit. Original bytes remain the intended persistence/provenance source.
+
+This function alone does not authorize loading a model: material/extension,
+texture decode and transformed-scene checks remain necessary. All 32 tests in
+the six-file run `90962` passed (exit 0), log `/tmp/web-local-glb-repack-tests.log`,
+including a real GLTFLoader parse of sparse interleaved geometry with omitted
+trailing padding, bounds derived from bytes, and source preservation.
+Source check `88958` remains active and predates the latest source additions.
