@@ -23,6 +23,7 @@
   import { assembleFloorStack } from '$lib/utils/floorStack';
   import { setFloorCameraPose } from '$lib/utils/floorCamera';
   import { frameScene } from '$lib/utils/frameScene';
+  import { updateOrbitDamping } from '$lib/utils/orbitDamping';
   import { portableRenderSceneJSON } from '$lib/utils/portableRenderScene';
   import { sceneSignature } from '$lib/utils/sceneSignature';
   import { WalkthroughMotion } from '$lib/utils/walkthroughMotion';
@@ -1924,10 +1925,12 @@
 
 
 
+  let lastOrbitFrame: number | undefined;
   function animate(timestamp: number) {
     animId = undefined;
 
     if (walkthroughMode) {
+      lastOrbitFrame = undefined;
       const moving = walkthroughMotion.active;
       walkthroughMotion.advance(timestamp, camera, { moveSpeed, sprintSpeed, eyeHeight, floorElevation: activeFloorElevation });
       if (sceneDirty || moving) {
@@ -1940,7 +1943,8 @@
     } else {
       // A change event schedules the next damping step. Once the controls settle,
       // leave no callback queued until an interaction or scene update wakes us.
-      controls.update();
+      updateOrbitDamping(controls, lastOrbitFrame === undefined ? 1 / 60 : (timestamp - lastOrbitFrame) / 1000);
+      lastOrbitFrame = animId === undefined ? undefined : timestamp;
       if (sceneDirty) {
         sceneDirty = false;
         renderer.render(scene, camera);

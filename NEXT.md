@@ -1,5 +1,25 @@
 # Next work and pause handoff
 
+## Orbit damping fix — unit verified; build and type checking active
+
+The unchanged Chromium idle reproduction failed again after orbit (session
+`88961`, terminal exit 1; `/tmp/web-viewer-idle-repro.log`). An isolated run with
+the installed OrbitControls needs 165 frames to settle a large-scene orbit:
+2.75 seconds at 60 fps, but 41.25 seconds at 4 fps. The viewer now scales damping
+by elapsed time, preserving the 60 Hz response and restoring the configured
+factor for pointer-event updates. Its clock resets when orbit rendering sleeps
+or walkthrough takes over. The browser idle assertion has not been relaxed.
+
+All 26 focused damping/framing unit tests passed, including equal camera position
+after one second at 4–120 fps and settling within five seconds at those rates.
+Log: `/tmp/web-orbit-damping-unit.log`. Type checking runs in session `79798`,
+log `/tmp/web-orbit-damping-check.log`; production build runs in session `33825`,
+log `/tmp/web-orbit-damping-build.log`. Browser verification must follow the build.
+This production change invalidates prior-runtime browser pass credit: the 374
+passes documented below belong to the thumbnail-fixed runtime, not this fix.
+Full browser qualification, the intermittent nested-room Undo investigation,
+and broader NEXT requirements remain incomplete.
+
 ## Reserved project-ID thumbnail fix — verified; nested-room Undo failure under investigation
 
 The library now uses only own thumbnail entries, preventing missing previews
@@ -67,9 +87,9 @@ through its 40-second idle check. Trace samples show callbacks continuing to
 advance (20 to 169), about four frames per second, rather than a stalled process.
 The viewer uses fixed per-frame orbit damping (0.08); investigation must determine
 whether slow damping accounts for the failure. The idle assertion is unchanged.
-An unchanged Chromium reproduction runs in session `88961`,
-log `/tmp/web-viewer-idle-repro.log`.
-The full suite is paused. Production is unchanged.
+The unchanged Chromium reproduction (session `88961`) also failed; see the
+orbit damping fix above. Log: `/tmp/web-viewer-idle-repro.log`. This historical
+thumbnail-runtime full suite is stopped.
 Inventory: `/tmp/web-thumbnail-fixed-inventory.log`; remaining list:
 `/tmp/web-thumbnail-fixed-remaining.txt`. Do not mix prior-runtime passes into
 this run. Poll the active handle before competing browser tests or rebuilds.
