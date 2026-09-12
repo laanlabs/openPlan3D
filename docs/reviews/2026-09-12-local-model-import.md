@@ -296,8 +296,8 @@ item-details regression run `57520` terminated with 70 passes and two timeouts
 validation tests passed. The two photo/history cases timed out at their existing
 15-second quota-estimate and five-second crafted-history limits; no value
 assertions failed. These cases also timed out in earlier runs before this change,
-but that does not establish an all-green regression suite. Current type check
-`89302` is active, log `/tmp/web-custom-model-definitions-check.log`. Legacy files do not gain optional model fields.
+but that does not establish an all-green regression suite. Type check `89302` passed with zero errors and zero warnings, log
+`/tmp/web-custom-model-definitions-check.log`; it predates source/removal modules. Legacy files do not gain optional model fields.
 
 ## Original source verification before loading
 
@@ -316,5 +316,21 @@ All nine source/definition tests passed, run `10510` exit 0, log
 `/tmp/web-custom-model-source-tests.log`. It covers exact bytes, independent
 metadata, missing/detached sources, malformed base64, same-length corruption,
 matching-hash invalid containers, cancellation and mutation during hashing.
-Type-check `89302` remains active and predates this source-verification module;
-current combined source must be checked after that run terminates.
+Type-check `89302` passed but predates this source-verification module; see
+the new combined check below.
+
+## Model removal operation
+
+`removeCustomModel` reads/clones the project, refuses removal while any floor has
+furniture referencing the model, and removes an unused definition. It removes the
+source attachment and label only when no remaining model definition or existing
+photo/tracing reference uses it. Shared sources remain intact. The input project
+and prior snapshot bytes stay unchanged; UI integration must commit the returned
+project through the normal undo/save transaction. No model-removal UI exists yet.
+
+All 13 definition/removal and source tests passed, run `57563` exit 0, log
+`/tmp/web-custom-model-removal-tests.log`, including another-floor references,
+shared definitions, attachment metadata references and non-mutation. The preceding
+type check passed with zero errors/warnings. A fresh combined check is running,
+log `/tmp/web-custom-model-source-removal-check.log`, covering the new source
+and removal modules; its result is pending.

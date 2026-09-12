@@ -12,13 +12,15 @@ dimensions; furniture can reference a project model. Structural validation and
 attachment deletion protection are implemented. The focused definition/transport
 run `12846` passed. Legacy regression `57520` had 70 passes and two existing
 photo/history quota-test timeouts; project validation passed. Current type check
-`89302` is pending. No import UI is exposed yet.
+`89302` passed with zero errors/warnings. No import UI is exposed yet.
 
 Original source byte/digest/container verification is implemented with its
 nine source/definition tests passed as `10510`. Remaining work includes composing
 these checks in the bounded loader/preview,
-model admission/removal with storage budgeting, placement, localization and full
-end-to-end/native return qualification. See
+model admission with storage budgeting, placement, localization and full
+end-to-end/native return qualification. Unused-model removal is implemented with
+13 focused tests passed as `57563`; UI undo/save integration remains open. A fresh combined type check is running
+(`/tmp/web-custom-model-source-removal-check.log`). See
 `docs/reviews/2026-09-12-local-model-import.md` for exact scope and handles.
 
 ## Nested-room Undo reproduction — WebKit passed; original issue remains open

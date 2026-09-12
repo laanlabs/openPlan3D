@@ -7,6 +7,7 @@ import { webToNative } from '$lib/utils/projectPackageBridge';
 import { projectPackageBytes, readProjectPackage } from '$lib/services/projectPackage';
 import { usedPhotoNames, deleteUnusedPhoto } from '$lib/services/itemPhotos';
 import type { CustomModelDef } from '$lib/models/types';
+import { removeCustomModel } from '$lib/services/customModels';
 
 const bytes = readFileSync('tests/fixtures/local-model-textured-box.glb');
 const definition: CustomModelDef = { id: 'fixture-model', name: 'Fixture box', assetName: 'fixture-box.glb',
@@ -66,4 +67,41 @@ it('protects original bytes while a model definition exists, including unplaced 
   project.customModels = [];
   expect(deleteUnusedPhoto(project, definition.assetName).projectPackage!.assets).not.toHaveProperty(`assets/${definition.assetName}`);
   expect(project.projectPackage!.assets).toHaveProperty(`assets/${definition.assetName}`);
+});
+
+it('refuses model removal while furniture uses it, including on another floor', () => {
+  const project = modelProject(), before = structuredClone(project);
+  expect(() => removeCustomModel(project, definition.id)).toThrow('placed furniture');
+  expect(project).toEqual(before);
+  const another = structuredClone(project.floors[0]); another.id = 'another-floor'; another.level = 1;
+  project.floors.push(another); project.floors[0].furniture = [];
+  expect(() => removeCustomModel(project, definition.id)).toThrow('placed furniture');
+});
+
+it('removes an unused definition and source without mutating the previous project', () => {
+  const project = modelProject(); project.floors[0].furniture = [];
+  project.attachmentNames = { [definition.assetName]: 'Original model' };
+  const before = structuredClone(project), next = removeCustomModel(project, definition.id);
+  expect(next.customModels).toBeUndefined();
+  expect(next.projectPackage!.assets).not.toHaveProperty(`assets/${definition.assetName}`);
+  expect(next.attachmentNames).not.toHaveProperty(definition.assetName);
+  expect(project).toEqual(before);
+  expect(() => removeCustomModel(next, definition.id)).toThrow('no longer defined');
+});
+
+it('retains original bytes while another model definition shares the attachment', () => {
+  const project = modelProject(); project.floors[0].furniture = [];
+  project.customModels!.push({ ...definition, id: 'second-model', name: 'Second definition' });
+  const next = removeCustomModel(project, definition.id);
+  expect(next.customModels!.map(model => model.id)).toEqual(['second-model']);
+  expect(next.projectPackage!.assets[`assets/${definition.assetName}`]).toBe(bytes.toString('base64'));
+});
+
+it('retains an attachment also referenced by item metadata', () => {
+  const project = modelProject();
+  const item = project.floors[0].furniture.find(item => item.customModelId === definition.id)!;
+  delete item.customModelId; item.details = { photos: [definition.assetName] };
+  const next = removeCustomModel(project, definition.id);
+  expect(next.customModels).toBeUndefined();
+  expect(next.projectPackage!.assets[`assets/${definition.assetName}`]).toBe(bytes.toString('base64'));
 });
