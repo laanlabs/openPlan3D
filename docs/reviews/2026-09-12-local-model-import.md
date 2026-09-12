@@ -605,3 +605,14 @@ and checks that leaving the viewer closes that image. It also captures a viewer
 frame and records page errors. This test is not yet run; its instrumentation is
 a test observation, not production code. Build `7222` and type check `85089`
 remain active and must reach terminal results before browser qualification.
+
+
+### Current source ready; browser workflows running
+
+Type check `85089` completed with zero errors/warnings. Build `7222` completed
+successfully, including adapter packaging (`/tmp/web-custom-model-lazy-preview-build.log`).
+Chromium run `84773` is now active, log `/tmp/web-custom-model-current-ui.log`,
+covering four tests across cancellation/removal, Portuguese controls and full
+viewer image lifetime. These tests use the current name/message/lazy-preview
+source. Their outcomes remain pending; no competing browser server should start
+until this run is terminal.

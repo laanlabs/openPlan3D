@@ -24,7 +24,9 @@ independent tests. Portuguese controls and the full 3D viewer's image lifetime
 also have new browser tests awaiting execution. These tests must use the current
 build: the previously tested UI predates the name/error and lazy-preview changes.
 Type checks for labels (`79860`) and messages (`10317`) passed with zero diagnostics.
-Fresh lazy-preview type check `85089` and production build `7222` are active.
+Lazy-preview type check `85089` passed with zero errors/warnings and production
+build `7222` passed. Chromium run `84773` is active for the split cancellation/
+removal, Portuguese and full-viewer workflows against this current build.
 
 Remaining: finish the current browser runs, Firefox qualification, complete error
 localization, broader accessibility/physical-device testing, and full native return
