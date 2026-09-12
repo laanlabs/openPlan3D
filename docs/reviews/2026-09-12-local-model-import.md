@@ -226,3 +226,28 @@ The prior source check completed with zero errors/warnings. Fresh combined
 source check `85887` is active, log `/tmp/web-local-glb-combined-check.log`, using
 NODE_ENV=production. It includes every current GLB module and test file, including
 image ownership and explicit extension validation. Preserve this run to terminal.
+
+## Complete textured integration fixture
+
+`tooling/local-model-fixture.mjs` reproducibly generates
+`tests/fixtures/local-model-textured-box.glb` from a Three.js box and the existing
+`item-photo.png` test image. It has indexed triangles, positions, normals, UVs,
+a metallic/roughness material and embedded PNG bytes. Geometry dimensions are
+1 × 0.5 × 0.75 meters on X/Y/Z, corresponding to app width/depth/height
+100 × 75 × 50 centimeters. A node translation places the bottom on ground level.
+It is a test fixture, not a catalog asset with newly asserted image licensing.
+
+The integration test combines extension, material, geometry and repacking checks,
+asserts known bounds and instance counts, and compares the original embedded PNG
+bytes after repacking. Its focused test passed, run `47478` exit 0, log
+`/tmp/web-local-glb-fixture-tests.log`. Runtime source has stayed unchanged while
+combined check `85887` runs; this newly added test file postdates that check.
+
+Storage/placement integration observations from current source: FurnitureItem
+stores dimensions in centimeters and resolves catalog models through
+`createPlacedFurnitureModel`; custom model references do not exist yet. Project
+packages already retain base64 asset bytes, but attachment deletion currently
+checks photo/tracing references. Model persistence must add reference validation
+and protect assets used by model instances before exposing removal controls.
+The original GLB should remain the persistence/provenance source; the repacked
+buffer is a temporary loading artifact. The import/placement UI remains absent.
