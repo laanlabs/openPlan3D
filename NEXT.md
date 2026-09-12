@@ -60,8 +60,9 @@ Portuguese review, physical accessibility and the wider NEXT backlog remain open
 The 2D editor passes localized furniture names into the pure caption renderer.
 Changing language invalidates the draw scheduler once through a cleaned-up
 subscription, so a stationary plan updates without an edit or camera movement.
-Unknown catalog IDs remain visible as their original identifiers. Renderer
-callers that omit a caption retain their existing default labels.
+Unknown catalog entries retain the renderer’s “Unknown furniture” fallback
+after the regression fix recorded above. Renderer callers that omit a caption
+retain their existing default labels.
 
 Six focused unit tests pass, check reports zero diagnostics, build passes, and
 all three browser-engine cases pass (1.5 minutes): actual canvas fillText records
