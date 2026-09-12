@@ -17,14 +17,16 @@ photo/history quota-test timeouts; project validation passed. Current type check
 Original source byte/digest/container verification is implemented with its
 nine source/definition tests passed as `10510`. The combined static GLB loader
 is implemented; nine loader/source tests passed and one added retained-project
-integration case passed separately as `21018`. Remaining work includes GPU/browser
-qualification of the combined loader, preview,
-model admission with storage budgeting, placement, localization and full
+integration case passed separately as `21018`. The combined loader now passes GPU/browser
+rendering and three disposal cycles in Chromium, Firefox and WebKit. Model
+admission with source deduplication and storage budgeting is implemented; four
+focused tests passed. Remaining work includes preview UI, admission/save integration,
+placement, localization and full
 end-to-end/native return qualification. Unused-model removal is implemented with
 13 focused tests passed as `57563`; UI undo/save integration remains open. Source/removal type check `26892` passed;
-combined-loader type check `6285` passed with zero errors/warnings. The GPU/browser
-cleanup harness remains failing on shared-texture identity verification; it is not
-a completed qualification. See
+combined-loader type check `6285` passed with zero errors/warnings. Browser cleanup run `42690` passed after correcting the
+harness to inspect the actual renderer lighting uniform. Admission type check
+`39167` remains running. See
 `docs/reviews/2026-09-12-local-model-import.md` for exact scope and handles.
 
 ## Nested-room Undo reproduction — WebKit passed; original issue remains open

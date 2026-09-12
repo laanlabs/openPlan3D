@@ -6,7 +6,6 @@ import assert from 'node:assert/strict';
 const bundle = await build({ stdin: { contents: `
   export { loadLocalGLBModel } from './src/lib/services/customModelLoader.ts';
   export { Scene, Color, WebGLRenderer, PerspectiveCamera, AmbientLight, DirectionalLight, Texture } from 'three';
-  export { getDFGLUT } from 'three/src/renderers/shaders/DFGLUTData.js';
 `, resolveDir: process.cwd(), loader: 'ts' }, bundle: true, write: false,
   format: 'iife', globalName: 'modelQA', platform: 'browser' });
 const bytes = [...await readFile('tests/fixtures/local-model-textured-box.glb')];
@@ -59,11 +58,17 @@ for (const name of selected.length ? selected : Object.keys(engines)) {
     const released = await page.evaluate(async () => {
       const { owner, renderer, scene, camera, tracked, originalListener, bytes } = globalThis.loadedModelQA;
       function release(model) {
-        const map = model.scene.children[0].material.map, bitmap = map.image;
+        const material = model.scene.children[0].material;
+        const map = material.map, bitmap = map.image;
+        // Read the actual renderer uniform before material disposal removes its
+        // properties. Importing src/getDFGLUT beside the built Three entry point
+        // creates a separate module singleton and cannot prove renderer identity.
+        const lightingLUT = renderer.properties.get(material).uniforms.dfgLUT.value;
+        if (!lightingLUT?.isDataTexture) throw new Error('Missing renderer DFG uniform');
         scene.remove(model.scene); model.dispose(); model.dispose(); renderer.render(scene, camera);
         const remaining = [...tracked].filter(texture => renderer.properties.get(texture).__webglInit).map(texture => ({
           type: texture.constructor.name, width: texture.image?.width, height: texture.image?.height,
-          rendererLightingLUT: texture === globalThis.modelQA.getDFGLUT(), modelMap: texture === map,
+          rendererLightingLUT: texture === lightingLUT, modelMap: texture === map,
         }));
         return { memory: { ...renderer.info.memory }, bitmapWidth: bitmap.width, remaining };
       }

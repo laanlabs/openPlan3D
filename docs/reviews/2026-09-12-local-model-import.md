@@ -394,3 +394,41 @@ The latest run terminated with an assertion failure, recorded in
 reached by this run. The Chromium frame was visually inspected and showed the
 expected blue textured cuboid. The checked-in harness is an unfinished diagnostic,
 not a passing regression test. This harness does not qualify placement or app UI.
+
+
+## Renderer ownership qualification resolved
+
+Run `42690` exited 0 (`/tmp/web-custom-model-browser-uniform-ownership.log`).
+The earlier identity assertion imported a separate source-module singleton beside
+Three's built module. The corrected harness reads the actual material's renderer
+`uniforms.dfgLUT.value` before disposal, then checks the remaining texture against
+that object. No production disposal change was needed.
+
+Chromium, Firefox and WebKit each passed expected dimensions, visible rendering,
+zero GL/browser errors and zero network requests. Three successive load/dispose
+cycles per engine released all model geometry and closed each decoded bitmap;
+only the exact renderer DFG texture remained, with no texture accumulation.
+Foreground pixel counts were 13,016 / 13,011 / 13,011 respectively. This qualifies
+the fixture and owned-loader lifecycle, not the still-unimplemented application UI.
+
+## Local model preparation and admission
+
+`customModelImport.ts` adds file preparation through the complete loader, immutable
+original-byte retention, digest-based attachment names, measured centimeter
+sizes, user-supplied provenance, and pure admission against a project/history.
+Preview scene or dimensions edits cannot change the private admitted source.
+Disposed or forged preview handles cannot be admitted. Identical imports reuse
+existing definitions/metadata; conflicting or damaged sources are rejected.
+The operation preserves inputs and shares the existing attachment/history budget
+calculation, including browser quota headroom. File type/size, model count,
+attachment count and positive furniture dimensions are enforced. The eventual UI
+must commit the result through the normal undo/save transaction and dispose the
+preview when done; admission itself does not persist anything.
+
+Four tests passed (`12644`, `/tmp/web-custom-model-import-tests.log`), covering
+exact retained bytes, preview mutation isolation, duplicate imports, provenance,
+expired/forged previews, quota rejection, source collisions and cancellation.
+The type check including this module is active as `39167`, log
+`/tmp/web-custom-model-import-check.log`; do not treat the earlier loader check
+as qualification of this later module. Import UI, placement, localization and
+full workflow/native return checks remain open.
