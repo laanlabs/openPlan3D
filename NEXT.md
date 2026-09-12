@@ -1,46 +1,35 @@
 # Next work and pause handoff
 
-## Local custom-model import — validation layers in progress
+## Local custom-model import — UI qualification in progress
 
-GLB container/resources/geometry/material/image checks and repacking are implemented;
-PNG/JPEG decoding, EXIF orientation, corrupt-image rejection and cleanup passed
-in Chromium, Firefox and WebKit. Source checkpoint `85887` passed type checking.
-A complete textured fixture and generic package/JSON/history transport tests passed.
+Local static GLB import now includes bounded container/resource/geometry/material
+validation, embedded PNG/JPEG decoding, original-byte/digest retention, project
+model definitions, source reuse and storage/history admission checks. The Objects
+panel provides preview, provenance, placement at the view center and unused-model
+removal. Saved references render through shared source leases with instance-owned
+GPU resources; leaving the viewer releases the last source owner. User model names
+now appear in canvas, Layers and Properties. Common error messages have English
+and Portuguese translations; other validator diagnostics still need translation.
 
-Projects now store optional model definitions with provenance and centimeter
-dimensions; furniture can reference a project model. Structural validation and
-attachment deletion protection are implemented. The focused definition/transport
-run `12846` passed. Legacy regression `57520` had 70 passes and two existing
-photo/history quota-test timeouts; project validation passed. Current type check
-`89302` passed with zero errors/warnings. The import/preview panel passed its Chromium and WebKit workflows; Firefox timed out before import qualification.
+Verified: the textured loader fixture renders and cleans up across Chromium,
+Firefox and WebKit (`42690`); placement/catalog tests and expanded lifetime tests
+passed. The initial UI workflow passed in Chromium (`95224`) and WebKit (`63246`),
+including exact source retention, placement Undo/Redo and confirmed save/reload.
+Firefox's UI workflow timed out before import qualification. Legacy regression
+`57520` had 70 passes and two photo/history quota-test timeouts, not a full green run.
 
-Original source byte/digest/container verification is implemented with its
-nine source/definition tests passed as `10510`. The combined static GLB loader
-is implemented; nine loader/source tests passed and one added retained-project
-integration case passed separately as `21018`. The combined loader now passes GPU/browser
-rendering and three disposal cycles in Chromium, Firefox and WebKit. Model
-admission with source deduplication and storage budgeting is implemented; four
-focused tests passed. The Objects panel now offers preview, provenance, admission, placement at the view
-center and unused-model removal through Undo. Remaining work includes browser
-qualification, complete diagnostic localization and full
-end-to-end/native return qualification. Unused-model removal is implemented with
-13 focused tests passed as `57563`; removal/cancellation UI checks remain pending. Source/removal type check `26892` passed;
-combined-loader type check `6285` passed with zero errors/warnings. Browser cleanup run `42690` passed after correcting the
-harness to inspect the actual renderer lighting uniform. Admission type check
-`39167` passed with zero errors/warnings. Saved custom-model references now
-render through a lazy project-source lease; placement checks passed (17 catalog/placement tests, then seven expanded lifetime
-tests); final placement type check `59212` passed with zero errors/warnings.
-UI type check `55921` passed with zero errors/warnings; production build `94629`
-passed. Chromium UI run `95224` passed preview, exact retained source/digest,
-placement Undo/Redo and confirmed save/reload. Firefox/WebKit run `63246` finished: WebKit passed; Firefox hit test and cleanup
-timeouts without qualifying import. Cancellation/removal run `45654` timed out after passing cancellation, invalid-file
-and cancelled-removal checks. The workflows are now split into independent tests
-for the next run. Build `33714` and translation type check `10317` passed. A subsequent change
-loads the preview component only after file selection; fresh check/build
-`85089`/`7222` are active before the next browser run. Custom model names now appear in
-canvas, Layers and Properties; label type check `79860` passed with zero errors/warnings. Common error
-translations are implemented and tested; fresh type check `10317` is active. See
-`docs/reviews/2026-09-12-local-model-import.md` for exact scope and handles.
+Cancellation/removal run `45654` passed cancellation, invalid-file rejection and
+cancelled-removal equality before timing out. Those workflows are now split into
+independent tests. Portuguese controls and the full 3D viewer's image lifetime
+also have new browser tests awaiting execution. These tests must use the current
+build: the previously tested UI predates the name/error and lazy-preview changes.
+Type checks for labels (`79860`) and messages (`10317`) passed with zero diagnostics.
+Fresh lazy-preview type check `85089` and production build `7222` are active.
+
+Remaining: finish the current browser runs, Firefox qualification, complete error
+localization, broader accessibility/physical-device testing, and full native return
+qualification. See `docs/reviews/2026-09-12-local-model-import.md` for exact scope,
+logs, source checkpoints and incomplete checks. This does not close broader NEXT work.
 
 ## Nested-room Undo reproduction — WebKit passed; original issue remains open
 

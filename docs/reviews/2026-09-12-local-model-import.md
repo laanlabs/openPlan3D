@@ -594,3 +594,14 @@ The revised panel compiled without Svelte warnings. Fresh source check `85089`
 (`/tmp/web-custom-model-lazy-preview-build.log`) are active. The split removal and
 Portuguese UI tests must run after this build finishes so their evidence applies
 to the final loading path. No browser test server is currently active.
+
+
+### Full-viewer lifetime test prepared
+
+`custom-model-viewer.spec.ts` now drives real UI import, creates two placed
+instances, enters the full 3D viewer, observes uploads of the fixture's decoded
+bitmap through WebGL, verifies one shared decode beyond the disposed preview,
+and checks that leaving the viewer closes that image. It also captures a viewer
+frame and records page errors. This test is not yet run; its instrumentation is
+a test observation, not production code. Build `7222` and type check `85089`
+remain active and must reach terminal results before browser qualification.
