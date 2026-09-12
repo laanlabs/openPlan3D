@@ -6,7 +6,8 @@ sources match `7fd8570` (no src diff); the production build is the September 12
 
 Command: `npm run test:browser -- tests/browser/room-slabs.spec.ts --grep
 'nested rooms export one slab' --project=chromium --repeat-each=3 --trace=on`.
-Session `13571`, log `/tmp/web-nested-undo-sept12-repeat.log`, remains active.
+Session `13571`, log `/tmp/web-nested-undo-sept12-repeat.log`, terminated with
+exit 1: all three cases timed out at Area Summary before reaching Undo.
 
 The first two cases timed out before reaching Undo, while opening Area Summary
 at line 71. They do not reproduce the label failure. The first trace measures
@@ -25,8 +26,12 @@ but does not prove the cause of the stability wait or exclude unsampled work.
 The earlier attempt to sample second-renderer PID 4050 failed because that
 process had already exited; no evidence is claimed from that attempt.
 
-The third case and the batch result remain pending. Preserve its result before
-starting another run. Do not interpret setup timeouts or passing reruns as proof
-that the original Undo defect is fixed. A Firefox reproduction can distinguish
-Chromium-specific waiting from behavior common to both engines after this batch
-finishes; retain the exact label restoration assertion.
+All three traces and error contexts are preserved under
+`/tmp/web-nested-undo-sept12-artifacts/chromium-batch`. Each stopped at the same
+line 71 action, so this batch gives no new pass/fail evidence for label Undo.
+
+An unchanged single Firefox run is active in session `42310`, log
+`/tmp/web-nested-undo-sept12-firefox.log`, using the same command with
+`--project=firefox --trace=on` and no repeat option. Its result remains pending.
+Do not interpret setup timeouts or passing reruns as proof that the original
+Undo defect is fixed; retain the exact label restoration assertion.

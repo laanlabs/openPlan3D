@@ -1,11 +1,12 @@
 # Next work and pause handoff
 
-## Nested-room Undo reproduction — current Chromium run pending
+## Nested-room Undo reproduction — Chromium setup failures; Firefox running
 
-Two fresh traced runs timed out at Area Summary before reaching Undo. The third
-case remains active in session `13571`; no runtime change is justified by those
-setup failures. See `docs/reviews/2026-09-12-nested-room-undo-reproduction.md` for
-trace timings, the renderer sample and the next diagnostic step.
+All three traced Chromium cases timed out at Area Summary before reaching Undo.
+The batch terminated with exit 1; traces are preserved. The unchanged Firefox
+comparison is active in session `42310`, log
+`/tmp/web-nested-undo-sept12-firefox.log`. No runtime change is justified by the
+setup failures. See `docs/reviews/2026-09-12-nested-room-undo-reproduction.md`.
 
 ## Scan-count wording correction — Catalyst build and live checks passed
 
