@@ -244,7 +244,7 @@ bytes after repacking. Its focused test passed, run `47478` exit 0, log
 `/tmp/web-local-glb-fixture-tests.log`. Runtime source stayed unchanged through combined check `85887`, which passed;
 this newly added test file postdates that check.
 
-Storage/placement integration observations from current source: FurnitureItem
+Storage/placement integration observations before the model-definition change below: FurnitureItem
 stores dimensions in centimeters and resolves catalog models through
 `createPlacedFurnitureModel`; custom model references do not exist yet. Project
 packages already retain base64 asset bytes, but attachment deletion currently
@@ -263,7 +263,38 @@ GLB and complete standalone projects after history hydration. Both tests passed,
 run `33713` exit 0, log `/tmp/web-local-glb-transport-tests.log`.
 
 This tests existing generic attachment transport, not model-aware persistence:
-custom-model definitions, furniture references and deletion protection remain
-unimplemented. It does not qualify a native app import/export cycle for GLB data.
+model-aware definitions/references were still unimplemented at this checkpoint
+(the next section records their implementation). It does not qualify a native app import/export cycle for GLB data.
 The prior combined source check passed with zero errors and warnings; no runtime
 source changed during this transport verification work.
+
+## Model definitions, instance references and deletion protection
+
+Projects now optionally store `customModels`, and furniture may reference a
+`customModelId`. Definitions retain a name, original attachment filename/source
+filename, SHA-256 digest, source byte length, centimeter dimensions and optional
+attribution/license/source URL. Existing catalog IDs remain procedural fallbacks.
+Project reading checks bounded/unique definitions, metadata shapes, safe GLB
+filenames, digest format, dimensions and same-project furniture references. When
+retained asset storage exists, every model attachment must exist with a matching
+encoded length. Package `web.json` transports definitions separately from assets,
+so detached definitions are readable; model loading must still resolve and verify
+original bytes/digests and run the GLB admission checks. This is structural data
+validation, not permission to load arbitrary retained bytes into a renderer.
+
+Attachment usage now includes every model definition, even one with no placed
+instances. The generic attachment deletion path refuses to remove its original
+GLB until the definition is removed. No import or model-removal UI is exposed yet.
+The remaining work includes a bounded load/preview pipeline, original-byte hash
+verification, model import/removal operations with storage budgeting, placement,
+localization and full browser/native return qualification.
+
+Focused definition and generic transport run `12846` passed, log
+`/tmp/web-custom-model-definitions-tests.log`. Existing project-validation and
+item-details regression run `57520` terminated with 70 passes and two timeouts
+(exit 1), log `/tmp/web-custom-model-legacy-regression-tests.log`. All 53 project
+validation tests passed. The two photo/history cases timed out at their existing
+15-second quota-estimate and five-second crafted-history limits; no value
+assertions failed. These cases also timed out in earlier runs before this change,
+but that does not establish an all-green regression suite. Current type check
+`89302` is active, log `/tmp/web-custom-model-definitions-check.log`. Legacy files do not gain optional model fields.

@@ -103,6 +103,8 @@ export interface Window {
 }
 
 export interface FurnitureItem {
+  /** Project-owned model; catalogId remains a portable procedural fallback. */
+  customModelId?: string;
   details?: ItemDetails;
   id: string;
   catalogId: string;
@@ -234,7 +236,23 @@ export interface Floor {
   entourage?: EntourageItem[];
 }
 
+export interface CustomModelDef {
+  id: string;
+  name: string;
+  assetName: string; // filename within projectPackage.assets, without assets/
+  sourceFilename: string;
+  sha256: string; // digest of original GLB bytes, checked again before loading
+  byteLength: number;
+  width: number; // cm
+  depth: number; // cm
+  height: number; // cm
+  attribution?: string;
+  license?: string;
+  sourceUrl?: string;
+}
+
 export interface Project {
+  customModels?: CustomModelDef[];
   attachmentNames?: Record<string, string>;
   projectPackage?: ProjectPackageState;
   id: string;

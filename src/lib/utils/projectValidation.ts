@@ -1,6 +1,7 @@
 import type { Project, DetailKind } from '$lib/models/types';
 import { validateItemDetails, validateRetainedDetailState } from './itemDetails';
 import { refreshLegacyFurnitureCategories } from './legacyFurnitureCategories';
+import { validateCustomModelDefinitions } from './customModelDefinitions';
 
 /** Read untrusted native files without mutating their input or the active editor. */
 export function readProject(value: unknown): Project {
@@ -53,6 +54,7 @@ export function readProject(value: unknown): Project {
   defaults(project!, { name: 'Untitled Project' });
   text(project!.name, 'name'); strings(project!, ['description'], 'document');
   if (project!.projectPackage !== undefined) validateRetainedDetailState(project!.projectPackage);
+  const customModelIds = validateCustomModelDefinitions(project!.customModels, project!.projectPackage?.assets);
   if (project!.attachmentNames !== undefined) {
     record(project!.attachmentNames, 'attachmentNames');
     for (const [name, label] of Object.entries(project!.attachmentNames)) text(label, `attachmentNames.${name}`);
@@ -109,6 +111,7 @@ export function readProject(value: unknown): Project {
       }
     });
     elements('furniture', (item, path) => {
+      if (item.customModelId !== undefined && (typeof item.customModelId !== 'string' || !customModelIds.has(item.customModelId))) fail(`${path}.customModelId`, 'must refer to a model in this project');
       text(item.catalogId, `${path}.catalogId`, true); positioned(item, path);
       defaults(item, { scale: { x: 1, y: 1, z: 1 } }); record(item.scale, `${path}.scale`);
       // Mirroring uses negative scale. Do not normalize signs or round dimensions.

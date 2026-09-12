@@ -106,6 +106,7 @@ export function usedPhotoNames(project: Project): Set<string> {
   const state = project.projectPackage;
   if (!state) return new Set();
   const names = new Set(nativeAssetNames(webToNative(project, state.native, state.mapping).plan));
+  for (const model of project.customModels ?? []) names.add(model.assetName);
   const embedded = new Set([...project.floors.map(f => f.backgroundImage?.dataUrl), ...(project.customEntourage ?? []).map(item => item.dataUrl)]
     .filter((url): url is string => !!url).map(url => url.slice(url.indexOf(',') + 1)));
   const referencedBytes = new Set([...names].map(name => state.assets[`assets/${name}`]));
@@ -113,6 +114,7 @@ export function usedPhotoNames(project: Project): Set<string> {
   return names;
 }
 export function deleteUnusedPhoto(project: Project, name: string): Project {
+  if (project.customModels?.some(model => model.assetName === name)) fail('This attachment is still used by a custom model. Remove its model definition first.');
   if (usedPhotoNames(project).has(name)) fail('This attachment is still used by an item or tracing image. Remove those references first.');
   const next = readProject(project), state = next.projectPackage;
   if (!state || !Object.hasOwn(state.assets, `assets/${name}`)) fail('This attachment is no longer available.');

@@ -2,21 +2,21 @@
 
 ## Local custom-model import — validation layers in progress
 
-Container, embedded resources, scene traversal, accessor storage, mesh geometry,
-repacking, core materials and image ownership checks have 44 passing tests, including real GLTF
-loader verification of sparse/interleaved geometry. Complete import policy,
-browser texture qualification, project persistence, preview, placement, localization and
-end-to-end qualification remain to implement. No import UI is exposed yet.
+GLB container/resources/geometry/material/image checks and repacking are implemented;
+PNG/JPEG decoding, EXIF orientation, corrupt-image rejection and cleanup passed
+in Chromium, Firefox and WebKit. Source checkpoint `85887` passed type checking.
+A complete textured fixture and generic package/JSON/history transport tests passed.
 
-The photo suite rerun had 18 passes and one explicit quota-test timeout. The
-accessor source check ended with one TypeScript narrowing error, now corrected.
-Source check `64070` passed with zero errors/warnings; it predates the new image decoder. The isolated
-PNG decoder check `69865` passed in Chromium, Firefox and WebKit. JPEG browser
-and EXIF-orientation checks passed in all three engines as `37632`. Four focused extension validation
-tests also passed. Combined GLB source check `85887` passed with zero errors/warnings. A
-complete textured GLB fixture and cross-layer integration test are added; focused
-verification passed as `47478`. Generic GLB attachment package/JSON/history
-transport verification passed (two tests) as `33713`. See
+Projects now store optional model definitions with provenance and centimeter
+dimensions; furniture can reference a project model. Structural validation and
+attachment deletion protection are implemented. The focused definition/transport
+run `12846` passed. Legacy regression `57520` had 70 passes and two existing
+photo/history quota-test timeouts; project validation passed. Current type check
+`89302` is pending. No import UI is exposed yet.
+
+Remaining work includes the combined bounded loader/preview, byte-digest checks,
+model admission/removal with storage budgeting, placement, localization and full
+end-to-end/native return qualification. See
 `docs/reviews/2026-09-12-local-model-import.md` for exact scope and handles.
 
 ## Nested-room Undo reproduction — WebKit passed; original issue remains open
