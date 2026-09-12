@@ -24,7 +24,7 @@ focused tests passed. The Objects panel now offers preview, provenance, admissio
 center and unused-model removal through Undo. Remaining work includes browser
 qualification, complete diagnostic localization and full
 end-to-end/native return qualification. Unused-model removal is implemented with
-13 focused tests passed as `57563`; UI undo/save integration remains open. Source/removal type check `26892` passed;
+13 focused tests passed as `57563`; removal/cancellation UI checks remain pending. Source/removal type check `26892` passed;
 combined-loader type check `6285` passed with zero errors/warnings. Browser cleanup run `42690` passed after correcting the
 harness to inspect the actual renderer lighting uniform. Admission type check
 `39167` passed with zero errors/warnings. Saved custom-model references now
@@ -32,7 +32,9 @@ render through a lazy project-source lease; placement checks passed (17 catalog/
 tests); final placement type check `59212` passed with zero errors/warnings.
 UI type check `55921` passed with zero errors/warnings; production build `94629`
 passed. Chromium UI run `95224` passed preview, exact retained source/digest,
-placement Undo/Redo and confirmed save/reload. Other browser UI runs remain pending. See
+placement Undo/Redo and confirmed save/reload. Firefox/WebKit import workflow run `63246` is active. Additional cancellation/
+removal coverage is written but not run yet. Custom model names now appear in
+canvas, Layers and Properties; label type check `79860` is active. See
 `docs/reviews/2026-09-12-local-model-import.md` for exact scope and handles.
 
 ## Nested-room Undo reproduction — WebKit passed; original issue remains open

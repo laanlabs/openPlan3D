@@ -2,7 +2,7 @@
   import { wallMaterialLabels } from '$lib/i18n/wallMaterialLabels';
   import { entourageLabels } from '$lib/i18n/entourageLabels';
   import { roomTypeLabels, roomColorLabels, floorGroupLabels, floorMaterialLabels } from '$lib/i18n/roomPropertyLabels';
-  import { furnitureName } from '$lib/i18n/furnitureNames';
+  import { furnitureName, customModelName } from '$lib/i18n/furnitureNames';
   import { t, locale, type TranslationKey } from '$lib/i18n';
   const furnitureFinishLabels: Record<string, TranslationKey> = {"Wood": "furnitureFinish.Wood", "Metal": "furnitureFinish.Metal", "Fabric": "furnitureFinish.Fabric", "Leather": "furnitureFinish.Leather", "Glass": "furnitureFinish.Glass", "Plastic": "furnitureFinish.Plastic", "Stone": "furnitureFinish.Stone", "Ceramic": "furnitureFinish.Ceramic"};
   import { furnitureFinishes } from '$lib/utils/furnitureFinishes';
@@ -12,7 +12,7 @@
   import type { DetailTarget } from '$lib/models/types';
   import { catalogAssetUrl } from '$lib/utils/catalogAssetUrl';
 
-  import { activeFloor, selectedElementId, selectedRoomId, updateWall, resizeWallLength, reverseWall, updateDoor, updateWindow, updateRoom, updateFurniture, detectedRoomsStore, updateStair, updateColumn, updateBackgroundImage, setBackgroundImage, calibrationMode, calibrationPoints, updateTextAnnotation, toggleFurnitureLock, updateEntourageItem, removeElement, elevationWallId } from '$lib/stores/project';
+  import { currentProject, activeFloor, selectedElementId, selectedRoomId, updateWall, resizeWallLength, reverseWall, updateDoor, updateWindow, updateRoom, updateFurniture, detectedRoomsStore, updateStair, updateColumn, updateBackgroundImage, setBackgroundImage, calibrationMode, calibrationPoints, updateTextAnnotation, toggleFurnitureLock, updateEntourageItem, removeElement, elevationWallId } from '$lib/stores/project';
   import { wallLength as calcWallLength, MIN_WALL_LENGTH, type WallEndpoint } from '$lib/utils/wallEditing';
   import { openingOnWall } from '$lib/utils/wallProfiles';
   import { getEntourageDef } from '$lib/utils/entourageCatalog';
@@ -633,7 +633,7 @@
       <span class="w-6 h-6 bg-purple-100 rounded flex items-center justify-center text-xs">
         {getCatalogItem(selectedFurniture.catalogId)?.icon ?? '🪑'}
       </span>
-      {$t('furnitureProperties.heading', { name: getCatalogItem(selectedFurniture.catalogId) ? furnitureName(selectedFurniture.catalogId, $locale) : $t('furnitureProperties.fallback') })}
+      {$t('furnitureProperties.heading', { name: customModelName(selectedFurniture, $currentProject) ?? (getCatalogItem(selectedFurniture.catalogId) ? furnitureName(selectedFurniture.catalogId, $locale) : $t('furnitureProperties.fallback')) })}
       <button
         onclick={() => { if (selectedFurniture) toggleFurnitureLock(selectedFurniture.id); }}
         class="ml-auto px-1.5 py-0.5 rounded text-xs border transition-colors {selectedFurniture.locked ? 'bg-amber-100 border-amber-400 text-amber-700' : 'border-gray-200 hover:bg-gray-50 text-gray-500'}"

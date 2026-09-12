@@ -1,9 +1,9 @@
 <script lang="ts">
   import { t, locale } from '$lib/i18n';
-  import { furnitureName } from '$lib/i18n/furnitureNames';
+  import { furnitureName, customModelName } from '$lib/i18n/furnitureNames';
   import { entourageLabels } from '$lib/i18n/entourageLabels';
   import { onDestroy } from 'svelte';
-  import { activeFloor, selectedElementId, selectedElementIds, selectedRoomId, detectedRoomsStore, layerVisibility } from '$lib/stores/project';
+  import { currentProject, activeFloor, selectedElementId, selectedElementIds, selectedRoomId, detectedRoomsStore, layerVisibility } from '$lib/stores/project';
   import { getCatalogItem } from '$lib/utils/furnitureCatalog';
   import { getEntourageDef } from '$lib/utils/entourageCatalog';
   import type { Floor } from '$lib/models/types';
@@ -71,7 +71,7 @@
       key: 'furniture', label: $t('layers.furniture'), icon: '🪑',
       items: floor.furniture.map((fi) => {
         const cat = getCatalogItem(fi.catalogId);
-        return { id: fi.id, label: furnitureName(fi.catalogId, $locale), icon: cat?.icon ?? '📦' };
+        return { id: fi.id, label: customModelName(fi, $currentProject) ?? furnitureName(fi.catalogId, $locale), icon: cat?.icon ?? '📦' };
       }),
     });
 

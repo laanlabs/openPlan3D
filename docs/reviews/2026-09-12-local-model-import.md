@@ -506,3 +506,21 @@ confirmed persistence before reload and restored model/source/furniture equality
 No page errors were reported. This test does not yet exercise cancellation,
 removal, model rendering in the full 3D viewer, Portuguese controls or other browsers.
 The preview screenshot is attached to the local Playwright report.
+
+
+## Broader UI qualification and saved display names
+
+Firefox/WebKit run `63246` is active against the previously qualified production
+build, log `/tmp/web-custom-model-ui-other-browsers.log`; it must reach terminal
+results before claiming those workflows pass or starting another test server.
+A separate `custom-model-removal.spec.ts` now covers Escape cancellation and focus
+restoration, malformed-source rejection without project mutation, cancelled removal,
+then unused source/label cleanup and restoration through Undo/Redo. It has not run
+and must wait for the occupied browser server to finish.
+
+The canvas, Layers list and Properties heading now resolve a custom model's saved
+name before using catalog/unknown labels. User-authored names stay verbatim across
+interface languages; normal catalog fallback behavior remains unchanged. Type check
+`79860` is active, log `/tmp/web-custom-model-labels-check.log`. This source change
+is newer than the running browser build and needs separate qualification; do not
+attribute current Firefox/WebKit results to the new labels.
