@@ -200,3 +200,19 @@ A fresh full 1,107-case run is active in session `77795`, with log
 corrected runtime; it does not reuse the previous runtime's 343 passes.
 Poll the live handle before running competing browser tests or rebuilding.
 Full completion remains unproven.
+
+The corrected-runtime full run terminated after 104 passes (47.1 minutes).
+The floor-elevation case passed its edit/reload/reimport checks, then reached
+its 10-second canvas-readiness deadline while the snapshot showed the loading
+message. The assertion now allows 60 seconds within the existing 180-second
+workflow; geometry, stack, walkthrough, error and network checks are unchanged.
+Production runtime remains `b3c7fa6`. The runner also reported an error outside
+a test without a separate diagnostic; no completion credit is assigned to it.
+
+The 104 unique passes match the original inventory. Playwright confirms 1,003
+remaining cases. Session `77795` is terminal; continuation session `94916` runs
+with log `/tmp/web-caption-fixed-full-browser-2.log`. Retained identities:
+`/tmp/web-caption-fixed-passed.txt`; remaining inventory:
+`/tmp/web-caption-fixed-remaining.txt`; validated list:
+`/tmp/web-caption-fixed-continuation-inventory.log`. Do not mix these results
+with the older `87d3c86` runtime. Full completion is still unproven.

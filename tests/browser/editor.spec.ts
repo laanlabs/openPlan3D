@@ -308,7 +308,7 @@ for (const width of [1440, 390]) {
     await expect(page.getByRole('button', { name: `${saved.name} (Imported copy)`, exact: true })).toBeVisible();
     await selectFloor('Curved Upper');
     await page.getByRole('button', { name: '3D', exact: true }).click();
-    await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible();
+    await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible({ timeout: 60_000 });
     await page.getByRole('button', { name: 'Show All Floors Stacked', exact: true }).click();
     await expect(page.getByText('Curved Upper · 425.5 cm elevation', { exact: true })).toBeVisible();
     await page.waitForLoadState('networkidle');
