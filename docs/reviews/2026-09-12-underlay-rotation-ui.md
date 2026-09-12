@@ -46,7 +46,8 @@ an unobscured blue sample. The original byte and geometry checks remain exact.
 
 The native initial fit crops the bottom of this tall rotated underlay. Code review
 confirms editor `planBounds` comes from document geometry, which excludes the
-tracing image. Including the rotated image extent in native fit is follow-up work.
+tracing image. The subsequent `5838f4b` change includes that extent; selected tests now pass
+on Catalyst and simulator, and the same native QA plan visibly fits completely.
 Escape was used to dismiss completed sheets after button attempts left them
 visible; the existing native dismissal investigation remains open. Physical-device
 capture, touch, resource budgets and the broader NEXT/release requirements remain

@@ -18,6 +18,7 @@ reopen, import and re-export preserve exact asset bytes. Logs are
 
 Native visual inspection and a live native export returned through all three
 browser engines now pass; see [the UI report](2026-09-12-underlay-rotation-ui.md).
-Native fitting still excludes the rotated image extent and remains follow-up work.
+The later editor-fit change includes the rotated image extent; see
+[the fit checkpoint](../../NEXT.md).
 No build or test process remains active. Device, release and broader NEXT work
 remain open.

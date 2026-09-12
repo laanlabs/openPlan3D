@@ -1,5 +1,20 @@
 # Next work and pause handoff
 
+## Native full-suite checkpoint — September 12
+
+Both full native suites passed on production source `5838f4b`: 256 reported,
+254 passed, two opt-in integration skips and zero failures on each of Mac
+Catalyst and iPhone 17 Pro simulator. XCTest durations were 103.930 and 91.378
+seconds. Both processes terminated with exit 0 (sessions `29871` and `26834`;
+`/tmp/native-sept12-full-{catalyst,ios}.log`). Skipped worker integrations lacked
+external inputs and are not counted as passes.
+
+Rotated tracing-image fitting also passed the unchanged-plan Catalyst visual
+check. The cropped-underlay fitting issue is addressed and verified. No native
+build or test process remains active. Full physical-device, release, billing and
+broader NEXT requirements remain open. Native details and reproducible commands
+are in `openplan3d-ios/docs/native-september12-full-validation.md`.
+
 ## Native tracing-image fitting — September 12
 
 The prior native UI check showed the tall rotated tracing image cropped below
@@ -25,10 +40,10 @@ image and all walls are visible, with the image's bottom edge above the toolbar.
 The prior build cropped the lower image in this same plan. Rotation and color
 orientation remain correct. The QA app was closed after inspection.
 
-The iPhone 17 Pro simulator run of the same 14 selected tests is active in session
-`35632`, `/tmp/native-underlay-fit-ios.log`. Poll this handle before rebuilding
-or launching another test suite. Simulator validation remains pending. Broader
-NEXT/device/release work remains open.
+All 14 selected tests also passed on the iPhone 17 Pro simulator (session
+`35632`, terminal exit 0; `/tmp/native-underlay-fit-ios.log`). Native source
+`5838f4b` now has selected Catalyst/simulator and Catalyst visual verification.
+The broader NEXT/device/release work remains open.
 
 ## Rotated tracing-image package support — September 12
 
@@ -50,8 +65,8 @@ reopen, import and re-export preserve exact asset bytes. Logs are
 
 Native visual inspection and live native export returned through all three
 browser engines now pass; see [the UI report](docs/reviews/2026-09-12-underlay-rotation-ui.md).
-Native fitting still excludes the image extent: the tall rotated QA underlay is
-cropped by the initial plan fit. Include the rotated image in fitting next.
+The subsequent native fitting change includes the rotated image extent and is
+verified in both selected test suites and the same native QA plan.
 No build or test process remains active. Device, release and broader NEXT work
 remain open.
 
