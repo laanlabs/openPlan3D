@@ -48,8 +48,11 @@ QA app with exact retained GLB and sidecar bytes. UI geometry editing and physic
 devices remain open. Expanded Firefox/WebKit run `76360` finished with 12/14 passes:
 Firefox's original import case timed out at Save; WebKit cancellation exposed focus
 not returning to Import. The opener-focus fix and a larger import-test budget await
-fresh check/build `6750` and reruns. Native package-preview singular count wording
-was corrected after seeing “1 attachment files”; Catalyst build `64966` is active.
+check/build `6750` passed with zero type diagnostics and successful production
+output. Import/save and cancellation/focus reruns are active across all three
+engines. Native package-preview singular count wording was corrected after seeing
+“1 attachment files”; Catalyst build `64966` and a fresh isolated-app preview check
+passed, displaying “2 floors · 4 walls · 1 attachment file”.
 
 Remaining: broader browser qualification, external error/localization review,
 accessibility/physical-device testing, and native UI return

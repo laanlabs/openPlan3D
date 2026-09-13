@@ -829,3 +829,19 @@ This UI pass reproduced “1 attachment files” in package preview. Native
 `ProjectPackageImportSheet` now pluralizes each floor/wall/attachment count. Its
 Catalyst build `64966` is active (`/tmp/openplan3d-package-counts-build.log`); the new
 wording still needs a fresh isolated-app visual check.
+
+
+## Focus build and native count wording verified
+
+Check/build sequence `6750` completed with exit 0: zero Svelte errors/warnings and
+a successful production build including Node adapter output. The import/save and
+cancel/invalid/focus workflows are now being rerun across Chromium, Firefox and
+WebKit on that output (`/tmp/web-custom-model-focus-and-import-rerun.log`).
+
+Catalyst build `64966` completed with `BUILD SUCCEEDED`. Its output was copied to
+`/tmp/OpenPlan3D-Package-Counts-Sept12-QA.app`, assigned the isolated bundle ID
+`com.laan.labs.floorplan.packagecountssept12qa`, ad-hoc signed with the existing QA
+sandbox entitlements and signature-verified. The fresh app opened the original
+model fixture and its visible preview read “2 floors · 4 walls · 1 attachment file”.
+Cancel returned to its fresh library without adding a copy. This verifies the
+reported singular attachment wording correction; it is not physical-device QA.
