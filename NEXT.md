@@ -1,5 +1,19 @@
 # Next work and pause handoff
 
+## Native furniture reflection — implementation in progress
+
+Native furniture now has optional local-axis `mirrorX`/`mirrorY` fields (absent
+means unreflected). The Mirror action toggles X reflection without changing the
+angle; duplication preserves both axes. Plan glyph and SceneKit transforms use
+the fields, and neutral mesh export reverses face winding for reflected transforms.
+A coding/legacy-default/transformed-point test is running in session `69010`, log
+`/tmp/openplan3d-native-reflection-tests.log`, isolated simulator derived data
+`/tmp/openplan3d-render-ios-build`. Poll that handle before another native test.
+This is an incomplete checkpoint: package bridge/sign-and-scale merging,
+RoomPlan export/import, neutral-export winding tests and live asymmetric-shape
+checks remain required before declaring mirroring supported end to end. The
+current full web browser run `5924` still uses unchanged web runtime sources.
+
 ## Native editor action labels — Catalyst build and live checks passed
 
 Native `43fd94f` explicitly names Undo/Redo and contextual properties, left/right
