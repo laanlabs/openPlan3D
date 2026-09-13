@@ -4,6 +4,18 @@ The user-facing goal status is maintained in [STATUS.md](STATUS.md). Update it
 when implementation, validation, blockers or next priorities change; keep this
 file as the detailed backlog and evidence history.
 
+## September 13, 00:08 EDT — area convention mismatch measured
+
+Paired native/web runtime baselines use identical 4 × 3 m wall centerlines and
+20 cm wall thickness. Web resolves 12.00 m²; native enclosed-area and detection
+both return 10.64 m², exactly the analytical interior area. Difference: 1.36 m²
+(11.33% of centerline area), caused by boundary semantics rather than rounding.
+
+Native simulator `75624` passed (exit 0, 0.027 seconds); all six web room tests
+passed (404 ms). See [area baseline and remaining work](docs/area-convention-baseline.md).
+These current-behavior tests expose the mismatch and must be updated when a
+common convention is implemented; they do not qualify area parity as complete.
+
 ## September 13, 00:04 EDT — label history state regression
 
 Added grouped label-drag state coverage for saved and newly detected rooms.

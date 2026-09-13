@@ -2,6 +2,15 @@ import { expect, it } from 'vitest';
 import { resolveRooms } from '$lib/utils/roomDetection';
 import { rectangleWalls, roomProject } from './fixtures/project';
 
+it('records the centerline area convention for the shared native rectangle baseline', () => {
+  const floor = roomProject().floors[0];
+  floor.walls = floor.walls.map(wall => ({ ...wall, thickness: 20 }));
+  expect(resolveRooms(floor)).toHaveLength(1);
+  expect(resolveRooms(floor)[0].area).toBe(12);
+  // Native's current free-interior raster reports 10.64 m² for this geometry.
+  // Keep this baseline explicit until the cross-platform convention is aligned.
+});
+
 it('preserves custom room metadata by wall identity after geometry changes', () => {
   const floor = roomProject().floors[0];
   const detected = resolveRooms(floor)[0];

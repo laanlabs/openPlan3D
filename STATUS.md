@@ -1,6 +1,6 @@
 # OpenPlan3D status
 
-Last verified: **September 13, 2026, 00:04 EDT**.
+Last verified: **September 13, 2026, 00:08 EDT**.
 
 ## Goal and overall state
 
@@ -156,8 +156,11 @@ qualifying the repair in the original failing environment.
    rooms: all 16 history/resolution/nesting tests passed. This excludes stale
    preview metadata for that sequence; browser event/draw ordering remains
    unproven and the original intermittent failure has no established root cause.
-3. Continue the remaining geometry, usability, performance, and release work in
-   `NEXT.md` after these immediate issues.
+3. Align area conventions: paired runtime tests confirm web 12.00 m² versus
+   native 10.64 m² for identical 4 × 3 m centerlines and 20 cm walls. This is a
+   centerline/interior boundary mismatch, not just raster error. See the
+   [baseline](docs/area-convention-baseline.md). Broader geometry, usability,
+   performance and release work in `NEXT.md` remains open.
 
 ## Remaining goal scope
 
