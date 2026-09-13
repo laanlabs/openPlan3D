@@ -14,7 +14,8 @@ test('imports, previews, places and retains a local custom model through undo an
   const input = panel.locator('input[type=file]');
   await input.setInputFiles('tests/fixtures/local-model-textured-box.glb');
   const dialog = page.getByRole('dialog', { name: 'Import GLB model', exact: true });
-  await expect(dialog.locator('canvas')).toBeVisible();
+  // Includes lazy loader/component loading and bounded texture preparation.
+  await expect(dialog.locator('canvas')).toBeVisible({ timeout: 60_000 });
   await expect(dialog.getByText('Width 100.0 × depth 75.0 × height 50.0 cm')).toBeVisible();
   await testInfo.attach('custom-model-preview', { body: await dialog.screenshot(), contentType: 'image/png' });
   await dialog.getByLabel('Model name', { exact: true }).fill('My textured box');

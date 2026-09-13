@@ -845,3 +845,25 @@ sandbox entitlements and signature-verified. The fresh app opened the original
 model fixture and its visible preview read “2 floors · 4 walls · 1 attachment file”.
 Cancel returned to its fresh library without adding a copy. This verifies the
 reported singular attachment wording correction; it is not physical-device QA.
+
+
+## Focus restoration and import reruns passed
+
+Run `55462` finished with five passes and one failure (4.8 minutes). Import/save/
+reload passed in Firefox and WebKit; cancellation, invalid-input preservation and
+focus restoration passed in all three engines. This verifies the explicit Import
+button focus fix, including the formerly failing WebKit case.
+
+Chromium's import case failed its ten-second canvas assertion. Its failure snapshot
+showed the completed preview, correct dimensions and admission controls; the trace
+had no captured page errors. The preview assertion now allows 60 seconds for lazy
+module loading and bounded texture preparation, with all geometry, original-byte,
+Undo/Redo and persistence assertions retained. The whole-test budget remains six
+minutes. Trace: `/tmp/openplan-custom-model-chromium-preview-wait-trace.zip`.
+
+Rerun `9013` exited 0 and passed the complete Chromium workflow in 58.9 seconds
+(1.1 minutes including runner overhead), log
+`/tmp/web-custom-model-chromium-preview-wait-rerun.log`. Together with the prior
+expanded runs, every named desktop custom-model workflow has passing coverage in
+all three engines. This is scoped feature qualification; full-project regressions,
+physical devices/assistive technology and native UI geometry editing remain open.

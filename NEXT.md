@@ -45,14 +45,17 @@ web return tests (`17274`), preserving model references, original GLB bytes and
 shared edits.
 Native UI import, opening and unchanged save/export passed in the isolated Catalyst
 QA app with exact retained GLB and sidecar bytes. UI geometry editing and physical
-devices remain open. Expanded Firefox/WebKit run `76360` finished with 12/14 passes:
-Firefox's original import case timed out at Save; WebKit cancellation exposed focus
-not returning to Import. The opener-focus fix and import-test budget update passed
-check/build `6750` with zero type diagnostics and successful production
-output. Import/save and cancellation/focus rerun `55462` is active across all three
-engines. Native package-preview singular count wording was corrected after seeing
-“1 attachment files”; Catalyst build `64966` and a fresh isolated-app preview check
-passed, displaying “2 floors · 4 walls · 1 attachment file”.
+devices remain open. Expanded Firefox/WebKit run `76360` finished with 12/14 passes;
+its Firefox import timeout and WebKit focus failure were subsequently addressed.
+The explicit opener-focus fix passed check/build `6750` with zero type diagnostics.
+Rerun `55462` passed import/save in Firefox and WebKit and cancellation/focus in all
+three engines. Chromium import reached the preview just after its ten-second
+assertion deadline; with a bounded 60-second preparation wait, rerun `9013` passed
+the complete import/placement/Undo/Redo/save-reload workflow. All named desktop
+custom-model workflows now have passing engine coverage; these are scoped runs,
+not a new full-project regression pass. Native package count build `64966` and a
+fresh isolated preview check passed, displaying “2 floors · 4 walls · 1 attachment
+file”.
 
 Remaining: broader browser qualification, external error/localization review,
 accessibility/physical-device testing, and native UI return
