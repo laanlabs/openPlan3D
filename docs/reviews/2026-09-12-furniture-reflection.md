@@ -81,3 +81,19 @@ failed an exact 15-degree expectation because radians conversion yielded
 14.999999999999998; the angle now uses a ten-decimal-place tolerance. No runtime
 change was needed. This is actual native UI export plus web service import/return,
 not a fresh native UI import of that web return or a physical-device handoff.
+
+## Native UI return completed
+
+The actual-fixture test can emit its verified web return when explicitly run with
+`OPENPLAN_REFLECTION_RETURN_PATH`. Run `17631` passed and wrote
+`/tmp/web-return-reflection-package.zip` (5,375 bytes). The isolated native app
+selected that exact file, displayed one floor/four walls/zero attachments, and
+imported it as an independent copy. Its Plan preview visibly retains the handle
+on the left at the same orientation.
+
+Imported native session `8D5A3A46-3D1F-4FDD-8934-43DFCFBC2EE4` has the same complete
+furniture record as original session `11CD2155-A6F3-43B7-8BBE-CB028C770C6C`, allowing
+only UUID letter-case normalization: category, identity, reflection, angle, center
+and both dimensions match. This completes the scoped native UI → web service →
+native UI package round-trip. It does not substitute for the browser import UI,
+physical-device delivery, every furniture category or full-project regression QA.

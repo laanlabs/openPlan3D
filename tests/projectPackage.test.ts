@@ -47,11 +47,13 @@ it('imports and returns the actual native UI reflected refrigerator package', ()
     position: { x: 250, y: 200 }, scale: { x: -1, y: 1, z: 1 },
   });
   expect(project.floors[0].furniture[0].rotation).toBeCloseTo(15, 10);
-  const returned = packageJSON(readPackageZip(projectPackageBytes(project))['plan.json']);
+  const returnedBytes = projectPackageBytes(project);
+  const returned = packageJSON(readPackageZip(returnedBytes)['plan.json']);
   const normalized = (items: any[]) => items.map(item => ({ ...item, id: item.id.toLowerCase() }));
   expect(normalized(returned.furniture)).toEqual(normalized(original.furniture));
   expect(readProjectPackage(projectPackageBytes(project)).project.floors[0].furniture[0].scale)
     .toEqual({ x: -1, y: 1, z: 1 });
+  if (process.env.OPENPLAN_REFLECTION_RETURN_PATH) writeFileSync(process.env.OPENPLAN_REFLECTION_RETURN_PATH, returnedBytes);
 });
 
 it('merges native reflection edits without flattening web scale or changing rotation', () => {
