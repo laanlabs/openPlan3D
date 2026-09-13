@@ -1,5 +1,17 @@
 # Next work and pause handoff
 
+## Current regression qualification — September 12
+
+Browser collection at `b65549e` succeeds with 1,179 cases in 146 files: 393 per
+engine. Inventory: `/tmp/web-current-browser-inventory.json` (session `82422`,
+exit 0, no collection errors). The historical 1,116-case qualification below
+does not cover all current changes. The full unit suite is now running with
+two workers in session `82392`, log `/tmp/web-current-full-unit.log`.
+Poll that handle before starting a competing unit run. No full-unit pass is
+claimed yet. Nested-room diagnostic browser validation remains in session
+`68614`; Chromium passed and its trace contains the coordinate attachment,
+showing the 40 × 15 pixel move and exact restoration. Firefox/WebKit are pending.
+
 ## Local custom-model import — UI qualification in progress
 
 Local static GLB import now includes bounded container/resource/geometry/material
