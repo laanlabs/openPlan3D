@@ -1,6 +1,6 @@
 # OpenPlan3D status
 
-Last verified: **September 12, 2026, 23:52 EDT**.
+Last verified: **September 12, 2026, 23:58 EDT**.
 
 ## Goal and overall state
 
@@ -55,7 +55,7 @@ website changes does not, by itself, verify a production deployment.
 
 | Check | Evidence and limits |
 | --- | --- |
-| Full native simulator suite | **265 passed, two optional integration skips, zero failures** on `8fdd1bf`, covering height and package-merger changes. Session `72751` exited 0; XCTest 93.611 seconds. |
+| Full native simulator suite | **265 passed, two optional integration skips, zero failures** on `2fc1dd9`, including the height properties UI source. Session `64276` exited 0; XCTest 130.573 seconds. |
 | Full native Catalyst suite | **265 passed, two optional integration skips, zero failures** on `8fdd1bf`. Session `25783` exited 0; XCTest 142.046 seconds. |
 | Later native package-merger regression | **Passed**, exit 0, 1.086 seconds, on `72906c0`. This is a focused regression, not a newer full native suite. |
 | Full web unit suite | **1,142 passed in 119 files** in CI run `34735405519` on the status-bar/height implementation. Type check and production build also passed. The earlier local timeout results are superseded for this source. |
@@ -73,9 +73,13 @@ reset. Catalyst build `64930` passed. Isolated native UI entered 48.5 in and sav
 1.2318993347743592 m after Undo → Redo, with width/depth unchanged. Metric entry reopened as 213.7 cm; category reset displayed 90 cm and persisted
 0.9 m after rejecting a zero entry, with neighboring furniture unchanged.
 Other invalid input forms, intermediate undo value, and iOS/device checks remain
-open. Full current simulator run `64276` is active; log:
-`/tmp/native-height-editor-full-simulator.log`. Poll it before competing builds.
-The completed full native suites below predate this new properties UI.
+open. Full current simulator run `64276` passed: 265 passed, two optional skips,
+zero failures; XCTest 130.573 seconds, exit 0. Log:
+`/tmp/native-height-editor-full-simulator.log`. Actual native UI export bytes
+also pass all 39 web package tests, retaining both edited heights and all 12
+legacy furniture records. The requested Save destination was not located;
+package generation/service exchange is verified, that destination remains open.
+The full Catalyst suite below predates the properties UI.
 Native detail: `openplan3d-ios/docs/native-furniture-height-editor.md`.
 
 ## Furniture-height preservation verified in Catalyst handoff
@@ -108,8 +112,8 @@ qualifying the repair in the original failing environment.
 
 ## Current validation and CI
 
-- **Full native simulator completed:** `72751` completed 267 reported tests:
-  265 passed, two optional skips, zero failures. Log: `/tmp/native-height-full-simulator.log`.
+- **Full native simulator completed:** `64276` completed 267 reported tests:
+  265 passed, two optional skips, zero failures. Log: `/tmp/native-height-editor-full-simulator.log`.
 - **Full native Catalyst completed:** `25783` exited 0: 265 passed, two optional
   skips, zero failures; XCTest 142.046 seconds. Log: `/tmp/native-height-full-catalyst.log`.
 - **Implementation CI completed successfully:** [run 34735405519](https://github.com/laanlabs/openPlan3D/actions/runs/34735405519)

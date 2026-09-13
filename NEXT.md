@@ -4,6 +4,20 @@ The user-facing goal status is maintained in [STATUS.md](STATUS.md). Update it
 when implementation, validation, blockers or next priorities change; keep this
 file as the detailed backlog and evidence history.
 
+## September 12, 23:58 EDT — current simulator and edited-height exchange passed
+
+Full simulator `64276` passed on native `2fc1dd9`: 265 passes, two optional
+integration skips, zero failures; XCTest 130.573 seconds, exit 0. Log:
+`/tmp/native-height-editor-full-simulator.log`.
+
+The native UI export generated an unchanged sandbox ZIP now committed as
+`tests/fixtures/native-ui-edited-heights-package.zip`. All 39 package tests pass
+in `62196` (1.68 seconds): imperial edit and explicit category reset import,
+all 14 native furniture records return exactly apart from UUID case, and the
+12 legacy items keep height omitted. Web projection uses existing eight-decimal
+cm rounding; native return retains its original precision. The requested Save
+destination file was not located, so that handoff detail remains open.
+
 ## September 12, 23:52 EDT — metric height and reset UI validation
 
 Isolated Catalyst UI on native `2fc1dd9` switched to Metric, entered 213.7 cm,

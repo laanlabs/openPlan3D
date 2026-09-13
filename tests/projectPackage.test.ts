@@ -83,6 +83,20 @@ it('returns measured height and web scale from an actual native UI package expor
     .toEqual(files['assets/web-underlay-21539630.png']);
 });
 
+it('imports actual native UI height edits and category reset without changing legacy furniture', () => {
+  const bytes = new Uint8Array(readFileSync('tests/fixtures/native-ui-edited-heights-package.zip'));
+  const original = packageJSON(readPackageZip(bytes)['plan.json']);
+  const project = readProjectPackage(bytes).project;
+  const chairs = project.floors[0].furniture.filter(item => item.catalogId === 'chair');
+  expect(chairs).toHaveLength(2);
+  expect(chairs[0].height).toBeCloseTo(100 * 1.2318993347743592, 8);
+  expect(chairs[1].height).toBe(90);
+  const returned = packageJSON(readPackageZip(projectPackageBytes(project))['plan.json']);
+  const normalized = (items: any[]) => items.map(item => ({ ...item, id: item.id.toLowerCase() }));
+  expect(normalized(returned.furniture)).toEqual(normalized(original.furniture));
+  expect(returned.furniture.filter((item: any) => item.height === undefined)).toHaveLength(12);
+});
+
 it('retains web height when an older native encoder omits it', () => {
   const source = webFixture();
   source.floors[0].furniture[0].scale.z = 2.5;
