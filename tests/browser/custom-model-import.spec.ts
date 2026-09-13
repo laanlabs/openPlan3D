@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { savedProjects } from './storage';
 
-test.setTimeout(180_000);
+test.setTimeout(360_000);
 test('imports, previews, places and retains a local custom model through undo and reload', async ({ page }, testInfo) => {
   await page.addInitScript(() => localStorage.setItem('o3d_tips_seen', JSON.stringify(['first-wall', 'first-furniture', 'first-3d', 'first-export', 'first-door'])));
   const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));

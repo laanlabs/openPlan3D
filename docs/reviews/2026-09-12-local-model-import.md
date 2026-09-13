@@ -787,3 +787,45 @@ labels and metadata fields are legible, with no control overlap. The form scroll
 within the dialog height. Copy: `/tmp/openplan-custom-model-keyboard-qualified.png`.
 This qualifies the named Chromium keyboard workflow, not mobile touch, physical
 assistive technology or the other engines.
+
+
+## Expanded engines and native UI import/export
+
+Run `76360` completed with 12/14 passes (14.5 minutes). Firefox passed both
+Portuguese cases, keyboard controls, cancellation/invalid-file handling, removal
+Undo/Redo and full-viewer shared image lifetime. WebKit passed original import/
+placement/save-reload, both Portuguese cases, keyboard controls, removal Undo/Redo
+and viewer lifetime. Two failures remain:
+
+- Firefox's original import case exhausted its 180-second test budget at Save,
+  after preview, original-source exports, placement and history steps. Its trace
+  includes 27.7 seconds navigating, 33.4 seconds opening Objects and multiple slow
+  exports. The case now allows 360 seconds without removing assertions.
+- WebKit cancellation closed the dialog but failed focus restoration to the Import
+  button. The opener now explicitly focuses itself before opening the file picker,
+  giving `modalDialog` a stable return target. This runtime fix is not yet qualified.
+
+Log: `/tmp/web-custom-model-expanded-firefox-webkit.log`. Failure traces were copied
+to `/tmp/openplan-custom-model-firefox-timeout-trace.zip` and
+`/tmp/openplan-custom-model-webkit-focus-trace.zip`. Fresh check/build sequence
+`6750` is active, with logs `/tmp/web-custom-model-opener-focus-check.log` and
+`/tmp/web-custom-model-opener-focus-build.log`; rerun both failed workflows after it
+finishes, then assess further regression scope.
+
+The existing isolated `/tmp/OpenPlan3D-Scan-Counts-Sept12-QA.app`
+(`com.laan.labs.floorplan.underlayfloorqa`) imported the original model package
+through Choose Project Package → preview → Import as Copy. The new library copy
+opened in native review and the plan editor showed its simplified footprint. No
+geometry was changed: CUA coordinate clicks repeatedly returned `noWindowsAvailable`,
+while accessibility button actions continued working. Done returned to review;
+Export Options → Export Project Package (ZIP) saved
+`/tmp/native-ui-custom-model-return.zip`. Comparison proved exact GLB, web, baseline
+and mapping bytes. The GLB SHA-256 is
+`e8ff09ef3a1032c074ccaeb03f470cc45eedbabb0c5085834f652c319ab2d7c7`.
+QA session: `BDE118C9-263D-4CA0-93B0-4491C22325F7`. The original Development app
+was not opened or modified. UI geometry edits and physical devices remain open.
+
+This UI pass reproduced “1 attachment files” in package preview. Native
+`ProjectPackageImportSheet` now pluralizes each floor/wall/attachment count. Its
+Catalyst build `64966` is active (`/tmp/openplan3d-package-counts-build.log`); the new
+wording still needs a fresh isolated-app visual check.

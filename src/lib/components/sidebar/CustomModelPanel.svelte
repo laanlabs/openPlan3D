@@ -86,7 +86,7 @@
 <section class="space-y-2 rounded-lg border border-gray-200 p-2" aria-label={$t('customModel.heading')}>
   <h3 class="text-sm font-semibold">{$t('customModel.heading')}</h3>
   <input bind:this={input} type="file" accept=".glb,model/gltf-binary" class="hidden" onchange={choose} />
-  <button class="rounded border border-blue-600 px-3 py-1.5 text-sm text-blue-700" onclick={() => input.click()} disabled={!$currentProject}>{$t('customModel.import')}</button>
+  <button class="rounded border border-blue-600 px-3 py-1.5 text-sm text-blue-700" onclick={(event) => { event.currentTarget.focus({ preventScroll: true }); input.click(); }} disabled={!$currentProject}>{$t('customModel.import')}</button>
   <p class="text-xs text-gray-500">{$t('customModel.help')}</p>
   {#each $currentProject?.customModels ?? [] as model (model.id)}
     <div class="rounded border border-gray-200 p-2 text-xs">

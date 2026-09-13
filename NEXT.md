@@ -43,7 +43,13 @@ run `82817` passed every keyboard/image assertion with a larger whole-test budge
 Native simulator test `6249` passed, and the actual Swift output passed the three
 web return tests (`17274`), preserving model references, original GLB bytes and
 shared edits.
-Native UI and physical-device qualification remain open.
+Native UI import, opening and unchanged save/export passed in the isolated Catalyst
+QA app with exact retained GLB and sidecar bytes. UI geometry editing and physical
+devices remain open. Expanded Firefox/WebKit run `76360` finished with 12/14 passes:
+Firefox's original import case timed out at Save; WebKit cancellation exposed focus
+not returning to Import. The opener-focus fix and a larger import-test budget await
+fresh check/build `6750` and reruns. Native package-preview singular count wording
+was corrected after seeing “1 attachment files”; Catalyst build `64966` is active.
 
 Remaining: broader browser qualification, external error/localization review,
 accessibility/physical-device testing, and native UI return
