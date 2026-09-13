@@ -50,7 +50,7 @@ export function validatePackagePlan(plan: any): ObjectMap {
       for (const field of ['name', 'text', 'note', 'material', 'style', 'category', 'colorHex']) if (item[field] != null && typeof item[field] !== 'string') fail();
       if (item.level != null && (!Number.isSafeInteger(item.level) || Math.abs(item.level) > 1000)) fail();
       if (item.photos != null && (!Array.isArray(item.photos) || item.photos.some((name: any) => typeof name !== 'string' || !safePackagePath(name)))) fail();
-      for (const field of ['hingeLeft', 'opensInward']) if (item[field] != null && typeof item[field] !== 'boolean') fail();
+      for (const field of ['hingeLeft', 'opensInward', 'mirrorX', 'mirrorY']) if (item[field] != null && typeof item[field] !== 'boolean') fail();
       if (kind === 'walls') { xy(item.start); xy(item.end); if (equal(item.start, item.end)) fail(); }
       if (kind === 'openings') {
         if (!['door', 'window'].includes(item.kind) || typeof item.wallID !== 'string' || !result.walls.some((w: any) => key(w.id) === key(item.wallID))) fail();
@@ -116,8 +116,12 @@ function nativeFloorIndices(plan: ObjectMap): number[] {
   return [...new Set<number>([...explicit, ...implicit, ...(explicit.length || implicit.length ? [] : [0])])];
 }
 /** Project only fields both editors understand. A baseline lets unchanged lossy
- * projections preserve richer web details, such as mirrored furniture and sloped walls. */
-export function nativeToWeb(plan: ObjectMap, mapping: PackageMapping, title: string): Project {
+ * projections preserve richer web details, such as scaled furniture and sloped walls. */
+export function nativeToWeb(plan: ObjectMap, mapping: PackageMapping, title: string, reflectionFallback?: ObjectMap): Project {
+  // Older native encoders omit unknown fields. An explicit false is an edit;
+  // omission in a returned package retains the original baseline reflection.
+  const fallbackFurniture = new Map((reflectionFallback?.furniture ?? []).map((item: any) => [key(item.id), item]));
+  const reflected = (item: any, axis: string) => (item[axis] ?? (fallbackFurniture.get(key(item.id)) as any)?.[axis]) === true;
   const project = createDefaultProject(title), byId = new Map(mapping.map(m => [key(m.id), m]));
   const mapped = (id: string) => byId.get(key(id))?.webId ?? id;
   const indices = nativeFloorIndices(plan);
@@ -134,7 +138,7 @@ export function nativeToWeb(plan: ObjectMap, mapping: PackageMapping, title: str
     const openings = plan.openings.filter((o: any) => wallIds.has(key(o.wallID)));
     floor.doors = openings.filter((o: any) => o.kind === 'door').map((o: any) => ({ details: nativeItemDetails(o, 'doors'), id: mapped(o.id), wallId: mapped(o.wallID), position: o.position, width: cm(o.width), height: cm(o.height ?? 2), type: ['single', 'double', 'sliding'].includes(o.style) ? o.style : o.style === 'patio' ? 'sliding' : 'single', swingDirection: o.hingeLeft === false ? 'left' : 'right', flipSide: o.opensInward === false }));
     floor.windows = openings.filter((o: any) => o.kind === 'window').map((o: any) => ({ details: nativeItemDetails(o, 'windows'), id: mapped(o.id), wallId: mapped(o.wallID), position: o.position, width: cm(o.width), height: cm(o.height ?? 1.2), sillHeight: cm(o.sillHeight ?? 0.9), type: o.style === 'sliding' ? 'sliding' : 'fixed' }));
-    floor.furniture = plan.furniture.filter((f: any) => (f.level ?? 0) === level).map((f: any) => ({ details: nativeItemDetails(f, 'furniture'), id: mapped(f.id), ...importedFurnitureCategory(f.category, cm(f.width)), position: point(f.center), rotation: f.angle * 180 / Math.PI, width: cm(f.width), depth: cm(f.depth), scale: { x: 1, y: 1, z: 1 } }));
+    floor.furniture = plan.furniture.filter((f: any) => (f.level ?? 0) === level).map((f: any) => ({ details: nativeItemDetails(f, 'furniture'), id: mapped(f.id), ...importedFurnitureCategory(f.category, cm(f.width)), position: point(f.center), rotation: f.angle * 180 / Math.PI, width: cm(f.width), depth: cm(f.depth), scale: { x: reflected(f, 'mirrorX') ? -1 : 1, y: reflected(f, 'mirrorY') ? -1 : 1, z: 1 } }));
     const detected = detectRooms(floor.walls);
     const polygons = new Map(detected.map(room=>[room.id,getRoomPolygon(room,floor.walls)]));
     const area = (room: typeof detected[number]) => {
@@ -197,6 +201,14 @@ export function applyNativeEdits(source: Project, before: Project, after: Projec
           if (updated.startHeight !== undefined) updated.startHeight = updated.height;
           if (updated.endHeight !== undefined) updated.endHeight = updated.height;
         }
+        if (kind === 'furniture' && baseline && existing) {
+          // Native dimensions already include web scale magnitudes. Transfer
+          // only edited reflection signs, preserving scale on every other axis.
+          updated.scale = { ...existing.scale };
+          for (const axis of ['x', 'y'] as const) if (baseline.scale[axis] !== (item as any).scale[axis]) {
+            updated.scale[axis] = Math.abs(existing.scale[axis]) * Math.sign((item as any).scale[axis]);
+          }
+        }
         if (kind === 'furniture' && baseline && existing) for (const [dimension, axis] of [['width', 'x'], ['depth', 'y']]) {
           if (baseline[dimension] !== (item as any)[dimension]) updated[dimension] = (item as any)[dimension] / (Math.abs(existing.scale[axis]) || 1);
         }
@@ -239,7 +251,7 @@ export function webToNative(project: Project, original: ObjectMap | undefined, p
     }
     for (const item of floor.furniture) {
       const id = identity('furniture', item.id, floor.id), old = nativeOriginal('furniture', id), size = getFurnitureSize(item);
-      plan.furniture.push({ ...old, id, category: exportedFurnitureCategory(item), center: point(item.position, 0.01), angle: item.rotation * Math.PI / 180, width: meters(size.width || 1), depth: meters(size.depth || 1), level });
+      plan.furniture.push({ ...old, id, category: exportedFurnitureCategory(item), center: point(item.position, 0.01), angle: item.rotation * Math.PI / 180, width: meters(size.width || 1), depth: meters(size.depth || 1), mirrorX: item.scale.x < 0, mirrorY: item.scale.y < 0, level });
     }
     for (const room of floor.rooms) {
       const id = identity('rooms', room.id, floor.id), old = nativeOriginal('rooms', id), polygon = getRoomPolygon(room, floor.walls), center = polygon.length ? roomCentroid(polygon) : point(old.center ?? { x: 0, y: 0 });
@@ -264,7 +276,7 @@ export function webToNative(project: Project, original: ObjectMap | undefined, p
     const fields: Record<string, string[]> = {
       walls: ['start', 'end', 'height', 'thickness', 'level', 'note', 'material'],
       openings: ['wallID', 'position', 'width', 'height', 'kind', 'style', 'hingeLeft', 'opensInward', 'sillHeight', 'price'],
-      furniture: ['category', 'center', 'angle', 'width', 'depth', 'level', 'note', 'price', 'photos'],
+      furniture: ['category', 'center', 'angle', 'width', 'depth', 'mirrorX', 'mirrorY', 'level', 'note', 'price', 'photos'],
       rooms: ['name', 'center', 'boundaryWallIDs', 'floorOpening', 'colorHex', 'level', 'note', 'photos', 'type', 'ceilingHeight'],
       notes: ['text', 'position', 'fontSize', 'colorHex', 'angle'], levels: ['name', 'index'],
     };

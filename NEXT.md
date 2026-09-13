@@ -12,7 +12,17 @@ A coding/legacy-default/transformed-point test is running in session `69010`, lo
 This is an incomplete checkpoint: package bridge/sign-and-scale merging,
 RoomPlan export/import, neutral-export winding tests and live asymmetric-shape
 checks remain required before declaring mirroring supported end to end. The
-current full web browser run `5924` still uses unchanged web runtime sources.
+current full web browser run `5924` still uses the pre-reflection production build.
+
+The package bridge now transfers native reflection signs independently of web
+scale magnitudes, and passes the saved baseline as a fallback when old native
+apps omit unknown reflection fields. Explicit false still removes reflection.
+All 31 package tests passed in `75847`, log
+`/tmp/web-package-reflection-tests-final.log` (initial `14594` had one test-field
+typo, corrected from `notes` to `note`). Web type check `16540` is running, log
+`/tmp/web-package-reflection-check.log`. No production rebuild has been started
+while browser run `5924` owns the old build. RoomPlan propagation, native test
+completion, mesh-winding and asymmetric visual validation remain unfinished.
 
 ## Native editor action labels — Catalyst build and live checks passed
 

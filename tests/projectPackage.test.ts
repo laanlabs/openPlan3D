@@ -35,6 +35,46 @@ function webFixture() {
 }
 beforeEach(() => { mockStorage(); });
 
+it('merges native reflection edits without flattening web scale or changing rotation', () => {
+  const source = webFixture();
+  const files = readPackageZip(projectPackageBytes(source));
+  const plan = packageJSON(files['plan.json']);
+  expect(plan.furniture[0]).toMatchObject({ mirrorX: true, mirrorY: false });
+  plan.furniture[0].mirrorX = false;
+  plan.furniture[0].mirrorY = true;
+  plan.furniture[0].width = 1.8;
+  files['plan.json'] = jsonBytes(plan);
+  const result = readProjectPackage(writePackageZip(files)).project;
+  expect(result.floors[0].furniture[0]).toMatchObject({
+    rotation: 37.5, width: 90, depth: 55, scale: { x: 2, y: -1.5, z: 1 },
+    future: 'furniture extension',
+  });
+  const returned = packageJSON(readPackageZip(projectPackageBytes(result))['plan.json']);
+  expect(returned.furniture[0]).toMatchObject({ mirrorX: false, mirrorY: true, width: 1.8 });
+});
+
+it('retains reflection when an older native app drops optional reflection fields', () => {
+  const source = webFixture();
+  const files = readPackageZip(projectPackageBytes(source));
+  const plan = packageJSON(files['plan.json']);
+  delete plan.furniture[0].mirrorX; delete plan.furniture[0].mirrorY;
+  plan.furniture[0].note = 'Edited in an older app';
+  files['plan.json'] = jsonBytes(plan);
+  const item = readProjectPackage(writePackageZip(files)).project.floors[0].furniture[0];
+  expect(item.scale).toEqual(source.floors[0].furniture[0].scale);
+  expect(item.details?.note).toBe('Edited in an older app');
+});
+
+it('imports standalone native reflection and rejects non-boolean reflection flags', () => {
+  const files = nativeFiles(), plan = packageJSON(files['plan.json']);
+  plan.furniture[0].mirrorX = true; plan.furniture[0].mirrorY = true;
+  files['plan.json'] = jsonBytes(plan);
+  const item = readProjectPackage(writePackageZip(files)).project.floors.flatMap(f => f.furniture)[0];
+  expect(item.scale).toEqual({ x: -1, y: -1, z: 1 });
+  plan.furniture[0].mirrorX = 'true';
+  expect(() => validatePackagePlan(plan)).toThrow();
+});
+
 it('uses interoperable CRC32 and a strict stored ZIP profile', () => {
   expect(crc32(new TextEncoder().encode('123456789'))).toBe(0xcbf43926);
   const files = nativeFiles(); const bytes = writePackageZip(files);

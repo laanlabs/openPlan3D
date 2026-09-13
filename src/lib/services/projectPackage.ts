@@ -118,7 +118,7 @@ export function readProjectPackage(bytes: Uint8Array): { project: Project; asset
     const baseline = validatePackagePlan(packageJSON(files['baseline.json']));
     if (baseline.openplanItemDetailsVersion !== undefined && baseline.openplanItemDetailsVersion !== 1) packageError('Unsupported item-details baseline version.');
     if (baseline.openplanFurnitureCategoriesVersion !== undefined && baseline.openplanFurnitureCategoriesVersion !== 1) packageError('Unsupported furniture-category baseline version.');
-    const before = nativeToWeb(baseline, mapping, manifest.title), after = nativeToWeb(plan, mapping, manifest.title);
+    const before = nativeToWeb(baseline, mapping, manifest.title), after = nativeToWeb(plan, mapping, manifest.title, baseline);
     if (baseline.openplanFurnitureCategoriesVersion === undefined && !upgradeLegacyFurnitureCategories(source, baseline, mapping)) {
       packageError('Legacy furniture identities could not be resolved. Keep the original package for recovery.');
     }
