@@ -9,8 +9,11 @@ reproduced that error (exit 1, zero tests). The Playwright benchmark glob also
 matched the Vitest-only `wall-hit.bench.ts`; it now selects `viewer.bench.ts`.
 This retains both desktop/phone viewport profiles and all three furnished-home
 sizes. Corrected collection `87181` passed (exit 0): all six expected tests in
-one file. Log: `/tmp/openplan-benchmark-collection-after.log`. Actual benchmark
-qualification remains pending.
+one file. Log: `/tmp/openplan-benchmark-collection-after.log`. CI run
+`34733632131` on fix `2b40fd4` then passed all three desktop cases (2.0 minutes,
+job `103661083321`) and all three phone-viewport cases (1.5 minutes, job
+`103661083299`). Logs: `/tmp/openplan-ci-benchmark-{desktop,phone}-fixed.log`.
+These are software-rendered measurements, not physical-phone performance gates.
 
 Latest full web unit run `34034` is terminal (exit 1): 1,135 passed and three
 five-second timeouts, 119 files/1,138 tests, 535.36 seconds. All nine tests in the
@@ -25,13 +28,25 @@ Area localization completed its assertions; both automatic-dimension cases
 timed out at the initial Export click before importing geometry. Guide selection
 timed out on its baseline export; measurement selection timed out on a later
 JSON export. These do not establish a geometry defect. Current-source production
-build `74413` now runs in `/tmp/web-reflection-current-production-build.log`
-before scoped reproduction. The previous browser build predates the reflection
+build `74413` passed (exit 0), `/tmp/web-reflection-current-production-build.log`.
+Scoped reproduction `15604` then passed all five previously timed-out Chromium
+cases unchanged (exit 0, 1.6 minutes), `/tmp/web-reflection-five-timeout-repro.log`.
+The collection check confirmed exactly five cases, and artifacts are preserved
+in `/tmp/openplan-reflection-five-timeout-repro-passed`. Full CI browser jobs
+remain pending; these five passes do not qualify the 1,139 previously unrun cases. The previous browser build predates the reflection
 validator scope correction.
 
 Catalyst `68783` completed with exit 0 and TEST SUCCEEDED: 264 reported,
 262 passed, two optional integration skips, zero failures (193.429 seconds).
 Both full native destinations now pass on production source `3d076a9`.
+
+## Native furniture height — confirmed fidelity follow-up
+
+`PlanDocument.fromRoomPlanJSON` imports only furniture width/depth, discarding
+`dimensions[1]`. `PlanSceneBuilder` and `PlanDocument+Export` then use category
+default heights. Preserve measured height through the model, validation, native
+preview/export, duplication and the web package bridge, with legacy-default and
+round-trip coverage. This is separate from the qualified reflection work.
 
 ## Native reflected SVG export — regression passed
 
