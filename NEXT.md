@@ -4,6 +4,19 @@ The user-facing goal status is maintained in [STATUS.md](STATUS.md). Update it
 when implementation, validation, blockers or next priorities change; keep this
 file as the detailed backlog and evidence history.
 
+## September 13 — native Save destination verified
+
+Repeated the actual package export, waited for the full expanded Save panel,
+verified the changed filename in a separate accessibility read, and saved.
+`/Users/thelodgem1/Documents/native-ui-height-save-final.zip` exists (4,911 bytes).
+Its plan bytes exactly match the committed edited-height package fixture.
+SHA-256: `b174dc8efcd912079474fb0a0c9b686d126e79f4bf565988dde5e672922c9ef2`.
+
+This completes the scoped Catalyst selected-destination export check. Earlier
+attempts remain inconclusive and do not establish a runtime defect. No code
+change was needed. Physical-device handoff remains open, along with the broader
+NEXT scope. Native evidence: `docs/native-furniture-height-editor.md` in the iOS repo.
+
 ## September 12, 23:58 EDT — current simulator and edited-height exchange passed
 
 Full simulator `64276` passed on native `2fc1dd9`: 265 passes, two optional

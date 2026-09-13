@@ -1,6 +1,6 @@
 # OpenPlan3D status
 
-Last verified: **September 12, 2026, 23:58 EDT**.
+Last verified: **September 13, 2026, 00:02 EDT**.
 
 ## Goal and overall state
 
@@ -77,8 +77,10 @@ open. Full current simulator run `64276` passed: 265 passed, two optional skips,
 zero failures; XCTest 130.573 seconds, exit 0. Log:
 `/tmp/native-height-editor-full-simulator.log`. Actual native UI export bytes
 also pass all 39 web package tests, retaining both edited heights and all 12
-legacy furniture records. The requested Save destination was not located;
-package generation/service exchange is verified, that destination remains open.
+legacy furniture records. A subsequent stable-panel Save check created
+`/Users/thelodgem1/Documents/native-ui-height-save-final.zip`; its plan bytes
+exactly match the edited-height regression fixture. Selected-destination export
+is now verified. Earlier missing-file attempts remain inconclusive.
 The full Catalyst suite below predates the properties UI.
 Native detail: `openplan3d-ios/docs/native-furniture-height-editor.md`.
 
