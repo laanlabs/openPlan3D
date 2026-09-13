@@ -122,3 +122,18 @@ a pass. Log: `/tmp/openplan3d-reflection-full-native-tests.log`. Result bundle:
 Full Mac Catalyst regression on the same production source is now running in
 session `68783`, log `/tmp/openplan3d-reflection-full-catalyst-tests.log`. The
 full browser run remains pending; physical-device and release gates remain open.
+
+## Full Catalyst regression
+
+Session `68783` completed with exit 0 and TEST SUCCEEDED on the same native
+production source `3d076a9`: 264 reported, 262 passed, two opt-in worker
+integration skips, zero failures; XCTest duration 193.429 seconds. Both full
+native destinations now pass. Log: `/tmp/openplan3d-reflection-full-catalyst-tests.log`.
+Result bundle: `/tmp/openplan3d-render-ui-build/Logs/Test/Test-FloorPlan-2026.09.12_22-32-07--0400.xcresult`.
+
+Latest web unit run `34034` had 1,135 passes and three five-second timeouts; all
+nine tests in those three files passed unchanged in single-worker rerun `91966`
+(16.80 seconds). Full browser `96834` stopped at five timeouts after 35 passes,
+leaving 1,139 unrun. Traces are preserved under
+`/tmp/openplan-reflection-full-browser-failures`; browser qualification remains
+open. See NEXT for reproduction state.

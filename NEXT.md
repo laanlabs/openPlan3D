@@ -12,11 +12,26 @@ sizes. Corrected collection `87181` passed (exit 0): all six expected tests in
 one file. Log: `/tmp/openplan-benchmark-collection-after.log`. Actual benchmark
 qualification remains pending.
 
-Latest full web unit run `34034` is active in
-`/tmp/web-reflection-current-full-unit.log` and has reported failures in texture
-recovery, catalog asset hashing and portable scene validation. Inspect terminal
-assertion details before treating these as runtime defects or changing budgets.
-Full browser `96834` and full Catalyst `68783` are also still active.
+Latest full web unit run `34034` is terminal (exit 1): 1,135 passed and three
+five-second timeouts, 119 files/1,138 tests, 535.36 seconds. All nine tests in the
+three affected files passed unchanged with one worker in `91966` (exit 0,
+16.80 seconds), `/tmp/web-reflection-unit-timeout-rerun.log`. The full-run log is
+`/tmp/web-reflection-current-full-unit.log`; no assertions or budgets changed.
+
+Full browser `96834` is terminal (exit 1): 35 passed, five timeouts, 1,139 unrun,
+52.3 minutes. Its runner-level error is the configured five-failure stop.
+Traces are preserved in `/tmp/openplan-reflection-full-browser-failures`.
+Area localization completed its assertions; both automatic-dimension cases
+timed out at the initial Export click before importing geometry. Guide selection
+timed out on its baseline export; measurement selection timed out on a later
+JSON export. These do not establish a geometry defect. Current-source production
+build `74413` now runs in `/tmp/web-reflection-current-production-build.log`
+before scoped reproduction. The previous browser build predates the reflection
+validator scope correction.
+
+Catalyst `68783` completed with exit 0 and TEST SUCCEEDED: 264 reported,
+262 passed, two optional integration skips, zero failures (193.429 seconds).
+Both full native destinations now pass on production source `3d076a9`.
 
 ## Native reflected SVG export — regression passed
 
@@ -30,9 +45,9 @@ transform. Native session `1018` passed (exit 0, test 0.013 seconds), log
 target passed in session `17153` (exit 0): 264 reported, 262 passed, two
 opt-in worker integration skips, zero failures, 198.775 seconds XCTest duration.
 Log: `/tmp/openplan3d-reflection-full-native-tests.log`. Full Mac Catalyst
-qualification now runs in `68783`, log
-`/tmp/openplan3d-reflection-full-catalyst-tests.log`; poll before another native
-test in `/tmp/openplan3d-render-ui-build`. Full browser `96834` remains active.
+qualification `68783` also passed with exit 0: 262 passed, two skips, zero
+failures, 193.429 seconds. Log: `/tmp/openplan3d-reflection-full-catalyst-tests.log`.
+See the newer checkpoint above for the terminal browser outcome.
 
 ## Native furniture reflection — end-to-end qualification in progress
 
