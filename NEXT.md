@@ -4,6 +4,28 @@ The user-facing goal status is maintained in [STATUS.md](STATUS.md). Update it
 when implementation, validation, blockers or next priorities change; keep this
 file as the detailed backlog and evidence history.
 
+## Web furniture height bridge — focused checks passed
+
+Web `79633db` projects optional native height to centimetres, exports physical
+height including absolute Z scale, and divides out retained scale on native
+height edits. Older encoders' omitted height inherits the baseline. Unchanged
+legacy native records keep height omitted; flat catalog symbols do not emit
+invalid zero native height. The old category fixture now explicitly expects its
+seven retained 94.625 cm web heights as 0.94625 m on export.
+
+All 92 package/category tests passed in `4765`; the first run exposed an invalid
+zero-height test input and the stale fixture expectation, both corrected without
+weakening comparisons. Type check `86377` passed with zero diagnostics. Build
+`74745` passed with exit 0, `/tmp/web-package-height-production-build.log`. Native `8fdd1bf`
+focused tests already passed; actual cross-platform height qualification remains
+open. See the updated package contract and STATUS.md.
+
+CI run `34734473227` is terminal: build, both benchmarks, and 17/18 browser
+shards passed. Firefox shard 3 failed Portuguese layers at 390 px because the
+bottom overlay intercepts the Grid button. Log:
+`/tmp/openplan-ci-firefox-shard3-failure.log`. Reproduce/fix the obstruction;
+do not treat it as another budget-only timeout.
+
 ## Current native height work and raster verification
 
 Native `8fdd1bf` retains measured furniture height through RoomPlan import,

@@ -1,6 +1,6 @@
 # OpenPlan3D status
 
-Last verified: **September 12, 2026, 23:10 EDT**.
+Last verified: **September 12, 2026, 23:16 EDT**.
 
 ## Goal and overall state
 
@@ -21,7 +21,7 @@ Remote state was checked when preparing this report.
 
 | Repository | Branch | Latest implementation checkpoint | Delivery |
 | --- | --- | --- | --- |
-| Web app: `openPlan3D` | `codex/threejs-render-lab` | `ea84da1` — browser CI sharding and raster rounding | Committed and pushed; [PR #95](https://github.com/laanlabs/openPlan3D/pull/95) remains open |
+| Web app: `openPlan3D` | `codex/threejs-render-lab` | `79633db` — package furniture-height projection | Committed and pushed; [PR #95](https://github.com/laanlabs/openPlan3D/pull/95) remains open |
 | Native app: `openplan3d-ios` | `codex/local-floorplan-render` | `8fdd1bf` — native measured furniture height | Committed and pushed |
 | Website: `openplan3d-www` | `main` | `520f86e` — App Store links | Committed and pushed; local checkout is one commit behind remote `main` |
 
@@ -70,29 +70,35 @@ Native `8fdd1bf` adds optional measured height in metres, preserves it through
 RoomPlan import, saved plans, duplication, SceneKit preview, RoomPlan export,
 and retained-package merging, and rejects invalid heights on decode/package
 validation. Legacy plans retain category defaults. Both focused simulator tests
-passed (exit 0; 0.022 and 0.057 seconds); **the web package projection and
-cross-platform qualification remain open**. The older full native suite passes do not cover this new change.
+passed (exit 0; 0.022 and 0.057 seconds). Web `79633db` now imports/exports
+physical height, preserves Z scale, retains heights omitted by older encoders,
+and keeps flat catalog symbols valid. All 92 package/category tests and the web
+type check passed. **Actual cross-platform UI/package height qualification remains
+open**. The older full native suite passes do not cover this new change.
 
-## Checks currently running
+## Current validation and CI
 
 - **Native furniture-height regression completed:** session `40396` exited 0;
   both tests passed. Log: `/tmp/native-furniture-height-regression.log`.
 - **Raster browser regression completed:** session `26950` exited successfully;
   all three cases passed in 2.2 minutes (Chromium 39.5 s, Firefox 58.2 s, WebKit
   15.8 s). Log: `/tmp/web-raster-rounding-browser.log`.
-- **CI after sharding/raster fix:** [run 34734473227](https://github.com/laanlabs/openPlan3D/actions/runs/34734473227)
-  passed its build; browser shards and benchmark jobs are running/queued. Require the full browser matrix and
-  benchmark results before declaring current CI green. A later documentation push
-  may create an additional run; check its head commit when interpreting results.
+- **Web height production build:** session `74745`, log
+  `/tmp/web-package-height-production-build.log`; passed with exit 0.
+- **Completed sharded CI:** [run 34734473227](https://github.com/laanlabs/openPlan3D/actions/runs/34734473227)
+  passed its build, both benchmarks, and 17 of 18 browser shards. Firefox shard 3
+  failed the Portuguese layers test at 390 px: a bottom overlay intercepts clicks
+  on the Grid button. This is an outstanding UI defect, not a suite-capacity
+  timeout. Log: `/tmp/openplan-ci-firefox-shard3-failure.log`.
+
 
 ## Next priorities
 
-1. Finish raster browser verification and inspect the complete sharded CI results;
-   diagnose any remaining failures without dropping coverage or weakening assertions.
-2. Finish **furniture height**: project
-   height through the web package bridge while preserving scale and older native
-   returns, and verify cross-platform round trips. Native implementation is now
-   committed; the full feature is not yet qualified.
+1. Fix the phone-width Portuguese Grid-button obstruction reported by Firefox
+   shard 3, then rerun the unchanged workflow and complete CI qualification.
+2. Finish **furniture height** qualification: verify
+   actual cross-platform package/UI round trips. Both implementations and focused
+   native/web tests are committed; the full feature is not yet qualified.
 3. Continue the nested-room Undo investigation. Repeated scoped checks passed,
    but the original intermittent failure has no established root cause.
 4. Continue the remaining geometry, usability, performance, and release work in
