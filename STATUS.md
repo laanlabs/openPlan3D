@@ -1,6 +1,6 @@
 # OpenPlan3D status
 
-Last verified: **September 12, 2026, 23:53 EDT**.
+Last verified: **September 12, 2026, 23:52 EDT**.
 
 ## Goal and overall state
 
@@ -70,9 +70,12 @@ website changes does not, by itself, verify a production deployment.
 
 Native `2fc1dd9` adds decimal height entry in cm/in and an explicit category-height
 reset. Catalyst build `64930` passed. Isolated native UI entered 48.5 in and saved
-1.2318993347743592 m after Undo → Redo, with width/depth unchanged. Metric entry,
-reset/invalid input behavior, intermediate undo value, and iOS/device checks
-remain open. The full native suites below predate this new properties UI.
+1.2318993347743592 m after Undo → Redo, with width/depth unchanged. Metric entry reopened as 213.7 cm; category reset displayed 90 cm and persisted
+0.9 m after rejecting a zero entry, with neighboring furniture unchanged.
+Other invalid input forms, intermediate undo value, and iOS/device checks remain
+open. Full current simulator run `64276` is active; log:
+`/tmp/native-height-editor-full-simulator.log`. Poll it before competing builds.
+The completed full native suites below predate this new properties UI.
 Native detail: `openplan3d-ios/docs/native-furniture-height-editor.md`.
 
 ## Furniture-height preservation verified in Catalyst handoff

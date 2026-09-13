@@ -4,6 +4,20 @@ The user-facing goal status is maintained in [STATUS.md](STATUS.md). Update it
 when implementation, validation, blockers or next priorities change; keep this
 file as the detailed backlog and evidence history.
 
+## September 12, 23:52 EDT — metric height and reset UI validation
+
+Isolated Catalyst UI on native `2fc1dd9` switched to Metric, entered 213.7 cm,
+and reopened properties with that value retained. Use Category Height displayed
+90 cm. Zero entry was rejected: saving retained explicit 0.9 m, width/depth
+0.5 m, and the neighboring chair's exact earlier height. See the native height
+editor review for session/object IDs and limits.
+
+Full iOS 26.5 simulator run `64276` is active in
+`/tmp/native-height-editor-full-simulator.log`, using
+`/tmp/openplan3d-render-ios-build`. Poll before competing builds; do not restart
+because of quiet output. Remaining checks include other invalid input forms,
+intermediate undo value, edited-height UI package return and physical devices.
+
 ## September 12 — native furniture height properties
 
 Native `2fc1dd9` adds decimal height in the selected cm/in units and Use Category
