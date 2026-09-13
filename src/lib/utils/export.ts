@@ -219,8 +219,10 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
       // Prefer 2x resolution, bounded to 4096 pixels per side.
       const scale = Math.min(2, 4096 / Math.max(w, h));
       const offscreen = document.createElement('canvas');
-      offscreen.width = w * scale;
-      offscreen.height = h * scale;
+      // Canvas dimensions truncate fractions, including 4095.9999999999995
+      // from a capped scale. Round up to retain the complete drawing extent.
+      offscreen.width = Math.min(4096, Math.ceil(w * scale));
+      offscreen.height = Math.min(4096, Math.ceil(h * scale));
       const ctx = offscreen.getContext('2d')!;
       ctx.scale(scale, scale);
       ctx.fillStyle = 'white';
@@ -763,8 +765,8 @@ function renderPDF(project: Project, preparedImages: ReadonlyMap<string,HTMLImag
   const planH = maxY - minY + pad * 2;
   const scale = Math.min(2, 4096 / Math.max(planW, planH));
   const offscreen = document.createElement('canvas');
-  offscreen.width = planW * scale;
-  offscreen.height = planH * scale;
+  offscreen.width = Math.min(4096, Math.ceil(planW * scale));
+  offscreen.height = Math.min(4096, Math.ceil(planH * scale));
   const ctx = offscreen.getContext('2d')!;
   ctx.scale(scale, scale);
   ctx.fillStyle = 'white';

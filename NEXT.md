@@ -1,5 +1,26 @@
 # Next work and pause handoff
 
+## CI browser capacity and raster rounding — September 12
+
+CI run `34733632131` reached its 720-second suite limit in every engine:
+Chromium 144 passed/249 unrun, WebKit 153 passed/240 unrun, Firefox 167 passed/
+one failed/225 unrun. The browser matrix now has six shards per engine with
+unique report artifact names. Per-case assertions and existing job/suite limits
+are unchanged. Actual Playwright collection `40423` verified that the shards
+cover all 393 cases per engine exactly once (1,179 total), with counts
+71/61/74/58/64/65. Inventory: `/tmp/openplan-browser-shard-inventory.json`.
+The workflow YAML parses and expands to 18 browser/shard jobs. Full CI execution
+remains the qualification gate.
+
+Firefox's assertion failure was separate: the moved-label PNG width was 4095,
+expected 4096. PNG/PDF canvas allocation now rounds up scaled dimensions before
+applying the 4096 cap, avoiding integer truncation of floating-point dimensions.
+All 27 export unit tests passed (`53414`, `/tmp/web-raster-rounding-unit.log`),
+including exact capped/integer dimensions. Production build `42091` passed;
+log `/tmp/web-raster-rounding-production-build.log`. The unchanged moved-label
+export workflow runs across all three engines in `26950`, log
+`/tmp/web-raster-rounding-browser.log`; poll before another browser run.
+
 ## Imported native package reflection — merger repaired
 
 Height-contract inspection exposed another reflection path: the retained-package

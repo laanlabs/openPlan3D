@@ -139,9 +139,11 @@ it('frames labels moved outside the walls and bounds large raster allocations', 
   expect(canvasText).toHaveBeenCalledWith('Kitchen & Dining <East>', 95, 93);
   project.floors[0].rooms[0].labelOffset = { x: 100000, y: 100000 };
   await exportAsPNG(canvas, project);
-  expect(Math.max(canvas.width, canvas.height)).toBeLessThanOrEqual(4096);
+  expect(Math.max(canvas.width, canvas.height)).toBe(4096);
+  expect([canvas.width, canvas.height].every(Number.isInteger)).toBe(true);
   await exportPDF(project);
-  expect(Math.max(canvas.width, canvas.height)).toBeLessThanOrEqual(4096);
+  expect(Math.max(canvas.width, canvas.height)).toBe(4096);
+  expect([canvas.width, canvas.height].every(Number.isInteger)).toBe(true);
 });
 
 it('draws curved wall paths in SVG and raster exports rather than endpoint chords', async () => {
