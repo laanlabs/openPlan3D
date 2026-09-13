@@ -4,6 +4,23 @@ The user-facing goal status is maintained in [STATUS.md](STATUS.md). Update it
 when implementation, validation, blockers or next priorities change; keep this
 file as the detailed backlog and evidence history.
 
+## Phone status-bar scrollbar clearance — verification in progress
+
+Linux Firefox CI screenshot confirms a horizontal scrollbar covering the mobile
+status text. Local unchanged Firefox reproduction `83240` passed (27 seconds),
+so that pass alone did not qualify the Linux failure. Artifacts are retained in
+`/tmp/openplan-firefox-shard3-ci-artifacts`, with the screenshot committed at
+`docs/reviews/assets/mobile-statusbar-firefox-before.png`.
+
+Web `5e09840` gives the phone status bar 48 px minimum height and centers the
+controls. The existing click assertions remain; an additional check requires
+buttons to fit their text line, and phone screenshots are attached. Build
+`35608` passed; all six desktop/phone cases across all engines passed in `85538`
+(exit 0, 1.8 minutes), `/tmp/web-mobile-statusbar-browser.log`. Focused Firefox
+phone screenshot run `43494` also passed; the image was inspected and shows
+unclipped controls. Log: `/tmp/web-mobile-statusbar-visual.log`.
+See `docs/reviews/2026-09-12-mobile-statusbar.md`; Linux CI confirmation remains open.
+
 ## Web furniture height bridge — focused checks passed
 
 Web `79633db` projects optional native height to centimetres, exports physical

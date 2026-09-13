@@ -41,7 +41,11 @@ for (const width of [1440, 390]) test(`Portuguese layers preserve visibility, se
       await expect(toggle).toHaveAttribute('aria-pressed', before === 'true' ? 'false' : 'true');
       await clickStatusControl(toggle);
       await expect(toggle).toHaveAttribute('aria-pressed', before!);
-      if (title === 'Alternar grade (G)') await testInfo.attach('phone-status-controls', { body: await page.screenshot(), contentType: 'image/png' });
+      if (title === 'Alternar grade (G)') {
+        const path = testInfo.outputPath('phone-status-controls.png');
+        await page.screenshot({ path });
+        await testInfo.attach('phone-status-controls', { path, contentType: 'image/png' });
+      }
     }
     const visibility = page.getByRole('button', { name: '🗂 Camadas', exact: true });
     await clickStatusControl(visibility);

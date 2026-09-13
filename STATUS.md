@@ -1,6 +1,6 @@
 # OpenPlan3D status
 
-Last verified: **September 12, 2026, 23:16 EDT**.
+Last verified: **September 12, 2026, 23:23 EDT**.
 
 ## Goal and overall state
 
@@ -21,7 +21,7 @@ Remote state was checked when preparing this report.
 
 | Repository | Branch | Latest implementation checkpoint | Delivery |
 | --- | --- | --- | --- |
-| Web app: `openPlan3D` | `codex/threejs-render-lab` | `79633db` — package furniture-height projection | Committed and pushed; [PR #95](https://github.com/laanlabs/openPlan3D/pull/95) remains open |
+| Web app: `openPlan3D` | `codex/threejs-render-lab` | `5e09840` — phone status-bar scrollbar clearance | Committed and pushed; [PR #95](https://github.com/laanlabs/openPlan3D/pull/95) remains open |
 | Native app: `openplan3d-ios` | `codex/local-floorplan-render` | `8fdd1bf` — native measured furniture height | Committed and pushed |
 | Website: `openplan3d-www` | `main` | `520f86e` — App Store links | Committed and pushed; local checkout is one commit behind remote `main` |
 
@@ -76,6 +76,17 @@ and keeps flat catalog symbols valid. All 92 package/category tests and the web
 type check passed. **Actual cross-platform UI/package height qualification remains
 open**. The older full native suite passes do not cover this new change.
 
+## Phone status-bar repair in progress
+
+The failed Linux Firefox screenshot shows the horizontal scrollbar covering the
+status-button text. The workflow passed unchanged in local macOS Firefox, so a
+local pass alone did not close the CI defect. Web `5e09840` gives the phone status
+bar a 48 px minimum height and centers its controls, leaving room for a classic
+scrollbar. Existing pointer/interaction assertions remain; the test also checks
+that each button fits its text line and captures phone screenshots. The build
+passed. All six desktop/phone cases passed in 1.8 minutes; Linux CI confirmation
+remains open.
+
 ## Current validation and CI
 
 - **Native furniture-height regression completed:** session `40396` exited 0;
@@ -83,6 +94,13 @@ open**. The older full native suite passes do not cover this new change.
 - **Raster browser regression completed:** session `26950` exited successfully;
   all three cases passed in 2.2 minutes (Chromium 39.5 s, Firefox 58.2 s, WebKit
   15.8 s). Log: `/tmp/web-raster-rounding-browser.log`.
+- **Phone status-bar browser regression completed:** session `85538` exited 0;
+  all six desktop/phone cases passed in 1.8 minutes. Log:
+  `/tmp/web-mobile-statusbar-browser.log`. Build `35608` passed.
+  Focused Firefox phone screenshot run `43494` also passed; the inspected image
+  shows the full Grid label. Log: `/tmp/web-mobile-statusbar-visual.log`.
+  Linux CI confirmation is still pending. See the
+  [before/after record](docs/reviews/2026-09-12-mobile-statusbar.md).
 - **Web height production build:** session `74745`, log
   `/tmp/web-package-height-production-build.log`; passed with exit 0.
 - **Completed sharded CI:** [run 34734473227](https://github.com/laanlabs/openPlan3D/actions/runs/34734473227)
@@ -94,8 +112,9 @@ open**. The older full native suite passes do not cover this new change.
 
 ## Next priorities
 
-1. Fix the phone-width Portuguese Grid-button obstruction reported by Firefox
-   shard 3, then rerun the unchanged workflow and complete CI qualification.
+1. Verify the phone status-bar repair locally and in Linux Firefox CI, then
+   complete current full CI qualification. The repair is committed; the CI
+   defect remains open until its failing environment passes.
 2. Finish **furniture height** qualification: verify
    actual cross-platform package/UI round trips. Both implementations and focused
    native/web tests are committed; the full feature is not yet qualified.
