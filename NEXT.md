@@ -1,74 +1,38 @@
 # Next work and pause handoff
 
-## Native furniture reflection — implementation in progress
+## Native furniture reflection — end-to-end qualification in progress
 
-Native furniture now has optional local-axis `mirrorX`/`mirrorY` fields (absent
-means unreflected). The Mirror action toggles X reflection without changing the
-angle; duplication preserves both axes. Plan glyph and SceneKit transforms use
-the fields, and neutral mesh export reverses face winding for reflected transforms.
-A coding/legacy-default/transformed-point test passed in session `69010`, log
-`/tmp/openplan3d-native-reflection-tests.log`, isolated simulator derived data
-`/tmp/openplan3d-render-ios-build` (terminal exit 0).
-This is an incomplete checkpoint: package bridge/sign-and-scale merging,
-RoomPlan export/import, neutral-export winding tests and live asymmetric-shape
-checks remain required before declaring mirroring supported end to end. The
-current full web browser run `5924` still uses the pre-reflection production build.
+Native `450b913` adds optional local-axis `mirrorX`/`mirrorY`, toggles reflection
+without angle changes, retains it on duplication, and applies it in glyph/SceneKit
+rendering and neutral exports (including corrected winding). Web package returns
+preserve scale magnitudes, independent angle/axis choices and omitted flags from
+older native encoders. RoomPlan export/import preserves equivalent reflected
+orientation through the transform matrix. See `docs/project-package-v1.md` for
+the exact contract; this is not a release or physical-device qualification.
 
-The package bridge now transfers native reflection signs independently of web
-scale magnitudes, and passes the saved baseline as a fallback when old native
-apps omit unknown reflection fields. Explicit false still removes reflection.
-All 31 package tests passed in `75847`, log
-`/tmp/web-package-reflection-tests-final.log` (initial `14594` had one test-field
-typo, corrected from `notes` to `note`). Web type check `16540` passed, log
-`/tmp/web-package-reflection-check.log`. Browser run `5924` is now terminal.
-RoomPlan propagation, mesh-winding and asymmetric visual validation remain unfinished.
+Verified:
+- Native coding/transform test `69010` and outward-face test `40145` passed.
+- All 31 package tests passed (`75847`, `/tmp/web-package-reflection-tests-final.log`).
+- All 28 web RoomPlan tests passed (`58649`, `/tmp/web-roomplan-reflection-tests.log`).
+- Both web type checks passed with zero diagnostics (`16540`, `54415`).
+- Build `19450` passed; its five formerly timed-out Chromium workflows all passed
+  in `67115` (12.8 minutes, `/tmp/web-reflection-failed-workflows-rerun.log`).
+  Traces: `/tmp/openplan-reflection-browser-retry-artifacts`. The timing changes
+  preserve every assertion; these are scoped passes on the package-reflection
+  build, which predates the RoomPlan source change.
 
-Update: native test `69010` finished with `TEST SUCCEEDED` and exit 0, covering
-omitted legacy flags, coding round-trip and transformed points for X/Y/both
-reflections without angle mutation. Web type check `16540` passed with zero
-errors/warnings. Reflection production build `19450` passed with exit 0, log
-`/tmp/web-reflection-production-build.log`.
+Active work — poll these handles before competing runs:
+- Native `85762`: three reflection coding/transform, outward-face and RoomPlan
+  round-trip tests; `/tmp/openplan3d-reflection-roundtrip-tests.log`.
+- Web build `69534`: current RoomPlan source; `/tmp/web-roomplan-reflection-production-build.log`.
 
-The five pre-reflection browser failures exhausted total workflow budgets. Guide
-completed Undo/Redo checks; entourage stopped at the final Redo download. AI desktop
-stopped during Generate activation, AI mobile during its screenshot after exact
-download validation, and Portuguese alignment exhausted 90 seconds amid exports.
-The report's runner-level error is simply the configured five-failure stop.
-Accessory/alignment cases now have a 180-second file-level budget and AI provider
-cases 360 seconds, including fixtures. Assertions and workflow steps are unchanged.
-The pending rerun will cover exactly those five failed Chromium cases; passing
-collection or larger budgets alone are not behavioral qualification.
-
-Five-case collection passed (`12762`). Rerun `67115` is active, log
-`/tmp/web-reflection-failed-workflows-rerun.log`; guide drag has passed the complete
-workflow. Poll before another browser run. Native winding test `40145` is active,
-log `/tmp/openplan3d-reflection-winding-tests.log`. It checks each exported face's
-normal against the box center for all four reflection combinations. RoomPlan
-still imports heading only, so its reflection propagation is not yet implemented.
-
-RoomPlan propagation checkpoint: native export now includes axis signs in the
-object transform; native and web import derive heading from local X and retain
-negative planar determinant as Y reflection. This equivalent decomposition keeps
-shape orientation but need not keep identical angle/axis fields (package returns
-retain those independently). All 28 web RoomPlan tests passed (`58649`, log
-`/tmp/web-roomplan-reflection-tests.log`), including transformed-point checks for
-all four reflection combinations. Type check `54415` is active, log
-`/tmp/web-roomplan-reflection-check.log`. The new native RoomPlan round-trip test
-has not run yet: wait for winding session `40145` before starting another native
-test in that derived directory. The browser retry `67115` has passed both guide
-and entourage workflows; its production build predates this RoomPlan source edit.
-
-Native winding session `40145` passed (`TEST SUCCEEDED`, exit 0). Current native
-session `85762` now runs all three reflection coding/transform, outward-face and
-RoomPlan round-trip tests, log `/tmp/openplan3d-reflection-roundtrip-tests.log`.
-Poll before another native test. A further asymmetric renderer test is written
-in `LegacyObjectFidelityTests.testRefrigeratorHandleReflectsAcrossLocalX` but has
-not run. It renders the off-centre refrigerator handle through `PlanRenderer`,
-checks visible pixel movement and horizontal-reflection equality, and attaches
-both images. Run it after `85762`, then inspect the images; do not claim a visual
-pass yet. Browser `67115` has also passed the full desktop AI-provider workflow;
-mobile AI and Portuguese alignment remain in progress. Type check `54415` remains
-active at this checkpoint.
+Next: after `85762`, run the committed asymmetric pixel test in
+`LegacyObjectFidelityTests.testRefrigeratorHandleReflectsAcrossLocalX` (`c89af98`).
+It uses the off-centre refrigerator handle, compares original/reflected renderer
+pixels and attaches images; inspect those images as well. Fresh live native Mirror
+UI checks, actual cross-app package return and current full browser qualification
+remain. Native RoomPlan round-trip, asymmetric pixels and live reflection behavior
+are not yet claimed as passing.
 
 ## Native editor action labels — Catalyst build and live checks passed
 
