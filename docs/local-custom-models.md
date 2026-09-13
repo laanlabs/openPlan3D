@@ -8,8 +8,9 @@ Save the project to persist the change. Cancellation leaves the project unchange
 
 The preview supports pointer orbit/zoom and labeled rotation/zoom buttons. The
 buttons can be focused with Tab and activated with Enter or Space; **Reset preview
-view** restores the original framing. These newer keyboard controls are awaiting
-browser and visual qualification. A device without WebGL can still add a valid
+view** restores the original framing. The complete keyboard workflow passed in Chromium and its captured layout was
+visually checked. Other browsers and physical assistive technology remain to be
+qualified. A device without WebGL can still add a valid
 model after validation, but cannot display its preview.
 
 Your model name appears in the canvas, Layers and Properties without translation.

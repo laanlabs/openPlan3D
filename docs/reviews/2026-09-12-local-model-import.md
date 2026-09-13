@@ -770,3 +770,20 @@ checks; every assertion remains. Run `82817` is active on the same verified buil
 (`/tmp/web-custom-model-preview-keyboard-browser-final.log`). The original failure
 log is `/tmp/web-custom-model-preview-keyboard-browser.log`. Fresh type check
 `73539` remains active.
+
+
+## Keyboard controls qualified in Chromium
+
+Fresh type check `73539` exited 0 with zero errors/warnings on the keyboard-control
+source. Chromium rerun `82817` exited 0: its six orbit/zoom buttons were focused and
+activated with Enter; each changed the rendered image, and Space on Reset returned
+the canvas exactly to its initial image. Cancellation completed with no page
+errors. The test took 5.4 minutes (6.1 minutes including runner overhead); the
+earlier 180-second attempt remains a startup timeout, not a passing run.
+Log: `/tmp/web-custom-model-preview-keyboard-browser-final.log`.
+
+The attached 512px-wide dialog screenshot was visually checked: model, control
+labels and metadata fields are legible, with no control overlap. The form scrolls
+within the dialog height. Copy: `/tmp/openplan-custom-model-keyboard-qualified.png`.
+This qualifies the named Chromium keyboard workflow, not mobile touch, physical
+assistive technology or the other engines.
