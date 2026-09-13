@@ -40,11 +40,11 @@ current native-return evidence.
 
 ## Fidelity and editing limits
 
-Shared edits include wall endpoints, thickness and uniform height; door/window geometry and common styles/orientation; furniture placement, angle and footprint; floor names; room names/label positions/colors; plan notes and placed text; and the shared floor's supported tracing image. Element mappings preserve identities across moves and IDs that are not native UUIDs. Unit conversion retains fractional dimensions.
+Shared edits include wall endpoints, thickness and uniform height; door/window geometry and common styles/orientation; furniture placement, angle, footprint and measured height; floor names; room names/label positions/colors; plan notes and placed text; and the shared floor's supported tracing image. Element mappings preserve identities across moves and IDs that are not native UUIDs. Unit conversion retains fractional dimensions.
 
 New web exports mark `baseline.json` with `openplanItemDetailsVersion: 1`. For legacy exports without that marker, the current native metadata overrides stale detail fields retained by older web clients. Unknown marker versions are rejected before persistence.
 
-Web returns compare the current native projection with its saved baseline and apply only changed shared properties to `web.json`. Unchanged web fields therefore survive, including floor elevations, curves, sloped wall heights, textures, stairs, columns, dimensions, groups, custom imagery, mirrored/scaled furniture and unknown extensions. A changed native wall height sets both endpoint heights on return. Furniture footprint changes account for existing web scale/mirroring. Unknown native materials/styles and other fields remain in the native source. Unchanged native defaults and pin-vs-styled-label choices remain unchanged on web return exports.
+Web returns compare the current native projection with its saved baseline and apply only changed shared properties to `web.json`. Unchanged web fields therefore survive, including floor elevations, curves, sloped wall heights, textures, stairs, columns, dimensions, groups, custom imagery, mirrored/scaled furniture and unknown extensions. A changed native wall height sets both endpoint heights on return. Furniture dimension changes account for existing web scale/mirroring on all three axes. Unknown native materials/styles and other fields remain in the native source. Unchanged native defaults and pin-vs-styled-label choices remain unchanged on web return exports.
 
 The catalogs and feature sets are not yet identical. iPhone displays straight, uniform-height walls and simplified furniture; it does not edit web floor elevations, wall curves/slopes, arbitrary web opening styles or web-only annotations. Unsupported furniture uses a basic web preview while retaining its original native category. Room labels without a detected enclosure remain preserved, though the web cannot draw an enclosed room fill for them. Photos, per-item notes, furniture/opening prices, room ceiling overrides/classification and wall construction materials are editable in the web Item details panel and on iPhone. Rooms can be selected from Layers, including retained native labels without a detected enclosure. Construction material and room ceiling metadata travel to iPhone; web wall colors, textures and endpoint heights remain separately editable. The import previews disclose these limits. Use the current web release to edit these fields; older releases retain them but do not provide their editing controls.
 
@@ -107,6 +107,30 @@ Qualification is in progress: package, web RoomPlan, native reflection coding,
 RoomPlan round-trip and export-winding tests pass. Asymmetric-render and live
 UI verification are tracked in `NEXT.md`. These
 changes do not claim App Store release or physical-device qualification.
+
+## Furniture height
+
+Native furniture may carry an optional positive `height` in metres (maximum
+10,000). Native RoomPlan import retains the measured vertical dimension; saved
+plans, duplication, SceneKit preview, RoomPlan export and package merging retain
+it. Older native plans without height keep their category-default appearance.
+
+The web projection converts an explicit height to centimetres. Web package
+export includes absolute Z scale in the physical height. Native height edits on
+return divide out that retained scale, preserving independent web dimension and
+scale values. For example, 91 cm at Z scale 2.5 exports as 2.275 m; a native edit
+to 3.125 m returns as 125 cm with Z scale still 2.5. An omitted height in an older
+native return inherits the saved baseline, preventing unintended flattening.
+
+An unchanged standalone native record without height stays without height on
+re-export. Flat catalog symbols whose catalog height is zero omit the native
+height rather than emitting an invalid zero; their web definition remains in
+`web.json`. Native previews still use simplified category geometry for symbols.
+No package version change is required.
+
+Native focused tests and web package/category tests pass. Actual cross-platform
+UI/package height qualification and broader regression results remain tracked in
+NEXT and STATUS; the reflection qualification does not prove height qualification.
 
 ## Furniture category display contract
 

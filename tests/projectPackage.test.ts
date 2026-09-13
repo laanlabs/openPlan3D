@@ -35,6 +35,51 @@ function webFixture() {
 }
 beforeEach(() => { mockStorage(); });
 
+it('projects measured native furniture height and preserves legacy omission', () => {
+  const files = nativeFiles(), plan = packageJSON(files['plan.json']);
+  plan.furniture[0].height = 2.137;
+  files['plan.json'] = jsonBytes(plan);
+  const project = readProjectPackage(writePackageZip(files)).project;
+  expect(project.floors[0].furniture[0].height).toBeCloseTo(213.7, 10);
+  const returned = packageJSON(readPackageZip(projectPackageBytes(project))['plan.json']);
+  expect(returned.furniture[0].height).toBeCloseTo(2.137, 10);
+  const legacy = readProjectPackage(writePackageZip(nativeFiles())).project;
+  expect(legacy.floors[0].furniture[0].height).toBeUndefined();
+  expect(packageJSON(readPackageZip(projectPackageBytes(legacy))['plan.json']).furniture[0].height).toBeUndefined();
+});
+
+it('merges native height edits without flattening web vertical scale', () => {
+  const source = webFixture();
+  source.floors[0].furniture[0].scale.z = 2.5;
+  const files = readPackageZip(projectPackageBytes(source));
+  const plan = packageJSON(files['plan.json']);
+  expect(plan.furniture[0].height).toBeCloseTo(2.275, 10);
+  plan.furniture[0].height = 3.125;
+  files['plan.json'] = jsonBytes(plan);
+  const project = readProjectPackage(writePackageZip(files)).project;
+  expect(project.floors[0].furniture[0]).toMatchObject({ height: 125, scale: { x: -2, y: 1.5, z: 2.5 }, rotation: 37.5 });
+  expect(packageJSON(readPackageZip(projectPackageBytes(project))['plan.json']).furniture[0].height).toBeCloseTo(3.125, 10);
+});
+
+it('retains web height when an older native encoder omits it', () => {
+  const source = webFixture();
+  source.floors[0].furniture[0].scale.z = 2.5;
+  const files = readPackageZip(projectPackageBytes(source)), plan = packageJSON(files['plan.json']);
+  delete plan.furniture[0].height;
+  files['plan.json'] = jsonBytes(plan);
+  expect(readProjectPackage(writePackageZip(files)).project.floors[0].furniture[0])
+    .toEqual(source.floors[0].furniture[0]);
+});
+
+it('retains flat catalog symbols without emitting invalid native dimensions', () => {
+  const source = webFixture();
+  source.floors[0].furniture[0].catalogId = 'sym_ceiling_fan';
+  delete source.floors[0].furniture[0].height;
+  const bytes = projectPackageBytes(source);
+  expect(packageJSON(readPackageZip(bytes)['plan.json']).furniture[0].height).toBeUndefined();
+  expect(readProjectPackage(bytes).project.floors[0].furniture[0]).toEqual(source.floors[0].furniture[0]);
+});
+
 it('imports and returns the actual native UI reflected refrigerator package', () => {
   const bytes = new Uint8Array(readFileSync('tests/fixtures/native-ui-reflection-package.zip'));
   const original = packageJSON(readPackageZip(bytes)['plan.json']);
