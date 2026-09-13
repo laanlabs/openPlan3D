@@ -1,6 +1,6 @@
 # OpenPlan3D status
 
-Last verified: **September 12, 2026, 23:23 EDT**.
+Last verified: **September 12, 2026, 23:29 EDT**.
 
 ## Goal and overall state
 
@@ -55,9 +55,10 @@ website changes does not, by itself, verify a production deployment.
 
 | Check | Evidence and limits |
 | --- | --- |
-| Full native simulator and Catalyst suites | Each reported 264 tests: **262 passed, two optional integration skips, zero failures**, on source `3d076a9`. These runs predate the later package-merger fix. |
+| Full native simulator suite | **265 passed, two optional integration skips, zero failures** on `8fdd1bf`, covering height and package-merger changes. Session `72751` exited 0; XCTest 93.611 seconds. |
+| Full native Catalyst suite | Earlier `3d076a9` baseline: 262 passed, two skips, zero failures. Current-source full run `25783` is active. |
 | Later native package-merger regression | **Passed**, exit 0, 1.086 seconds, on `72906c0`. This is a focused regression, not a newer full native suite. |
-| Full web unit suite before raster fix | 1,135 passed and three five-second timeouts out of 1,138 tests. All nine tests in the three affected files passed unchanged in a one-worker rerun. |
+| Full web unit suite | **1,142 passed in 119 files** in CI run `34735405519` on the status-bar/height implementation. Type check and production build also passed. The earlier local timeout results are superseded for this source. |
 | Raster export unit tests and build | **27 tests passed**; production build passed. |
 | Earlier local full browser run | 35 passed, five timeouts, 1,139 unrun. All five timed-out cases later passed unchanged on the current-at-that-time build. Full coverage was not achieved. |
 | Earlier CI browser run | All engines exceeded the 12-minute suite limit; Firefox also exposed the raster-width assertion failure. This motivated sharding and the raster fix. |
@@ -74,7 +75,7 @@ passed (exit 0; 0.022 and 0.057 seconds). Web `79633db` now imports/exports
 physical height, preserves Z scale, retains heights omitted by older encoders,
 and keeps flat catalog symbols valid. All 92 package/category tests and the web
 type check passed. **Actual cross-platform UI/package height qualification remains
-open**. The older full native suite passes do not cover this new change.
+open**. The current full simulator suite now covers these changes; Catalyst is running.
 
 ## Phone status-bar repair in progress
 
@@ -89,6 +90,16 @@ remains open.
 
 ## Current validation and CI
 
+- **Full native simulator completed:** `72751` passed all 267 reported tests
+  with two optional skips and zero failures. Log: `/tmp/native-height-full-simulator.log`.
+- **Full native Catalyst active:** `25783`, log `/tmp/native-height-full-catalyst.log`.
+  Poll before other native work in `/tmp/openplan3d-render-ui-build`.
+- **Current CI active:** [run 34735405519](https://github.com/laanlabs/openPlan3D/actions/runs/34735405519)
+  passed all 1,142 unit tests, type check, and build; browser shards and benchmarks
+  are running. Build log: `/tmp/openplan-statusbar-ci-build.log`.
+- **Height handoff package generated:** passing fixture run `81629` produced
+  `/tmp/web-height-return-package.zip`, with native height 3.125 m and web height
+  125 cm at Z scale 2.5. Native file/UI exchange is the next qualification step.
 - **Native furniture-height regression completed:** session `40396` exited 0;
   both tests passed. Log: `/tmp/native-furniture-height-regression.log`.
 - **Raster browser regression completed:** session `26950` exited successfully;

@@ -4,6 +4,24 @@ The user-facing goal status is maintained in [STATUS.md](STATUS.md). Update it
 when implementation, validation, blockers or next priorities change; keep this
 file as the detailed backlog and evidence history.
 
+## Current full-suite checkpoint and height handoff artifact
+
+Full simulator run `72751` passed on native `8fdd1bf`: 267 reported, 265 passed,
+two optional worker skips, zero failures, exit 0; XCTest 93.611 seconds. Log:
+`/tmp/native-height-full-simulator.log`. Full Catalyst run `25783` is active in
+`/tmp/native-height-full-catalyst.log`; poll before competing native work in
+`/tmp/openplan3d-render-ui-build`.
+
+CI run `34735405519` build job `103665831685` passed all 1,142 web unit tests in
+119 files, type check (zero diagnostics), and production build. Browser shards
+and benchmarks remain active. Log: `/tmp/openplan-statusbar-ci-build.log`.
+
+Passing fixture run `81629` generated `/tmp/web-height-return-package.zip` via
+`OPENPLAN_HEIGHT_RETURN_PATH`. Its actual package records contain native height
+3.125 m and web height 125 cm at Z scale 2.5. Use this verified web output for the
+next native import/save/export check; actual cross-platform height qualification
+is not yet complete. Log: `/tmp/web-height-return-artifact.log`.
+
 ## Phone status-bar scrollbar clearance — verification in progress
 
 Linux Firefox CI screenshot confirms a horizontal scrollbar covering the mobile

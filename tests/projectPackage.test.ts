@@ -58,7 +58,9 @@ it('merges native height edits without flattening web vertical scale', () => {
   files['plan.json'] = jsonBytes(plan);
   const project = readProjectPackage(writePackageZip(files)).project;
   expect(project.floors[0].furniture[0]).toMatchObject({ height: 125, scale: { x: -2, y: 1.5, z: 2.5 }, rotation: 37.5 });
-  expect(packageJSON(readPackageZip(projectPackageBytes(project))['plan.json']).furniture[0].height).toBeCloseTo(3.125, 10);
+  const returned = projectPackageBytes(project);
+  expect(packageJSON(readPackageZip(returned)['plan.json']).furniture[0].height).toBeCloseTo(3.125, 10);
+  if (process.env.OPENPLAN_HEIGHT_RETURN_PATH) writeFileSync(process.env.OPENPLAN_HEIGHT_RETURN_PATH, returned);
 });
 
 it('retains web height when an older native encoder omits it', () => {
