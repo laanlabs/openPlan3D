@@ -1,16 +1,17 @@
 # Next work and pause handoff
 
-## Native editor action labels — build and live checks pending
+## Native editor action labels — Catalyst build and live checks passed
 
-Native `PlanEditorView` now explicitly names Undo/Redo and contextual properties,
-left/right 15-degree rotation, duplication, mirroring and deletion, with matching
-desktop tooltips. Tool buttons also expose their selected state. This addresses
-icon-only controls whose actions previously relied on system-symbol descriptions.
-The change preserves existing actions and layout. Catalyst compilation is running
-in session `33064`, log `/tmp/openplan3d-editor-action-labels-build.log`, derived
-data `/tmp/openplan3d-render-ui-build`. Poll that handle before rebuilding. A fresh
-isolated app accessibility-tree check and physical assistive-technology checks
-remain pending; no native UI qualification is claimed yet.
+Native `43fd94f` explicitly names Undo/Redo and contextual properties, left/right
+15-degree rotation, duplication, mirroring and deletion, with desktop tooltips.
+Tool buttons expose selected state. Catalyst build `33064` passed, log
+`/tmp/openplan3d-editor-action-labels-build.log`. The isolated signed copy
+`/tmp/OpenPlan3D-Action-Labels-Sept12-QA.app` exposed every new label in its
+accessibility tree; changing Select to Wall updated selected traits. Adding a
+chair exposed the contextual actions. Labeled rotation/properties/Undo/Redo/Done
+were exercised, and the saved plan confirms a 15-degree rotation and 24-inch width.
+See `docs/reviews/2026-09-12-native-editor-action-labels.md` for scope. Physical
+VoiceOver/touch qualification remains open; device inventory found no devices.
 
 ## Current regression qualification — September 12
 
