@@ -1,15 +1,17 @@
 # Next work and pause handoff
 
-## Native reflected SVG export — validation pending
+## Native reflected SVG export — regression passed
 
 Follow-up inspection found that SVG furniture still applied translation/rotation
 without reflection. `PlanSVGExporter` now appends local-axis reflection to both
 outline and detail paths, preserving physical stroke widths. PNG/PDF already call
 the corrected `PlanRenderer`. The new SVG test checks both path transforms for
 X/Y/both reflection and exact unchanged output after removing only the reflection
-transform. Native session `1018` is active, log
-`/tmp/openplan3d-reflection-svg-tests.log`; poll before another native test in
-`/tmp/openplan3d-render-ios-build`. No SVG test pass is claimed yet.
+transform. Native session `1018` passed (exit 0, test 0.013 seconds), log
+`/tmp/openplan3d-reflection-svg-tests.log`. The full simulator `FloorPlanTests`
+target now runs in session `17153`, log
+`/tmp/openplan3d-reflection-full-native-tests.log`; poll before another native
+test in `/tmp/openplan3d-render-ios-build`. Full browser `96834` remains active.
 
 ## Native furniture reflection — end-to-end qualification in progress
 

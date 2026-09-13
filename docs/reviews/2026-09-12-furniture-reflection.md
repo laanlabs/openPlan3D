@@ -97,3 +97,15 @@ only UUID letter-case normalization: category, identity, reflection, angle, cent
 and both dimensions match. This completes the scoped native UI → web service →
 native UI package round-trip. It does not substitute for the browser import UI,
 physical-device delivery, every furniture category or full-project regression QA.
+
+
+## SVG export follow-up
+
+Native `3d076a9` repairs a remaining export path: `PlanSVGExporter` now applies
+local reflection to both glyph paths after translation/rotation. Unit-magnitude
+reflection preserves physical stroke widths. The regression checks X/Y/both
+reflection, both outline/detail transforms and exact unchanged SVG content after
+removing only the reflection transform. Run `1018` passed (test 0.013 seconds),
+log `/tmp/openplan3d-reflection-svg-tests.log`. PNG/PDF use the already qualified
+`PlanRenderer` path. Full simulator `FloorPlanTests` now runs in `17153`, log
+`/tmp/openplan3d-reflection-full-native-tests.log`; it is not yet a claimed pass.
