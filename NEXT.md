@@ -58,6 +58,18 @@ has not run yet: wait for winding session `40145` before starting another native
 test in that derived directory. The browser retry `67115` has passed both guide
 and entourage workflows; its production build predates this RoomPlan source edit.
 
+Native winding session `40145` passed (`TEST SUCCEEDED`, exit 0). Current native
+session `85762` now runs all three reflection coding/transform, outward-face and
+RoomPlan round-trip tests, log `/tmp/openplan3d-reflection-roundtrip-tests.log`.
+Poll before another native test. A further asymmetric renderer test is written
+in `LegacyObjectFidelityTests.testRefrigeratorHandleReflectsAcrossLocalX` but has
+not run. It renders the off-centre refrigerator handle through `PlanRenderer`,
+checks visible pixel movement and horizontal-reflection equality, and attaches
+both images. Run it after `85762`, then inspect the images; do not claim a visual
+pass yet. Browser `67115` has also passed the full desktop AI-provider workflow;
+mobile AI and Portuguese alignment remain in progress. Type check `54415` remains
+active at this checkpoint.
+
 ## Native editor action labels — Catalyst build and live checks passed
 
 Native `43fd94f` explicitly names Undo/Redo and contextual properties, left/right
