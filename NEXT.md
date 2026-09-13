@@ -1,5 +1,9 @@
 # Next work and pause handoff
 
+The user-facing goal status is maintained in [STATUS.md](STATUS.md). Update it
+when implementation, validation, blockers or next priorities change; keep this
+file as the detailed backlog and evidence history.
+
 ## CI browser capacity and raster rounding — September 12
 
 CI run `34733632131` reached its 720-second suite limit in every engine:
