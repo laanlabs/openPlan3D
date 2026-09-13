@@ -5,12 +5,16 @@
 Browser collection at `b65549e` succeeds with 1,179 cases in 146 files: 393 per
 engine. Inventory: `/tmp/web-current-browser-inventory.json` (session `82422`,
 exit 0, no collection errors). The historical 1,116-case qualification below
-does not cover all current changes. The full unit suite is now running with
-two workers in session `82392`, log `/tmp/web-current-full-unit.log`.
-Poll that handle before starting a competing unit run. No full-unit pass is
-claimed yet. Nested-room diagnostic browser validation remains in session
-`68614`; Chromium passed and its trace contains the coordinate attachment,
-showing the 40 × 15 pixel move and exact restoration. Firefox/WebKit are pending.
+does not cover all current changes. The full unit suite passed all 1,132 tests
+in 119 files (session `82392`, exit 0, 211.46 seconds), log
+`/tmp/web-current-full-unit.log`. Nested-room diagnostic validation passed all
+three engines (session `68614`, exit 0, 7.4 minutes); traces are preserved in
+`/tmp/openplan-nested-undo-coordinate-artifacts`.
+
+Full browser qualification is now running in session `5924`, log
+`/tmp/web-current-full-browser.log`, with a five-failure stop and one worker.
+Its JSON report will be `/tmp/web-current-full-browser.json`. Poll that handle
+before starting another browser run. No current full-browser pass is claimed.
 
 ## Local custom-model import — UI qualification in progress
 
@@ -84,7 +88,8 @@ workflow repetitions passed (8.5 minutes total). Earlier attempts timed out
 before Undo. These passes do not establish a fix for the intermittent failure.
 The test now records label-local coordinates, canvas transforms and bounds around
 Undo, retaining the exact restoration assertion. All-engine diagnostic validation
-is running in session `68614`, log `/tmp/web-nested-undo-coordinate-diagnostics.log`.
+passed in session `68614` (exit 0, three passes in 7.4 minutes), log
+`/tmp/web-nested-undo-coordinate-diagnostics.log`.
 See
 `docs/reviews/2026-09-12-nested-room-undo-reproduction.md` for exact evidence.
 

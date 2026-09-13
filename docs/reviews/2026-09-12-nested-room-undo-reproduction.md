@@ -96,6 +96,10 @@ canvas transform, CSS bounds, backing dimensions and screen anchors) and attache
 them with pre-drag and moved anchors after the Undo assertion, including on failure.
 This lets a future failure distinguish viewport movement from unchanged drawing
 coordinates. The exact assertion, timeout and full workflow remain unchanged.
-Validation runs across all three engines in session `68614`, log
-`/tmp/web-nested-undo-coordinate-diagnostics.log`. The intermittent defect remains
-open; passing reruns alone do not prove a fix.
+Validation session `68614` terminated with exit 0: Chromium (2.9 minutes),
+Firefox (2.6 minutes) and WebKit (46.9 seconds) all passed; total 7.4 minutes.
+Log: `/tmp/web-nested-undo-coordinate-diagnostics.log`; traces preserved in
+`/tmp/openplan-nested-undo-coordinate-artifacts`. The Chromium and Firefox trace
+attachments were inspected and contain 42 and 81 draw records respectively,
+with exact pre-drag/restored screen-anchor equality and separate local/transform/
+canvas data. The intermittent defect remains open; these passes do not prove a fix.
