@@ -54,10 +54,14 @@ in 119 files (session `82392`, exit 0, 211.46 seconds), log
 three engines (session `68614`, exit 0, 7.4 minutes); traces are preserved in
 `/tmp/openplan-nested-undo-coordinate-artifacts`.
 
-Full browser qualification is now running in session `5924`, log
-`/tmp/web-current-full-browser.log`, with a five-failure stop and one worker.
-Its JSON report will be `/tmp/web-current-full-browser.json`. Poll that handle
-before starting another browser run. No current full-browser pass is claimed.
+Pre-reflection browser qualification `5924` is terminal (exit 1): nine passed,
+five timed out, 1,165 did not run (23.5 minutes). It stopped at the five-failure
+limit; an additional runner-level error also needs inspection. Logs/report:
+`/tmp/web-current-full-browser.log`, `/tmp/web-current-full-browser.json`.
+Artifacts: `/tmp/openplan-full-browser-pre-reflection-artifacts`. Guide and
+entourage Undo equality checks passed before timeout; AI-provider and Portuguese
+alignment traces remain to inspect. No current full-browser pass is claimed.
+The reflection package source is newer than this production build.
 
 ## Local custom-model import — UI qualification in progress
 
