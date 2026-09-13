@@ -4,6 +4,20 @@ The user-facing goal status is maintained in [STATUS.md](STATUS.md). Update it
 when implementation, validation, blockers or next priorities change; keep this
 file as the detailed backlog and evidence history.
 
+## September 13, 00:14 EDT — interior area comparison implemented
+
+Area Summary now separately displays interior area (room polygons minus the
+union of wall footprints) and explains that the existing breakdown uses wall
+centerlines. English/Portuguese text is included. Bounded scanline integration
+supports concavity, nested holes, overlapping/internal walls and faceted curves;
+invalid/over-budget cases display Unavailable. Floor-opening rooms are excluded.
+
+The new calculation matches native's 10.64 m² rectangle result. All 18 geometry
+tests passed (`35410`, 796 ms); production build passed, and all three localized
+phone browser workflows passed (`8826`, 20.1 seconds). See the area record for
+algorithm details and logs. General native raster parity, room labels, category
+schedules and exports remain open; this explicit comparison is not full alignment.
+
 ## September 13, 00:08 EDT — area convention mismatch measured
 
 Paired native/web runtime baselines use identical 4 × 3 m wall centerlines and

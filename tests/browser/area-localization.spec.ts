@@ -16,6 +16,9 @@ test('area summary keeps measurements and imported room names across languages',
   await page.getByRole('button', { name: 'Area Summary', exact: true }).click();
   const english = page.getByRole('dialog', { name: 'Area Summary', exact: true });
   await expect(english).toContainText('Uncategorized');
+  await expect(english.getByTestId('interior-area-summary')).toContainText('Interior area');
+  await expect(english.getByTestId('interior-area-summary')).toContainText('wall centerlines');
+  await expect(english.getByTestId('interior-area-summary').locator('strong')).toHaveText(/\d+\.\d+ m²/);
   const measurements = (text: string) => text.match(/\d+(?:\.\d+)?\s*(?:m²|cm|m|%)/g);
   const before = measurements(await english.innerText());
   expect(before?.length).toBeGreaterThan(2);
@@ -30,6 +33,8 @@ test('area summary keeps measurements and imported room names across languages',
   await page.getByRole('button', { name: 'Resumo de áreas', exact: true }).click();
   const portuguese = page.getByRole('dialog', { name: 'Resumo de áreas', exact: true });
   await expect(portuguese).toContainText('Sem categoria');
+  await expect(portuguese.getByTestId('interior-area-summary')).toContainText('Área interna');
+  await expect(portuguese.getByTestId('interior-area-summary')).toContainText('eixos das paredes');
   await expect(portuguese).toContainText('My {value} room');
   await expect(portuguese).toContainText('1P / 1J');
   expect(measurements(await portuguese.innerText())).toEqual(before);

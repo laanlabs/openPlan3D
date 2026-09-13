@@ -3,7 +3,9 @@
   import { activeFloor, detectedRoomsStore } from '$lib/stores/project';
   import { projectSettings, formatArea, formatLength } from '$lib/stores/settings';
   import type { Room, Wall, RoomCategory } from '$lib/models/types';
-  import { resolveRooms } from '$lib/utils/roomDetection';
+  import { resolveRooms, resolveRoomGeometry } from '$lib/utils/roomDetection';
+  import { roomHoles } from '$lib/utils/roomNesting';
+  import { interiorRoomArea } from '$lib/utils/interiorArea';
 
   // Auto subscriptions end when the summary dialog closes.
   let floor = $derived($activeFloor);
@@ -15,6 +17,19 @@
   let allRooms = $derived(floor ? resolveRooms(floor, detectedRooms) : []);
 
   let totalArea = $derived(allRooms.reduce((sum: number, r: Room) => sum + r.area, 0));
+  let interiorArea = $derived.by(() => {
+    if (!floor) return 0;
+    const geometry = resolveRoomGeometry(floor, detectedRooms);
+    const holes = roomHoles(geometry.map(item => item.polygon));
+    let total = 0;
+    for (let i = 0; i < geometry.length; i++) {
+      if (geometry[i].room.floorOpening) continue;
+      const area = interiorRoomArea(geometry[i].polygon, holes[i], floor.walls);
+      if (area === null) return null;
+      total += area;
+    }
+    return total;
+  });
 
   let roomsByCategory = $derived.by(() => {
     const cats: Record<SummaryCategory, Room[]> = { indoor: [], outdoor: [], garage: [], utility: [], uncategorized: [] };
@@ -64,6 +79,13 @@
 </script>
 
 <div class="space-y-3">
+  <div class="rounded-lg bg-gray-50 p-2 text-xs text-gray-700" data-testid="interior-area-summary">
+    <div class="flex justify-between gap-2">
+      <span>{$t('areaSummary.interiorArea')}</span>
+      <strong>{interiorArea === null ? $t('areaSummary.unavailable') : formatArea(interiorArea, settings.units)}</strong>
+    </div>
+    <p class="mt-1 text-gray-500">{$t('areaSummary.boundaryExplanation')}</p>
+  </div>
   <!-- Quick Stats -->
   <div class="grid grid-cols-2 gap-2">
     <div class="bg-blue-50 rounded-lg p-2 text-center">

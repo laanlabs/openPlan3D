@@ -38,3 +38,31 @@ then cover unequal wall thickness, concave and nested rooms, shared walls,
 curves, floor openings, split/merge identity, and native raster error bounds.
 The current fixture proves the mismatch; cross-platform area agreement remains
 open. This work does not establish a jurisdiction-specific survey standard.
+
+## Interior area comparison implemented
+
+Area Summary now displays a separate interior-area total and labels the existing
+centerline totals/breakdown explicitly, in English and Portuguese. It subtracts
+the union of square-capped wall footprints from room polygons with immediate
+nested holes; floor-opening rooms do not contribute. Overlapping walls count
+once. Curved walls use the existing 16-span faceting. Door/window openings do
+not remove wall floor footprints, consistent with native raster measurement.
+
+The new integration splits horizontal bands at polygon vertices and edge
+intersections; within a band scanline width is linear, so midpoint integration
+is exact for those polygons. Invalid geometry or work beyond 600 edges / two
+million band-edge operations returns unknown and the UI says Unavailable.
+
+Validation: 18 interior-area/room/nesting tests passed (`35410`, 796 ms),
+including the native rectangle match (10.64 m²), rotation/translation/winding,
+duplicate walls, holes, internal walls, concave rooms and invalid/budgeted input.
+Production build passed and all three mobile English/Portuguese browser workflows
+passed (`8826`, 20.1 seconds). Logs: `/tmp/web-interior-area-regressions.log`,
+`/tmp/web-interior-area-build-final.log`, `/tmp/web-interior-area-browser.log`.
+Type check initially passed with zero diagnostics; final type check is recorded
+in `/tmp/web-interior-area-check-final.log`.
+
+This adds an explicit comparison; it does not yet migrate room labels, categories,
+exports or native raster measurement to one universal convention. Tiny/thin walls,
+curves, uneven thickness and raster error across arbitrary native plans still
+need cross-platform qualification. No claim of general exact area parity is made.
