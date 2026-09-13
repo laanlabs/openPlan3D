@@ -1,6 +1,12 @@
 # OpenPlan3D status
 
-Last verified: **September 13, 2026, 00:14 EDT**.
+Last verified: **September 13, 2026, 00:20 EDT**.
+
+## Work paused by user
+
+Implementation and validation are paused at the user's request until access to
+the Asta 6 model is restored. The overall `NEXT.md` goal remains active and is
+not marked complete. No build, test, browser, or native QA job is running.
 
 ## Goal and overall state
 
@@ -21,11 +27,10 @@ Remote state was checked when preparing this report.
 | Repository | Branch | Latest implementation checkpoint | Delivery |
 | --- | --- | --- | --- |
 | Web app: `openPlan3D` | `codex/threejs-render-lab` | `5e09840` — phone status-bar scrollbar clearance | Committed and pushed; [PR #95](https://github.com/laanlabs/openPlan3D/pull/95) remains open |
-| Native app: `openplan3d-ios` | `codex/local-floorplan-render` | `2fc1dd9` — native furniture height properties | Committed and pushed |
-| Website: `openplan3d-www` | `main` | `520f86e` — App Store links | Committed and pushed; local checkout is one commit behind remote `main` |
+| Native app: `openplan3d-ios` | `codex/local-floorplan-render` | `bdaad71` — area convention baseline | Committed and pushed |
+| Website: `openplan3d-www` | `main` | `4802b01` — WebP image delivery and CDN caching | Committed and pushed; local checkout matches remote `main` |
 
-All three working trees were clean at the prior checkpoint. The web branch was
-verified equal to its remote at `0fcae31` before this documentation update. App work
+All three working trees are clean and match their remotes at this pause. App work
 remains on development branches; it has not been merged into `main`. Pushing the
 website changes does not, by itself, verify a production deployment.
 

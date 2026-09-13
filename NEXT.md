@@ -4,6 +4,13 @@ The user-facing goal status is maintained in [STATUS.md](STATUS.md). Update it
 when implementation, validation, blockers or next priorities change; keep this
 file as the detailed backlog and evidence history.
 
+## September 13, 00:20 EDT — user-requested pause
+
+Implementation and validation are paused until access to the Asta 6 model is
+restored. All three repositories are committed, pushed and clean at this pause;
+no build, test, browser or native QA job is running. The overall goal remains
+active and all outstanding scope below remains open. Resume from [STATUS.md](STATUS.md).
+
 ## September 13, 00:14 EDT — interior area comparison implemented
 
 Area Summary now separately displays interior area (room polygons minus the
