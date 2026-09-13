@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t, type TranslationKey } from '$lib/i18n';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
   import { beforeNavigate, goto } from '$app/navigation';
@@ -11,7 +12,7 @@
   import { downloadProjectJSON as exportAsJSON } from '$lib/utils/projectBackup';
 
   let busy = $state(false);
-  let message = $state('');
+  let message = $state<TranslationKey | null>(null);
   let target = $state<URL | null>(null);
   let updateAvailable = $state(false);
 
@@ -26,7 +27,7 @@
       const destination = target;
       void prepareToLeave().then(saved => {
         busy = false;
-        if (!saved) { message = 'Your changes could not be saved. Stay here to retry or download a JSON backup.'; return; }
+        if (!saved) { message = 'deployment.navigateFailed'; return; }
         if (!updateAvailable && target === destination) {
           target = null;
           void goto(destination, { replaceState: navigation.type === 'popstate' });
@@ -38,7 +39,7 @@
   async function reload() {
     busy = true;
     if (!await prepareToLeave()) {
-      message = 'Your changes could not be saved. Retry saving or download a JSON backup before reloading.';
+      message = 'deployment.reloadFailed';
       busy = false;
       return;
     }
@@ -67,11 +68,11 @@
 
 {#if updateAvailable || $loadingFailure || message}
   <aside role="status" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[90] w-[min(95vw,650px)] rounded-xl border border-blue-300 bg-white p-4 text-slate-800 shadow-xl print-hide">
-    <p class="text-sm">{message || (updateAvailable ? 'An app update is ready. Reload to use the latest version. Your project will be saved first.' : $loadingFailure)}</p>
+    <p class="text-sm">{message ? $t(message) : (updateAvailable ? $t('deployment.update') : $loadingFailure ? $t($loadingFailure) : '')}</p>
     <div class="mt-3 flex flex-wrap gap-3">
-      <button class="rounded bg-blue-600 px-3 py-1.5 text-sm text-white disabled:opacity-50" disabled={busy} onclick={reload}>{busy ? 'Saving…' : 'Save and reload'}</button>
-      {#if $currentProject}<button class="text-sm underline" onclick={() => { if ($currentProject) exportAsJSON($currentProject); }}>Download JSON backup</button>{/if}
-      {#if message}<button class="text-sm underline" onclick={() => { message = ''; target = null; }}>Keep editing</button>{/if}
+      <button class="rounded bg-blue-600 px-3 py-1.5 text-sm text-white disabled:opacity-50" disabled={busy} onclick={reload}>{busy ? $t('deployment.saving') : $t('deployment.reload')}</button>
+      {#if $currentProject}<button class="text-sm underline" onclick={() => { if ($currentProject) exportAsJSON($currentProject); }}>{$t('deployment.backup')}</button>{/if}
+      {#if message}<button class="text-sm underline" onclick={() => { message = null; target = null; }}>{$t('deployment.stay')}</button>{/if}
     </div>
   </aside>
 {/if}

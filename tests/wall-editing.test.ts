@@ -19,6 +19,23 @@ beforeEach(() => {
 const floor = () => get(activeFloor)!;
 const serialized = () => JSON.stringify(get(currentProject));
 
+it('unchanged endpoint coordinates preserve Undo and Redo', () => {
+  const before = structuredClone(floor());
+  updateWall('a-0', { color: '#123456' });
+  const edited = structuredClone(floor());
+  updateWall('a-0', { start: { ...before.walls[0].start }, end: { ...before.walls[0].end } });
+  undo(); expect(floor()).toEqual(before);
+  updateWall('a-0', { start: { ...before.walls[0].start } });
+  redo(); expect(floor()).toEqual(edited);
+});
+
+it('uniform height edits still flatten a slope when the maximum height is unchanged', () => {
+  const before = structuredClone(floor());
+  updateWall('a-0', { height: 350 });
+  expect(floor().walls[0]).toMatchObject({ height: 350, startHeight: 350, endHeight: 350 });
+  undo(); expect(floor()).toEqual(before);
+});
+
 describe('connected wall dimensions', () => {
   it('keeps joined corners and named rooms during fractional resizing, in one undo entry', () => {
     const before = serialized(), oldWall = structuredClone(floor().walls[0]), other = structuredClone(get(currentProject)!.floors[1]);

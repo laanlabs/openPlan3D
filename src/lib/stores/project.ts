@@ -1,3 +1,8 @@
+import { selectionRotation } from '$lib/utils/selectionRotation';
+import { splitWallRoomReferences } from '$lib/utils/splitWallRooms';
+import { splitWallGeometry } from '$lib/utils/splitWallGeometry';
+import { wallPathProfile } from '$lib/utils/wallProfiles';
+import { duplicatePlanSelection, pastePlanSelection } from '$lib/utils/duplicateSelection';
 import { writable, derived, get } from 'svelte/store';
 import type { Project, Floor, Wall, Door, Window as Win, FurnitureItem, Point, Stair, Column, BackgroundImage, GuideLine, ElementGroup, EntourageItem } from '$lib/models/types';
 import { planWallResize, finitePoint, validPositiveDimension, validOpeningPosition, type WallEndpoint } from '$lib/utils/wallEditing';
@@ -117,7 +122,7 @@ let undoGroupDepth = 0;
 export function beginUndoGroup() {
   if (undoGroupDepth === 0) {
     const p = get(currentProject);
-    if (p) undoGroupSnapshot = JSON.stringify(p);
+    undoGroupSnapshot = p ? JSON.stringify(p) : null;
   }
   undoGroupDepth++;
 }
@@ -126,12 +131,16 @@ export function beginUndoGroup() {
 export function endUndoGroup(description?: string) {
   if (undoGroupDepth <= 0) return;
   undoGroupDepth--;
-  if (undoGroupDepth === 0 && undoGroupSnapshot !== null) {
-    pushHistory(undoStack, { state: undoGroupSnapshot, description: description || _nextDescription || 'Group action', timestamp: Date.now() });
-    redoStack.length = 0;
+  if (undoGroupDepth === 0) {
+    const before = undoGroupSnapshot;
+    const action = description || _nextDescription || 'Group action';
     undoGroupSnapshot = null;
     _nextDescription = '';
     resetCoalescing();
+    const project = get(currentProject);
+    if (before === null || !project || JSON.stringify(project) === before) return;
+    pushHistory(undoStack, { state: before, description: action, timestamp: Date.now() });
+    redoStack.length = 0;
     syncHistoryStore();
   }
 }
@@ -170,6 +179,8 @@ function reviveDates(p: Project): Project {
 
 /** Selections and elevation targets belong to one floor, never the one switched to. */
 function clearFloorContext() {
+  calibrationMode.set(false);
+  calibrationPoints.set([]);
   selectedElementId.set(null);
   selectedElementIds.set(new Set());
   selectedRoomId.set(null);
@@ -211,26 +222,23 @@ export function redo() {
 
 /** Jump to a specific undo history step by index (0 = oldest) */
 export function jumpToUndoStep(targetIndex: number) {
-  resetCoalescing();
   const total = undoStack.length; // total past states; current state is at index `total`
-  if (targetIndex < 0 || targetIndex > total) return;
+  if (!Number.isInteger(targetIndex) || targetIndex < 0 || targetIndex > total) return;
   if (targetIndex === total) return; // already at current state
-
-  // We need to go back (total - targetIndex) steps
-  // First, save current state to redo
   const cur = get(currentProject);
   if (!cur) return;
+  resetCoalescing();
 
-  // Push current + all states between current and target onto redo
+  // Pair each redo state with the action that produced it, just as undo() does.
+  // Publish only the final state rather than every intermediate project.
   const stepsBack = total - targetIndex;
-  // Move states from undoStack to redoStack
-  pushHistory(redoStack, { state: JSON.stringify(cur), description: 'Current state', timestamp: Date.now() });
-  for (let i = 0; i < stepsBack - 1; i++) {
+  let state = JSON.stringify(cur);
+  for (let i = 0; i < stepsBack; i++) {
     const entry = undoStack.pop()!;
-    pushHistory(redoStack, entry);
+    pushHistory(redoStack, { state, description: entry.description, timestamp: entry.timestamp });
+    state = entry.state;
   }
-  const target = undoStack.pop()!;
-  restoreHistoryProject(target.state);
+  restoreHistoryProject(state);
   syncHistoryStore();
 }
 
@@ -350,6 +358,28 @@ export function commitFurnitureMove() {
   snapshot('Moved furniture');
 }
 
+/** Rotate supported unlocked objects around their collective bounds center. */
+export function rotateSelection(ids: ReadonlySet<string>, degrees = 15) {
+  const project = get(currentProject), floor = get(activeFloor);
+  if (!project || !floor) return;
+  const updates = selectionRotation(floor,ids,degrees,project.customEntourage);
+  if (!updates.size) return;
+  mutate(f => {
+    for (const item of [...f.furniture,...f.stairs ?? [],...f.columns ?? [],...f.entourage ?? []]) {
+      const update = updates.get(item.id);
+      if (update) Object.assign(item,update);
+    }
+    for (const item of f.textAnnotations ?? []) {
+      const update = updates.get(item.id);
+      if (update) Object.assign(item, { x:update.position.x,y:update.position.y,rotation:update.rotation });
+    }
+    for (const item of [...f.measurements ?? [],...f.annotations ?? []]) {
+      const update = updates.get(item.id);
+      if (update?.endpoints) Object.assign(item,update.endpoints);
+    }
+  }, 'Rotated selection');
+}
+
 export function rotateFurniture(id: string, angle: number) {
   mutate((f) => {
     const item = f.furniture.find((fi) => fi.id === id);
@@ -365,12 +395,23 @@ export function setFurnitureRotation(id: string, angle: number) {
 }
 
 export function scaleFurniture(id: string, scale: { x: number; y: number }) {
-  mutate((f) => {
-    const fi = f.furniture.find((item) => item.id === id);
-    if (fi) {
-      fi.scale = { x: Math.max(0.2, scale.x), y: Math.max(0.2, scale.y), z: fi.scale.z };
-    }
-  });
+  const item = get(activeFloor)?.furniture.find(item => item.id === id);
+  if (!item || !Number.isFinite(scale.x) || !Number.isFinite(scale.y)) return;
+  const bounded = (value: number) => (value < 0 ? -1 : 1) * Math.max(0.2, Math.abs(value));
+  updateFurniture(id, { scale: { x: bounded(scale.x), y: bounded(scale.y), z: item.scale.z } });
+}
+
+/** Furniture array order controls painting and hit testing in the plan. */
+export function reorderFurniture(id: string, destination: 'front' | 'back') {
+  const furniture = get(activeFloor)?.furniture;
+  if (!furniture) return;
+  const index = furniture.findIndex(item => item.id === id);
+  const target = destination === 'front' ? furniture.length - 1 : 0;
+  if (index < 0 || index === target) return;
+  mutate(floor => {
+    const [item] = floor.furniture.splice(index, 1);
+    floor.furniture.splice(target, 0, item);
+  }, destination === 'front' ? 'Brought furniture to front' : 'Sent furniture to back');
 }
 
 export function removeFurniture(id: string) {
@@ -537,10 +578,34 @@ export function addCustomEntourage(name: string, dataUrl: string, aspect: number
 export const calibrationMode = writable<boolean>(false);
 export const calibrationPoints = writable<Point[]>([]);
 
+/** Delete a room's exclusive boundary and metadata, preserving neighboring rooms. */
+export function removeRoom(id: string) {
+  const floor = get(activeFloor);
+  if (!floor) return;
+  const rooms = [...floor.rooms, ...get(detectedRoomsStore)];
+  const room = rooms.find(room => room.id === id);
+  if (!room) return;
+  const retainedWalls = new Set(rooms.filter(room => room.id !== id).flatMap(room => room.walls));
+  beginUndoGroup();
+  try {
+    for (const wallId of room.walls) {
+      if (!retainedWalls.has(wallId)) removeElement(wallId);
+    }
+    mutate(floor => { floor.rooms = floor.rooms.filter(room => room.id !== id); }, 'Deleted room');
+    detectedRoomsStore.update(rooms => rooms.filter(room => room.id !== id));
+  } finally {
+    endUndoGroup();
+  }
+}
+
 export function removeElement(id: string) {
   mutate((f) => {
     // Check if the element being removed is a wall — if so, also remove associated doors/windows
     const isWall = f.walls.some((w) => w.id === id);
+    const removedIds = new Set([id]);
+    if (isWall) for (const opening of [...f.doors, ...f.windows]) {
+      if (opening.wallId === id) removedIds.add(opening.id);
+    }
     f.walls = f.walls.filter((w) => w.id !== id);
     if (isWall) {
       // Cascade delete: remove doors and windows attached to this wall
@@ -553,7 +618,10 @@ export function removeElement(id: string) {
     if (f.stairs) f.stairs = f.stairs.filter((s) => s.id !== id);
     if (f.columns) f.columns = f.columns.filter((c) => c.id !== id);
     if (f.textAnnotations) f.textAnnotations = f.textAnnotations.filter((t) => t.id !== id);
+    if (f.measurements) f.measurements = f.measurements.filter(item => item.id !== id);
+    if (f.annotations) f.annotations = f.annotations.filter(item => item.id !== id);
     if (f.entourage) f.entourage = f.entourage.filter((e) => e.id !== id);
+    if (f.groups) f.groups = f.groups.map(group => ({ ...group, elementIds: group.elementIds.filter(itemId => !removedIds.has(itemId)) })).filter(group => group.elementIds.length >= 2);
   }, 'Deleted element');
 }
 
@@ -569,6 +637,20 @@ export function moveWallEndpoint(id: string, endpoint: 'start' | 'end', position
     p.updatedAt = new Date();
     currentProject.set({ ...p });
   }
+}
+
+/** Translate wall geometry during a drag; the canvas owns the Undo group. */
+export function moveWallGeometryDuringDrag(id: string, geometry: Pick<Wall, 'start' | 'end' | 'curvePoint'>) {
+  if (!finitePoint(geometry.start) || !finitePoint(geometry.end) ||
+    (geometry.curvePoint !== undefined && !finitePoint(geometry.curvePoint))) return;
+  const project = get(currentProject);
+  const wall = project?.floors.find(floor => floor.id === project.activeFloorId)?.walls.find(wall => wall.id === id);
+  if (!project || !wall) return;
+  wall.start = { ...geometry.start };
+  wall.end = { ...geometry.end };
+  if (geometry.curvePoint) wall.curvePoint = { ...geometry.curvePoint };
+  project.updatedAt = new Date();
+  currentProject.set({ ...project });
 }
 
 /** Resize joined corners atomically. Openings keep their normalized wall positions. */
@@ -594,7 +676,17 @@ function unchangedFields(current: object, updates: object): boolean {
 
 export function updateWall(id: string, updates: Partial<Wall>) {
   const wall = get(activeFloor)?.walls.find(w => w.id === id);
-  if (!wall || unchangedFields(wall, updates)) return;
+  if (!wall) return;
+  const unchanged = Object.entries(updates).every(([key, value]) => {
+    if (key === 'start' || key === 'end' || key === 'curvePoint') {
+      const point = updates[key], previous = wall[key];
+      if (point && previous) return point.x === previous.x && point.y === previous.y;
+    }
+    return Object.is(wall[key as keyof Wall], value);
+  });
+  const flattening = updates.height !== undefined && updates.startHeight === undefined && updates.endHeight === undefined
+    && (getWallStartHeight(wall) !== updates.height || getWallEndHeight(wall) !== updates.height);
+  if (unchanged && !flattening) return;
   if ('thickness' in updates && !validPositiveDimension(updates.thickness)) return;
   if (['start', 'end'].some(key => key in updates && !finitePoint(updates[key as 'start' | 'end']))) return;
   if (updates.curvePoint !== undefined && !finitePoint(updates.curvePoint)) return;
@@ -672,6 +764,17 @@ export function updateWindow(id: string, updates: Partial<Win>) {
 }
 
 export function updateFurniture(id: string, updates: Partial<FurnitureItem>) {
+  const item = get(activeFloor)?.furniture.find(item => item.id === id);
+  if (!item) return;
+  if (Object.keys(updates).every(key => {
+    if (key === 'position' && updates.position) {
+      return item.position.x === updates.position.x && item.position.y === updates.position.y;
+    }
+    if (key === 'scale' && updates.scale) {
+      return item.scale.x === updates.scale.x && item.scale.y === updates.scale.y && item.scale.z === updates.scale.z;
+    }
+    return item[key as keyof FurnitureItem] === updates[key as keyof FurnitureItem];
+  })) return;
   mutate((f) => {
     const fi = f.furniture.find((fi) => fi.id === id);
     if (fi) Object.assign(fi, updates);
@@ -704,7 +807,17 @@ export function updateItemDetails(target: DetailTarget, patch: ItemDetails) {
   commitItemDetails(project, next, 'Changed item details', coalesceKeyFor(`details:${target.floorId}:${target.kind}`, target.id, { ...patch }));
 }
 
-export function updateRoom(id: string, updates: Partial<{ name: string; floorTexture: string; color: string; roomType: import('$lib/models/types').RoomCategory; labelOffset: import('$lib/models/types').Point | undefined }>) {
+export function updateRoom(id: string, updates: Partial<{ name: string; floorTexture: string; floorOpening: boolean; color: string; roomType: import('$lib/models/types').RoomCategory; labelOffset: import('$lib/models/types').Point | undefined }>) {
+  const floor = get(activeFloor);
+  if (!floor || Object.keys(updates).length === 0) return;
+  const saved = floor.rooms.find(room => room.id === id);
+  if (!saved && !get(detectedRoomsStore).some(room => room.id === id)) return;
+  if (saved && Object.entries(updates).every(([key, value]) => {
+    if (key === 'labelOffset' && value && typeof value === 'object' && saved.labelOffset) {
+      return value.x === saved.labelOffset.x && value.y === saved.labelOffset.y;
+    }
+    return saved[key as keyof typeof updates] === value;
+  })) return;
   mutate((f) => {
     let r = f.rooms.find((r) => r.id === id);
     if (r) {
@@ -799,6 +912,19 @@ export function updateFloorElevation(floorId: string, elevation?: number) {
   currentProject.set({ ...p });
 }
 
+/** Omission restores the legacy 5 cm slab. */
+export function updateFloorSlabThickness(floorId: string, thickness?: number) {
+  const p = get(currentProject);
+  if (!p || (thickness !== undefined && (typeof thickness !== 'number' || !Number.isFinite(thickness) || thickness <= 0))) return;
+  const floor = p.floors.find(f => f.id === floorId);
+  if (!floor || (thickness === undefined ? floor.slabThickness === undefined : (floor.slabThickness ?? 5) === thickness)) return;
+  snapshot('Changed slab thickness', `floor-slab:${floorId}`);
+  if (thickness === undefined) delete floor.slabThickness;
+  else floor.slabThickness = thickness;
+  p.updatedAt = new Date();
+  currentProject.set({ ...p });
+}
+
 export function updateProjectName(name: string) {
   const p = get(currentProject);
   if (!p) return;
@@ -810,6 +936,9 @@ export function updateProjectName(name: string) {
 export function loadProject(project: Project) {
   undoStack.length = 0;
   redoStack.length = 0;
+  undoGroupDepth = 0;
+  undoGroupSnapshot = null;
+  _nextDescription = '';
   resetCoalescing();
   clearFloorContext();
   currentProject.set(project);
@@ -879,6 +1008,26 @@ export function duplicateWindow(id: string): string | null {
   return newId;
 }
 
+/** Duplicate the full canvas selection in one history action. */
+export function duplicateSelection(ids: ReadonlySet<string>): string[] {
+  const floor = get(activeFloor);
+  if (!floor || !ids.size) return [];
+  const copy = structuredClone(floor);
+  const newIds = duplicatePlanSelection(copy, ids, uid);
+  if (newIds.length) mutate(f => Object.assign(f, copy), 'Duplicated selection');
+  return newIds;
+}
+
+/** Paste a captured selection, with one history entry and no dependence on source IDs. */
+export function pasteSelection(source: Floor, ids: ReadonlySet<string>, step = 1): string[] {
+  const floor = get(activeFloor);
+  if (!floor) return [];
+  const copy = structuredClone(floor);
+  const newIds = pastePlanSelection(source, copy, ids, uid, step);
+  if (newIds.length) mutate(f => Object.assign(f, copy), 'Pasted selection');
+  return newIds;
+}
+
 /** Duplicate furniture */
 export function duplicateFurniture(id: string): string | null {
   const p = get(currentProject);
@@ -912,6 +1061,24 @@ export function moveWallParallel(id: string, dx: number, dy: number) {
   }
 }
 
+/** An opening belongs to one wall, so a split cannot cross its interior. */
+export function wallSplitIntersectsOpening(id: string, t: number): boolean {
+  const p = get(currentProject);
+  const floor = p?.floors.find(f => f.id === p.activeFloorId);
+  const wall = floor?.walls.find(w => w.id === id);
+  if (!floor || !wall || !Number.isFinite(t) || t <= 0 || t >= 1) return false;
+  const geometry = splitWallGeometry(wall, t);
+  const first = wallPathProfile({ ...wall, ...geometry.first });
+  const second = wallPathProfile({ ...wall, ...geometry.second });
+  return [...floor.doors, ...floor.windows].some(opening => {
+    if (opening.wallId !== id) return false;
+    const clearance = opening.position <= t
+      ? first.length - first.distanceAt(opening.position / t)
+      : second.distanceAt((opening.position - t) / (1-t));
+    return clearance < opening.width / 2 - 1e-7;
+  });
+}
+
 /** Split a wall into two segments at a given parameter t (0-1) */
 export function splitWall(id: string, t: number): string | null {
   const p = get(currentProject);
@@ -919,20 +1086,21 @@ export function splitWall(id: string, t: number): string | null {
   const floor = p.floors.find((f) => f.id === p.activeFloorId);
   if (!floor) return null;
   const w = floor.walls.find((w) => w.id === id);
-  if (!w || w.curvePoint) return null; // don't split curved walls
+  if (!w) return null;
   if (!Number.isFinite(t) || t <= 0.001 || t >= 0.999) return null; // prevent division by zero at extremes
+  if (wallSplitIntersectsOpening(id, t)) return null;
   snapshot('Split wall');
-  const midPt: Point = {
-    x: w.start.x + (w.end.x - w.start.x) * t,
-    y: w.start.y + (w.end.y - w.start.y) * t,
-  };
+  const geometry = splitWallGeometry(w, t);
+  const midPt = geometry.first.end;
   const startH = getWallStartHeight(w);
   const endH = getWallEndHeight(w);
   const midH = getWallHeightAt(w, t);
   const newId = uid();
+  const roomReferences = splitWallRoomReferences(floor, w, t, newId);
   // New wall from midpoint to original end
   floor.walls.push({
     ...w,
+    ...geometry.second,
     id: newId,
     start: { ...midPt },
     end: { ...w.end },
@@ -947,7 +1115,17 @@ export function splitWall(id: string, t: number): string | null {
     exteriorTexture: w.exteriorTexture,
   });
   // Shorten original wall to midpoint
+  for (const room of floor.rooms) {
+    const references = roomReferences.get(room.id);
+    if (references) room.walls = references;
+  }
+  for (const group of floor.groups ?? []) {
+    if (group.elementIds.includes(id)) {
+      group.elementIds = group.elementIds.flatMap(member => member === id ? [id, newId] : [member]);
+    }
+  }
   w.end = { ...midPt };
+  if (geometry.first.curvePoint) w.curvePoint = geometry.first.curvePoint;
   w.startHeight = startH;
   w.endHeight = midH;
   w.height = Math.max(startH, midH);
@@ -1027,11 +1205,15 @@ export function addMeasurement(x1: number, y1: number, x2: number, y2: number): 
   return id;
 }
 
-export function removeMeasurement(id: string) {
+export function updateMeasurement(id: string, updates: Partial<{ x1: number; y1: number; x2: number; y2: number }>) {
   mutate(f => {
-    if (!f.measurements) return;
-    f.measurements = f.measurements.filter(m => m.id !== id);
-  });
+    const item = f.measurements?.find(item => item.id === id);
+    if (item) Object.assign(item, updates);
+  }, undefined, coalesceKeyFor('measurement', id, updates));
+}
+
+export function removeMeasurement(id: string) {
+  removeElement(id);
 }
 
 // --- Annotations ---
@@ -1045,10 +1227,7 @@ export function addAnnotation(x1: number, y1: number, x2: number, y2: number, of
 }
 
 export function removeAnnotation(id: string) {
-  mutate(f => {
-    if (!f.annotations) return;
-    f.annotations = f.annotations.filter(a => a.id !== id);
-  });
+  removeElement(id);
 }
 
 export function updateAnnotation(id: string, updates: Partial<{ x1: number; y1: number; x2: number; y2: number; offset: number; label: string }>) {
@@ -1071,10 +1250,7 @@ export function addTextAnnotation(x: number, y: number, text: string, fontSize =
 }
 
 export function removeTextAnnotation(id: string) {
-  mutate(f => {
-    if (!f.textAnnotations) return;
-    f.textAnnotations = f.textAnnotations.filter(t => t.id !== id);
-  });
+  removeElement(id);
 }
 
 export function updateTextAnnotation(id: string, updates: Partial<{ x: number; y: number; text: string; fontSize: number; color: string; rotation: number }>) {
@@ -1101,11 +1277,25 @@ export function moveTextAnnotation(id: string, position: { x: number; y: number 
 
 // Layer visibility store (used by LayersPanel and FloorPlanCanvas)
 /** `floorBelow` is the dimmed reference underlay of the storey beneath the active one. */
-export const layerVisibility = writable<{ walls: boolean; doors: boolean; windows: boolean; furniture: boolean; stairs: boolean; columns: boolean; guides: boolean; measurements: boolean; annotations: boolean; entourage: boolean; floorBelow: boolean }>({
-  walls: true, doors: true, windows: true, furniture: true, stairs: true, columns: true, guides: true, measurements: true, annotations: true, entourage: true, floorBelow: true,
+export const layerVisibility = writable<{ walls: boolean; doors: boolean; windows: boolean; furniture: boolean; stairs: boolean; columns: boolean; guides: boolean; measurements: boolean; annotations: boolean; textAnnotations: boolean; entourage: boolean; floorBelow: boolean }>({
+  walls: true, doors: true, windows: true, furniture: true, stairs: true, columns: true, guides: true, measurements: true, annotations: true, textAnnotations: true, entourage: true, floorBelow: true,
 });
 
 // --- Lock ---
+/** Lock the supported selection together; unlock when every item is already locked. */
+export function toggleSelectionLock(ids: ReadonlySet<string>) {
+  const floor = get(activeFloor);
+  if (!floor) return;
+  const items = [...floor.furniture, ...floor.entourage ?? []].filter(item => ids.has(item.id));
+  if (!items.length) return;
+  const locked = items.some(item => !item.locked);
+  mutate(f => {
+    for (const item of [...f.furniture, ...f.entourage ?? []]) {
+      if (ids.has(item.id)) item.locked = locked;
+    }
+  }, locked ? 'Locked selection' : 'Unlocked selection');
+}
+
 export function toggleFurnitureLock(id: string) {
   mutate((f) => {
     const fi = f.furniture.find((fi) => fi.id === id);
@@ -1163,6 +1353,7 @@ export const elevationPickMode = writable<boolean>(false);
 
 // Zoom store for 2D canvas — shared between FloorPlanCanvas and TopBar
 export const canvasZoom = writable<number>(1);
+export const canvasMinimumZoom = writable<number>(0.1);
 // Camera position stores for 2D canvas — used to compute viewport center
 export const canvasCamX = writable<number>(0);
 export const canvasCamY = writable<number>(0);

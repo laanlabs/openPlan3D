@@ -1,0 +1,50 @@
+import { expect, test } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
+import { savedProjects } from './storage';
+
+test('Portuguese library menus rename without changing geometry and cancel deletion', async ({ page }) => {
+  const project = JSON.parse(await readFile('tests/fixtures/save-conflicts.openplan.json', 'utf8'));
+  project.name = 'Minha planta';
+  // Avoid measuring the unrelated legacy door-default migration during rename.
+  for (const floor of project.floors) for (const door of floor.doors) door.flipSide ??= false;
+  await page.addInitScript(project => {
+    localStorage.setItem('floorplan_projects', JSON.stringify({ [project.id]: JSON.stringify(project) }));
+    localStorage.setItem('hasSeenWelcome', 'true');
+    localStorage.setItem('o3d_locale', 'pt');
+  }, project);
+  await page.setViewportSize({ width: 390, height: 900 });
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Editor de plantas', exact: true })).toBeVisible();
+  await expect(page.getByText('1 projeto', { exact: true })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  const before = await savedProjects(page);
+  const trigger = page.getByRole('button', { name: 'Ações do projeto Minha planta', exact: true });
+  await trigger.press('ArrowDown');
+  await expect(page.getByRole('menuitem', { name: 'Abrir', exact: true })).toBeFocused();
+  await page.keyboard.press('e');
+  await expect(page.getByRole('menuitem', { name: 'Excluir', exact: true })).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(trigger).toBeFocused();
+  await trigger.press('ArrowDown');
+  await page.keyboard.press('r');
+  await expect(page.getByRole('menuitem', { name: 'Renomear', exact: true })).toBeFocused();
+  await page.keyboard.press('Enter');
+  const rename = page.getByRole('dialog', { name: 'Renomear projeto', exact: true });
+  const name = 'Meu {count} projeto';
+  await rename.getByRole('textbox', { name: 'Nome do projeto', exact: true }).fill(name);
+  await rename.getByRole('button', { name: 'Salvar nome', exact: true }).click();
+  await expect(rename).toHaveCount(0);
+  await expect(page.getByRole('link', { name, exact: true })).toBeVisible();
+  const after = await savedProjects(page);
+  expect(after[project.id].name).toBe(name);
+  expect(after[project.id].floors).toEqual(before[project.id].floors);
+  await page.getByRole('button', { name: `Ações do projeto ${name}`, exact: true }).press('ArrowDown');
+  await page.getByRole('menuitem', { name: 'Excluir', exact: true }).click();
+  const remove = page.getByRole('dialog', { name: 'Excluir projeto', exact: true });
+  await expect(remove).toContainText(`Excluir “${name}”`);
+  await remove.getByRole('button', { name: 'Cancelar', exact: true }).click();
+  expect(await savedProjects(page)).toEqual(after);
+  await page.getByRole('button', { name: 'Modelos', exact: true }).click();
+  await expect(page.getByRole('button', { name: /Apartamento estúdio/ })).toBeVisible();
+  await page.getByRole('button', { name: 'Fechar modelos', exact: true }).click();
+});

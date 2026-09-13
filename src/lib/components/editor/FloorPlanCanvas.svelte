@@ -1,46 +1,67 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
+  import { t, locale } from '$lib/i18n';
+  import { furnitureName, customModelName } from '$lib/i18n/furnitureNames';
+  import { multiSelectionBounds } from '$lib/utils/multiSelectionBounds';
+  import { onMount, onDestroy, tick } from 'svelte';
+  import { get } from 'svelte/store';
+  import { removeRoom, reorderFurniture } from '$lib/stores/project';
+  import { selectionContentBounds } from '$lib/utils/selectionContentBounds';
+  import { planContentBounds, hasPlanContent } from '$lib/utils/planContentBounds';
   import { connectedWallEndpoints } from '$lib/utils/wallEditing';
   import { createDrawScheduler } from '$lib/utils/drawScheduler';
-  import { activeFloor, selectedTool, selectedElementId, selectedElementIds, selectedRoomId, addWall, addDoor, addWindow, updateWall, moveWallEndpoint, updateDoor, updateWindow, addFurniture, moveFurniture, transformFurnitureDuringDrag, commitFurnitureMove, rotateFurniture, setFurnitureRotation, scaleFurniture, removeElement, placingFurnitureId, placingRotation, placingDoorType, placingWindowType, detectedRoomsStore, duplicateDoor, duplicateWindow, duplicateFurniture, duplicateWall, moveWallParallel, splitWall, snapEnabled, placingStair, addStair, moveStair, updateStair, placingColumn, placingColumnShape, addColumn, moveColumn, updateColumn, calibrationMode, calibrationPoints, updateBackgroundImage, setBackgroundImage, canvasZoom, canvasCamX, canvasCamY, panMode, showFurnitureStore, addGuide, moveGuide, removeGuide, beginUndoGroup, endUndoGroup, layerVisibility, updateRoom, addMeasurement, removeMeasurement, addAnnotation, removeAnnotation, updateAnnotation, addTextAnnotation, removeTextAnnotation, updateTextAnnotation, moveTextAnnotation, toggleFurnitureLock, createGroup, ungroupElements, findGroupForElement, placingEntourageId, addEntourageItem, moveEntourage, resizeEntourage, currentProject, elevationWallId, elevationPickMode } from '$lib/stores/project';
+  import { activeFloor, selectedTool, selectedElementId, selectedElementIds, selectedRoomId, addWall, addDoor, addWindow, updateWall, moveWallEndpoint, moveWallGeometryDuringDrag, updateDoor, updateWindow, addFurniture, moveFurniture, transformFurnitureDuringDrag, rotateFurniture, rotateSelection, setFurnitureRotation, scaleFurniture, removeElement, placingFurnitureId, placingRotation, placingDoorType, placingWindowType, detectedRoomsStore, duplicateDoor, duplicateWindow, duplicateFurniture, duplicateSelection, pasteSelection, moveWallParallel, splitWall, wallSplitIntersectsOpening, snapEnabled, placingStair, addStair, moveStair, updateStair, placingColumn, placingColumnShape, addColumn, moveColumn, updateColumn, calibrationMode, calibrationPoints, updateBackgroundImage, setBackgroundImage, canvasZoom, canvasMinimumZoom, canvasCamX, canvasCamY, panMode, showFurnitureStore, addGuide, moveGuide, removeGuide, beginUndoGroup, endUndoGroup, layerVisibility, updateRoom, addMeasurement, updateMeasurement, removeMeasurement, addAnnotation, removeAnnotation, updateAnnotation, addTextAnnotation, removeTextAnnotation, updateTextAnnotation, moveTextAnnotation, toggleFurnitureLock, toggleSelectionLock, createGroup, ungroupElements, findGroupForElement, placingEntourageId, addEntourageItem, moveEntourage, resizeEntourage, currentProject, elevationWallId, elevationPickMode } from '$lib/stores/project';
   import type { Point, Wall, Door, Window as Win, FurnitureItem, Stair, Column, GuideLine, Measurement, Annotation, TextAnnotation, CustomEntourageDef } from '$lib/models/types';
   import type { Floor, Room } from '$lib/models/types';
-  import { resolveRooms, getRoomPolygon, roomCentroid } from '$lib/utils/roomDetection';
+  import { resolveRoomGeometry, roomLabelPosition, roomCentroid } from '$lib/utils/roomDetection';
+  import { roomHoles } from '$lib/utils/roomNesting';
   import { getFloorBelow } from '$lib/utils/floors';
   import { detectOuterWalls } from '$lib/utils/outerWalls';
   import { getMaterial } from '$lib/utils/materials';
   import { snapFurnitureToWalls } from '$lib/utils/furnitureGeometry';
   import { getCatalogItem, getFurnitureSize, type FurnitureDef } from '$lib/utils/furnitureCatalog';
   import { drawFurnitureIcon } from '$lib/utils/furnitureIcons';
-  import { handleGlobalShortcut, isEditingField } from '$lib/utils/shortcuts';
+  import { handleGlobalShortcut, isEditingField, isControlKey } from '$lib/utils/shortcuts';
   import { hasOpenModal } from '$lib/utils/modalDialog';
   import ContextMenu from './ContextMenu.svelte';
   import { roomPresets, placePreset } from '$lib/utils/roomPresets';
+  import { roomTemplates, placeRoomTemplate } from '$lib/utils/roomTemplates';
+  import { openingDropTarget } from '$lib/utils/openingDrop';
   import { getWallTextureCanvas, getFloorTextureCanvas, setTextureLoadCallback } from '$lib/utils/textureGenerator';
   import { projectSettings, formatLength, formatArea } from '$lib/stores/settings';
   import type { ProjectSettings } from '$lib/stores/settings';
   import { resizeFurnitureFromHandle, type CanvasState } from '$lib/utils/canvasInteraction';
   import { drawWall as _drawWall, drawDoorOnWall as _drawDoorOnWall, drawWindowOnWall as _drawWindowOnWall, drawDoorDistanceDimensions as _drawDoorDistanceDimensions, drawWindowDistanceDimensions as _drawWindowDistanceDimensions, drawFurnitureItem, drawStair as _drawStair, drawColumn as _drawColumn, drawGuides as _drawGuides, drawPersistedMeasurements as _drawPersistedMeasurements, drawTextAnnotations as _drawTextAnnotations, drawAnnotation as _drawAnnotation, drawAnnotations as _drawAnnotations, drawRooms as _drawRooms, drawWallJoints as _drawWallJoints, drawSnapPoints as _drawSnapPoints, drawMinimap as _drawMinimap, drawEntourageItems as _drawEntourageItems, drawEntourageGhost as _drawEntourageGhost, drawFloorBelowGhost as _drawFloorBelowGhost, entourageAspect } from '$lib/utils/canvasRenderer';
   import { getEntourageDef } from '$lib/utils/entourageCatalog';
-  import { pointInPolygon, positionOnWall, findWallAt as _findWallAt, findHandleAt as _findHandleAt, findFurnitureAt as _findFurnitureAt, findColumnAt as _findColumnAt, findStairAt as _findStairAt, findDoorAt as _findDoorAt, findWindowAt as _findWindowAt, findRoomAt as _findRoomAt, hitTestMeasurement as _hitTestMeasurement, hitTestAnnotation as _hitTestAnnotation, hitTestTextAnnotation as _hitTestTextAnnotation, findEntourageAt } from '$lib/utils/hitTesting';
+  import { translatedOpeningPosition } from '$lib/utils/openingTranslation';
+  import { findRoomLabelAt as _findRoomLabelAt, positionOnWall, findWallAt as _findWallAt, findHandleAt as _findHandleAt, findFurnitureAt as _findFurnitureAt, findColumnAt as _findColumnAt, findStairAt as _findStairAt, findDoorAt as _findDoorAt, findWindowAt as _findWindowAt, findRoomAt as _findRoomAt, hitTestMeasurement as _hitTestMeasurement, hitTestAnnotation as _hitTestAnnotation, hitTestTextAnnotation as _hitTestTextAnnotation, findEntourageAt } from '$lib/utils/hitTesting';
 
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
+  let splitBlocked = $state(false);
+  function trySplitWall(id: string, t: number): string | null {
+    splitBlocked = wallSplitIntersectsOpening(id, t);
+    return splitWall(id, t);
+  }
+
   let width = $state(800);
   let height = $state(600);
+  let zoomControlsBottom = $state(12);
 
   // Camera
   let camX = $state(0);
   let camY = $state(0);
   let zoom = $state(1);
+  let minimumZoom = $state(0.1);
 
   // Events and subscriptions coalesce into one frame; no idle polling.
   let drawing: ReturnType<typeof createDrawScheduler> | undefined;
   function markDirty() { drawing?.invalidate(); }
+  onDestroy(locale.subscribe(() => markDirty()));
   function getCS(): CanvasState { return { ctx, width, height, zoom, camX, camY }; }
   // Sync zoom with shared store
   onDestroy(canvasZoom.subscribe(v => { zoom = v; }));
   $effect(() => { canvasZoom.set(zoom); });
+  $effect(() => { canvasMinimumZoom.set(minimumZoom); });
   $effect(() => { canvasCamX.set(camX); });
   $effect(() => { canvasCamY.set(camY); });
 
@@ -101,7 +122,14 @@
     editingDimensionId = null;
   }
 
-  function focusDimensionLabel(node: HTMLInputElement) { node.focus(); }
+  function focusInlineEditor(node: HTMLInputElement) {
+    // Placement starts on mousedown. Focus after its default canvas focus has
+    // completed, and cancel pending focus when the inline editor is dismissed.
+    const frame = requestAnimationFrame(() => {
+      if (node.isConnected && !hasOpenModal()) node.focus({ preventScroll: true });
+    });
+    return { destroy: () => cancelAnimationFrame(frame) };
+  }
 
   // Text annotation tool
   let textAnnotationMode = $state(false);
@@ -119,7 +147,7 @@
   let showRulers = $state(true);
 
   // Layer visibility toggles
-  let layerVis = $state({ walls: true, doors: true, windows: true, furniture: true, stairs: true, columns: true, guides: true, measurements: true, annotations: true, entourage: true, floorBelow: true });
+  let layerVis = $state({ walls: true, doors: true, windows: true, furniture: true, stairs: true, columns: true, guides: true, measurements: true, annotations: true, textAnnotations: true, entourage: true, floorBelow: true });
   // Sync showFurnitureStore ↔ layerVisibility.furniture
   let showFurniture = $derived(layerVis.furniture);
   $effect(() => { showFurnitureStore.set(layerVis.furniture); });
@@ -154,6 +182,8 @@
 
   // Detected rooms
   let detectedRooms: Room[] = $state([]);
+  let roomPolygons = new Map<string, Point[]>();
+  let roomHolePolygons = new Map<string, Point[][]>();
   let lastWallHash = '';
   let lastRoomFloorId = '';
   // Storey directly beneath the active one, drawn as a dim reference underlay.
@@ -188,11 +218,14 @@
   let isCalibrating: boolean = $state(false);
   let calPoints: Point[] = $state([]);
   let bgImage: HTMLImageElement | null = $state(null);
+  let backgroundLoading = $state(false);
 
   // Room label drag state
   let draggingRoomLabelId: string | null = $state(null);
   let roomLabelDragStart: Point = { x: 0, y: 0 };
   let roomLabelOrigOffset: Point = { x: 0, y: 0 };
+  let roomLabelDragZoom = 1;
+  let roomLabelDragOffset: Point | null = null;
 
   // Room drag state
   let draggingRoomId: string | null = $state(null);
@@ -230,10 +263,10 @@
   let currentSelectedIds: Set<string> = $state(new Set());
 
   // Multi-select drag state
-  let draggingMultiSelect: { startMousePos: Point; origPositions: Map<string, { start?: Point; end?: Point; position?: Point }> } | null = $state(null);
+  let draggingMultiSelect: { startMousePos: Point; origPositions: Map<string, { start?: Point; end?: Point; curvePoint?: Point; position?: Point; opening?: { wallId: string; position: number; kind: 'door' | 'window' } }> } | null = $state(null);
 
   // Clipboard for copy/paste (Ctrl+C / Ctrl+V)
-  let clipboard: { items: Array<{ type: 'furniture' | 'door' | 'window'; data: any }> } | null = $state(null);
+  let clipboard: { floor: Floor; ids: string[]; step: number; projectId: string } | null = $state.raw(null);
 
   // Context menu state
   let ctxMenuVisible = $state(false);
@@ -245,30 +278,61 @@
   let ctxMenuFurniture: FurnitureItem | null = $state(null);
   let ctxMenuRoom: Room | null = $state(null);
 
+  function startMultiSelectionDrag(wp: Point): boolean {
+    if (currentSelectedIds.size >= 2 && currentFloor) {
+      const bbox = getMultiSelectBBox();
+      if (bbox && wp.x >= bbox.minX && wp.x <= bbox.maxX && wp.y >= bbox.minY && wp.y <= bbox.maxY) {
+        const origPositions = new Map<string, { start?: Point; end?: Point; curvePoint?: Point; position?: Point; opening?: { wallId: string; position: number; kind: 'door' | 'window' } }>();
+        for (const id of currentSelectedIds) {
+          const w = currentFloor.walls.find(w => w.id === id);
+          if (w) { origPositions.set(id, { start: { ...w.start }, end: { ...w.end }, curvePoint: w.curvePoint ? { ...w.curvePoint } : undefined }); continue; }
+          const door = currentFloor.doors.find(item => item.id === id);
+          const opening = door ?? currentFloor.windows.find(item => item.id === id);
+          if (opening) {
+            if (!currentSelectedIds.has(opening.wallId)) origPositions.set(id, { opening: {
+              wallId:opening.wallId, position:opening.position, kind:door ? 'door' : 'window',
+            } });
+            continue;
+          }
+          const note = currentFloor.textAnnotations?.find(item => item.id === id);
+          if (note) { origPositions.set(id, { position: { x: note.x, y: note.y } }); continue; }
+          const dimension = [...currentFloor.measurements ?? [], ...currentFloor.annotations ?? []].find(item => item.id === id);
+          if (dimension) { origPositions.set(id, { start: { x: dimension.x1, y: dimension.y1 }, end: { x: dimension.x2, y: dimension.y2 } }); continue; }
+          const fi = currentFloor.furniture.find(f => f.id === id);
+          if (fi) { if (!fi.locked) origPositions.set(id, { position: { ...fi.position } }); continue; }
+          if (currentFloor.stairs) { const st = currentFloor.stairs.find(s => s.id === id); if (st) { origPositions.set(id, { position: { ...st.position } }); continue; } }
+          if (currentFloor.columns) { const col = currentFloor.columns.find(c => c.id === id); if (col) { origPositions.set(id, { position: { ...col.position } }); continue; } }
+        }
+        for (const item of currentFloor.entourage ?? []) {
+          if (currentSelectedIds.has(item.id) && !item.locked) origPositions.set(item.id, { position: { ...item.position } });
+        }
+        if (origPositions.size) draggingMultiSelect = { startMousePos: { ...wp }, origPositions };
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function selectAllPlanElements() {
+    if (!currentFloor) return;
+    const ids = new Set<string>();
+    for (const items of [currentFloor.walls, currentFloor.furniture, currentFloor.doors,
+      currentFloor.windows, currentFloor.stairs, currentFloor.columns, currentFloor.entourage,
+      layerVis.textAnnotations ? currentFloor.textAnnotations : [],
+      layerVis.measurements ? currentFloor.measurements : [], layerVis.annotations ? currentFloor.annotations : []]) {
+      for (const item of items ?? []) ids.add(item.id);
+    }
+    clearAuxiliarySelection();
+    selectedRoomId.set(null);
+    selectedElementIds.set(ids);
+    selectedElementId.set(ids.values().next().value ?? null);
+  }
+
   /**
    * Compute bounding box of all multi-selected elements.
    */
   function getMultiSelectBBox(): { minX: number; minY: number; maxX: number; maxY: number } | null {
-    if (currentSelectedIds.size < 2 || !currentFloor) return null;
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-    let found = false;
-    function expand(x: number, y: number) { if (x < minX) minX = x; if (x > maxX) maxX = x; if (y < minY) minY = y; if (y > maxY) maxY = y; found = true; }
-    for (const id of currentSelectedIds) {
-      const wall = currentFloor!.walls.find(w => w.id === id);
-      if (wall) { expand(wall.start.x, wall.start.y); expand(wall.end.x, wall.end.y); continue; }
-      const fi = currentFloor!.furniture.find(f => f.id === id);
-      if (fi) { expand(fi.position.x, fi.position.y); continue; }
-      if (currentFloor!.stairs) { const st = currentFloor!.stairs.find(s => s.id === id); if (st) { expand(st.position.x, st.position.y); continue; } }
-      if (currentFloor!.columns) { const col = currentFloor!.columns.find(c => c.id === id); if (col) { expand(col.position.x, col.position.y); continue; } }
-      // doors/windows — compute position on wall
-      const door = currentFloor!.doors.find(d => d.id === id);
-      if (door) { const w = currentFloor!.walls.find(w => w.id === door.wallId); if (w) { const cx = w.start.x + (w.end.x - w.start.x) * door.position; const cy = w.start.y + (w.end.y - w.start.y) * door.position; expand(cx, cy); } continue; }
-      const win = currentFloor!.windows.find(w => w.id === id);
-      if (win) { const w = currentFloor!.walls.find(w => w.id === win.wallId); if (w) { const cx = w.start.x + (w.end.x - w.start.x) * win.position; const cy = w.start.y + (w.end.y - w.start.y) * win.position; expand(cx, cy); } continue; }
-    }
-    if (!found) return null;
-    const pad = 20;
-    return { minX: minX - pad, minY: minY - pad, maxX: maxX + pad, maxY: maxY + pad };
+    return currentFloor ? multiSelectionBounds(currentFloor, currentSelectedIds, customEntourageDefs, zoom, ctx, dimSettings.units) : null;
   }
 
   /**
@@ -479,7 +543,7 @@
   }
 
   function drawFurniture(item: FurnitureItem, selected: boolean) {
-    drawFurnitureItem(getCS(), item, selected);
+    drawFurnitureItem(getCS(), item, selected, customModelName(item, get(currentProject)) ?? (getCatalogItem(item.catalogId) ? furnitureName(item.catalogId, get(locale)) : undefined));
   }
 
   // Track wall snap during placement preview
@@ -697,7 +761,7 @@
   }
 
   function hitTestMeasurement(wp: Point, floor: Floor): string | null {
-    return _hitTestMeasurement(wp, floor, zoom);
+    return layerVis.measurements ? _hitTestMeasurement(wp, floor, zoom) : null;
   }
 
   function drawAnnotation(a: Annotation, selected: boolean) {
@@ -764,7 +828,7 @@
   }
 
   function hitTestAnnotation(wp: Point, floor: Floor): string | null {
-    return _hitTestAnnotation(wp, floor, zoom);
+    return layerVis.annotations ? _hitTestAnnotation(wp, floor, zoom) : null;
   }
 
   function drawTextAnnotations(floor: Floor) {
@@ -772,7 +836,7 @@
   }
 
   function hitTestTextAnnotation(wp: Point, floor: Floor): string | null {
-    return _hitTestTextAnnotation(wp, floor, ctx, zoom);
+    return layerVis.textAnnotations ? _hitTestTextAnnotation(wp, floor, ctx, zoom) : null;
   }
 
   function drawWallJoints(floor: Floor, selId: string | null) {
@@ -786,7 +850,7 @@
 
   function drawRooms() {
     if (!currentFloor) return;
-    _drawRooms(getCS(), currentFloor, detectedRooms, currentSelectedRoomId, showRoomLabels, showDimensions, dimSettings);
+    _drawRooms(getCS(), currentFloor, detectedRooms, currentSelectedRoomId, showRoomLabels, showDimensions, dimSettings, roomPolygons);
   }
 
   function drawAngleGuides(start: Point) {
@@ -815,12 +879,24 @@
   }
 
   function updateDetectedRooms() {
-    if (!currentFloor) return;
+    if (!currentFloor) {
+      detectedRooms = [];
+      roomPolygons = new Map();
+      roomHolePolygons = new Map();
+      lastWallHash = '';
+      lastRoomFloorId = '';
+      detectedRoomsStore.set([]);
+      return;
+    }
     const hash = currentFloor.id + JSON.stringify([currentFloor.walls, currentFloor.rooms]);
     if (hash === lastWallHash) return;
     lastWallHash = hash;
     const previous = lastRoomFloorId === currentFloor.id ? detectedRooms : [];
-    const newRooms = resolveRooms(currentFloor, previous);
+    const geometry = resolveRoomGeometry(currentFloor, previous);
+    const newRooms = geometry.map(item => item.room);
+    roomPolygons = new Map(geometry.map(({ room, polygon }) => [room.id, polygon]));
+    const holes = roomHoles(geometry.map(g => g.polygon));
+    roomHolePolygons = new Map(geometry.map((g,i) => [g.room.id,holes[i]]));
     lastRoomFloorId = currentFloor.id;
     detectedRooms = newRooms;
     detectedRoomsStore.set(newRooms);
@@ -891,6 +967,12 @@
         if (s * zoom >= 40) { tickStep = s; break; }
       }
       minorDiv = tickStep >= 100 ? 5 : tickStep >= 10 ? 5 : 2;
+      minorStep = tickStep / minorDiv;
+    }
+
+    // Extend the largest preset at low fitted zooms, keeping tick counts bounded.
+    if (tickStep * zoom < 40) {
+      tickStep *= 10 ** Math.ceil(Math.log10(40 / (tickStep * zoom)));
       minorStep = tickStep / minorDiv;
     }
 
@@ -1051,6 +1133,7 @@
 
 
   function draw() {
+    if (canvas) updateZoomControlsPosition();
     if (!ctx) return;
     ctx.clearRect(0, 0, width, height);
     ctx.fillStyle = '#f8f9fa';
@@ -1166,14 +1249,7 @@
           const fBottom = fy + fd / 2;
           
           // Find which room the furniture is in
-          let furnitureRoom: Room | null = null;
-          for (const room of detectedRooms) {
-            const poly = getRoomPolygon(room, floor.walls);
-            if (pointInPolygon(selFurniture.position, poly)) {
-              furnitureRoom = room;
-              break;
-            }
-          }
+          const furnitureRoom = findRoomAt(selFurniture.position);
           
           // Collect all dimension lines (wall + furniture distances)
           type DimLine = { label: string; from: Point; to: Point; color: string; dir: 'left' | 'right' | 'top' | 'bottom' };
@@ -1181,7 +1257,7 @@
           
           // --- Wall distances ---
           if (furnitureRoom) {
-            const poly = getRoomPolygon(furnitureRoom, floor.walls);
+            const poly = (roomPolygons.get(furnitureRoom.id) ?? []);
             let rMinX = Infinity, rMaxX = -Infinity, rMinY = Infinity, rMaxY = -Infinity;
             for (const pt of poly) {
               if (pt.x < rMinX) rMinX = pt.x;
@@ -1630,7 +1706,7 @@
     // Annotation preview
     if (annotating && annotationStart) drawAnnotationPreview();
     // Text annotations
-    if (floor) drawTextAnnotations(floor);
+    if (layerVis.textAnnotations && floor) drawTextAnnotations(floor);
 
     // Rotation angle tooltip while dragging rotation handle
     if (draggingHandle === 'rotate' && currentSelectedId && currentFloor) {
@@ -1696,9 +1772,32 @@
     const resizeObs = new ResizeObserver(resize);
     resizeObs.observe(canvas.parentElement!);
 
+    const floorViews = new Map<string, { x: number; y: number; zoom: number; minimumZoom: number; fitted: boolean }>();
+    let activeViewKey: string | null = null;
     let initialFitDone = false;
+    let initialFitPending = false;
+    function queueInitialFit() {
+      if (initialFitDone || initialFitPending) return;
+      initialFitPending = true;
+      requestAnimationFrame(() => {
+        initialFitPending = false;
+        if (!mounted || initialFitDone) return;
+        // An image-only active floor takes priority over the floor below once loaded.
+        if (backgroundLoading && currentFloor && !boundsForFloor(currentFloor)) return;
+        if (!getFitBounds()) return;
+        initialFitDone = true;
+        zoomToFit();
+      });
+    }
     const unsub1 = activeFloor.subscribe((f) => {
-      if (f?.id !== currentFloor?.id) {
+      const viewKey = f ? JSON.stringify([get(currentProject)?.id, f.id]) : null;
+      if (viewKey !== activeViewKey) {
+        if (activeViewKey) floorViews.set(activeViewKey, { x: camX, y: camY, zoom, minimumZoom, fitted: initialFitDone });
+        activeViewKey = viewKey;
+        const saved = viewKey ? floorViews.get(viewKey) : undefined;
+        camX = saved?.x ?? 0; camY = saved?.y ?? 0; zoom = saved?.zoom ?? 1;
+        minimumZoom = saved?.minimumZoom ?? 0.1;
+        initialFitDone = saved?.fitted ?? false;
         measureStart = null;
         measureEnd = null;
         annotationStart = null;
@@ -1708,14 +1807,21 @@
         typedWallLength = '';
       }
       currentFloor = f;
+      updateDetectedRooms();
       markDirty();
-      if (!initialFitDone && f && f.walls.length > 0) {
-        initialFitDone = true;
-        // Delay slightly to ensure canvas is sized
-        requestAnimationFrame(() => { if (mounted) zoomToFit(); });
-      }
+      queueInitialFit();
     });
-    const unsub2 = selectedElementId.subscribe((id) => { currentSelectedId = id; markDirty(); });
+    const unsub2 = selectedElementId.subscribe((id) => {
+      currentSelectedId = id;
+      if (id) {
+        clearAuxiliarySelection();
+        if (currentFloor?.guides?.some(item => item.id === id)) selectedGuideId = id;
+        if (currentFloor?.measurements?.some(item => item.id === id)) selectedMeasurementId = id;
+        if (currentFloor?.annotations?.some(item => item.id === id)) selectedAnnotationId = id;
+        if (currentFloor?.textAnnotations?.some(item => item.id === id)) selectedTextAnnotationId = id;
+      }
+      markDirty();
+    });
     const unsub3 = selectedRoomId.subscribe((id) => { currentSelectedRoomId = id; markDirty(); });
     const unsub4 = placingFurnitureId.subscribe((id) => { currentPlacingId = id; markDirty(); });
     const unsub5 = placingRotation.subscribe((r) => { currentPlacingRotation = r; markDirty(); });
@@ -1743,15 +1849,28 @@
     const unsub11 = placingStair.subscribe((v) => { isPlacingStair = v; markDirty(); });
     const unsubEnt1 = placingEntourageId.subscribe((id) => { currentEntourageDefId = id; markDirty(); });
     const unsubEnt2 = currentProject.subscribe((pr) => {
+      if (clipboard && clipboard.projectId !== pr?.id) clipboard = null;
       customEntourageDefs = pr?.customEntourage;
       floorBelow = getFloorBelow(pr);
-      if (!initialFitDone && floorBelow?.walls.length && layerVis.floorBelow) {
-        initialFitDone = true;
-        requestAnimationFrame(() => { if (mounted) zoomToFit(); });
+      queueInitialFit();
+      markDirty();
+    });
+    const unsub_layers = layerVisibility.subscribe((v) => {
+      layerVis = v;
+      const hiddenIds = new Set([
+        ...(!v.textAnnotations ? currentFloor?.textAnnotations ?? [] : []),
+        ...(!v.measurements ? currentFloor?.measurements ?? [] : []),
+        ...(!v.annotations ? currentFloor?.annotations ?? [] : []),
+      ].map(item => item.id));
+      if (hiddenIds.size) {
+        if (hiddenIds.has(selectedTextAnnotationId ?? '')) selectedTextAnnotationId = null;
+        if (hiddenIds.has(selectedMeasurementId ?? '')) selectedMeasurementId = null;
+        if (hiddenIds.has(selectedAnnotationId ?? '')) selectedAnnotationId = null;
+        if (hiddenIds.has(currentSelectedId ?? '')) selectedElementId.set(null);
+        if ([...currentSelectedIds].some(id => hiddenIds.has(id))) selectedElementIds.set(new Set([...currentSelectedIds].filter(id => !hiddenIds.has(id))));
       }
       markDirty();
     });
-    const unsub_layers = layerVisibility.subscribe((v) => { layerVis = v; markDirty(); });
     const unsub_col = placingColumn.subscribe((v) => { isPlacingColumn = v; markDirty(); });
     const unsub_cols = placingColumnShape.subscribe((v) => { placingColShape = v; markDirty(); });
     const unsub12 = calibrationMode.subscribe((v) => { isCalibrating = v; markDirty(); });
@@ -1765,19 +1884,30 @@
       if (source === backgroundSource) return;
       backgroundSource = source;
       bgImage = null;
+      backgroundLoading = !!source;
       if (source) {
         const img = new Image();
         img.onload = () => {
-          if (mounted && backgroundSource === source) bgImage = img;
+          if (mounted && backgroundSource === source) {
+            bgImage = img;
+            backgroundLoading = false;
+            queueInitialFit();
+          }
+        };
+        img.onerror = () => {
+          if (mounted && backgroundSource === source) {
+            backgroundLoading = false;
+            queueInitialFit();
+          }
         };
         img.src = source;
       }
     });
 
-    // Clipboard image paste handler — only if no internal furniture clipboard
+    // Clipboard image paste handler — only if no internal plan clipboard
     function handlePaste(e: ClipboardEvent) {
       if (!e.clipboardData) return;
-      if (clipboard && clipboard.items.length > 0) return; // internal clipboard takes priority
+      if (clipboard && clipboard.ids.length > 0) return; // internal clipboard takes priority
       const files = e.clipboardData.files;
       for (let i = 0; i < files.length; i++) {
         if (files[i].type.startsWith('image/')) {
@@ -1813,21 +1943,16 @@
   /** Compute world bounding box of all elements */
   function getWorldBBox(): { minX: number; minY: number; maxX: number; maxY: number } | null {
     if (!currentFloor) return null;
-    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-    let found = false;
-    function expand(x: number, y: number) { if (x < minX) minX = x; if (x > maxX) maxX = x; if (y < minY) minY = y; if (y > maxY) maxY = y; found = true; }
-    for (const w of currentFloor.walls) { expand(w.start.x, w.start.y); expand(w.end.x, w.end.y); if (w.curvePoint) expand(w.curvePoint.x, w.curvePoint.y); }
-    for (const fi of currentFloor.furniture) { const cat = getCatalogItem(fi.catalogId); if (!cat) continue; const r = Math.hypot((fi.width ?? cat.width) / 2, (fi.depth ?? cat.depth) / 2); expand(fi.position.x - r, fi.position.y - r); expand(fi.position.x + r, fi.position.y + r); }
-    if (currentFloor.stairs) for (const st of currentFloor.stairs) { expand(st.position.x - st.width / 2, st.position.y - st.depth / 2); expand(st.position.x + st.width / 2, st.position.y + st.depth / 2); }
-    if (currentFloor.columns) for (const col of currentFloor.columns) { const r = col.diameter / 2; expand(col.position.x - r, col.position.y - r); expand(col.position.x + r, col.position.y + r); }
-    if (!found) return null;
+    const bounds = boundsForFloor(currentFloor);
+    if (!bounds) return null;
     const pad = 50;
-    return { minX: minX - pad, minY: minY - pad, maxX: maxX + pad, maxY: maxY + pad };
+    return { minX: bounds.minX - pad, minY: bounds.minY - pad,
+      maxX: bounds.maxX + pad, maxY: bounds.maxY + pad };
   }
 
   function drawMinimap() {
     if (!showMinimap || !minimapCanvas || !currentFloor) return;
-    _drawMinimap(getCS(), minimapCanvas, currentFloor, getWorldBBox);
+    _drawMinimap(getCS(), minimapCanvas, currentFloor, getWorldBBox, layerVis);
   }
 
   function onMinimapClick(e: MouseEvent) {
@@ -1852,66 +1977,143 @@
     camY = bbox.minY + (my - oy) / scale;
   }
 
-  function zoomToFit() {
-    const fitFloor = currentFloor && (currentFloor.walls.length || currentFloor.furniture.length)
-      ? currentFloor : layerVis.floorBelow && floorBelow ? floorBelow : currentFloor;
-    if (!fitFloor || (fitFloor.walls.length === 0 && fitFloor.furniture.length === 0)) {
-      camX = 0; camY = 0; zoom = 1;
-      return;
+  function boundsForFloor(floor: Floor, fittedZoom = 1, ids?: ReadonlySet<string>) {
+      const options: Parameters<typeof planContentBounds>[1] = {
+        context: ctx,
+        automaticDimensions: {
+          external: floor === currentFloor && layerVis.walls && showDimensions && dimSettings.showExternalDimensions,
+          internal: floor === currentFloor && showDimensions && dimSettings.showInternalDimensions,
+          edge: dimSettings.wallMeasureMode === 'edge',
+        },
+        dimensionRooms: floor === currentFloor && showDimensions && dimSettings.showInternalDimensions
+          ? detectedRooms.map(room => ({ room, polygon: roomPolygons.get(room.id) ?? [] })) : undefined,
+        measurementsVisible: floor === currentFloor && layerVis.measurements,
+        dimensionsVisible: floor === currentFloor && layerVis.annotations,
+        textAnnotationsVisible: floor === currentFloor && layerVis.textAnnotations,
+        roomLabels: floor === currentFloor && showRoomLabels
+          ? detectedRooms.map(room => ({ room, polygon: roomPolygons.get(room.id) ?? [] })) : undefined,
+        units: dimSettings.units,
+        zoom: fittedZoom,
+        entourageAspect: id => entourageAspect(id, customEntourageDefs) || 1,
+        backgroundSize: floor === currentFloor && bgImage ? bgImage : undefined,
+      };
+      return ids ? selectionContentBounds(floor,ids,options,detectedRooms) : planContentBounds(floor,options);
+  }
+
+  function getFitBounds(fittedZoom = 1) {
+    return (currentFloor && boundsForFloor(currentFloor, fittedZoom))
+      || (layerVis.floorBelow && floorBelow && boundsForFloor({
+        ...floorBelow, furniture: [], doors: [], windows: [], columns: [], entourage: [],
+        measurements: [], annotations: [], textAnnotations: [], backgroundImage: undefined,
+      }, fittedZoom));
+  }
+
+  function visibleCanvasHeight() {
+    const canvasRect = canvas.getBoundingClientRect();
+    const sheet = document.querySelector<HTMLElement>('[data-plan-properties]');
+    const sheetRect = sheet?.getBoundingClientRect();
+    const coversBottom = sheetRect && sheetRect.width > 0 && sheetRect.height > 0
+      && sheetRect.left < canvasRect.right && sheetRect.right > canvasRect.left
+      && sheetRect.top < canvasRect.bottom && sheetRect.bottom >= canvasRect.bottom;
+    const visibleHeight = coversBottom
+      ? Math.max(1, Math.min(height, (sheetRect.top - canvasRect.top) * height / canvasRect.height))
+      : height;
+    return visibleHeight;
+  }
+
+  function updateZoomControlsPosition() {
+    const visibleHeight = visibleCanvasHeight();
+    zoomControlsBottom = 12 + (height-visibleHeight) * canvas.getBoundingClientRect().height / Math.max(1,height);
+  }
+
+  function clearAuxiliarySelection() {
+    selectedGuideId = null;
+    selectedMeasurementId = null;
+    selectedAnnotationId = null;
+    selectedTextAnnotationId = null;
+  }
+
+  function selectAuxiliary(kind: 'guide' | 'measurement' | 'annotation' | 'text', id: string) {
+    clearAuxiliarySelection();
+    selectedElementIds.set(new Set());
+    selectedRoomId.set(null);
+    selectedElementId.set(kind === 'text' ? id : null);
+    if (kind === 'guide') selectedGuideId = id;
+    if (kind === 'measurement') selectedMeasurementId = id;
+    if (kind === 'annotation') selectedAnnotationId = id;
+    if (kind === 'text') selectedTextAnnotationId = id;
+  }
+
+  function toggleSelectionTarget(id: string) {
+    const ids = new Set(currentSelectedIds);
+    for (const selected of [currentSelectedId, selectedMeasurementId, selectedAnnotationId, selectedTextAnnotationId]) {
+      if (selected) ids.add(selected);
     }
-    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-    function expand(x: number, y: number) {
-      if (x < minX) minX = x; if (x > maxX) maxX = x;
-      if (y < minY) minY = y; if (y > maxY) maxY = y;
+    if (ids.has(id)) ids.delete(id); else ids.add(id);
+    clearAuxiliarySelection();
+    selectedRoomId.set(null);
+    selectedElementIds.set(ids.size > 1 ? ids : new Set());
+    selectedElementId.set(ids.has(id) ? id : (ids.values().next().value ?? null));
+  }
+
+  function selectAnnotationTarget(kind: 'measurement' | 'annotation' | 'text', id: string, e: MouseEvent, wp: Point): boolean {
+    if (e.shiftKey) {
+      toggleSelectionTarget(id);
+      return true;
     }
-    // Walls (including curve control points)
-    for (const w of fitFloor.walls) {
-      expand(w.start.x, w.start.y);
-      expand(w.end.x, w.end.y);
-      if (w.curvePoint) expand(w.curvePoint.x, w.curvePoint.y);
+    const group = currentFloor && !e.ctrlKey && !e.metaKey ? findGroupForElement(currentFloor, id) : undefined;
+    if (group) {
+      clearAuxiliarySelection();
+      selectedRoomId.set(null);
+      selectedElementIds.set(new Set(group.elementIds));
+      selectedElementId.set(id);
+      startMultiSelectionDrag(wp);
+      return true;
     }
-    // Furniture
-    for (const fi of fitFloor.furniture) {
-      const cat = getCatalogItem(fi.catalogId);
-      if (!cat) continue;
-      const hw = (fi.width ?? cat.width) / 2;
-      const hd = (fi.depth ?? cat.depth) / 2;
-      const r = Math.hypot(hw, hd); // conservative radius for rotated items
-      expand(fi.position.x - r, fi.position.y - r);
-      expand(fi.position.x + r, fi.position.y + r);
-    }
-    // Doors & windows (position on their parent wall)
-    for (const d of fitFloor.doors) {
-      const w = fitFloor.walls.find(wl => wl.id === d.wallId);
-      if (w) { const pt = wallPointAt(w, d.position); expand(pt.x, pt.y); }
-    }
-    for (const win of fitFloor.windows) {
-      const w = fitFloor.walls.find(wl => wl.id === win.wallId);
-      if (w) { const pt = wallPointAt(w, win.position); expand(pt.x, pt.y); }
-    }
-    // Stairs
-    if (fitFloor.stairs) {
-      for (const st of fitFloor.stairs) {
-        expand(st.position.x - st.width / 2, st.position.y - st.depth / 2);
-        expand(st.position.x + st.width / 2, st.position.y + st.depth / 2);
-      }
-    }
-    // Columns
-    if (fitFloor.columns) {
-      for (const col of fitFloor.columns) {
-        const r = col.diameter / 2;
-        expand(col.position.x - r, col.position.y - r);
-        expand(col.position.x + r, col.position.y + r);
-      }
-    }
-    if (minX === Infinity) { camX = 0; camY = 0; zoom = 1; return; }
+    selectAuxiliary(kind, id);
+    return false;
+  }
+
+  function fitSelectionIds() {
+    const ids = new Set(currentSelectedIds);
+    for (const id of [currentSelectedId,selectedMeasurementId,selectedAnnotationId,selectedTextAnnotationId,currentSelectedRoomId]) if (id) ids.add(id);
+    return ids;
+  }
+
+  function zoomToFit(selectionOnly = false) {
+    const ids = fitSelectionIds();
+    const boundsAt = (scale = 1) => selectionOnly
+      ? (currentFloor ? boundsForFloor(currentFloor,scale,ids) : null) : getFitBounds(scale);
+    const bounds = boundsAt();
+    if (!bounds && selectionOnly) return;
+    if (!bounds) { camX = 0; camY = 0; zoom = 1; minimumZoom = 0.1; markDirty(); return; }
+    let { minX, minY, maxX, maxY } = bounds;
     const padding = 80;
-    const contentW = maxX - minX + padding * 2;
-    const contentH = maxY - minY + padding * 2;
+    // On phones the properties sheet overlays the lower canvas. Fit into the
+    // visible area, then compensate for the renderer's full-canvas origin.
+    const visibleHeight = visibleCanvasHeight();
+    const availableWidth = Math.max(1, width - 80), availableHeight = Math.max(1, visibleHeight - 80);
+    const initialZoom = Math.min(availableWidth / (maxX - minX + padding * 2),
+      availableHeight / (maxY - minY + padding * 2), 3);
+    // Minimum screen fonts make text bounds scale-dependent. Find the largest
+    // feasible scale; if a label alone exceeds the viewport, retain the initial fit.
+    let lower = 0, upper = initialZoom, fittedBounds = bounds;
+    for (let pass = 0; pass < 33; pass++) {
+      const candidate = pass === 0 ? initialZoom : (lower + upper) / 2;
+      const refined = boundsAt(candidate);
+      if (!refined) break;
+      const fits = (refined.maxX - refined.minX + padding * 2) * candidate <= availableWidth + 1e-6
+        && (refined.maxY - refined.minY + padding * 2) * candidate <= availableHeight + 1e-6;
+      if (fits) {
+        lower = candidate; fittedBounds = refined;
+        if (pass === 0) break;
+      } else upper = candidate;
+    }
+    zoom = lower || initialZoom;
+    ({ minX, minY, maxX, maxY } = fittedBounds);
+    minimumZoom = Math.min(0.1, zoom / 4);
     camX = (minX + maxX) / 2;
-    camY = (minY + maxY) / 2;
-    zoom = Math.min(width / contentW, height / contentH, 3);
-    zoom = Math.max(zoom, 0.1);
+    camY = (minY + maxY) / 2 + (height - visibleHeight) / (2 * zoom);
     markDirty();
   }
 
@@ -1954,35 +2156,12 @@
 
   function findRoomLabelAt(p: Point): Room | null {
     if (!currentFloor || !showRoomLabels) return null;
-    for (const room of detectedRooms) {
-      const poly = getRoomPolygon(room, currentFloor.walls);
-      if (poly.length < 3) continue;
-      const centroid = roomCentroid(poly);
-      const lx = centroid.x + (room.labelOffset?.x ?? 0);
-      const ly = centroid.y + (room.labelOffset?.y ?? 0);
-      // Check if click is within label area (approx 80x40 world units)
-      const hitW = 80 / zoom;
-      const hitH = 40 / zoom;
-      if (Math.abs(p.x - lx) < hitW && Math.abs(p.y - ly) < hitH) {
-        // Check if clicking the reset icon
-        if (room.labelOffset && (room.labelOffset.x !== 0 || room.labelOffset.y !== 0)) {
-          const resetOffX = 50 / zoom; // approximate reset icon position
-          if (p.x > lx + resetOffX * 0.5 && Math.abs(p.y - ly) < 15 / zoom) {
-            // Reset label position
-            updateRoom(room.id, { labelOffset: undefined });
-            detectedRoomsStore.update(rooms => rooms.map(r => r.id === room.id ? { ...r, labelOffset: undefined } : r));
-            return null; // consumed click
-          }
-        }
-        return room;
-      }
-    }
-    return null;
+    return _findRoomLabelAt(p, detectedRooms, currentFloor.walls, zoom, roomPolygons);
   }
 
   function findRoomAt(p: Point): Room | null {
     if (!currentFloor) return null;
-    return _findRoomAt(p, detectedRooms, currentFloor.walls);
+    return _findRoomAt(p, detectedRooms, currentFloor.walls, roomPolygons);
   }
 
   // pointInPolygon, pointToSegmentDist, positionOnWall imported from hitTesting.ts
@@ -1991,6 +2170,13 @@
   let canvasGestureActive = false;
   let canvasPressPosition: Point = { x: 0, y: 0 };
   let furnitureGestureStarted = false;
+  let geometryGestureStarted = false;
+  let selectionPress: { floorId: string; x: number; y: number; world: Point } | null = null;
+
+  function sameSelectionPress(e: MouseEvent) {
+    return currentTool === 'select' && selectionPress !== null && selectionPress.floorId === currentFloor?.id &&
+      Math.hypot(e.clientX - selectionPress.x, e.clientY - selectionPress.y) <= 8;
+  }
 
   function finishCanvasGesture() {
     if (canvasGestureActive) onMouseUp(new MouseEvent('mouseup'));
@@ -2018,8 +2204,32 @@
     markDirty();
     if (e.button !== 0 && e.button !== 1) return;
     finishCanvasGesture();
+    // Native double-clicks belong to the original press even if selection opened
+    // a sidebar and resized the canvas. Do not select a second object underneath
+    // the now-shifted pixel before the dblclick handler runs.
+    if (e.button === 0 && e.detail >= 2 && sameSelectionPress(e)) return;
+    selectionPress = null;
     canvasGestureActive = true;
     canvasPressPosition = { x: e.clientX, y: e.clientY };
+    if (e.button === 0 && e.shiftKey && currentTool === 'select' && currentFloor && !spaceDown && !$panMode) {
+      const rect = canvas.getBoundingClientRect();
+      const wp = screenToWorld(e.clientX - rect.left, e.clientY - rect.top);
+      const measurement = hitTestMeasurement(wp, currentFloor);
+      const note = measurement ? null : hitTestTextAnnotation(wp, currentFloor);
+      const dimension = measurement || note ? null : hitTestAnnotation(wp, currentFloor);
+      const id = measurement || note || dimension;
+      if (id) {
+        selectAnnotationTarget(measurement ? 'measurement' : note ? 'text' : 'annotation', id, e, wp);
+        return;
+      }
+      const object = findColumnAt(wp) || findStairAt(wp) || findFurnitureAt(wp) ||
+        findEntourageAt(wp, currentFloor.entourage, d => entourageAspect(d, customEntourageDefs)) ||
+        findDoorAt(wp) || findWindowAt(wp) || findWallAt(wp);
+      if (object) {
+        toggleSelectionTarget(object.id);
+        return;
+      }
+    }
     if (e.button === 1 || (e.button === 0 && (spaceDown || $panMode || (e.shiftKey && currentTool === 'select')))) {
       isPanning = true;
       panStartX = e.clientX;
@@ -2031,6 +2241,9 @@
     const rect = canvas.getBoundingClientRect();
     const wp = screenToWorld(e.clientX - rect.left, e.clientY - rect.top);
     const tool = currentTool;
+    if (tool === 'select' && currentFloor && e.detail === 1) {
+      selectionPress = { floorId: currentFloor.id, x: e.clientX, y: e.clientY, world: wp };
+    }
 
     // Elevation pick mode: the next wall clicked opens its elevation view;
     // clicking empty canvas cancels. Consumes the click either way so the
@@ -2131,15 +2344,13 @@
       const GUIDE_HIT = 6 / zoom; // 6px tolerance in world units
       for (const g of currentFloor.guides) {
         if (g.orientation === 'horizontal' && Math.abs(wp.y - g.position) < GUIDE_HIT) {
-          selectedGuideId = g.id;
+          selectAuxiliary('guide',g.id);
           draggingGuideId = g.id;
-          selectedElementId.set(null);
           return;
         }
         if (g.orientation === 'vertical' && Math.abs(wp.x - g.position) < GUIDE_HIT) {
-          selectedGuideId = g.id;
+          selectAuxiliary('guide',g.id);
           draggingGuideId = g.id;
-          selectedElementId.set(null);
           return;
         }
       }
@@ -2150,10 +2361,8 @@
     // Measurement click detection (select)
     if (tool === 'select' && currentFloor) {
       const hitId = hitTestMeasurement(wp, currentFloor);
-      if (hitId) {
-        selectedMeasurementId = hitId;
-        selectedAnnotationId = null;
-        selectedElementId.set(null);
+      if (hitId && (e.ctrlKey || e.metaKey || !(currentSelectedIds.size >= 2 && currentSelectedIds.has(hitId)))) {
+        selectAnnotationTarget('measurement',hitId,e,wp);
         return;
       }
       selectedMeasurementId = null;
@@ -2162,16 +2371,12 @@
     // Text annotation click detection (select + drag)
     if (tool === 'select' && currentFloor) {
       const textHitId = hitTestTextAnnotation(wp, currentFloor);
-      if (textHitId) {
-        selectedTextAnnotationId = textHitId;
-        selectedAnnotationId = null;
-        selectedMeasurementId = null;
-        selectedElementId.set(textHitId);
+      if (textHitId && (e.ctrlKey || e.metaKey || !(currentSelectedIds.size >= 2 && currentSelectedIds.has(textHitId)))) {
+        if (selectAnnotationTarget('text',textHitId,e,wp)) return;
         const ta = currentFloor.textAnnotations?.find(t => t.id === textHitId);
         if (ta) {
           draggingTextAnnotationId = textHitId;
           textAnnotationDragOffset = { x: wp.x - ta.x, y: wp.y - ta.y };
-          commitFurnitureMove();
         }
         return;
       }
@@ -2181,10 +2386,8 @@
     // Annotation click detection (select)
     if (tool === 'select' && currentFloor) {
       const hitId = hitTestAnnotation(wp, currentFloor);
-      if (hitId) {
-        selectedAnnotationId = hitId;
-        selectedMeasurementId = null;
-        selectedElementId.set(null);
+      if (hitId && (e.ctrlKey || e.metaKey || !(currentSelectedIds.size >= 2 && currentSelectedIds.has(hitId)))) {
+        selectAnnotationTarget('annotation',hitId,e,wp);
         return;
       }
       selectedAnnotationId = null;
@@ -2196,12 +2399,11 @@
         const newPts = [...pts, { x: wp.x, y: wp.y }];
         if (newPts.length >= 2) {
           const dist = Math.hypot(newPts[1].x - newPts[0].x, newPts[1].y - newPts[0].y);
-          const realDist = prompt('Enter the real-world distance between these two points (in cm):');
-          if (realDist && Number(realDist) > 0) {
-            const pixelsPerCm = dist / Number(realDist);
-            if (currentFloor?.backgroundImage) {
-              updateBackgroundImage({ scale: currentFloor.backgroundImage.scale * (1 / pixelsPerCm) });
-            }
+          const realDist = prompt($t('backgroundProperties.distancePrompt'));
+          const distanceCm = Number(realDist);
+          if (Number.isFinite(distanceCm) && distanceCm > 0 && Number.isFinite(dist) && dist > 0 && currentFloor?.backgroundImage) {
+            const scale = currentFloor.backgroundImage.scale * (distanceCm / dist);
+            if (Number.isFinite(scale) && scale > 0) updateBackgroundImage({ scale });
           }
           calibrationMode.set(false);
           return [];
@@ -2218,11 +2420,14 @@
       const wallSnap = placingCat ? snapFurnitureToWall(wp, placingCat) : null;
       const pos = wallSnap ? wallSnap.position : { x: snap(wp.x), y: snap(wp.y) };
       const rot = wallSnap ? wallSnap.rotation : currentPlacingRotation;
-      const id = addFurniture(currentPlacingId, pos);
-      if (rot !== 0) {
-        rotateFurniture(id, rot);
+      beginUndoGroup();
+      try {
+        const id = addFurniture(currentPlacingId, pos);
+        if (rot !== 0) rotateFurniture(id, rot);
+        selectedElementId.set(id);
+      } finally {
+        endUndoGroup('Placed furniture');
       }
-      selectedElementId.set(id);
       return;
     }
 
@@ -2245,39 +2450,20 @@
         }
       }
     } else if (tool === 'select') {
-      // Multi-select bounding box drag — check FIRST before individual elements
-      if (currentSelectedIds.size >= 2 && currentFloor) {
-        const bbox = getMultiSelectBBox();
-        if (bbox && wp.x >= bbox.minX && wp.x <= bbox.maxX && wp.y >= bbox.minY && wp.y <= bbox.maxY) {
-          const origPositions = new Map<string, { start?: Point; end?: Point; position?: Point }>();
-          for (const id of currentSelectedIds) {
-            const w = currentFloor.walls.find(w => w.id === id);
-            if (w) { origPositions.set(id, { start: { ...w.start }, end: { ...w.end } }); continue; }
-            const fi = currentFloor.furniture.find(f => f.id === id);
-            if (fi) { origPositions.set(id, { position: { ...fi.position } }); continue; }
-            if (currentFloor.stairs) { const st = currentFloor.stairs.find(s => s.id === id); if (st) { origPositions.set(id, { position: { ...st.position } }); continue; } }
-            if (currentFloor.columns) { const col = currentFloor.columns.find(c => c.id === id); if (col) { origPositions.set(id, { position: { ...col.position } }); continue; } }
-          }
-          draggingMultiSelect = { startMousePos: { ...wp }, origPositions };
-          commitFurnitureMove();
-          return;
-        }
-      }
+      if (!e.ctrlKey && !e.metaKey && startMultiSelectionDrag(wp)) return;
       // Check wall endpoint handles first (drag-to-resize walls)
-      if (currentSelectedId && currentFloor) {
+      if (!e.ctrlKey && !e.metaKey && currentSelectedId && currentFloor) {
         const selWall = currentFloor.walls.find(w => w.id === currentSelectedId);
         if (selWall) {
           const epThreshold = 15 / zoom;
           if (Math.hypot(wp.x - selWall.start.x, wp.y - selWall.start.y) < epThreshold) {
             draggingWallEndpoint = { wallId: selWall.id, endpoint: 'start' };
             draggingConnectedEndpoints = findConnectedEndpoints(selWall.start, selWall.id);
-            commitFurnitureMove(); // uses same undo snapshot mechanism
             return;
           }
           if (Math.hypot(wp.x - selWall.end.x, wp.y - selWall.end.y) < epThreshold) {
             draggingWallEndpoint = { wallId: selWall.id, endpoint: 'end' };
             draggingConnectedEndpoints = findConnectedEndpoints(selWall.end, selWall.id);
-            commitFurnitureMove();
             return;
           }
           // Check midpoint handle: Alt+drag = curve, normal drag = parallel move
@@ -2301,7 +2487,6 @@
               // For curved walls, midpoint handle still curves
               draggingCurveHandle = selWall.id;
             }
-            commitFurnitureMove();
             return;
           }
         }
@@ -2310,7 +2495,7 @@
       // Selection handles come first: they belong to the already-selected element and are
       // drawn over everything, so they win over any element underneath them.
       const handle = findHandleAt(wp);
-      if (handle && currentSelectedId && currentFloor) {
+      if (!e.ctrlKey && !e.metaKey && handle && currentSelectedId && currentFloor) {
         const fi = currentFloor.furniture.find(f => f.id === currentSelectedId);
         if (fi) {
           draggingHandle = handle;
@@ -2326,7 +2511,7 @@
       }
       // Entourage resize handle (SE corner of the selected item)
       const selEnt = currentFloor?.entourage?.find(en => en.id === currentSelectedId);
-      if (selEnt && !selEnt.locked) {
+      if (!e.ctrlKey && !e.metaKey && selEnt && !selEnt.locked) {
         const entAspect = entourageAspect(selEnt.defId, customEntourageDefs) || 1;
         const ea = ((selEnt.rotation || 0) * Math.PI) / 180;
         const lx = selEnt.width / 2, ly = (selEnt.width * entAspect) / 2;
@@ -2334,61 +2519,55 @@
         const hy = selEnt.position.y + lx * Math.sin(ea) + ly * Math.cos(ea);
         if (Math.hypot(wp.x - hx, wp.y - hy) < 12 / zoom) {
           resizingEntourageId = selEnt.id;
-          commitFurnitureMove(); // snapshot before resize for undo
           return;
         }
       }
       // Helper: select an element (shift = add to multi-select)
-      function selectElement(id: string, isShift: boolean, isCtrl: boolean = false) {
+      function selectElement(id: string, isShift: boolean, isCtrl: boolean = e.ctrlKey || e.metaKey) {
         if (isShift) {
-          selectedElementIds.update(ids => {
-            const next = new Set(ids);
-            // Also include the current single selection if any
-            if (currentSelectedId && currentSelectedId !== id) next.add(currentSelectedId);
-            if (next.has(id)) next.delete(id); else next.add(id);
-            return next;
-          });
-          selectedElementId.set(id);
+          toggleSelectionTarget(id);
         } else {
           // Group selection: if element is in a group and not ctrl-clicking, select all group members
           const group = currentFloor ? findGroupForElement(currentFloor, id) : undefined;
           if (group && !isCtrl) {
             selectedElementId.set(id);
             selectedElementIds.set(new Set(group.elementIds));
+            selectedRoomId.set(null);
+            startMultiSelectionDrag(wp);
+            return true;
           } else {
             selectedElementId.set(id);
             selectedElementIds.set(new Set());
           }
         }
         selectedRoomId.set(null);
+        return false;
       }
 
       // Check columns
       const col = findColumnAt(wp);
       if (col) {
-        selectElement(col.id, e.shiftKey);
+        if (selectElement(col.id, e.shiftKey)) return;
         if (!e.shiftKey) {
           draggingColumnId = col.id;
           columnDragOffset = { x: wp.x - col.position.x, y: wp.y - col.position.y };
-          commitFurnitureMove(); // snapshot before drag for undo
         }
         return;
       }
       // Check stairs
       const stair = findStairAt(wp);
       if (stair) {
-        selectElement(stair.id, e.shiftKey);
+        if (selectElement(stair.id, e.shiftKey)) return;
         if (!e.shiftKey) {
           draggingStairId = stair.id;
           stairDragOffset = { x: wp.x - stair.position.x, y: wp.y - stair.position.y };
-          commitFurnitureMove(); // snapshot before drag for undo
         }
         return;
       }
       // Check furniture
       const fi = findFurnitureAt(wp);
       if (fi) {
-        selectElement(fi.id, e.shiftKey, e.ctrlKey || e.metaKey);
+        if (selectElement(fi.id, e.shiftKey, e.ctrlKey || e.metaKey)) return;
         if (!e.shiftKey && !fi.locked) {
           draggingFurnitureId = fi.id;
           dragOffset = { x: wp.x - fi.position.x, y: wp.y - fi.position.y };
@@ -2400,10 +2579,9 @@
       // Check entourage (below furniture in priority)
       const ent = findEntourageAt(wp, currentFloor?.entourage, (d) => entourageAspect(d, customEntourageDefs));
       if (ent) {
-        selectElement(ent.id, e.shiftKey);
+        if (selectElement(ent.id, e.shiftKey)) return;
         if (!e.shiftKey && !ent.locked) {
           draggingEntourageId = ent.id;
-          commitFurnitureMove(); // snapshot before drag for undo
           dragOffset = { x: wp.x - ent.position.x, y: wp.y - ent.position.y };
         }
         return;
@@ -2412,32 +2590,37 @@
       // and before the walls themselves.
       const door = findDoorAt(wp);
       if (door) {
-        selectElement(door.id, e.shiftKey);
+        if (selectElement(door.id, e.shiftKey)) return;
         if (!e.shiftKey) draggingDoorId = door.id;
         return;
       }
       const win = findWindowAt(wp);
       if (win) {
-        selectElement(win.id, e.shiftKey);
+        if (selectElement(win.id, e.shiftKey)) return;
         if (!e.shiftKey) draggingWindowId = win.id;
         return;
       }
       const wall = findWallAt(wp);
       if (wall) {
-        selectElement(wall.id, e.shiftKey);
+        if (selectElement(wall.id, e.shiftKey)) return;
       } else {
         // Check if clicking on a room label (for dragging)
         const labelRoom = findRoomLabelAt(wp);
         if (labelRoom) {
           draggingRoomLabelId = labelRoom.id;
-          roomLabelDragStart = { x: wp.x, y: wp.y };
-          roomLabelOrigOffset = { x: labelRoom.labelOffset?.x ?? 0, y: labelRoom.labelOffset?.y ?? 0 };
+          roomLabelDragStart = { x: e.clientX, y: e.clientY };
+          roomLabelDragZoom = zoom;
+          roomLabelDragOffset = null;
+          const polygon = roomPolygons.get(labelRoom.id) ?? [];
+          const anchor = roomLabelPosition(labelRoom, polygon, roomHolePolygons.get(labelRoom.id));
+          const center = roomCentroid(polygon);
+          roomLabelOrigOffset = { x: anchor.x-center.x, y: anchor.y-center.y };
           selectedRoomId.set(labelRoom.id);
           selectedElementId.set(null);
           selectedElementIds.set(new Set());
           return;
         }
-        const room = findRoomAt(wp);
+        const room = findRoomLabelAt(wp) ?? findRoomAt(wp);
         if (room) {
           selectedRoomId.set(room.id);
           selectedElementId.set(null);
@@ -2481,6 +2664,8 @@
     const sx = e.clientX - rect.left;
     const sy = e.clientY - rect.top;
     const R = RULER_SIZE;
+    const selectionPoint = e.detail >= 2 && sameSelectionPress(e) ? selectionPress!.world : screenToWorld(sx, sy);
+    selectionPress = null;
 
     // Double-click on horizontal ruler → add horizontal guide
     if (sy < R && sx > R) {
@@ -2497,7 +2682,7 @@
 
     // Double-click on a text annotation to edit it
     if (currentTool === 'select' && currentFloor) {
-      const wp = screenToWorld(sx, sy);
+      const wp = selectionPoint;
       const textHitId = hitTestTextAnnotation(wp, currentFloor);
       if (textHitId) {
         const ta = currentFloor.textAnnotations?.find(t => t.id === textHitId);
@@ -2515,11 +2700,11 @@
 
     // Double-click on a room to edit its name inline
     if (currentTool === 'select') {
-      const wp = screenToWorld(sx, sy);
-      const room = findRoomAt(wp);
+      const wp = selectionPoint;
+      const room = findRoomLabelAt(wp) ?? findRoomAt(wp);
       if (room) {
-        const poly = getRoomPolygon(room, currentFloor!.walls);
-        const centroid = roomCentroid(poly);
+        const poly = (roomPolygons.get(room.id) ?? []);
+        const centroid = roomLabelPosition(room, poly, roomHolePolygons.get(room.id));
         const sc = worldToScreen(centroid.x, centroid.y);
         editingRoomId = room.id;
         editingRoomName = room.name;
@@ -2531,12 +2716,12 @@
 
     // Double-click on a wall in select mode to split it
     if (currentTool === 'select') {
-      const wp = screenToWorld(sx, sy);
+      const wp = selectionPoint;
       const wall = findWallAt(wp);
-      if (wall && !wall.curvePoint) {
+      if (wall) {
         const t = positionOnWall(wp, wall);
         if (t > 0.05 && t < 0.95) {
-          const newId = splitWall(wall.id, t);
+          const newId = trySplitWall(wall.id, t);
           if (newId) {
             selectedElementId.set(null);
             return;
@@ -2568,11 +2753,22 @@
       furnitureGestureStarted = true;
     }
 
-    // Drag room label
+    if ((draggingWallEndpoint || draggingWallParallel || draggingCurveHandle || draggingRoomId
+      || draggingStairId || draggingColumnId || draggingTextAnnotationId || draggingMultiSelect
+      || draggingDoorId || draggingWindowId || draggingGuideId || draggingEntourageId || resizingEntourageId) && !geometryGestureStarted) {
+      if (Math.hypot(e.clientX - canvasPressPosition.x, e.clientY - canvasPressPosition.y) < 3) return;
+      beginUndoGroup();
+      geometryGestureStarted = true;
+    }
+
+    // Drag room label using screen deltas so sidebar layout changes cannot
+    // masquerade as pointer movement. A click must not create a drag history item.
     if (draggingRoomLabelId) {
-      const dx = mousePos.x - roomLabelDragStart.x;
-      const dy = mousePos.y - roomLabelDragStart.y;
-      const newOffset = { x: roomLabelOrigOffset.x + dx, y: roomLabelOrigOffset.y + dy };
+      const dx = e.clientX - roomLabelDragStart.x, dy = e.clientY - roomLabelDragStart.y;
+      if (!roomLabelDragOffset && Math.hypot(dx, dy) < 3) return;
+      if (!roomLabelDragOffset) beginUndoGroup();
+      const newOffset = { x: roomLabelOrigOffset.x + dx / roomLabelDragZoom, y: roomLabelOrigOffset.y + dy / roomLabelDragZoom };
+      roomLabelDragOffset = newOffset;
       detectedRoomsStore.update(rooms => rooms.map(r => r.id === draggingRoomLabelId ? { ...r, labelOffset: newOffset } : r));
       return;
     }
@@ -2647,17 +2843,31 @@
       const dx = Math.round((mousePos.x - draggingMultiSelect.startMousePos.x) / mSnapStep) * mSnapStep;
       const dy = Math.round((mousePos.y - draggingMultiSelect.startMousePos.y) / mSnapStep) * mSnapStep;
       for (const [id, orig] of draggingMultiSelect.origPositions) {
-        if (orig.start && orig.end) {
-          // Wall — move both endpoints
-          moveWallEndpoint(id, 'start', { x: orig.start.x + dx, y: orig.start.y + dy });
-          moveWallEndpoint(id, 'end', { x: orig.end.x + dx, y: orig.end.y + dy });
+        if (orig.opening) {
+          const wall=currentFloor.walls.find(item => item.id === orig.opening!.wallId);
+          if (wall) {
+            const position=translatedOpeningPosition(wall,orig.opening.position,{x:dx,y:dy});
+            if (orig.opening.kind === 'door') updateDoor(id,{position});
+            else updateWindow(id,{position});
+          }
+        } else if (orig.start && orig.end) {
+          const endpoints = { x1: orig.start.x + dx, y1: orig.start.y + dy, x2: orig.end.x + dx, y2: orig.end.y + dy };
+          if (currentFloor.measurements?.some(item => item.id === id)) { updateMeasurement(id, endpoints); continue; }
+          if (currentFloor.annotations?.some(item => item.id === id)) { updateAnnotation(id, endpoints); continue; }
+          moveWallGeometryDuringDrag(id, {
+            start: { x: orig.start.x + dx, y: orig.start.y + dy },
+            end: { x: orig.end.x + dx, y: orig.end.y + dy },
+            curvePoint: orig.curvePoint ? { x: orig.curvePoint.x + dx, y: orig.curvePoint.y + dy } : undefined,
+          });
         } else if (orig.position) {
-          // Furniture, stair, or column
+          // Furniture, stair, column, or entourage
           const newPos = { x: orig.position.x + dx, y: orig.position.y + dy };
+          if (currentFloor.textAnnotations?.some(item => item.id === id)) { moveTextAnnotation(id, newPos); continue; }
           const fi = currentFloor.furniture.find(f => f.id === id);
           if (fi) { moveFurniture(id, newPos); continue; }
           if (currentFloor.stairs) { const st = currentFloor.stairs.find(s => s.id === id); if (st) { moveStair(id, newPos); continue; } }
           if (currentFloor.columns) { const col = currentFloor.columns.find(c => c.id === id); if (col) { moveColumn(id, newPos); continue; } }
+          if (currentFloor.entourage?.some(item => item.id === id)) moveEntourage(id, newPos);
         }
       }
     }
@@ -2828,14 +3038,14 @@
     isPanning = false;
     draggingGuideId = null;
 
-    // Finalize room label drag
+    // Finalize only actual label movement, never a selection click.
     if (draggingRoomLabelId) {
-      const dx = mousePos.x - roomLabelDragStart.x;
-      const dy = mousePos.y - roomLabelDragStart.y;
-      const newOffset = { x: roomLabelOrigOffset.x + dx, y: roomLabelOrigOffset.y + dy };
-      updateRoom(draggingRoomLabelId, { labelOffset: newOffset });
-      detectedRoomsStore.update(rooms => rooms.map(r => r.id === draggingRoomLabelId ? { ...r, labelOffset: newOffset } : r));
+      if (roomLabelDragOffset) {
+        updateRoom(draggingRoomLabelId, { labelOffset: roomLabelDragOffset });
+        endUndoGroup('Move room label');
+      }
       draggingRoomLabelId = null;
+      roomLabelDragOffset = null;
     }
 
     // Finalize marquee selection
@@ -2893,7 +3103,20 @@
           }
         }
 
+        for (const item of currentFloor.entourage ?? []) {
+          if (ptInRect(item.position)) ids.add(item.id);
+        }
+
+        if (layerVis.textAnnotations) for (const item of currentFloor.textAnnotations ?? []) {
+          if (ptInRect(item)) ids.add(item.id);
+        }
+        for (const item of [...(layerVis.measurements ? currentFloor.measurements ?? [] : []), ...(layerVis.annotations ? currentFloor.annotations ?? [] : [])]) {
+          if (ptInRect({ x: item.x1, y: item.y1 }) && ptInRect({ x: item.x2, y: item.y2 })) ids.add(item.id);
+        }
+
         if (ids.size > 0) {
+          clearAuxiliarySelection();
+          selectedRoomId.set(null);
           selectedElementIds.set(ids);
           // Set primary selection to first element
           const first = ids.values().next().value;
@@ -2908,14 +3131,10 @@
       endUndoGroup(draggingHandle === 'rotate' ? 'Rotated furniture' : draggingHandle ? 'Resized furniture' : 'Moved furniture');
       furnitureGestureStarted = false;
     }
-    if (draggingWallEndpoint) commitFurnitureMove();
-    if (draggingWallParallel) commitFurnitureMove();
-    if (draggingCurveHandle) commitFurnitureMove();
-    if (draggingMultiSelect) commitFurnitureMove();
-    if (draggingRoomId) commitFurnitureMove();
-    if (draggingStairId) commitFurnitureMove();
-    if (draggingColumnId) commitFurnitureMove();
-    if (draggingTextAnnotationId) commitFurnitureMove();
+    if (geometryGestureStarted) {
+      endUndoGroup('Moved plan geometry');
+      geometryGestureStarted = false;
+    }
     draggingTextAnnotationId = null;
     draggingRoomId = null;
     roomDragStartPositions.clear();
@@ -2952,7 +3171,7 @@
     if (e.ctrlKey) {
       // Pinch-to-zoom on trackpad (or Ctrl+scroll)
       const factor = e.deltaY > 0 ? 0.95 : 1.05;
-      const newZoom = Math.max(0.1, Math.min(10, zoom * factor));
+      const newZoom = Math.max(minimumZoom, Math.min(10, zoom * factor));
       // Zoom towards cursor position
       const worldX = (sx - width / 2) / zoom + camX;
       const worldY = (sy - height / 2) / zoom + camY;
@@ -2966,7 +3185,7 @@
     } else {
       // Regular scroll wheel: zoom towards cursor
       const factor = e.deltaY > 0 ? 0.9 : 1.1;
-      const newZoom = Math.max(0.1, Math.min(10, zoom * factor));
+      const newZoom = Math.max(minimumZoom, Math.min(10, zoom * factor));
       // Zoom towards cursor position
       const worldX = (sx - width / 2) / zoom + camX;
       const worldY = (sy - height / 2) / zoom + camY;
@@ -2984,6 +3203,8 @@
   // compatibility mouse events (which would double-fire the handlers).
   let pinchState: { dist: number; cx: number; cy: number } | null = null;
   let singleTouchActive = false;
+  let singleTouchOrigin: { clientX: number; clientY: number } | null = null;
+  let singleTouchMoved = false;
   let lastTapTime = 0;
   let lastTapX = 0;
   let lastTapY = 0;
@@ -3003,8 +3224,12 @@
     e.preventDefault();
     if (e.touches.length === 1) {
       singleTouchActive = true;
+      singleTouchOrigin = { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY };
+      singleTouchMoved = false;
       dispatchMouse('mousedown', e.touches[0].clientX, e.touches[0].clientY);
     } else if (e.touches.length === 2) {
+      lastTapTime = 0;
+      singleTouchOrigin = null;
       // Second finger landed: abandon any single-finger drag and start pinching
       if (singleTouchActive) {
         dispatchMouse('mouseup', e.touches[0].clientX, e.touches[0].clientY);
@@ -3029,7 +3254,7 @@
       const rect = canvas.getBoundingClientRect();
       const sx = cx - rect.left, sy = cy - rect.top;
       // Zoom about the pinch midpoint (same math as onWheel)
-      const newZoom = Math.max(0.1, Math.min(10, zoom * (dist / (pinchState.dist || dist))));
+      const newZoom = Math.max(minimumZoom, Math.min(10, zoom * (dist / (pinchState.dist || dist))));
       const worldX = (sx - width / 2) / zoom + camX;
       const worldY = (sy - height / 2) / zoom + camY;
       camX = worldX - (sx - width / 2) / newZoom;
@@ -3041,21 +3266,39 @@
       pinchState = { dist, cx, cy };
       markDirty();
     } else if (singleTouchActive && e.touches.length === 1) {
+      if (singleTouchOrigin && Math.hypot(e.touches[0].clientX - singleTouchOrigin.clientX,
+          e.touches[0].clientY - singleTouchOrigin.clientY) > 10) singleTouchMoved = true;
       dispatchMouse('mousemove', e.touches[0].clientX, e.touches[0].clientY);
     }
   }
 
   function onTouchEnd(e: TouchEvent) {
     e.preventDefault();
+    if (e.type === 'touchcancel') {
+      pinchState = null;
+      lastTapTime = 0;
+      if (singleTouchActive) {
+        singleTouchActive = false;
+        const touch = e.changedTouches[0] ?? singleTouchOrigin;
+        if (touch) dispatchMouse('mouseup', touch.clientX, touch.clientY);
+      }
+      singleTouchOrigin = null;
+      return;
+    }
     if (pinchState) {
       // Leaving pinch: ignore the remaining finger until it lifts too
       if (e.touches.length < 2) pinchState = null;
       return;
     }
     if (singleTouchActive && e.touches.length === 0) {
-      const t = e.changedTouches[0];
+      const t = e.changedTouches[0] ?? singleTouchOrigin;
       singleTouchActive = false;
+      if (t && singleTouchOrigin && Math.hypot(t.clientX - singleTouchOrigin.clientX,
+          t.clientY - singleTouchOrigin.clientY) > 10) singleTouchMoved = true;
+      singleTouchOrigin = null;
+      if (!t) return;
       dispatchMouse('mouseup', t.clientX, t.clientY);
+      if (singleTouchMoved) { lastTapTime = 0; return; }
       // Synthesize click so document-level click-outside handlers (menus) fire
       dispatchMouse('click', t.clientX, t.clientY);
       // Double-tap → dblclick (finish wall chains, rename rooms, …)
@@ -3112,6 +3355,11 @@
 
   function onKeyDown(e: KeyboardEvent) {
     if (hasOpenModal()) return;
+    if (e.target === canvas && (e.key === 'ContextMenu' || (e.key === 'F10' && e.shiftKey))) {
+      e.preventDefault();
+      openKeyboardContextMenu();
+      return;
+    }
     // This listener is on window, so field keystrokes reach it too. Keep every
     // canvas action (including Space, select/copy/paste and annotation deletion)
     // out of focused inputs; only the explicit Save shortcut is global there.
@@ -3119,6 +3367,7 @@
       handleGlobalShortcut(e);
       return;
     }
+    if (isControlKey(e)) return;
     shiftDown = e.shiftKey;
     if (e.code === 'Space') { spaceDown = true; e.preventDefault(); return; }
 
@@ -3150,24 +3399,28 @@
       }
     }
 
+    if ((e.key === 'Delete' || e.key === 'Backspace') && currentSelectedIds.size >= 2) clearAuxiliarySelection();
+
     // Delete selected guide line
-    if ((e.key === 'Delete' || e.key === 'Backspace') && selectedGuideId) {
+    if ((e.key === 'Delete' || e.key === 'Backspace') && currentSelectedIds.size < 2 && selectedGuideId) {
       removeGuide(selectedGuideId);
       selectedGuideId = null;
+      selectedElementId.set(null);
       e.preventDefault();
       return;
     }
 
     // Delete selected measurement
-    if ((e.key === 'Delete' || e.key === 'Backspace') && selectedMeasurementId) {
+    if ((e.key === 'Delete' || e.key === 'Backspace') && currentSelectedIds.size < 2 && selectedMeasurementId) {
       removeMeasurement(selectedMeasurementId);
       selectedMeasurementId = null;
+      selectedElementId.set(null);
       e.preventDefault();
       return;
     }
 
     // Delete selected text annotation
-    if ((e.key === 'Delete' || e.key === 'Backspace') && selectedTextAnnotationId && !editingTextAnnotationId) {
+    if ((e.key === 'Delete' || e.key === 'Backspace') && currentSelectedIds.size < 2 && selectedTextAnnotationId && !editingTextAnnotationId) {
       removeTextAnnotation(selectedTextAnnotationId);
       selectedTextAnnotationId = null;
       selectedElementId.set(null);
@@ -3176,16 +3429,22 @@
     }
 
     // Delete selected annotation
-    if ((e.key === 'Delete' || e.key === 'Backspace') && selectedAnnotationId) {
+    if ((e.key === 'Delete' || e.key === 'Backspace') && currentSelectedIds.size < 2 && selectedAnnotationId) {
       removeAnnotation(selectedAnnotationId);
       selectedAnnotationId = null;
+      selectedElementId.set(null);
       e.preventDefault();
       return;
     }
 
     // Canvas-specific Escape handling (before global shortcut eats it)
     if (e.code === 'Escape') {
+      splitBlocked = false;
+      calibrationMode.set(false);
+      calibrationPoints.set([]);
       finishCanvasGesture();
+      clearAuxiliarySelection();
+      selectedRoomId.set(null);
       elevationPickMode.set(false);
       wallStart = null; wallSequenceFirst = null; typedWallLength = '';
       placingFurnitureId.set(null);
@@ -3203,25 +3462,15 @@
     // Select All (Ctrl+A / Cmd+A)
     if ((e.ctrlKey || e.metaKey) && e.key === 'a' && !e.shiftKey) {
       e.preventDefault();
-      if (currentFloor) {
-        const allIds = new Set<string>();
-        for (const w of currentFloor.walls) allIds.add(w.id);
-        for (const f of currentFloor.furniture) allIds.add(f.id);
-        for (const d of currentFloor.doors) allIds.add(d.id);
-        for (const w of currentFloor.windows) allIds.add(w.id);
-        if (currentFloor.stairs) for (const s of currentFloor.stairs) allIds.add(s.id);
-        if (currentFloor.columns) for (const c of currentFloor.columns) allIds.add(c.id);
-        if (currentFloor.entourage) for (const en of currentFloor.entourage) allIds.add(en.id);
-        selectedElementIds.set(allIds);
-        const first = [...allIds][0] ?? null;
-        selectedElementId.set(first);
-      }
+      selectAllPlanElements();
       return;
     }
 
     // Deselect All (Ctrl+D / Cmd+D)
     if ((e.ctrlKey || e.metaKey) && e.key === 'd' && !e.shiftKey) {
       e.preventDefault();
+      clearAuxiliarySelection();
+      selectedRoomId.set(null);
       selectedElementIds.set(new Set());
       selectedElementId.set(null);
       return;
@@ -3232,10 +3481,7 @@
       e.preventDefault();
       if (currentFloor) {
         const idsToLock = currentSelectedIds.size > 0 ? currentSelectedIds : (currentSelectedId ? new Set([currentSelectedId]) : new Set<string>());
-        for (const id of idsToLock) {
-          const fi = currentFloor.furniture.find(f => f.id === id);
-          if (fi) toggleFurnitureLock(id);
-        }
+        toggleSelectionLock(idsToLock);
       }
       return;
     }
@@ -3262,18 +3508,12 @@
     // Copy (Ctrl+C / Cmd+C)
     if ((e.ctrlKey || e.metaKey) && e.key === 'c' && !e.shiftKey) {
       if (currentFloor) {
-        const items: Array<{ type: 'furniture' | 'door' | 'window'; data: any }> = [];
-        const idsToCheck = currentSelectedIds.size > 0 ? currentSelectedIds : (currentSelectedId ? new Set([currentSelectedId]) : new Set<string>());
-        for (const id of idsToCheck) {
-          const fi = currentFloor.furniture.find(f => f.id === id);
-          if (fi) { items.push({ type: 'furniture', data: { ...fi } }); continue; }
-          const door = currentFloor.doors.find(d => d.id === id);
-          if (door) { items.push({ type: 'door', data: { ...door } }); continue; }
-          const win = currentFloor.windows.find(w => w.id === id);
-          if (win) { items.push({ type: 'window', data: { ...win } }); continue; }
-        }
-        if (items.length > 0) {
-          clipboard = { items };
+        const copyable = [...currentFloor.walls,...currentFloor.doors,...currentFloor.windows,...currentFloor.furniture,
+          ...currentFloor.stairs ?? [],...currentFloor.columns ?? [],...currentFloor.entourage ?? [],
+          ...currentFloor.textAnnotations ?? [],...currentFloor.measurements ?? [],...currentFloor.annotations ?? []];
+        const ids = [...fitSelectionIds()].filter(id => copyable.some(item => item.id === id));
+        if (ids.length) {
+          clipboard = { floor: structuredClone(get(activeFloor)!), ids, step: 1, projectId: get(currentProject)!.id };
           e.preventDefault();
           return;
         }
@@ -3282,46 +3522,23 @@
 
     // Paste (Ctrl+V / Cmd+V)
     if ((e.ctrlKey || e.metaKey) && e.key === 'v' && !e.shiftKey) {
-      if (clipboard && clipboard.items.length > 0 && currentFloor) {
+      if (clipboard && clipboard.ids.length && currentFloor) {
         e.preventDefault();
-        beginUndoGroup();
-        const newIds: string[] = [];
-        // We need to duplicate each clipboard item by its stored ID
-        // For successive pastes, update clipboard to point to the new IDs
-        const newItems: Array<{ type: 'furniture' | 'door' | 'window'; data: any }> = [];
-        for (const item of clipboard.items) {
-          let newId: string | null = null;
-          if (item.type === 'furniture') {
-            newId = duplicateFurniture(item.data.id);
-          } else if (item.type === 'door') {
-            newId = duplicateDoor(item.data.id);
-          } else if (item.type === 'window') {
-            newId = duplicateWindow(item.data.id);
-          }
-          if (newId) {
-            newIds.push(newId);
-            // Update clipboard to reference the newly created element for successive pastes
-            const newData = item.type === 'furniture'
-              ? currentFloor.furniture.find(f => f.id === newId)
-              : item.type === 'door'
-              ? currentFloor.doors.find(d => d.id === newId)
-              : currentFloor.windows.find(w => w.id === newId);
-            newItems.push({ type: item.type, data: newData ? { ...newData } : { ...item.data, id: newId } });
-          }
-        }
-        // Update clipboard for successive pastes
-        if (newItems.length > 0) clipboard = { items: newItems };
-        endUndoGroup();
-        if (newIds.length === 1) {
-          selectedElementId.set(newIds[0]);
-          selectedElementIds.set(new Set());
-        } else if (newIds.length > 1) {
+        const newIds = pasteSelection(clipboard.floor, new Set(clipboard.ids), clipboard.step);
+        if (newIds.length) {
+          clipboard = { ...clipboard, step: clipboard.step + 1 };
           selectedElementIds.set(new Set(newIds));
           selectedElementId.set(newIds[0]);
         }
         return;
       }
+    }
 
+    // Commit and release the active pointer gesture before replaying history.
+    // Otherwise a later mouseup can write its pending label offset over Undo,
+    // or close a geometry group against a history state restored mid-drag.
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'y')) {
+      finishCanvasGesture();
     }
 
     // Global shortcuts
@@ -3329,9 +3546,8 @@
       rotateFurniture: () => {
         if (currentPlacingId) {
           placingRotation.update(r => (r + 15) % 360);
-        } else if (currentSelectedId && currentFloor) {
-          const fi = currentFloor.furniture.find(f => f.id === currentSelectedId);
-          if (fi) rotateFurniture(fi.id, 15);
+        } else if (currentFloor) {
+          rotateSelection(fitSelectionIds());
         }
       }
     });
@@ -3343,8 +3559,9 @@
     if (e.key === 'g' || e.key === 'G') {
       showGrid = !showGrid;
     }
-    if (e.key === 'f' || e.key === 'F') {
-      zoomToFit();
+    if ((e.key === 'f' || e.key === 'F') && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      e.preventDefault();
+      zoomToFit(e.shiftKey);
     }
     // 'C' to close wall loop back to first point (but not Ctrl+C)
     if ((e.key === 'c' || e.key === 'C') && !e.ctrlKey && !e.metaKey && wallStart && wallSequenceFirst) {
@@ -3396,57 +3613,26 @@
       selectedElementId.set(id);
       selectedTool.set('select');
       placingFurnitureId.set(null);
-    } else if (itemType === 'door') {
-      // Find nearest wall to drop point and add door there
-      const floor = currentFloor;
-      if (floor) {
-        let bestWall: Wall | null = null;
-        let bestDist = Infinity;
-        let bestT = 0.5;
-        for (const w of floor.walls) {
-          const dx = w.end.x - w.start.x;
-          const dy = w.end.y - w.start.y;
-          const lenSq = dx * dx + dy * dy;
-          if (lenSq < 1) continue;
-          const t = Math.max(0.05, Math.min(0.95, ((wp.x - w.start.x) * dx + (wp.y - w.start.y) * dy) / lenSq));
-          const px = w.start.x + t * dx;
-          const py = w.start.y + t * dy;
-          const dist = Math.hypot(wp.x - px, wp.y - py);
-          if (dist < bestDist) { bestDist = dist; bestWall = w; bestT = t; }
-        }
-        if (bestWall && bestDist < 100) {
-          const id = addDoor(bestWall.id, bestT, itemId as Door['type']);
-          selectedElementId.set(id);
-          selectedTool.set('select');
-        }
-      }
-    } else if (itemType === 'window') {
-      const floor = currentFloor;
-      if (floor) {
-        let bestWall: Wall | null = null;
-        let bestDist = Infinity;
-        let bestT = 0.5;
-        for (const w of floor.walls) {
-          const dx = w.end.x - w.start.x;
-          const dy = w.end.y - w.start.y;
-          const lenSq = dx * dx + dy * dy;
-          if (lenSq < 1) continue;
-          const t = Math.max(0.05, Math.min(0.95, ((wp.x - w.start.x) * dx + (wp.y - w.start.y) * dy) / lenSq));
-          const px = w.start.x + t * dx;
-          const py = w.start.y + t * dy;
-          const dist = Math.hypot(wp.x - px, wp.y - py);
-          if (dist < bestDist) { bestDist = dist; bestWall = w; bestT = t; }
-        }
-        if (bestWall && bestDist < 100) {
-          const id = addWindow(bestWall.id, bestT, itemId as Win['type']);
-          selectedElementId.set(id);
-          selectedTool.set('select');
-        }
+    } else if (itemType === 'door' || itemType === 'window') {
+      const target = openingDropTarget(wp, currentFloor?.walls ?? []);
+      if (target) {
+        const id = itemType === 'door'
+          ? addDoor(target.wallId, target.position, itemId as Door['type'])
+          : addWindow(target.wallId, target.position, itemId as Win['type']);
+        selectedElementId.set(id);
+        selectedTool.set('select');
       }
     } else if (itemType === 'room') {
       const preset = roomPresets.find(p => p.id === itemId);
       if (preset) {
         placePreset(preset, pos);
+        selectedTool.set('select');
+      }
+    } else if (itemType === 'room-template') {
+      const template = roomTemplates.find(template => template.name === itemId);
+      const preset = template && roomPresets.find(preset => preset.id === template.presetId);
+      if (template && preset) {
+        placeRoomTemplate(preset, pos, template);
         selectedTool.set('select');
       }
     }
@@ -3464,6 +3650,46 @@
       measureEnd = null;
     }
     markDirty();
+  }
+
+  function openKeyboardContextMenu() {
+    const floor = currentFloor;
+    if (!floor) return;
+    ctxMenuTargetType = 'canvas';
+    ctxMenuTargetId = null;
+    ctxMenuFurniture = null;
+    ctxMenuWall = null;
+    ctxMenuRoom = null;
+    let anchor: Point | null = null;
+    // Use the selected element, not whatever happens to be under the pointer.
+    if (currentSelectedIds.size <= 1) {
+      const id = currentSelectedId ?? [...currentSelectedIds][0];
+      const furniture = floor.furniture.find(item => item.id === id);
+      const wall = floor.walls.find(item => item.id === id);
+      const door = floor.doors.find(item => item.id === id);
+      const win = floor.windows.find(item => item.id === id);
+      const room = detectedRooms.find(item => item.id === currentSelectedRoomId);
+      if (furniture) {
+        ctxMenuTargetType = 'furniture'; ctxMenuTargetId = furniture.id;
+        ctxMenuFurniture = furniture; anchor = furniture.position;
+      } else if (wall) {
+        ctxMenuTargetType = 'wall'; ctxMenuTargetId = wall.id;
+        ctxMenuWall = wall; anchor = wallPointAt(wall, .5);
+      } else if (door || win) {
+        const opening = (door ?? win)!;
+        ctxMenuTargetType = door ? 'door' : 'window'; ctxMenuTargetId = opening.id;
+        const owner = floor.walls.find(item => item.id === opening.wallId);
+        if (owner) anchor = wallPointAt(owner, opening.position);
+      } else if (room) {
+        ctxMenuTargetType = 'room'; ctxMenuTargetId = room.id; ctxMenuRoom = room;
+        anchor = roomLabelPosition(room, roomPolygons.get(room.id) ?? [], roomHolePolygons.get(room.id));
+      }
+    }
+    const rect = canvas.getBoundingClientRect();
+    const point = anchor ? worldToScreen(anchor.x, anchor.y) : { x: rect.width / 2, y: rect.height / 2 };
+    ctxMenuX = rect.left + Math.max(8, Math.min(rect.width - 8, point.x));
+    ctxMenuY = rect.top + Math.max(8, Math.min(rect.height - 8, point.y));
+    ctxMenuVisible = true;
   }
 
   function onContextMenu(e: MouseEvent) {
@@ -3517,7 +3743,7 @@
             ctxMenuFurniture = null;
             ctxMenuRoom = null;
           } else {
-            const room = findRoomAt(wp);
+            const room = findRoomLabelAt(wp) ?? findRoomAt(wp);
             if (room) {
               selectedRoomId.set(room.id);
               ctxMenuTargetType = 'room';
@@ -3561,29 +3787,15 @@
         }
         break;
       case 'bring-to-front':
-        if (id) {
-          const idx = currentFloor.furniture.findIndex(f => f.id === id);
-          if (idx >= 0) {
-            const [item] = currentFloor.furniture.splice(idx, 1);
-            currentFloor.furniture.push(item);
-            markDirty();
-          }
-        }
+        if (id) reorderFurniture(id, 'front');
         break;
       case 'send-to-back':
-        if (id) {
-          const idx = currentFloor.furniture.findIndex(f => f.id === id);
-          if (idx >= 0) {
-            const [item] = currentFloor.furniture.splice(idx, 1);
-            currentFloor.furniture.unshift(item);
-            markDirty();
-          }
-        }
+        if (id) reorderFurniture(id, 'back');
         break;
 
       // Wall actions
       case 'split-wall':
-        if (id) { const newId = splitWall(id, 0.5); if (newId) selectedElementId.set(null); }
+        if (id) { const newId = trySplitWall(id, 0.5); if (newId) selectedElementId.set(null); }
         break;
       case 'toggle-curve':
         if (id && ctxMenuWall) {
@@ -3601,11 +3813,17 @@
         break;
 
       // Room actions
+      case 'reset-room-label':
+        if (ctxMenuRoom) {
+          updateRoom(ctxMenuRoom.id, { labelOffset: undefined });
+          detectedRoomsStore.update(rooms => rooms.map(room => room.id === ctxMenuRoom!.id ? { ...room, labelOffset: undefined } : room));
+        }
+        break;
       case 'rename-room':
         if (ctxMenuRoom) {
           // Trigger inline rename via existing mechanism
-          const poly = getRoomPolygon(ctxMenuRoom, currentFloor.walls);
-          const centroid = roomCentroid(poly);
+          const poly = (roomPolygons.get(ctxMenuRoom.id) ?? []);
+          const centroid = roomLabelPosition(ctxMenuRoom, poly, roomHolePolygons.get(ctxMenuRoom.id));
           const sp = worldToScreen(centroid.x, centroid.y);
           editingRoomId = ctxMenuRoom.id;
           editingRoomName = ctxMenuRoom.name;
@@ -3613,14 +3831,23 @@
         }
         break;
       case 'change-floor-texture':
-        // Select the room so PropertiesPanel shows it
-        if (ctxMenuRoom) selectedRoomId.set(ctxMenuRoom.id);
+        if (ctxMenuRoom) {
+          const roomId = ctxMenuRoom.id;
+          selectedElementId.set(null);
+          selectedElementIds.set(new Set());
+          selectedRoomId.set(roomId);
+          void tick().then(() => {
+            if (!canvas.isConnected || get(selectedRoomId) !== roomId) return;
+            const materials = document.querySelector('[data-plan-properties]:not(.hidden) [data-room-floor-materials]');
+            const choice = materials?.querySelector<HTMLButtonElement>('button[aria-pressed="true"]')
+              ?? materials?.querySelector<HTMLButtonElement>('button');
+            choice?.focus();
+          });
+        }
         break;
       case 'delete-room':
         if (ctxMenuRoom) {
-          beginUndoGroup();
-          for (const wid of ctxMenuRoom.walls) removeElement(wid);
-          endUndoGroup();
+          removeRoom(ctxMenuRoom.id);
           selectedRoomId.set(null);
         }
         break;
@@ -3631,16 +3858,7 @@
         document.dispatchEvent(new KeyboardEvent('keydown', { key: 'v', ctrlKey: true, metaKey: true }));
         break;
       case 'select-all':
-        if (currentFloor) {
-          const allIds = new Set<string>();
-          currentFloor.walls.forEach(w => allIds.add(w.id));
-          currentFloor.furniture.forEach(f => allIds.add(f.id));
-          currentFloor.doors.forEach(d => allIds.add(d.id));
-          currentFloor.windows.forEach(w => allIds.add(w.id));
-          if (currentFloor.stairs) currentFloor.stairs.forEach(s => allIds.add(s.id));
-          if (currentFloor.columns) currentFloor.columns.forEach(c => allIds.add(c.id));
-          selectedElementIds.set(allIds);
-        }
+        selectAllPlanElements();
         break;
       case 'add-wall':
         selectedTool.set('wall');
@@ -3672,8 +3890,16 @@
         if (id) { removeElement(id); selectedElementId.set(null); }
         break;
       case 'properties':
-        // Select element so PropertiesPanel shows it
-        if (id) selectedElementId.set(id);
+        if (id) {
+          selectedElementId.set(id);
+          void tick().then(() => {
+            if (!canvas.isConnected || get(selectedElementId) !== id) return;
+            const panel = document.querySelector('[data-plan-properties]:not(.hidden)');
+            panel?.querySelector<HTMLElement>(
+              'input:not(:disabled):not([type="hidden"]), select:not(:disabled), textarea:not(:disabled), button:not(:disabled)'
+            )?.focus();
+          });
+        }
         break;
     }
   }
@@ -3711,7 +3937,7 @@
     bind:this={canvas}
     class="block w-full h-full touch-none"
     tabindex="0"
-    aria-label="Floor plan editor canvas"
+    aria-label={$t('canvas.editorLabel')}
     style="cursor: {cursorStyle}"
     onmousedown={onMouseDown}
     onmousemove={onMouseMove}
@@ -3727,8 +3953,8 @@
   {#if pickingElevation}
     <div class="absolute top-3 left-1/2 -translate-x-1/2 z-30 bg-slate-800/90 text-white text-xs font-medium px-3.5 py-1.5 rounded-full shadow-lg pointer-events-none flex items-center gap-1.5">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9H3z"/><rect x="10" y="14" width="4" height="6"/><rect x="5.5" y="13" width="3" height="3"/></svg>
-      <span class="max-md:hidden">Click a wall to view its elevation — Esc to cancel</span>
-      <span class="md:hidden">Tap a wall to view its elevation</span>
+      <span class="max-md:hidden">{$t('canvasHints.pick')}</span>
+      <span class="md:hidden">{$t('canvasHints.pickTouch')}</span>
     </div>
   {/if}
   <!-- Inline room name editor -->
@@ -3737,15 +3963,20 @@
       type="text"
       class="absolute bg-white border-2 border-blue-500 rounded px-2 py-1 text-sm text-center shadow-lg outline-none"
       style="left: {editingRoomPos.x}px; top: {editingRoomPos.y}px; transform: translate(-50%, -50%); z-index: 20; min-width: 100px;"
+      aria-label={$t('canvasHints.room')}
       value={editingRoomName}
       oninput={(e) => { editingRoomName = (e.target as HTMLInputElement).value; }}
       onkeydown={(e) => {
         if (e.key === 'Enter') {
+          e.preventDefault();
           updateRoom(editingRoomId!, { name: editingRoomName });
           detectedRoomsStore.update(rooms => rooms.map(r => r.id === editingRoomId ? { ...r, name: editingRoomName } : r));
           editingRoomId = null;
+          canvas.focus();
         } else if (e.key === 'Escape') {
+          e.preventDefault();
           editingRoomId = null;
+          canvas.focus();
         }
       }}
       onblur={() => {
@@ -3755,18 +3986,18 @@
           editingRoomId = null;
         }
       }}
-      autofocus
+      use:focusInlineEditor
     />
   {/if}
   {#if editingDimensionId}
     <div class="absolute top-14 left-1/2 -translate-x-1/2 z-20 rounded-lg border border-blue-300 bg-white p-3 shadow-lg">
-      <label class="block text-xs text-gray-600" for="dimension-label">Dimension label (optional)</label>
+      <label class="block text-xs text-gray-600" for="dimension-label">{$t('canvasHints.dimension')}</label>
       <input
         id="dimension-label"
         class="mt-1 w-60 max-w-[70vw] rounded border border-gray-300 px-2 py-1 text-sm outline-blue-500"
-        placeholder="Leave empty for measured distance"
+        placeholder={$t('canvasHints.distance')}
         bind:value={dimensionLabel}
-        use:focusDimensionLabel
+        use:focusInlineEditor
         onkeydown={(event) => {
           if (event.key === 'Enter') { event.preventDefault(); finishDimensionLabel(); }
           if (event.key === 'Escape') { event.preventDefault(); editingDimensionId = null; }
@@ -3781,6 +4012,7 @@
       type="text"
       class="absolute bg-white border-2 border-blue-500 rounded px-2 py-1 text-sm text-center shadow-lg outline-none"
       style="left: {editingTextAnnotationPos.x}px; top: {editingTextAnnotationPos.y}px; transform: translate(-50%, -50%); z-index: 20; min-width: 120px;"
+      aria-label={$t('canvasHints.annotation')}
       value={editingTextAnnotationValue}
       oninput={(e) => { editingTextAnnotationValue = (e.target as HTMLInputElement).value; }}
       onkeydown={(e) => {
@@ -3819,23 +4051,24 @@
           editingTextAnnotationId = null;
         }
       }}
-      autofocus
+      use:focusInlineEditor
     />
   {/if}
   <!-- Empty state hint -->
-  {#if currentFloor && currentFloor.walls.length === 0 && currentFloor.furniture.length === 0 && currentFloor.doors.length === 0 && !(layerVis.floorBelow && floorBelow?.walls.length)}
+  {#if currentFloor && !hasPlanContent(currentFloor) && !(layerVis.floorBelow && floorBelow && hasPlanContent(floorBelow))}
     <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
       <div class="text-center opacity-60">
         <div class="text-5xl mb-3">🏠</div>
-        <div class="text-sm font-medium text-gray-500">Start building your floor plan</div>
-        <div class="text-xs text-gray-400 mt-1">Draw walls with <span class="font-mono bg-gray-100 px-1 rounded">W</span> or drag items from the sidebar</div>
+        <div class="text-sm font-medium text-gray-500">{$t('canvasHints.start')}</div>
+        <div class="text-xs text-gray-400 mt-1">{$t('canvasHints.draw')} <span class="font-mono bg-gray-100 px-1 rounded">W</span> {$t('canvasHints.drag')}</div>
       </div>
     </div>
   {/if}
   <!-- Mini-map -->
-  {#if showMinimap && currentFloor && currentFloor.walls.length > 0}
+  {#if showMinimap && currentFloor && hasPlanContent(currentFloor)}
     <canvas
       bind:this={minimapCanvas}
+      aria-label={$t('canvasHints.minimap')}
       width="180"
       height="120"
       class="absolute bottom-10 right-2 rounded-lg shadow-lg border border-gray-300 cursor-crosshair bg-white max-md:hidden"
@@ -3843,55 +4076,55 @@
       onclick={onMinimapClick}
     ></canvas>
   {/if}
-  <div class="absolute bottom-2 right-2 bg-white/80 rounded px-2 py-1 text-xs text-gray-500 flex gap-3">
+  <div style:--visible-bottom={`${zoomControlsBottom}px`} class="absolute bottom-2 right-2 max-md:bottom-[calc(var(--visible-bottom)+3rem)] max-md:left-2 max-md:overflow-x-auto max-md:whitespace-nowrap max-md:[&>*]:shrink-0 bg-white/80 rounded px-2 py-1 text-xs text-gray-500 flex gap-3">
     {#if detectedRooms.length > 0}
-      <span>{detectedRooms.length} room{detectedRooms.length !== 1 ? 's' : ''}</span>
+      <span>{$t(detectedRooms.length === 1 ? 'canvasStatus.roomsOne' : 'canvasStatus.roomsMany', { count: detectedRooms.length })}</span>
       <span>{formatArea(detectedRooms.reduce((s, r) => s + r.area, 0), $projectSettings.units)}</span>
       <span class="text-gray-300">|</span>
     {/if}
     {#if currentFloor}
-      <span>{currentFloor.walls.length} wall{currentFloor.walls.length !== 1 ? 's' : ''}</span>
+      <span>{$t(currentFloor.walls.length === 1 ? 'canvasStatus.wallsOne' : 'canvasStatus.wallsMany', { count: currentFloor.walls.length })}</span>
       {#if currentFloor.doors.length > 0}
-        <span>{currentFloor.doors.length} door{currentFloor.doors.length !== 1 ? 's' : ''}</span>
+        <span>{$t(currentFloor.doors.length === 1 ? 'canvasStatus.doorsOne' : 'canvasStatus.doorsMany', { count: currentFloor.doors.length })}</span>
       {/if}
       {#if currentFloor.windows.length > 0}
-        <span>{currentFloor.windows.length} window{currentFloor.windows.length !== 1 ? 's' : ''}</span>
+        <span>{$t(currentFloor.windows.length === 1 ? 'canvasStatus.windowsOne' : 'canvasStatus.windowsMany', { count: currentFloor.windows.length })}</span>
       {/if}
       {#if currentFloor.furniture.length > 0}
-        <span>{currentFloor.furniture.length} object{currentFloor.furniture.length !== 1 ? 's' : ''}</span>
+        <span>{$t(currentFloor.furniture.length === 1 ? 'canvasStatus.objectsOne' : 'canvasStatus.objectsMany', { count: currentFloor.furniture.length })}</span>
       {/if}
       <span class="text-gray-300">|</span>
     {/if}
     {#if currentSelectedIds.size > 1}
-      <span class="text-blue-600 font-medium">{currentSelectedIds.size} selected</span>
+      <span class="text-blue-600 font-medium">{$t('canvasStatus.selected', { count: currentSelectedIds.size })}</span>
       <span class="text-gray-300">|</span>
     {/if}
-    <span>Zoom: {Math.round(zoom * 100)}%</span>
-    <button class="hover:text-gray-700" onclick={() => zoomToFit()} title="Zoom to Fit (F)">⊞ Fit</button>
-    <button class="hover:text-gray-700" onclick={() => showGrid = !showGrid} title="Toggle Grid (G)">
-      {showGrid ? '▦' : '▢'} Grid
+    <span>{$t('canvasStatus.zoom', { value: Math.round(zoom * 100) })}</span>
+    <button class="hover:text-gray-700" onclick={() => zoomToFit()} title={$t('canvasZoom.fitHint')}>⊞ {$t('canvasDisplay.fit')}</button>
+    <button class="hover:text-gray-700" onclick={() => showGrid = !showGrid} title={$t('canvasDisplay.gridHint')} aria-pressed={showGrid}>
+      {showGrid ? '▦' : '▢'} {$t('canvasDisplay.grid')}
     </button>
-    <button class="hover:text-gray-700" onclick={() => projectSettings.update(s => ({ ...s, snapToGrid: !s.snapToGrid }))} title="Toggle Snap to Grid (S)">
-      {currentSnapToGrid ? '🧲' : '↔'} Snap
+    <button class="hover:text-gray-700" onclick={() => projectSettings.update(s => ({ ...s, snapToGrid: !s.snapToGrid }))} title={$t('canvasDisplay.snapHint')} aria-pressed={currentSnapToGrid}>
+      {currentSnapToGrid ? '🧲' : '↔'} {$t('canvasDisplay.snap')}
     </button>
-    <button class="hover:text-gray-700" onclick={() => layerVisibility.update(v => ({ ...v, furniture: !v.furniture }))} title="Toggle Furniture">
-      {showFurniture ? '🪑' : '👻'} Furniture
+    <button class="hover:text-gray-700" onclick={() => layerVisibility.update(v => ({ ...v, furniture: !v.furniture }))} title={$t('canvasDisplay.furnitureHint')} aria-pressed={showFurniture}>
+      {showFurniture ? '🪑' : '👻'} {$t('canvasDisplay.furniture')}
     </button>
-    <button class="hover:text-gray-700" onclick={() => showLayerPanel = !showLayerPanel} title="Layer Visibility">
-      🗂 Layers
+    <button class="hover:text-gray-700" onclick={() => showLayerPanel = !showLayerPanel} title={$t('layerVisibility.title')}>
+      🗂 {$t('layers.title')}
     </button>
-    <button class="hover:text-gray-700" onclick={() => showRulers = !showRulers} title="Toggle Rulers">
-      {showRulers ? '📏' : '📐'} Rulers
+    <button class="hover:text-gray-700" onclick={() => showRulers = !showRulers} title={$t('canvasDisplay.rulersHint')} aria-pressed={showRulers}>
+      {showRulers ? '📏' : '📐'} {$t('canvasDisplay.rulers')}
     </button>
-    <button class="hover:text-gray-700" onclick={() => showMinimap = !showMinimap} title="Toggle Mini-map">
-      {showMinimap ? '🗺' : '🗺'} Map
+    <button class="hover:text-gray-700" onclick={() => showMinimap = !showMinimap} title={$t('canvasDisplay.mapHint')} aria-pressed={showMinimap}>
+      {showMinimap ? '🗺' : '🗺'} {$t('canvasDisplay.map')}
     </button>
   </div>
   <!-- Layer Visibility Panel -->
   {#if showLayerPanel}
-    <div class="absolute bottom-12 right-2 z-20 bg-white rounded-lg shadow-lg border border-gray-200 p-3 text-xs min-w-[160px]">
-      <div class="font-semibold text-gray-700 mb-2">Layers</div>
-      {#each [['walls','Walls'],['doors','Doors'],['windows','Windows'],['furniture','Furniture'],['stairs','Stairs'],['columns','Columns'],['guides','Guides'],['measurements','Measurements']] as [key, label]}
+    <div style:--visible-bottom={`${zoomControlsBottom}px`} class="absolute bottom-12 right-2 max-md:bottom-[calc(var(--visible-bottom)+6rem)] z-20 bg-white rounded-lg shadow-lg border border-gray-200 p-3 text-xs min-w-[160px]">
+      <div class="font-semibold text-gray-700 mb-2">{$t('layers.title')}</div>
+      {#each [['walls',$t('layers.walls')],['doors',$t('layers.doors')],['windows',$t('layers.windows')],['furniture',$t('layers.furniture')],['stairs',$t('layers.stairs')],['columns',$t('layers.columns')],['guides',$t('layers.guides')],['measurements',$t('layers.measurements')],['annotations',$t('layerVisibility.dimensions')],['textAnnotations',$t('layers.textAnnotations')]] as [key, label]}
         <label class="flex items-center gap-2 py-0.5 cursor-pointer hover:bg-gray-50 rounded px-1">
           <input type="checkbox" checked={(layerVis as Record<string, boolean>)[key]} onchange={() => layerVisibility.update(v => ({ ...v, [key]: !(v as Record<string, boolean>)[key] }))} class="accent-blue-500" />
           <span>{label}</span>
@@ -3900,15 +4133,15 @@
       <hr class="my-1 border-gray-100" />
       <label class="flex items-center gap-2 py-0.5 cursor-pointer hover:bg-gray-50 rounded px-1" class:opacity-40={!floorBelow}>
         <input type="checkbox" checked={layerVis.floorBelow} disabled={!floorBelow} onchange={() => layerVisibility.update(v => ({ ...v, floorBelow: !v.floorBelow }))} class="accent-blue-500" />
-        <span>{floorBelow ? `Floor Below (${floorBelow.name})` : 'Floor Below'}</span>
+        <span>{floorBelow ? $t('layerVisibility.belowNamed', { name: floorBelow.name }) : $t('layerVisibility.below')}</span>
       </label>
       <label class="flex items-center gap-2 py-0.5 cursor-pointer hover:bg-gray-50 rounded px-1">
         <input type="checkbox" bind:checked={showRoomLabels} class="accent-blue-500" />
-        <span>Room Labels</span>
+        <span>{$t('layerVisibility.roomLabels')}</span>
       </label>
       <label class="flex items-center gap-2 py-0.5 cursor-pointer hover:bg-gray-50 rounded px-1">
         <input type="checkbox" bind:checked={showDimensions} class="accent-blue-500" />
-        <span>Dimensions</span>
+        <span>{$t('layerVisibility.automaticDimensions')}</span>
       </label>
     </div>
   {/if}
@@ -3943,6 +4176,8 @@
         const s = worldToScreen(furn.position.x, furn.position.y);
         return { type: 'furniture', pos: s };
       }
+      const positioned = [...f.stairs ?? [], ...f.columns ?? [], ...f.entourage ?? []].find(item => item.id === currentSelectedId);
+      if (positioned) return { type: 'object', pos: worldToScreen(positioned.position.x, positioned.position.y) };
       return null;
     })()}
     {#if el}
@@ -3952,16 +4187,16 @@
       >
         <button
           class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700"
-          title="Duplicate"
-          aria-label="Duplicate"
+          title={$t('contextMenu.duplicate')}
+          aria-label={$t('contextMenu.duplicate')}
           onclick={() => {
             if (!currentSelectedId || !currentFloor) return;
-            let newId: string | null = null;
-            if (el.type === 'door') newId = duplicateDoor(currentSelectedId);
-            else if (el.type === 'window') newId = duplicateWindow(currentSelectedId);
-            else if (el.type === 'furniture') newId = duplicateFurniture(currentSelectedId);
-            else if (el.type === 'wall') newId = duplicateWall(currentSelectedId);
-            if (newId) selectedElementId.set(newId);
+            const ids = currentSelectedIds.size ? currentSelectedIds : new Set([currentSelectedId]);
+            const newIds = duplicateSelection(ids);
+            if (newIds.length) {
+              selectedElementIds.set(new Set(newIds));
+              selectedElementId.set(newIds[0]);
+            }
           }}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
@@ -3969,8 +4204,8 @@
         {#if el.type === 'door' && el.door}
           <button
             class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700"
-            title="Flip swing"
-            aria-label="Flip swing"
+            title={$t('canvasActions.flipSwing')}
+            aria-label={$t('canvasActions.flipSwing')}
             onclick={() => { if (el.door) updateDoor(el.door.id, { swingDirection: el.door.swingDirection === 'left' ? 'right' : 'left' }); }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
@@ -3979,11 +4214,11 @@
         {#if el.type === 'wall' && currentSelectedId && currentSelectedIds.size === 0}
           <button
             class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700"
-            title="Split wall at midpoint"
-            aria-label="Split wall at midpoint"
+            title={$t('canvasActions.splitMidpoint')}
+            aria-label={$t('canvasActions.splitMidpoint')}
             onclick={() => {
               if (currentSelectedId) {
-                const newId = splitWall(currentSelectedId, 0.5);
+                const newId = trySplitWall(currentSelectedId, 0.5);
                 if (newId) selectedElementId.set(null);
               }
             }}
@@ -3994,8 +4229,8 @@
         <div class="w-px h-5 bg-gray-200 mx-0.5"></div>
         <button
           class="w-7 h-7 flex items-center justify-center rounded hover:bg-red-50 text-gray-400 hover:text-red-600"
-          title="Delete"
-          aria-label="Delete"
+          title={$t('contextMenu.delete')}
+          aria-label={$t('contextMenu.delete')}
           onclick={() => {
             if (currentSelectedIds.size > 0) {
               beginUndoGroup();
@@ -4041,13 +4276,13 @@
   {/if}
 
   <!-- Zoom Controls (bottom-left) -->
-  <div class="absolute bottom-3 left-3 z-20 flex items-center gap-1 bg-white rounded-lg shadow-lg border border-gray-200 px-1 py-0.5">
+  <div style:bottom={`${zoomControlsBottom}px`} class="absolute left-3 max-md:left-20 z-20 flex items-center gap-1 bg-white rounded-lg shadow-lg border border-gray-200 px-1 py-0.5">
     <button
       class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-600 hover:text-gray-800 font-bold text-lg"
-      title="Zoom Out (−)"
-      aria-label="Zoom out"
+      title={$t('canvasZoom.outHint')}
+      aria-label={$t('canvasZoom.out')}
       onclick={() => {
-        const newZoom = Math.max(0.1, zoom * 0.8);
+        const newZoom = Math.max(minimumZoom, zoom * 0.8);
         // Zoom towards canvas center
         const worldCX = (width / 2 - width / 2) / zoom + camX;
         const worldCY = (height / 2 - height / 2) / zoom + camY;
@@ -4058,14 +4293,14 @@
     >−</button>
     <button
       class="min-w-[3.5rem] h-7 flex items-center justify-center rounded hover:bg-gray-100 text-xs font-medium text-gray-600 hover:text-gray-800 tabular-nums"
-      title="Reset to 100%"
-      aria-label="Zoom to 100%"
+      title={$t('canvasZoom.resetHint')}
+      aria-label={$t('canvasZoom.reset')}
       onclick={() => { zoom = 1; }}
-    >{Math.round(zoom * 100)}%</button>
+    >{zoom < 0.01 ? (zoom * 100).toPrecision(2) : Math.round(zoom * 100)}%</button>
     <button
       class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-600 hover:text-gray-800 font-bold text-lg"
-      title="Zoom In (+)"
-      aria-label="Zoom in"
+      title={$t('canvasZoom.inHint')}
+      aria-label={$t('canvasZoom.in')}
       onclick={() => {
         const newZoom = Math.min(10, zoom * 1.25);
         zoom = newZoom;
@@ -4074,11 +4309,25 @@
     <div class="w-px h-5 bg-gray-200"></div>
     <button
       class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700 text-sm"
-      title="Zoom to Fit (F)"
-      aria-label="Zoom to fit"
+      title={$t('canvasZoom.fitHint')}
+      aria-label={$t('canvasZoom.fit')}
       onclick={() => zoomToFit()}
     >⊞</button>
+    <button
+      class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700 text-sm disabled:opacity-30 disabled:cursor-not-allowed"
+      title={$t('canvasZoom.selectionHint')}
+      aria-label={$t('canvasZoom.selection')}
+      disabled={fitSelectionIds().size === 0}
+      onclick={() => zoomToFit(true)}
+    >⊡</button>
   </div>
+
+  {#if splitBlocked}
+    <div role="status" class="absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 shadow-md max-w-[90%]">
+      <span>{$t('canvasActions.splitBlocked')}</span>
+      <button class="shrink-0 underline" onclick={() => { splitBlocked = false; }}>{$t('editorRecovery.dismiss')}</button>
+    </div>
+  {/if}
 
   <!-- Context Menu -->
   <ContextMenu

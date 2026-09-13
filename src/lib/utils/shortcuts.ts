@@ -13,6 +13,13 @@ export function isEditingField(target: EventTarget | null): boolean {
   return !!element && (['INPUT', 'TEXTAREA', 'SELECT'].includes(element.tagName) || element.isContentEditable === true);
 }
 
+/** Native controls own activation and focus traversal even inside the editor. */
+export function isControlKey(e: KeyboardEvent): boolean {
+  if (![' ', 'Enter', 'Tab'].includes(e.key)) return false;
+  const element = e.target as HTMLElement | null;
+  return !!element?.closest?.('button, a[href], summary, [role="button"], [role="menuitem"]');
+}
+
 export function handleGlobalShortcut(e: KeyboardEvent, ctx: ShortcutContext = {}): boolean {
   if (hasOpenModal()) return false;
   const mod = e.metaKey || e.ctrlKey;
@@ -25,7 +32,7 @@ export function handleGlobalShortcut(e: KeyboardEvent, ctx: ShortcutContext = {}
     else void manualSave();
     return true;
   }
-  if (isEditingField(e.target)) return false;
+  if (isEditingField(e.target) || isControlKey(e)) return false;
 
   // Ctrl+Z undo
   if (mod && e.key === 'z' && !e.shiftKey) {
@@ -56,6 +63,7 @@ export function handleGlobalShortcut(e: KeyboardEvent, ctx: ShortcutContext = {}
     return true;
   }
   if (e.key === 'Delete' || e.key === 'Backspace') {
+    e.preventDefault();
     const multiIds = get(selectedElementIds);
     if (multiIds.size > 0) {
       beginUndoGroup();

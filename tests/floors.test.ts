@@ -2,7 +2,8 @@ import { beforeEach, expect, it } from 'vitest';
 import { get } from 'svelte/store';
 import { addFloor, createDefaultFloor, currentProject, loadProject, removeFloor, setActiveFloor, undo, redo, selectedElementId, selectedElementIds, elevationWallId, selectedTool } from '$lib/stores/project';
 import { roomProject } from './fixtures/project';
-import { updateFloorElevation } from '$lib/stores/project';
+import { updateFloorElevation, updateFloorSlabThickness } from '$lib/stores/project';
+import { calibrationMode, calibrationPoints } from '$lib/stores/project';
 import { floorElevations } from '$lib/utils/floors';
 
 beforeEach(() => loadProject(roomProject()));
@@ -131,4 +132,38 @@ it('adds a new top floor above adjusted floors and preserves elevations through 
   expect(floorElevations(get(currentProject)!.floors).map(entry => entry.elevation)).toEqual([0, 725.5]);
   undo();
   expect(floorElevations(get(currentProject)!.floors).map(entry => entry.elevation)).toEqual([0, 425.5, 725.5]);
+});
+
+
+it('edits slab depths independently, validates input and restores defaults with undo', () => {
+  addFloor();
+  const before = structuredClone(get(currentProject)!.floors);
+  const [ground, upper] = before;
+  updateFloorSlabThickness(ground.id, 20);
+  updateFloorSlabThickness(upper.id, 32.5);
+  for (const value of [0, -1, NaN, Infinity, '25', null]) updateFloorSlabThickness(upper.id, value as number);
+  updateFloorSlabThickness('missing', 50);
+  updateFloorSlabThickness(upper.id, 32.5);
+  expect(get(currentProject)!.floors.map(f => f.slabThickness)).toEqual([20, 32.5]);
+  expect(get(currentProject)!.floors.map(({ slabThickness, ...f }) => f)).toEqual(before);
+  undo();
+  expect(get(currentProject)!.floors.map(f => f.slabThickness)).toEqual([20, undefined]);
+  redo();
+  updateFloorSlabThickness(upper.id);
+  expect(get(currentProject)!.floors[1]).not.toHaveProperty('slabThickness');
+  undo();
+  expect(get(currentProject)!.floors[1].slabThickness).toBe(32.5);
+});
+
+it('discards calibration points across floor switches, additions, removal and history', () => {
+  const ground = get(currentProject)!.activeFloorId;
+  const begin = () => { calibrationMode.set(true); calibrationPoints.set([{ x: 10, y: 20 }]); };
+  const cleared = () => { expect(get(calibrationMode)).toBe(false); expect(get(calibrationPoints)).toEqual([]); };
+  begin(); addFloor(undefined, 'empty'); cleared();
+  const upper = get(currentProject)!.activeFloorId;
+  begin(); setActiveFloor(ground); cleared();
+  begin(); setActiveFloor(upper); cleared();
+  begin(); removeFloor(upper); cleared();
+  begin(); undo(); cleared();
+  begin(); redo(); cleared();
 });

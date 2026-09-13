@@ -1,8 +1,23 @@
+import { drawEntourageDxf } from './entourageDxf';
+import type { Locale } from '$lib/i18n';
+import { furnitureName } from '$lib/i18n/furnitureNames';
+import { getEntourageDef } from './entourageCatalog';
+import { canvasSymbolDxf } from './canvasSymbolDxf';
+import { drawStair } from './canvasRenderer';
+import { columnPlanCorners } from './columnPlanGeometry';
+import { hasPlanExportContent } from './planExportContent';
+import { dimensionPlanGeometry } from './dimensionPlanGeometry';
+import { textAnnotationLines } from './textAnnotationLayout';
+import { planOpening } from './planOpening';
+import { planWallOutlines } from './planWallOutline';
 import Drawing from 'dxf-writer';
+import { drawFurnitureDxf } from './furnitureDxf';
+import { wallPlanDimension } from './wallPlanGeometry';
 import type { Project } from '$lib/models/types';
-import { getCatalogItem } from '$lib/utils/furnitureCatalog';
-import { resolveRooms, getRoomPolygon, roomCentroid } from '$lib/utils/roomDetection';
-import { projectSettings, formatArea } from '$lib/stores/settings';
+import { getCatalogItem, getFurnitureSize } from '$lib/utils/furnitureCatalog';
+import { resolveRooms, getRoomPolygon, roomLabelPosition } from '$lib/utils/roomDetection';
+import { roomHoles } from './roomNesting';
+import { projectSettings, formatArea, formatLength } from '$lib/stores/settings';
 import { get } from 'svelte/store';
 
 function download(blob: Blob, filename: string) {
@@ -24,9 +39,9 @@ const LAYER_COLORS = {
   ROOMS: 4,       // cyan
 };
 
-export function exportDXF(project: Project) {
+export function exportDXF(project: Project, language: Locale = 'en') {
   const floor = project.floors.find(f => f.id === project.activeFloorId) ?? project.floors[0];
-  if (!floor || floor.walls.length === 0) return;
+  if (!floor || !hasPlanExportContent(floor) && !(floor.entourage ?? []).some(e=>getEntourageDef(e.defId) && e.opacity!==0)) return;
 
   const d = new Drawing();
   d.setUnits('Centimeters');
@@ -42,58 +57,76 @@ export function exportDXF(project: Project) {
   // Draw rooms (labels)
   d.setActiveLayer('ROOMS');
   const rooms = resolveRooms(floor);
-  for (const room of rooms) {
-    const poly = getRoomPolygon(room, floor.walls);
+  const polygons = rooms.map(room=>getRoomPolygon(room,floor.walls)), holes=roomHoles(polygons);
+  for (const [index, room] of rooms.entries()) {
+    const poly = polygons[index];
     if (poly.length < 3) continue;
-    const c = roomCentroid(poly);
+    const c = roomLabelPosition(room, poly, holes[index]);
     // Y is flipped in screen coords vs CAD coords
     d.drawText(c.x, -c.y, 8, 0, room.name, 'center', 'middle');
     d.drawText(c.x, -c.y - 12, 5, 0, `${formatArea(room.area, get(projectSettings).units)}`, 'center', 'middle');
   }
 
-  // Draw walls as thick rectangles (offset perpendicular to wall direction)
+  // One continuous outline per wall run, separated by openings.
   d.setActiveLayer('WALLS');
-  for (const w of floor.walls) {
-    const dx = w.end.x - w.start.x;
-    const dy = w.end.y - w.start.y;
-    const len = Math.hypot(dx, dy);
-    if (len === 0) continue;
+  for (const wall of floor.walls) {
+    const openings = [...floor.doors, ...floor.windows].filter(o => o.wallId === wall.id);
+    for (const outline of planWallOutlines(wall, openings)) {
+      d.drawPolyline([...outline, outline[0]].map(p => [p.x, -p.y]));
+    }
+  }
 
-    const half = w.thickness / 2;
-    // Perpendicular unit vector
-    const nx = -dy / len * half;
-    const ny = dx / len * half;
-
-    // Four corners of the wall rectangle (flipping Y)
-    const x1 = w.start.x + nx, y1 = -(w.start.y + ny);
-    const x2 = w.end.x + nx, y2 = -(w.end.y + ny);
-    const x3 = w.end.x - nx, y3 = -(w.end.y - ny);
-    const x4 = w.start.x - nx, y4 = -(w.start.y - ny);
-
-    d.drawPolyline([
-      [x1, y1],
-      [x2, y2],
-      [x3, y3],
-      [x4, y4],
-      [x1, y1],
-    ]);
+  const textLayers = new Set<string>();
+  for (const note of floor.textAnnotations ?? []) {
+    const raw = note.color || '#1e293b';
+    const hex = /^#[0-9a-f]{6}$/i.test(raw) ? raw.slice(1) : /^#[0-9a-f]{3}$/i.test(raw) ? [...raw.slice(1)].map(c => c + c).join('') : '1e293b';
+    const layer = `TEXT_${hex.toUpperCase()}`;
+    if (!textLayers.has(layer)) { d.addLayer(layer, 7, 'CONTINUOUS'); textLayers.add(layer); }
+    d.setActiveLayer(layer); d.setTrueColor(parseInt(hex, 16));
+    const { fontSize, lines } = textAnnotationLines(note), angle = note.rotation * Math.PI / 180;
+    for (const line of lines) {
+      if (line.text) d.drawText(note.x - line.y * Math.sin(angle), -(note.y + line.y * Math.cos(angle)), fontSize, -note.rotation, line.text, 'center', 'middle');
+    }
   }
 
   // Draw dimensions
   d.setActiveLayer('DIMENSIONS');
   for (const w of floor.walls) {
-    const len = Math.round(Math.hypot(w.end.x - w.start.x, w.end.y - w.start.y));
-    const mx = (w.start.x + w.end.x) / 2;
-    const my = -((w.start.y + w.end.y) / 2);
+    const { length: len, point: midpoint } = wallPlanDimension(w);
+    const mx = midpoint.x;
+    const my = -midpoint.y;
     const angle = Math.atan2(-(w.end.y - w.start.y), w.end.x - w.start.x) * (180 / Math.PI);
-    d.drawText(mx, my + 10, 5, angle, `${len} cm`, 'center', 'bottom');
+    d.drawText(mx, my, 5, angle, `${len} cm`, 'center', 'bottom');
+  }
+
+  for (const note of floor.annotations ?? []) {
+    const g = dimensionPlanGeometry(note); if (!g) continue;
+    d.drawLine(note.x1,-note.y1,g.start.x,-g.start.y);
+    d.drawLine(note.x2,-note.y2,g.end.x,-g.end.y);
+    d.drawLine(g.start.x,-g.start.y,g.end.x,-g.end.y);
+    for (const [point, sign] of [[g.start,1],[g.end,-1]] as const) {
+      for (const side of [-1,1]) d.drawLine(point.x,-point.y,point.x+g.ux*7*sign+g.nx*3*side,-(point.y+g.uy*7*sign+g.ny*3*side));
+    }
+    d.drawText(g.center.x,-g.center.y+4,11,0,note.label || formatLength(g.length,get(projectSettings).units),'center','bottom');
+  }
+
+  d.addLayer('MEASUREMENTS', 1, 'DASHED');
+  d.addLayer('MEASUREMENT_LABELS', 1, 'CONTINUOUS');
+  for (const m of floor.measurements ?? []) {
+    d.setActiveLayer('MEASUREMENTS'); d.drawLine(m.x1,-m.y1,m.x2,-m.y2);
+    d.setActiveLayer('MEASUREMENT_LABELS');
+    d.drawCircle(m.x1,-m.y1,3); d.drawCircle(m.x2,-m.y2,3);
+    d.drawText((m.x1+m.x2)/2,-(m.y1+m.y2)/2+6,12,0,formatLength(Math.hypot(m.x2-m.x1,m.y2-m.y1),get(projectSettings).units),'center','bottom');
   }
 
   // Draw doors as arcs + lines
   d.setActiveLayer('DOORS');
-  for (const door of floor.doors) {
-    const wall = floor.walls.find(w => w.id === door.wallId);
-    if (!wall) continue;
+  for (const original of floor.doors) {
+    const source = floor.walls.find(w => w.id === original.wallId);
+    if (!source) continue;
+    const frame = planOpening(source, original.position, original.width);
+    if (!frame) continue;
+    const wall = frame.wall, door = { ...original, position: frame.position, width: frame.width };
 
     const wdx = wall.end.x - wall.start.x;
     const wdy = wall.end.y - wall.start.y;
@@ -140,9 +173,12 @@ export function exportDXF(project: Project) {
 
   // Draw windows as parallel lines
   d.setActiveLayer('WINDOWS');
-  for (const win of floor.windows) {
-    const wall = floor.walls.find(w => w.id === win.wallId);
-    if (!wall) continue;
+  for (const original of floor.windows) {
+    const source = floor.walls.find(w => w.id === original.wallId);
+    if (!source) continue;
+    const frame = planOpening(source, original.position, original.width);
+    if (!frame) continue;
+    const wall = frame.wall, win = { ...original, position: frame.position, width: frame.width };
 
     const wdx = wall.end.x - wall.start.x;
     const wdy = wall.end.y - wall.start.y;
@@ -171,13 +207,14 @@ export function exportDXF(project: Project) {
   d.setActiveLayer('FURNITURE');
   for (const fi of floor.furniture) {
     const cat = getCatalogItem(fi.catalogId);
-    const fw = fi.width ?? (cat ? cat.width : 30);
-    const fd = fi.depth ?? (cat ? cat.depth : 30);
+    const { width: fw, depth: fd } = getFurnitureSize(fi);
     const fx = fi.position.x;
     const fy = -fi.position.y;
     const rot = (fi.rotation || 0) * Math.PI / 180;
 
-    // Compute rotated rectangle corners
+    if (cat) drawFurnitureDxf(d, fi);
+    else {
+    // Unknown entries retain the simple CAD footprint.
     const hw = fw / 2, hd = fd / 2;
     const corners: [number, number][] = [
       [-hw, -hd], [hw, -hd], [hw, hd], [-hw, hd]
@@ -185,15 +222,31 @@ export function exportDXF(project: Project) {
     const rotated = corners.map(([cx, cy]) => {
       const rx = cx * Math.cos(rot) - cy * Math.sin(rot);
       const ry = cx * Math.sin(rot) + cy * Math.cos(rot);
-      return [fx + rx, fy + ry] as [number, number];
+      return [fx + rx, fy - ry] as [number, number];
     });
     rotated.push(rotated[0]); // close
     d.drawPolyline(rotated);
+    }
 
     // Label
-    if (cat) {
-      d.drawText(fx, fy, 4, 0, cat.name, 'center', 'middle');
-    }
+    d.drawText(fx, fy, 4, 0, cat ? furnitureName(fi.catalogId, language) : 'Unknown furniture', 'center', 'middle');
+  }
+
+  d.addLayer('ENTOURAGE', 8, 'CONTINUOUS');
+  d.setActiveLayer('ENTOURAGE');
+  for(const item of floor.entourage ?? []) drawEntourageDxf(d,item);
+
+  d.addLayer('STAIRS', 8, 'CONTINUOUS');
+  d.setActiveLayer('STAIRS');
+  for (const stair of floor.stairs ?? []) canvasSymbolDxf(d,ctx=>drawStair({ctx,width:0,height:0,zoom:1,camX:0,camY:0},stair,false));
+
+  d.addLayer('COLUMNS', 7, 'CONTINUOUS');
+  d.setActiveLayer('COLUMNS');
+  for (const column of floor.columns ?? []) {
+    const points = columnPlanCorners(column);
+    if (column.shape === 'round') d.drawCircle(column.position.x, -column.position.y, column.diameter / 2);
+    else d.drawPolyline([...points, points[0]].map(p => [p.x, -p.y]));
+    for (const [a, b] of [[points[0], points[2]], [points[1], points[3]]]) d.drawLine(a.x, -a.y, b.x, -b.y);
   }
 
   const dxfString = d.toDxfString();
@@ -201,12 +254,12 @@ export function exportDXF(project: Project) {
   download(blob, `${project.name || 'floorplan'}.dxf`);
 }
 
-export function exportDWG(project: Project) {
+export function exportDWG(project: Project, language: Locale = 'en') {
   // DWG is a proprietary binary format. No good JS library exists.
   // Export as DXF — virtually all CAD software (AutoCAD, SketchUp, etc.) opens DXF natively.
   const floor = project.floors.find(f => f.id === project.activeFloorId) ?? project.floors[0];
-  if (!floor || floor.walls.length === 0) return;
+  if (!floor || !hasPlanExportContent(floor) && !(floor.entourage ?? []).some(e=>getEntourageDef(e.defId) && e.opacity!==0)) return;
 
   alert('DWG is a proprietary binary format. Exporting as DXF instead — all major CAD tools (AutoCAD, SketchUp, FreeCAD) can open DXF files directly.');
-  exportDXF(project);
+  exportDXF(project, language);
 }

@@ -7,7 +7,8 @@ Design floor plans in an intuitive 2D editor, then instantly preview them in a f
 **🌐 Try it live: [app.openplan3d.com](https://app.openplan3d.com/)**
 
 Maintainers: see [NEXT.md](NEXT.md) for the current backlog, verified baseline,
-iPhone release gates and Firebase cost constraints.
+iPhone release gates and Firebase cost constraints. The [capability reference](FEATURES.md)
+links implementation scope to regression coverage and records known limits.
 
 <p align="center">
   <img src="plan1_2d.jpg" alt="2D Floor Plan View" width="48%">
@@ -29,7 +30,7 @@ iPhone release gates and Firebase cost constraints.
 - **Rooms** — Auto-detected from walls with customizable labels and colors
 
 ### 🛋️ Furniture Library
-- **140+ items** across categories: living room, bedroom, kitchen, bathroom, dining, office, outdoor, and more
+- **Categorized catalog** for living room, bedroom, kitchen, bathroom, dining, office, outdoor, and more — see the [catalog source](src/lib/utils/furnitureCatalog.ts) for the current inventory
 - Drag-and-drop placement with rotation, resizing, and snapping
 - Full **3D models** rendered in the 3D view
 
@@ -54,11 +55,13 @@ iPhone release gates and Firebase cost constraints.
 - **DXF** — AutoCAD-compatible format
 - **PDF** — Print-ready output with title block
 - **PNG** — High-resolution raster image
-- **JSON** — Full project data for backup and sharing
+- **JSON** — Project data for backup and transfer
+- **Project package ZIP** — Edited plans and supported attachments for exchange with the native companion; see the [format and limits](docs/project-package-v1.md)
 
 ### 📥 Import
 - **JSON** — Restore saved projects
 - **Apple RoomPlan** — Import room scans from iOS devices
+- **Project package ZIP** — Import edited native plans and supported attachments, with retained data governed by the [package contract](docs/project-package-v1.md)
 - **Clipboard images** — Paste reference images directly onto the canvas
 
 ---
@@ -95,6 +98,9 @@ npm run dev
 ```
 
 Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for fixture-based reports, focused checks
+and pull requests. Maintainers can use the [release checklist](docs/release-checklist.md).
 
 ### Development Checks
 
@@ -280,3 +286,9 @@ During migration, [`storage.rules`](storage.rules) still permits legacy public c
    ```bash
    gcloud storage buckets update gs://openplan3d.firebasestorage.app --cors-file=cors.json
    ```
+
+### Local render lab (experimental)
+
+A separate `/render-lab` page tests Blender-prepared GLB scenes with Three.js
+interactive rendering and progressive GPU path tracing. It reads local files
+without uploading them. See [developer setup and limitations](docs/render-lab.md).

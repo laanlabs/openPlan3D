@@ -67,3 +67,27 @@ it('renders a 10m wall as 200mm and embeds the same page at exact PDF dimensions
   expect(Number(imageMatrix[2]) * 25.4 / 72).toBeCloseTo(210, 6);
   expect(() => createPrintPDF(canvas, project, { ...options, scale: 25 })).toThrow('does not fit');
 });
+
+it('localizes the printed sheet and schedule without changing scale or room data', () => {
+  const project = roomProject();
+  project.name = 'My {value} project';
+  project.floors[0].rooms = [{ ...resolveRooms(project.floors[0])[0], name: 'Original room name', floorTexture: 'none' }];
+  const before = JSON.stringify(project);
+  const fillText = vi.fn();
+  const context = new Proxy({ fillText, measureText: () => ({ width: 30 }) }, { get: (o, k) => o[k as keyof typeof o] ?? (() => {}) });
+  const canvas = { width: 0, height: 0, getContext: () => context, toDataURL: () => 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=' } as unknown as HTMLCanvasElement;
+  const english = renderPrintPage(canvas, project, options)!;
+  fillText.mockClear();
+  const portuguese = renderPrintPage(canvas, project, options, 'pt')!;
+  expect(portuguese).toEqual(english);
+  expect(fillText.mock.calls.some(call => call[0] === 'Escala: 1:50')).toBe(true);
+  expect(fillText.mock.calls.some(call => call[0] === project.name)).toBe(true);
+  const footer = fillText.mock.calls.find(call => String(call[0]).startsWith('OpenPlan3D'))!;
+  expect(footer[0]).toContain('Imprima em 100%');
+  expect(footer[3]).toBe(portuguese.pageWidth - 24);
+  const pdf = createPrintPDF(canvas, project, options, 'pt');
+  expect(pdf.output()).toContain('Tabela de ambientes');
+  expect(pdf.output()).toContain('Original room name');
+  expect(pdf.internal.pageSize.getWidth()).toBeCloseTo(english.pageWidth);
+  expect(JSON.stringify(project)).toBe(before);
+});

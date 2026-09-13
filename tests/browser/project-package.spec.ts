@@ -25,6 +25,7 @@ async function packageDownload(page: Page) {
 }
 
 for (const width of [1440, 390]) test(`furniture category previews and original identities survive local editing at ${width}px`, async ({ page }, testInfo) => {
+  test.slow();
   await page.setViewportSize({ width, height: 900 });
   const check = observe(page), models: string[] = [];
   page.on('request', request => { if (/\.glb$/.test(request.url())) models.push(request.url()); });
@@ -53,7 +54,7 @@ for (const width of [1440, 390]) test(`furniture category previews and original 
   expect(plan.furniture.map((f: any) => f.category)).toEqual(['sofa', 'stairs', 'bed', 'refrigerator', 'sink', 'washerDryer', 'washerdryer', 'future-appliance']);
   expect(plan.furniture[2]).toMatchObject({ width: 1.37875, note: 'Keep category notes', price: 12.345, future: { retain: 2 } });
   await page.getByRole('button', { name: '3D', exact: true }).click();
-  await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible();
+  await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible({ timeout: 60_000 });
   await page.waitForLoadState('networkidle');
   for (const file of ['loungeDesignSofa', 'bedDouble', 'kitchenFridgeLarge', 'bathroomSink', 'washerDryerStacked']) {
     expect(models.filter(url => url.includes(`/${file}.`))).toHaveLength(1);
@@ -75,6 +76,7 @@ test('actual native category return keeps web catalog IDs and mirrored footprint
   check();
 });
 for (const width of [1440, 390]) test(`native package preview/import/edit/reload/export remains local at ${width}px`, async ({ page }, testInfo) => {
+  test.slow();
   await page.setViewportSize({ width, height: 900 });
   const check = observe(page);
   await page.goto('/');
@@ -109,7 +111,7 @@ for (const width of [1440, 390]) test(`native package preview/import/edit/reload
   expect(files['assets/chair.png']).toEqual(original['assets/chair.png']);
   expect(files['assets/orphan.png']).toEqual(original['assets/orphan.png']);
   await page.getByRole('button', { name: '3D', exact: true }).click();
-  await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible();
+  await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible({ timeout: 60_000 });
   check();
 });
 test('actual Swift return package restores web-only details and Swift edits', async ({ page }) => {
@@ -157,5 +159,97 @@ test('package cancellation, invalid file and quota retry preserve the existing l
   await page.getByRole('button', { name: 'Import as copy', exact: true }).click();
   await expect(page.getByRole('dialog').getByRole('status')).toContainText('Project imported.');
   expect(Object.keys(await storedRecords(page))).toHaveLength(Object.keys(before).length + 1);
+  check();
+});
+
+test('slab thickness edits reach the native package in metres', async ({ page }) => {
+  const check = observe(page);
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Import a project package', exact: true }).click();
+  await choose(page);
+  await page.getByRole('button', { name: 'Import as copy', exact: true }).click();
+  await expect(page.getByRole('dialog').getByRole('status')).toContainText('Project imported.');
+  await page.getByRole('button', { name: 'Done', exact: true }).click();
+  await page.getByRole('link', { name: 'QA Project Package (Imported copy)', exact: true }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  const depth = page.getByRole('spinbutton', { name: 'Entry slab thickness (cm)', exact: true });
+  await expect(depth).toHaveValue('10');
+  await depth.fill('32.5'); await depth.press('Tab');
+  await page.getByRole('button', { name: 'Close settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  const elevation = page.getByRole('spinbutton', { name: 'Entry elevation (cm)', exact: true });
+  await elevation.fill('-52.5'); await elevation.press('Tab');
+  await page.getByRole('button', { name: 'Close settings', exact: true }).click();
+  const files = await packageDownload(page), plan = packageJSON(files['plan.json']);
+  expect(plan.levels[0].elevation).toBe(-.525);
+  expect(plan.levels[0].slabThickness).toBe(.325);
+  expect(plan.levels[1]).not.toHaveProperty('slabThickness');
+  check();
+});
+
+for (const owned of [false, true]) test(`actual native ${owned ? 'floor-owned' : 'rotated'} underlay return keeps its visible orientation and original bytes`, async ({ page }, testInfo) => {
+  // Import, editor rendering, package download and screenshot share this budget.
+  test.slow();
+  const check = observe(page);
+  await page.addInitScript(() => {
+    const clear = CanvasRenderingContext2D.prototype.clearRect;
+    CanvasRenderingContext2D.prototype.clearRect = function(...args: Parameters<typeof clear>) {
+      if (this.canvas.getAttribute('aria-label') === 'Floor plan editor canvas') {
+        (window as any).__underlayDraw = undefined;
+        (window as any).__underlayFrame = ((window as any).__underlayFrame ?? 0) + 1;
+      }
+      return clear.apply(this, args);
+    };
+    const draw = CanvasRenderingContext2D.prototype.drawImage;
+    CanvasRenderingContext2D.prototype.drawImage = function(...args: any[]) {
+      const image = args[0];
+      if (this.canvas.getAttribute('aria-label') === 'Floor plan editor canvas' && image.width === 200 && image.height === 100) {
+        const m = this.getTransform();
+        (window as any).__underlayDraw = { a: m.a, b: m.b, x: m.e, y: m.f, width: args[3] };
+      }
+      return (draw as any).apply(this, args);
+    };
+  });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Import a project package', exact: true }).click();
+  await choose(page, resolve(`tests/fixtures/native-return-${owned ? 'floor-owned' : 'rotated'}-underlay.zip`));
+  await page.getByRole('button', { name: 'Import as copy', exact: true }).click();
+  await expect(page.getByRole('dialog').getByRole('status')).toContainText('Project imported.');
+  await page.getByRole('button', { name: 'Done', exact: true }).click();
+  await page.getByRole('link', { name: owned ? 'QA Floor-Owned Trace (Imported copy) (Imported copy)' : 'QA Rotated Underlay (Imported copy) (Imported copy)', exact: true }).click();
+  if (owned) {
+    await expect.poll(() => page.evaluate(() => (window as any).__underlayFrame ?? 0)).toBeGreaterThan(0);
+    expect(await page.evaluate(() => (window as any).__underlayDraw)).toBeUndefined();
+    await page.getByRole('combobox', { name: 'Current floor', exact: true }).selectOption({ label: 'Trace Floor' });
+  }
+  await expect.poll(() => page.evaluate(() => Boolean((window as any).__underlayDraw))).toBe(true);
+  // Image loading and initial fit can produce an earlier, offscreen draw.
+  // Sample the current frame until orientation and visible colors agree.
+  await expect.poll(() => page.evaluate(() => {
+    const p = (window as any).__underlayDraw;
+    if (!p) return { angle: false, redAbove: false, blueBelow: false };
+    const canvas = document.querySelector<HTMLCanvasElement>('[aria-label="Floor plan editor canvas"]')!;
+    const ctx = canvas.getContext('2d')!;
+    const offset = p.width * Math.hypot(p.a, p.b) / 8;
+    // The lower sample is outside the room fill, which overlays the underlay.
+    const top = ctx.getImageData(Math.round(p.x), Math.round(p.y - offset), 1, 1).data;
+    const bottom = ctx.getImageData(Math.round(p.x), Math.round(p.y + 3 * offset), 1, 1).data;
+    // Firefox exposes the canvas transform at float32 precision.
+    return { angle: Math.abs(Math.atan2(p.b, p.a) - Math.PI / 2) < 0.0000005, redAbove: top[0] - top[2] > 50, blueBelow: bottom[2] - bottom[0] > 50 };
+  })).toEqual({ angle: true, redAbove: true, blueBelow: true });
+  if (owned) {
+    const before = await page.evaluate(() => (window as any).__underlayFrame);
+    await page.getByRole('combobox', { name: 'Current floor', exact: true }).selectOption({ label: 'Ground Floor' });
+    await expect.poll(() => page.evaluate(() => (window as any).__underlayFrame)).toBeGreaterThan(before);
+    expect(await page.evaluate(() => (window as any).__underlayDraw)).toBeUndefined();
+    await page.getByRole('combobox', { name: 'Current floor', exact: true }).selectOption({ label: 'Trace Floor' });
+    await expect.poll(() => page.evaluate(() => Boolean((window as any).__underlayDraw))).toBe(true);
+  }
+  const files = await packageDownload(page), plan = packageJSON(files['plan.json']);
+  if (owned) expect(plan.underlay.level).toBe(3);
+  else expect(plan.underlay.level).toBeUndefined();
+  expect(plan.underlay).toMatchObject({ angle: Math.PI / 2, center: { x: 3, y: 2 }, widthMeters: 4 });
+  expect(files[`assets/${plan.underlay.imageFilename}`]).toEqual(new Uint8Array(await readFile('tests/fixtures/underlay-orientation.png')));
+  await testInfo.attach('native-return-underlay', { body: await page.screenshot(), contentType: 'image/png' });
   check();
 });

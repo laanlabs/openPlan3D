@@ -1,4 +1,9 @@
 <script lang="ts">
+  import { t, locale, type TranslationKey } from '$lib/i18n';
+  import { furnitureName } from '$lib/i18n/furnitureNames';
+  import { catalogCategoryLabels } from '$lib/i18n/catalogCategories';
+  import { aiRenderLabels } from '$lib/i18n/aiRenderLabels';
+  import { aiRenderMessages } from '$lib/i18n/aiRenderMessages';
   import { hasOpenModal } from '$lib/utils/modalDialog';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
@@ -11,23 +16,26 @@
   import { wallColors, type WallColor } from '$lib/utils/materials';
   import { projectSettings, formatArea } from '$lib/stores/settings';
   import * as THREE from 'three';
+  import { createRoomSlabGeometry } from '$lib/utils/roomSlabGeometry';
+  import { roomHoles } from '$lib/utils/roomNesting';
   import { createSlopedBoxGeometry } from '$lib/utils/slopedWallGeometry';
-  import { buildWallSegments, openingOnWall, roomCeilingHeight, wallPathSpans, doorPanelPose } from '$lib/utils/wallProfiles';
+  import { buildWallSegments, roomCeilingHeight, wallProfileSpans, wallPathProfile, pathOpening, doorPanelPose } from '$lib/utils/wallProfiles';
   import { assembleFloorStack } from '$lib/utils/floorStack';
   import { setFloorCameraPose } from '$lib/utils/floorCamera';
   import { frameScene } from '$lib/utils/frameScene';
+  import { updateOrbitDamping } from '$lib/utils/orbitDamping';
+  import { portableRenderSceneJSON } from '$lib/utils/portableRenderScene';
   import { sceneSignature } from '$lib/utils/sceneSignature';
   import { WalkthroughMotion } from '$lib/utils/walkthroughMotion';
   import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
   import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
-  import MaterialPicker from './MaterialPicker.svelte';
   import { getCatalogItem, furnitureCatalog, furnitureCategories } from '$lib/utils/furnitureCatalog';
   import type { FurnitureDef } from '$lib/utils/furnitureCatalog';
   import { createWallHighlight } from '$lib/utils/wallHighlight';
   import { disposeModel, ownTexture } from '$lib/utils/furnitureModelResources';
-  import { createFurnitureModelWithGLB } from '$lib/utils/furnitureModelLoader';
+  import { createFurnitureModelWithGLB, createPlacedFurnitureModel } from '$lib/utils/furnitureModelLoader';
   import { addFurniture } from '$lib/stores/project';
-  import { detectRooms, resolveRooms, getRoomPolygon, roomCentroid } from '$lib/utils/roomDetection';
+  import { detectRooms, resolveRoomGeometry, getRoomPolygon, roomCentroid, roomLabelPosition } from '$lib/utils/roomDetection';
   import { getMaterial } from '$lib/utils/materials';
   import { getWallTextureCanvas, getFloorTextureCanvas, setTextureLoadCallback } from '$lib/utils/textureGenerator';
 
@@ -39,6 +47,13 @@
 
   // Dirty flag — only render when scene changes or camera moves
   let sceneDirty = true;
+  let renderExportMessage = $state('');
+  const renderExportLabels: Record<string, TranslationKey> = {
+    "Exported neutral geometry for the local Blender worker. Textures and photo cameras are omitted.": "viewerExport.success",
+    "The 3D scene is not ready.": "viewerExport.notReady",
+    "Could not export the render scene.": "viewerExport.failed"
+  };
+
   let viewerMounted = false;
   let animId: number | undefined;
   function requestRender() {
@@ -62,9 +77,6 @@
 
   // 3D Edit mode — enables click-to-select
   let editMode = $state(false);
-  // Material picker state
-  let materialPickerPos = $state<{ x: number; y: number } | null>(null);
-  let materialPickerWall = $state<Wall | null>(null);
   // Wall transparency toggle
   let wallsTransparent = $state(false);
   // Multi-floor stacking
@@ -299,6 +311,7 @@
       wallGroup.remove(cameraHelper);
     }
     cameraHelper = new THREE.Group();
+    cameraHelper.userData.renderExclude = true;
     cameraHelper.name = 'interior_camera';
 
     // Camera body — small box
@@ -652,11 +665,6 @@
         removeGhostPreview();
         return;
       }
-      if (materialPickerWall) {
-        materialPickerWall = null;
-        materialPickerPos = null;
-        return;
-      }
       editMode = false;
       selectedElementId.set(null);
       return;
@@ -782,6 +790,7 @@
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.2;
+    renderer.domElement.dataset.plan3dCanvas = 'true';
     container.appendChild(renderer.domElement);
 
     controls = new OrbitControls(camera, renderer.domElement);
@@ -869,16 +878,6 @@
         }
       }
       selectedElementId.set(hitWallId);
-
-      // Show/hide material picker
-      if (hitWallId && currentFloor) {
-        const hitWall = currentFloor.walls.find(w => w.id === hitWallId) ?? null;
-        materialPickerWall = hitWall;
-        materialPickerPos = { x: e.clientX, y: e.clientY };
-      } else {
-        materialPickerWall = null;
-        materialPickerPos = null;
-      }
     });
 
     // Hover highlight in edit mode
@@ -1182,17 +1181,22 @@
     group.clear();
   }
 
-  function addOpeningFrame(wall: Wall, position: number, width: number, bottom: number, height: number, depth: number, material: THREE.Material) {
-    const length = Math.hypot(wall.end.x - wall.start.x, wall.end.y - wall.start.y);
-    const rect = openingOnWall(length, getWallStartHeight(wall), getWallEndHeight(wall), position, width, bottom, height);
+  function addOpeningFrame(wall: Wall, position: number, width: number, bottom: number, height: number, depth: number, material: THREE.Material, excludeFromRender = false) {
+    const path = wallPathProfile(wall);
+    const rect = pathOpening(path, position * path.length, width, bottom, height);
     if (!rect) return;
-    const t = (rect.left + rect.right) / 2 / length;
-    const geo = new THREE.BoxGeometry(rect.right - rect.left, rect.top - rect.bottom, depth);
-    const mesh = new THREE.Mesh(geo, material);
-    mesh.position.set(wall.start.x + (wall.end.x - wall.start.x) * t, (rect.bottom + rect.top) / 2, wall.start.y + (wall.end.y - wall.start.y) * t);
-    mesh.rotation.y = -Math.atan2(wall.end.y - wall.start.y, wall.end.x - wall.start.x);
-    mesh.castShadow = true;
-    wallGroup.add(mesh);
+    for (const span of path.spans) {
+      const from = Math.max(span.from, rect.left), to = Math.min(span.to, rect.right);
+      if (to <= from) continue;
+      const center = path.sample((from + to) / 2).point;
+      const geo = new THREE.BoxGeometry(to - from, rect.top - rect.bottom, depth);
+      const mesh = new THREE.Mesh(geo, material);
+      mesh.position.set(center.x, (rect.bottom + rect.top) / 2, center.y);
+      mesh.rotation.y = -Math.atan2(span.end.y - span.start.y, span.end.x - span.start.x);
+      mesh.userData.renderExclude = excludeFromRender;
+      mesh.castShadow = !excludeFromRender;
+      wallGroup.add(mesh);
+    }
   }
 
   function buildWalls(floor: Floor) {
@@ -1256,40 +1260,31 @@
           interiorMat, interiorMat,
           interiorMat, exteriorMat,
         ];
-        for (const span of wallPathSpans(wall)) {
-          const p0x = span.start.x, p0y = span.start.y, p1x = span.end.x, p1y = span.end.y;
-          const segLen = Math.hypot(p1x - p0x, p1y - p0y);
-          if (segLen < 0.5) continue;
-          const segAngle = Math.atan2(p1y - p0y, p1x - p0x);
-          const segCx = (p0x + p1x) / 2;
-          const segCy = (p0y + p1y) / 2;
-          const segStartH = span.startHeight;
-          const segEndH = span.endHeight;
-          const geo = createSlopedBoxGeometry(segLen, t, 0, segStartH, segEndH);
-          const mesh = new THREE.Mesh(geo, materials);
-          mesh.castShadow = true;
-          mesh.receiveShadow = true;
-          mesh.position.set(segCx, 0, segCy);
-          mesh.rotation.y = -segAngle;
-          mesh.userData.wallId = wall.id;
-          wallMeshMap.set(mesh, wall.id);
-          wallGroup.add(mesh);
+        const doors = floor.doors.filter(d => d.wallId === wall.id);
+        const windows = floor.windows.filter(w => w.wallId === wall.id);
+        for (const span of wallProfileSpans(wall, doors, windows)) {
+          const angle = Math.atan2(span.end.y - span.start.y, span.end.x - span.start.x);
+          for (const segment of span.segments) {
+            const geo = createSlopedBoxGeometry(segment.width, t, segment.bottomY, segment.topYLeft, segment.topYRight);
+            const mesh = new THREE.Mesh(geo, materials);
+            mesh.castShadow = true; mesh.receiveShadow = true;
+            mesh.position.set(span.start.x + segment.offsetX * Math.cos(angle), 0, span.start.y + segment.offsetX * Math.sin(angle));
+            mesh.rotation.y = -angle; mesh.userData.wallId = wall.id;
+            wallMeshMap.set(mesh, wall.id); wallGroup.add(mesh);
+          }
         }
-        // Baseboard for curved wall
+        // The same cuts keep baseboards out of curved doorways.
         if (Math.min(startH, endH) >= BASEBOARD_HEIGHT) {
-            for (const span of wallPathSpans(wall)) {
-              const p0x = span.start.x, p0y = span.start.y, p1x = span.end.x, p1y = span.end.y;
-              const segLen = Math.hypot(p1x - p0x, p1y - p0y);
-              if (segLen < 0.5) continue;
-              const segAngle = Math.atan2(p1y - p0y, p1x - p0x);
-              const bbGeo = new THREE.BoxGeometry(segLen, BASEBOARD_HEIGHT, t + 2);
-              const bbMesh = new THREE.Mesh(bbGeo, baseboardMat);
-              bbMesh.position.set((p0x + p1x) / 2, BASEBOARD_HEIGHT / 2, (p0y + p1y) / 2);
-              bbMesh.rotation.y = -segAngle;
-              bbMesh.castShadow = true;
-              wallGroup.add(bbMesh);
+          const base = { ...wall, height: BASEBOARD_HEIGHT, startHeight: BASEBOARD_HEIGHT, endHeight: BASEBOARD_HEIGHT };
+          for (const span of wallProfileSpans(base, doors, windows)) {
+            const angle = Math.atan2(span.end.y - span.start.y, span.end.x - span.start.x);
+            for (const segment of span.segments) {
+              const mesh = new THREE.Mesh(createSlopedBoxGeometry(segment.width, t + 2, segment.bottomY, segment.topYLeft, segment.topYRight), baseboardMat);
+              mesh.position.set(span.start.x + segment.offsetX * Math.cos(angle), 0, span.start.y + segment.offsetX * Math.sin(angle));
+              mesh.rotation.y = -angle; mesh.castShadow = true; wallGroup.add(mesh);
             }
           }
+        }
           continue;
         }
 
@@ -1387,14 +1382,15 @@
     for (const sourceDoor of floor.doors) {
       const wall = floor.walls.find((w) => w.id === sourceDoor.wallId);
       if (!wall) continue;
-      const length = Math.hypot(wall.end.x - wall.start.x, wall.end.y - wall.start.y);
-      const opening = openingOnWall(length, getWallStartHeight(wall), getWallEndHeight(wall), sourceDoor.position, sourceDoor.width, 0, sourceDoor.height ?? 210);
+      const path = wallPathProfile(wall), length = path.length;
+      const opening = pathOpening(path, path.distanceAt(sourceDoor.position), sourceDoor.width, 0, sourceDoor.height ?? 210);
       if (!opening || opening.top < 6 || opening.right - opening.left <= 2) continue;
-      const door = { ...sourceDoor, width: opening.right - opening.left, position: (opening.left + opening.right) / 2 / length };
+      const left = path.sample(opening.left).point, right = path.sample(opening.right).point;
+      const door = { ...sourceDoor, width: Math.hypot(right.x - left.x, right.y - left.y), position: (opening.left + opening.right) / 2 / length };
+      if (door.width <= 2) continue;
       const t = door.position;
-      const px = wall.start.x + (wall.end.x - wall.start.x) * t;
-      const py = wall.start.y + (wall.end.y - wall.start.y) * t;
-      const angle = Math.atan2(wall.end.y - wall.start.y, wall.end.x - wall.start.x);
+      const px = (left.x + right.x) / 2, py = (left.y + right.y) / 2;
+      const angle = Math.atan2(right.y - left.y, right.x - left.x);
       const wt = Math.max(wall.thickness, WALL_THICKNESS);
 
       const frameMat = new THREE.MeshStandardMaterial({ color: 0x6b4423, roughness: 0.6 });
@@ -1404,7 +1400,7 @@
       // Clip jambs and header too when an opening reaches the wall profile.
       addOpeningFrame(wall, (opening.left - jamb / 2) / length, jamb, 0, doorHeight, wt + 2, frameMat);
       addOpeningFrame(wall, (opening.right + jamb / 2) / length, jamb, 0, doorHeight, wt + 2, frameMat);
-      addOpeningFrame(wall, t, door.width + jamb * 2, doorHeight, jamb, wt + 2, frameMat);
+      addOpeningFrame(wall, t, opening.right - opening.left + jamb * 2, doorHeight, jamb, wt + 2, frameMat);
 
       if (door.type === 'opening') {
         // Plain doorway — jambs and header only, no door leaf
@@ -1429,7 +1425,7 @@
         // Shift geometry so pivot is at left edge
         panelGeo.translate(door.width / 2 - 1, 0, 0);
         const panelMesh = new THREE.Mesh(panelGeo, panelMat);
-        const pose = doorPanelPose(wall, door);
+        const pose = doorPanelPose({ ...wall, start: left, end: right, curvePoint: undefined }, { ...door, position: 0.5 });
         panelMesh.position.set(pose.x, doorHeight / 2 - 2, pose.z);
         panelMesh.rotation.y = -pose.yaw;
         panelMesh.castShadow = true;
@@ -1456,14 +1452,11 @@
     for (const sourceWindow of floor.windows) {
       const wall = floor.walls.find((w) => w.id === sourceWindow.wallId);
       if (!wall) continue;
-      const length = Math.hypot(wall.end.x - wall.start.x, wall.end.y - wall.start.y);
-      const opening = openingOnWall(length, getWallStartHeight(wall), getWallEndHeight(wall), sourceWindow.position, sourceWindow.width, sourceWindow.sillHeight ?? 90, sourceWindow.height);
+      const path = wallPathProfile(wall), length = path.length;
+      const opening = pathOpening(path, path.distanceAt(sourceWindow.position), sourceWindow.width, sourceWindow.sillHeight ?? 90, sourceWindow.height);
       if (!opening || opening.top - opening.bottom <= 4 || opening.right - opening.left <= 4) continue;
       const win = { ...sourceWindow, width: opening.right - opening.left, position: (opening.left + opening.right) / 2 / length, sillHeight: opening.bottom };
       const t = win.position;
-      const px = wall.start.x + (wall.end.x - wall.start.x) * t;
-      const py = wall.start.y + (wall.end.y - wall.start.y) * t;
-      const angle = Math.atan2(wall.end.y - wall.start.y, wall.end.x - wall.start.x);
       const wt = Math.max(wall.thickness, WALL_THICKNESS);
       const effectiveWinH = opening.top - opening.bottom;
       const winCY = win.sillHeight + effectiveWinH / 2;
@@ -1495,16 +1488,9 @@
       const halfH = (effectiveWinH - mullionW) / 2;
       for (const qx of [-1, 1]) {
         for (const qy of [-1, 1]) {
-          const gGeo = new THREE.BoxGeometry(halfW, halfH, 1);
-          const gMesh = new THREE.Mesh(gGeo, glassMat);
           const ox = qx * (halfW / 2 + mullionW / 2);
-          gMesh.position.set(
-            px + ox * Math.cos(angle),
-            winCY + qy * (halfH / 2 + mullionW / 2),
-            py + ox * Math.sin(angle)
-          );
-          gMesh.rotation.y = -angle;
-          wallGroup.add(gMesh);
+          const centerY = winCY + qy * (halfH / 2 + mullionW / 2);
+          addOpeningFrame(wall, t + ox / length, halfW, centerY - halfH / 2, halfH, 1, glassMat, true);
         }
       }
 
@@ -1514,40 +1500,26 @@
 
     // Furniture
     for (const fi of floor.furniture) {
-      const cat = getCatalogItem(fi.catalogId);
-      if (!cat) continue;
-      // Skip 2D-only architectural symbols
-      if (cat.symbol) continue;
-      // Create modified catalog definition with overrides
-      const furnitureDef = {
-        ...cat,
-        color: fi.color ?? cat.color,
-        width: fi.width ?? cat.width,
-        depth: fi.depth ?? cat.depth,
-        height: fi.height ?? cat.height,
-      };
-      const model = createFurnitureModelWithGLB(fi.catalogId, furnitureDef, () => {
-        // Re-render when GLB model finishes loading
-        markSceneDirty();
-      }, { color: fi.color, material: fi.material });
-      model.position.set(fi.position.x, 1.5, fi.position.y);
-      model.rotation.y = -(fi.rotation * Math.PI) / 180;
-      // Note: fi.scale is 2D editor scale — don't override 3D model scaling from scaleToFit
-      if (fi.scale && (fi.scale.x !== 1 || fi.scale.y !== 1)) {
-        model.scale.x *= fi.scale.x;
-        model.scale.z *= fi.scale.y;
-      }
-      wallGroup.add(model);
+      const model = createPlacedFurnitureModel(fi, markSceneDirty, get(currentProject) ?? undefined);
+      if (model) wallGroup.add(model);
     }
 
     // Room floors with materials + floating labels
     const FALLBACK_ROOM_COLORS = [0xbfdbfe, 0xfde68a, 0xbbf7d0, 0xfecaca, 0xddd6fe, 0xa5f3fc, 0xfed7aa];
     // Resolve labels and materials from this floor, including after a 3D floor switch.
-    const rooms = resolveRooms(floor);
+    const rooms = resolveRoomGeometry(floor);
+    const holes = roomHoles(rooms.map(r => r.polygon));
     for (let ri = 0; ri < rooms.length; ri++) {
-      const room = rooms[ri];
-      const poly = getRoomPolygon(room, floor.walls);
+      const { room, polygon: poly } = rooms[ri];
       if (poly.length < 3) continue;
+
+      const slabGeometry = room.floorOpening ? null : createRoomSlabGeometry(poly, floor.slabThickness, holes[ri]);
+      if (slabGeometry) {
+        const slab = new THREE.Mesh(slabGeometry, new THREE.MeshStandardMaterial({ color: 0xcccccc, roughness: 0.9 }));
+        slab.userData.renderMaterial = 'floor';
+        slab.receiveShadow = true;
+        wallGroup.add(slab);
+      }
 
       // Triangulate the polygon using ear-clipping via THREE.ShapeGeometry
       const shape = new THREE.Shape();
@@ -1555,6 +1527,14 @@
       shape.moveTo(poly[0].x, -poly[0].y);
       for (let i = 1; i < poly.length; i++) shape.lineTo(poly[i].x, -poly[i].y);
       shape.closePath();
+
+      for (const hole of holes[ri]) {
+        const path = new THREE.Path();
+        path.moveTo(hole[0].x,-hole[0].y);
+        for (const p of hole.slice(1)) path.lineTo(p.x,-p.y);
+        path.closePath();
+        shape.holes.push(path);
+      }
 
       const geo = new THREE.ShapeGeometry(shape);
 
@@ -1621,13 +1601,15 @@
 
       const mesh = new THREE.Mesh(geo, material);
       // Rotate to lie on XZ plane, slightly above base floor
+      mesh.userData.renderMaterial = 'floor';
       mesh.rotation.x = -Math.PI / 2;
       mesh.position.y = 1;
       mesh.receiveShadow = true;
-      wallGroup.add(mesh);
+      if (room.floorOpening) { geo.dispose(); material.dispose(); }
+      else wallGroup.add(mesh);
 
       // Floating room label using sprite
-      const centroid = roomCentroid(poly);
+      const centroid = roomLabelPosition(room, poly, holes[ri]);
       const canvas = document.createElement('canvas');
       canvas.width = 256; canvas.height = 64;
       const ctx2 = canvas.getContext('2d')!;
@@ -1659,6 +1641,7 @@
         });
         const ceilGeo = new THREE.ShapeGeometry(shape);
         const ceilMesh = new THREE.Mesh(ceilGeo, ceilMat);
+        ceilMesh.userData.renderExclude = true;
         ceilMesh.rotation.x = -Math.PI / 2;
         ceilMesh.position.y = ceilingHeight;
         ceilMesh.receiveShadow = true;
@@ -1732,7 +1715,7 @@
     const defaultExteriorMat = transparentMat(0xd4cfc9, 0.85);
 
     for (const sourceWall of floor.walls) {
-      for (const span of wallPathSpans(sourceWall)) {
+      for (const span of wallProfileSpans(sourceWall, floor.doors.filter(d => d.wallId === sourceWall.id), floor.windows.filter(w => w.wallId === sourceWall.id))) {
         const wall = { ...sourceWall, ...span };
         const dx = wall.end.x - wall.start.x;
         const dy = wall.end.y - wall.start.y;
@@ -1746,9 +1729,7 @@
         const cx = (wall.start.x + wall.end.x) / 2;
         const cy = (wall.start.y + wall.end.y) / 2;
 
-        const doorOpenings = sourceWall.curvePoint ? [] : floor.doors.filter((d) => d.wallId === wall.id);
-        const winOpenings = sourceWall.curvePoint ? [] : floor.windows.filter((w) => w.wallId === wall.id);
-        const segments = buildWallSegments(len, startH, endH, doorOpenings, winOpenings);
+        const segments = span.segments;
 
         const materials = [
           defaultExteriorMat, defaultExteriorMat,
@@ -1768,24 +1749,22 @@
             cy + localX * Math.sin(angle)
           );
           mesh.rotation.y = -angle;
+          mesh.userData.renderMaterial = 'wall';
           group.add(mesh);
         }
     }
 
     }
-    // Simple floor slab
-    if (floor.walls.length > 0) {
-      let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
-      for (const w of floor.walls) {
-        for (const p of [w.start, w.end]) {
-          minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
-          minZ = Math.min(minZ, p.y); maxZ = Math.max(maxZ, p.y);
-        }
-      }
-      const slabGeo = new THREE.BoxGeometry(maxX - minX + 40, 5, maxZ - minZ + 40);
-      const slabMat = transparentMat(0xcccccc, 0.95);
-      const slab = new THREE.Mesh(slabGeo, slabMat);
-      slab.position.set((minX + maxX) / 2, yOffset, (minZ + maxZ) / 2);
+    // Match active-floor footprints instead of bridging recesses and separate rooms.
+    const rooms = resolveRoomGeometry(floor);
+    const holes = roomHoles(rooms.map(r => r.polygon));
+    for (const [index, { room, polygon }] of rooms.entries()) {
+      if (room.floorOpening) continue;
+      const geometry = createRoomSlabGeometry(polygon, floor.slabThickness, holes[index]);
+      if (!geometry) continue;
+      const slab = new THREE.Mesh(geometry, transparentMat(0xcccccc, 0.95));
+      slab.userData.renderMaterial = 'floor';
+      slab.position.y = yOffset;
       slab.receiveShadow = true;
       group.add(slab);
     }
@@ -1946,25 +1925,30 @@
 
 
 
+  let lastOrbitFrame: number | undefined;
   function animate(timestamp: number) {
     animId = undefined;
 
     if (walkthroughMode) {
+      lastOrbitFrame = undefined;
       const moving = walkthroughMotion.active;
       walkthroughMotion.advance(timestamp, camera, { moveSpeed, sprintSpeed, eyeHeight, floorElevation: activeFloorElevation });
       if (sceneDirty || moving) {
         sceneDirty = false;
         renderer.render(scene, camera);
+        renderer.domElement.dataset.rendered = 'true';
       }
       if (walkthroughMotion.active) requestRender();
       else walkthroughMotion.stopClock();
     } else {
       // A change event schedules the next damping step. Once the controls settle,
       // leave no callback queued until an interaction or scene update wakes us.
-      controls.update();
+      updateOrbitDamping(controls, lastOrbitFrame === undefined ? 1 / 60 : (timestamp - lastOrbitFrame) / 1000);
+      lastOrbitFrame = animId === undefined ? undefined : timestamp;
       if (sceneDirty) {
         sceneDirty = false;
         renderer.render(scene, camera);
+        renderer.domElement.dataset.rendered = 'true';
       }
     }
   }
@@ -1982,11 +1966,27 @@
   function takeScreenshot() {
     if (!renderer || !scene || !camera) return;
     renderer.render(scene, camera);
+    renderer.domElement.dataset.rendered = 'true';
     const dataUrl = renderer.domElement.toDataURL('image/png');
     const link = document.createElement('a');
     link.download = 'floorplan-3d.png';
     link.href = dataUrl;
     link.click();
+  }
+
+  function exportBlenderScene() {
+    try {
+      if (!wallGroup) throw new Error('The 3D scene is not ready.');
+      const json = portableRenderSceneJSON(wallGroup, showAllFloors ? 'stacked-floors' : 'active-floor');
+      const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
+      try {
+        const link = document.createElement('a');
+        link.href = url; link.download = 'openplan3d-render-scene.json'; link.click();
+      } finally { setTimeout(() => URL.revokeObjectURL(url), 1000); }
+      renderExportMessage = 'Exported neutral geometry for the local Blender worker. Textures and photo cameras are omitted.';
+    } catch (error) {
+      renderExportMessage = error instanceof Error ? error.message : 'Could not export the render scene.';
+    }
   }
 
   onMount(() => {
@@ -2058,10 +2058,15 @@
   });
 </script>
 
-<div bind:this={container} class="w-full h-full relative" role="region" aria-label="3D floor plan viewer">
+<div bind:this={container} class="w-full h-full relative" role="region" aria-label={$t('viewerNav.region')}>
+  <div class="absolute bottom-16 left-4 z-10 max-w-xs">
+    {#if renderExportMessage}<p role="status" class="mb-2 rounded bg-black/80 p-2 text-xs text-white">{renderExportLabels[renderExportMessage] ? $t(renderExportLabels[renderExportMessage]) : renderExportMessage}</p>{/if}
+    <button class="rounded bg-black/70 px-3 py-2 text-sm text-white hover:bg-black/80" onclick={exportBlenderScene}
+      title={$t('viewerExport.help')}>{$t('viewerExport.button')}</button>
+  </div>
   {#if showAllFloors && currentFloor}
     <div class="absolute bottom-4 right-4 z-10 rounded bg-black/70 px-3 py-2 text-xs text-white pointer-events-none">
-      {currentFloor.name} · {activeFloorElevation} cm elevation
+      {$t('viewerExport.elevation', { name: currentFloor.name, value: activeFloorElevation })}
     </div>
   {/if}
   <!-- 3D Toolbar Row -->
@@ -2070,8 +2075,8 @@
     <button
       onclick={() => { showAllFloors = !showAllFloors; rebuildScene(); }}
       class="p-2 rounded-lg transition-colors {showAllFloors ? 'bg-purple-600 text-white ring-2 ring-purple-300' : 'bg-black/70 text-white hover:bg-black/80'}"
-      title={showAllFloors ? 'Active Floor Only' : 'Show All Floors Stacked'}
-      aria-label={showAllFloors ? 'Active Floor Only' : 'Show All Floors Stacked'}
+      title={showAllFloors ? $t('viewerNav.activeFloor') : $t('viewerNav.allFloors')}
+      aria-label={showAllFloors ? $t('viewerNav.activeFloor') : $t('viewerNav.allFloors')}
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="4" y="14" width="16" height="4" rx="1"/>
@@ -2084,8 +2089,8 @@
     <button
       onclick={viewTopDown}
       class="p-2 rounded-lg bg-black/70 text-white hover:bg-black/80 transition-colors"
-      title="Top-Down View"
-      aria-label="Top-Down View"
+      title={$t('viewerNav.top')}
+      aria-label={$t('viewerNav.top')}
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="12" cy="12" r="10"/>
@@ -2100,8 +2105,8 @@
     <button
       onclick={toggleWallTransparency}
       class="p-2 rounded-lg transition-colors {wallsTransparent ? 'bg-blue-600 text-white ring-2 ring-blue-300' : 'bg-black/70 text-white hover:bg-black/80'}"
-      title={wallsTransparent ? 'Show Solid Walls' : 'Make Walls Transparent'}
-      aria-label={wallsTransparent ? 'Show Solid Walls' : 'Make Walls Transparent'}
+      title={wallsTransparent ? $t('viewerNav.solid') : $t('viewerNav.transparent')}
+      aria-label={wallsTransparent ? $t('viewerNav.solid') : $t('viewerNav.transparent')}
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="3" y="3" width="18" height="18" rx="2" opacity={wallsTransparent ? 0.3 : 1}/>
@@ -2112,10 +2117,10 @@
 
     <!-- Edit Mode Toggle -->
     <button
-      onclick={() => { editMode = !editMode; if (editMode && walkthroughMode) { exitWalkthroughMode(); } if (!editMode) { selectedElementId.set(null); materialPickerWall = null; materialPickerPos = null; } }}
+      onclick={() => { editMode = !editMode; if (editMode && walkthroughMode) { exitWalkthroughMode(); } if (!editMode) { selectedElementId.set(null); } }}
       class="p-2 rounded-lg transition-colors {editMode ? 'bg-blue-600 text-white ring-2 ring-blue-300' : 'bg-black/70 text-white hover:bg-black/80'}"
-      title={editMode ? 'Exit Edit Mode' : 'Edit Mode — click to select walls & change materials'}
-      aria-label={editMode ? 'Exit Edit Mode' : 'Edit Mode'}
+      title={editMode ? $t('viewerNav.exitEdit') : $t('viewerNav.editHelp')}
+      aria-label={editMode ? $t('viewerNav.exitEdit') : $t('viewerNav.edit')}
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -2137,8 +2142,8 @@
         }
       }}
       class="p-2 rounded-lg transition-colors {cameraPlacementMode ? 'bg-blue-600 text-white ring-2 ring-blue-300' : 'bg-black/70 text-white hover:bg-black/80'}"
-      title={cameraPlacementMode ? 'Cancel camera placement (click floor to place)' : 'Place Interior Camera — click floor to position, click again to aim'}
-      aria-label="Place Interior Camera"
+      title={cameraPlacementMode ? $t('viewerNav.cameraCancel') : $t('viewerNav.cameraHelp')}
+      aria-label={$t('viewerNav.camera')}
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M23 7l-7 5 7 5V7z"/>
@@ -2150,8 +2155,8 @@
     <button
       onclick={takeScreenshot}
       class="p-2 rounded-lg bg-black/70 text-white hover:bg-black/80 transition-colors"
-      title="Save 3D Screenshot"
-      aria-label="Save 3D Screenshot"
+      title={$t('viewerNav.screenshot')}
+      aria-label={$t('viewerNav.screenshot')}
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
@@ -2163,8 +2168,8 @@
     <button
       onclick={toggleWalkthroughMode}
       class="p-2 rounded-lg bg-black/70 text-white hover:bg-black/80 transition-colors"
-      title={walkthroughMode ? 'Exit Walkthrough Mode' : 'Enter Walkthrough Mode'}
-      aria-label={walkthroughMode ? 'Exit Walkthrough Mode' : 'Enter Walkthrough Mode'}
+      title={walkthroughMode ? $t('viewerNav.exitWalk') : $t('viewerNav.enterWalk')}
+      aria-label={walkthroughMode ? $t('viewerNav.exitWalk') : $t('viewerNav.enterWalk')}
   >
     {#if walkthroughMode}
       <!-- Exit/Eye closed icon -->
@@ -2187,11 +2192,11 @@
 
   {#if cameraPlacementMode && !cameraPlaced}
     <div class="absolute top-16 left-1/2 -translate-x-1/2 z-50 bg-black/80 text-white px-4 py-2 rounded-lg text-sm backdrop-blur-sm">
-      📷 Click on the floor to place camera position
+      {$t('viewerNav.cameraPosition')}
     </div>
   {:else if cameraPlacementMode && cameraPlaced}
     <div class="absolute top-16 left-1/2 -translate-x-1/2 z-50 bg-black/80 text-white px-4 py-2 rounded-lg text-sm backdrop-blur-sm">
-      🎯 Click where the camera should look
+      {$t('viewerNav.cameraAim')}
     </div>
   {/if}
 
@@ -2199,12 +2204,12 @@
   {#if cameraPreviewOpen && cameraPlaced}
     <div class="absolute bottom-4 right-4 z-[60] bg-gray-900/95 rounded-xl shadow-2xl backdrop-blur-sm overflow-y-auto max-w-[calc(100vw-2rem)]" style="width: 420px; max-height: calc(100vh - 8rem);">
       <div class="flex items-center justify-between px-3 py-2 border-b border-gray-700">
-        <span class="text-white text-sm font-medium">📷 Interior Camera</span>
+        <span class="text-white text-sm font-medium">{$t('viewerCamera.title')}</span>
         <div class="flex gap-2">
           <button class="text-xs text-blue-400 hover:text-blue-300" onclick={() => { cancelAIRender(); aiRenderOpen = !aiRenderOpen; }}>
-            {aiRenderOpen ? 'Hide AI' : '✨ AI Render'}
+            {aiRenderOpen ? $t('viewerAI.hide') : $t('viewerAI.show')}
           </button>
-          <button class="text-gray-400 hover:text-white text-lg leading-none" onclick={closeCamera} aria-label="Close camera">✕</button>
+          <button class="text-gray-400 hover:text-white text-lg leading-none" onclick={closeCamera} aria-label={$t('viewerCamera.close')}>✕</button>
         </div>
       </div>
       <!-- Preview canvas with drag-to-rotate -->
@@ -2214,24 +2219,24 @@
         onpointermove={(e) => { if (!previewDragStart) return; const dx = e.clientX - previewDragStart.x; const dy = e.clientY - previewDragStart.y; cameraYaw = previewDragStart.yaw + dx * 0.5; cameraPitch = Math.max(-45, Math.min(45, previewDragStart.pitch - dy * 0.3)); cameraPreviewDirty = true; }}
         onpointerup={() => { previewDragStart = null; }}
       >
-        <canvas use:attachCameraPreview aria-label="Interior camera preview" width="384" height="216" class="w-full pointer-events-none"></canvas>
-        <div class="absolute bottom-1 left-1 text-[10px] text-white/50 pointer-events-none">Drag to look around</div>
+        <canvas use:attachCameraPreview aria-label={$t('viewerCamera.preview')} width="384" height="216" class="w-full pointer-events-none"></canvas>
+        <div class="absolute bottom-1 left-1 text-[10px] text-white/50 pointer-events-none">{$t('viewerCamera.look')}</div>
       </div>
 
       <!-- Movement arrows -->
       <div class="flex items-center justify-center gap-1 py-1.5 border-b border-gray-800">
-        <span class="text-[10px] text-gray-500 mr-2">Move:</span>
-        <button class="w-7 h-7 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-xs flex items-center justify-center" onclick={() => moveCameraRelative(0, -10)} title="Move left">←</button>
+        <span class="text-[10px] text-gray-500 mr-2">{$t('viewerCamera.move')}</span>
+        <button class="w-7 h-7 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-xs flex items-center justify-center" onclick={() => moveCameraRelative(0, -10)} title={$t('viewerCamera.left')} aria-label={$t('viewerCamera.left')}>←</button>
         <div class="flex flex-col gap-0.5">
-          <button class="w-7 h-7 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-xs flex items-center justify-center" onclick={() => moveCameraRelative(10, 0)} title="Move forward">↑</button>
-          <button class="w-7 h-7 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-xs flex items-center justify-center" onclick={() => moveCameraRelative(-10, 0)} title="Move backward">↓</button>
+          <button class="w-7 h-7 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-xs flex items-center justify-center" onclick={() => moveCameraRelative(10, 0)} title={$t('viewerCamera.forward')} aria-label={$t('viewerCamera.forward')}>↑</button>
+          <button class="w-7 h-7 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-xs flex items-center justify-center" onclick={() => moveCameraRelative(-10, 0)} title={$t('viewerCamera.back')} aria-label={$t('viewerCamera.back')}>↓</button>
         </div>
-        <button class="w-7 h-7 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-xs flex items-center justify-center" onclick={() => moveCameraRelative(0, 10)} title="Move right">→</button>
+        <button class="w-7 h-7 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-xs flex items-center justify-center" onclick={() => moveCameraRelative(0, 10)} title={$t('viewerCamera.right')} aria-label={$t('viewerCamera.right')}>→</button>
       </div>
 
       <div class="px-3 py-2 space-y-1.5">
         <label class="flex items-center justify-between text-xs text-gray-300">
-          <span>FOV</span>
+          <span>{$t('viewerCamera.fov')}</span>
           <div class="flex items-center gap-2">
             <input type="range" min="50" max="120" bind:value={cameraFOV} class="w-28 h-1 accent-blue-400"
               oninput={() => { cameraPreviewDirty = true; }} />
@@ -2239,7 +2244,7 @@
           </div>
         </label>
         <label class="flex items-center justify-between text-xs text-gray-300">
-          <span>Height</span>
+          <span>{$t('viewerCamera.height')}</span>
           <div class="flex items-center gap-2">
             <input type="range" min="80" max="220" bind:value={cameraHeight} class="w-28 h-1 accent-blue-400"
               oninput={() => { cameraPreviewDirty = true; }} />
@@ -2248,20 +2253,20 @@
         </label>
         <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer select-none">
           <input type="checkbox" bind:checked={cameraXrayWalls} class="accent-blue-400" onchange={() => { cameraPreviewDirty = true; }} />
-          <span>X-ray walls (see through)</span>
+          <span>{$t('viewerCamera.xray')}</span>
         </label>
         <div class="flex gap-2 pt-1">
           <button
             class="flex-1 px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-500 transition-colors"
             onclick={captureInteriorPhoto}
           >
-            📸 Capture 1920×1080
+            {$t('viewerCamera.capture')}
           </button>
           <button
             class="px-3 py-1.5 bg-gray-700 text-gray-300 text-sm rounded-lg hover:bg-gray-600 transition-colors"
             onclick={() => { cameraPlacementMode = true; cameraPlaced = false; }}
           >
-            Reposition
+            {$t('viewerCamera.reposition')}
           </button>
         </div>
       </div>
@@ -2269,7 +2274,7 @@
       <!-- AI Render Section -->
       {#if aiRenderOpen}
         <div class="border-t border-gray-700 px-3 py-3 space-y-2">
-          <div class="text-xs font-medium text-white">✨ AI Photorealistic Render</div>
+          <div class="text-xs font-medium text-white">{$t('viewerAI.title')}</div>
 
           <!-- Provider toggle -->
           <div class="flex rounded-lg overflow-hidden border border-gray-700">
@@ -2285,48 +2290,48 @@
 
           {#if aiProvider === 'gemini'}
             <label class="block">
-              <span class="text-[10px] text-gray-400 block mb-1">Model</span>
+              <span class="text-[10px] text-gray-400 block mb-1">{$t('viewerAI.model')}</span>
               <select bind:value={aiModel} disabled={aiRendering} class="w-full bg-gray-800 text-gray-200 text-xs rounded px-1.5 py-1.5 border border-gray-700">
                 {#each AI_MODELS as m}<option value={m.id}>{m.name} — {m.desc}</option>{/each}
               </select>
             </label>
           {:else}
             <div class="text-gray-200 space-y-2">
-              <p class="text-xs break-all">Provider: {providerDestination()}</p>
+              <p class="text-xs break-all">{$t('viewerAI.provider', { destination: providerDestination() })}</p>
               <OpenAIModelPicker config={$openAISettings} bind:model={openaiModel} id="render-openai-model" disabled={aiRendering} onchange={saveRenderModel} />
-              <p class="text-xs text-gray-400">The camera image goes directly to this provider. Provider charges may apply.</p>
+              <p class="text-xs text-gray-400">{$t('viewerAI.disclosure')}</p>
             </div>
           {/if}
 
           <div class="grid grid-cols-3 gap-2">
             <label class="block">
-              <span class="text-[10px] text-gray-400 block mb-1">Style</span>
+              <span class="text-[10px] text-gray-400 block mb-1">{$t('viewerAI.style')}</span>
               <select bind:value={aiRenderStyle} class="w-full bg-gray-800 text-gray-200 text-xs rounded px-1.5 py-1 border border-gray-700">
-                {#each STYLE_OPTIONS as opt}<option value={opt}>{opt}</option>{/each}
+                {#each STYLE_OPTIONS as opt}<option value={opt}>{aiRenderLabels[opt] ? $t(aiRenderLabels[opt]) : opt}</option>{/each}
               </select>
             </label>
             <label class="block">
-              <span class="text-[10px] text-gray-400 block mb-1">Lighting</span>
+              <span class="text-[10px] text-gray-400 block mb-1">{$t('viewerAI.lighting')}</span>
               <select bind:value={aiRenderLighting} class="w-full bg-gray-800 text-gray-200 text-xs rounded px-1.5 py-1 border border-gray-700">
-                {#each LIGHTING_OPTIONS as opt}<option value={opt}>{opt}</option>{/each}
+                {#each LIGHTING_OPTIONS as opt}<option value={opt}>{aiRenderLabels[opt] ? $t(aiRenderLabels[opt]) : opt}</option>{/each}
               </select>
             </label>
             <label class="block">
-              <span class="text-[10px] text-gray-400 block mb-1">Mood</span>
+              <span class="text-[10px] text-gray-400 block mb-1">{$t('viewerAI.mood')}</span>
               <select bind:value={aiRenderMood} class="w-full bg-gray-800 text-gray-200 text-xs rounded px-1.5 py-1 border border-gray-700">
-                {#each MOOD_OPTIONS as opt}<option value={opt}>{opt}</option>{/each}
+                {#each MOOD_OPTIONS as opt}<option value={opt}>{aiRenderLabels[opt] ? $t(aiRenderLabels[opt]) : opt}</option>{/each}
               </select>
             </label>
           </div>
 
           <label class="block">
-            <span class="text-[10px] text-gray-400 block mb-1">Extra instructions (optional)</span>
-            <input type="text" bind:value={aiRenderExtra} placeholder="e.g. hardwood floors, white marble counters..."
+            <span class="text-[10px] text-gray-400 block mb-1">{$t('viewerAI.extra')}</span>
+            <input type="text" bind:value={aiRenderExtra} placeholder={$t('viewerAI.placeholder')}
               class="w-full bg-gray-800 text-gray-200 text-xs rounded px-2 py-1.5 border border-gray-700 placeholder:text-gray-600" />
           </label>
 
           <details class="text-[10px] text-gray-500">
-            <summary class="cursor-pointer hover:text-gray-400">View full prompt</summary>
+            <summary class="cursor-pointer hover:text-gray-400">{$t('viewerAI.prompt')}</summary>
             <p class="mt-1 p-2 bg-gray-800 rounded text-gray-400 leading-relaxed">{buildAIPrompt()}</p>
           </details>
 
@@ -2336,35 +2341,35 @@
             disabled={aiRendering}
           >
             {#if aiRendering}
-              <span class="animate-spin">⏳</span> Rendering...
+              <span class="animate-spin">⏳</span> {$t('viewerAI.rendering')}
             {:else}
-              ✨ Generate Photorealistic Render
+              {$t('viewerAI.generate')}
             {/if}
           </button>
 
           {#if aiRendering}
-            <button type="button" onclick={cancelAIRender} class="w-full py-2 text-sm text-gray-200 border border-gray-600 rounded-lg">Cancel render</button>
+            <button type="button" onclick={cancelAIRender} class="w-full py-2 text-sm text-gray-200 border border-gray-600 rounded-lg">{$t('viewerAI.cancel')}</button>
           {/if}
 
           {#if aiRenderError}
             <div class="bg-red-900/30 border border-red-700 rounded-lg p-3 space-y-2">
-              <div class="text-xs font-medium text-red-400">❌ AI Render Failed</div>
-              <pre class="text-[10px] text-red-300 whitespace-pre-wrap break-all max-h-32 overflow-y-auto select-all cursor-text font-mono bg-red-950/40 rounded p-2">{aiRenderError}</pre>
+              <div class="text-xs font-medium text-red-400">{$t('viewerAI.failed')}</div>
+              <pre class="text-[10px] text-red-300 whitespace-pre-wrap break-all max-h-32 overflow-y-auto select-all cursor-text font-mono bg-red-950/40 rounded p-2">{aiRenderMessages[aiRenderError] ? $t(aiRenderMessages[aiRenderError]) : aiRenderError}</pre>
               <button
                 class="text-[10px] text-red-400 hover:text-red-300 underline"
                 onclick={() => { navigator.clipboard.writeText(aiRenderError ?? ''); }}
-              >📋 Copy error</button>
+              >{$t('viewerAI.copy')}</button>
             </div>
           {/if}
 
           {#if aiRenderResult}
             <div class="space-y-2">
-              <img src={aiRenderResult} alt="AI Render" class="w-full rounded-lg" />
+              <img src={aiRenderResult} alt={$t('viewerAI.result')} class="w-full rounded-lg" />
               <button
                 class="w-full px-3 py-1.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-500 transition-colors"
                 onclick={downloadAIRender}
               >
-                💾 Download Render
+                {$t('viewerAI.download')}
               </button>
             </div>
           {/if}
@@ -2388,26 +2393,26 @@
 
     <!-- Controls Panel -->
     <div class="absolute top-4 left-4 z-10 bg-black/70 text-white text-xs rounded-lg backdrop-blur-sm p-3 space-y-2 min-w-[180px]">
-      <div class="font-semibold text-white/90 mb-1">Walkthrough Controls</div>
+      <div class="font-semibold text-white/90 mb-1">{$t('viewerNav.walkControls')}</div>
       {#if walkthroughMouseUnavailable}
-        <p role="status" class="max-w-56 text-amber-200">Mouse look is unavailable in this browser. Use WASD to look and arrow keys to move.</p>
+        <p role="status" class="max-w-56 text-amber-200">{$t('viewerNav.mouseUnavailable')}</p>
       {/if}
       <label class="flex items-center justify-between gap-2">
-        <span class="text-white/70">Eye Height</span>
+        <span class="text-white/70">{$t('viewerNav.eyeHeight')}</span>
         <div class="flex items-center gap-1">
           <input type="range" min="80" max="220" bind:value={eyeHeight} oninput={markSceneDirty} class="w-16 h-1 accent-blue-400" />
           <span class="w-10 text-right">{eyeHeight}cm</span>
         </div>
       </label>
       <label class="flex items-center justify-between gap-2">
-        <span class="text-white/70">Walk Speed</span>
+        <span class="text-white/70">{$t('viewerNav.walkSpeed')}</span>
         <div class="flex items-center gap-1">
           <input type="range" min="100" max="1000" step="50" bind:value={moveSpeed} class="w-16 h-1 accent-blue-400" />
           <span class="w-10 text-right">{moveSpeed}</span>
         </div>
       </label>
       <label class="flex items-center justify-between gap-2">
-        <span class="text-white/70">Sprint Speed</span>
+        <span class="text-white/70">{$t('viewerNav.sprintSpeed')}</span>
         <div class="flex items-center gap-1">
           <input type="range" min="200" max="2000" step="100" bind:value={sprintSpeed} class="w-16 h-1 accent-blue-400" />
           <span class="w-10 text-right">{sprintSpeed}</span>
@@ -2418,7 +2423,7 @@
     <!-- Help Text -->
     <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
       <div class="bg-black/70 text-white text-sm px-4 py-2 rounded-lg backdrop-blur-sm">
-        WASD to look • Arrows to move • Mouse to look • Shift to sprint • ESC to exit
+        {$t('viewerNav.walkHelp')}
       </div>
     </div>
   {/if}
@@ -2431,19 +2436,19 @@
           <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
         </svg>
         {#if furniturePlacementMode}
-          🪑 Click floor to place {selectedCatalogId ? getCatalogItem(selectedCatalogId)?.name ?? 'furniture' : 'furniture'} • ESC to cancel
+          {$t('viewerFurniture.hint', { name: selectedCatalogId ? furnitureName(selectedCatalogId, $locale) : $t('viewerFurniture.fallback') })}
         {:else}
-          🪣 Click walls to paint materials • ESC to close picker or exit
+          {$t('viewerFurniture.paint')}
         {/if}
       </div>
     </div>
 
     <!-- Furniture Placement Toggle -->
     <button
-      onclick={() => { furniturePlacementMode = !furniturePlacementMode; if (!furniturePlacementMode) { removeGhostPreview(); selectedCatalogId = null; furniturePickerOpen = false; } else { furniturePickerOpen = true; materialPickerWall = null; materialPickerPos = null; } }}
+      onclick={() => { furniturePlacementMode = !furniturePlacementMode; if (!furniturePlacementMode) { removeGhostPreview(); selectedCatalogId = null; furniturePickerOpen = false; } else { furniturePickerOpen = true; } }}
       class="absolute top-16 right-28 z-50 p-2 rounded-lg transition-colors {furniturePlacementMode ? 'bg-green-600 text-white ring-2 ring-green-300' : 'bg-black/70 text-white hover:bg-black/80'}"
-      title={furniturePlacementMode ? 'Exit Furniture Placement' : 'Place Furniture'}
-      aria-label={furniturePlacementMode ? 'Exit Furniture Placement' : 'Place Furniture'}
+      title={furniturePlacementMode ? $t('viewerFurniture.exit') : $t('viewerFurniture.place')}
+      aria-label={furniturePlacementMode ? $t('viewerFurniture.exit') : $t('viewerFurniture.place')}
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="3" y="12" width="18" height="8" rx="1"/>
@@ -2457,16 +2462,17 @@
     {#if furniturePlacementMode && furniturePickerOpen}
       <div class="absolute top-4 left-4 z-50 bg-black/85 text-white rounded-lg backdrop-blur-sm w-56 max-h-[70vh] flex flex-col overflow-hidden select-none">
         <div class="p-2 border-b border-white/10 flex items-center justify-between">
-          <span class="font-semibold text-sm">🪑 Furniture</span>
-          <button onclick={() => { furniturePickerOpen = false; }} class="text-white/50 hover:text-white text-lg leading-none">&times;</button>
+          <span class="font-semibold text-sm">{$t('viewerFurniture.title')}</span>
+          <button onclick={() => { furniturePickerOpen = false; }} aria-label={$t('viewerFurniture.close')} class="text-white/50 hover:text-white text-lg leading-none">&times;</button>
         </div>
         <!-- Category tabs -->
         <div class="flex flex-wrap gap-1 p-2 border-b border-white/10">
           {#each furnitureCategories.filter(c => c !== 'Electrical' && c !== 'Plumbing') as cat}
             <button
               onclick={() => { furniturePickerCategory = cat; }}
+              aria-pressed={furniturePickerCategory === cat}
               class="px-2 py-0.5 rounded text-[10px] transition-colors {furniturePickerCategory === cat ? 'bg-green-600 text-white' : 'bg-white/10 hover:bg-white/20 text-white/70'}"
-            >{cat}</button>
+            >{catalogCategoryLabels[cat] ? $t(catalogCategoryLabels[cat]) : cat}</button>
           {/each}
         </div>
         <!-- Items -->
@@ -2477,7 +2483,7 @@
               class="w-full text-left px-2 py-1.5 rounded text-xs flex items-center gap-2 transition-colors {selectedCatalogId === item.id ? 'bg-green-600/80 text-white' : 'hover:bg-white/10 text-white/80'}"
             >
               <span class="text-base">{item.icon}</span>
-              <span>{item.name}</span>
+              <span>{furnitureName(item.id, $locale)}</span>
               <span class="ml-auto text-[10px] text-white/40">{item.width}×{item.depth}</span>
             </button>
           {/each}
@@ -2486,14 +2492,13 @@
     {/if}
   {/if}
 
-  <!-- MaterialPicker removed — wall materials editable via Properties panel -->
-
   <!-- Lighting Controls Toggle Button -->
   <button
     onclick={() => { lightingPanelOpen = !lightingPanelOpen; }}
     class="absolute bottom-4 left-4 md:left-14 z-50 p-2 rounded-lg transition-colors {lightingPanelOpen ? 'bg-amber-500 text-white ring-2 ring-amber-300' : 'bg-black/70 text-white hover:bg-black/80'}"
-    title="Lighting Controls"
-    aria-label="Lighting Controls"
+    title={$t('viewerLighting.title')}
+    aria-label={$t('viewerLighting.title')}
+    aria-expanded={lightingPanelOpen}
   >
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="12" cy="12" r="5"/>
@@ -2509,20 +2514,21 @@
     <div class="absolute bottom-14 left-4 md:left-14 z-50 bg-black/80 text-white text-xs rounded-lg backdrop-blur-sm p-3 space-y-3 min-w-[220px] select-none">
       <div class="font-semibold text-white/90 text-sm flex items-center gap-1.5">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
-        Lighting Controls
+        {$t('viewerLighting.title')}
       </div>
 
       <!-- Time of Day Presets -->
       <div class="space-y-1">
-        <span class="text-white/60 text-[10px] uppercase tracking-wide">Time of Day</span>
+        <span class="text-white/60 text-[10px] uppercase tracking-wide">{$t('viewerLighting.time')}</span>
         <div class="flex gap-1">
           {#each (['morning', 'noon', 'evening', 'night'] as const) as preset}
             <button
               onclick={() => applyTimePreset(preset)}
+              aria-pressed={timeOfDay === preset}
               class="flex-1 px-1.5 py-1 rounded text-[11px] transition-colors {timeOfDay === preset ? 'bg-amber-500 text-white' : 'bg-white/10 hover:bg-white/20 text-white/80'}"
             >
               {preset === 'morning' ? '🌅' : preset === 'noon' ? '☀️' : preset === 'evening' ? '🌇' : '🌙'}
-              <span class="block capitalize">{preset}</span>
+              <span class="block capitalize">{$t(`viewerLighting.${preset}`)}</span>
             </button>
           {/each}
         </div>
@@ -2531,7 +2537,7 @@
       <!-- Sun Position -->
       <label class="block space-y-0.5">
         <div class="flex justify-between text-white/60">
-          <span>Sun Position</span><span>{sunAzimuth}°</span>
+          <span>{$t('viewerLighting.azimuth')}</span><span>{sunAzimuth}°</span>
         </div>
         <input type="range" min="0" max="360" bind:value={sunAzimuth} oninput={() => { timeOfDay = null; updateSunPosition(); }} class="w-full h-1 accent-amber-400" />
       </label>
@@ -2539,7 +2545,7 @@
       <!-- Sun Elevation -->
       <label class="block space-y-0.5">
         <div class="flex justify-between text-white/60">
-          <span>Sun Elevation</span><span>{sunElevation}°</span>
+          <span>{$t('viewerLighting.elevation')}</span><span>{sunElevation}°</span>
         </div>
         <input type="range" min="0" max="90" bind:value={sunElevation} oninput={() => { timeOfDay = null; updateSunPosition(); }} class="w-full h-1 accent-amber-400" />
       </label>
@@ -2547,7 +2553,7 @@
       <!-- Ambient Intensity -->
       <label class="block space-y-0.5">
         <div class="flex justify-between text-white/60">
-          <span>Ambient Light</span><span>{Math.round(ambientIntensity * 100)}%</span>
+          <span>{$t('viewerLighting.ambient')}</span><span>{Math.round(ambientIntensity * 100)}%</span>
         </div>
         <input type="range" min="0" max="100" value={Math.round(ambientIntensity * 100)} oninput={(e) => { ambientIntensity = parseInt(e.currentTarget.value) / 100; timeOfDay = null; updateAmbientIntensity(); }} class="w-full h-1 accent-blue-400" />
       </label>

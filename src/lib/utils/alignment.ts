@@ -1,122 +1,108 @@
 import { get } from 'svelte/store';
 import { activeFloor, currentProject, beginUndoGroup, endUndoGroup } from '$lib/stores/project';
-import { getFurnitureSize } from '$lib/utils/furnitureCatalog';
-import type { FurnitureItem, Floor } from '$lib/models/types';
+import { openingAlignmentPosition } from './openingAlignment';
+import { openingPlanBounds } from './openingPlanBounds';
+import { wallPointAt } from './canvasRenderer';
+import { wallPlanBounds } from './wallPlanGeometry';
+import { furniturePlanBounds } from './furniturePlanBounds';
+import { stairPlanBounds } from './stairPlanGeometry';
+import { columnPlanBounds } from './columnPlanGeometry';
+import { entouragePlanBounds } from './entouragePlanBounds';
+import { planContentBounds } from './planContentBounds';
+import { projectSettings } from '$lib/stores/settings';
+import { entourageAspect } from './canvasRenderer';
+import type { Floor, CustomEntourageDef, Point } from '$lib/models/types';
 
-export type AlignmentOp =
-  | 'align-left'
-  | 'align-right'
-  | 'align-top'
-  | 'align-bottom'
-  | 'align-center-h'
-  | 'align-center-v'
-  | 'distribute-h'
-  | 'distribute-v';
+export type AlignmentOp = 'align-left' | 'align-right' | 'align-top' | 'align-bottom'
+  | 'align-center-h' | 'align-center-v' | 'distribute-h' | 'distribute-v';
 
-interface Rect {
-  item: FurnitureItem;
-  x: number;
-  y: number;
-  w: number;
-  d: number;
+export function alignmentItems(floor: Floor, ids: ReadonlySet<string>) {
+  return [...floor.walls, ...[...floor.doors, ...floor.windows].filter(item => !ids.has(item.wallId) && floor.walls.some(wall => wall.id === item.wallId)), ...floor.furniture, ...floor.stairs ?? [], ...floor.columns ?? [], ...floor.entourage ?? [], ...floor.textAnnotations ?? [], ...floor.measurements ?? [], ...floor.annotations ?? []].filter(item => ids.has(item.id));
 }
 
-function getRect(item: FurnitureItem): Rect {
-  const { width, depth } = getFurnitureSize(item);
-  return { item, x: item.position.x, y: item.position.y, w: width, d: depth };
+/** Position updates based on rendered extents; locked items act as fixed anchors. */
+export function planAlignment(floor: Floor, ids: ReadonlySet<string>, op: AlignmentOp, customDefs?: CustomEntourageDef[], context?: CanvasRenderingContext2D, units: 'metric' | 'imperial' = 'metric'): Map<string, Point & { openingPosition?: number }> {
+  const annotationRects = context ? alignmentItems(floor, ids).flatMap(item => {
+    if ('position' in item || 'start' in item) return [];
+    const bounds = planContentBounds({ ...floor, walls: [], doors: [], windows: [], furniture: [],
+      stairs: [], columns: [], entourage: [], backgroundImage: undefined,
+      textAnnotations: (floor.textAnnotations ?? []).filter(n => n.id === item.id),
+      measurements: (floor.measurements ?? []).filter(n => n.id === item.id),
+      annotations: (floor.annotations ?? []).filter(n => n.id === item.id),
+    }, { context, units, zoom: 1, entourageAspect: () => 1 });
+    const position = 'x1' in item ? { x:(item.x1+item.x2)/2, y:(item.y1+item.y2)/2 } : { x:item.x, y:item.y };
+    return bounds ? [{ item: { id:item.id, position }, bounds }] : [];
+  }) : [];
+  const rects = [
+    ...annotationRects,
+    ...(['door','window'] as const).flatMap(kind => (kind === 'door' ? floor.doors : floor.windows).flatMap(opening => {
+      const wall = floor.walls.find(w => w.id === opening.wallId);
+      return !wall || ids.has(wall.id) ? [] : [{ item: { id:opening.id, position:wallPointAt(wall,opening.position) }, bounds:openingPlanBounds(wall,opening,kind) }];
+    })),
+    ...floor.walls.map(wall => ({item:{id:wall.id,position:wall.start},bounds:wallPlanBounds(wall)})),
+    ...floor.furniture.map(item => ({item,bounds:furniturePlanBounds(item)})),
+    ...(floor.stairs ?? []).map(item => ({item,bounds:stairPlanBounds(item)})),
+    ...(floor.columns ?? []).map(item => ({item,bounds:columnPlanBounds(item)})),
+    ...(floor.entourage ?? []).map(item => ({item,bounds:entouragePlanBounds(item,entourageAspect(item.defId,customDefs))})),
+  ].filter(r => ids.has(r.item.id)).map(r => ({...r, locked:'locked' in r.item && !!r.item.locked}));
+  const updates = new Map<string, Point & { openingPosition?: number }>();
+  const distributing = op.startsWith('distribute');
+  if (rects.length < (distributing ? 3 : 2)) return updates;
+  const horizontal = ['align-left','align-right','align-center-h','distribute-h'].includes(op);
+  const minKey = horizontal ? 'minX' : 'minY', maxKey = horizontal ? 'maxX' : 'maxY';
+  const center = (r: typeof rects[number]) => (r.bounds[minKey]+r.bounds[maxKey])/2;
+  function shift(r: typeof rects[number], delta: number) {
+    if (r.locked || Math.abs(delta) < 1e-8) return;
+    const opening = [...floor.doors, ...floor.windows].find(item => item.id === r.item.id);
+    if (opening) {
+      const wall = floor.walls.find(w => w.id === opening.wallId)!;
+      const kind = floor.doors.some(d => d.id === opening.id) ? 'door' : 'window';
+      const leading = op === 'align-left' || op === 'align-top', trailing = op === 'align-right' || op === 'align-bottom';
+      const value = (bounds: typeof r.bounds) => leading ? bounds[minKey] : trailing ? bounds[maxKey] : (bounds[minKey]+bounds[maxKey])/2;
+      const position = openingAlignmentPosition(wall,opening,kind,value,value(r.bounds)+delta);
+      if (Math.abs(position-opening.position) > 1e-8) updates.set(opening.id,{...wallPointAt(wall,position),openingPosition:position});
+      return;
+    }
+    updates.set(r.item.id,{x:r.item.position.x+(horizontal?delta:0),y:r.item.position.y+(horizontal?0:delta)});
+  }
+  if (distributing) {
+    const sorted = [...rects].sort((a,b) => center(a)-center(b));
+    const anchors = sorted.map((r,i) => i===0 || i===sorted.length-1 || r.locked ? i : -1).filter(i => i>=0);
+    for (let j=1;j<anchors.length;j++) {
+      const start = anchors[j-1], end = anchors[j], a = center(sorted[start]), b = center(sorted[end]);
+      for (let i=start+1;i<end;i++) shift(sorted[i],a+(b-a)*(i-start)/(end-start)-center(sorted[i]));
+    }
+  } else {
+    const min = Math.min(...rects.map(r=>r.bounds[minKey])), max = Math.max(...rects.map(r=>r.bounds[maxKey]));
+    const leading = op==='align-left' || op==='align-top', trailing = op==='align-right' || op==='align-bottom';
+    for (const r of rects) shift(r, leading ? min-r.bounds[minKey] : trailing ? max-r.bounds[maxKey] : (min+max)/2-center(r));
+  }
+  return updates;
 }
 
-function getSelectedFurniture(ids: Set<string>): FurnitureItem[] {
-  const floor = get(activeFloor);
-  if (!floor) return [];
-  return floor.furniture.filter(f => ids.has(f.id));
-}
-
-function applyPositions(updates: Map<string, { x: number; y: number }>) {
-  const p = get(currentProject);
-  if (!p) return;
-  const floor = p.floors.find(f => f.id === p.activeFloorId);
-  if (!floor) return;
-  for (const fi of floor.furniture) {
-    const pos = updates.get(fi.id);
-    if (pos) fi.position = pos;
+export function alignElements(ids: Set<string>, op: AlignmentOp, context?: CanvasRenderingContext2D) {
+  const p = get(currentProject), floor = get(activeFloor);
+  if (!p || !floor) return;
+  // Measure at one pixel per world unit so alignment does not change with zoom.
+  const measurementContext = context ?? (typeof document !== 'undefined' ? document.createElement('canvas').getContext('2d') ?? undefined : undefined);
+  const updates = planAlignment(floor,ids,op,p.customEntourage,measurementContext,get(projectSettings).units);
+  if (!updates.size) return;
+  beginUndoGroup();
+  for (const item of alignmentItems(floor,ids)) {
+    const pos = updates.get(item.id);
+    if (!pos) continue;
+    if ('wallId' in item) { if (pos.openingPosition !== undefined) item.position = pos.openingPosition; }
+    else if ('position' in item) item.position = pos;
+    else if ('start' in item) {
+      const dx=pos.x-item.start.x, dy=pos.y-item.start.y;
+      item.start={...pos}; item.end={x:item.end.x+dx,y:item.end.y+dy};
+      if (item.curvePoint) item.curvePoint={x:item.curvePoint.x+dx,y:item.curvePoint.y+dy};
+    } else if ('x1' in item) {
+      const dx=pos.x-(item.x1+item.x2)/2, dy=pos.y-(item.y1+item.y2)/2;
+      item.x1+=dx; item.x2+=dx; item.y1+=dy; item.y2+=dy;
+    } else { item.x=pos.x; item.y=pos.y; }
   }
   p.updatedAt = new Date();
-  currentProject.set({ ...p });
-}
-
-export function alignElements(ids: Set<string>, op: AlignmentOp) {
-  const items = getSelectedFurniture(ids);
-  if (items.length < 2) return;
-
-  const rects = items.map(getRect);
-  const updates = new Map<string, { x: number; y: number }>();
-
-  beginUndoGroup();
-
-  switch (op) {
-    case 'align-left': {
-      const minX = Math.min(...rects.map(r => r.x - r.w / 2));
-      for (const r of rects) updates.set(r.item.id, { x: minX + r.w / 2, y: r.y });
-      break;
-    }
-    case 'align-right': {
-      const maxX = Math.max(...rects.map(r => r.x + r.w / 2));
-      for (const r of rects) updates.set(r.item.id, { x: maxX - r.w / 2, y: r.y });
-      break;
-    }
-    case 'align-top': {
-      const minY = Math.min(...rects.map(r => r.y - r.d / 2));
-      for (const r of rects) updates.set(r.item.id, { x: r.x, y: minY + r.d / 2 });
-      break;
-    }
-    case 'align-bottom': {
-      const maxY = Math.max(...rects.map(r => r.y + r.d / 2));
-      for (const r of rects) updates.set(r.item.id, { x: r.x, y: maxY - r.d / 2 });
-      break;
-    }
-    case 'align-center-h': {
-      const minX = Math.min(...rects.map(r => r.x - r.w / 2));
-      const maxX = Math.max(...rects.map(r => r.x + r.w / 2));
-      const cx = (minX + maxX) / 2;
-      for (const r of rects) updates.set(r.item.id, { x: cx, y: r.y });
-      break;
-    }
-    case 'align-center-v': {
-      const minY = Math.min(...rects.map(r => r.y - r.d / 2));
-      const maxY = Math.max(...rects.map(r => r.y + r.d / 2));
-      const cy = (minY + maxY) / 2;
-      for (const r of rects) updates.set(r.item.id, { x: r.x, y: cy });
-      break;
-    }
-    case 'distribute-h': {
-      const sorted = [...rects].sort((a, b) => a.x - b.x);
-      if (sorted.length < 3) break;
-      const first = sorted[0];
-      const last = sorted[sorted.length - 1];
-      const totalSpan = last.x - first.x;
-      const step = totalSpan / (sorted.length - 1);
-      for (let i = 0; i < sorted.length; i++) {
-        const r = sorted[i];
-        updates.set(r.item.id, { x: first.x + step * i, y: r.y });
-      }
-      break;
-    }
-    case 'distribute-v': {
-      const sorted = [...rects].sort((a, b) => a.y - b.y);
-      if (sorted.length < 3) break;
-      const first = sorted[0];
-      const last = sorted[sorted.length - 1];
-      const totalSpan = last.y - first.y;
-      const step = totalSpan / (sorted.length - 1);
-      for (let i = 0; i < sorted.length; i++) {
-        const r = sorted[i];
-        updates.set(r.item.id, { x: r.x, y: first.y + step * i });
-      }
-      break;
-    }
-  }
-
-  applyPositions(updates);
-  endUndoGroup();
+  currentProject.set({...p});
+  endUndoGroup(op.startsWith('distribute') ? 'Distributed selection' : 'Aligned selection');
 }

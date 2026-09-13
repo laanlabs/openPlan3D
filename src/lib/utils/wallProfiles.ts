@@ -25,6 +25,10 @@ export function buildWallSegments(length: number, start: number, end: number, do
     ...doors.map(d => openingOnWall(length, start, end, d.position, d.width, 0, d.height ?? 210)),
     ...windows.map(w => openingOnWall(length, start, end, w.position, w.width, w.sillHeight ?? 90, w.height)),
   ].filter((o): o is WallOpening => o !== null);
+  return segmentsAroundOpenings(length, start, end, openings);
+}
+
+function segmentsAroundOpenings(length: number, start: number, end: number, openings: WallOpening[]): WallSegment[] {
   const edges = [...new Set([0, length, ...openings.flatMap(o => [o.left, o.right])])].sort((a, b) => a - b);
   const result: WallSegment[] = [];
   for (let i = 1; i < edges.length; i++) {
@@ -53,6 +57,61 @@ export function wallPathSpans(wall: Wall): { start: Point; end: Point; startHeig
     y: (1 - t) ** 2 * wall.start.y + 2 * (1 - t) * t * wall.curvePoint.y + t * t * wall.end.y,
   } : { x: wall.start.x + (wall.end.x - wall.start.x) * t, y: wall.start.y + (wall.end.y - wall.start.y) * t };
   return Array.from({ length: count }, (_, i) => ({ start: point(i / count), end: point((i + 1) / count), startHeight: startH + (endH - startH) * i / count, endHeight: startH + (endH - startH) * (i + 1) / count }));
+}
+
+/** Distances on the same faceted curve used by the viewer. Saved positions are
+ * quadratic parameters, so they must be converted before applying physical widths.
+ */
+export function wallPathProfile(wall: Wall) {
+  let length = 0;
+  const spans = wallPathSpans(wall).map(span => {
+    const from = length, size = Math.hypot(span.end.x - span.start.x, span.end.y - span.start.y);
+    length += size;
+    return { ...span, from, to: length, length: size };
+  });
+  const sample = (distance: number) => {
+    const d = Math.max(0, Math.min(length, distance));
+    const span = spans.find(s => s.length > 0 && d <= s.to) ?? spans[spans.length - 1];
+    const t = span.length > 0 ? Math.max(0, Math.min(1, (d - span.from) / span.length)) : 0;
+    return { point: { x: span.start.x + (span.end.x - span.start.x) * t,
+      y: span.start.y + (span.end.y - span.start.y) * t }, height: span.startHeight + (span.endHeight - span.startHeight) * t };
+  };
+  return { length, spans, sample, distanceAt(position: number) {
+    if (!Number.isFinite(position)) return NaN;
+    const scaled = Math.max(0, Math.min(1, position)) * spans.length;
+    const index = Math.min(spans.length - 1, Math.floor(scaled));
+    return spans[index].from + (scaled - index) * spans[index].length;
+  } };
+}
+
+export function pathOpening(path: ReturnType<typeof wallPathProfile>, center: number, width: number, bottom: number, height: number): WallOpening | null {
+  if (![path.length, center, width, bottom, height].every(Number.isFinite) || path.length <= 0 || width <= 0 || height <= 0) return null;
+  const left = Math.max(0, center - width / 2), right = Math.min(path.length, center + width / 2);
+  const top = Math.min(bottom + height, path.sample(left).height, path.sample(right).height);
+  bottom = Math.max(0, bottom);
+  return right > left && top > bottom ? { left, right, bottom, top } : null;
+}
+
+/** Cut the union of the full openings before distributing them across curve
+ * spans. A shared head height keeps a sloped aperture level across facet joins.
+ */
+export function wallProfileSpans(wall: Wall, doors: Door[], windows: Window[]) {
+  const path = wallPathProfile(wall);
+  const holes = [
+    ...doors.map(d => pathOpening(path, path.distanceAt(d.position), d.width, 0, d.height ?? 210)),
+    ...windows.map(w => pathOpening(path, path.distanceAt(w.position), w.width, w.sillHeight ?? 90, w.height)),
+  ].filter((hole): hole is WallOpening => hole !== null);
+  return path.spans.filter(span => span.length > 0).map(span => {
+    const local: WallOpening[] = holes.flatMap(hole => {
+      // Preserve exact span endpoints: converting through position/width can
+      // round a full-span hole inward and leave a zero-width blocking face.
+      const left = hole.left <= span.from ? 0 : hole.left - span.from;
+      const right = hole.right >= span.to ? span.length : hole.right - span.from;
+      const top = Math.min(hole.top, at(span.length, span.startHeight, span.endHeight, left), at(span.length, span.startHeight, span.endHeight, right));
+      return right > left && top > hole.bottom ? [{ ...hole, left, right, top }] : [];
+    });
+    return { ...span, segments: segmentsAroundOpenings(span.length, span.startHeight, span.endHeight, local) };
+  });
 }
 
 export function roomCeilingHeight(wallIds: string[], walls: Wall[]): number | undefined {

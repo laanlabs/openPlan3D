@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { itemDetailMessages } from '$lib/i18n/itemDetailMessages';
+  import { t } from '$lib/i18n';
+  import { itemDetailLabels } from '$lib/i18n/itemDetailLabels';
   import { onDestroy } from 'svelte';
   import { get } from 'svelte/store';
   import type { DetailTarget, ItemDetails } from '$lib/models/types';
@@ -22,7 +25,6 @@
   let retained = $derived(Object.keys(assets).map(path => path.slice(7)));
   let attachmentMiB = $derived((Object.values(assets).reduce((n, value) => n + value.length * 3 / 4, 0) / 1024 / 1024).toFixed(2));
   let imperial = $derived($projectSettings.units === 'imperial');
-  const label = (value: string) => value.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
   const photoName = (name: string) => $currentProject?.attachmentNames?.[name] ?? (/^photo-[a-f0-9]{64}\./.test(name) ? 'Added photo' : name);
   function download(name: string) {
     try { downloadPhoto(photoName(name), assets[`assets/${name}`]); }
@@ -97,75 +99,75 @@
   }
 </script>
 
-<section aria-label="Item details" class="mt-4 space-y-3 border-t border-gray-200 pt-3">
-  <h3 class="text-sm font-semibold text-gray-700">Item details</h3>
+<section aria-label={$t('itemDetails.heading')} class="mt-4 space-y-3 border-t border-gray-200 pt-3">
+  <h3 class="text-sm font-semibold text-gray-700">{$t('itemDetails.heading')}</h3>
   {#if target.kind === 'walls' || supportsPhotos}
-    <label class="block text-xs text-gray-600">Item notes
+    <label class="block text-xs text-gray-600">{$t('itemDetails.notes')}
       <textarea value={details.note ?? ''} rows="3" maxlength="20000" oninput={e => save({ note: e.currentTarget.value || null })} class="mt-1 w-full rounded border border-gray-300 px-2 py-1.5 text-sm"></textarea>
     </label>
   {/if}
   {#if supportsCost}
-    <label class="block text-xs text-gray-600">Item cost
+    <label class="block text-xs text-gray-600">{$t('itemDetails.cost')}
       <input type="number" min="0" step="any" value={details.price ?? ''} oninput={e => optionalNumber(e, 'price')} onblur={e => optionalNumber(e, 'price')} class="mt-1 w-full rounded border border-gray-300 px-2 py-1.5 text-sm" />
     </label>
-    <p class="text-xs text-gray-500">Use the same currency throughout the project. Clear the field to leave the cost unset.</p>
+    <p class="text-xs text-gray-500">{$t('itemDetails.currencyHelp')}</p>
   {/if}
   {#if target.kind === 'walls'}
-    <label class="block text-xs text-gray-600">Construction material
+    <label class="block text-xs text-gray-600">{$t('itemDetails.material')}
       <select value={details.material ?? ''} onchange={e => save({ material: e.currentTarget.value || null })} class="mt-1 w-full rounded border border-gray-300 px-2 py-1.5 text-sm">
-        <option value="">Unspecified</option>
-        {#if details.material && !WALL_MATERIALS.includes(details.material)}<option value={details.material}>{details.material} (retained)</option>{/if}
-        {#each WALL_MATERIALS as value}<option {value}>{label(value)}</option>{/each}
+        <option value="">{$t('itemDetails.unspecified')}</option>
+        {#if details.material && !WALL_MATERIALS.includes(details.material)}<option value={details.material}>{$t('itemDetails.retained', { value: details.material })}</option>{/if}
+        {#each WALL_MATERIALS as value}<option {value}>{$t(itemDetailLabels[value])}</option>{/each}
       </select>
     </label>
-    <p class="text-xs text-gray-500">Used by the iPhone plan. Wall colors and textures remain separately editable.</p>
+    <p class="text-xs text-gray-500">{$t('itemDetails.materialHelp')}</p>
   {/if}
   {#if target.kind === 'rooms'}
-    <label class="block text-xs text-gray-600">Room use
+    <label class="block text-xs text-gray-600">{$t('itemDetails.use')}
       <select value={details.roomType ?? ''} onchange={e => save({ roomType: e.currentTarget.value || null })} class="mt-1 w-full rounded border border-gray-300 px-2 py-1.5 text-sm">
-        <option value="">Unspecified</option>
-        {#each ROOM_TYPES as value}<option {value}>{label(value)}</option>{/each}
+        <option value="">{$t('itemDetails.unspecified')}</option>
+        {#each ROOM_TYPES as value}<option {value}>{$t(itemDetailLabels[value])}</option>{/each}
       </select>
     </label>
-    <label class="block text-xs text-gray-600">Room ceiling height ({imperial ? 'in' : 'cm'})
-      <input type="number" min="0" step="any" placeholder="Use plan default" value={details.ceilingHeight == null ? '' : details.ceilingHeight / (imperial ? 2.54 : 1)} oninput={e => optionalNumber(e, 'ceilingHeight')} onblur={e => optionalNumber(e, 'ceilingHeight')} class="mt-1 w-full rounded border border-gray-300 px-2 py-1.5 text-sm" />
+    <label class="block text-xs text-gray-600">{$t('itemDetails.ceiling')} ({imperial ? 'in' : 'cm'})
+      <input type="number" min="0" step="any" placeholder={$t('itemDetails.default')} value={details.ceilingHeight == null ? '' : details.ceilingHeight / (imperial ? 2.54 : 1)} oninput={e => optionalNumber(e, 'ceilingHeight')} onblur={e => optionalNumber(e, 'ceilingHeight')} class="mt-1 w-full rounded border border-gray-300 px-2 py-1.5 text-sm" />
     </label>
-    <p class="text-xs text-gray-500">This room override travels to iPhone. Edit wall heights to change the web 3D geometry.</p>
+    <p class="text-xs text-gray-500">{$t('itemDetails.ceilingHelp')}</p>
   {/if}
   {#if supportsPhotos}
     <div class="space-y-2">
-      <h4 class="text-xs font-medium text-gray-600">Item photos ({photos.length})</h4>
+      <h4 class="text-xs font-medium text-gray-600">{$t('itemPhotos.heading', { count: photos.length })}</h4>
       {#each photos as name, index (name)}
         {@const data = assets[`assets/${name}`]}
         {@const preview = photoPreview(data)}
         <div class="rounded border border-gray-200 p-2 space-y-2">
-          {#if preview}<img src={preview} alt={`Item photo ${index + 1}`} loading="lazy" class="max-h-40 w-full rounded object-contain" />
-          {:else}<p class="text-xs text-gray-500">Preview unavailable. The original file is retained.</p>{/if}
+          {#if preview}<img src={preview} alt={$t('itemPhotos.alt', { number: index + 1 })} loading="lazy" class="max-h-40 w-full rounded object-contain" />
+          {:else}<p class="text-xs text-gray-500">{$t('itemPhotos.unavailable')}</p>{/if}
           <p class="break-words text-xs text-gray-500">{photoName(name)}</p>
           <div class="flex flex-wrap gap-2">
-            <button onclick={() => download(name)} disabled={!data} class="text-xs text-blue-700 underline">Download photo {index + 1}</button>
-            <button onclick={() => save({ photos: photos.filter(p => p !== name) })} aria-label={`Remove photo ${index + 1} from item`} class="text-xs text-red-700 underline">Remove from item</button>
+            <button onclick={() => download(name)} disabled={!data} class="text-xs text-blue-700 underline">{$t('itemPhotos.download', { number: index + 1 })}</button>
+            <button onclick={() => save({ photos: photos.filter(p => p !== name) })} aria-label={$t('itemPhotos.removeLabel', { number: index + 1 })} class="text-xs text-red-700 underline">{$t('itemPhotos.remove')}</button>
           </div>
         </div>
       {/each}
-      <input bind:this={input} type="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" aria-label="Choose item photo" onchange={addPhoto} class="hidden" />
-      <button disabled={busy} onclick={() => input?.click()} class="rounded border border-blue-300 px-3 py-2 text-sm text-blue-700 disabled:opacity-50">{busy ? 'Preparing photo…' : 'Add photo'}</button>
-      <p class="text-xs text-gray-500">JPG or PNG, up to 8 MiB and 24 megapixels. Large photos become resized copies up to 1600 pixels. No uploads.</p>
-      <p class="text-xs text-gray-500">Removing from an item keeps the file in retained attachments. Delete an unused file below to omit it from future exports.</p>
+      <input bind:this={input} type="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" aria-label={$t('itemPhotos.choose')} onchange={addPhoto} class="hidden" />
+      <button disabled={busy} onclick={() => input?.click()} class="rounded border border-blue-300 px-3 py-2 text-sm text-blue-700 disabled:opacity-50">{busy ? $t('itemPhotos.preparing') : $t('itemPhotos.add')}</button>
+      <p class="text-xs text-gray-500">{$t('itemPhotos.help')}</p>
+      <p class="text-xs text-gray-500">{$t('itemPhotos.retentionHelp')}</p>
       {#if retained.length}
         <details ontoggle={e => retainedOpen = e.currentTarget.open} class="rounded border border-gray-200 p-2">
-          <summary class="cursor-pointer text-xs font-medium text-gray-600">Retained attachments ({retained.length}) · {attachmentMiB} MiB</summary>
+          <summary class="cursor-pointer text-xs font-medium text-gray-600">{$t('retainedFiles.summary', { count: retained.length, size: attachmentMiB })}</summary>
           {#if retainedOpen}
-            <p class="mt-2 text-xs text-gray-500">Repeated photo bytes are shared across saved versions. New photos must fit the 64 MiB project and version-history budget.</p>
+            <p class="mt-2 text-xs text-gray-500">{$t('retainedFiles.budget')}</p>
             {#each retained as name (name)}
               {@const preview = photoPreview(assets[`assets/${name}`])}
               <div class="mt-3 border-t border-gray-100 pt-2">
-                {#if preview}<img src={preview} alt="Retained attachment preview" loading="lazy" class="mb-1 h-12 w-16 rounded object-contain" />{/if}
+                {#if preview}<img src={preview} alt={$t('retainedFiles.preview')} loading="lazy" class="mb-1 h-12 w-16 rounded object-contain" />{/if}
                 <p class="break-words text-xs text-gray-600">{photoName(name)}</p>
                 <div class="mt-1 flex flex-wrap gap-2">
-                  <button disabled={photos.includes(name)} onclick={() => attachRetained(name)} aria-label={`Attach retained file ${name}`} class="text-xs text-blue-700 underline disabled:text-gray-400">Attach to item</button>
-                  <button onclick={() => download(name)} aria-label={`Download retained file ${name}`} class="text-xs text-blue-700 underline">Download</button>
-                  <button onclick={() => requestDelete(name)} aria-label={`Delete retained file ${name}`} class="text-xs text-red-700 underline">Delete file…</button>
+                  <button disabled={photos.includes(name)} onclick={() => attachRetained(name)} aria-label={$t('retainedFiles.attachLabel', { name })} class="text-xs text-blue-700 underline disabled:text-gray-400">{$t('retainedFiles.attach')}</button>
+                  <button onclick={() => download(name)} aria-label={$t('retainedFiles.downloadLabel', { name })} class="text-xs text-blue-700 underline">{$t('retainedFiles.download')}</button>
+                  <button onclick={() => requestDelete(name)} aria-label={$t('retainedFiles.deleteLabel', { name })} class="text-xs text-red-700 underline">{$t('retainedFiles.delete')}</button>
                 </div>
               </div>
             {/each}
@@ -173,16 +175,16 @@
         </details>
       {/if}
       {#if deleting}
-        <div class="space-y-2 rounded border border-amber-300 bg-amber-50 p-2" role="group" aria-label="Delete retained attachment">
-          <p class="break-words text-xs text-gray-700">Delete {photoName(deleting)} from this project’s future exports? Original features may refer to retained files. Older projects, saved versions and downloaded files keep their copies.</p>
+        <div class="space-y-2 rounded border border-amber-300 bg-amber-50 p-2" role="group" aria-label={$t('retainedFiles.group')}>
+          <p class="break-words text-xs text-gray-700">{$t('retainedFiles.confirm', { name: photoName(deleting) })}</p>
           <div class="flex gap-2">
-            <button onclick={() => deleting = null} class="rounded border px-2 py-1 text-xs">Keep file</button>
-            <button onclick={deleteFile} class="rounded bg-red-700 px-2 py-1 text-xs text-white">Delete file from project</button>
+            <button onclick={() => deleting = null} class="rounded border px-2 py-1 text-xs">{$t('retainedFiles.keep')}</button>
+            <button onclick={deleteFile} class="rounded bg-red-700 px-2 py-1 text-xs text-white">{$t('retainedFiles.commit')}</button>
           </div>
         </div>
       {/if}
     </div>
   {/if}
-  {#if error}<p role="alert" class="break-words text-xs text-red-700">{error}</p>{/if}
-  {#if status}<p role="status" class="text-xs text-green-700">{status}</p>{/if}
+  {#if error}<p role="alert" class="break-words text-xs text-red-700">{itemDetailMessages[error] ? $t(itemDetailMessages[error]) : error}</p>{/if}
+  {#if status}<p role="status" class="text-xs text-green-700">{itemDetailMessages[status] ? $t(itemDetailMessages[status]) : status}</p>{/if}
 </section>

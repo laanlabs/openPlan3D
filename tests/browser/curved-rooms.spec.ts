@@ -1,0 +1,50 @@
+import { test, expect } from '@playwright/test';
+import { resolve } from 'node:path';
+import { readFile } from 'node:fs/promises';
+import { BufferGeometry, DoubleSide, Float32BufferAttribute, Group, Mesh, MeshBasicMaterial, Raycaster, Vector3 } from 'three';
+
+function checkCurvedRooms(scene: any, elevation: number) {
+  const slabs = scene.meshes.filter((mesh: any) => {
+    const ys = mesh.vertices.map((p: number[]) => p[1]);
+    return mesh.material === 'floor' && Math.abs(Math.min(...ys) - (elevation - .05)) < 1e-5 && Math.abs(Math.max(...ys) - elevation) < 1e-5;
+  });
+  expect(slabs).toHaveLength(1); // one closed curved room
+  const root = new Group(), material = new MeshBasicMaterial({ side: DoubleSide });
+  for (const mesh of slabs) {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute('position', new Float32BufferAttribute(mesh.vertices.flat(), 3));
+    geometry.setIndex(mesh.faces.flat()); root.add(new Mesh(geometry, material));
+  }
+  root.updateMatrixWorld(true);
+  const hits = (x: number, z: number) => new Raycaster(new Vector3(x, elevation + .1, z), new Vector3(0, -1, 0), 0, .2).intersectObject(root, true).length;
+  expect(hits(3, -1)).toBeGreaterThan(0); // bulge beyond the old endpoint chord
+  expect(hits(3, -2)).toBe(0); // outside the curved boundary
+  expect(hits(3, 2)).toBeGreaterThan(0);
+  expect(Math.min(...slabs[0].vertices.map((v: number[]) => v[2]))).toBeCloseTo(-1.5);
+  root.traverse(node => { if (node instanceof Mesh) node.geometry.dispose(); }); material.dispose();
+}
+
+test('curved room slabs follow the wall bulge across active-floor switches', async ({ page }, testInfo) => {
+  const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/editor');
+  await page.getByRole('button', { name: 'Export', exact: true }).click();
+  const chooser = page.waitForEvent('filechooser');
+  await page.getByRole('button', { name: 'Import JSON', exact: true }).click();
+  await (await chooser).setFiles(resolve('tests/fixtures/curved-rooms.openplan.json'));
+  await page.getByRole('button', { name: '3D', exact: true }).click();
+  await page.waitForLoadState('networkidle');
+  const hint = page.getByRole('button', { name: 'Got it', exact: true });
+  await expect(hint).toBeHidden({ timeout: 15_000 });
+  async function exported() {
+    const pending = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Export Blender Scene', exact: true }).click();
+    return JSON.parse(await readFile((await (await pending).path())!, 'utf8'));
+  }
+  checkCurvedRooms(await exported(), 0);
+  await page.getByRole('button', { name: 'Show All Floors Stacked', exact: true }).click();
+  const stacked = await exported(); checkCurvedRooms(stacked, 0); checkCurvedRooms(stacked, 4);
+  await testInfo.attach('curved-rooms-stacked.json', { body: JSON.stringify(stacked), contentType: 'application/json' });
+  await page.getByRole('combobox', { name: 'Current floor', exact: true }).selectOption('slab-floor-1');
+  const switched = await exported(); checkCurvedRooms(switched, 0); checkCurvedRooms(switched, 4);
+  expect(errors).toEqual([]);
+});

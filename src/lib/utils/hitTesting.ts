@@ -1,3 +1,5 @@
+import { stairContainsLocalPoint } from './stairPlanGeometry';
+import { roomHoles } from './roomNesting';
 /**
  * Hit-testing utilities for the floor plan canvas.
  * All functions are pure — they take data and return results.
@@ -5,10 +7,11 @@
  */
 import type { Point, Wall, Door, Window as Win, FurnitureItem, Stair, Column, Floor, Measurement, Annotation, TextAnnotation, EntourageItem } from '$lib/models/types';
 import type { Room } from '$lib/models/types';
-import { getCatalogItem, getFurnitureSize } from '$lib/utils/furnitureCatalog';
-import { getRoomPolygon } from '$lib/utils/roomDetection';
+import { getFurnitureSize } from '$lib/utils/furnitureCatalog';
+import { getRoomPolygon, roomLabelPosition } from '$lib/utils/roomDetection';
 import { wallPointAt, wallTangentAt } from '$lib/utils/canvasRenderer';
 import type { HandleType } from '$lib/utils/canvasInteraction';
+import { projectOntoWall } from './wallProjection';
 
 export function pointInPolygon(p: Point, poly: Point[]): boolean {
   let inside = false;
@@ -32,14 +35,7 @@ export function pointToSegmentDist(p: Point, a: Point, b: Point): number {
 
 export function positionOnWall(p: Point, w: Wall): number {
   if (w.curvePoint) {
-    let bestT = 0.5, bestDist = Infinity;
-    for (let i = 0; i <= 40; i++) {
-      const t = i / 40;
-      const pt = wallPointAt(w, t);
-      const d = Math.hypot(p.x - pt.x, p.y - pt.y);
-      if (d < bestDist) { bestDist = d; bestT = t; }
-    }
-    return Math.max(0.1, Math.min(0.9, bestT));
+    return projectOntoWall(p, w, .1, .9)?.position ?? .5;
   }
   const dx = w.end.x - w.start.x, dy = w.end.y - w.start.y;
   const len2 = dx * dx + dy * dy;
@@ -51,10 +47,15 @@ export function findWallAt(p: Point, walls: Wall[], zoom: number): Wall | null {
   const threshold = 15 / zoom;
   for (const w of walls) {
     if (w.curvePoint) {
-      for (let i = 0; i <= 20; i++) {
-        const pt = wallPointAt(w, i / 20);
-        if (Math.hypot(p.x - pt.x, p.y - pt.y) < threshold + w.thickness / 2) return w;
-      }
+      // A quadratic stays inside the hull of its endpoints and control point.
+      // Reject distant pointer positions before solving for the closest point.
+      const radius = threshold + w.thickness / 2;
+      if (p.x < Math.min(w.start.x, w.end.x, w.curvePoint.x) - radius ||
+          p.x > Math.max(w.start.x, w.end.x, w.curvePoint.x) + radius ||
+          p.y < Math.min(w.start.y, w.end.y, w.curvePoint.y) - radius ||
+          p.y > Math.max(w.start.y, w.end.y, w.curvePoint.y) + radius) continue;
+      const projected = projectOntoWall(p, w);
+      if (projected && projected.distance < radius) return w;
     } else {
       if (pointToSegmentDist(p, w.start, w.end) < threshold) return w;
     }
@@ -71,8 +72,6 @@ export function findHandleAt(
   if (!selectedId) return null;
   const fi = furniture.find(f => f.id === selectedId);
   if (!fi) return null;
-  const cat = getCatalogItem(fi.catalogId);
-  if (!cat) return null;
   const dx = p.x - fi.position.x;
   const dy = p.y - fi.position.y;
   const angle = -(fi.rotation * Math.PI) / 180;
@@ -102,8 +101,6 @@ export function findHandleAt(
 
 export function findFurnitureAt(p: Point, furniture: FurnitureItem[]): FurnitureItem | null {
   for (const fi of [...furniture].reverse()) {
-    const cat = getCatalogItem(fi.catalogId);
-    if (!cat) continue;
     const dx = p.x - fi.position.x;
     const dy = p.y - fi.position.y;
     const angle = -(fi.rotation * Math.PI) / 180;
@@ -142,7 +139,7 @@ export function findStairAt(p: Point, stairs: Stair[] | undefined): Stair | null
     const angle = -(stair.rotation * Math.PI) / 180;
     const rx = dx * Math.cos(angle) - dy * Math.sin(angle);
     const ry = dx * Math.sin(angle) + dy * Math.cos(angle);
-    if (Math.abs(rx) < stair.width / 2 && Math.abs(ry) < stair.depth / 2) return stair;
+    if (stairContainsLocalPoint(stair, rx, ry)) return stair;
   }
   return null;
 }
@@ -179,12 +176,46 @@ export function findWindowAt(p: Point, windows: Win[], walls: Wall[], zoom: numb
   return null;
 }
 
-export function findRoomAt(p: Point, rooms: Room[], walls: Wall[]): Room | null {
+export function findRoomAt(p: Point, rooms: Room[], walls: Wall[], polygons?: ReadonlyMap<string, Point[]>): Room | null {
+  let selected: Room | null = null;
+  let smallest = Infinity;
   for (const room of rooms) {
-    const poly = getRoomPolygon(room, walls);
-    if (pointInPolygon(p, poly)) return room;
+    const poly = polygons?.get(room.id) ?? getRoomPolygon(room, walls);
+    if (!pointInPolygon(p, poly)) continue;
+    const area = footprintArea(poly);
+    if (area < smallest) { selected = room; smallest = area; }
   }
-  return null;
+  return selected;
+}
+
+// Use the enclosing footprint, not net room.area: an outer ring may have less
+// floor area than its child after subtracting nested rooms.
+function footprintArea(poly: Point[]): number {
+  if (poly.length < 3) return Infinity;
+  const origin = poly[0];
+  return Math.abs(poly.reduce((sum,p,i) => {
+    const q=poly[(i+1)%poly.length];
+    return sum+(p.x-origin.x)*(q.y-origin.y)-(q.x-origin.x)*(p.y-origin.y);
+  },0));
+}
+
+/** Closest label wins; coincident label anchors prefer the innermost room. */
+export function findRoomLabelAt(p: Point, rooms: Room[], walls: Wall[], zoom: number,
+  polygons?: ReadonlyMap<string, Point[]>): Room | null {
+  let selected: Room | null = null, nearest = Infinity, smallest = Infinity;
+  const rings=rooms.map(room=>polygons?.get(room.id) ?? getRoomPolygon(room,walls));
+  const holes=roomHoles(rings);
+  for (const [index, room] of rooms.entries()) {
+    const poly=rings[index];
+    if (poly.length<3) continue;
+    const anchor=roomLabelPosition(room,poly,holes[index]), dx=p.x-anchor.x, dy=p.y-anchor.y;
+    if (Math.abs(dx)>=80/zoom || Math.abs(dy)>=40/zoom) continue;
+    const distance=dx*dx+dy*dy, area=footprintArea(poly);
+    if (distance<nearest || (distance===nearest && area<smallest)) {
+      selected=room;nearest=distance;smallest=area;
+    }
+  }
+  return selected;
 }
 
 export function hitTestMeasurement(wp: Point, floor: Floor, zoom: number): string | null {
@@ -207,7 +238,7 @@ export function hitTestAnnotation(wp: Point, floor: Floor, zoom: number): string
   if (!floor.annotations) return null;
   const threshold = 10 / zoom;
   for (const a of floor.annotations) {
-    const offset = a.offset || 40;
+    const offset = a.offset ?? 40;
     const dx = a.x2 - a.x1, dy = a.y2 - a.y1;
     const len = Math.hypot(dx, dy);
     if (len < 1) continue;

@@ -3,7 +3,7 @@ import { get } from 'svelte/store';
 import { Vector3 } from 'three';
 import { buildWallSegments, openingOnWall, roomCeilingHeight, wallPathSpans, doorPanelPose } from '$lib/utils/wallProfiles';
 import { createSlopedBoxGeometry } from '$lib/utils/slopedWallGeometry';
-import { addDoor, addWall, currentProject, createDefaultProject, reverseWall, splitWall, updateWall, undo } from '$lib/stores/project';
+import { addDoor, addWindow, addWall, currentProject, createDefaultProject, reverseWall, splitWall, updateWall, undo } from '$lib/stores/project';
 import { getWallHeightAt, type Door, type Wall, type Window } from '$lib/models/types';
 import { drawDoorOnWall } from '$lib/utils/canvasRenderer';
 
@@ -126,4 +126,34 @@ it('keeps the rendered door hinge and open leaf in place when reversing a wall',
   expect(Math.sin(reversedPose.yaw)).toBeCloseTo(Math.sin(pose.yaw), 8);
   render().forEach((value, i) => expect(value).toBeCloseTo(before[i], 8));
   expect(get(currentProject)!.floors[0].walls[0]).toMatchObject({ startHeight: 300, endHeight: 100, interiorColor: '#abcdef', exteriorColor: '#123456' });
+});
+
+for (const kind of ['door', 'window'] as const) it(`does not split through a ${kind} or mutate its geometry`, () => {
+  const id = addWall({ x: 0, y: 0 }, { x: 400, y: 0 });
+  if (kind === 'door') addDoor(id, .5); else addWindow(id, .5);
+  const before = JSON.stringify(get(currentProject));
+  expect(splitWall(id, .5)).toBeNull();
+  expect(splitWall(id, .51)).toBeNull();
+  expect(JSON.stringify(get(currentProject))).toBe(before);
+  expect(splitWall(id, .8)).not.toBeNull();
+  undo();
+  expect(JSON.stringify(get(currentProject))).toBe(before);
+});
+
+for (const kind of ['door', 'window'] as const) it(`allows splitting at either ${kind} edge without clipping`, () => {
+  for (const side of [-1, 1]) {
+    currentProject.set(createDefaultProject());
+    const id = addWall({ x: 0, y: 0 }, { x: 400, y: 0 });
+    if (kind === 'door') addDoor(id, .5); else addWindow(id, .5);
+    const floor = get(currentProject)!.floors[0];
+    const opening = kind === 'door' ? floor.doors[0] : floor.windows[0];
+    const width = opening.width;
+    expect(splitWall(id, .5 + side * width / 800)).not.toBeNull();
+    const owner = floor.walls.find(w => w.id === opening.wallId)!;
+    const length = owner.end.x - owner.start.x;
+    expect(owner.start.x + opening.position * length).toBeCloseTo(200, 8);
+    expect(opening.width).toBe(width);
+    expect(opening.position * length - width / 2).toBeGreaterThanOrEqual(-1e-7);
+    expect(opening.position * length + width / 2).toBeLessThanOrEqual(length + 1e-7);
+  }
 });

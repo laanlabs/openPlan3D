@@ -1,0 +1,118 @@
+# Editor dismissal after a menu edit — September 12, 2026
+
+Source baseline `aaafdbe`, app `/tmp/OpenPlan3D-Scan-Local-Dismiss-QA.app`, isolated
+bundle `com.laan.labs.floorplan.underlayfloorqa`. This is a fresh reproduction,
+not a claim that the separate editor dismissal issue is fixed.
+
+Opened synthetic session `CBED6B12-F123-4944-AF81-B76ADF7976EA` through review →
+Plan → Edit Plan. Done without edits returned to review at the next AX check.
+Reopened the editor, chose Add → Living → Chair, clicked Rotate Right, then Done.
+The editor remained visible at both subsequent AX and screenshot checks. No
+canvas drag was used in this reproduction.
+
+The saved plan file already contained four walls and one chair, ID
+`B5599360-54BF-4668-9F56-CC68C3F842B3`, center (2,1.5), width/depth 0.5 metres,
+angle 0.2617993877991494 radians. This separates successful persistence from the
+pending dismissal. File modification epoch: 1789231607.4898024. Escape was used
+to leave the editor, and the isolated QA app was quit. No installed Development
+app was used and no production source changed during the running simulator test.
+
+## Next experiment
+
+Test dismissal resolved inside the editor button, as verified for the separate
+import/export sheets. Preserve the existing close callback and dismiss only if
+save succeeds: an unconditional dismiss after save would lose the editor on a
+write failure. Verify no-edit Done, edited Done, Close, and a safely induced save
+failure in an isolated disposable session. Retain the change only with evidence.
+
+The input/framework cause remains unseparated; one successful no-edit close does
+not overturn earlier intermittent failures. Prior gesture-reset and timed/async
+close experiments in `docs/native-editor-dismissal.md` did not establish a fix.
+
+The full-scan simulator session `50299` subsequently terminated successfully.
+Log: `/tmp/native-scan-local-dismiss-ios.log`.
+
+## Save failure and recovery baseline
+
+Using the same isolated session, added a table in memory, recorded the existing
+plan SHA-256, and temporarily removed directory write permissions (0755 → 0555).
+Done showed Couldn't Save with a permission error. Restored 0755 immediately and
+verified the original plan bytes were unchanged. After acknowledging the alert,
+the selected table and Undo remained in the editor. Retrying Done saved both
+chair and table and returned to review. The QA app was quit; directory mode 0755
+and both saved categories were verified. Restoration metadata is in
+`/tmp/openplan-editor-save-failure-state.json`.
+
+The next experiment uses a button-local dismiss environment gated by a Bool
+save result. It retains existing callbacks and returns false on unloaded/error
+paths. Catalyst build session `95232` finished with exit 0 (`BUILD SUCCEEDED`)
+in `/tmp/native-editor-local-dismiss-build.log`.
+
+## Button-local candidate validation
+
+Runtime `8ed0b20`, isolated app
+`/tmp/OpenPlan3D-Editor-Local-Dismiss-Sept12-QA.app`, same synthetic session.
+The installed Development app was not used.
+
+- Added a sofa through the menu, rotated right, and pressed Done. Review appeared
+  at the next AX check; the file contained the sofa at angle 0.2617993877991494.
+- Added a television, recorded the saved hash, and temporarily changed only the
+  synthetic session directory from 0755 to 0555. Done showed Couldn't Save.
+  Restored 0755 immediately; the saved hash was unchanged. Acknowledging the
+  alert retained the selected television and Undo. Retrying Done saved it and
+  returned to review, with four objects (chair, table, sofa, television).
+- Added an unsaved fireplace and clicked Close. Review appeared with four objects.
+  The saved file SHA-256 stayed
+  `c630a18efaf494c7ea6560119ed8a531adb5de22627d11fa332e7161ca507366`,
+  matching `/tmp/openplan-editor-before-discard.sha256`. Directory mode was 0755.
+- Reopened with no edits and clicked Done. Review appeared at the next AX check.
+  The QA app was quit. No Escape or debugger assisted these candidate checks.
+
+These checks qualify the review-to-editor menu-edit, discard, no-edit, and
+save-failure/retry paths on Catalyst. They do not establish physical-device,
+load-error, canvas-gesture, or long-run intermittent behavior.
+Simulator `PlanRecoveryTests` session `37936` remains live at this checkpoint,
+log `/tmp/native-editor-local-dismiss-ios.log`; no test result is claimed yet.
+
+
+## Home entry follow-up
+
+Using the same candidate QA app, Home → Draw a Plan created synthetic manual
+session `8332EE79-9FB4-48E3-9FDE-396BB73D799F` (Floor Plan 1). Added a chair,
+rotated right, and clicked Done. Home appeared at the next AX check with the new
+plan card. Reopening the card showed four walls, one door, one window and one
+chair. The saved `plan.json` contains chair
+`42D6DBA2-3CA5-4B39-9135-12F2A8490A62` at angle 0.2617993877991494 radians.
+The QA app was quit without Escape or debugger assistance. This additionally
+qualifies edited Done from Home's manual-plan presentation on Catalyst; it does
+not replace the remaining load-error, canvas-gesture, physical-device or long-run
+checks. Simulator session `37936` was re-polled and remains live.
+
+
+## Load-error Close and Retry follow-up
+
+In the same isolated candidate app, opened manual QA session
+`8332EE79-9FB4-48E3-9FDE-396BB73D799F` in review before temporarily replacing
+its `plan.json` with malformed JSON. The original bytes were backed up to
+`/tmp/editor-load-error-sept12-original.json`. Edit Plan showed Couldn't Open
+Plan, Export Original File, Retry and Close. Close returned to review at the
+next AX check. Reopening showed the error again; the malformed bytes had not
+changed. Restored the exact original bytes while this error screen was open.
+Retry entered the editor with Undo/Redo disabled. Close returned to review;
+the QA app was quit. Final file bytes still matched the original backup,
+SHA-256 `4ccd0455c32a9e9372c556b19616bf88519034fdcdc89b4cf82ebaeb511bf38b`.
+No Escape or debugger was used. This verifies load-error Close and restored-file
+Retry on Catalyst, not recovery from scan or original-file export.
+Simulator session `37936` was re-polled and remains live at this checkpoint.
+
+
+## Simulator completion
+
+Session `37936` terminated with exit 0 and TEST SUCCEEDED. All 11
+`PlanRecoveryTests` passed with zero failures (0.881 seconds test execution;
+1.319 seconds selected suite elapsed). Log:
+`/tmp/native-editor-local-dismiss-ios.log`; result:
+`/tmp/openplan3d-autolabel-qa/Logs/Test/Test-FloorPlan-2026.09.12_13-32-01--0400.xcresult`.
+This compiles runtime `8ed0b20` for iPhone simulator and checks document
+preservation/recovery and review data behavior. UI dismissal evidence above is
+Catalyst-only; these tests do not drive simulator editor UI.

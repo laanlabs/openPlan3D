@@ -4,7 +4,8 @@ import { resolve } from 'node:path';
 import { storedRecords } from './storage';
 
 const id = 'qa-modal-keyboard';
-async function seed(page: Page) {
+async function seed(page: Page, locale = 'en') {
+  await page.addInitScript(locale => localStorage.setItem('o3d_locale', locale), locale);
   const project = JSON.parse(await readFile('tests/fixtures/save-conflicts.openplan.json', 'utf8'));
   project.id = id; project.name = 'QA Modal Keyboard';
   await page.addInitScript(project => {
@@ -15,8 +16,8 @@ async function seed(page: Page) {
     }
   }, project);
   await page.goto(`/editor?id=${id}`);
-  await page.getByRole('button', { name: 'Save', exact: true }).press('l');
-  await page.getByRole('button', { name: '─ Wall 1', exact: true }).click();
+  await page.getByRole('button', { name: locale === 'pt' ? 'Salvar' : 'Save', exact: true }).press('l');
+  await page.getByRole('button', { name: locale === 'pt' ? '─ Parede 1' : '─ Wall 1', exact: true }).click();
   return project;
 }
 function observe(page: Page) {
@@ -44,6 +45,7 @@ async function focusInside(page: Page, name: string) {
 }
 
 for (const width of [1440, 390]) test(`modal focus and keys preserve the selected plan at ${width}px`, async ({ page }, testInfo) => {
+  test.slow(); // Five dialogs, keyboard focus checks and exports on each round trip.
   await page.setViewportSize({ width, height: 900 });
   const check = observe(page); await seed(page);
   const before = await exported(page), stored = await storedRecords(page);
@@ -60,9 +62,13 @@ for (const width of [1440, 390]) test(`modal focus and keys preserve the selecte
     }
     // Playwright's role queries do not account for native modal inertness.
     // Test the browser's actual focus boundary instead of DOM accessibility heuristics.
-    await page.getByLabel('Floor plan editor canvas', { exact: true }).evaluate((canvas: HTMLCanvasElement) => canvas.focus());
+    await page.getByLabel(/^(?:Floor plan editor canvas|Área de edição da planta baixa)$/, { exact: true }).evaluate((canvas: HTMLCanvasElement) => canvas.focus());
     await focusInside(page, name);
-    for (const key of ['Delete', 'Backspace', 'w', 'r', 'l', 'ControlOrMeta+z']) await page.keyboard.press(key);
+    for (const key of ['Delete', 'Backspace', 'w', 'r', 'l', 'ControlOrMeta+z']) {
+      await page.keyboard.press(key);
+      await focusInside(page, name); // Catch navigation at its triggering key.
+      await expect(page).toHaveURL(new RegExp(`/editor\\?id=${id}$`));
+    }
     for (const key of ['Tab', 'Tab', 'Shift+Tab']) {
       await page.keyboard.press(key); await focusInside(page, name);
     }
@@ -76,7 +82,8 @@ for (const width of [1440, 390]) test(`modal focus and keys preserve the selecte
     expect(await storedRecords(page)).toEqual(stored);
   }
   // Editor deletion and undo resume after the dialog has gone away.
-  await page.getByRole('button', { name: 'Save', exact: true }).press('Delete');
+  await page.getByRole('button', { name: 'Save', exact: true }).press('Backspace');
+  await expect(page).toHaveURL(new RegExp(`/editor\\?id=${id}$`));
   await expect(page.getByRole('application')).toContainText('3 walls');
   await page.getByRole('button', { name: 'Undo', exact: true }).click();
   await expect(page.getByRole('application')).toContainText('4 walls');
@@ -97,11 +104,14 @@ for (const width of [1440, 390]) test(`command palette and modal field editing r
   await expect(page.getByRole('option', { name: /Wall Tool/ })).toHaveAttribute('aria-selected', 'true');
   await page.keyboard.press('Enter');
   await expect(page.getByRole('dialog')).toHaveCount(0);
-  await expect(page.getByLabel('Floor plan editor canvas', { exact: true })).toHaveCSS('cursor', 'crosshair');
+  await expect(page.getByLabel(/^(?:Floor plan editor canvas|Área de edição da planta baixa)$/, { exact: true })).toHaveCSS('cursor', 'crosshair');
   await save.press('ControlOrMeta+k'); await search.fill('settings'); await page.keyboard.press('Enter');
   const dialog = await focusInside(page, 'Settings');
   const name = dialog.getByRole('textbox', { name: 'Project Name', exact: true });
-  await name.fill('Keyboard-safe settings'); await name.press('Tab');
+  await name.fill('Keyboard-safe settings!');
+  await name.press('End'); await name.press('Backspace');
+  await expect(name).toHaveValue('Keyboard-safe settings');
+  await name.press('Tab');
   await dialog.getByRole('button', { name: 'Dimensions', exact: true }).click();
   await page.keyboard.press('Escape'); await expect(dialog).toHaveCount(0);
   await expect(page.getByTitle('Click to rename', { exact: true })).toHaveText('Keyboard-safe settings');
@@ -145,23 +155,25 @@ test('closing a dialog preserves elevation and 3D edit modes and print remains u
   check();
 });
 
-for (const width of [1440, 390]) test(`RoomPlan cancellation and template modal focus stay local at ${width}px`, async ({ page }) => {
-  await page.setViewportSize({ width, height: 900 }); const check = observe(page); await seed(page);
+for (const locale of ['en', 'pt']) for (const width of [1440, 390]) test(`${locale}: RoomPlan cancellation and template modal focus stay local at ${width}px`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 900 }); const check = observe(page); await seed(page, locale);
   const before = await storedRecords(page);
-  if (width < 768) await page.getByRole('button', { name: 'Toggle tools panel', exact: true }).click();
+  if (width < 768) await page.getByRole('button', { name: locale === 'pt' ? 'Alternar painel de ferramentas' : 'Toggle tools panel', exact: true }).click();
   const pending = page.waitForEvent('filechooser');
-  await page.getByRole('button', { name: /Import RoomPlan iOS LiDAR scan/ }).click();
+  await page.getByRole('button', { name: locale === 'pt' ? /Importar RoomPlan Escaneamento LiDAR/ : /Import RoomPlan iOS LiDAR scan/ }).click();
   await (await pending).setFiles(resolve('tests/fixtures/handoff-roomplan.json'));
-  const dialog = await focusInside(page, 'Import RoomPlan');
-  await page.keyboard.press('Tab'); await focusInside(page, 'Import RoomPlan');
+  const dialog = await focusInside(page, locale === 'pt' ? 'Importar RoomPlan' : 'Import RoomPlan');
+  await dialog.getByRole('checkbox', { name: locale === 'pt' ? /Alinhar paredes/ : /Straighten walls/ }).uncheck();
+  await dialog.getByRole('spinbutton', { name: locale === 'pt' ? 'Distância para unir cantos (cm)' : 'Corner merge distance (cm)' }).fill('25');
+  await page.keyboard.press('Tab'); await focusInside(page, locale === 'pt' ? 'Importar RoomPlan' : 'Import RoomPlan');
   await page.keyboard.press('Escape'); await expect(dialog).toHaveCount(0);
   expect(await storedRecords(page)).toEqual(before);
   await page.goto('/');
-  await page.getByRole('button', { name: 'Templates', exact: true }).press('Enter');
-  const templates = await focusInside(page, 'Floor Plan Templates');
-  await page.keyboard.press('Shift+Tab'); await focusInside(page, 'Floor Plan Templates');
+  await page.getByRole('button', { name: locale === 'pt' ? 'Modelos' : 'Templates', exact: true }).press('Enter');
+  const templates = await focusInside(page, locale === 'pt' ? 'Modelos de Planta Baixa' : 'Floor Plan Templates');
+  await page.keyboard.press('Shift+Tab'); await focusInside(page, locale === 'pt' ? 'Modelos de Planta Baixa' : 'Floor Plan Templates');
   await page.keyboard.press('Escape'); await expect(templates).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'Templates', exact: true })).toBeFocused();
+  await expect(page.getByRole('button', { name: locale === 'pt' ? 'Modelos' : 'Templates', exact: true })).toBeFocused();
   expect(await storedRecords(page)).toEqual(before);
   check();
 });

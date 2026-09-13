@@ -1,4 +1,9 @@
-# Feature Status — open3dFloorplan
+# Historical feature comparison — open3dFloorplan
+
+> Archived comparison: the statuses below are historical planning notes, not a
+> current capability or release checklist. Use [FEATURES.md](FEATURES.md) for
+> implementation scope and regression evidence, and [NEXT.md](NEXT.md) for
+> outstanding work. The original notes remain here for context.
 
 ## Legend
 - ✅ We have it

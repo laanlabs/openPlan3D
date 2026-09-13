@@ -58,10 +58,14 @@ export function validatePackagePlan(plan: any): ObjectMap {
       }
       if (kind === 'furniture') { xy(item.center); num(item.angle); num(item.width, 0, true); num(item.depth, 0, true); if (typeof item.category !== 'string') fail(); }
       if (kind === 'rooms') {
+        if (item.floorOpening != null && typeof item.floorOpening !== 'boolean') fail();
+        if (item.boundaryWallIDs != null && (!Array.isArray(item.boundaryWallIDs) || item.boundaryWallIDs.length > 5000 || item.boundaryWallIDs.some((id: any) => typeof id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)))) fail();
         xy(item.center); if (typeof item.name !== 'string') fail();
         if (item.type != null && !['livingRoom', 'bedroom', 'kitchen', 'bathroom', 'diningRoom', 'laundryRoom', 'office', 'hallway', 'garage', 'closet', 'pantry', 'entryway'].includes(item.type)) fail();
       }
       if (kind === 'notes') { xy(item.position); if (typeof item.text !== 'string') fail(); }
+      if (kind === 'levels' && item.elevation != null) { num(item.elevation); if (Math.abs(item.elevation) > 10_000) fail(); }
+      if (kind === 'levels' && item.slabThickness != null) { num(item.slabThickness, 0, true); if (item.slabThickness > 10_000) fail(); }
       if (kind === 'levels' && (typeof item.name !== 'string' || !Number.isSafeInteger(item.index) || Math.abs(item.index) > 1000)) fail();
     }
   }
@@ -75,6 +79,8 @@ export function validatePackagePlan(plan: any): ObjectMap {
   }
   if (result.underlay != null) {
     if (!object(result.underlay) || typeof result.underlay.imageFilename !== 'string' || !safePackagePath(result.underlay.imageFilename)) fail();
+    if (result.underlay.angle != null) { num(result.underlay.angle); if (Math.abs(result.underlay.angle) > 100_000) fail(); }
+    if (result.underlay.level != null && (!Number.isInteger(result.underlay.level) || Math.abs(result.underlay.level) > 1000)) fail();
     xy(result.underlay.center); num(result.underlay.widthMeters, 0, true); if (result.underlay.widthMeters > 10_000) fail();
   }
   return result;
@@ -106,6 +112,7 @@ function inside(p: any, polygon: any[]) {
 function nativeFloorIndices(plan: ObjectMap): number[] {
   const explicit = plan.levels.map((l: any) => l.index);
   const implicit = [...plan.walls, ...plan.furniture, ...plan.rooms].map((item: any) => item.level ?? 0);
+  if (plan.underlay?.level != null) implicit.push(plan.underlay.level);
   return [...new Set<number>([...explicit, ...implicit, ...(explicit.length || implicit.length ? [] : [0])])];
 }
 /** Project only fields both editors understand. A baseline lets unchanged lossy
@@ -119,6 +126,8 @@ export function nativeToWeb(plan: ObjectMap, mapping: PackageMapping, title: str
   project.floors = indices.map(level => {
     const meta = plan.levels.find((l: any) => l.index === level), floor = createDefaultFloor(level);
     floor.id = meta ? mapped(meta.id) : `native-floor-${level}`;
+    floor.slabThickness = cm(meta?.slabThickness ?? 0.1);
+    if (meta?.elevation != null) floor.elevation = cm(meta.elevation);
     floor.name = meta?.name ?? (level === 0 ? 'Ground Floor' : `Floor ${level}`);
     floor.walls = plan.walls.filter((w: any) => (w.level ?? 0) === level).map((w: any) => ({ details: nativeItemDetails(w, 'walls'), id: mapped(w.id), start: point(w.start), end: point(w.end), thickness: cm(w.thickness ?? plan.defaults?.interiorWallThickness ?? 0.12), height: cm(w.height ?? plan.defaults?.ceilingHeight ?? 2.4), color: '#8e8e93' }));
     const wallIds = new Set(plan.walls.filter((w: any) => (w.level ?? 0) === level).map((w: any) => key(w.id)));
@@ -127,10 +136,18 @@ export function nativeToWeb(plan: ObjectMap, mapping: PackageMapping, title: str
     floor.windows = openings.filter((o: any) => o.kind === 'window').map((o: any) => ({ details: nativeItemDetails(o, 'windows'), id: mapped(o.id), wallId: mapped(o.wallID), position: o.position, width: cm(o.width), height: cm(o.height ?? 1.2), sillHeight: cm(o.sillHeight ?? 0.9), type: o.style === 'sliding' ? 'sliding' : 'fixed' }));
     floor.furniture = plan.furniture.filter((f: any) => (f.level ?? 0) === level).map((f: any) => ({ details: nativeItemDetails(f, 'furniture'), id: mapped(f.id), ...importedFurnitureCategory(f.category, cm(f.width)), position: point(f.center), rotation: f.angle * 180 / Math.PI, width: cm(f.width), depth: cm(f.depth), scale: { x: 1, y: 1, z: 1 } }));
     const detected = detectRooms(floor.walls);
+    const polygons = new Map(detected.map(room=>[room.id,getRoomPolygon(room,floor.walls)]));
+    const area = (room: typeof detected[number]) => {
+      const ring=polygons.get(room.id)!;
+      return Math.abs(ring.reduce((sum,p,i)=>{const q=ring[(i+1)%ring.length];return sum+p.x*q.y-q.x*p.y;},0));
+    };
     floor.rooms = plan.rooms.filter((r: any) => (r.level ?? 0) === level).map((r: any) => {
-      const center = point(r.center), match = detected.find(room => inside(center, getRoomPolygon(room, floor.walls)));
+      const center = point(r.center), boundary = r.boundaryWallIDs?.map((id:string)=>mapped(id));
+      const match = boundary
+        ? detected.find(room=>room.walls.length===new Set(boundary).size && room.walls.every(id=>boundary.includes(id)))
+        : detected.filter(room=>inside(center,polygons.get(room.id)!)).sort((a,b)=>area(a)-area(b))[0];
       const centroid = match ? roomCentroid(getRoomPolygon(match, floor.walls)) : center;
-      return { details: nativeItemDetails(r, 'rooms'), id: mapped(r.id), walls: match?.walls ?? [], name: r.name, color: r.colorHex, floorTexture: 'light-oak', area: match?.area ?? 0, labelOffset: { x: center.x - centroid.x, y: center.y - centroid.y } };
+      return { details: nativeItemDetails(r, 'rooms'), id: mapped(r.id), walls: match?.walls ?? [], name: r.name, color: r.colorHex, floorTexture: 'light-oak', ...(r.floorOpening != null ? {floorOpening:r.floorOpening} : {}), area: r.floorOpening ? 0 : match?.area ?? 0, labelOffset: { x: center.x - centroid.x, y: center.y - centroid.y } };
     });
     floor.textAnnotations = plan.notes.filter((n: any) => (byId.get(key(n.id))?.floorId ?? firstFloorId) === floor.id).map((n: any) => ({ id: mapped(n.id), text: n.text, x: cm(n.position.x), y: cm(n.position.y), fontSize: cm(n.fontSize ?? 0.16), color: n.colorHex ?? '#1e293b', rotation: (n.angle ?? 0) * 180 / Math.PI }));
     return floor;
@@ -161,6 +178,10 @@ export function applyNativeEdits(source: Project, before: Project, after: Projec
     const target: any = result.floors[index < 0 ? result.floors.length - 1 : index];
     if (!previous || previous.name !== next.name) target.name = next.name;
     if (!previous || previous.level !== next.level) target.level = next.level;
+    if (!previous || previous.elevation !== next.elevation) {
+      if (next.elevation === undefined) delete target.elevation; else target.elevation = next.elevation;
+    }
+    if (!previous || previous.slabThickness !== next.slabThickness) target.slabThickness = next.slabThickness;
     for (const kind of ['walls', 'doors', 'windows', 'furniture', 'rooms', 'textAnnotations'] as const) {
       const old = new Map((previous?.[kind] ?? []).map(item => [item.id, item]));
       const incoming = new Map(next[kind].map(item => [item.id, item]));
@@ -200,7 +221,11 @@ export function webToNative(project: Project, original: ObjectMap | undefined, p
   for (const floor of project.floors) {
     let level = floor.level; while (levels.has(level)) level++; levels.add(level);
     const floorId = identity('levels', floor.id);
-    plan.levels.push({ ...nativeOriginal('levels', floorId), id: floorId, index: level, name: floor.name });
+    const oldLevel = nativeOriginal('levels', floorId);
+    const nativeLevel: ObjectMap = { ...oldLevel, id: floorId, index: level, name: floor.name, slabThickness: (floor.slabThickness ?? 5) / 100 };
+    if (oldLevel.slabThickness == null && nativeLevel.slabThickness === .1) delete nativeLevel.slabThickness;
+    if (floor.elevation === undefined) delete nativeLevel.elevation; else nativeLevel.elevation = floor.elevation / 100;
+    plan.levels.push(nativeLevel);
     const walls = new Map<string, string>();
     for (const wall of floor.walls) {
       const id = identity('walls', wall.id, floor.id); walls.set(wall.id, id);
@@ -218,7 +243,7 @@ export function webToNative(project: Project, original: ObjectMap | undefined, p
     }
     for (const room of floor.rooms) {
       const id = identity('rooms', room.id, floor.id), old = nativeOriginal('rooms', id), polygon = getRoomPolygon(room, floor.walls), center = polygon.length ? roomCentroid(polygon) : point(old.center ?? { x: 0, y: 0 });
-      plan.rooms.push({ ...old, id, name: room.name, center: point({ x: center.x + (room.labelOffset?.x ?? 0), y: center.y + (room.labelOffset?.y ?? 0) }, 0.01), ...(room.color ? { colorHex: room.color } : {}), level });
+      plan.rooms.push({ ...old, id, name: room.name, boundaryWallIDs: room.walls.flatMap(wallID=>walls.has(wallID)?[walls.get(wallID)!]:[]), floorOpening:room.floorOpening, center: point({ x: center.x + (room.labelOffset?.x ?? 0), y: center.y + (room.labelOffset?.y ?? 0) }, 0.01), ...(room.color ? { colorHex: room.color } : {}), level });
     }
     for (const note of floor.textAnnotations) {
       const id = identity('textAnnotations', note.id, floor.id), old = nativeOriginal('notes', id);
@@ -240,7 +265,7 @@ export function webToNative(project: Project, original: ObjectMap | undefined, p
       walls: ['start', 'end', 'height', 'thickness', 'level', 'note', 'material'],
       openings: ['wallID', 'position', 'width', 'height', 'kind', 'style', 'hingeLeft', 'opensInward', 'sillHeight', 'price'],
       furniture: ['category', 'center', 'angle', 'width', 'depth', 'level', 'note', 'price', 'photos'],
-      rooms: ['name', 'center', 'colorHex', 'level', 'note', 'photos', 'type', 'ceilingHeight'],
+      rooms: ['name', 'center', 'boundaryWallIDs', 'floorOpening', 'colorHex', 'level', 'note', 'photos', 'type', 'ceilingHeight'],
       notes: ['text', 'position', 'fontSize', 'colorHex', 'angle'], levels: ['name', 'index'],
     };
     for (const kind of kinds) for (const item of plan[kind]) {

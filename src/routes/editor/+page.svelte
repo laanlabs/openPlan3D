@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { t, locale } from '$lib/i18n';
+  import { projectServiceMessage } from '$lib/i18n/projectServiceMessages';
+  import { CaptureImportError } from '$lib/i18n/captureImportError';
   import { modalDialog, hasOpenModal } from '$lib/utils/modalDialog';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
@@ -42,7 +45,19 @@
   let mode = $state<'2d' | '3d'>('2d');
   let ready = $state(false);
   let showHelp = $state(false);
+  let shortcutCopyState = $state<'idle' | 'copying' | 'copied' | 'failed'>('idle');
+  let shortcutCopyGeneration = 0;
+  $effect(() => {
+    showHelp;
+    shortcutCopyGeneration++;
+    shortcutCopyState = 'idle';
+  });
   let showUndoHistory = $state(false);
+  let historyTrigger: HTMLButtonElement | undefined = $state();
+  function toggleHistory(trigger: HTMLButtonElement) {
+    historyTrigger = trigger;
+    showUndoHistory = !showUndoHistory;
+  }
 
   // Mobile (< md): BuildPanel becomes an off-canvas drawer toggled by the Tools FAB.
   let buildPanelOpen = $state(false);
@@ -52,7 +67,7 @@
 
   // iOS capture handoff (?import=CODE → fetch RoomPlan JSON from Firebase Storage inbox)
   let importingCapture = $state(false);
-  let importError = $state<string | null>(null);
+  let importError = $state<string | CaptureImportError | null>(null);
   let loadError = $state<string | null>(null);
 
   async function backupLibrary() {
@@ -69,22 +84,22 @@
       try {
         res = await fetch(url);
       } catch {
-        throw new Error('Network error while downloading the capture. Check your connection and try again.');
+        throw new CaptureImportError('captureImport.network');
       }
       if (res.status === 404) {
-        throw new Error(`Capture code ${code} was not found. It may have expired — share it again from the iOS app.`);
+        throw new CaptureImportError('captureImport.missing', { code });
       }
       if (!res.ok) {
-        throw new Error(`Failed to download the capture (HTTP ${res.status}).`);
+        throw new CaptureImportError('captureImport.http', { status: res.status });
       }
       let data: any;
       try {
         data = await res.json();
       } catch {
-        throw new Error('The downloaded capture is not valid JSON.');
+        throw new CaptureImportError('captureImport.json');
       }
       if (!isRoomPlanJson(data)) {
-        throw new Error('The downloaded file is not a valid RoomPlan export.');
+        throw new CaptureImportError('captureImport.format');
       }
       const project = createProjectFromRoomPlan(data, `Room Capture ${code}`);
       loadProject(project);
@@ -94,7 +109,7 @@
       replaceState(`${base}/editor?id=${project.id}`, page.state);
       return true;
     } catch (e: any) {
-      importError = e?.message ?? 'Failed to import capture.';
+      importError = e instanceof CaptureImportError ? e : e?.message ?? new CaptureImportError('captureImport.fallback');
       return false;
     } finally {
       importingCapture = false;
@@ -129,7 +144,7 @@
           }
           // Import failed — fall through to the normal load flow (error shown via toast)
         } else {
-          importError = 'Invalid import code in URL.';
+          importError = new CaptureImportError('captureImport.code');
         }
       }
 
@@ -209,7 +224,7 @@
 
 {#if ready}
   <div class="h-screen flex flex-col overflow-hidden">
-    <TopBar />
+    <TopBar onToggleLayers={() => showLayers = !showLayers} layersOpen={showLayers} onToggleHistory={toggleHistory} historyOpen={showUndoHistory} />
     <!-- Keep canvas/viewer controls beneath toolbar menus and project dialogs. -->
     <div class="flex flex-1 overflow-hidden isolate">
       {#if mode === '2d'}
@@ -237,7 +252,7 @@
           {#if ThreeViewer}
             <ThreeViewer />
           {:else}
-            <div class="flex items-center justify-center h-full text-slate-400">Loading 3D viewer…</div>
+            <div class="flex items-center justify-center h-full text-slate-400">{$t('shortcuts.loading3d')}</div>
           {/if}
         {/if}
       </div>
@@ -253,8 +268,9 @@
     <button
       class="md:hidden fixed bottom-4 left-4 w-12 h-12 rounded-full bg-blue-600 text-white shadow-lg active:bg-blue-700 transition-colors z-40 flex items-center justify-center"
       onclick={() => buildPanelOpen = !buildPanelOpen}
-      title="Tools"
-      aria-label="Toggle tools panel"
+      title={$t('buildTools.tools')}
+      aria-label={$t('editorPanels.tools')}
+      aria-expanded={buildPanelOpen}
     >
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
     </button>
@@ -269,8 +285,9 @@
       class:bg-slate-700={!showLayers}
       class:text-gray-300={!showLayers}
       onclick={() => showLayers = !showLayers}
-      title="Layers Panel (L)"
-      aria-label="Toggle Layers Panel"
+      title={$t('editorPanels.layersTitle')}
+      aria-label={$t('editorPanels.layers')}
+      aria-expanded={showLayers}
     >🗂</button>
   {/if}
 
@@ -281,90 +298,98 @@
     class:text-white={showUndoHistory}
     class:bg-slate-700={!showUndoHistory}
     class:text-gray-300={!showUndoHistory}
-    onclick={() => showUndoHistory = !showUndoHistory}
-    title="Undo History"
-    aria-label="Toggle Undo History"
+    onclick={(event) => toggleHistory(event.currentTarget)}
+    title={$t('undoHistory.title')}
+    aria-label={$t('editorPanels.history')}
+      aria-expanded={showUndoHistory}
   >⟲</button>
 
-  <UndoHistoryPanel bind:visible={showUndoHistory} />
+  <UndoHistoryPanel bind:visible={showUndoHistory} returnFocusTo={historyTrigger} />
 
   <!-- Help button (desktop only — keyboard shortcuts are meaningless on touch) -->
   <button
     class="max-md:hidden fixed bottom-4 left-4 w-8 h-8 rounded-full bg-slate-700 text-white text-sm font-bold shadow-lg hover:bg-slate-600 transition-colors z-50"
     onclick={() => showHelp = !showHelp}
-    title="Keyboard Shortcuts (?)"
-    aria-label="Keyboard Shortcuts"
+    title={`${$t('shortcuts.title')} (?)`}
+    aria-label={$t('shortcuts.title')}
   >?</button>
 
   <!-- Shortcuts overlay -->
   {#if showHelp}
-    {@const shortcutsCopied = { value: false }}
-    <dialog use:modalDialog class="modal-overlay fixed inset-0 bg-black/50 flex items-center justify-center z-50" onclick={(e) => { if (e.target === e.currentTarget) showHelp = false; }} oncancel={(e) => { e.preventDefault(); showHelp = false; }} onkeydown={(e) => { if (e.key === '?') { e.preventDefault(); showHelp = false; } }} aria-label="Keyboard Shortcuts">
+    <dialog use:modalDialog class="modal-overlay fixed inset-0 bg-black/50 flex items-center justify-center z-50" onclick={(e) => { if (e.target === e.currentTarget) showHelp = false; }} oncancel={(e) => { e.preventDefault(); showHelp = false; }} onkeydown={(e) => { if (e.key === '?') { e.preventDefault(); showHelp = false; } }} aria-label={$t('shortcuts.title')}>
       <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[85vh] flex flex-col">
         <!-- Header -->
         <div class="flex items-center justify-between px-6 pt-5 pb-3 border-b border-gray-100">
           <div class="flex items-center gap-2">
             <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707"/></svg>
-            <h2 class="text-lg font-bold text-slate-800">Keyboard Shortcuts</h2>
+            <h2 class="text-lg font-bold text-slate-800">{$t('shortcuts.title')}</h2>
           </div>
           <div class="flex items-center gap-2">
             <button
               class="text-xs px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 transition-colors flex items-center gap-1.5"
-              onclick={() => {
+              disabled={shortcutCopyState === 'copying'}
+              onclick={async () => {
+                const generation = ++shortcutCopyGeneration;
+                shortcutCopyState = 'copying';
                 const text = [
-                  'KEYBOARD SHORTCUTS — Open3D Floorplan',
+                  $t('shortcuts.title') + ' — Open3D Floorplan',
                   '',
-                  '── TOOLS ──',
-                  'V          Select tool',
-                  'W          Wall tool',
-                  'D          Door tool',
-                  'H          Pan mode',
-                  'M          Measure tool',
-                  'N          Annotate tool',
-                  'T          Text tool',
-                  'S          Toggle snap',
+                  '── ' + $t('shortcuts.tools') + ' ──',
+                  "V          " + $t('shortcuts.select'),
+                  "W          " + $t('shortcuts.wall'),
+                  "D          " + $t('shortcuts.door'),
+                  "H          " + $t('shortcuts.pan'),
+                  "M          " + $t('shortcuts.measure'),
+                  "N          " + $t('shortcuts.annotate'),
+                  "T          " + $t('shortcuts.text'),
+                  "S          " + $t('shortcuts.snap'),
                   '',
-                  '── EDIT ──',
-                  'Ctrl+Z     Undo',
-                  'Ctrl+Y     Redo',
-                  'Ctrl+C     Copy',
-                  'Ctrl+V     Paste',
-                  'Ctrl+A     Select all',
-                  'Ctrl+D     Deselect all',
-                  'Ctrl+S     Save project',
-                  'Esc        Cancel / Deselect',
+                  '── ' + $t('shortcuts.edit') + ' ──',
+                  "Ctrl+Z     " + $t('shortcuts.undo'),
+                  "Ctrl+Y     " + $t('shortcuts.redo'),
+                  "Ctrl+C     " + $t('shortcuts.copy'),
+                  "Ctrl+V     " + $t('shortcuts.paste'),
+                  "Ctrl+A     " + $t('shortcuts.selectAll'),
+                  "Ctrl+D     " + $t('shortcuts.deselectAll'),
+                  "Ctrl+S     " + $t('shortcuts.save'),
+                  "Esc        " + $t('shortcuts.cancel'),
                   '',
-                  '── ELEMENTS ──',
-                  'R          Rotate element',
-                  'Del/Back   Delete selected',
-                  'Ctrl+L     Lock/Unlock',
-                  'Ctrl+G     Group selection',
-                  'Ctrl+⇧+G   Ungroup',
+                  '── ' + $t('shortcuts.elements') + ' ──',
+                  "R          " + $t('shortcuts.rotate'),
+                  "Del/Back   " + $t('shortcuts.delete'),
+                  "Ctrl+L     " + $t('shortcuts.lock'),
+                  "Ctrl+G     " + $t('shortcuts.group'),
+                  "Ctrl+\u21e7+G   " + $t('shortcuts.ungroup'),
                   '',
-                  '── VIEW ──',
-                  'Tab        Toggle 2D/3D',
-                  'F          Zoom to fit',
-                  'G          Toggle grid',
-                  'L          Toggle layers',
-                  '?          Show shortcuts',
+                  '── ' + $t('shortcuts.view') + ' ──',
+                  "Tab        " + $t('shortcuts.mode'),
+                  "F          " + $t('shortcuts.fit'),
+                  "G          " + $t('shortcuts.grid'),
+                  "L          " + $t('shortcuts.layers'),
+                  "?          " + $t('shortcuts.show'),
                   '',
-                  '── CANVAS ──',
-                  'Scroll     Zoom in/out',
-                  '+/-        Zoom in/out',
-                  'Space+Drag Pan canvas',
+                  '── ' + $t('shortcuts.canvas') + ' ──',
+                  $t('shortcuts.scroll') + ' ' + $t('shortcuts.zoom'),
+                  "+/-        " + $t('shortcuts.zoom'),
+                  $t('shortcuts.spaceDrag') + ' ' + $t('shortcuts.panCanvas'),
                   '',
-                  '── WALLS ──',
-                  'Dbl-click  Finish wall chain',
-                  'C          Close wall loop',
+                  '── ' + $t('shortcuts.walls') + ' ──',
+                  $t('shortcuts.doubleClick') + ' ' + $t('shortcuts.finishWall'),
+                  "C          " + $t('shortcuts.closeWall'),
                 ].join('\n');
-                navigator.clipboard.writeText(text);
+                try {
+                  await navigator.clipboard.writeText(text);
+                  if (generation === shortcutCopyGeneration) shortcutCopyState = 'copied';
+                } catch {
+                  if (generation === shortcutCopyGeneration) shortcutCopyState = 'failed';
+                }
               }}
-              aria-label="Copy all shortcuts"
+              aria-label={$t('shortcuts.copyLabel')}
             >
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-              Copy All
+              {$t('shortcuts.copyAll')}
             </button>
-            <button class="text-gray-400 hover:text-gray-600 text-xl leading-none" onclick={() => showHelp = false} aria-label="Close shortcuts">✕</button>
+            <button class="text-gray-400 hover:text-gray-600 text-xl leading-none" onclick={() => showHelp = false} aria-label={$t('shortcuts.close')}>✕</button>
           </div>
         </div>
 
@@ -375,34 +400,34 @@
             <div>
               <!-- Tools -->
               <div class="flex items-center gap-2 mb-2">
-                <span class="text-xs font-bold uppercase tracking-wider text-indigo-500">Tools</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-indigo-500">{$t('shortcuts.tools')}</span>
                 <div class="flex-1 h-px bg-indigo-100"></div>
               </div>
               <div class="space-y-1.5 mb-5">
-                <div class="flex justify-between"><span class="text-gray-600">Select tool</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">V</kbd></div>
-                <div class="flex justify-between"><span class="text-gray-600">Wall tool</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">W</kbd></div>
-                <div class="flex justify-between"><span class="text-gray-600">Door tool</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">D</kbd></div>
-                <div class="flex justify-between"><span class="text-gray-600">Pan mode</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">H</kbd></div>
-                <div class="flex justify-between"><span class="text-gray-600">Measure tool</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">M</kbd></div>
-                <div class="flex justify-between"><span class="text-gray-600">Annotate tool</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">N</kbd></div>
-                <div class="flex justify-between"><span class="text-gray-600">Text tool</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">T</kbd></div>
-                <div class="flex justify-between"><span class="text-gray-600">Toggle snap</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">S</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.select')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">V</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.wall')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">W</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.door')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">D</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.pan')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">H</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.measure')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">M</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.annotate')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">N</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.text')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">T</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.snap')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">S</kbd></div>
               </div>
 
               <!-- Edit -->
               <div class="flex items-center gap-2 mb-2">
-                <span class="text-xs font-bold uppercase tracking-wider text-amber-500">Edit</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-amber-500">{$t('shortcuts.edit')}</span>
                 <div class="flex-1 h-px bg-amber-100"></div>
               </div>
               <div class="space-y-1.5 mb-5">
-                <div class="flex justify-between"><span class="text-gray-600">Undo</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Ctrl+Z</kbd></div>
-                <div class="flex justify-between"><span class="text-gray-600">Redo</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Ctrl+Y</kbd></div>
-                <div class="flex justify-between"><span class="text-gray-600">Copy</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Ctrl+C</kbd></div>
-                <div class="flex justify-between"><span class="text-gray-600">Paste</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Ctrl+V</kbd></div>
-                <div class="flex justify-between"><span class="text-gray-600">Select all</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Ctrl+A</kbd></div>
-                <div class="flex justify-between"><span class="text-gray-600">Deselect all</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Ctrl+D</kbd></div>
-                <div class="flex justify-between"><span class="text-gray-600">Save project</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Ctrl+S</kbd></div>
-                <div class="flex justify-between"><span class="text-gray-600">Cancel / Deselect</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Esc</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.undo')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Ctrl+Z</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.redo')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Ctrl+Y</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.copy')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Ctrl+C</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.paste')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Ctrl+V</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.selectAll')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Ctrl+A</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.deselectAll')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Ctrl+D</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.save')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Ctrl+S</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.cancel')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Esc</kbd></div>
               </div>
             </div>
 
@@ -410,57 +435,61 @@
             <div>
               <!-- Elements -->
               <div class="flex items-center gap-2 mb-2">
-                <span class="text-xs font-bold uppercase tracking-wider text-emerald-500">Elements</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-emerald-500">{$t('shortcuts.elements')}</span>
                 <div class="flex-1 h-px bg-emerald-100"></div>
               </div>
               <div class="space-y-1.5 mb-5">
-                <div class="flex justify-between"><span class="text-gray-600">Rotate element</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">R</kbd></div>
-                <div class="flex justify-between"><span class="text-gray-600">Delete selected</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Del</kbd></div>
-                <div class="flex justify-between"><span class="text-gray-600">Lock / Unlock</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Ctrl+L</kbd></div>
-                <div class="flex justify-between"><span class="text-gray-600">Group selection</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Ctrl+G</kbd></div>
-                <div class="flex justify-between"><span class="text-gray-600">Ungroup</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Ctrl+⇧+G</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.rotate')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">R</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.delete')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Del</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.lock')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Ctrl+L</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.group')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Ctrl+G</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.ungroup')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Ctrl+⇧+G</kbd></div>
               </div>
 
               <!-- View -->
               <div class="flex items-center gap-2 mb-2">
-                <span class="text-xs font-bold uppercase tracking-wider text-blue-500">View</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-blue-500">{$t('shortcuts.view')}</span>
                 <div class="flex-1 h-px bg-blue-100"></div>
               </div>
               <div class="space-y-1.5 mb-5">
-                <div class="flex justify-between"><span class="text-gray-600">Toggle 2D / 3D</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Tab</kbd></div>
-                <div class="flex justify-between"><span class="text-gray-600">Zoom to fit</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">F</kbd></div>
-                <div class="flex justify-between"><span class="text-gray-600">Toggle grid</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">G</kbd></div>
-                <div class="flex justify-between"><span class="text-gray-600">Toggle layers</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">L</kbd></div>
-                <div class="flex justify-between"><span class="text-gray-600">Show shortcuts</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">?</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.mode')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Tab</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.fit')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">F</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.grid')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">G</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.layers')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">L</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.show')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">?</kbd></div>
               </div>
 
               <!-- Canvas -->
               <div class="flex items-center gap-2 mb-2">
-                <span class="text-xs font-bold uppercase tracking-wider text-purple-500">Canvas</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-purple-500">{$t('shortcuts.canvas')}</span>
                 <div class="flex-1 h-px bg-purple-100"></div>
               </div>
               <div class="space-y-1.5 mb-5">
-                <div class="flex justify-between"><span class="text-gray-600">Zoom in / out</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Scroll</kbd></div>
-                <div class="flex justify-between"><span class="text-gray-600">Zoom in / out</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">+ / −</kbd></div>
-                <div class="flex justify-between"><span class="text-gray-600">Pan canvas</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Space+Drag</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.zoom')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">{$t('shortcuts.scroll')}</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.zoom')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">+ / −</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.panCanvas')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">{$t('shortcuts.spaceDrag')}</kbd></div>
               </div>
 
               <!-- Walls -->
               <div class="flex items-center gap-2 mb-2">
-                <span class="text-xs font-bold uppercase tracking-wider text-rose-500">Walls</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-rose-500">{$t('shortcuts.walls')}</span>
                 <div class="flex-1 h-px bg-rose-100"></div>
               </div>
               <div class="space-y-1.5">
-                <div class="flex justify-between"><span class="text-gray-600">Finish wall chain</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">Dbl-click</kbd></div>
-                <div class="flex justify-between"><span class="text-gray-600">Close wall loop</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">C</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.finishWall')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">{$t('shortcuts.doubleClick')}</kbd></div>
+                <div class="flex justify-between"><span class="text-gray-600">{$t('shortcuts.closeWall')}</span><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono text-slate-700 border border-gray-200">C</kbd></div>
               </div>
             </div>
           </div>
         </div>
 
+        {#if shortcutCopyState !== 'idle'}
+          <p role="status" class="px-6 py-2 text-xs text-slate-600">{$t(`shortcuts.${shortcutCopyState}`)}</p>
+        {/if}
+
         <!-- Footer -->
         <div class="px-6 py-3 border-t border-gray-100 text-center">
-          <p class="text-xs text-gray-400">Press <kbd class="px-1 py-0.5 bg-gray-100 rounded text-xs font-mono border border-gray-200">?</kbd> or <kbd class="px-1 py-0.5 bg-gray-100 rounded text-xs font-mono border border-gray-200">Esc</kbd> to close</p>
+          <p class="text-xs text-gray-400">{$t('shortcuts.footer')}</p>
         </div>
       </div>
     </dialog>
@@ -472,15 +501,15 @@
 {:else}
   <div class="h-screen flex flex-col items-center justify-center gap-3">
     {#if loadError}
-      <p role="alert" class="max-w-lg px-6 text-center text-red-700">{loadError}</p>
-      <button class="text-blue-700 underline" onclick={initializeEditor}>Retry loading</button>
-      <button class="text-blue-700 underline" onclick={backupLibrary}>Download library backup</button>
-      <a class="text-blue-700 underline" href={`${base}/`}>Back to projects</a>
+      <p role="alert" class="max-w-lg px-6 text-center text-red-700">{projectServiceMessage(loadError, $locale)}</p>
+      <button class="text-blue-700 underline" onclick={initializeEditor}>{$t('library.retry')}</button>
+      <button class="text-blue-700 underline" onclick={backupLibrary}>{$t('library.backup')}</button>
+      <a class="text-blue-700 underline" href={`${base}/`}>{$t('editorRecovery.back')}</a>
     {:else if importingCapture}
       <div class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
-      <p class="text-gray-400">Importing capture from iOS app…</p>
+      <p class="text-gray-400">{$t('editorRecovery.importing')}</p>
     {:else}
-      <p class="text-gray-400">Loading...</p>
+      <p class="text-gray-400">{$t('editorRecovery.loading')}</p>
     {/if}
   </div>
 {/if}
@@ -490,9 +519,9 @@
   <div class="fixed top-16 left-1/2 -translate-x-1/2 z-[100] w-[calc(100vw-2rem)] max-w-md bg-red-50 border border-red-200 text-red-700 rounded-lg shadow-lg px-4 py-3 flex items-start gap-3" role="alert">
     <svg class="w-5 h-5 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
     <div class="flex-1 text-sm">
-      <p class="font-semibold">Capture import failed</p>
-      <p>{importError}</p>
+      <p class="font-semibold">{$t('editorRecovery.failed')}</p>
+      <p>{importError instanceof CaptureImportError ? $t(importError.key, importError.variables) : importError}</p>
     </div>
-    <button class="text-red-400 hover:text-red-600 text-lg leading-none" onclick={() => importError = null} aria-label="Dismiss error">✕</button>
+    <button class="text-red-400 hover:text-red-600 text-lg leading-none" onclick={() => importError = null} aria-label={$t('editorRecovery.dismiss')}>✕</button>
   </div>
 {/if}

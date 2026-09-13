@@ -1,7 +1,7 @@
 import type { Point } from '$lib/models/types';
 import type { RoomPreset } from './roomPresets';
 import { placePreset } from './roomPresets';
-import { addFurniture, beginUndoGroup, endUndoGroup } from '$lib/stores/project';
+import { addFurniture, rotateFurniture, beginUndoGroup, endUndoGroup } from '$lib/stores/project';
 
 export interface FurniturePlacement {
   catalogId: string;
@@ -29,8 +29,8 @@ export const roomTemplates: RoomTemplate[] = [
     furniture: [
       { catalogId: 'sofa', x: 0, y: -80, rotation: 0 },
       { catalogId: 'coffee_table', x: 0, y: 0, rotation: 0 },
-      { catalogId: 'tv_stand', x: 0, y: 100, rotation: 0 },
-      { catalogId: 'bookshelf', x: -160, y: 0, rotation: 0 },
+      { catalogId: 'tv_stand', x: 0, y: 100, rotation: 180 },
+      { catalogId: 'bookshelf', x: -170, y: 0, rotation: 90 },
     ],
   },
   {
@@ -40,18 +40,18 @@ export const roomTemplates: RoomTemplate[] = [
       { catalogId: 'bed_queen', x: 0, y: -30, rotation: 0 },
       { catalogId: 'nightstand', x: -130, y: -30, rotation: 0 },
       { catalogId: 'nightstand', x: 130, y: -30, rotation: 0 },
-      { catalogId: 'dresser', x: 0, y: 100, rotation: 0 },
-      { catalogId: 'wardrobe', x: -150, y: 80, rotation: 0 },
+      { catalogId: 'dresser', x: 50, y: 100, rotation: 180 },
+      { catalogId: 'wardrobe', x: -120, y: 100, rotation: 180 },
     ],
   },
   {
     name: 'Kitchen',
     presetId: 'rectangle',
     furniture: [
-      { catalogId: 'counter', x: 0, y: -100, rotation: 0 },
+      { catalogId: 'counter', x: -125, y: -100, rotation: 0 },
       { catalogId: 'fridge', x: 150, y: -100, rotation: 0 },
-      { catalogId: 'stove', x: -100, y: -100, rotation: 0 },
-      { catalogId: 'sink_k', x: 60, y: -100, rotation: 0 },
+      { catalogId: 'stove', x: -25, y: -100, rotation: 0 },
+      { catalogId: 'sink_k', x: 55, y: -100, rotation: 0 },
     ],
   },
   {
@@ -60,7 +60,7 @@ export const roomTemplates: RoomTemplate[] = [
     furniture: [
       { catalogId: 'bathtub', x: -60, y: -60, rotation: 0 },
       { catalogId: 'toilet', x: 100, y: -60, rotation: 0 },
-      { catalogId: 'sink_b', x: 100, y: 60, rotation: 0 },
+      { catalogId: 'sink_b', x: 100, y: 60, rotation: 180 },
     ],
   },
   {
@@ -68,8 +68,8 @@ export const roomTemplates: RoomTemplate[] = [
     presetId: 'rectangle',
     furniture: [
       { catalogId: 'desk', x: 0, y: -50, rotation: 0 },
-      { catalogId: 'office_chair', x: 0, y: 20, rotation: 0 },
-      { catalogId: 'bookshelf', x: -160, y: 0, rotation: 0 },
+      { catalogId: 'office_chair', x: 0, y: 20, rotation: 180 },
+      { catalogId: 'bookshelf', x: -170, y: 0, rotation: 90 },
     ],
   },
   {
@@ -77,10 +77,10 @@ export const roomTemplates: RoomTemplate[] = [
     presetId: 'rectangle',
     furniture: [
       { catalogId: 'dining_table', x: 0, y: 0, rotation: 0 },
-      { catalogId: 'dining_chair', x: -70, y: -50, rotation: 0 },
-      { catalogId: 'dining_chair', x: 70, y: -50, rotation: 0 },
-      { catalogId: 'dining_chair', x: -70, y: 50, rotation: 0 },
-      { catalogId: 'dining_chair', x: 70, y: 50, rotation: 0 },
+      { catalogId: 'dining_chair', x: -35, y: -77.5, rotation: 0 },
+      { catalogId: 'dining_chair', x: 35, y: -77.5, rotation: 0 },
+      { catalogId: 'dining_chair', x: -35, y: 77.5, rotation: 180 },
+      { catalogId: 'dining_chair', x: 35, y: 77.5, rotation: 180 },
     ],
   },
 ];
@@ -97,17 +97,15 @@ export function placeRoomTemplate(
   h = 300,
 ): void {
   beginUndoGroup();
-  // Place walls (placePreset calls beginUndoGroup/endUndoGroup internally, so we
-  // need to handle that — but since nested groups just work as one batch, it's fine)
-  placePreset(preset, origin, w, h);
-
-  if (template) {
-    for (const item of template.furniture) {
-      addFurniture(item.catalogId, {
-        x: origin.x + item.x,
-        y: origin.y + item.y,
+  try {
+    placePreset(preset, origin, w, h);
+    for (const item of template?.furniture ?? []) {
+      const id = addFurniture(item.catalogId, {
+        x: origin.x + item.x, y: origin.y + item.y,
       });
+      if (item.rotation !== 0) rotateFurniture(id, item.rotation);
     }
+  } finally {
+    endUndoGroup('Placed room template');
   }
-  endUndoGroup();
 }

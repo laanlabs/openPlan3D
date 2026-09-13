@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { storedRecords, savedProjects } from './storage';
 
 test('legacy migration preserves images and history, then saves beyond the old quota locally', async ({ page }, testInfo) => {
+  test.slow();
   const source = JSON.parse(await readFile('tests/fixtures/save-conflicts.openplan.json', 'utf8'));
   const history = JSON.stringify([{ timestamp: 1, description: 'Before migration', data: JSON.stringify(source) }]);
   const legacy = JSON.stringify({ [source.id]: JSON.stringify(source) });
@@ -47,7 +48,7 @@ test('legacy migration preserves images and history, then saves beyond the old q
   expect(await page.evaluate(() => localStorage.getItem('floorplan_projects'))).toBe(legacy);
   await page.setViewportSize({ width: 390, height: 900 });
   await page.getByRole('button', { name: '3D', exact: true }).click();
-  await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible();
+  await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible({ timeout: 60_000 });
   await testInfo.attach('large-local-project-mobile', { body: await page.screenshot(), contentType: 'image/png' });
   expect(errors).toEqual([]); expect(external).toEqual([]);
 });

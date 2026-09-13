@@ -2,7 +2,6 @@ import { test, expect, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { packageJSON, readPackageZip } from '../../src/lib/utils/projectPackageZip';
-import { photoHeader, PHOTO_STORED_LIMIT } from '../../src/lib/services/itemPhotos';
 import { readSnapshotStorage } from '../../src/lib/utils/snapshotStorage';
 import { savedProjects, storedRecords, failProjectWrites } from './storage';
 
@@ -68,6 +67,14 @@ for (const width of [1440, 390]) test(`field keyboard editing cannot select or p
       await expect(input).toHaveValue(value);
     }
   }
+  // WebKit can coalesce native edits across different form controls, including
+  // invalid numeric drafts. Start the clipboard/history check with fresh native
+  // history after independently verifying that the numeric edit was persisted.
+  await page.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect.poll(async () => (await savedProjects(page))[original.id]?.floors[0].furniture[0].width)
+    .toBe(78.125);
+  await page.reload(); await selectFurniture(page);
+  await expect(itemWidth).toHaveValue('78.125');
   // Seed the canvas clipboard with furniture before using the text clipboard.
   await page.getByRole('button', { name: 'Save', exact: true }).press('ControlOrMeta+c');
   const notes = page.getByRole('textbox', { name: 'Item notes', exact: true });
@@ -77,9 +84,18 @@ for (const width of [1440, 390]) test(`field keyboard editing cannot select or p
   await notes.press('ControlOrMeta+a'); await notes.press('ControlOrMeta+c');
   await notes.press('ArrowRight'); await notes.press('Enter'); await notes.press('ControlOrMeta+v');
   await expect(notes).toHaveValue('Soft green fabric chair\nSoft green fabric chair');
+  await notes.evaluate(element => element.addEventListener('input', event => {
+    element.setAttribute('data-last-input-type', (event as InputEvent).inputType);
+  }));
   await notes.press('ControlOrMeta+z');
-  await expect(notes).toHaveValue('Soft green fabric chair\n');
+  // Engines group typing, newlines and pastes differently. Require native field
+  // history, rather than a specific engine's intermediate undo boundary.
+  await expect(notes).toHaveAttribute('data-last-input-type', 'historyUndo');
+  await expect(notes).not.toHaveValue('Soft green fabric chair\nSoft green fabric chair');
   await expect(itemWidth).toHaveValue('78.125');
+  await notes.press('ControlOrMeta+Shift+z');
+  await expect(notes).toHaveAttribute('data-last-input-type', 'historyRedo');
+  await expect(notes).toHaveValue('Soft green fabric chair\nSoft green fabric chair');
   await notes.press('ControlOrMeta+a'); await notes.press('Backspace');
   await notes.pressSequentially('Soft green fabric chair');
   await notes.press('Tab');
@@ -101,6 +117,7 @@ for (const width of [1440, 390]) test(`field keyboard editing cannot select or p
 });
 
 for (const width of [1440, 390]) test(`item metadata and optimized photos survive undo, save and exports at ${width}px`, async ({ page }, testInfo) => {
+  test.slow();
   const check = observe(page); await page.setViewportSize({ width, height: 900 });
   const original = await openPackage(page); await selectFurniture(page);
   const panel = page.getByRole('region', { name: 'Item details', exact: true });
@@ -133,8 +150,14 @@ for (const width of [1440, 390]) test(`item metadata and optimized photos surviv
   expect(plan.walls[0].extension.future).toBe(true);
   const photoName = plan.furniture[0].photos.find((name: string) => name !== 'chair.png');
   const added = files[`assets/${photoName}`];
-  expect(photoHeader(added)).toMatchObject({ width: 1600, height: 800, mime: 'image/jpeg' });
-  expect(added.length).toBeLessThanOrEqual(PHOTO_STORED_LIMIT);
+  expect(Array.from(added.slice(0, 3))).toEqual([0xff, 0xd8, 0xff]);
+  const dimensions = await page.evaluate(async dataUrl => {
+    const image = new Image(); image.src = dataUrl; await image.decode();
+    return { width: image.naturalWidth, height: image.naturalHeight };
+  }, `data:image/jpeg;base64,${Buffer.from(added).toString('base64')}`);
+  expect(dimensions).toEqual({ width: 1600, height: 800 });
+  expect(added.length).toBeLessThanOrEqual(512 * 1024); // Stored-photo contract: 512 KiB.
+
   expect(Object.keys(files).filter(name => name.startsWith('assets/'))).toHaveLength(3);
 
   await page.getByRole('button', { name: 'Remove photo 2 from item', exact: true }).click();
@@ -148,7 +171,7 @@ for (const width of [1440, 390]) test(`item metadata and optimized photos surviv
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect.poll(async () => Object.keys((await savedProjects(page))[original.id].projectPackage.assets)).toHaveLength(2);
   await page.getByRole('button', { name: '3D', exact: true }).click();
-  await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible();
+  await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible({ timeout: 60_000 });
   await page.getByRole('link', { name: width < 640 ? 'Back to Projects' : 'Projects', exact: true }).click();
   const backup = JSON.parse((await download(page, 'Download library backup')).toString());
   const saved = JSON.parse(backup.projects[original.id]);
@@ -160,22 +183,31 @@ for (const width of [1440, 390]) test(`item metadata and optimized photos surviv
   check();
 });
 
-test('room, wall and opening metadata can be edited after an actual Swift return', async ({ page }) => {
+for (const locale of ['en', 'pt']) test(`${locale}: room, wall and opening metadata can be edited after an actual Swift return`, async ({ page }) => {
   const check = observe(page);
   const source = await openPackage(page, resolve('tests/fixtures/swift-metadata-return.zip')); await selectFurniture(page);
   await expect(page.getByRole('textbox', { name: 'Item notes', exact: true })).toHaveValue('Native follow-up');
   await expect(page.getByRole('spinbutton', { name: 'Item cost', exact: true })).toHaveValue('');
   await expect(page.getByRole('region', { name: 'Item details', exact: true })).toContainText('Item photos (0)');
-  await page.getByRole('button', { name: `Select room ${source.floors[0].rooms[0].name}`, exact: true }).click();
-  await fill(page, 'Item notes', 'Web room update');
-  await fill(page, 'Room ceiling height (cm)', '297.625', true);
-  await page.getByRole('combobox', { name: 'Room use', exact: true }).selectOption('office');
-  await page.getByRole('button', { name: '─ Wall 1', exact: true }).click();
-  await expect(page.getByRole('combobox', { name: 'Construction material', exact: true })).toHaveValue('concrete');
-  await page.getByRole('combobox', { name: 'Construction material', exact: true }).selectOption('wood');
-  await page.getByRole('button', { name: '🚪 single door 1', exact: true }).click();
-  await fill(page, 'Item cost', '12.345', true);
-  const plan = packageJSON((await packageFiles(page))['plan.json']);
+  const tr = (en: string, pt: string) => locale === 'pt' ? pt : en;
+  if (locale === 'pt') {
+    await page.getByRole('button', { name: 'Settings', exact: true }).click();
+    await page.getByRole('button', { name: 'Appearance', exact: true }).click();
+    await page.getByRole('combobox', { name: 'Language', exact: true }).selectOption('pt');
+    await page.keyboard.press('Escape');
+  }
+  await page.getByRole('button', { name: `${tr('Select room', 'Selecionar ambiente')} ${source.floors[0].rooms[0].name}`, exact: true }).click();
+  await fill(page, tr('Item notes', 'Notas do item'), 'Web room update');
+  await fill(page, tr('Room ceiling height (cm)', 'Pé-direito do ambiente (cm)'), '297.625', true);
+  await page.getByRole('combobox', { name: tr('Room use', 'Uso do ambiente'), exact: true }).selectOption('office');
+  await page.getByRole('button', { name: tr('─ Wall 1', '─ Parede 1'), exact: true }).click();
+  await expect(page.getByRole('combobox', { name: tr('Construction material', 'Material de construção'), exact: true })).toHaveValue('concrete');
+  await page.getByRole('combobox', { name: tr('Construction material', 'Material de construção'), exact: true }).selectOption({ label: tr('Wood', 'Madeira') });
+  await page.getByRole('button', { name: tr('🚪 single door 1', '🚪 Porta simples 1'), exact: true }).click();
+  await fill(page, tr('Item cost', 'Custo do item'), '12.345', true);
+  await page.getByRole('button', { name: tr('Export', 'Exportar'), exact: true }).click();
+  const files = await readPackageZip(new Uint8Array(await download(page, tr('Download project package', 'Baixar pacote de projeto'))));
+  const plan = packageJSON(files['plan.json']);
   expect(plan.rooms[0]).toMatchObject({ note: 'Web room update', ceilingHeight: 2.97625, type: 'office' });
   expect(plan.walls[0].material).toBe('wood'); expect(plan.openings[0].price).toBe(12.345);
   check();
@@ -189,6 +221,8 @@ test('bad photos and quota failures keep the saved project and an exportable dra
   expect(await storedRecords(page)).toEqual(before);
   await failProjectWrites(page);
   await fill(page, 'Item notes', 'Keep this unsaved photo draft');
+  // Let the expected autosave failure finish changing the layout before opening the picker.
+  await expect(page.getByRole('alert').filter({ hasText: 'Browser storage is full' })).toBeVisible();
   await addPhoto(page, resolve('tests/fixtures/item-photo.png'));
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('Browser storage is full');

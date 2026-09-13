@@ -1,5 +1,8 @@
 <script lang="ts">
+  import { t } from '$lib/i18n';
+  import { onDestroy } from 'svelte';
   import { hasOpenModal } from '$lib/utils/modalDialog';
+  import { isEditingField } from '$lib/utils/shortcuts';
   /**
    * ElevationView — integrated face-on view + editor for a single wall.
    * Fills the canvas area (replaces the plan canvas while active — sidebars stay).
@@ -136,6 +139,11 @@
     if (!$elevationWallId) return;
     const onKey = (e: KeyboardEvent) => {
       if (hasOpenModal()) return;
+      // Close the elevation group before the plan's bubbling history handler.
+      // Text fields retain their own native Undo/Redo behavior.
+      if (!isEditingField(e.target) && (e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'y')) {
+        endDrag();
+      }
       if (e.key === 'Escape') {
         e.preventDefault();
         e.stopImmediatePropagation();
@@ -273,7 +281,8 @@
         const half = drag.width / 2 / wallLen;
         const currentWallH = Math.min(getWallHeightAt(wall, newPos - half), getWallHeightAt(wall, newPos + half));
         const maxSill = Math.max(0, currentWallH - drag.winH);
-        const newSill = Math.round(Math.max(0, Math.min(maxSill, drag.startSill + dyCm)));
+        // Preserve the exact fractional clearance after snapping the requested height.
+        const newSill = Math.max(0, Math.min(maxSill, Math.round(drag.startSill + dyCm)));
         updateWindow(drag.id, { position: newPos, sillHeight: newSill });
       }
       return;
@@ -282,16 +291,19 @@
     hoverOpeningId = p ? (hitOpening(p.x, p.y)?.id ?? null) : null;
   }
 
-  function endDrag(e: PointerEvent) {
+  function endDrag(e?: PointerEvent) {
     if (drag) {
       if (drag.grouped) {
         endUndoGroup(drag.kind === 'door' ? 'Moved door (elevation)' : 'Moved window (elevation)');
       }
       drag = null;
       dragging = false;
-      try { canvas?.releasePointerCapture(e.pointerId); } catch { /* already released */ }
+      try { if (e) canvas?.releasePointerCapture(e.pointerId); } catch { /* already released */ }
     }
   }
+
+  // Closing elevation can remove the canvas before pointerup is delivered.
+  onDestroy(() => endDrag());
 
   let cursor = $derived(dragging ? 'grabbing' : hoverOpeningId ? 'move' : 'default');
 
@@ -495,25 +507,26 @@
         class="w-7 h-7 flex items-center justify-center rounded-md text-slate-500 hover:text-slate-800 hover:bg-slate-200 transition-colors disabled:opacity-30 disabled:pointer-events-none text-lg leading-none"
         onclick={() => cycleWall(-1)}
         disabled={wallCount < 2}
-        title="Previous wall"
-        aria-label="Previous wall"
+        title={$t('elevationView.previous')}
+        aria-label={$t('elevationView.previous')}
       >‹</button>
-      <span class="text-sm font-semibold text-slate-700 tabular-nums">Wall {wallIndex + 1} of {wallCount}</span>
+      <span class="text-sm font-semibold text-slate-700 tabular-nums">{$t('elevationView.wall', { index: wallIndex + 1, count: wallCount })}</span>
       <button
         class="w-7 h-7 flex items-center justify-center rounded-md text-slate-500 hover:text-slate-800 hover:bg-slate-200 transition-colors disabled:opacity-30 disabled:pointer-events-none text-lg leading-none"
         onclick={() => cycleWall(1)}
         disabled={wallCount < 2}
-        title="Next wall"
-        aria-label="Next wall"
+        title={$t('elevationView.next')}
+        aria-label={$t('elevationView.next')}
       >›</button>
       <span class="text-xs text-gray-400 ml-1">{formatLength(wallLen, units)} × {startH === endH ? formatLength(startH, units) : `${formatLength(startH, units)} → ${formatLength(endH, units)}`}</span>
       <div class="flex-1"></div>
-      <span class="text-[11px] text-gray-400 max-lg:hidden">Drag openings to move · drag windows up/down for sill · Esc for plan</span>
+      <span class="text-[11px] text-gray-400 max-lg:hidden">{$t('elevationView.help')}</span>
     </div>
 
     <!-- Elevation canvas -->
     <div class="flex-1 min-h-0 relative" bind:clientWidth={cw} bind:clientHeight={ch}>
       <canvas
+        aria-label={$t('elevationView.canvas')}
         bind:this={canvas}
         class="absolute inset-0 w-full h-full touch-none select-none"
         style="cursor: {cursor}"

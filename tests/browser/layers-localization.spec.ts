@@ -1,0 +1,82 @@
+import { expect, test, type Locator } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
+
+for (const width of [1440, 390]) test(`Portuguese layers preserve visibility, selection and source text at ${width}px`, async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('o3d_locale', 'pt'));
+  await page.setViewportSize({ width, height: 900 });
+  const plan = JSON.parse(await readFile('tests/fixtures/connected-dimensions.openplan.json', 'utf8'));
+  plan.floors[0].textAnnotations = [{ id: 'literal-note', x: 0, y: 0, text: 'Original {number} note', fontSize: 20, rotation: 0, color: '#123456' }];
+  await page.goto('/editor');
+  await page.getByRole('button', { name: 'Exportar', exact: true }).click();
+  const chooser = page.waitForEvent('filechooser');
+  await page.getByRole('button', { name: 'Importar JSON', exact: true }).click();
+  await (await chooser).setFiles({ name: 'layers.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(plan)) });
+  for (const text of ['4 paredes', '1 porta', '1 janela', '1 ambiente']) await expect(page.getByText(text, { exact: true })).toBeVisible();
+  async function exported() {
+    await page.getByRole('button', { name: 'Exportar', exact: true }).click();
+    const pending = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Baixar JSON', exact: true }).click();
+    return JSON.parse(await readFile((await (await pending).path())!, 'utf8'));
+  }
+  const before = await exported();
+  if (width < 768) {
+    async function clickStatusControl(control: Locator) {
+      // WebKit's scrolling layer can retain the previous hit-test position
+      // briefly after programmatic horizontal scrolling.
+      await control.scrollIntoViewIfNeeded();
+      await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+      await expect.poll(() => control.evaluate(element => {
+        const rect = element.getBoundingClientRect();
+        return document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2)?.closest('button') === element;
+      })).toBe(true);
+      await control.click();
+    }
+    for (const title of ['Alternar grade (G)', 'Alternar ajuste à grade (S)', 'Alternar móveis', 'Alternar réguas', 'Alternar minimapa']) {
+      const toggle = page.getByTitle(title, { exact: true });
+      const before = await toggle.getAttribute('aria-pressed');
+      await clickStatusControl(toggle);
+      await expect(toggle).toHaveAttribute('aria-pressed', before === 'true' ? 'false' : 'true');
+      await clickStatusControl(toggle);
+      await expect(toggle).toHaveAttribute('aria-pressed', before!);
+    }
+    const visibility = page.getByRole('button', { name: '🗂 Camadas', exact: true });
+    await clickStatusControl(visibility);
+    const walls = page.getByRole('checkbox', { name: 'Paredes', exact: true });
+    await expect(walls).toBeChecked();
+    await walls.click();
+    await expect(walls).not.toBeChecked();
+    await walls.click();
+    await expect(page.getByRole('checkbox', { name: 'Pavimento abaixo', exact: true })).toBeDisabled();
+    const labels = page.getByRole('checkbox', { name: 'Nomes dos ambientes', exact: true });
+    const wasChecked = await labels.isChecked();
+    await labels.click();
+    await expect(labels).toBeChecked({ checked: !wasChecked });
+    await labels.click();
+    await clickStatusControl(visibility);
+    await expect(walls).toHaveCount(0);
+
+    await page.getByRole('button', { name: 'Mais ações', exact: true }).click();
+    await page.getByRole('button', { name: 'Camadas', exact: true }).click();
+  } else {
+    const layers = page.getByRole('button', { name: 'Alternar painel de camadas', exact: true });
+    await expect(layers).toHaveAttribute('aria-expanded', 'false');
+    await layers.click();
+    await expect(layers).toHaveAttribute('aria-expanded', 'true');
+  }
+  await expect(page.locator('div').filter({ hasText: /^🗂 Camadas$/ })).toBeVisible();
+  const hide = page.getByTitle('Ocultar Paredes', { exact: true });
+  await hide.focus();
+  await page.keyboard.press('Space');
+  await expect(page.getByTitle('Mostrar Paredes', { exact: true })).toBeVisible();
+  const wall = page.getByRole('button', { name: /Parede 1$/, exact: false });
+  await wall.click();
+  await expect(hide).toBeVisible();
+  await expect(wall).toHaveClass(/bg-blue-100/);
+  const note = page.getByRole('button', { name: 'T Nota 1 (Original {number} note)', exact: true });
+  await note.click();
+  await expect(note).toHaveClass(/bg-blue-100/);
+  const after = await exported();
+  expect(after.floors).toEqual(before.floors);
+  expect(after.settings).toEqual(before.settings);
+  expect(after.floors[0].textAnnotations[0].text).toBe('Original {number} note');
+});

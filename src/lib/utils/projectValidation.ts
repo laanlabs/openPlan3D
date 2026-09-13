@@ -1,6 +1,7 @@
 import type { Project, DetailKind } from '$lib/models/types';
 import { validateItemDetails, validateRetainedDetailState } from './itemDetails';
 import { refreshLegacyFurnitureCategories } from './legacyFurnitureCategories';
+import { validateCustomModelDefinitions } from './customModelDefinitions';
 
 /** Read untrusted native files without mutating their input or the active editor. */
 export function readProject(value: unknown): Project {
@@ -53,6 +54,7 @@ export function readProject(value: unknown): Project {
   defaults(project!, { name: 'Untitled Project' });
   text(project!.name, 'name'); strings(project!, ['description'], 'document');
   if (project!.projectPackage !== undefined) validateRetainedDetailState(project!.projectPackage);
+  const customModelIds = validateCustomModelDefinitions(project!.customModels, project!.projectPackage?.assets);
   if (project!.attachmentNames !== undefined) {
     record(project!.attachmentNames, 'attachmentNames');
     for (const [name, label] of Object.entries(project!.attachmentNames)) text(label, `attachmentNames.${name}`);
@@ -69,6 +71,7 @@ export function readProject(value: unknown): Project {
     text(floor.name, `${path}.name`);
     if (!Number.isSafeInteger(floor.level)) fail(`${path}.level`, 'must be an integer');
     if (floor.elevation !== undefined) number(floor.elevation, `${path}.elevation`);
+    if (floor.slabThickness !== undefined) positive(floor.slabThickness, `${path}.slabThickness`);
     const seen = new Set<string>();
     const elements = (key: string, validate: (item: Record<string, any>, path: string) => void, optional = true) => {
       for (const [i, item] of list(floor, key, path, optional).entries()) {
@@ -108,6 +111,7 @@ export function readProject(value: unknown): Project {
       }
     });
     elements('furniture', (item, path) => {
+      if (item.customModelId !== undefined && (typeof item.customModelId !== 'string' || !customModelIds.has(item.customModelId))) fail(`${path}.customModelId`, 'must refer to a model in this project');
       text(item.catalogId, `${path}.catalogId`, true); positioned(item, path);
       defaults(item, { scale: { x: 1, y: 1, z: 1 } }); record(item.scale, `${path}.scale`);
       // Mirroring uses negative scale. Do not normalize signs or round dimensions.
@@ -126,6 +130,7 @@ export function readProject(value: unknown): Project {
       choice(item.shape, ['round', 'square'], `${path}.shape`); defaults(item, { color: '#cccccc' }); text(item.color, `${path}.color`);
     });
     elements('rooms', (item, path) => {
+      booleans(item, ['floorOpening'], path);
       // Saved room/group memberships may outlive deleted walls/objects. Preserve metadata.
       ids(item.walls, `${path}.walls`); defaults(item, { name: '', floorTexture: 'light-oak', area: 0 });
       strings(item, ['name', 'floorTexture', 'color', 'roomType'], path); number(item.area, `${path}.area`, 0);

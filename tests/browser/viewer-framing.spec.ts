@@ -18,7 +18,7 @@ test('top-down fits every corner after orbit, stacking and viewport changes', as
   await page.getByRole('button', { name: '3D', exact: true }).click();
   await page.waitForLoadState('networkidle');
   const hint = page.getByRole('button', { name: 'Got it', exact: true });
-  if (await hint.isVisible()) await hint.click();
+  await expect(hint).toBeHidden({ timeout: 15_000 });
   await expect(hint).not.toBeVisible();
   const canvas = page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').last();
   const samples: any[] = [];

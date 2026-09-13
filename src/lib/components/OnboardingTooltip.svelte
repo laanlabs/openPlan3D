@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { getActiveTip, dismissTip, TIP_MESSAGES } from '$lib/stores/onboarding.svelte';
+  import { t } from '$lib/i18n';
+  import { getActiveTip, dismissTip } from '$lib/stores/onboarding.svelte';
 
   let tip = $derived(getActiveTip());
   let visible = $state(false);
@@ -31,7 +32,7 @@
 {#if tip}
   <div
     role="region"
-    aria-label="Getting started tip"
+    aria-label={$t('onboarding.title')}
     bind:offsetWidth={tipWidth}
     bind:offsetHeight={tipHeight}
     class="fixed z-[9999] pointer-events-auto flex flex-col gap-2 bg-slate-800 text-white rounded-xl shadow-2xl px-4 py-3 text-sm leading-relaxed transition-opacity duration-300 ease-out"
@@ -39,10 +40,10 @@
     class:opacity-100={visible}
     style="left:{left}px;top:{top}px;width:{Math.max(0, Math.min(280, viewportWidth - margin * 2))}px;max-height:{Math.max(0, viewportHeight - margin * 2)}px;"
   >
-    <p class="min-h-0 overflow-y-auto">{TIP_MESSAGES[tip.id]}</p>
+    <p class="min-h-0 overflow-y-auto">{$t(`onboarding.${tip.id}`)}</p>
     <button
       class="shrink-0 self-start text-xs font-medium px-3 py-1 rounded-lg bg-blue-500 hover:bg-blue-400 transition-colors"
       onclick={dismissTip}
-    >Got it</button>
+    >{$t('onboarding.dismiss')}</button>
   </div>
 {/if}

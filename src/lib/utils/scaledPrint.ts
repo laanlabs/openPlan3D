@@ -1,4 +1,5 @@
 import jsPDF from 'jspdf';
+import { translate, type Locale } from '$lib/i18n';
 import { get } from 'svelte/store';
 import type { Project } from '$lib/models/types';
 import { projectSettings, formatArea } from '$lib/stores/settings';
@@ -10,7 +11,7 @@ import { activePrintFloor, printBounds, calculatePrintLayout, type PrintOptions 
 const PIXELS_PER_MM = 6;
 
 /** Preview and PDF use the same fixed physical page, independent of screen size/DPR. */
-export function renderPrintPage(canvas: HTMLCanvasElement, project: Project, options: PrintOptions) {
+export function renderPrintPage(canvas: HTMLCanvasElement, project: Project, options: PrintOptions, language: Locale = 'en') {
   const floor = activePrintFloor(project);
   const bounds = floor && printBounds(floor, project.customEntourage);
   if (!bounds) return null;
@@ -26,12 +27,12 @@ export function renderPrintPage(canvas: HTMLCanvasElement, project: Project, opt
   ctx.fillRect(0, 0, pageWidth, pageHeight);
   ctx.fillStyle = '#1e293b';
   ctx.font = 'bold 5px sans-serif';
-  ctx.fillText(project.name || 'Untitled', 12, 16, pageWidth - 70);
+  ctx.fillText(project.name || translate(language, 'print.sheetUntitled'), 12, 16, pageWidth - 70);
   ctx.font = '3px sans-serif';
   ctx.fillText(floor.name, 12, 22, pageWidth - 70);
   ctx.textAlign = 'right';
-  ctx.fillText(`Scale: ${layout.scaleLabel}`, pageWidth - 12, 16);
-  ctx.fillText(new Date().toLocaleDateString(), pageWidth - 12, 22);
+  ctx.fillText(translate(language, 'print.sheetScale', { value: options.scale === 'fit' ? translate(language, 'print.fit') : layout.scaleLabel }), pageWidth - 12, 16);
+  ctx.fillText(new Date().toLocaleDateString(language === 'pt' ? 'pt-BR' : 'en'), pageWidth - 12, 22);
   ctx.strokeStyle = '#cbd5e1';
   ctx.lineWidth = 0.25;
   ctx.strokeRect(area.x, area.y, area.width, area.height);
@@ -67,7 +68,7 @@ export function renderPrintPage(canvas: HTMLCanvasElement, project: Project, opt
   drawEntourageItems(cs, floor, null, project.customEntourage);
   ctx.restore();
   ctx.textAlign = 'left'; ctx.fillStyle = '#64748b'; ctx.font = '2.5px sans-serif';
-  ctx.fillText('OpenPlan3D · Print at 100% / Actual size; disable Fit to page in the print dialog.', 12, pageHeight - 7);
+  ctx.fillText(translate(language, 'print.sheetFooter'), 12, pageHeight - 7, pageWidth - 24);
   // Calibration line also makes browser/physical print scaling verifiable.
   const barCm = Math.min(100, 10 ** Math.floor(Math.log10(40 / mmPerCm)));
   const barMm = barCm * mmPerCm;
@@ -77,11 +78,11 @@ export function renderPrintPage(canvas: HTMLCanvasElement, project: Project, opt
   return layout;
 }
 
-export function createPrintPDF(canvas: HTMLCanvasElement, project: Project, options: PrintOptions) {
+export function createPrintPDF(canvas: HTMLCanvasElement, project: Project, options: PrintOptions, language: Locale = 'en') {
   const floor = activePrintFloor(project), bounds = floor && printBounds(floor, project.customEntourage);
-  if (!bounds) throw new Error('Add a wall or object before printing.');
+  if (!bounds) throw new Error(translate(language, 'print.empty'));
   const layout = calculatePrintLayout(bounds, options);
-  if (!layout.fits) throw new Error('The plan does not fit this page at the selected scale. Choose a smaller scale or Fit to page.');
+  if (!layout.fits) throw new Error(translate(language, 'print.pdfOverflow'));
   const pdf = new jsPDF({ unit: 'mm', format: options.pageSize, orientation: options.orientation });
   pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, layout.pageWidth, layout.pageHeight);
   const rooms = resolveRooms(floor);
@@ -89,7 +90,7 @@ export function createPrintPDF(canvas: HTMLCanvasElement, project: Project, opti
   for (const room of rooms) {
     if (y > layout.pageHeight - 20) {
       pdf.addPage(options.pageSize, options.orientation);
-      pdf.setFontSize(14); pdf.text('Room Schedule', 12, 18); y = 30;
+      pdf.setFontSize(14); pdf.text(translate(language, 'print.schedule'), 12, 18); y = 30;
     }
     pdf.setFontSize(10);
     const lines = pdf.splitTextToSize(room.name, layout.pageWidth - 85) as string[];

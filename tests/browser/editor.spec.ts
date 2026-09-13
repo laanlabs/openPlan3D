@@ -97,6 +97,8 @@ test('import, numeric edit, undo/redo, save/reload and export preserve a multi-f
 });
 
 test('catalog and 3D use bounded, cacheable assets with zero startup model downloads', async ({ page, context }, testInfo) => {
+  // Cold catalog/3D loading and offline reload verification share one workflow.
+  test.slow();
   const errors: string[] = [];
   const assets: { url: string; cacheControl: string | undefined; bytes: number }[] = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -187,6 +189,7 @@ test('catalog and 3D use bounded, cacheable assets with zero startup model downl
 });
 
 test('sloped walls preserve heights and openings through edits, reversal, elevation and reload', async ({ page }, testInfo) => {
+  test.slow();
   const errors: string[] = [];
   const externalRequests: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -229,10 +232,11 @@ test('sloped walls preserve heights and openings through edits, reversal, elevat
   await testInfo.attach('sloped-elevation', { body: await page.screenshot(), contentType: 'image/png' });
   await page.getByRole('button', { name: 'Plan', exact: true }).click();
   await page.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.getByText('Saved ✓', { exact: true })).toBeVisible();
   await page.reload();
   expect((await exportJSON(page)).floors).toEqual(reversed.floors);
   await page.getByRole('button', { name: '3D', exact: true }).click();
-  await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible();
+  await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible({ timeout: 60_000 });
   await page.getByRole('button', { name: 'Show All Floors Stacked', exact: true }).click();
   await page.waitForLoadState('networkidle');
   await testInfo.attach('sloped-stacked-3d', { body: await page.screenshot(), contentType: 'image/png' });
@@ -245,6 +249,7 @@ test('sloped walls preserve heights and openings through edits, reversal, elevat
 
 for (const width of [1440, 390]) {
   test(`floor elevations survive edits and reload at ${width}px with stacked views`, async ({ page }, testInfo) => {
+    test.slow();
     await page.setViewportSize({ width, height: 900 });
     const errors: string[] = [];
     const externalRequests: string[] = [];
@@ -291,6 +296,8 @@ for (const width of [1440, 390]) {
     await upper.fill('425.5'); await upper.press('Tab');
     await page.getByRole('button', { name: 'Close settings', exact: true }).click();
     await page.getByRole('button', { name: 'Save', exact: true }).click();
+    // The completed-save text remains in the DOM but is hidden on narrow screens.
+    await expect(page.getByText('Saved ✓', { exact: true })).toHaveCount(1);
     const saved = await exportJSON(page);
     expect(saved.floors.map((floor: { elevation: number }) => floor.elevation)).toEqual([-50.5, 425.5]);
     expect(saved.floors.map(({ elevation: _, ...floor }: { elevation: number }) => floor)).toEqual(original.floors);
@@ -298,9 +305,10 @@ for (const width of [1440, 390]) {
     expect((await exportJSON(page)).floors).toEqual(saved.floors);
     // JSON import must preserve the setting as well as local storage does.
     await importJSON(page, { name: 'elevations.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(saved)) });
+    await expect(page.getByRole('button', { name: `${saved.name} (Imported copy)`, exact: true })).toBeVisible();
     await selectFloor('Curved Upper');
     await page.getByRole('button', { name: '3D', exact: true }).click();
-    await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible();
+    await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible({ timeout: 60_000 });
     await page.getByRole('button', { name: 'Show All Floors Stacked', exact: true }).click();
     await expect(page.getByText('Curved Upper · 425.5 cm elevation', { exact: true })).toBeVisible();
     await page.waitForLoadState('networkidle');

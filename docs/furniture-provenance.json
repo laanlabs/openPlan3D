@@ -1,0 +1,1459 @@
+{
+  "version": 1,
+  "verifiedOn": "2026-09-10",
+  "method": "Exact SHA-256 equality with GLB members in official Kenney download archives.",
+  "packs": {
+    "furniture-kit": {
+      "author": "Kenney",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+      "archiveSha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0",
+      "license": "CC0-1.0",
+      "licenseFile": "static/models/furniture-kit-License.txt",
+      "archiveLicenseMember": "License.txt",
+      "archiveLicenseSha256": "bc0de1a0742cb490f9ed4bae0bd284286ebb27e23149b9917c7d8c0d590b8b29",
+      "includedLicenseSha256": "78c8043c884b33abee06000a32e11530f25957c5210be8ae2573244f14ba9bbc"
+    },
+    "nature-kit": {
+      "author": "Kenney",
+      "sourceUrl": "https://kenney.nl/assets/nature-kit",
+      "downloadUrl": "https://kenney.nl/media/pages/assets/nature-kit/37ac38a37b-1677698939/kenney_nature-kit.zip",
+      "archiveSha256": "fa7974a0d342bfe63c38664ba9f8ec1a4aab8ea25f099bdc56870e33588c4d9d",
+      "license": "CC0-1.0",
+      "licenseFile": "static/models/nature-kit-License.txt",
+      "archiveLicenseMember": "License.txt",
+      "archiveLicenseSha256": "cb96b75e3560ac78d7a53ce6f083f4cdb5c53faea6141b62d63458dcfe1e4b9d",
+      "includedLicenseSha256": "3d5f2386618d38500729ae144d48fa67000356baeca169d0f9b905017641d13a"
+    }
+  },
+  "models": {
+    "bathroomSink": {
+      "pack": "furniture-kit",
+      "sha256": "39d4f19608cab7e0fed52303b2c689f5f51fae1bad9b6913cb53d838875e797e",
+      "archiveMembers": [
+        "Models/GLTF format/bathroomSink.glb"
+      ]
+    },
+    "bathtub": {
+      "pack": "furniture-kit",
+      "sha256": "54c405c7035aab63dc41e709dc3c50fc5bcfbc4cddc91ffc54188075a6d25d01",
+      "archiveMembers": [
+        "Models/GLTF format/bathtub.glb"
+      ]
+    },
+    "bedDouble": {
+      "pack": "furniture-kit",
+      "sha256": "c49b33e7d797d2ba1111895587dba7ff63b17a712eb9b4ceeb40a598f73e476c",
+      "archiveMembers": [
+        "Models/GLTF format/bedDouble.glb"
+      ]
+    },
+    "bedSingle": {
+      "pack": "furniture-kit",
+      "sha256": "ca00c63f9a12da3138d902b2f5f18e0360fb6e8a5ac42ccb4bc3f185724b65d1",
+      "archiveMembers": [
+        "Models/GLTF format/bedSingle.glb"
+      ]
+    },
+    "bookcaseClosed": {
+      "pack": "furniture-kit",
+      "sha256": "9d210448de5e1179541da895450bbc7a39f4cd673d677654cd6b134e4ea0e047",
+      "archiveMembers": [
+        "Models/GLTF format/bookcaseClosed.glb"
+      ]
+    },
+    "bookcaseClosedDoors": {
+      "pack": "furniture-kit",
+      "sha256": "ff33f535acdb1825c0e958a293642b39665adcae0b1317b650e83d2bb687f4e2",
+      "archiveMembers": [
+        "Models/GLTF format/bookcaseClosedDoors.glb"
+      ]
+    },
+    "bookcaseOpen": {
+      "pack": "furniture-kit",
+      "sha256": "750702218d68c062b15dfef6ab06a4014d1cfa8bd05f02e57c53b7e13bec157c",
+      "archiveMembers": [
+        "Models/GLTF format/bookcaseOpen.glb"
+      ]
+    },
+    "cabinetBedDrawer": {
+      "pack": "furniture-kit",
+      "sha256": "e3dfd2e120af3d4d29b66509e317452cd15bd3f57ac8945575462c582adc6de8",
+      "archiveMembers": [
+        "Models/GLTF format/cabinetBedDrawer.glb"
+      ]
+    },
+    "cabinetBedDrawerTable": {
+      "pack": "furniture-kit",
+      "sha256": "fec6271639df5aff9f8ac75d6679385eab2abb7c8d2f51abeba3ed689ddb6f0d",
+      "archiveMembers": [
+        "Models/GLTF format/cabinetBedDrawerTable.glb"
+      ]
+    },
+    "cabinetTelevision": {
+      "pack": "furniture-kit",
+      "sha256": "811719593d676ff76f7b5904d52c845ce0396af2bc9a6a2636c4818ead320b99",
+      "archiveMembers": [
+        "Models/GLTF format/cabinetTelevision.glb"
+      ]
+    },
+    "chair": {
+      "pack": "furniture-kit",
+      "sha256": "c8a11eec93e89e31250ba91afc1b8d56c3bec7ae86640fd1239f595ff4180883",
+      "archiveMembers": [
+        "Models/GLTF format/chair.glb"
+      ]
+    },
+    "chairDesk": {
+      "pack": "furniture-kit",
+      "sha256": "46406619186034cbe92b19b79a5f1a8e3f442a17a70a7524ef2c0ad0f35095c6",
+      "archiveMembers": [
+        "Models/GLTF format/chairDesk.glb"
+      ]
+    },
+    "kitchenCabinet": {
+      "pack": "furniture-kit",
+      "sha256": "7238c57778935ae25db5e57e9f7af3ba7068c71b005ff7cfbff3b6f3b1a13200",
+      "archiveMembers": [
+        "Models/GLTF format/kitchenCabinet.glb"
+      ]
+    },
+    "kitchenCabinetDrawer": {
+      "pack": "furniture-kit",
+      "sha256": "6f784807e3cadb15b4d2d3db726d93357ea5e6c4f2b6e4c9c064048a2d1d9cfc",
+      "archiveMembers": [
+        "Models/GLTF format/kitchenCabinetDrawer.glb"
+      ]
+    },
+    "kitchenFridgeLarge": {
+      "pack": "furniture-kit",
+      "sha256": "5851cc59c7e12f6f34a01a2ea93d5b9540be4078c1b703f517239fcede98fb32",
+      "archiveMembers": [
+        "Models/GLTF format/kitchenFridgeLarge.glb"
+      ]
+    },
+    "kitchenSink": {
+      "pack": "furniture-kit",
+      "sha256": "7b9610277d71f00dcf1bba49cf4d98d77ce5177e84bf76c7da2f8893e542f743",
+      "archiveMembers": [
+        "Models/GLTF format/kitchenSink.glb"
+      ]
+    },
+    "kitchenStove": {
+      "pack": "furniture-kit",
+      "sha256": "3239edb36295dfca9530a9b9a6ad0aff98ce62e7cf8d13ca2a5a1a6b2a904656",
+      "archiveMembers": [
+        "Models/GLTF format/kitchenStove.glb"
+      ]
+    },
+    "kitchenStoveElectric": {
+      "pack": "furniture-kit",
+      "sha256": "cf646b960d7dfed1fac27898ff6de1f0671cfa33beecbed06ead7d0684517392",
+      "archiveMembers": [
+        "Models/GLTF format/kitchenStoveElectric.glb"
+      ]
+    },
+    "loungeChair": {
+      "pack": "furniture-kit",
+      "sha256": "ddfe6bc4b3451bca61666d7b614552d6ed2a03d82fc76244b72ae3155874dc6c",
+      "archiveMembers": [
+        "Models/GLTF format/loungeChair.glb"
+      ]
+    },
+    "loungeDesignSofa": {
+      "pack": "furniture-kit",
+      "sha256": "b4f4e6850118e409da301df678228c703b6ac02e94fbb9dbde61543af817fa53",
+      "archiveMembers": [
+        "Models/GLTF format/loungeDesignSofa.glb"
+      ]
+    },
+    "plantSmall1": {
+      "pack": "furniture-kit",
+      "sha256": "2b9c022feb47be857b2c4fdc29f36522766ba9b70c578c31d7c05d71b4377d15",
+      "archiveMembers": [
+        "Models/GLTF format/plantSmall1.glb"
+      ]
+    },
+    "pottedPlant": {
+      "pack": "furniture-kit",
+      "sha256": "5b760eda2766f75fda36b2c5df652a1662f82981ef64cd8fa7fe7bcd386b3a15",
+      "archiveMembers": [
+        "Models/GLTF format/pottedPlant.glb"
+      ]
+    },
+    "shower": {
+      "pack": "furniture-kit",
+      "sha256": "25c1cebad681fe369dc04839a8f08f5da2ccbd99b3a70aa83fe2e4d1590c6951",
+      "archiveMembers": [
+        "Models/GLTF format/shower.glb"
+      ]
+    },
+    "sideTable": {
+      "pack": "furniture-kit",
+      "sha256": "8227810584f7d37582e4e9ec821c56f1dc54b99c88a8dc74242ea3b7402bc472",
+      "archiveMembers": [
+        "Models/GLTF format/sideTable.glb"
+      ]
+    },
+    "tableCoffee": {
+      "pack": "furniture-kit",
+      "sha256": "e38bea760fbd514efbb75528d09b4752c91af44677bbb97e6d4386c263525179",
+      "archiveMembers": [
+        "Models/GLTF format/tableCoffee.glb"
+      ]
+    },
+    "tableCross": {
+      "pack": "furniture-kit",
+      "sha256": "f0d83392aff5df82f6c9585cadff694643dbd30a4ff2b8bb01a00a7a161338a3",
+      "archiveMembers": [
+        "Models/GLTF format/tableCross.glb"
+      ]
+    },
+    "televisionModern": {
+      "pack": "furniture-kit",
+      "sha256": "d89519ad0a5f28b5b0dccb0d83209dccf610cda959578238dd21bbf9e219cfc6",
+      "archiveMembers": [
+        "Models/GLTF format/televisionModern.glb"
+      ]
+    },
+    "toilet": {
+      "pack": "furniture-kit",
+      "sha256": "16165cfd03c56c2cb443b800570810a22ef770f65e7a468f6761d9dc14eaaeae",
+      "archiveMembers": [
+        "Models/GLTF format/toilet.glb"
+      ]
+    },
+    "washerDryerStacked": {
+      "pack": "furniture-kit",
+      "sha256": "efcc2155ef170092dc2602a98179380de3442c2500998a6ca37cc5554d275676",
+      "archiveMembers": [
+        "Models/GLTF format/washerDryerStacked.glb"
+      ]
+    },
+    "outdoor_cactus_short": {
+      "pack": "nature-kit",
+      "sha256": "81ac9fc4c66eacceaf4aebcb6df3468ea450a2f5081151bb11400282efbc51bd",
+      "archiveMembers": [
+        "Models/GLTF format/cactus_short.glb"
+      ]
+    },
+    "outdoor_cactus_tall": {
+      "pack": "nature-kit",
+      "sha256": "d43a1aca5952e1f8a104d64a0edfec09c39f15102ca6bdc531460dd5a2c53d25",
+      "archiveMembers": [
+        "Models/GLTF format/cactus_tall.glb"
+      ]
+    },
+    "outdoor_campfire_logs": {
+      "pack": "nature-kit",
+      "sha256": "98d87cdcf9095b94fd348d0946e911dd4ca6c0956bac3318cfd2b0030b86055a",
+      "archiveMembers": [
+        "Models/GLTF format/campfire_logs.glb"
+      ]
+    },
+    "outdoor_campfire_stones": {
+      "pack": "nature-kit",
+      "sha256": "54869db23243a3f4905bc00bd4cd93b1037b28556ab3ef93e7a893a093791e35",
+      "archiveMembers": [
+        "Models/GLTF format/campfire_stones.glb"
+      ]
+    },
+    "outdoor_crop_pumpkin": {
+      "pack": "nature-kit",
+      "sha256": "5b4878c5996033629419c26ac32153ce8ac06bbbdac98e4fa8a5cbab98f78077",
+      "archiveMembers": [
+        "Models/GLTF format/crop_pumpkin.glb"
+      ]
+    },
+    "outdoor_crops_cornStageD": {
+      "pack": "nature-kit",
+      "sha256": "d90d9cbba85e99526b254adee638495f914480831ab41d00807378c004c112c3",
+      "archiveMembers": [
+        "Models/GLTF format/crops_cornStageD.glb"
+      ]
+    },
+    "outdoor_fence_corner": {
+      "pack": "nature-kit",
+      "sha256": "f37060de68c5680e518183d44e7ac498e0bfe7b04f3fe71e355d8a4670ef83f1",
+      "archiveMembers": [
+        "Models/GLTF format/fence_corner.glb"
+      ]
+    },
+    "outdoor_fence_gate": {
+      "pack": "nature-kit",
+      "sha256": "34d10d5620179b8a211a01eea837caa828c0782422f0b408e1a5838788888436",
+      "archiveMembers": [
+        "Models/GLTF format/fence_gate.glb"
+      ]
+    },
+    "outdoor_fence_planks": {
+      "pack": "nature-kit",
+      "sha256": "2db68f60d24443dbeab05dedd92fcc665d0e21bd261c6a668ea9022a732a06a9",
+      "archiveMembers": [
+        "Models/GLTF format/fence_planks.glb"
+      ]
+    },
+    "outdoor_fence_simple": {
+      "pack": "nature-kit",
+      "sha256": "ecaf6c29532aa9fd305a8ef71df769d60748bd797f2eb1c63bdefc4edb8062a7",
+      "archiveMembers": [
+        "Models/GLTF format/fence_simple.glb"
+      ]
+    },
+    "outdoor_flower_purpleA": {
+      "pack": "nature-kit",
+      "sha256": "f6fc34c96a03420a74fe36d4c2d0ec88f15204fcad99cd1416c3c4ecb22e48c4",
+      "archiveMembers": [
+        "Models/GLTF format/flower_purpleA.glb"
+      ]
+    },
+    "outdoor_flower_purpleB": {
+      "pack": "nature-kit",
+      "sha256": "2afb10cd68a9a7b185fc46110be0da550ea2aef86ef9ac6b7339f217eb4b636a",
+      "archiveMembers": [
+        "Models/GLTF format/flower_purpleB.glb"
+      ]
+    },
+    "outdoor_flower_redA": {
+      "pack": "nature-kit",
+      "sha256": "171930b7789ddbf735af3745576b5393750beb9133b9ff4a444bb6bb2986c020",
+      "archiveMembers": [
+        "Models/GLTF format/flower_redA.glb"
+      ]
+    },
+    "outdoor_flower_redB": {
+      "pack": "nature-kit",
+      "sha256": "1ed430a4ee2be9e86649e1ce22ec23162814a3f8c2ad133117315db19293fc16",
+      "archiveMembers": [
+        "Models/GLTF format/flower_redB.glb"
+      ]
+    },
+    "outdoor_flower_yellowA": {
+      "pack": "nature-kit",
+      "sha256": "8a3b08cd2ca411c21f9c581d5bda651d78b13c50cba45ad8fa0389398ead6d1d",
+      "archiveMembers": [
+        "Models/GLTF format/flower_yellowA.glb"
+      ]
+    },
+    "outdoor_flower_yellowB": {
+      "pack": "nature-kit",
+      "sha256": "aaa8707779a5de59f881f80185bc507b35ec3fd5f23a39d6447ef61141dcd4f5",
+      "archiveMembers": [
+        "Models/GLTF format/flower_yellowB.glb"
+      ]
+    },
+    "outdoor_grass": {
+      "pack": "nature-kit",
+      "sha256": "260e41d3e5f2472492ed7b475c5b92a30b13ce2bad408535b5ff50574d4575e7",
+      "archiveMembers": [
+        "Models/GLTF format/grass.glb"
+      ]
+    },
+    "outdoor_grass_large": {
+      "pack": "nature-kit",
+      "sha256": "af49a595624abca7249824eeefb944d4baf974abeeb5b16110d175da3563d6cd",
+      "archiveMembers": [
+        "Models/GLTF format/grass_large.glb"
+      ]
+    },
+    "outdoor_grass_leafs": {
+      "pack": "nature-kit",
+      "sha256": "8bc4c0b17c2e64c34e1acbf7c4a2fd8c04cfcd7155328e61767887b2ced112c7",
+      "archiveMembers": [
+        "Models/GLTF format/grass_leafs.glb"
+      ]
+    },
+    "outdoor_grass_leafsLarge": {
+      "pack": "nature-kit",
+      "sha256": "a68b9b3d9639afaeb4ace840d5a8e3f21ffc4e8afc1eab15566500fbb2bee3e3",
+      "archiveMembers": [
+        "Models/GLTF format/grass_leafsLarge.glb"
+      ]
+    },
+    "outdoor_hanging_moss": {
+      "pack": "nature-kit",
+      "sha256": "2124c2d038054f1ea89d470a6095d35c2fbdb2674916db93400ea6ed5f499cb0",
+      "archiveMembers": [
+        "Models/GLTF format/hanging_moss.glb"
+      ]
+    },
+    "outdoor_lily_large": {
+      "pack": "nature-kit",
+      "sha256": "c8f7080df0ae3166e9d33f523b66360c2ac7556dff36cc9c8ee78b6a676c7db2",
+      "archiveMembers": [
+        "Models/GLTF format/lily_large.glb"
+      ]
+    },
+    "outdoor_log": {
+      "pack": "nature-kit",
+      "sha256": "8c8fe8f6adfc03a3c0cd6cb24961ff74be96c2da284d70322f05797d049972d6",
+      "archiveMembers": [
+        "Models/GLTF format/log.glb"
+      ]
+    },
+    "outdoor_log_large": {
+      "pack": "nature-kit",
+      "sha256": "e7a92369062d491e5a31a163d390e07db04ee573605bbfa84c00660d18896b4c",
+      "archiveMembers": [
+        "Models/GLTF format/log_large.glb"
+      ]
+    },
+    "outdoor_log_stack": {
+      "pack": "nature-kit",
+      "sha256": "90eaae4a01ba1f25c2f0c6d83087e4a7a8fac684f2452615245333968d118d68",
+      "archiveMembers": [
+        "Models/GLTF format/log_stack.glb"
+      ]
+    },
+    "outdoor_mushroom_red": {
+      "pack": "nature-kit",
+      "sha256": "843e2de43dce78920a5675a67bac4b72f500e6220315e713fe08381642cfc571",
+      "archiveMembers": [
+        "Models/GLTF format/mushroom_red.glb"
+      ]
+    },
+    "outdoor_mushroom_redGroup": {
+      "pack": "nature-kit",
+      "sha256": "29f02df0589dd2b09e8d2aff6a4662394dac5cfcf1fec701640dcbd6127e0802",
+      "archiveMembers": [
+        "Models/GLTF format/mushroom_redGroup.glb"
+      ]
+    },
+    "outdoor_mushroom_tan": {
+      "pack": "nature-kit",
+      "sha256": "455cbacdcdac82cc20420c3f21eaba3ff2fbceadb2e13d35a39d52130dba5a80",
+      "archiveMembers": [
+        "Models/GLTF format/mushroom_tan.glb"
+      ]
+    },
+    "outdoor_plant_bush": {
+      "pack": "nature-kit",
+      "sha256": "ae7b1beb39e242b13f5f29e3ec23ef21034b814f82297b8aa00a9bf4e1b09590",
+      "archiveMembers": [
+        "Models/GLTF format/plant_bush.glb"
+      ]
+    },
+    "outdoor_plant_bushDetailed": {
+      "pack": "nature-kit",
+      "sha256": "2e0487020d68ccf664435db9d829c78ae00e6d2785ee3ec10b9f89cc70a10406",
+      "archiveMembers": [
+        "Models/GLTF format/plant_bushDetailed.glb"
+      ]
+    },
+    "outdoor_plant_bushLarge": {
+      "pack": "nature-kit",
+      "sha256": "10e1d9fbf29d96d1d1a56fb2ce25ae66537505101759229afe01ae22c6c45e02",
+      "archiveMembers": [
+        "Models/GLTF format/plant_bushLarge.glb"
+      ]
+    },
+    "outdoor_plant_bushLargeTriangle": {
+      "pack": "nature-kit",
+      "sha256": "098af3618e20e5a2cb5f6e24a7c67c0a80663f989137d86430bc9e2b1b2d52e4",
+      "archiveMembers": [
+        "Models/GLTF format/plant_bushLargeTriangle.glb"
+      ]
+    },
+    "outdoor_plant_bushSmall": {
+      "pack": "nature-kit",
+      "sha256": "a9620a7d1fb165ae68d323676f80dbb2a9e3aafb21110d18d18d90b07026b91d",
+      "archiveMembers": [
+        "Models/GLTF format/plant_bushSmall.glb"
+      ]
+    },
+    "outdoor_plant_bushTriangle": {
+      "pack": "nature-kit",
+      "sha256": "e944e19adda28436fdc63d77019aa490e6591358659a14abea8aa654181fc417",
+      "archiveMembers": [
+        "Models/GLTF format/plant_bushTriangle.glb"
+      ]
+    },
+    "outdoor_pot_large": {
+      "pack": "nature-kit",
+      "sha256": "57e60214bc6ab1dc3764c9ffe80091ff45f2bfd49fbc313c1b68dcaab1537aef",
+      "archiveMembers": [
+        "Models/GLTF format/pot_large.glb"
+      ]
+    },
+    "outdoor_pot_small": {
+      "pack": "nature-kit",
+      "sha256": "1141d9e16099c2103f1a177de0cae4ea979a3246439e33074923e4cfe3098df8",
+      "archiveMembers": [
+        "Models/GLTF format/pot_small.glb"
+      ]
+    },
+    "outdoor_rock_largeA": {
+      "pack": "nature-kit",
+      "sha256": "6dd15390fd96501dcd1454765a17ba61dbbd8d47705dfe5149c8dd92b353ce25",
+      "archiveMembers": [
+        "Models/GLTF format/rock_largeA.glb"
+      ]
+    },
+    "outdoor_rock_largeB": {
+      "pack": "nature-kit",
+      "sha256": "caa8b025833d4dabf6d98fe2e96cf2fbd886693ac990df0db75f9d827194374b",
+      "archiveMembers": [
+        "Models/GLTF format/rock_largeB.glb"
+      ]
+    },
+    "outdoor_rock_smallA": {
+      "pack": "nature-kit",
+      "sha256": "df9fff9d711e61370e8df0caa2514c89b8f8a8dc6c6fafaf4eb2ec79c5ae07c1",
+      "archiveMembers": [
+        "Models/GLTF format/rock_smallA.glb"
+      ]
+    },
+    "outdoor_rock_smallB": {
+      "pack": "nature-kit",
+      "sha256": "11b26bc0a12e971a3b69df1401e530e24432d528c262df94b99c412e7f372763",
+      "archiveMembers": [
+        "Models/GLTF format/rock_smallB.glb"
+      ]
+    },
+    "outdoor_rock_tallA": {
+      "pack": "nature-kit",
+      "sha256": "88250f236a3b75f8b55c1d8afb6af020f8a91b1e81f9fb51f7ef513420d45a2d",
+      "archiveMembers": [
+        "Models/GLTF format/rock_tallA.glb"
+      ]
+    },
+    "outdoor_sign": {
+      "pack": "nature-kit",
+      "sha256": "c658c21672ecd63c5d3e53f06f875d68e6509edb1ab7e3b75374df7c61e7dd0c",
+      "archiveMembers": [
+        "Models/GLTF format/sign.glb"
+      ]
+    },
+    "outdoor_statue_column": {
+      "pack": "nature-kit",
+      "sha256": "5d7f6c8bce8d1dc7ee62b1841376cda331c4359acfa2b9a11dd7e78c14ea9dbb",
+      "archiveMembers": [
+        "Models/GLTF format/statue_column.glb"
+      ]
+    },
+    "outdoor_statue_obelisk": {
+      "pack": "nature-kit",
+      "sha256": "e18013044ad6453a1850226be29f63c37d67e0002141f5f6a4d14a46bde69e00",
+      "archiveMembers": [
+        "Models/GLTF format/statue_obelisk.glb"
+      ]
+    },
+    "outdoor_stone_largeA": {
+      "pack": "nature-kit",
+      "sha256": "fe486a13775e833b1aca99413a89e013f300841de80f42ecd44ceaf43720f17b",
+      "archiveMembers": [
+        "Models/GLTF format/stone_largeA.glb"
+      ]
+    },
+    "outdoor_stone_tallA": {
+      "pack": "nature-kit",
+      "sha256": "3070bd574104abce19f5e3c82c917cb7f52801720377beba7aad76058408d5db",
+      "archiveMembers": [
+        "Models/GLTF format/stone_tallA.glb"
+      ]
+    },
+    "outdoor_stump_old": {
+      "pack": "nature-kit",
+      "sha256": "4c2d2da34804c1662c6a776a9d60fe4449e6f6fdd50914bfec7d5cca3e9ceddb",
+      "archiveMembers": [
+        "Models/GLTF format/stump_old.glb"
+      ]
+    },
+    "outdoor_stump_round": {
+      "pack": "nature-kit",
+      "sha256": "e9b0f385f0ef98493ef716a055aa51e0b99efb8445279be7bb8bd83329a4c4af",
+      "archiveMembers": [
+        "Models/GLTF format/stump_round.glb"
+      ]
+    },
+    "outdoor_tent_detailedOpen": {
+      "pack": "nature-kit",
+      "sha256": "d54d9665d07e0ff9680e56731c9f5338fc25d93788504d63b8375f54e6444193",
+      "archiveMembers": [
+        "Models/GLTF format/tent_detailedOpen.glb"
+      ]
+    },
+    "outdoor_tree_blocks": {
+      "pack": "nature-kit",
+      "sha256": "cb74bda3024bbe396c01b3d5b381a93e6d7c73241079868c19ac420ad52e475c",
+      "archiveMembers": [
+        "Models/GLTF format/tree_blocks.glb"
+      ]
+    },
+    "outdoor_tree_cone": {
+      "pack": "nature-kit",
+      "sha256": "90be4d214ee2cbf79d317677cb87fc11dac9873b73e446b75e8c12825a374272",
+      "archiveMembers": [
+        "Models/GLTF format/tree_cone.glb"
+      ]
+    },
+    "outdoor_tree_default": {
+      "pack": "nature-kit",
+      "sha256": "562d29638c902de3c7bee465d3a53bb77117efbc392ae04ed894faf6b5dc691d",
+      "archiveMembers": [
+        "Models/GLTF format/tree_default.glb"
+      ]
+    },
+    "outdoor_tree_detailed": {
+      "pack": "nature-kit",
+      "sha256": "c041daf2f0fb1d49e4325227cbcd58667adbe51e9b55e8c1f0a94b74cc521b3b",
+      "archiveMembers": [
+        "Models/GLTF format/tree_detailed.glb"
+      ]
+    },
+    "outdoor_tree_fat": {
+      "pack": "nature-kit",
+      "sha256": "84b262c5dda3a91ac6c95f9d8b23a0ebbb1951d678c0e1375d3e32623cc43ee2",
+      "archiveMembers": [
+        "Models/GLTF format/tree_fat.glb"
+      ]
+    },
+    "outdoor_tree_oak": {
+      "pack": "nature-kit",
+      "sha256": "d7fd8773674928c50c11b66d12c636d49bdcc15a8b1c7fbb98e6f63a3439a3f3",
+      "archiveMembers": [
+        "Models/GLTF format/tree_oak.glb"
+      ]
+    },
+    "outdoor_tree_palm": {
+      "pack": "nature-kit",
+      "sha256": "27bbb23d26ed788d84de6df2f7fab0acc3fe0ff16c7d08cdcfa1fffcb11de324",
+      "archiveMembers": [
+        "Models/GLTF format/tree_palm.glb"
+      ]
+    },
+    "outdoor_tree_palmBend": {
+      "pack": "nature-kit",
+      "sha256": "8af9dae16ce3c03183f9457996ebdd135167199514e8f4f944ee2bd82828d5c9",
+      "archiveMembers": [
+        "Models/GLTF format/tree_palmBend.glb"
+      ]
+    },
+    "outdoor_tree_palmTall": {
+      "pack": "nature-kit",
+      "sha256": "cbd2c2ea7d0316be7514d44699527c566ce91e0542e8b6c6bf431a155e5655f6",
+      "archiveMembers": [
+        "Models/GLTF format/tree_palmTall.glb"
+      ]
+    },
+    "outdoor_tree_pineRoundA": {
+      "pack": "nature-kit",
+      "sha256": "7dc9711f31585eafdcb965d0649c30af5e19f2def1955f7a915081d30759ef8e",
+      "archiveMembers": [
+        "Models/GLTF format/tree_pineRoundA.glb"
+      ]
+    },
+    "outdoor_tree_pineTallA_detailed": {
+      "pack": "nature-kit",
+      "sha256": "9ba6337460e718b8baf165b23c02f39455e3d5757b1911505410c46bc88a86b5",
+      "archiveMembers": [
+        "Models/GLTF format/tree_pineTallA_detailed.glb"
+      ]
+    },
+    "outdoor_tree_simple": {
+      "pack": "nature-kit",
+      "sha256": "93891ea740447634930de19c31a7c1c9f4add94122e6db03aca9f75aea32f9d6",
+      "archiveMembers": [
+        "Models/GLTF format/tree_simple.glb"
+      ]
+    },
+    "outdoor_tree_small": {
+      "pack": "nature-kit",
+      "sha256": "d26c0eeed65cc681667f50042ef23ec72ce47ae3b39837bfeec170b05ba6ab6a",
+      "archiveMembers": [
+        "Models/GLTF format/tree_small.glb"
+      ]
+    },
+    "outdoor_tree_tall": {
+      "pack": "nature-kit",
+      "sha256": "3515a8826044d91e84e011186c86878f62024a487a079b4e32c9ac2e71994411",
+      "archiveMembers": [
+        "Models/GLTF format/tree_tall.glb"
+      ]
+    },
+    "outdoor_tree_thin": {
+      "pack": "nature-kit",
+      "sha256": "f0f1f6861fe0446963d3be216cc628324f538bb0841bc9a8e14140313f64e2f3",
+      "archiveMembers": [
+        "Models/GLTF format/tree_thin.glb"
+      ]
+    },
+    "bathroomCabinet": {
+      "pack": "furniture-kit",
+      "sha256": "9db540227acaaedbbadc6a085f4a00460b73944e608afaad4770e53238a3b7f8",
+      "archiveMembers": [
+        "Models/GLTF format/bathroomCabinet.glb"
+      ]
+    },
+    "bathroomCabinetDrawer": {
+      "pack": "furniture-kit",
+      "sha256": "f32d09c6dab20fe823d238310f75ce81f24e893a91c2078b12efd3f7fe6c6b10",
+      "archiveMembers": [
+        "Models/GLTF format/bathroomCabinetDrawer.glb"
+      ]
+    },
+    "bathroomMirror": {
+      "pack": "furniture-kit",
+      "sha256": "940b986894101ea59b50541554b6dc608a22b133057975849259009012984175",
+      "archiveMembers": [
+        "Models/GLTF format/bathroomMirror.glb"
+      ]
+    },
+    "bathroomSinkSquare": {
+      "pack": "furniture-kit",
+      "sha256": "360853c822f268e7267c62ef20cf646f170a13d76254cc0804a1d397a4a3ea67",
+      "archiveMembers": [
+        "Models/GLTF format/bathroomSinkSquare.glb"
+      ]
+    },
+    "bear": {
+      "pack": "furniture-kit",
+      "sha256": "fd87c08f81dcd652b1f7f61afae9d1f040fa1322ac4ddda6f543ed423b954aed",
+      "archiveMembers": [
+        "Models/GLTF format/bear.glb"
+      ]
+    },
+    "bedBunk": {
+      "pack": "furniture-kit",
+      "sha256": "a3eccbc4a04340dd84878d959e15eede76f517fb8d4de6862ca46877c88d764e",
+      "archiveMembers": [
+        "Models/GLTF format/bedBunk.glb"
+      ]
+    },
+    "bench": {
+      "pack": "furniture-kit",
+      "sha256": "ba05a6d23a5a5a44da016757632070e47ff7587ce10e2f6d6d52328b4cf5489b",
+      "archiveMembers": [
+        "Models/GLTF format/bench.glb"
+      ]
+    },
+    "benchCushion": {
+      "pack": "furniture-kit",
+      "sha256": "5186ad938f8b9eff255361fd1fdc48a81f08c318161cde27c93753ab95a2d354",
+      "archiveMembers": [
+        "Models/GLTF format/benchCushion.glb"
+      ]
+    },
+    "benchCushionLow": {
+      "pack": "furniture-kit",
+      "sha256": "d1fac209eae2ea7393beefa4932dacb54d500e8f9932a1b17d2a842527df1b2c",
+      "archiveMembers": [
+        "Models/GLTF format/benchCushionLow.glb"
+      ]
+    },
+    "bookcaseClosedWide": {
+      "pack": "furniture-kit",
+      "sha256": "55b9903e9646dc407ed5237a1c41c1f0a14f9edc22e3392bdb9a4804d846af6a",
+      "archiveMembers": [
+        "Models/GLTF format/bookcaseClosedWide.glb"
+      ]
+    },
+    "bookcaseOpenLow": {
+      "pack": "furniture-kit",
+      "sha256": "6d4d625faf977a2dbf155f1313cd32c6310e463114a1cd4c08cb9f80a5fb1d75",
+      "archiveMembers": [
+        "Models/GLTF format/bookcaseOpenLow.glb"
+      ]
+    },
+    "books": {
+      "pack": "furniture-kit",
+      "sha256": "b8dc56e5d29f6fc1f4727fccb1b9642627fee9942c48060a00034e98df02701c",
+      "archiveMembers": [
+        "Models/GLTF format/books.glb"
+      ]
+    },
+    "cabinetBed": {
+      "pack": "furniture-kit",
+      "sha256": "b651fafb9e2c8e4adcb8cad3d10dc94404b46fe039b26e66b2c9020df4e5301d",
+      "archiveMembers": [
+        "Models/GLTF format/cabinetBed.glb"
+      ]
+    },
+    "cabinetTelevisionDoors": {
+      "pack": "furniture-kit",
+      "sha256": "8959347bfe26b1ac7e44c476f05789466bb84bcd2ad8b0fb40286005399bfcfc",
+      "archiveMembers": [
+        "Models/GLTF format/cabinetTelevisionDoors.glb"
+      ]
+    },
+    "cardboardBoxClosed": {
+      "pack": "furniture-kit",
+      "sha256": "4af079dca52960912764574950f0549ff2ae1224b3db1528718629473a2d5d81",
+      "archiveMembers": [
+        "Models/GLTF format/cardboardBoxClosed.glb"
+      ]
+    },
+    "cardboardBoxOpen": {
+      "pack": "furniture-kit",
+      "sha256": "960da412564774c75e7b32f9af0100895e1edb877fc1e70dd34ee2422a2196d4",
+      "archiveMembers": [
+        "Models/GLTF format/cardboardBoxOpen.glb"
+      ]
+    },
+    "ceilingFan": {
+      "pack": "furniture-kit",
+      "sha256": "5fdf7b3c4328875462c9887c6b1f2fad08126ea42e758cf86534639b9ea72044",
+      "archiveMembers": [
+        "Models/GLTF format/ceilingFan.glb"
+      ]
+    },
+    "chairCushion": {
+      "pack": "furniture-kit",
+      "sha256": "33544228984857f2cb502b58452fed72157335f9b1caf29e96da5c9094c53fdc",
+      "archiveMembers": [
+        "Models/GLTF format/chairCushion.glb"
+      ]
+    },
+    "chairModernCushion": {
+      "pack": "furniture-kit",
+      "sha256": "245132697e633e907e2b48c86d56f6c8543604a3440a055d1c71c06ce11d2858",
+      "archiveMembers": [
+        "Models/GLTF format/chairModernCushion.glb"
+      ]
+    },
+    "chairModernFrameCushion": {
+      "pack": "furniture-kit",
+      "sha256": "fd3351b077cafbd54224e20fa7a3a1b4a4304019cf44c25a6e7709ad71b852b8",
+      "archiveMembers": [
+        "Models/GLTF format/chairModernFrameCushion.glb"
+      ]
+    },
+    "chairRounded": {
+      "pack": "furniture-kit",
+      "sha256": "53f4933ec547179c499f04dbda1231cf44b83ec82c7f4ab981cdf680aee5c973",
+      "archiveMembers": [
+        "Models/GLTF format/chairRounded.glb"
+      ]
+    },
+    "coatRack": {
+      "pack": "furniture-kit",
+      "sha256": "0f56540d57367ea6fea6b9aedf305d4fc58abeec8ff3b039dbff44360d819c76",
+      "archiveMembers": [
+        "Models/GLTF format/coatRack.glb"
+      ]
+    },
+    "coatRackStanding": {
+      "pack": "furniture-kit",
+      "sha256": "d8231c22dab63ceb9fc8678f6c8ceafc62afa8726b51a73b4ce349043d3cdc91",
+      "archiveMembers": [
+        "Models/GLTF format/coatRackStanding.glb"
+      ]
+    },
+    "computerKeyboard": {
+      "pack": "furniture-kit",
+      "sha256": "9d9135789de2120e9f41ce3f0a56dd1b15f40adcc7888739bb842a2d820da322",
+      "archiveMembers": [
+        "Models/GLTF format/computerKeyboard.glb"
+      ]
+    },
+    "computerMouse": {
+      "pack": "furniture-kit",
+      "sha256": "d3ad1a923f0f7707ef367bb969eb94c9076e211c98c830ba52e133fadc5cdfc0",
+      "archiveMembers": [
+        "Models/GLTF format/computerMouse.glb"
+      ]
+    },
+    "computerScreen": {
+      "pack": "furniture-kit",
+      "sha256": "5942cbad29a2d2b956619569926e81d50a4174403d592fece6556e57632dc643",
+      "archiveMembers": [
+        "Models/GLTF format/computerScreen.glb"
+      ]
+    },
+    "desk": {
+      "pack": "furniture-kit",
+      "sha256": "0164fe828f028b321730fb8c74502e353583f751be74da1682d42fff7d3c5a42",
+      "archiveMembers": [
+        "Models/GLTF format/desk.glb"
+      ]
+    },
+    "deskCorner": {
+      "pack": "furniture-kit",
+      "sha256": "a6a77ba0083d5ecd34ad50f738867b03ed7b7f469429bb1acc78f423bcc3f034",
+      "archiveMembers": [
+        "Models/GLTF format/deskCorner.glb"
+      ]
+    },
+    "doorway": {
+      "pack": "furniture-kit",
+      "sha256": "08983e299822140d580eb55d4b4e4e4552c37bb6e88571e41d2b7b5d2eef987e",
+      "archiveMembers": [
+        "Models/GLTF format/doorway.glb"
+      ]
+    },
+    "doorwayFront": {
+      "pack": "furniture-kit",
+      "sha256": "b5b8e4c14ee1f2ffa10ef5c69badc995ae6fbcc868abac240221c61b8c593b0e",
+      "archiveMembers": [
+        "Models/GLTF format/doorwayFront.glb"
+      ]
+    },
+    "doorwayOpen": {
+      "pack": "furniture-kit",
+      "sha256": "cf05e165ea26dbbeaab4dc6296c143ef5f5a001e2ab5af9cd4fd65739408317e",
+      "archiveMembers": [
+        "Models/GLTF format/doorwayOpen.glb"
+      ]
+    },
+    "dryer": {
+      "pack": "furniture-kit",
+      "sha256": "d8b727612fdfc141c0b56360f75b897f1b71d3420c8c0942b5ec626bd3c8303c",
+      "archiveMembers": [
+        "Models/GLTF format/dryer.glb"
+      ]
+    },
+    "floorCorner": {
+      "pack": "furniture-kit",
+      "sha256": "7a3ed4473bd7dc71a7fac74a77c548412ed01caf9fd21be605bc8bbda824f8ff",
+      "archiveMembers": [
+        "Models/GLTF format/floorCorner.glb"
+      ]
+    },
+    "floorCornerRound": {
+      "pack": "furniture-kit",
+      "sha256": "d9d5392ecff520a263dd7e5b77e733da125f866002311ea65572731d90fb8990",
+      "archiveMembers": [
+        "Models/GLTF format/floorCornerRound.glb"
+      ]
+    },
+    "floorFull": {
+      "pack": "furniture-kit",
+      "sha256": "99fc5df646d8dc605d6fe35001fe5b15bb7b269cc5c65f4f7793fbc76ff3d822",
+      "archiveMembers": [
+        "Models/GLTF format/floorFull.glb"
+      ]
+    },
+    "floorHalf": {
+      "pack": "furniture-kit",
+      "sha256": "8cf16d67b8185f6c28f957458da92a337f0949d2e127df9a50b53ea5e8894673",
+      "archiveMembers": [
+        "Models/GLTF format/floorHalf.glb"
+      ]
+    },
+    "hoodLarge": {
+      "pack": "furniture-kit",
+      "sha256": "e9b60fa02bba74d99103e8ba9d7ca99fbd99299bc57c4f5f84b2add2a6a3afcc",
+      "archiveMembers": [
+        "Models/GLTF format/hoodLarge.glb"
+      ]
+    },
+    "hoodModern": {
+      "pack": "furniture-kit",
+      "sha256": "f5ac7dbadd1d98813c48315e56fa6ab2e8783870b1fb7be30825177bbf2b2afe",
+      "archiveMembers": [
+        "Models/GLTF format/hoodModern.glb"
+      ]
+    },
+    "kitchenBar": {
+      "pack": "furniture-kit",
+      "sha256": "792c3d31e60c8a8d8c7a28cf7d1efe004c5a601adc1b163a8799dde32c1b559d",
+      "archiveMembers": [
+        "Models/GLTF format/kitchenBar.glb"
+      ]
+    },
+    "kitchenBarEnd": {
+      "pack": "furniture-kit",
+      "sha256": "410c6d83defe4ed248a8ec32f81553b56c8b610372d02ecf0e547e3f52cdc0a1",
+      "archiveMembers": [
+        "Models/GLTF format/kitchenBarEnd.glb"
+      ]
+    },
+    "kitchenBlender": {
+      "pack": "furniture-kit",
+      "sha256": "f471defb5b2b1cf3b949a1a8aaef0a8b727afe662b0815068cf4e963325a3c1f",
+      "archiveMembers": [
+        "Models/GLTF format/kitchenBlender.glb"
+      ]
+    },
+    "kitchenCabinetCornerInner": {
+      "pack": "furniture-kit",
+      "sha256": "8d1b69e63048424a0559d1e5c77427fab9021def7dea74cf1c4d3d8ce16e6e69",
+      "archiveMembers": [
+        "Models/GLTF format/kitchenCabinetCornerInner.glb"
+      ]
+    },
+    "kitchenCabinetCornerRound": {
+      "pack": "furniture-kit",
+      "sha256": "333ab73202cb87b76d4ff94939038dcaf315eda55285bdbeba20d255da488e97",
+      "archiveMembers": [
+        "Models/GLTF format/kitchenCabinetCornerRound.glb"
+      ]
+    },
+    "kitchenCabinetUpper": {
+      "pack": "furniture-kit",
+      "sha256": "8f2496feed85a745ffb6e554075b8450d647f8f68b01d6a010fcac1510fc173a",
+      "archiveMembers": [
+        "Models/GLTF format/kitchenCabinetUpper.glb"
+      ]
+    },
+    "kitchenCabinetUpperCorner": {
+      "pack": "furniture-kit",
+      "sha256": "b23551ff585b5b804cf3ec0fe046b7bc1e84a387021e3cdb01c93add56444e8d",
+      "archiveMembers": [
+        "Models/GLTF format/kitchenCabinetUpperCorner.glb"
+      ]
+    },
+    "kitchenCabinetUpperDouble": {
+      "pack": "furniture-kit",
+      "sha256": "7b2abd976f2e8f1727d6ba23490aaf5fe18db9c5ac66e729ef6fe8de835c039e",
+      "archiveMembers": [
+        "Models/GLTF format/kitchenCabinetUpperDouble.glb"
+      ]
+    },
+    "kitchenCabinetUpperLow": {
+      "pack": "furniture-kit",
+      "sha256": "c25293d38ad3d4338142f5bfb6832a2f7e8a069a552fc4a6730231b1b382d33e",
+      "archiveMembers": [
+        "Models/GLTF format/kitchenCabinetUpperLow.glb"
+      ]
+    },
+    "kitchenCoffeeMachine": {
+      "pack": "furniture-kit",
+      "sha256": "063f582c6fa0f00a9f24e3393dac2295491c4becdaf5513c893ab1a2826b6ec3",
+      "archiveMembers": [
+        "Models/GLTF format/kitchenCoffeeMachine.glb"
+      ]
+    },
+    "kitchenFridge": {
+      "pack": "furniture-kit",
+      "sha256": "8af4f4bbb1b5525ad8226e97926a5af60fa8fb20a3cb74dbda5328a9d320dbab",
+      "archiveMembers": [
+        "Models/GLTF format/kitchenFridge.glb"
+      ]
+    },
+    "kitchenFridgeBuiltIn": {
+      "pack": "furniture-kit",
+      "sha256": "eedcfbca0a9e565424d941b8cf82ddc0c3c4dfc63911a420bfae058e9a18044c",
+      "archiveMembers": [
+        "Models/GLTF format/kitchenFridgeBuiltIn.glb"
+      ]
+    },
+    "kitchenFridgeSmall": {
+      "pack": "furniture-kit",
+      "sha256": "35dab7f63711623be321bfd82072f4ab29fe8006aac9371c6e6b78df2e02f5ed",
+      "archiveMembers": [
+        "Models/GLTF format/kitchenFridgeSmall.glb"
+      ]
+    },
+    "kitchenMicrowave": {
+      "pack": "furniture-kit",
+      "sha256": "dd6a6c919f4bebc6e2080fe419262cf97a0d6461ead3f3998aa3c9edf4d2bd27",
+      "archiveMembers": [
+        "Models/GLTF format/kitchenMicrowave.glb"
+      ]
+    },
+    "lampRoundFloor": {
+      "pack": "furniture-kit",
+      "sha256": "50fe1b5b588edf15bfa9cc880f71a02a4fda6036350b24733d0ef4de5cc5e908",
+      "archiveMembers": [
+        "Models/GLTF format/lampRoundFloor.glb"
+      ]
+    },
+    "lampRoundTable": {
+      "pack": "furniture-kit",
+      "sha256": "75bb644caaa3da003b4fcad7a931722dd61cd2858aab70cf660021d5061fa1b2",
+      "archiveMembers": [
+        "Models/GLTF format/lampRoundTable.glb"
+      ]
+    },
+    "lampSquareCeiling": {
+      "pack": "furniture-kit",
+      "sha256": "57066be51583d83ae60071e8179af275189cb2911ecb9fc24953bb930c8bf118",
+      "archiveMembers": [
+        "Models/GLTF format/lampSquareCeiling.glb"
+      ]
+    },
+    "lampSquareFloor": {
+      "pack": "furniture-kit",
+      "sha256": "6466993748d8e184de9ec5b6b0af613867c50c0ce320d1898b1db9e4c27c2561",
+      "archiveMembers": [
+        "Models/GLTF format/lampSquareFloor.glb"
+      ]
+    },
+    "lampSquareTable": {
+      "pack": "furniture-kit",
+      "sha256": "70ec9211af336b1ef3b4da32590b8737b4facf219348c22e6533a1e898cdb13d",
+      "archiveMembers": [
+        "Models/GLTF format/lampSquareTable.glb"
+      ]
+    },
+    "lampWall": {
+      "pack": "furniture-kit",
+      "sha256": "a9679ecd3be05731846f22ade97c37069598ca7a06dd9319f50230e63a1ea83c",
+      "archiveMembers": [
+        "Models/GLTF format/lampWall.glb"
+      ]
+    },
+    "laptop": {
+      "pack": "furniture-kit",
+      "sha256": "5fa8a1f4a71ab8d82ef64da77a6973ffd350c6d4557516069a4ffd4bb8d808af",
+      "archiveMembers": [
+        "Models/GLTF format/laptop.glb"
+      ]
+    },
+    "loungeChairRelax": {
+      "pack": "furniture-kit",
+      "sha256": "def698179e44de6cd17f4cfc2730273da54dd25458a29b079fbf4468abe5d98e",
+      "archiveMembers": [
+        "Models/GLTF format/loungeChairRelax.glb"
+      ]
+    },
+    "loungeDesignChair": {
+      "pack": "furniture-kit",
+      "sha256": "f0766a7d5698974b711adac18a2108f0e74e3a036fa4e4e0ccf91195b0ee5abf",
+      "archiveMembers": [
+        "Models/GLTF format/loungeDesignChair.glb"
+      ]
+    },
+    "loungeDesignSofaCorner": {
+      "pack": "furniture-kit",
+      "sha256": "fe665d07d53fdc6bc96e9fed453874ba4202b008194e1e24100b067081c62be1",
+      "archiveMembers": [
+        "Models/GLTF format/loungeDesignSofaCorner.glb"
+      ]
+    },
+    "loungeSofa": {
+      "pack": "furniture-kit",
+      "sha256": "1886b811c0d3ad0d8525a4fd43adf4112c497c8e0ed906f06877ca3517f4c7dd",
+      "archiveMembers": [
+        "Models/GLTF format/loungeSofa.glb"
+      ]
+    },
+    "loungeSofaCorner": {
+      "pack": "furniture-kit",
+      "sha256": "bbdd91791e621ac71321eaf38a2432c53279792ef946707f23b216123bd52655",
+      "archiveMembers": [
+        "Models/GLTF format/loungeSofaCorner.glb"
+      ]
+    },
+    "loungeSofaLong": {
+      "pack": "furniture-kit",
+      "sha256": "452df1c862f97781615e2c1c832913b48cf6c6f011d3260dc023ff3f117cc9d1",
+      "archiveMembers": [
+        "Models/GLTF format/loungeSofaLong.glb"
+      ]
+    },
+    "loungeSofaOttoman": {
+      "pack": "furniture-kit",
+      "sha256": "79087654136d7d69653fdc3b52a02d7833fe13e6a0a56b8dcdf652c611dbd959",
+      "archiveMembers": [
+        "Models/GLTF format/loungeSofaOttoman.glb"
+      ]
+    },
+    "paneling": {
+      "pack": "furniture-kit",
+      "sha256": "69234bb71f54b0241ef6b78c3c7aa8aa855aae745475645f9adec4895296a96c",
+      "archiveMembers": [
+        "Models/GLTF format/paneling.glb"
+      ]
+    },
+    "pillow": {
+      "pack": "furniture-kit",
+      "sha256": "6fae7c190d0b676ef3efd35e5178cef21dffb5c80e1257d8b537ad424da0e5f6",
+      "archiveMembers": [
+        "Models/GLTF format/pillow.glb"
+      ]
+    },
+    "pillowBlue": {
+      "pack": "furniture-kit",
+      "sha256": "8326e018c09cb00c19c2c9b745f521cd7eba1169b755322b04f88440dbfef319",
+      "archiveMembers": [
+        "Models/GLTF format/pillowBlue.glb"
+      ]
+    },
+    "pillowBlueLong": {
+      "pack": "furniture-kit",
+      "sha256": "b643f81a863595071b7907d3d0dcf5b1b0e3bb6ad8521db37778b2242ba46bbc",
+      "archiveMembers": [
+        "Models/GLTF format/pillowBlueLong.glb"
+      ]
+    },
+    "pillowLong": {
+      "pack": "furniture-kit",
+      "sha256": "d8490ae920413fd04c85a2164ef384d67a1ca257f761dec1cc7f06fa2c027283",
+      "archiveMembers": [
+        "Models/GLTF format/pillowLong.glb"
+      ]
+    },
+    "plantSmall2": {
+      "pack": "furniture-kit",
+      "sha256": "d7c8ff42c66dd4f9238a73570549813d1ca6c5f6f661d7af9cb764c4fce314b9",
+      "archiveMembers": [
+        "Models/GLTF format/plantSmall2.glb"
+      ]
+    },
+    "plantSmall3": {
+      "pack": "furniture-kit",
+      "sha256": "1aa38b1b22bd19fa4f9f3abd8c4cbf50da2d6fa721cf1f9aa4d80bb89b1bef94",
+      "archiveMembers": [
+        "Models/GLTF format/plantSmall3.glb"
+      ]
+    },
+    "radio": {
+      "pack": "furniture-kit",
+      "sha256": "1ba93d6ba6f049750853b4652b92f286f2898e527695a0705b75cc7615897fed",
+      "archiveMembers": [
+        "Models/GLTF format/radio.glb"
+      ]
+    },
+    "rugDoormat": {
+      "pack": "furniture-kit",
+      "sha256": "bd888e41853342cdc0d34d3f09b99cedc50a144f47b514943b65cdb9a2cfd802",
+      "archiveMembers": [
+        "Models/GLTF format/rugDoormat.glb"
+      ]
+    },
+    "rugRectangle": {
+      "pack": "furniture-kit",
+      "sha256": "a989d2d59c04e3071e0c90388b113a9a8f339ce1814ef984c51cb6dcd7c8e0eb",
+      "archiveMembers": [
+        "Models/GLTF format/rugRectangle.glb"
+      ]
+    },
+    "rugRound": {
+      "pack": "furniture-kit",
+      "sha256": "c4cdc8f51ed2dbfb853b147521ed40e995307392fd3b19045b2203ea50f376db",
+      "archiveMembers": [
+        "Models/GLTF format/rugRound.glb"
+      ]
+    },
+    "rugRounded": {
+      "pack": "furniture-kit",
+      "sha256": "2ef5cc634bb1060a1a5774cfcaf6e11c235791c99d6b59da5fdbc09edfb95a68",
+      "archiveMembers": [
+        "Models/GLTF format/rugRounded.glb"
+      ]
+    },
+    "rugSquare": {
+      "pack": "furniture-kit",
+      "sha256": "18a63634e9bbdde0b309c008f4cd41df8455f7f2ffdb8fe8985fdf8c2cd06b3d",
+      "archiveMembers": [
+        "Models/GLTF format/rugSquare.glb"
+      ]
+    },
+    "showerRound": {
+      "pack": "furniture-kit",
+      "sha256": "1723208eaba3fb215089e02c8cdd3d7201d0980ad0c7b275319eb539f6094bfb",
+      "archiveMembers": [
+        "Models/GLTF format/showerRound.glb"
+      ]
+    },
+    "sideTableDrawers": {
+      "pack": "furniture-kit",
+      "sha256": "911145653c11b103b2c2e84f3d019205d1886186015c3b52aceddc3801ae8fdf",
+      "archiveMembers": [
+        "Models/GLTF format/sideTableDrawers.glb"
+      ]
+    },
+    "speaker": {
+      "pack": "furniture-kit",
+      "sha256": "78230b9fb382a937cb19e4bf7556ee9402d33ac80b1baaee2d2eb89493cfa1fc",
+      "archiveMembers": [
+        "Models/GLTF format/speaker.glb"
+      ]
+    },
+    "speakerSmall": {
+      "pack": "furniture-kit",
+      "sha256": "34db09984703282822f3f57fc9a31bfdfa6a8f6bf8251893d0c907e7ee6601b2",
+      "archiveMembers": [
+        "Models/GLTF format/speakerSmall.glb"
+      ]
+    },
+    "stairs": {
+      "pack": "furniture-kit",
+      "sha256": "b442f997583e417fcb32ec89470ecc441b0556f416d3afe00e3f18c806e556a0",
+      "archiveMembers": [
+        "Models/GLTF format/stairs.glb"
+      ]
+    },
+    "stairsCorner": {
+      "pack": "furniture-kit",
+      "sha256": "250d3c51e10fa250c30954b8a3d6bb0d011362be34ba85a50f5bebdd4184e0dc",
+      "archiveMembers": [
+        "Models/GLTF format/stairsCorner.glb"
+      ]
+    },
+    "stairsOpen": {
+      "pack": "furniture-kit",
+      "sha256": "cbfe1dc9fd66f1375f9c79ccff7069923655238fdf49c7c366653d17632453a5",
+      "archiveMembers": [
+        "Models/GLTF format/stairsOpen.glb"
+      ]
+    },
+    "stairsOpenSingle": {
+      "pack": "furniture-kit",
+      "sha256": "97172c18eff61b844cfa871da32b6c639230adf20901188f378926861e7610de",
+      "archiveMembers": [
+        "Models/GLTF format/stairsOpenSingle.glb"
+      ]
+    },
+    "stoolBar": {
+      "pack": "furniture-kit",
+      "sha256": "a86167a9f92401a61fec7e509ad089ecc552d0f299743add3aeb919acb24e341",
+      "archiveMembers": [
+        "Models/GLTF format/stoolBar.glb"
+      ]
+    },
+    "stoolBarSquare": {
+      "pack": "furniture-kit",
+      "sha256": "a7e1099d64eb35416d4d8c9b16921ef12ae7c1c1e6fff5ea75f3ae19cc934a8b",
+      "archiveMembers": [
+        "Models/GLTF format/stoolBarSquare.glb"
+      ]
+    },
+    "table": {
+      "pack": "furniture-kit",
+      "sha256": "ff1a94498d023957f4bc3ff6f55a7a82977d336dbf01a573b3364f03afe5ff61",
+      "archiveMembers": [
+        "Models/GLTF format/table.glb"
+      ]
+    },
+    "tableCloth": {
+      "pack": "furniture-kit",
+      "sha256": "64de52b5c4370724c29feefd68a65b157c55c88592e2096987bbce007ae80bcb",
+      "archiveMembers": [
+        "Models/GLTF format/tableCloth.glb"
+      ]
+    },
+    "tableCoffeeGlass": {
+      "pack": "furniture-kit",
+      "sha256": "05bf257a086a540b3b79b0c1c7dae35b036ed4d520686aed74ea94ea701c447e",
+      "archiveMembers": [
+        "Models/GLTF format/tableCoffeeGlass.glb"
+      ]
+    },
+    "tableCoffeeGlassSquare": {
+      "pack": "furniture-kit",
+      "sha256": "e4a7ebef6ad0dbafee629df78b0edd88433a1059c4dd5fb3d70304ba2f71b945",
+      "archiveMembers": [
+        "Models/GLTF format/tableCoffeeGlassSquare.glb"
+      ]
+    },
+    "tableCoffeeSquare": {
+      "pack": "furniture-kit",
+      "sha256": "bcc81d8919a3af9141c9c93b4520106dd0a90a7144346cd87928014018aac816",
+      "archiveMembers": [
+        "Models/GLTF format/tableCoffeeSquare.glb"
+      ]
+    },
+    "tableCrossCloth": {
+      "pack": "furniture-kit",
+      "sha256": "3c16b86cdf9a9a82b80b97611030a1da2ed2e9e977ac76457e09a1547b0cebbc",
+      "archiveMembers": [
+        "Models/GLTF format/tableCrossCloth.glb"
+      ]
+    },
+    "tableGlass": {
+      "pack": "furniture-kit",
+      "sha256": "a5ed516d18b51cf5db3cc78f1403451f853a81db45510543d3ed56c1dd9c412b",
+      "archiveMembers": [
+        "Models/GLTF format/tableGlass.glb"
+      ]
+    },
+    "tableRound": {
+      "pack": "furniture-kit",
+      "sha256": "f8daea9124a542a00b7bdacfddac82dc468573d43e44d7b54dd6316e9695754b",
+      "archiveMembers": [
+        "Models/GLTF format/tableRound.glb"
+      ]
+    },
+    "televisionAntenna": {
+      "pack": "furniture-kit",
+      "sha256": "00eea4123b3efc7f8050fd3eaac0a83de3053c9e6cead18dc739260a429b2bb7",
+      "archiveMembers": [
+        "Models/GLTF format/televisionAntenna.glb"
+      ]
+    },
+    "televisionVintage": {
+      "pack": "furniture-kit",
+      "sha256": "eb144cc8fb1e7f761e3665226e4266c8868679421d21d6548f24d2abad7c67cf",
+      "archiveMembers": [
+        "Models/GLTF format/televisionVintage.glb"
+      ]
+    },
+    "toaster": {
+      "pack": "furniture-kit",
+      "sha256": "38c1fb7b122be9997758c8ee855d87f28014cf282f24d66d39f4e8d8b236d2af",
+      "archiveMembers": [
+        "Models/GLTF format/toaster.glb"
+      ]
+    },
+    "toiletSquare": {
+      "pack": "furniture-kit",
+      "sha256": "f241e26a22b0d9512d8455f3e868124f8032710c83c5265a546c19c67ecdd4b9",
+      "archiveMembers": [
+        "Models/GLTF format/toiletSquare.glb"
+      ]
+    },
+    "trashcan": {
+      "pack": "furniture-kit",
+      "sha256": "e0ccc1fe50cbd05386477fdff527171d1cf7c0de2ba7ff3233f8d9561feb2561",
+      "archiveMembers": [
+        "Models/GLTF format/trashcan.glb"
+      ]
+    },
+    "wall": {
+      "pack": "furniture-kit",
+      "sha256": "69273d5d623bddfce41d12d4e5eeb5621ea04f1edcbd8f35c00a60c2fd3258b7",
+      "archiveMembers": [
+        "Models/GLTF format/wall.glb"
+      ]
+    },
+    "wallCorner": {
+      "pack": "furniture-kit",
+      "sha256": "0e6521caee1f9282784c52e0f651084e49f575b091ad97bf25540b8049757aef",
+      "archiveMembers": [
+        "Models/GLTF format/wallCorner.glb"
+      ]
+    },
+    "wallCornerRond": {
+      "pack": "furniture-kit",
+      "sha256": "33e87dd846335dca5fce8a0e242225bb97d4a7b47c3ae84df33ba97fe1da33bf",
+      "archiveMembers": [
+        "Models/GLTF format/wallCornerRond.glb"
+      ]
+    },
+    "wallDoorway": {
+      "pack": "furniture-kit",
+      "sha256": "a55be1da05aa80c74749d0c38bd093fa5e2b1eaf21cbc9a7c3a0e6fbcfbe38e2",
+      "archiveMembers": [
+        "Models/GLTF format/wallDoorway.glb"
+      ]
+    },
+    "wallDoorwayWide": {
+      "pack": "furniture-kit",
+      "sha256": "877af5b239f31f12027e3cec92aa26e97d511e1ae8673a8e3d7d13302d33edf3",
+      "archiveMembers": [
+        "Models/GLTF format/wallDoorwayWide.glb"
+      ]
+    },
+    "wallHalf": {
+      "pack": "furniture-kit",
+      "sha256": "24db9f126891b48b443dcfa9f80d79e4321c8780aede83fb6d8f384b3d4eb35f",
+      "archiveMembers": [
+        "Models/GLTF format/wallHalf.glb"
+      ]
+    },
+    "wallWindow": {
+      "pack": "furniture-kit",
+      "sha256": "166a10fddb8a78d942bc2791186913f7015dfee8501d20efd7a7b8f196fc5c3e",
+      "archiveMembers": [
+        "Models/GLTF format/wallWindow.glb"
+      ]
+    },
+    "wallWindowSlide": {
+      "pack": "furniture-kit",
+      "sha256": "33e51d7ee74f13de318e419b0ebfb31fe7f6e9fd37050f13aa9347641b49376a",
+      "archiveMembers": [
+        "Models/GLTF format/wallWindowSlide.glb"
+      ]
+    },
+    "washer": {
+      "pack": "furniture-kit",
+      "sha256": "0c9704df1817d2699b72305b96cde097c9558bacabaef2fd5ab1ff4c03b81abf",
+      "archiveMembers": [
+        "Models/GLTF format/washer.glb"
+      ]
+    }
+  }
+}

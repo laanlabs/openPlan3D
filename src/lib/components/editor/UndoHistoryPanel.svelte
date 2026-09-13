@@ -1,38 +1,71 @@
 <script lang="ts">
+  import { onDestroy, tick } from 'svelte';
+  import { t, locale, type Locale } from '$lib/i18n';
+  import { undoMessage } from '$lib/i18n/undoMessages';
   import { undoHistoryStore, jumpToUndoStep } from '$lib/stores/project';
 
-  let { visible = $bindable(false) } : { visible?: boolean } = $props();
+  let { visible = $bindable(false), returnFocusTo } : { visible?: boolean; returnFocusTo?: HTMLElement } = $props();
+  let panel: HTMLDivElement | undefined = $state();
+  $effect(() => {
+    if (!visible) return;
+    let cancelled = false;
+    void tick().then(() => {
+      if (!cancelled) panel?.querySelector('button')?.focus();
+    });
+    return () => { cancelled = true; };
+  });
+
+  function close() {
+    visible = false;
+    if (returnFocusTo?.isConnected) returnFocusTo.focus();
+  }
+
+  function handleKeydown(event: KeyboardEvent) {
+    if (event.key !== 'Escape') return;
+    event.preventDefault();
+    event.stopPropagation();
+    close();
+  }
 
   let history = $state<{ entries: { description: string; timestamp: number }[]; currentIndex: number }>({ entries: [], currentIndex: -1 });
 
-  undoHistoryStore.subscribe((h) => { history = h; });
+  onDestroy(undoHistoryStore.subscribe((h) => { history = h; }));
 
-  function formatTime(ts: number) {
+  function formatTime(ts: number, language: Locale) {
     const d = new Date(ts);
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    return d.toLocaleTimeString(language === 'pt' ? 'pt-BR' : 'en', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   }
 
-  function handleClick(index: number) {
+  async function handleClick(index: number) {
+    const focused = document.activeElement;
+    const hadPanelFocus = focused && panel?.contains(focused);
     jumpToUndoStep(index);
+    await tick();
+    // The selected entry is removed. Preserve keyboard access without taking
+    // focus back if the user has already moved to another control.
+    if (visible && hadPanelFocus && (document.activeElement === document.body || document.activeElement === focused)) {
+      panel?.querySelector('button')?.focus();
+    }
   }
 </script>
 
 {#if visible}
-  <div class="fixed bottom-12 left-4 w-64 max-h-80 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 flex flex-col overflow-hidden">
+  <div bind:this={panel} role="region" aria-label={$t('undoHistory.title')} class="undo-history fixed bottom-12 left-4 w-64 max-h-80 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 flex flex-col overflow-hidden">
     <!-- Header -->
     <div class="flex items-center justify-between px-3 py-2 border-b border-gray-100 bg-gray-50">
       <div class="flex items-center gap-1.5">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-500"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-        <span class="text-xs font-semibold text-slate-700">Undo History</span>
+        <span class="text-xs font-semibold text-slate-700">{$t('undoHistory.title')}</span>
       </div>
       <div class="flex items-center gap-2">
-        <span class="text-[10px] text-slate-400">
-          Step {history.currentIndex} of {history.entries.length}
+        <span class="text-[10px] text-gray-600">
+          {$t('undoHistory.step', { current: history.currentIndex, total: history.entries.length })}
         </span>
         <button
-          class="text-gray-400 hover:text-gray-600 text-sm leading-none"
-          onclick={() => visible = false}
-          aria-label="Close history"
+          class="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 text-gray-600 text-sm leading-none"
+          onclick={close}
+          onkeydown={handleKeydown}
+          aria-label={$t('undoHistory.close')}
         >✕</button>
       </div>
     </div>
@@ -40,35 +73,46 @@
     <!-- Steps list -->
     <div class="flex-1 overflow-y-auto">
       {#if history.entries.length === 0}
-        <div class="px-3 py-6 text-center text-xs text-gray-400">No history yet</div>
+        <div class="px-3 py-6 text-center text-xs text-gray-600">{$t('undoHistory.noHistory')}</div>
       {:else}
         <div class="py-1">
           {#each history.entries as entry, i}
             <button
-              class="w-full px-3 py-1.5 text-left flex items-center gap-2 text-xs hover:bg-blue-50 transition-colors"
+              class="focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-600 w-full px-3 py-1.5 text-left flex items-center gap-2 text-xs hover:bg-blue-50 transition-colors"
               class:bg-blue-100={i === history.currentIndex}
               class:text-blue-700={i === history.currentIndex}
-              class:text-gray-500={i > history.currentIndex}
+              class:text-gray-600={i > history.currentIndex}
               class:text-gray-700={i < history.currentIndex && i !== history.currentIndex}
               onclick={() => handleClick(i)}
+              onkeydown={handleKeydown}
             >
-              <span class="w-5 text-[10px] text-gray-400 text-right shrink-0">{i + 1}</span>
-              <span class="truncate flex-1">{entry.description}</span>
-              <span class="text-[10px] text-gray-300 shrink-0">{formatTime(entry.timestamp)}</span>
+              <span class="w-5 text-[10px] text-gray-600 text-right shrink-0">{i + 1}</span>
+              <span class="truncate flex-1">{undoMessage(entry.description, $locale)}</span>
+              <time datetime={new Date(entry.timestamp).toISOString()} class="text-[10px] text-gray-600 shrink-0">{formatTime(entry.timestamp, $locale)}</time>
             </button>
           {/each}
           <!-- Current state indicator -->
           <div
+            aria-current="step"
             class="w-full px-3 py-1.5 flex items-center gap-2 text-xs"
             class:bg-blue-100={history.currentIndex === history.entries.length}
             class:text-blue-700={history.currentIndex === history.entries.length}
             class:text-gray-700={history.currentIndex !== history.entries.length}
           >
-            <span class="w-5 text-[10px] text-gray-400 text-right shrink-0">●</span>
-            <span class="truncate flex-1 font-medium">Current state</span>
+            <span class="w-5 text-[10px] text-gray-600 text-right shrink-0">●</span>
+            <span class="truncate flex-1 font-medium">{$t('undoHistory.currentState')}</span>
           </div>
         </div>
       {/if}
     </div>
   </div>
 {/if}
+
+<style>
+  :global(html.dark) .undo-history :global(.text-blue-700) {
+    color: #bfdbfe;
+  }
+  :global(html.dark) .undo-history button:focus-visible {
+    outline-color: #93c5fd;
+  }
+</style>

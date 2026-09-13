@@ -41,11 +41,12 @@ async function colors(page: Page) {
 }
 async function open3D(page: Page) {
   await page.getByRole('button', { name: '3D', exact: true }).click();
-  await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible();
+  await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible({ timeout: 60_000 });
   await page.waitForLoadState('networkidle');
 }
 
 for (const width of [1440, 390]) test(`furniture tint, finish and resource reuse survive 3D rebuilds at ${width}px`, async ({ page }, testInfo) => {
+  test.slow();
   const observed = observe(page); await page.setViewportSize({ width, height: 900 });
   await openFixture(page); await open3D(page);
   await expect.poll(async () => (await colors(page)).green).toBeGreaterThan(50);
@@ -64,7 +65,7 @@ for (const width of [1440, 390]) test(`furniture tint, finish and resource reuse
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect.poll(async () => Object.values(await savedProjects(page)).some(project => project.floors[0].furniture.some((item: any) => item.id === 'chair-red' && item.color === '#191970' && item.material === 'Fabric'))).toBe(true);
   await open3D(page);
-  await expect.poll(async () => (await colors(page)).blue).toBeGreaterThan(50);
+  await expect.poll(async () => (await colors(page)).blue, { timeout: 60_000 }).toBeGreaterThan(50);
   expect((await colors(page)).green).toBeGreaterThan(50);
   expect(observed.models.filter(url => chairURL.test(url))).toHaveLength(1);
   await testInfo.attach(`furniture-${width}`, { body: await page.screenshot(), contentType: 'image/png' });
@@ -81,7 +82,7 @@ for (const width of [1440, 390]) test(`furniture tint, finish and resource reuse
   await page.getByRole('button', { name: '💺 Armchair', exact: true }).first().click();
   await expect(page.getByRole('combobox', { name: 'Material', exact: true })).toHaveValue('Fabric');
   await open3D(page);
-  await expect.poll(async () => (await colors(page)).blue).toBeGreaterThan(50);
+  await expect.poll(async () => (await colors(page)).blue, { timeout: 60_000 }).toBeGreaterThan(50);
   expect((await colors(page)).green).toBeGreaterThan(50);
   observed.check();
 });

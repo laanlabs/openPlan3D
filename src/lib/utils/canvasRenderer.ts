@@ -1,3 +1,7 @@
+import { getEntourageImage } from './entourageImages';
+import { roomHoles, traceRoomRings } from './roomNesting';
+import { stairLocalBounds } from './stairPlanGeometry';
+import { dimensionPlanGeometry } from './dimensionPlanGeometry';
 /**
  * Canvas rendering functions for the floor plan editor.
  * All functions are pure — they take canvas context + data and render.
@@ -8,9 +12,9 @@ import type { Room } from '$lib/models/types';
 import type { CanvasState } from '$lib/utils/canvasInteraction';
 import type { ProjectSettings } from '$lib/stores/settings';
 import { formatLength, formatArea } from '$lib/stores/settings';
-import { getCatalogItem } from '$lib/utils/furnitureCatalog';
+import { getCatalogItem, getFurnitureSize } from '$lib/utils/furnitureCatalog';
 import { drawFurnitureIcon } from '$lib/utils/furnitureIcons';
-import { getRoomPolygon, roomCentroid } from '$lib/utils/roomDetection';
+import { getRoomPolygon, roomCentroid, roomLabelPosition } from '$lib/utils/roomDetection';
 import { getWallTextureCanvas, getFloorTextureCanvas } from '$lib/utils/textureGenerator';
 import { getEntourageDef } from '$lib/utils/entourageCatalog';
 import type { EntourageItem, CustomEntourageDef } from '$lib/models/types';
@@ -903,15 +907,15 @@ export function drawWindowDistanceDimensions(cs: CanvasState, wall: Wall, window
 
 // ── Furniture drawing ────────────────────────────────────────────────
 
-export function drawFurnitureItem(cs: CanvasState, item: FurnitureItem, selected: boolean): void {
+export function drawFurnitureItem(cs: CanvasState, item: FurnitureItem, selected: boolean, caption?: string): void {
   const { ctx, zoom } = cs;
   const cat = getCatalogItem(item.catalogId);
-  if (!cat) return;
   const s = wts(cs, item.position.x, item.position.y);
   const sx = item.scale?.x ?? 1;
   const sy = item.scale?.y ?? 1;
-  const w = (item.width ?? cat.width) * Math.abs(sx) * zoom;
-  const d = (item.depth ?? cat.depth) * Math.abs(sy) * zoom;
+  const size = getFurnitureSize(item);
+  const w = size.width * zoom;
+  const d = size.depth * zoom;
   const angle = (item.rotation * Math.PI) / 180;
 
   ctx.save();
@@ -919,18 +923,22 @@ export function drawFurnitureItem(cs: CanvasState, item: FurnitureItem, selected
   ctx.rotate(angle);
   ctx.scale(Math.sign(sx) || 1, Math.sign(sy) || 1);
 
-  const itemColor = item.color ?? cat.color;
+  const itemColor = item.color ?? cat?.color ?? '#888888';
   const strokeColor = selected ? '#3b82f6' : itemColor;
   ctx.lineWidth = selected ? 2 : 1;
   drawFurnitureIcon(ctx, item.catalogId, w, d, itemColor, strokeColor);
 
   const fontSize = Math.max(8, Math.min(12, Math.min(w, d) * 0.2));
   if (Math.min(w, d) > 20) {
+    ctx.save();
+    // Mirror the symbol, while keeping its caption readable.
+    ctx.scale(Math.sign(sx) || 1, Math.sign(sy) || 1);
     ctx.fillStyle = '#374151';
     ctx.font = `${fontSize * 0.7}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(cat.name, 0, d / 2 + fontSize * 0.8);
+    ctx.fillText(caption ?? cat?.name ?? 'Unknown furniture', 0, d / 2 + fontSize * 0.8);
+    ctx.restore();
   }
 
   if (selected) {
@@ -1011,13 +1019,13 @@ export function drawStair(cs: CanvasState, stair: Stair, selected: boolean): voi
     const arrowY = direction === 'up' ? -d / 2 + d * 0.15 : d / 2 - d * 0.15;
     const arrowDir = direction === 'up' ? -1 : 1;
     ctx.beginPath();
-    ctx.moveTo(0, arrowY + arrowDir * d * 0.3);
+    ctx.moveTo(0, arrowY - arrowDir * d * 0.3);
     ctx.lineTo(0, arrowY);
     ctx.stroke();
     ctx.beginPath();
     ctx.moveTo(0, arrowY);
-    ctx.lineTo(-w * 0.1, arrowY + arrowDir * d * 0.08);
-    ctx.lineTo(w * 0.1, arrowY + arrowDir * d * 0.08);
+    ctx.lineTo(-w * 0.1, arrowY - arrowDir * d * 0.08);
+    ctx.lineTo(w * 0.1, arrowY - arrowDir * d * 0.08);
     ctx.closePath();
     ctx.fill();
   }
@@ -1065,9 +1073,11 @@ export function drawStair(cs: CanvasState, stair: Stair, selected: boolean): voi
     const t2 = run2W / run2Risers;
     for (let i = 1; i < run2Risers; i++) { const x = w / 2 + i * t2; ctx.beginPath(); ctx.moveTo(x, -w / 2); ctx.lineTo(x, w / 2); ctx.stroke(); }
     ctx.fillStyle = selected ? '#3b82f6' : '#555'; ctx.strokeStyle = selected ? '#3b82f6' : '#555'; ctx.lineWidth = 1.5;
-    const ay = run1D * 0.7;
-    ctx.beginPath(); ctx.moveTo(0, ay); ctx.lineTo(0, ay - run1D * 0.3); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(0, ay - run1D * 0.3); ctx.lineTo(-w * 0.08, ay - run1D * 0.22); ctx.lineTo(w * 0.08, ay - run1D * 0.22); ctx.closePath(); ctx.fill();
+    const up = stair.direction === 'up';
+    const tailY = run1D * (up ? .7 : .4), tipY = run1D * (up ? .4 : .7);
+    const baseY = tipY + run1D * (up ? .08 : -.08);
+    ctx.beginPath(); ctx.moveTo(0, tailY); ctx.lineTo(0, tipY); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, tipY); ctx.lineTo(-w * .08, baseY); ctx.lineTo(w * .08, baseY); ctx.closePath(); ctx.fill();
     drawStairLabelLocal();
 
   } else if (type === 'u-shaped') {
@@ -1087,12 +1097,13 @@ export function drawStair(cs: CanvasState, stair: Stair, selected: boolean): voi
     ctx.fillStyle = fillCol; ctx.strokeStyle = strokeCol; ctx.lineWidth = selected ? 2 : 1;
     ctx.fillRect(-w / 2, -d / 2 - w * 0.1, w, w * 0.1); ctx.strokeRect(-w / 2, -d / 2 - w * 0.1, w, w * 0.1);
     ctx.fillStyle = selected ? '#3b82f6' : '#555'; ctx.strokeStyle = selected ? '#3b82f6' : '#555'; ctx.lineWidth = 1.5;
-    const lx = -w / 2 + runW / 2;
-    ctx.beginPath(); ctx.moveTo(lx, 0); ctx.lineTo(lx, -d * 0.2); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(lx, -d * 0.2); ctx.lineTo(lx - runW * 0.15, -d * 0.14); ctx.lineTo(lx + runW * 0.15, -d * 0.14); ctx.closePath(); ctx.fill();
-    const rx = w / 2 - runW / 2;
-    ctx.beginPath(); ctx.moveTo(rx, 0); ctx.lineTo(rx, d * 0.2); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(rx, d * 0.2); ctx.lineTo(rx - runW * 0.15, d * 0.14); ctx.lineTo(rx + runW * 0.15, d * 0.14); ctx.closePath(); ctx.fill();
+    const sign = stair.direction === 'up' ? 1 : -1;
+    for (const [x, direction] of [[-w / 2 + runW / 2, -sign], [w / 2 - runW / 2, sign]]) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, direction * d * .2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x, direction * d * .2);
+      ctx.lineTo(x - runW * .15, direction * d * .14); ctx.lineTo(x + runW * .15, direction * d * .14);
+      ctx.closePath(); ctx.fill();
+    }
     drawStairLabelLocal();
 
   } else if (type === 'spiral') {
@@ -1110,14 +1121,16 @@ export function drawStair(cs: CanvasState, stair: Stair, selected: boolean): voi
     }
     ctx.strokeStyle = selected ? '#3b82f6' : '#555'; ctx.fillStyle = selected ? '#3b82f6' : '#555'; ctx.lineWidth = 1.5;
     const arrowR = r * 0.7;
-    const aEnd = startAngle + totalAngle * 0.85;
-    ctx.beginPath(); ctx.arc(0, 0, arrowR, startAngle + totalAngle * 0.15, aEnd, false); ctx.stroke();
+    const up = stair.direction === 'up';
+    const aStart = startAngle + totalAngle * (up ? .15 : .85);
+    const aEnd = startAngle + totalAngle * (up ? .85 : .15);
+    ctx.beginPath(); ctx.arc(0, 0, arrowR, aStart, aEnd, !up); ctx.stroke();
     const ax2 = arrowR * Math.cos(aEnd);
     const ay2 = arrowR * Math.sin(aEnd);
-    const tangent = aEnd + Math.PI / 2;
+    const tangent = aEnd + (up ? 1 : -1) * Math.PI / 2;
     ctx.beginPath(); ctx.moveTo(ax2, ay2);
-    ctx.lineTo(ax2 + 6 * Math.cos(tangent + 0.4), ay2 + 6 * Math.sin(tangent + 0.4));
-    ctx.lineTo(ax2 + 6 * Math.cos(tangent - 0.4), ay2 + 6 * Math.sin(tangent - 0.4));
+    ctx.lineTo(ax2 - 6 * Math.cos(tangent + 0.4), ay2 - 6 * Math.sin(tangent + 0.4));
+    ctx.lineTo(ax2 - 6 * Math.cos(tangent - 0.4), ay2 - 6 * Math.sin(tangent - 0.4));
     ctx.closePath(); ctx.fill();
     ctx.fillStyle = '#374151'; ctx.font = `${Math.max(8, 10 * zoom)}px sans-serif`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -1126,9 +1139,8 @@ export function drawStair(cs: CanvasState, stair: Stair, selected: boolean): voi
 
   if (selected) {
     ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 1; ctx.setLineDash([4, 3]);
-    const bw = type === 'spiral' ? Math.min(w, d) : w;
-    const bd = type === 'spiral' ? Math.min(w, d) : d;
-    ctx.strokeRect(-bw / 2 - 2, -bd / 2 - 2, bw + 4, bd + 4);
+    const b = stairLocalBounds(stair);
+    ctx.strokeRect(b.minX * zoom - 2, b.minY * zoom - 2, (b.maxX - b.minX) * zoom + 4, (b.maxY - b.minY) * zoom + 4);
     ctx.setLineDash([]);
   }
 
@@ -1280,7 +1292,7 @@ export function drawTextAnnotations(cs: CanvasState, floor: Floor, selectedTextA
 
 export function drawAnnotation(cs: CanvasState, a: Annotation, selected: boolean, dimSettings: ProjectSettings): void {
   const { ctx, zoom } = cs;
-  const offset = a.offset || 40;
+  const offset = a.offset ?? 40;
   const dx = a.x2 - a.x1, dy = a.y2 - a.y1;
   const len = Math.hypot(dx, dy);
   if (len < 1) return;
@@ -1301,8 +1313,8 @@ export function drawAnnotation(cs: CanvasState, a: Annotation, selected: boolean
   ctx.strokeStyle = color; ctx.lineWidth = 0.75;
   const extBeyond = 4 * zoom;
   ctx.beginPath();
-  ctx.moveTo(s1.x, s1.y); ctx.lineTo(sd1.x + nx * extBeyond * zoom, sd1.y + ny * extBeyond * zoom);
-  ctx.moveTo(s2.x, s2.y); ctx.lineTo(sd2.x + nx * extBeyond * zoom, sd2.y + ny * extBeyond * zoom);
+  ctx.moveTo(s1.x, s1.y); ctx.lineTo(sd1.x + nx * extBeyond, sd1.y + ny * extBeyond);
+  ctx.moveTo(s2.x, s2.y); ctx.lineTo(sd2.x + nx * extBeyond, sd2.y + ny * extBeyond);
   ctx.stroke();
 
   const dimMx = (sd1.x + sd2.x) / 2;
@@ -1314,7 +1326,7 @@ export function drawAnnotation(cs: CanvasState, a: Annotation, selected: boolean
   ctx.font = `${fontSize}px sans-serif`;
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   const textW = ctx.measureText(label).width;
-  const halfGap = textW / 2 + 4;
+  const halfGap = Math.min(textW / 2 + 4, Math.hypot(sd2.x-sd1.x,sd2.y-sd1.y)/2);
 
   ctx.strokeStyle = color; ctx.lineWidth = selected ? 1.5 : 1;
   const sux = (sd2.x - sd1.x) / Math.hypot(sd2.x - sd1.x, sd2.y - sd1.y) || 0;
@@ -1396,7 +1408,7 @@ const ROOM_FLOOR_PATTERN: Record<string, FloorPatternType> = {
   'Garage': 'stone', 'Closet': 'none',
 };
 
-export function drawRoomFloorPattern(cs: CanvasState, room: Room, screenPoly: { x: number; y: number }[]): void {
+export function drawRoomFloorPattern(cs: CanvasState, room: Room, screenPoly: Point[], holes: Point[][] = []): void {
   const { ctx, zoom } = cs;
   // Solid-color floor: no texture, no fallback pattern — the fill from
   // getRoomFill is the floor.
@@ -1405,10 +1417,7 @@ export function drawRoomFloorPattern(cs: CanvasState, room: Room, screenPoly: { 
     const texCanvas = getFloorTextureCanvas(room.floorTexture);
     if (texCanvas) {
       ctx.save();
-      ctx.beginPath();
-      ctx.moveTo(screenPoly[0].x, screenPoly[0].y);
-      for (let i = 1; i < screenPoly.length; i++) ctx.lineTo(screenPoly[i].x, screenPoly[i].y);
-      ctx.closePath(); ctx.clip();
+      traceRoomRings(ctx, screenPoly, holes); ctx.clip('evenodd');
       ctx.globalAlpha = 0.5;
       const scale = zoom * 0.15;
       ctx.scale(scale, scale);
@@ -1428,10 +1437,7 @@ export function drawRoomFloorPattern(cs: CanvasState, room: Room, screenPoly: { 
   if (pattern === 'none' || zoom < 0.3) return;
 
   ctx.save();
-  ctx.beginPath();
-  ctx.moveTo(screenPoly[0].x, screenPoly[0].y);
-  for (let i = 1; i < screenPoly.length; i++) ctx.lineTo(screenPoly[i].x, screenPoly[i].y);
-  ctx.closePath(); ctx.clip();
+  traceRoomRings(ctx, screenPoly, holes); ctx.clip('evenodd');
 
   let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
   for (const p of screenPoly) { if (p.x < minX) minX = p.x; if (p.x > maxX) maxX = p.x; if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y; }
@@ -1479,23 +1485,27 @@ export function drawRooms(
   showRoomLabels: boolean,
   showDimensions: boolean,
   dimSettings: ProjectSettings,
+  polygons?: ReadonlyMap<string, Point[]>,
 ): void {
   const { ctx, zoom } = cs;
+  const roomPolygons = detectedRooms.map(room => polygons?.get(room.id) ?? getRoomPolygon(room, floor.walls));
+  const holes = roomHoles(roomPolygons);
   for (let ri = 0; ri < detectedRooms.length; ri++) {
     const room = detectedRooms[ri];
-    const poly = getRoomPolygon(room, floor.walls);
+    const poly = roomPolygons[ri];
     if (poly.length < 3) continue;
     const screenPoly = poly.map(p => wts(cs, p.x, p.y));
+    const screenHoles = holes[ri].map(ring => ring.map(p => wts(cs, p.x, p.y)));
     ctx.fillStyle = getRoomFill(room, ri);
-    ctx.beginPath();
-    ctx.moveTo(screenPoly[0].x, screenPoly[0].y);
-    for (let i = 1; i < screenPoly.length; i++) ctx.lineTo(screenPoly[i].x, screenPoly[i].y);
-    ctx.closePath(); ctx.fill();
+    traceRoomRings(ctx, screenPoly, screenHoles);
+    if (!room.floorOpening) ctx.fill('evenodd');
+    else { ctx.strokeStyle='#64748b'; ctx.lineWidth=1; ctx.setLineDash([4,4]); ctx.stroke(); ctx.setLineDash([]); }
 
-    drawRoomFloorPattern(cs, room, screenPoly);
+    if (!room.floorOpening) drawRoomFloorPattern(cs, room, screenPoly, screenHoles);
 
     const isSelected = currentSelectedRoomId === room.id;
     if (isSelected) {
+      traceRoomRings(ctx, screenPoly, screenHoles);
       ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 2; ctx.setLineDash([5, 3]); ctx.stroke(); ctx.setLineDash([]);
     }
 
@@ -1506,7 +1516,9 @@ export function drawRooms(
       ctx.fillStyle = '#9ca3af';
       ctx.font = `${fontSize}px sans-serif`;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(`${room.name} (${formatArea(room.area, dimSettings.units)})`, sc.x, sc.y);
+      const anchor = roomLabelPosition(room, poly, holes[ri]);
+      const label = wts(cs, anchor.x, anchor.y);
+      ctx.fillText(`${room.name} (${formatArea(room.area, dimSettings.units)})`, label.x, label.y);
     }
 
     if (showDimensions && dimSettings.showInternalDimensions && poly.length >= 3) {
@@ -1517,6 +1529,7 @@ export function drawRooms(
       if (roomW > 0.1 && roomD > 0.1) {
         const dimFontSize = Math.max(9, 10 * zoom);
         ctx.fillStyle = '#b0b8c4'; ctx.font = `${dimFontSize}px sans-serif`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(`${formatLength(roomW * 100, dimSettings.units)} × ${formatLength(roomD * 100, dimSettings.units)}`, sc.x, sc.y + fontSize + 2);
       }
     }
@@ -1574,6 +1587,7 @@ export function drawMinimap(
   minimapCanvas: HTMLCanvasElement,
   floor: Floor,
   getWorldBBox: () => { minX: number; minY: number; maxX: number; maxY: number } | null,
+  visibility: { measurements?: boolean; annotations?: boolean; textAnnotations?: boolean } = {},
 ): void {
   const mctx = minimapCanvas.getContext('2d');
   if (!mctx) return;
@@ -1614,17 +1628,39 @@ export function drawMinimap(
 
   for (const fi of floor.furniture) {
     const cat = getCatalogItem(fi.catalogId);
-    if (!cat) continue;
     const p = toMini(fi.position.x, fi.position.y);
-    const fw = Math.max(2, (fi.width ?? cat.width) * scale);
-    const fd = Math.max(2, (fi.depth ?? cat.depth) * scale);
-    mctx.fillStyle = (fi.color ?? cat.color) + 'aa';
+    const size = getFurnitureSize(fi);
+    const fw = Math.max(2, size.width * scale);
+    const fd = Math.max(2, size.depth * scale);
+    mctx.fillStyle = fi.color ?? cat?.color ?? '#94a3b8';
     mctx.save();
     mctx.translate(p.x, p.y);
     mctx.rotate((fi.rotation * Math.PI) / 180);
     mctx.fillRect(-fw / 2, -fd / 2, fw, fd);
     mctx.restore();
   }
+
+  // Small navigation markers remain legible when full symbols would be subpixel.
+  const marker = (x: number, y: number, color: string) => {
+    const p = toMini(x, y);
+    mctx.fillStyle = color; mctx.fillRect(p.x - 2, p.y - 2, 4, 4);
+  }
+  const line = (x1: number, y1: number, x2: number, y2: number) => {
+    const a = toMini(x1, y1), b = toMini(x2, y2);
+    mctx.strokeStyle = '#64748b'; mctx.lineWidth = 1;
+    mctx.beginPath(); mctx.moveTo(a.x, a.y); mctx.lineTo(b.x, b.y); mctx.stroke();
+  }
+  for (const item of floor.stairs ?? []) marker(item.position.x, item.position.y, '#64748b');
+  for (const item of floor.columns ?? []) marker(item.position.x, item.position.y, item.color || '#64748b');
+  for (const item of floor.entourage ?? []) marker(item.position.x, item.position.y, '#16a34a');
+  if (visibility.textAnnotations !== false) for (const item of floor.textAnnotations ?? []) marker(item.x, item.y, item.color || '#1e293b');
+  if (visibility.measurements !== false) for (const item of floor.measurements ?? []) line(item.x1, item.y1, item.x2, item.y2);
+  if (visibility.annotations !== false) for (const item of floor.annotations ?? []) {
+    line(item.x1, item.y1, item.x2, item.y2);
+    const g = dimensionPlanGeometry(item);
+    if (g) line(g.start.x, g.start.y, g.end.x, g.end.y);
+  }
+  if (floor.backgroundImage) marker(floor.backgroundImage.position.x, floor.backgroundImage.position.y, '#a855f7');
 
   const { width, height, zoom, camX, camY } = cs;
   const vpTL = { x: (0 - width / 2) / zoom + camX, y: (0 - height / 2) / zoom + camY };
@@ -1654,18 +1690,6 @@ function getEntouragePaths(defId: string): Path2D[] | null {
   return cached;
 }
 
-const entourageImageCache = new Map<string, HTMLImageElement>();
-function getEntourageImage(def: CustomEntourageDef, onLoad?: () => void): HTMLImageElement {
-  let img = entourageImageCache.get(def.id);
-  if (!img) {
-    img = new Image();
-    img.onload = () => onLoad?.();
-    img.src = def.dataUrl;
-    entourageImageCache.set(def.id, img);
-  }
-  return img;
-}
-
 /** height/width aspect for a built-in or custom entourage def */
 export function entourageAspect(defId: string, customDefs?: CustomEntourageDef[]): number {
   return getEntourageDef(defId)?.aspect ?? customDefs?.find((c) => c.id === defId)?.aspect ?? 1;
@@ -1677,6 +1701,7 @@ export function drawEntourageItem(
   customDefs: CustomEntourageDef[] | undefined,
   selected: boolean,
   onImageLoad?: () => void,
+  preparedImages?: ReadonlyMap<string,HTMLImageElement>,
 ): void {
   const { ctx, zoom } = cs;
   const s = wts(cs, item.position.x, item.position.y);
@@ -1706,7 +1731,7 @@ export function drawEntourageItem(
       ctx.restore();
     }
   } else if (custom) {
-    const img = getEntourageImage(custom, onImageLoad);
+    const img = preparedImages?.get(custom.id) ?? getEntourageImage(custom, onImageLoad);
     if (img.complete && img.naturalWidth > 0) {
       ctx.drawImage(img, -wPx / 2, -hPx / 2, wPx, hPx);
     } else {
@@ -1745,10 +1770,11 @@ export function drawEntourageItems(
   selectedId: string | null,
   customDefs?: CustomEntourageDef[],
   onImageLoad?: () => void,
+  preparedImages?: ReadonlyMap<string,HTMLImageElement>,
 ): void {
   if (!floor.entourage) return;
   for (const item of floor.entourage) {
-    drawEntourageItem(cs, item, customDefs, item.id === selectedId, onImageLoad);
+    drawEntourageItem(cs, item, customDefs, item.id === selectedId, onImageLoad, preparedImages);
   }
 }
 
@@ -1776,7 +1802,6 @@ export function drawEntourageGhost(
 /** Envelope walls of the floor below; everything else there is a partition. */
 const GHOST_OUTER_FILL = 'rgba(100, 116, 139, 0.30)';
 const GHOST_INNER_FILL = 'rgba(100, 116, 139, 0.14)';
-const GHOST_STAIR_STROKE = 'rgba(100, 116, 139, 0.55)';
 
 /** Screen-space outline of a wall's footprint band, following its curve if it has one. */
 function wallBandPath(cs: CanvasState, w: Wall): { x: number; y: number }[] {
@@ -1839,7 +1864,7 @@ function tracePolygon(ctx: CanvasRenderingContext2D, pts: { x: number; y: number
  * room detection, which is far too costly to repeat on every animation frame.
  */
 export function drawFloorBelowGhost(cs: CanvasState, floor: Floor, outerWallIds: Set<string>): void {
-  const { ctx, zoom } = cs;
+  const { ctx } = cs;
   ctx.save();
 
   for (const w of floor.walls) {
@@ -1848,29 +1873,10 @@ export function drawFloorBelowGhost(cs: CanvasState, floor: Floor, outerWallIds:
     ctx.fill();
   }
 
-  for (const stair of floor.stairs ?? []) {
-    const s = wts(cs, stair.position.x, stair.position.y);
-    const w = stair.width * zoom;
-    const d = stair.depth * zoom;
-    ctx.save();
-    ctx.translate(s.x, s.y);
-    ctx.rotate((stair.rotation * Math.PI) / 180);
-    ctx.strokeStyle = GHOST_STAIR_STROKE;
-    ctx.lineWidth = 1;
-    ctx.setLineDash([5, 4]);
-    ctx.strokeRect(-w / 2, -d / 2, w, d);
-    ctx.setLineDash([]);
-    // A few treads, enough to read as a stair without competing with this floor.
-    const treads = 4;
-    ctx.beginPath();
-    for (let i = 1; i < treads; i++) {
-      const y = -d / 2 + (d * i) / treads;
-      ctx.moveTo(-w / 2, y);
-      ctx.lineTo(w / 2, y);
-    }
-    ctx.stroke();
-    ctx.restore();
-  }
+  // Use the same footprints, treads and direction indicators as the edited floor.
+  // Alpha keeps the reference subdued without replacing its geometry.
+  ctx.globalAlpha *= .45;
+  for (const stair of floor.stairs ?? []) drawStair(cs, stair, false);
 
   ctx.restore();
 }

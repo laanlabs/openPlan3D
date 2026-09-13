@@ -1,4 +1,6 @@
 import type { Wall, Point, Room, Floor } from '$lib/models/types';
+import { wallPathSpans } from './wallProfiles';
+import { roomHoles, roomInteriorPoint } from './roomNesting';
 
 const EPSILON = 5; // snap distance for matching endpoints
 
@@ -8,15 +10,16 @@ function ptEq(a: Point, b: Point): boolean {
 
 interface Edge {
   wallId: string;
+  wallIds?: string[];
   start: Point;
   end: Point;
 }
 
 /**
- * Find points where one wall's endpoint lands on another wall's interior (T-junctions).
+ * Find endpoint T-junctions and intersections between faceted wall segments.
  * Split such walls into sub-segments so the graph correctly represents all connections.
  */
-function splitWallsAtTJunctions(walls: Wall[]): Edge[] {
+function splitWallsAtJunctions(walls: Wall[]): Edge[] {
   // Collect all endpoints
   const endpoints: Point[] = [];
   for (const w of walls) {
@@ -31,15 +34,17 @@ function splitWallsAtTJunctions(walls: Wall[]): Edge[] {
     splitPoints: { point: Point; t: number }[];
   }
 
-  const splitWalls: SplitWall[] = walls.map(w => ({
+  // Use the same facets as the 3D wall mesh. Keep source IDs so room metadata
+  // continues to follow boundary identity rather than generated facet numbers.
+  const splitWalls: SplitWall[] = walls.flatMap(w => wallPathSpans(w).map(span => ({
     wallId: w.id,
-    start: w.start,
-    end: w.end,
+    start: span.start,
+    end: span.end,
     splitPoints: [],
-  }));
+  })));
 
-  for (let wi = 0; wi < walls.length; wi++) {
-    const w = walls[wi];
+  for (let wi = 0; wi < splitWalls.length; wi++) {
+    const w = splitWalls[wi];
     const dx = w.end.x - w.start.x;
     const dy = w.end.y - w.start.y;
     const lenSq = dx * dx + dy * dy;
@@ -67,6 +72,32 @@ function splitWallsAtTJunctions(walls: Wall[]): Edge[] {
     }
   }
 
+  // Interior crossings need a vertex on BOTH walls. Endpoint-only splitting
+  // otherwise leaves crossing dividers disconnected in the planar face graph.
+  for (let i = 0; i < splitWalls.length; i++) {
+    const a = splitWalls[i];
+    for (let j = i + 1; j < splitWalls.length; j++) {
+      const b = splitWalls[j];
+      if (a.wallId === b.wallId) continue;
+      if (Math.max(a.start.x, a.end.x) < Math.min(b.start.x, b.end.x) ||
+          Math.max(b.start.x, b.end.x) < Math.min(a.start.x, a.end.x) ||
+          Math.max(a.start.y, a.end.y) < Math.min(b.start.y, b.end.y) ||
+          Math.max(b.start.y, b.end.y) < Math.min(a.start.y, a.end.y)) continue;
+      const ax = a.end.x - a.start.x, ay = a.end.y - a.start.y;
+      const bx = b.end.x - b.start.x, by = b.end.y - b.start.y;
+      const cross = ax * by - ay * bx;
+      if (Math.abs(cross) <= 1e-10 * Math.hypot(ax, ay) * Math.hypot(bx, by)) continue;
+      const dx = b.start.x - a.start.x, dy = b.start.y - a.start.y;
+      const t = (dx * by - dy * bx) / cross, u = (dx * ay - dy * ax) / cross;
+      if (t < 0 || t > 1 || u < 0 || u > 1) continue;
+      const point = { x: a.start.x + t * ax, y: a.start.y + t * ay };
+      for (const [wall, position] of [[a, t], [b, u]] as const) {
+        if (ptEq(point, wall.start) || ptEq(point, wall.end) || wall.splitPoints.some(p => ptEq(p.point, point))) continue;
+        wall.splitPoints.push({ point, t: position });
+      }
+    }
+  }
+
   // Build edges: for walls with split points, create sub-segments
   const edges: Edge[] = [];
   for (const sw of splitWalls) {
@@ -84,7 +115,17 @@ function splitWallsAtTJunctions(walls: Wall[]): Edge[] {
     }
   }
 
-  return edges;
+  // A coincident segment is one graph edge with all of its source aliases.
+  // Endpoint splitting above also partitions partial collinear overlaps.
+  const unique: Edge[] = [];
+  for (const edge of edges) {
+    if (ptEq(edge.start, edge.end)) continue;
+    const existing = unique.find(e => (ptEq(e.start, edge.start) && ptEq(e.end, edge.end)) ||
+      (ptEq(e.start, edge.end) && ptEq(e.end, edge.start)));
+    if (existing) existing.wallIds = [...new Set([...(existing.wallIds ?? [existing.wallId]), edge.wallId])].sort();
+    else unique.push({ ...edge, wallIds: [edge.wallId] });
+  }
+  return unique;
 }
 
 /**
@@ -92,11 +133,13 @@ function splitWallsAtTJunctions(walls: Wall[]): Edge[] {
  * Returns detected rooms with wall ids, centroid, and area.
  */
 export function detectRooms(walls: Wall[]): Room[] {
-  if (walls.length < 3) return [];
+  if (walls.length < 2) return [];
 
-  // Split walls at T-junctions so shared-wall rooms are properly separated
-  const splitEdges = splitWallsAtTJunctions(walls);
+  // Split walls at T-junctions and crossings so shared-wall rooms are separated
+  return detectSplitRooms(splitWallsAtJunctions(walls));
+}
 
+function detectSplitRooms(splitEdges: Edge[]): Room[] {
   // Build adjacency: collect unique vertices & edges
   const vertices: Point[] = [];
   const edges: Edge[] = [];
@@ -113,12 +156,12 @@ export function detectRooms(walls: Wall[]): Room[] {
     const si = findOrAddVertex(e.start);
     const ei = findOrAddVertex(e.end);
     if (si !== ei) {
-      edges.push({ wallId: e.wallId, start: vertices[si], end: vertices[ei] });
+      edges.push({ ...e, start: vertices[si], end: vertices[ei] });
     }
   }
 
   // Build adjacency list
-  const adj = new Map<number, { to: number; wallId: string; angle: number }[]>();
+  const adj = new Map<number, { to: number; wallIds: string[]; angle: number }[]>();
   for (const e of edges) {
     const si = findOrAddVertex(e.start);
     const ei = findOrAddVertex(e.end);
@@ -126,8 +169,8 @@ export function detectRooms(walls: Wall[]): Room[] {
     const angle2 = Math.atan2(e.start.y - e.end.y, e.start.x - e.end.x);
     if (!adj.has(si)) adj.set(si, []);
     if (!adj.has(ei)) adj.set(ei, []);
-    adj.get(si)!.push({ to: ei, wallId: e.wallId, angle: angle1 });
-    adj.get(ei)!.push({ to: si, wallId: e.wallId, angle: angle2 });
+    adj.get(si)!.push({ to: ei, wallIds: e.wallIds ?? [e.wallId], angle: angle1 });
+    adj.get(ei)!.push({ to: si, wallIds: e.wallIds ?? [e.wallId], angle: angle2 });
   }
 
   // Sort adjacency by angle for each vertex
@@ -138,6 +181,7 @@ export function detectRooms(walls: Wall[]): Room[] {
   // Find minimal cycles using "next edge" (leftmost turn) traversal
   const usedDirected = new Set<string>();
   const rooms: Room[] = [];
+  const polygons: Point[][] = [];
   let roomCount = 0;
 
   // A cycle cannot visit more edges than exist in the graph.
@@ -166,7 +210,7 @@ export function detectRooms(walls: Wall[]): Room[] {
         // Find the wall for this edge
         const neighbors = adj.get(cur);
         const edgeInfo = neighbors?.find(n => n.to === next);
-        if (edgeInfo) wallIds.push(edgeInfo.wallId);
+        if (edgeInfo) wallIds.push(...edgeInfo.wallIds);
 
         if (next === from && cycle.length > 3) break; // closed
 
@@ -224,6 +268,7 @@ export function detectRooms(walls: Wall[]): Room[] {
       if (dup) continue;
 
       roomCount++;
+      polygons.push(poly);
       rooms.push({
         id: `room-${roomCount}-${Date.now()}`,
         name: `Room ${roomCount}`,
@@ -234,17 +279,54 @@ export function detectRooms(walls: Wall[]): Room[] {
     }
   }
 
-  return rooms;
+  // Deduct only immediate children using unrounded geometry. A grandchild is
+  // already included in its parent's footprint and must not be deducted twice.
+  const holes = roomHoles(polygons);
+  return rooms.map((room, i) => ({ ...room,
+    area: Math.round((Math.abs(shoelace(polygons[i])) -
+      holes[i].reduce((sum, ring) => sum + Math.abs(shoelace(ring)), 0)) / 100) / 100,
+  }));
 }
 
 /** Recompute geometry while retaining user metadata by boundary identity, never name. */
 export function resolveRooms(floor: Pick<Floor, 'walls' | 'rooms'>, previousRooms: Room[] = []): Room[] {
-  const key = (room: Room) => JSON.stringify([...new Set(room.walls)].sort());
-  const saved = new Map((floor.rooms ?? []).map(room => [key(room), room]));
-  const previous = new Map(previousRooms.map(room => [key(room), room]));
-  return detectRooms(floor.walls).map(room => {
+  return resolveSplitRooms(floor, previousRooms, splitWallsAtJunctions(floor.walls));
+}
+
+/** Resolve all room polygons against one ephemeral graph for this floor build.
+ * No identity cache is kept, so in-place wall edits cannot reuse stale geometry.
+ */
+export function resolveRoomGeometry(floor: Pick<Floor, 'walls' | 'rooms'>, previousRooms: Room[] = []) {
+  const edges = splitWallsAtJunctions(floor.walls);
+  return resolveSplitRooms(floor, previousRooms, edges).map(room => ({ room, polygon: polygonFromEdges(room, edges) }));
+}
+
+function resolveSplitRooms(floor: Pick<Floor, 'walls' | 'rooms'>, previousRooms: Room[], splitEdges: Edge[]): Room[] {
+  // Include coincident source aliases when matching saved boundaries. Adding a
+  // duplicate wall must not discard a room's name or finish. Ambiguous matches
+  // deliberately remain unmatched rather than picking arbitrary metadata.
+  const aliasEdges = splitEdges.filter(e => (e.wallIds?.length ?? 0) > 1);
+  const key = (room: Room) => {
+    const ids = new Set(room.walls);
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (const edge of aliasEdges) if (edge.wallIds!.some(id => ids.has(id))) {
+        for (const id of edge.wallIds!) if (!ids.has(id)) { ids.add(id); changed = true; }
+      }
+    }
+    return JSON.stringify([...ids].sort());
+  };
+  const indexed = (rooms: Room[]) => {
+    const result = new Map<string, Room | null>();
+    for (const room of rooms) { const k = key(room); result.set(k, result.has(k) ? null : room); }
+    return result;
+  };
+  const saved = indexed(floor.rooms ?? []);
+  const previous = indexed(previousRooms);
+  return (floor.walls.length < 2 ? [] : detectSplitRooms(splitEdges)).map(room => {
     const metadata = saved.get(key(room));
-    if (metadata) return { ...room, ...metadata, walls: room.walls, area: room.area };
+    if (metadata) return { ...room, ...metadata, walls: room.walls, area: metadata.floorOpening ? 0 : room.area };
     // Only the transient ID survives. Falling back to old metadata would undo
     // an intentional metadata removal (e.g. undoing a room rename).
     return { ...room, id: previous.get(key(room))?.id ?? room.id };
@@ -263,16 +345,21 @@ function shoelace(pts: Point[]): number {
 /**
  * Get polygon vertices for a room from its walls.
  *
- * detectRooms() traces cycles over walls split at T-junctions, so a room may
+ * detectRooms() traces cycles over walls split at junctions, so a room may
  * border only a sub-segment of a wall. Chaining full wall segments here would
  * overshoot the room at such walls and break the loop (partial polygons with a
  * spurious diagonal closing edge), so we chain the same split edges instead.
  */
 export function getRoomPolygon(room: Room, walls: Wall[]): Point[] {
   const wallIds = new Set(room.walls);
-  if (walls.filter(w => wallIds.has(w.id)).length < 3) return [];
+  if (walls.filter(w => wallIds.has(w.id)).length < 2) return [];
 
-  let edges = splitWallsAtTJunctions(walls).filter(e => wallIds.has(e.wallId));
+  return polygonFromEdges(room, splitWallsAtJunctions(walls));
+}
+
+function polygonFromEdges(room: Room, splitEdges: Edge[]): Point[] {
+  const wallIds = new Set(room.walls);
+  let edges = splitEdges.filter(e => (e.wallIds ?? [e.wallId]).some(id => wallIds.has(id)));
 
   // Iteratively prune dangling sub-segments (parts of split walls that extend
   // past the room and connect to nothing else on this room's boundary).
@@ -325,4 +412,10 @@ export function roomCentroid(polygon: Point[]): Point {
   const cx = polygon.reduce((s, p) => s + p.x, 0) / polygon.length;
   const cy = polygon.reduce((s, p) => s + p.y, 0) / polygon.length;
   return { x: cx, y: cy };
+}
+
+/** Shared label anchor; room geometry and dimension annotations stay unshifted. */
+export function roomLabelPosition(room: Pick<Room, 'labelOffset'>, polygon: Point[], holes: Point[][] = []): Point {
+  const center = room.labelOffset ? roomCentroid(polygon) : roomInteriorPoint(polygon, holes);
+  return { x: center.x + (room.labelOffset?.x ?? 0), y: center.y + (room.labelOffset?.y ?? 0) };
 }

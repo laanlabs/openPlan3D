@@ -47,6 +47,9 @@ function observe(page: Page) {
 }
 for (const width of [1440, 390]) {
   test(`same-ID imports preserve pending edits and reopen as separate copies at ${width}px`, async ({ page }, testInfo) => {
+    // This end-to-end case includes multiple downloads, persistence/reloads and
+    // a cold 3D renderer. Preserve each phase on slower software-rendered hosts.
+    test.slow();
     await page.setViewportSize({ width, height: 900 });
     const check = observe(page), source = await seed(page);
     const normalized = await exportJSON(page);
@@ -68,7 +71,7 @@ for (const width of [1440, 390]) {
     await page.getByRole('link', { name: 'Latest original edits', exact: true }).click();
     expect((await exportJSON(page)).id).toBe(source.id);
     await page.getByRole('button', { name: '3D', exact: true }).click();
-    await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible();
+    await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible({ timeout: 60_000 });
     await testInfo.attach(`preserved-original-${width}`, { body: await page.screenshot(), contentType: 'image/png' });
     check();
   });

@@ -7,7 +7,7 @@ import { validatePackagePlan } from '$lib/utils/projectPackageBridge';
 import { roomProject } from './fixtures/project';
 import { mockStorage, rawRecords, failWrites } from './fixtures/indexeddb';
 import { createLocalStore } from '$lib/services/datastore';
-import { currentProject, loadProject, updateProjectName } from '$lib/stores/project';
+import { currentProject, loadProject, updateProjectName, createDefaultFloor } from '$lib/stores/project';
 
 const pixel = Uint8Array.from(Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a6WQAAAAASUVORK5CYII=', 'base64'));
 const native = () => JSON.parse(readFileSync('tests/fixtures/handoff-plan.json', 'utf8'));
@@ -177,4 +177,76 @@ it('emits shared contract fixtures when explicitly requested', () => {
   mkdirSync(process.env.OPENPLAN_PACKAGE_FIXTURES, { recursive: true });
   writeFileSync(`${process.env.OPENPLAN_PACKAGE_FIXTURES}/native-project-package.zip`, writePackageZip(nativeFiles()));
   writeFileSync(`${process.env.OPENPLAN_PACKAGE_FIXTURES}/web-project-package.zip`, projectPackageBytes(webFixture()));
+  const rotated = webFixture(); rotated.name = 'QA Rotated Underlay';
+  rotated.floors[0].furniture = []; rotated.floors[0].textAnnotations = [];
+  rotated.floors[0].backgroundImage = { dataUrl: `data:image/png;base64,${readFileSync('tests/fixtures/underlay-orientation.png').toString('base64')}`, position: { x: 300, y: 200 }, scale: 2, rotation: 90, opacity: 0.45, locked: true };
+  writeFileSync(`${process.env.OPENPLAN_PACKAGE_FIXTURES}/rotated-underlay-project-package.zip`, projectPackageBytes(rotated));
+});
+
+it.each([-90, 37.25, 180])('shares a tracing image rotated %s degrees without changing its bytes or web controls', rotation => {
+  const source = webFixture();
+  source.floors[0].backgroundImage!.rotation = rotation;
+  const files = readPackageZip(projectPackageBytes(source));
+  const plan = packageJSON(files['plan.json']);
+  expect(plan.underlay.angle).toBeCloseTo(rotation * Math.PI / 180, 12);
+  expect(files[`assets/${plan.underlay.imageFilename}`]).toEqual(pixel);
+  expect(readProjectPackage(writePackageZip(files)).project.floors[0].backgroundImage).toEqual(source.floors[0].backgroundImage);
+  plan.underlay.angle = -Math.PI / 4;
+  files['plan.json'] = jsonBytes(plan);
+  expect(readProjectPackage(writePackageZip(files)).project.floors[0].backgroundImage).toEqual({ ...source.floors[0].backgroundImage, rotation: -45 });
+  delete plan.underlay.angle;
+  files['plan.json'] = jsonBytes(plan);
+  expect(readProjectPackage(writePackageZip(files)).project.floors[0].backgroundImage).toEqual({ ...source.floors[0].backgroundImage, rotation: 0 });
+});
+it('rejects invalid native tracing image angles', () => {
+  for (const angle of ['90', 100_001, -100_001]) {
+    const files = nativeFiles(), plan = packageJSON(files['plan.json']);
+    plan.underlay.angle = angle;
+    files['plan.json'] = jsonBytes(plan);
+    expect(() => readProjectPackage(writePackageZip(files))).toThrow();
+  }
+});
+
+it('associates new web underlays with their floor and follows native floor changes', () => {
+  const source = webFixture(); source.floors[0].level = 3;
+  const other = createDefaultFloor(7); source.floors.push(other);
+  const files = readPackageZip(projectPackageBytes(source)), plan = packageJSON(files['plan.json']);
+  expect(plan.underlay.level).toBe(3);
+  plan.underlay.level = 7; files['plan.json'] = jsonBytes(plan);
+  const moved = readProjectPackage(writePackageZip(files)).project;
+  expect(moved.floors.find(f => f.id === source.floors[0].id)!.backgroundImage).toBeUndefined();
+  const owner = moved.floors.find(f => f.id === other.id)!;
+  expect(owner.backgroundImage).toEqual(source.floors[0].backgroundImage);
+  owner.backgroundImage!.scale = 321.25;
+  owner.level = -2;
+  const exported = packageJSON(readPackageZip(projectPackageBytes(moved))['plan.json']);
+  expect(exported.underlay).toMatchObject({ level: -2, widthMeters: 3.2125 });
+});
+it('places native-only underlays on their explicit floor, including image-only levels', () => {
+  const files = nativeFiles(), plan = packageJSON(files['plan.json']);
+  plan.underlay.level = 8; files['plan.json'] = jsonBytes(plan);
+  const project = readProjectPackage(writePackageZip(files)).project;
+  expect(project.floors.filter(f => f.backgroundImage).map(f => f.level)).toEqual([8]);
+  const owner = project.floors.find(f => f.level === 8)!;
+  owner.backgroundImage!.rotation = 90; owner.level = -4;
+  const returned = packageJSON(readPackageZip(projectPackageBytes(project))['plan.json']);
+  expect(returned.underlay).toMatchObject({ level: -4, angle: Math.PI / 2 });
+});
+it('removing an owned tracing floor removes its native reference while retaining recoverable bytes', () => {
+  const source = webFixture(); source.floors.push(createDefaultFloor(2));
+  const original = readPackageZip(projectPackageBytes(source));
+  const plan = packageJSON(original['plan.json']);
+  const project = readProjectPackage(writePackageZip(original)).project;
+  project.floors = project.floors.filter(f => f.id !== source.floors[0].id);
+  project.activeFloorId = project.floors[0].id;
+  const returned = readPackageZip(projectPackageBytes(project));
+  expect(packageJSON(returned['plan.json']).underlay).toBeUndefined();
+  expect(returned[`assets/${plan.underlay.imageFilename}`]).toEqual(pixel);
+});
+it('rejects non-integer and out-of-range tracing floors', () => {
+  for (const level of [1.5, '0', 1001, -1001]) {
+    const files = nativeFiles(), plan = packageJSON(files['plan.json']);
+    plan.underlay.level = level; files['plan.json'] = jsonBytes(plan);
+    expect(() => readProjectPackage(writePackageZip(files))).toThrow();
+  }
 });

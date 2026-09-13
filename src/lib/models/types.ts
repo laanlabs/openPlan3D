@@ -65,6 +65,8 @@ export function getWallHeightAt(wall: Wall, t: number): number {
 export type RoomCategory = 'indoor' | 'outdoor' | 'garage' | 'utility';
 
 export interface Room {
+  /** Enclosed opening through this floor's slab; excluded from usable floor area. */
+  floorOpening?: boolean;
   details?: ItemDetails;
   id: string;
   name: string;
@@ -101,6 +103,8 @@ export interface Window {
 }
 
 export interface FurnitureItem {
+  /** Project-owned model; catalogId remains a portable procedural fallback. */
+  customModelId?: string;
   details?: ItemDetails;
   id: string;
   catalogId: string;
@@ -214,6 +218,8 @@ export interface Floor {
   level: number;
   /** Floor surface above ground in cm; omitted in legacy projects (level × 300). */
   elevation?: number;
+  /** Room slab depth below the floor surface in cm; defaults to 5. */
+  slabThickness?: number;
   walls: Wall[];
   rooms: Room[];
   doors: Door[];
@@ -230,7 +236,23 @@ export interface Floor {
   entourage?: EntourageItem[];
 }
 
+export interface CustomModelDef {
+  id: string;
+  name: string;
+  assetName: string; // filename within projectPackage.assets, without assets/
+  sourceFilename: string;
+  sha256: string; // digest of original GLB bytes, checked again before loading
+  byteLength: number;
+  width: number; // cm
+  depth: number; // cm
+  height: number; // cm
+  attribution?: string;
+  license?: string;
+  sourceUrl?: string;
+}
+
 export interface Project {
+  customModels?: CustomModelDef[];
   attachmentNames?: Record<string, string>;
   projectPackage?: ProjectPackageState;
   id: string;

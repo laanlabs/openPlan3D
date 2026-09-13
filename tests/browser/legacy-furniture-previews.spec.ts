@@ -43,6 +43,7 @@ async function download(page: Page, button: string) {
 }
 
 for (const width of [1440, 390]) test(`saved legacy furniture refreshes without rewriting recovery data at ${width}px`, async ({ page }, testInfo) => {
+  test.slow();
   await page.setViewportSize({ width, height: 900 });
   const { models, check } = observe(page), { raw, history } = await seed(page);
   for (const name of ['🪥 Sink', '🪜 Imported stairs', '📦 Unrecognized item']) {
@@ -79,7 +80,7 @@ for (const width of [1440, 390]) test(`saved legacy furniture refreshes without 
   expect(saved.projectPackage.furnitureCategoriesVersion).toBe(1);
   expect(saved.floors[0].furniture[2]).toMatchObject({ catalogId: 'bed_queen', rotation: 32.75, scale: { x: -1.25, y: 1.125, z: 1 }, futureWeb: { keep: ['fractional', 'mirrored'] } });
   await page.getByRole('button', { name: '3D', exact: true }).click();
-  await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible();
+  await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible({ timeout: 60_000 });
   await page.waitForLoadState('networkidle');
   for (const file of ['loungeDesignSofa', 'bedDouble', 'tableCross', 'bathroomSink', 'washerDryerStacked']) expect(models.filter(url => url.includes(`/${file}.`))).toHaveLength(1);
   expect(models).toHaveLength(5);

@@ -126,7 +126,7 @@ it('checks image dimensions and accounts for a project and its deduplicated save
   expect(() => checkPhotoStorage(p, next, [], { usage: 0, quota: 100_000_000 })).not.toThrow();
   next.description = 'x'.repeat(7 * 1024 * 1024);
   expect(() => checkPhotoStorage(p, next, [])).toThrow(/64 MiB/);
-});
+}, 15_000); // Exercises multi-megabyte serialization; this is a quota check, not a speed benchmark.
 it('stores a photo once across saved versions and restores independent copies through library backups', async () => {
   const p = attachItemPhoto(state(), target(state(), 'furniture'), photo); loadProject(p);
   const store = createLocalStore(); await store.save(p);

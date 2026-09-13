@@ -1,9 +1,26 @@
+import { prepareEntourageImage } from './entourageImages';
+import type { Locale } from '$lib/i18n';
+import { furnitureName } from '$lib/i18n/furnitureNames';
+import { roomHoles, traceRoomRings } from './roomNesting';
+import { getEntourageDef } from './entourageCatalog';
+import { entouragePlanBounds } from './entouragePlanBounds';
+import { planContentBounds } from './planContentBounds';
+import { columnPlanBounds } from './columnPlanGeometry';
+import { hasPlanExportContent } from './planExportContent';
+import { dimensionPlanGeometry } from './dimensionPlanGeometry';
+import { textAnnotationBounds, textAnnotationLines } from './textAnnotationLayout';
+import { canvasSymbolSvg } from './canvasSymbolSvg';
+import { furnitureSvg } from './furnitureSvg';
+import { furniturePlanBounds } from './furniturePlanBounds';
+import { canvasPNG } from './canvasPNG';
+import { planOpening } from './planOpening';
+import { wallPlanBounds, wallPlanDimension } from './wallPlanGeometry';
 import type { Project, Floor } from '$lib/models/types';
-import { getCatalogItem } from '$lib/utils/furnitureCatalog';
-import { resolveRooms, getRoomPolygon, roomCentroid } from '$lib/utils/roomDetection';
-import { drawDoorOnWall, drawWindowOnWall, drawEntourageItems } from '$lib/utils/canvasRenderer';
+import { getCatalogItem, getFurnitureSize } from '$lib/utils/furnitureCatalog';
+import { resolveRooms, getRoomPolygon, roomLabelPosition } from '$lib/utils/roomDetection';
+import { drawStair, drawFurnitureItem, drawColumn, drawDoorOnWall, drawWindowOnWall, drawEntourageItems, drawTextAnnotations, drawAnnotations, drawPersistedMeasurements } from '$lib/utils/canvasRenderer';
 import type { CanvasState } from '$lib/utils/canvasInteraction';
-import { projectSettings, formatArea } from '$lib/stores/settings';
+import { projectSettings, formatArea, formatLength } from '$lib/stores/settings';
 import { get } from 'svelte/store';
 import jsPDF from 'jspdf';
 
@@ -31,12 +48,93 @@ function extendBoundsForOpenings(
   for (const d of floor.doors) {
     const wall = floor.walls.find(w => w.id === d.wallId);
     if (!wall) continue;
-    const px = wall.start.x + (wall.end.x - wall.start.x) * d.position;
-    const py = wall.start.y + (wall.end.y - wall.start.y) * d.position;
+    const frame = planOpening(wall, d.position, d.width);
+    if (!frame) continue;
+    const px = frame.wall.start.x + (frame.wall.end.x - frame.wall.start.x) * frame.position;
+    const py = frame.wall.start.y + (frame.wall.end.y - frame.wall.start.y) * frame.position;
     bounds.minX = Math.min(bounds.minX, px - d.width);
     bounds.minY = Math.min(bounds.minY, py - d.width);
     bounds.maxX = Math.max(bounds.maxX, px + d.width);
     bounds.maxY = Math.max(bounds.maxY, py + d.width);
+  }
+}
+
+/** Include label ink, not just its anchor, before framing a plan export. */
+function extendBoundsForRoomLabels(floor: Floor, bounds: { minX: number; minY: number; maxX: number; maxY: number }) {
+  const ctx = document.createElement('canvas').getContext('2d');
+  if (!ctx) return;
+  const rooms = resolveRooms(floor), polygons = rooms.map(room=>getRoomPolygon(room,floor.walls));
+  const holes = roomHoles(polygons);
+  for (const [index,room] of rooms.entries()) {
+    const poly = polygons[index];
+    if (poly.length < 3) continue;
+    const anchor = roomLabelPosition(room, poly, holes[index]);
+    ctx.font = 'bold 13px sans-serif';
+    const nameWidth = ctx.measureText(room.name).width;
+    ctx.font = '11px sans-serif';
+    const width = Math.max(nameWidth, ctx.measureText(formatArea(room.area, get(projectSettings).units)).width);
+    bounds.minX = Math.min(bounds.minX, anchor.x - width / 2);
+    bounds.maxX = Math.max(bounds.maxX, anchor.x + width / 2);
+    bounds.minY = Math.min(bounds.minY, anchor.y - 13);
+    bounds.maxY = Math.max(bounds.maxY, anchor.y + 18);
+  }
+}
+
+function extendBoundsForMeasurements(floor: Floor, bounds: { minX: number; minY: number; maxX: number; maxY: number }) {
+  const ctx = document.createElement('canvas').getContext('2d');
+  if (!ctx) return;
+  ctx.font = 'bold 12px sans-serif';
+  for (const m of floor.measurements ?? []) {
+    const width = ctx.measureText(formatLength(Math.hypot(m.x2-m.x1,m.y2-m.y1),get(projectSettings).units)).width;
+    const x=(m.x1+m.x2)/2,y=(m.y1+m.y2)/2;
+    bounds.minX=Math.min(bounds.minX,m.x1-3,m.x2-3,x-width/2-2);
+    bounds.maxX=Math.max(bounds.maxX,m.x1+3,m.x2+3,x+width/2+2);
+    bounds.minY=Math.min(bounds.minY,m.y1-3,m.y2-3,y-20);
+    bounds.maxY=Math.max(bounds.maxY,m.y1+3,m.y2+3,y+2);
+  }
+}
+
+function extendBoundsForDimensions(floor: Floor, bounds: { minX: number; minY: number; maxX: number; maxY: number }) {
+  const ctx = document.createElement('canvas').getContext('2d');
+  if (!ctx) return;
+  ctx.font = '11px sans-serif';
+  for (const note of floor.annotations ?? []) {
+    const g = dimensionPlanGeometry(note);
+    if (!g) continue;
+    const width = ctx.measureText(note.label || formatLength(g.length, get(projectSettings).units)).width;
+    const points = [{x:note.x1,y:note.y1},{x:note.x2,y:note.y2},g.start,g.end,
+      {x:g.center.x-width/2,y:g.center.y-11},{x:g.center.x+width/2,y:g.center.y+11}];
+    bounds.minX=Math.min(bounds.minX,...points.map(p=>p.x-8)); bounds.minY=Math.min(bounds.minY,...points.map(p=>p.y-8));
+    bounds.maxX=Math.max(bounds.maxX,...points.map(p=>p.x+8)); bounds.maxY=Math.max(bounds.maxY,...points.map(p=>p.y+8));
+  }
+}
+
+/** Reuse the editor's complete stair footprint and rotated caption bounds. */
+function extendBoundsForStairs(floor: Floor, bounds: { minX: number; minY: number; maxX: number; maxY: number }) {
+  if (!floor.stairs?.length) return;
+  const context=document.createElement('canvas').getContext('2d');
+  if (!context) return;
+  const b=planContentBounds({...floor,walls:[],doors:[],windows:[],rooms:[],furniture:[],columns:[],entourage:[],measurements:[],annotations:[],textAnnotations:[],backgroundImage:undefined}, {context,entourageAspect:()=>1});
+  if (!b) return;
+  bounds.minX=Math.min(bounds.minX,b.minX); bounds.minY=Math.min(bounds.minY,b.minY);
+  bounds.maxX=Math.max(bounds.maxX,b.maxX); bounds.maxY=Math.max(bounds.maxY,b.maxY);
+}
+
+function extendBoundsForColumns(floor: Floor, bounds: { minX: number; minY: number; maxX: number; maxY: number }) {
+  for (const column of floor.columns ?? []) {
+    const b = columnPlanBounds(column);
+    bounds.minX = Math.min(bounds.minX, b.minX); bounds.minY = Math.min(bounds.minY, b.minY);
+    bounds.maxX = Math.max(bounds.maxX, b.maxX); bounds.maxY = Math.max(bounds.maxY, b.maxY);
+  }
+}
+
+function extendBoundsForText(floor: Floor, bounds: { minX: number; minY: number; maxX: number; maxY: number }) {
+  const ctx = document.createElement('canvas').getContext('2d');
+  if (!ctx) return;
+  for (const note of floor.textAnnotations ?? []) {
+    const b = textAnnotationBounds(note, ctx);
+    bounds.minX = Math.min(bounds.minX, b.minX); bounds.minY = Math.min(bounds.minY, b.minY);
+    bounds.maxX = Math.max(bounds.maxX, b.maxX); bounds.maxY = Math.max(bounds.maxY, b.maxY);
   }
 }
 
@@ -53,13 +151,21 @@ function drawOpeningsOnCanvas(
   pad: number,
 ) {
   const cs: CanvasState = { ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY };
-  for (const d of floor.doors) {
-    const wall = floor.walls.find(w => w.id === d.wallId);
-    if (wall) drawDoorOnWall(cs, wall, d);
-  }
-  for (const win of floor.windows) {
-    const wall = floor.walls.find(w => w.id === win.wallId);
-    if (wall) drawWindowOnWall(cs, wall, win);
+  for (const opening of [...floor.doors, ...floor.windows]) {
+    const source = floor.walls.find(w => w.id === opening.wallId);
+    if (!source) continue;
+    const frame = planOpening(source, opening.position, opening.width);
+    if (!frame) continue;
+    if (frame.curve) {
+      const { start, control, end } = frame.curve;
+      ctx.save(); ctx.strokeStyle = '#fff'; ctx.lineWidth = source.thickness + 2; ctx.lineCap = 'butt';
+      ctx.beginPath(); ctx.moveTo(start.x-minX+pad, start.y-minY+pad);
+      ctx.quadraticCurveTo(control.x-minX+pad, control.y-minY+pad, end.x-minX+pad, end.y-minY+pad);
+      ctx.stroke(); ctx.restore();
+    }
+    const symbol = { ...opening, position: frame.position, width: frame.width };
+    if (floor.doors.includes(opening as typeof floor.doors[number])) drawDoorOnWall(cs, frame.wall, symbol as typeof floor.doors[number]);
+    else drawWindowOnWall(cs, frame.wall, symbol as typeof floor.windows[number]);
   }
 }
 
@@ -68,34 +174,50 @@ function drawOpeningsOnCanvas(
  * Renders all walls/rooms/doors/furniture onto an offscreen canvas
  * so the export isn't limited to the current viewport.
  */
-export function exportAsPNG(canvas: HTMLCanvasElement, project?: Project) {
+export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Project) {
   const name = project?.name || 'floorplan';
 
   if (project) {
-    const floor = project.floors.find(f => f.id === project.activeFloorId) ?? project.floors[0];
-    if (floor && floor.walls.length > 0) {
+    const snapshot=structuredClone(project);
+    const floor = snapshot.floors.find(f => f.id === snapshot.activeFloorId) ?? snapshot.floors[0];
+    const entourage=(floor?.entourage ?? []).flatMap(item=>{
+      const def=getEntourageDef(item.defId),custom=def?undefined:snapshot.customEntourage?.find(d=>d.id===item.defId);
+      return def || custom ? [{item,custom,aspect:def?.aspect ?? custom!.aspect}] : [];
+    });
+    if (floor && (hasPlanExportContent(floor) || entourage.length)) {
+      const preparedImages=new Map(await Promise.all([...new Set(entourage.flatMap(e=>e.custom?[e.custom]:[]))].map(async def=>[def.id,await prepareEntourageImage(def)] as const)));
       // Compute bounds of all geometry
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
       for (const w of floor.walls) {
-        for (const p of [w.start, w.end]) {
-          minX = Math.min(minX, p.x); minY = Math.min(minY, p.y);
-          maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y);
+        for (const b of [wallPlanBounds(w)]) {
+          minX = Math.min(minX, b.minX); minY = Math.min(minY, b.minY);
+          maxX = Math.max(maxX, b.maxX); maxY = Math.max(maxY, b.maxY);
         }
       }
-      for (const fi of floor.furniture) {
-        minX = Math.min(minX, fi.position.x - 50);
-        minY = Math.min(minY, fi.position.y - 50);
-        maxX = Math.max(maxX, fi.position.x + 50);
-        maxY = Math.max(maxY, fi.position.y + 50);
-      }
+
       const bounds = { minX, minY, maxX, maxY };
+      for (const item of floor.furniture) {
+        const b = furniturePlanBounds(item);
+        bounds.minX = Math.min(bounds.minX, b.minX); bounds.minY = Math.min(bounds.minY, b.minY);
+        bounds.maxX = Math.max(bounds.maxX, b.maxX); bounds.maxY = Math.max(bounds.maxY, b.maxY);
+      }
+      for(const {item,aspect} of entourage){const b=entouragePlanBounds(item,aspect);
+        bounds.minX=Math.min(bounds.minX,b.minX-2);bounds.minY=Math.min(bounds.minY,b.minY-2);
+        bounds.maxX=Math.max(bounds.maxX,b.maxX+2);bounds.maxY=Math.max(bounds.maxY,b.maxY+2);
+      }
       extendBoundsForOpenings(floor, bounds);
+      extendBoundsForRoomLabels(floor, bounds);
+      extendBoundsForColumns(floor, bounds);
+      extendBoundsForStairs(floor, bounds);
+      extendBoundsForText(floor, bounds);
+      extendBoundsForDimensions(floor, bounds);
+      extendBoundsForMeasurements(floor, bounds);
       ({ minX, minY, maxX, maxY } = bounds);
       const pad = 80;
       const w = maxX - minX + pad * 2;
       const h = maxY - minY + pad * 2;
-      // Scale up for high-res (2x)
-      const scale = 2;
+      // Prefer 2x resolution, bounded to 4096 pixels per side.
+      const scale = Math.min(2, 4096 / Math.max(w, h));
       const offscreen = document.createElement('canvas');
       offscreen.width = w * scale;
       offscreen.height = h * scale;
@@ -107,22 +229,19 @@ export function exportAsPNG(canvas: HTMLCanvasElement, project?: Project) {
       // Draw room fills
       const ROOM_COLORS = ['#bfdbfe', '#fde68a', '#bbf7d0', '#fecaca', '#ddd6fe', '#a5f3fc', '#fed7aa'];
       const rooms = resolveRooms(floor);
+      const polygons = rooms.map(room => getRoomPolygon(room, floor.walls));
+      const holes = roomHoles(polygons);
       for (let ri = 0; ri < rooms.length; ri++) {
         const room = rooms[ri];
-        const poly = getRoomPolygon(room, floor.walls);
+        const poly = polygons[ri];
         if (poly.length < 3) continue;
         ctx.fillStyle = ROOM_COLORS[ri % ROOM_COLORS.length];
         ctx.globalAlpha = 0.4;
-        ctx.beginPath();
-        ctx.moveTo(poly[0].x - minX + pad, poly[0].y - minY + pad);
-        for (let i = 1; i < poly.length; i++) {
-          ctx.lineTo(poly[i].x - minX + pad, poly[i].y - minY + pad);
-        }
-        ctx.closePath();
-        ctx.fill();
+        traceRoomRings(ctx, poly, holes[ri], p => ({x:p.x-minX+pad,y:p.y-minY+pad}));
+        if (!room.floorOpening) ctx.fill('evenodd');
         ctx.globalAlpha = 1;
         // Room label
-        const c = roomCentroid(poly);
+        const c = roomLabelPosition(room, poly, holes[ri]);
         ctx.fillStyle = '#444';
         ctx.font = 'bold 12px sans-serif';
         ctx.textAlign = 'center';
@@ -139,53 +258,38 @@ export function exportAsPNG(canvas: HTMLCanvasElement, project?: Project) {
         ctx.lineWidth = wall.thickness;
         ctx.beginPath();
         ctx.moveTo(wall.start.x - minX + pad, wall.start.y - minY + pad);
-        ctx.lineTo(wall.end.x - minX + pad, wall.end.y - minY + pad);
+        if (wall.curvePoint) ctx.quadraticCurveTo(wall.curvePoint.x - minX + pad, wall.curvePoint.y - minY + pad, wall.end.x - minX + pad, wall.end.y - minY + pad);
+        else ctx.lineTo(wall.end.x - minX + pad, wall.end.y - minY + pad);
         ctx.stroke();
         // Dimension label
-        const len = Math.round(Math.hypot(wall.end.x - wall.start.x, wall.end.y - wall.start.y));
-        const mx = (wall.start.x + wall.end.x) / 2 - minX + pad;
-        const my = (wall.start.y + wall.end.y) / 2 - minY + pad;
+        const { length: len, point: midpoint } = wallPlanDimension(wall);
+        const mx = midpoint.x - minX + pad;
+        const my = midpoint.y - minY + pad;
         ctx.fillStyle = '#666';
         ctx.font = '11px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(`${len} cm`, mx, my - 8);
+        ctx.fillText(`${len} cm`, mx, my);
       }
 
-      // Entourage symbols (images may need a prior on-canvas render to be cached)
+      // Entourage images are ready before the export is drawn.
       if (floor.entourage?.length) {
-        drawEntourageItems({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, project.customEntourage);
+        drawEntourageItems({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, snapshot.customEntourage, undefined, preparedImages);
       }
 
       // Draw doors and windows (shared full-fidelity renderer)
       drawOpeningsOnCanvas(ctx, floor, minX, minY, pad);
 
-      // Draw furniture
-      for (const fi of floor.furniture) {
-        const fx = fi.position.x - minX + pad;
-        const fy = fi.position.y - minY + pad;
-        const cat = getCatalogItem(fi.catalogId);
-        const fw = fi.width ?? (cat ? cat.width : 30);
-        const fd = fi.depth ?? (cat ? cat.depth : 30);
-        const color = fi.color ?? (cat ? cat.color : '#a0c4e8');
-        const rot = (fi.rotation || 0) * Math.PI / 180;
-        ctx.save();
-        ctx.translate(fx, fy);
-        ctx.rotate(rot);
-        ctx.globalAlpha = 0.7;
-        ctx.fillStyle = color;
-        ctx.fillRect(-fw / 2, -fd / 2, fw, fd);
-        ctx.strokeStyle = '#555';
-        ctx.lineWidth = 0.5;
-        ctx.strokeRect(-fw / 2, -fd / 2, fw, fd);
-        ctx.globalAlpha = 1;
-        if (cat) {
-          ctx.fillStyle = '#333';
-          ctx.font = '9px sans-serif';
-          ctx.textAlign = 'center';
-          ctx.fillText(cat.name, 0, 4);
-        }
-        ctx.restore();
-      }
+      for (const item of floor.furniture) drawFurnitureItem({
+        ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY,
+      }, item, false);
+
+      ctx.save();
+      for (const stair of floor.stairs ?? []) drawStair({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, stair, false);
+      for (const column of floor.columns ?? []) drawColumn({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, column, false);
+      drawPersistedMeasurements({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, get(projectSettings));
+      ctx.restore();
+      drawAnnotations({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, get(projectSettings));
+      drawTextAnnotations({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, null);
 
       // Title
       ctx.fillStyle = '#222';
@@ -193,34 +297,54 @@ export function exportAsPNG(canvas: HTMLCanvasElement, project?: Project) {
       ctx.textAlign = 'left';
       ctx.fillText(`${name} — ${floor.name}`, 20, 24);
 
-      offscreen.toBlob((blob) => {
-        if (blob) download(blob, `${name}.png`);
-      });
-      return;
+      download(await canvasPNG(offscreen), `${name}.png`);
+      return true;
     }
   }
 
-  // Fallback: just capture the viewport canvas
-  canvas.toBlob((blob) => {
-    if (blob) download(blob, `${name}-2d.png`);
-  });
+  // Project exports never substitute an unrelated viewport for an empty floor.
+  if (project) return false;
+  if (!canvas) throw new Error('No viewport available');
+  download(await canvasPNG(canvas), `${name}-2d.png`);
+  return true;
 }
 
 export { downloadProjectJSON as exportAsJSON } from './projectBackup';
 
-export function exportAsSVG(project: Project) {
+export function exportAsSVG(project: Project, language: Locale = 'en') {
   const floor = project.floors.find(f => f.id === project.activeFloorId) ?? project.floors[0];
-  if (!floor || floor.walls.length === 0) return;
+  if (!floor) return;
+  const entourage=(floor.entourage ?? []).flatMap(item=>{
+    const def=getEntourageDef(item.defId), custom=def?undefined:project.customEntourage?.find(d=>d.id===item.defId);
+    return def || custom ? [{item,def,custom,aspect:def?.aspect ?? custom!.aspect}] : [];
+  });
+  if (!hasPlanExportContent(floor) && !entourage.length) return;
 
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const w of floor.walls) {
-    for (const p of [w.start, w.end]) {
-      minX = Math.min(minX, p.x); minY = Math.min(minY, p.y);
-      maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y);
+    for (const b of [wallPlanBounds(w)]) {
+      minX = Math.min(minX, b.minX); minY = Math.min(minY, b.minY);
+      maxX = Math.max(maxX, b.maxX); maxY = Math.max(maxY, b.maxY);
     }
   }
   const svgBounds = { minX, minY, maxX, maxY };
+  for (const item of floor.furniture) {
+    const b = furniturePlanBounds(item);
+    svgBounds.minX = Math.min(svgBounds.minX, b.minX); svgBounds.minY = Math.min(svgBounds.minY, b.minY);
+    svgBounds.maxX = Math.max(svgBounds.maxX, b.maxX); svgBounds.maxY = Math.max(svgBounds.maxY, b.maxY);
+  }
+  for (const {item,aspect} of entourage) {
+    const b=entouragePlanBounds(item,aspect);
+    svgBounds.minX=Math.min(svgBounds.minX,b.minX-2);svgBounds.minY=Math.min(svgBounds.minY,b.minY-2);
+    svgBounds.maxX=Math.max(svgBounds.maxX,b.maxX+2);svgBounds.maxY=Math.max(svgBounds.maxY,b.maxY+2);
+  }
   extendBoundsForOpenings(floor, svgBounds);
+  extendBoundsForRoomLabels(floor, svgBounds);
+  extendBoundsForColumns(floor, svgBounds);
+  extendBoundsForStairs(floor, svgBounds);
+  extendBoundsForText(floor, svgBounds);
+  extendBoundsForDimensions(floor, svgBounds);
+  extendBoundsForMeasurements(floor, svgBounds);
   ({ minX, minY, maxX, maxY } = svgBounds);
   const pad = 50;
   const vw = maxX - minX + pad * 2;
@@ -231,14 +355,19 @@ export function exportAsSVG(project: Project) {
   // Room fills
   const ROOM_COLORS_SVG = ['#bfdbfe', '#fde68a', '#bbf7d0', '#fecaca', '#ddd6fe', '#a5f3fc', '#fed7aa'];
   const rooms = resolveRooms(floor);
+  const polygons = rooms.map(room => getRoomPolygon(room, floor.walls));
+  const holes = roomHoles(polygons);
   for (let ri = 0; ri < rooms.length; ri++) {
     const room = rooms[ri];
-    const poly = getRoomPolygon(room, floor.walls);
+    const poly = polygons[ri];
     if (poly.length < 3) continue;
     const pts = poly.map(p => `${p.x - minX + pad},${p.y - minY + pad}`).join(' ');
-    const color = ROOM_COLORS_SVG[ri % ROOM_COLORS_SVG.length];
-    paths += `  <polygon points="${pts}" fill="${color}" fill-opacity="0.4" stroke="none"/>\n`;
-    const c = roomCentroid(poly);
+    const color = room.floorOpening ? 'none' : ROOM_COLORS_SVG[ri % ROOM_COLORS_SVG.length];
+    if (holes[ri].length) {
+      const d = [poly,...holes[ri]].map(ring => `M ${ring.map(p=>`${p.x-minX+pad},${p.y-minY+pad}`).join(' L ')} Z`).join(' ');
+      paths += `  <path d="${d}" fill="${color}" fill-rule="evenodd" fill-opacity="0.4" stroke="none"/>\n`;
+    } else paths += `  <polygon points="${pts}" fill="${color}" fill-opacity="0.4" stroke="none"/>\n`;
+    const c = roomLabelPosition(room, poly, holes[ri]);
     const cx = c.x - minX + pad;
     const cy = c.y - minY + pad;
     paths += `  <text x="${cx}" y="${cy}" text-anchor="middle" font-size="12" fill="#444" font-family="sans-serif" font-weight="bold">${escapeXml(room.name)}</text>\n`;
@@ -250,19 +379,38 @@ export function exportAsSVG(project: Project) {
     const y1 = w.start.y - minY + pad;
     const x2 = w.end.x - minX + pad;
     const y2 = w.end.y - minY + pad;
-    paths += `  <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#333" stroke-width="${w.thickness}" stroke-linecap="round"/>\n`;
+    if (w.curvePoint) paths += `  <path d="M ${x1} ${y1} Q ${w.curvePoint.x - minX + pad} ${w.curvePoint.y - minY + pad} ${x2} ${y2}" fill="none" stroke="#333" stroke-width="${w.thickness}" stroke-linecap="round"/>\n`;
+    else paths += `  <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#333" stroke-width="${w.thickness}" stroke-linecap="round"/>\n`;
     // dimension label
-    const len = Math.round(Math.hypot(x2 - x1, y2 - y1));
-    const mx = (x1 + x2) / 2;
-    const my = (y1 + y2) / 2;
-    paths += `  <text x="${mx}" y="${my - 8}" text-anchor="middle" font-size="11" fill="#666" font-family="sans-serif">${len} cm</text>\n`;
+    const { length: len, point: midpoint } = wallPlanDimension(w);
+    const mx = midpoint.x - minX + pad;
+    const my = midpoint.y - minY + pad;
+    paths += `  <text x="${mx}" y="${my}" text-anchor="middle" font-size="11" fill="#666" font-family="sans-serif">${len} cm</text>\n`;
+  }
+
+  for (const {item,def,custom,aspect} of entourage) {
+    const width=item.width,height=width*aspect,scale=width/100;
+    paths+=`<g data-entourage="${escapeXml(item.id)}" transform="translate(${item.position.x-minX+pad},${item.position.y-minY+pad}) rotate(${item.rotation || 0})" opacity="${item.opacity ?? 1}">`;
+    if (def && scale>.01) {
+      paths+=`<g transform="scale(${scale}) translate(-50,${-50*aspect})" fill="none" stroke="#4b5563" stroke-width="${Math.min(1.6/scale,4)}" stroke-linejoin="round" stroke-linecap="round">`;
+      for (const path of def.paths) paths+=`<path d="${escapeXml(path)}"/>`;
+      paths+='</g>';
+    } else if (custom) paths+=`<image href="${escapeXml(custom.dataUrl)}" x="${-width/2}" y="${-height/2}" width="${width}" height="${height}" preserveAspectRatio="none"/>`;
+    paths+='</g>\n';
   }
 
   // Doors: wall gap + jambs + type-specific glyph (swing arc / panels)
   const n2 = (v: number) => v.toFixed(2);
-  for (const d of floor.doors) {
-    const wall = floor.walls.find(w => w.id === d.wallId);
-    if (!wall) continue;
+  for (const original of floor.doors) {
+    const source = floor.walls.find(w => w.id === original.wallId);
+    if (!source) continue;
+    const frame = planOpening(source, original.position, original.width);
+    if (!frame) continue;
+    const wall = frame.wall, d = { ...original, position: frame.position, width: frame.width };
+    if (frame.curve) {
+      const { start, control, end } = frame.curve;
+      paths += `  <path d="M ${start.x-minX+pad} ${start.y-minY+pad} Q ${control.x-minX+pad} ${control.y-minY+pad} ${end.x-minX+pad} ${end.y-minY+pad}" fill="none" stroke="white" stroke-width="${source.thickness+2}" stroke-linecap="butt"/>\n`;
+    }
     const wdx = wall.end.x - wall.start.x;
     const wdy = wall.end.y - wall.start.y;
     const wlen = Math.hypot(wdx, wdy) || 1;
@@ -362,9 +510,16 @@ export function exportAsSVG(project: Project) {
   }
 
   // Windows: wall gap + double-line glyph
-  for (const win of floor.windows) {
-    const wall = floor.walls.find(w => w.id === win.wallId);
-    if (!wall) continue;
+  for (const original of floor.windows) {
+    const source = floor.walls.find(w => w.id === original.wallId);
+    if (!source) continue;
+    const frame = planOpening(source, original.position, original.width);
+    if (!frame) continue;
+    const wall = frame.wall, win = { ...original, position: frame.position, width: frame.width };
+    if (frame.curve) {
+      const { start, control, end } = frame.curve;
+      paths += `  <path d="M ${start.x-minX+pad} ${start.y-minY+pad} Q ${control.x-minX+pad} ${control.y-minY+pad} ${end.x-minX+pad} ${end.y-minY+pad}" fill="none" stroke="white" stroke-width="${source.thickness+2}" stroke-linecap="butt"/>\n`;
+    }
     const wdx = wall.end.x - wall.start.x;
     const wdy = wall.end.y - wall.start.y;
     const wlen = Math.hypot(wdx, wdy) || 1;
@@ -391,21 +546,30 @@ export function exportAsSVG(project: Project) {
     }
   }
 
-  // Furniture rectangles (actual dimensions from catalog)
+  // Shared furniture symbols remain editable vector geometry.
   for (const fi of floor.furniture) {
-    const fx = fi.position.x - minX + pad;
-    const fy = fi.position.y - minY + pad;
-    const cat = getCatalogItem(fi.catalogId);
-    const fw = fi.width ?? (cat ? cat.width : 30);
-    const fd = fi.depth ?? (cat ? cat.depth : 30);
-    const color = fi.color ?? (cat ? cat.color : '#a0c4e8');
-    const rot = fi.rotation || 0;
-    paths += `  <g transform="translate(${fx},${fy}) rotate(${rot})">\n`;
-    paths += `    <rect x="${-fw / 2}" y="${-fd / 2}" width="${fw}" height="${fd}" fill="${color}" stroke="#555" stroke-width="0.5" rx="2" opacity="0.7"/>\n`;
-    if (cat) {
-      paths += `    <text x="0" y="4" text-anchor="middle" font-size="9" fill="#333" font-family="sans-serif">${escapeXml(cat.name)}</text>\n`;
-    }
-    paths += `  </g>\n`;
+    const fx=fi.position.x-minX+pad, fy=fi.position.y-minY+pad;
+    const cat=getCatalogItem(fi.catalogId), {width:fw,depth:fd}=getFurnitureSize(fi);
+    const color=fi.color ?? cat?.color ?? '#888888';
+    paths+=`  <g data-furniture="${escapeXml(fi.id)}" data-width="${fw}" data-depth="${fd}" transform="translate(${fx},${fy}) rotate(${fi.rotation || 0})">\n`;
+    paths+=`<g transform="scale(${Math.sign(fi.scale?.x ?? 1)||1},${Math.sign(fi.scale?.y ?? 1)||1})">${furnitureSvg(fi.catalogId,fw,fd,color)}</g>\n`;
+    const fontSize=Math.max(8,Math.min(12,Math.min(fw,fd)*0.2));
+    if(Math.min(fw,fd)>20) paths+=`<text x="0" y="${fd/2+fontSize*0.8}" text-anchor="middle" dominant-baseline="central" font-size="${fontSize*0.7}" fill="#374151" font-family="sans-serif">${escapeXml(cat ? furnitureName(fi.catalogId, language) : 'Unknown furniture')}</text>\n`;
+    paths+='  </g>\n';
+  }
+
+  for (const stair of floor.stairs ?? []) {
+    paths+=`<g data-stair="${escapeXml(stair.id)}">${canvasSymbolSvg(ctx=>drawStair({ctx,width:pad*2,height:pad*2,zoom:1,camX:minX,camY:minY},stair,false))}</g>\n`;
+  }
+  for (const column of floor.columns ?? []) {
+    const x = column.position.x - minX + pad, y = column.position.y - minY + pad;
+    const r = column.diameter / 2, rotation = column.shape === 'square' ? column.rotation : 0;
+    paths += `  <g data-column="${escapeXml(column.id)}" transform="translate(${x},${y}) rotate(${rotation})">\n`;
+    const style = `fill="${escapeXml(column.color)}" stroke="#555" stroke-width="1"`;
+    paths += column.shape === 'round'
+      ? `    <circle r="${r}" ${style}/>\n`
+      : `    <rect x="${-r}" y="${-r}" width="${column.diameter}" height="${column.diameter}" ${style}/>\n`;
+    paths += `    <path d="M ${-r} ${-r} L ${r} ${r} M ${-r} ${r} L ${r} ${-r}" fill="none" stroke="#888" stroke-opacity="0.5" stroke-width="0.5"/>\n  </g>\n`;
   }
 
   // Measurements
@@ -414,9 +578,10 @@ export function exportAsSVG(project: Project) {
       const x1 = m.x1 - minX + pad, y1 = m.y1 - minY + pad;
       const x2 = m.x2 - minX + pad, y2 = m.y2 - minY + pad;
       paths += `  <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#ef4444" stroke-width="1" stroke-dasharray="6,3" stroke-linecap="round"/>\n`;
-      const dist = Math.round(Math.hypot(m.x2 - m.x1, m.y2 - m.y1));
+      paths += `  <circle cx="${x1}" cy="${y1}" r="3" fill="#ef4444"/><circle cx="${x2}" cy="${y2}" r="3" fill="#ef4444"/>\n`;
+      const label = formatLength(Math.hypot(m.x2-m.x1,m.y2-m.y1), get(projectSettings).units);
       const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
-      paths += `  <text x="${mx}" y="${my - 6}" text-anchor="middle" font-size="10" fill="#ef4444" font-family="sans-serif" font-weight="bold">${dist} cm</text>\n`;
+      paths += `  <text x="${mx}" y="${my - 6}" text-anchor="middle" font-size="12" fill="#ef4444" font-family="sans-serif" font-weight="bold">${escapeXml(label)}</text>\n`;
     }
   }
 
@@ -430,7 +595,7 @@ export function exportAsSVG(project: Project) {
       if (len < 1) continue;
       const ux = dx / len, uy = dy / len;
       const nx = -uy, ny = ux;
-      const offset = a.offset || 40;
+      const offset = a.offset ?? 40;
       const d1x = ax1 + nx * offset, d1y = ay1 + ny * offset;
       const d2x = ax2 + nx * offset, d2y = ay2 + ny * offset;
       // Leader lines
@@ -447,7 +612,7 @@ export function exportAsSVG(project: Project) {
       }
       // Label
       const dist = Math.round(Math.hypot(a.x2 - a.x1, a.y2 - a.y1));
-      const label = a.label || `${dist} cm`;
+      const label = a.label || formatLength(Math.hypot(a.x2-a.x1,a.y2-a.y1), get(projectSettings).units);
       const mx = (d1x + d2x) / 2, my = (d1y + d2y) / 2;
       paths += `  <text x="${mx}" y="${my - 4}" text-anchor="middle" font-size="10" fill="#6366f1" font-family="sans-serif">${escapeXml(label)}</text>\n`;
     }
@@ -459,7 +624,8 @@ export function exportAsSVG(project: Project) {
       const tx = ta.x - minX + pad;
       const ty = ta.y - minY + pad;
       const transform = ta.rotation ? ` transform="rotate(${ta.rotation} ${tx} ${ty})"` : '';
-      paths += `  <text x="${tx}" y="${ty}" text-anchor="middle" dominant-baseline="central" font-size="${ta.fontSize}" fill="${escapeXml(ta.color)}" font-family="sans-serif"${transform}>${escapeXml(ta.text)}</text>\n`;
+      const { fontSize, lines } = textAnnotationLines(ta);
+      paths += `  <text x="${tx}" y="${ty}" text-anchor="middle" dominant-baseline="central" font-size="${fontSize}" fill="${escapeXml(ta.color || '#1e293b')}" font-family="sans-serif" xml:space="preserve"${transform}>${lines.map(line => `<tspan x="${tx}" y="${ty + line.y}">${escapeXml(line.text)}</tspan>`).join('')}</text>\n`;
     }
   }
 
@@ -478,9 +644,32 @@ export function exportAs3DPNG(renderer: { domElement: HTMLCanvasElement }) {
   });
 }
 
-export function exportPDF(project: Project) {
+export async function exportPDF(project: Project) {
+  const snapshot=structuredClone(project);
+  const floor=snapshot.floors.find(f=>f.id===snapshot.activeFloorId) ?? snapshot.floors[0];
+  const definitions=[...new Set((floor?.entourage ?? []).flatMap(item=>{
+    const def=getEntourageDef(item.defId)?undefined:snapshot.customEntourage?.find(d=>d.id===item.defId);
+    return def?[def]:[];
+  }))];
+  // Capture the optional main view before waiting, so it belongs to this snapshot.
+  const source=document.querySelector<HTMLCanvasElement>('canvas[data-plan3d-canvas="true"]');
+  const capture=source?{width:source.width,height:source.height,image:undefined as string|undefined}:null;
+  if(source && capture && capture.width>10 && capture.height>10) try {
+    const context=source.getContext('webgl2') || source.getContext('webgl');
+    if(context && !context.isContextLost()) capture.image=source.toDataURL('image/png');
+  } catch { /* The completed plan can still export without the optional view. */ }
+  const preparedImages=new Map(await Promise.all(definitions.map(async def=>[def.id,await prepareEntourageImage(def)] as const)));
+  return renderPDF(snapshot,preparedImages,capture);
+}
+
+function renderPDF(project: Project, preparedImages: ReadonlyMap<string,HTMLImageElement>, capture: {width:number;height:number;image?:string}|null) {
   const floor = project.floors.find(f => f.id === project.activeFloorId) ?? project.floors[0];
-  if (!floor || floor.walls.length === 0) return;
+  if (!floor) return;
+  const entourage=(floor.entourage ?? []).flatMap(item=>{
+    const def=getEntourageDef(item.defId),custom=def?undefined:project.customEntourage?.find(d=>d.id===item.defId);
+    return def || custom ? [{item,aspect:def?.aspect ?? custom!.aspect}] : [];
+  });
+  if (!hasPlanExportContent(floor) && !entourage.length) return;
 
   const settings = get(projectSettings);
   const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
@@ -544,25 +733,35 @@ export function exportPDF(project: Project) {
   // Render floor plan onto an offscreen canvas then embed as image
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const w of floor.walls) {
-    for (const p of [w.start, w.end]) {
-      minX = Math.min(minX, p.x); minY = Math.min(minY, p.y);
-      maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y);
+    for (const b of [wallPlanBounds(w)]) {
+      minX = Math.min(minX, b.minX); minY = Math.min(minY, b.minY);
+      maxX = Math.max(maxX, b.maxX); maxY = Math.max(maxY, b.maxY);
     }
   }
-  for (const fi of floor.furniture) {
-    minX = Math.min(minX, fi.position.x - 60);
-    minY = Math.min(minY, fi.position.y - 60);
-    maxX = Math.max(maxX, fi.position.x + 60);
-    maxY = Math.max(maxY, fi.position.y + 60);
-  }
+
   const pdfBounds = { minX, minY, maxX, maxY };
+  for (const item of floor.furniture) {
+    const b = furniturePlanBounds(item);
+    pdfBounds.minX = Math.min(pdfBounds.minX, b.minX); pdfBounds.minY = Math.min(pdfBounds.minY, b.minY);
+    pdfBounds.maxX = Math.max(pdfBounds.maxX, b.maxX); pdfBounds.maxY = Math.max(pdfBounds.maxY, b.maxY);
+  }
+  for(const {item,aspect} of entourage){const b=entouragePlanBounds(item,aspect);
+    pdfBounds.minX=Math.min(pdfBounds.minX,b.minX-2);pdfBounds.minY=Math.min(pdfBounds.minY,b.minY-2);
+    pdfBounds.maxX=Math.max(pdfBounds.maxX,b.maxX+2);pdfBounds.maxY=Math.max(pdfBounds.maxY,b.maxY+2);
+  }
   extendBoundsForOpenings(floor, pdfBounds);
+  extendBoundsForRoomLabels(floor, pdfBounds);
+  extendBoundsForColumns(floor, pdfBounds);
+  extendBoundsForStairs(floor, pdfBounds);
+  extendBoundsForText(floor, pdfBounds);
+  extendBoundsForDimensions(floor, pdfBounds);
+  extendBoundsForMeasurements(floor, pdfBounds);
   ({ minX, minY, maxX, maxY } = pdfBounds);
 
   const pad = 80;
   const planW = maxX - minX + pad * 2;
   const planH = maxY - minY + pad * 2;
-  const scale = 2;
+  const scale = Math.min(2, 4096 / Math.max(planW, planH));
   const offscreen = document.createElement('canvas');
   offscreen.width = planW * scale;
   offscreen.height = planH * scale;
@@ -574,19 +773,18 @@ export function exportPDF(project: Project) {
   // Room fills
   const ROOM_COLORS = ['#bfdbfe', '#fde68a', '#bbf7d0', '#fecaca', '#ddd6fe', '#a5f3fc', '#fed7aa'];
   const rooms = resolveRooms(floor);
+  const polygons = rooms.map(room => getRoomPolygon(room, floor.walls));
+  const holes = roomHoles(polygons);
   for (let ri = 0; ri < rooms.length; ri++) {
     const room = rooms[ri];
-    const poly = getRoomPolygon(room, floor.walls);
+    const poly = polygons[ri];
     if (poly.length < 3) continue;
     ctx.fillStyle = ROOM_COLORS[ri % ROOM_COLORS.length];
     ctx.globalAlpha = 0.4;
-    ctx.beginPath();
-    ctx.moveTo(poly[0].x - minX + pad, poly[0].y - minY + pad);
-    for (let i = 1; i < poly.length; i++) ctx.lineTo(poly[i].x - minX + pad, poly[i].y - minY + pad);
-    ctx.closePath();
-    ctx.fill();
+    traceRoomRings(ctx, poly, holes[ri], p => ({x:p.x-minX+pad,y:p.y-minY+pad}));
+    if (!room.floorOpening) ctx.fill('evenodd');
     ctx.globalAlpha = 1;
-    const c = roomCentroid(poly);
+    const c = roomLabelPosition(room, poly, holes[ri]);
     ctx.fillStyle = '#444';
     ctx.font = 'bold 13px sans-serif';
     ctx.textAlign = 'center';
@@ -603,52 +801,37 @@ export function exportPDF(project: Project) {
     ctx.lineWidth = wall.thickness;
     ctx.beginPath();
     ctx.moveTo(wall.start.x - minX + pad, wall.start.y - minY + pad);
-    ctx.lineTo(wall.end.x - minX + pad, wall.end.y - minY + pad);
+    if (wall.curvePoint) ctx.quadraticCurveTo(wall.curvePoint.x - minX + pad, wall.curvePoint.y - minY + pad, wall.end.x - minX + pad, wall.end.y - minY + pad);
+        else ctx.lineTo(wall.end.x - minX + pad, wall.end.y - minY + pad);
     ctx.stroke();
-    const len = Math.round(Math.hypot(wall.end.x - wall.start.x, wall.end.y - wall.start.y));
-    const mx = (wall.start.x + wall.end.x) / 2 - minX + pad;
-    const my = (wall.start.y + wall.end.y) / 2 - minY + pad;
+    const { length: len, point: midpoint } = wallPlanDimension(wall);
+    const mx = midpoint.x - minX + pad;
+    const my = midpoint.y - minY + pad;
     ctx.fillStyle = '#666';
     ctx.font = '10px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(`${len} cm`, mx, my - 8);
+    ctx.fillText(`${len} cm`, mx, my);
   }
 
   // Entourage symbols
   if (floor.entourage?.length) {
-    drawEntourageItems({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, project.customEntourage);
+    drawEntourageItems({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, project.customEntourage, undefined, preparedImages);
   }
 
   // Doors and windows (shared full-fidelity renderer)
   drawOpeningsOnCanvas(ctx, floor, minX, minY, pad);
 
-  // Furniture
-  for (const fi of floor.furniture) {
-    const fx = fi.position.x - minX + pad;
-    const fy = fi.position.y - minY + pad;
-    const cat = getCatalogItem(fi.catalogId);
-    const fw = fi.width ?? (cat ? cat.width : 30);
-    const fd = fi.depth ?? (cat ? cat.depth : 30);
-    const color = fi.color ?? (cat ? cat.color : '#a0c4e8');
-    const rot = (fi.rotation || 0) * Math.PI / 180;
-    ctx.save();
-    ctx.translate(fx, fy);
-    ctx.rotate(rot);
-    ctx.globalAlpha = 0.7;
-    ctx.fillStyle = color;
-    ctx.fillRect(-fw / 2, -fd / 2, fw, fd);
-    ctx.strokeStyle = '#555';
-    ctx.lineWidth = 0.5;
-    ctx.strokeRect(-fw / 2, -fd / 2, fw, fd);
-    ctx.globalAlpha = 1;
-    if (cat) {
-      ctx.fillStyle = '#333';
-      ctx.font = '9px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(cat.name, 0, 4);
-    }
-    ctx.restore();
-  }
+  for (const item of floor.furniture) drawFurnitureItem({
+    ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY,
+  }, item, false);
+
+  ctx.save();
+  for (const stair of floor.stairs ?? []) drawStair({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, stair, false);
+  for (const column of floor.columns ?? []) drawColumn({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, column, false);
+  drawPersistedMeasurements({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, get(projectSettings));
+  ctx.restore();
+  drawAnnotations({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, get(projectSettings));
+  drawTextAnnotations({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, floor, null, null);
 
   // Embed rendered plan into PDF
   const imgData = offscreen.toDataURL('image/png');
@@ -664,110 +847,88 @@ export function exportPDF(project: Project) {
 
   drawTitleBlock();
 
-  // ── Page 2: Room Schedule ──
+  // Room schedule: repeat headings and reserve the title block on every page.
   if (rooms.length > 0) {
-    pdf.addPage('a4', 'landscape');
-    drawPageBorder();
-
-    pdf.setFontSize(14);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('Room Schedule', margin + 6, margin + 12);
-    pdf.setDrawColor(60);
-
-    // Table setup
     const tX = margin + 6;
-    let tY = margin + 20;
-    const colWidths = [12, 70, 45, 55, 65]; // #, Name, Type, Area, Floor Texture
+    const colWidths = [12, 70, 45, 55, 65];
     const headers = ['#', 'Room Name', 'Type', 'Area', 'Floor Texture'];
-    const rowH = 8;
     const tableW = colWidths.reduce((a, b) => a + b, 0);
-
-    // Header row
-    pdf.setFillColor(50, 50, 60);
-    pdf.rect(tX, tY, tableW, rowH, 'F');
-    pdf.setTextColor(255, 255, 255);
-    pdf.setFontSize(9);
-    pdf.setFont('helvetica', 'bold');
-    let cx = tX;
-    for (let i = 0; i < headers.length; i++) {
-      pdf.text(headers[i], cx + 3, tY + 5.5);
-      cx += colWidths[i];
-    }
-    tY += rowH;
-
-    // Data rows
-    pdf.setTextColor(40, 40, 40);
-    pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(9);
+    const bottom = ph - margin - titleBlockH - 4;
+    let tY = 0;
+    const beginSchedulePage = () => {
+      pdf.addPage('a4', 'landscape');
+      drawPageBorder();
+      drawTitleBlock();
+      pdf.setTextColor(40);
+      pdf.setFontSize(14);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Room Schedule', tX, margin + 12);
+      tY = margin + 20;
+      pdf.setFillColor(50, 50, 60);
+      pdf.rect(tX, tY, tableW, 8, 'F');
+      pdf.setTextColor(255);
+      pdf.setFontSize(9);
+      let x = tX;
+      headers.forEach((header, i) => { pdf.text(header, x + 3, tY + 5.5); x += colWidths[i]; });
+      tY += 8;
+      pdf.setTextColor(40);
+      pdf.setFont('helvetica', 'normal');
+    };
+    beginSchedulePage();
     let totalArea = 0;
     for (let ri = 0; ri < rooms.length; ri++) {
       const room = rooms[ri];
       totalArea += room.area;
-
-      // Alternating row background
-      if (ri % 2 === 0) {
-        pdf.setFillColor(245, 245, 250);
-        pdf.rect(tX, tY, tableW, rowH, 'F');
+      const values = [String(ri + 1), room.name, room.roomType || 'indoor',
+        formatArea(room.area, settings.units), room.floorTexture || '-'];
+      const cells: string[][] = values.map((value, i) => pdf.splitTextToSize(value, colWidths[i] - 6));
+      const lineCount = Math.max(1, ...cells.map(cell => cell.length));
+      let offset = 0;
+      while (offset < lineCount) {
+        // Four millimetres per line plus four millimetres of row padding.
+        let capacity = Math.floor((bottom - tY - 4) / 4);
+        const remaining = lineCount - offset;
+        const fullPageCapacity = Math.floor((bottom - (margin + 28) - 4) / 4);
+        if (capacity < 1 || (remaining > capacity && remaining <= fullPageCapacity)) {
+          beginSchedulePage();
+          capacity = fullPageCapacity;
+        }
+        const count = Math.min(remaining, capacity), height = count * 4 + 4;
+        if (ri % 2 === 0) {
+          pdf.setFillColor(245, 245, 250);
+          pdf.rect(tX, tY, tableW, height, 'F');
+        }
+        pdf.setDrawColor(200);
+        pdf.setLineWidth(0.15);
+        pdf.rect(tX, tY, tableW, height);
+        let x = tX;
+        cells.forEach((cell, i) => {
+          cell.slice(offset, offset + count).forEach((line, li) => pdf.text(line, x + 3, tY + 5 + li * 4));
+          x += colWidths[i];
+        });
+        tY += height;
+        offset += count;
       }
-      // Row border
-      pdf.setDrawColor(200);
-      pdf.setLineWidth(0.15);
-      pdf.rect(tX, tY, tableW, rowH);
-
-      cx = tX;
-      const rowData = [
-        String(ri + 1),
-        room.name,
-        room.roomType || 'indoor',
-        formatArea(room.area, settings.units),
-        room.floorTexture || '—'
-      ];
-      for (let i = 0; i < rowData.length; i++) {
-        pdf.text(rowData[i].substring(0, 30), cx + 3, tY + 5.5);
-        cx += colWidths[i];
-      }
-      tY += rowH;
     }
-
-    // Total row
+    // Keep the total and summary together, clear of the footer.
+    if (tY + 22 > bottom) beginSchedulePage();
     pdf.setFillColor(50, 50, 60);
-    pdf.rect(tX, tY, tableW, rowH, 'F');
-    pdf.setTextColor(255, 255, 255);
+    pdf.rect(tX, tY, tableW, 8, 'F');
+    pdf.setTextColor(255);
     pdf.setFont('helvetica', 'bold');
     pdf.text('TOTAL', tX + colWidths[0] + 3, tY + 5.5);
     pdf.text(formatArea(totalArea, settings.units), tX + colWidths[0] + colWidths[1] + colWidths[2] + 3, tY + 5.5);
-    pdf.setTextColor(0);
-
-    // Summary stats below table
-    tY += rowH + 10;
     pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(9);
     pdf.setTextColor(80);
-    pdf.text(`${rooms.length} rooms  ·  ${floor.walls.length} walls  ·  ${floor.doors.length} doors  ·  ${floor.windows.length} windows  ·  ${floor.furniture.length} furniture items`, tX, tY);
-
-    drawTitleBlock();
+    pdf.text(`${rooms.length} rooms  ·  ${floor.walls.length} walls  ·  ${floor.doors.length} doors  ·  ${floor.windows.length} windows  ·  ${floor.furniture.length} furniture items`, tX, tY + 18);
   }
 
-  // ── Page 3: 3D View (if a 3D canvas exists) ──
-  const canvases = document.querySelectorAll('canvas');
-  // Look for a WebGL canvas (the 3D renderer) — typically the second canvas or one with a webgl context
-  let threeDCanvas: HTMLCanvasElement | null = null;
-  canvases.forEach(c => {
+  let omitted3D = Boolean(capture);
+  if (capture?.image && capture.width > 10 && capture.height > 10) {
+    const completedPages = pdf.getNumberOfPages();
     try {
-      if (c.getContext('webgl2') || c.getContext('webgl')) {
-        threeDCanvas = c;
-      }
-    } catch { /* ignore */ }
-  });
-  // Alternative: grab data attribute or just use last canvas if multiple
-  if (!threeDCanvas && canvases.length > 1) {
-    threeDCanvas = canvases[canvases.length - 1];
-  }
-
-  if (threeDCanvas && threeDCanvas.width > 10 && threeDCanvas.height > 10) {
-    try {
-      const img3d = threeDCanvas.toDataURL('image/png');
-      if (img3d && img3d.length > 100) {
+      const img3d = capture.image;
+      if (img3d.length > 100) {
         pdf.addPage('a4', 'landscape');
         drawPageBorder();
 
@@ -778,7 +939,7 @@ export function exportPDF(project: Project) {
 
         const da3W = pw - margin * 2 - 4;
         const da3H = ph - margin * 2 - titleBlockH - 20;
-        const a3 = threeDCanvas.width / threeDCanvas.height;
+        const a3 = capture.width / capture.height;
         let w3 = da3W;
         let h3 = da3W / a3;
         if (h3 > da3H) { h3 = da3H; w3 = da3H * a3; }
@@ -787,9 +948,15 @@ export function exportPDF(project: Project) {
         pdf.addImage(img3d, 'PNG', x3, y3, w3, h3);
 
         drawTitleBlock();
+        omitted3D = false;
       }
-    } catch { /* 3D canvas tainted or unavailable — skip */ }
+    } catch {
+      // Image encoding may fail after addPage. Keep the completed plan/schedule
+      // pages and remove any unfinished optional page before saving.
+      while (pdf.getNumberOfPages() > completedPages) pdf.deletePage(pdf.getNumberOfPages());
+    }
   }
 
   pdf.save(`${project.name || 'floorplan'}.pdf`);
+  return { omitted3D };
 }

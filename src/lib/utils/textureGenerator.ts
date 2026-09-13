@@ -1,3 +1,4 @@
+import { wallTextureFiles, floorTextureFiles } from './textureFiles';
 import { catalogAssetUrl } from '$lib/utils/catalogAssetUrl';
 /**
  * High-quality texture generator for walls and floors.
@@ -8,16 +9,14 @@ import { base } from '$app/paths';
 const cache = new Map<string, HTMLCanvasElement>();
 const imageCache = new Map<string, HTMLImageElement>();
 const loadingSet = new Set<string>();
+// Failed requests can retry on a later draw without producing a request per frame.
+const retryAfter = new Map<string, number>();
+const TEXTURE_RETRY_DELAY_MS = 30_000;
 
 /** Photo texture paths (served from /textures/) */
-const PHOTO_TEXTURES: Record<string, string> = {
-  'red-brick': catalogAssetUrl(`/textures/brick.webp`),
-  'exposed-brick': catalogAssetUrl(`/textures/exposed-brick.webp`),
-  'stone': catalogAssetUrl(`/textures/stone.webp`),
-  'wood-panel': catalogAssetUrl(`/textures/wood-panel.webp`),
-  'concrete-block': catalogAssetUrl(`/textures/concrete.webp`),
-  'subway-tile': catalogAssetUrl(`/textures/subway-tile.webp`),
-};
+const PHOTO_TEXTURES: Record<string, string> = Object.fromEntries(
+  Object.entries(wallTextureFiles).map(([id, file]) => [id, catalogAssetUrl(`/textures/${file}`)])
+);
 
 /** Load a photo texture into cache and re-render when ready */
 function loadPhotoTexture(id: string, onLoad?: () => void): HTMLCanvasElement | null {
@@ -38,14 +37,20 @@ function loadPhotoTexture(id: string, onLoad?: () => void): HTMLCanvasElement | 
   }
 
   // Start loading if not already
-  if (!loadingSet.has(id)) {
+  if (!loadingSet.has(id) && Date.now() >= (retryAfter.get(id) ?? 0)) {
     loadingSet.add(id);
     const img = new Image();
     img.onload = () => {
+      loadingSet.delete(id);
+      retryAfter.delete(id);
       imageCache.set(id, img);
       cache.delete(cacheKey); // clear so next call rebuilds
       cache.delete(id); // clear procedural fallback too
       if (onLoad) onLoad();
+    };
+    img.onerror = () => {
+      loadingSet.delete(id);
+      retryAfter.set(id, Date.now() + TEXTURE_RETRY_DELAY_MS);
     };
     img.src = url;
   }
@@ -484,22 +489,9 @@ export function generateHardwoodTexture(baseColor: string = '#c4a882'): HTMLCanv
 // ── MAIN ACCESSOR ──────────────────────────────────────────────
 
 /** Floor texture photo paths */
-const FLOOR_TEXTURES: Record<string, string> = {
-  'light-oak': catalogAssetUrl(`/textures/floor-light-oak.webp`),
-  'walnut': catalogAssetUrl(`/textures/floor-walnut.webp`),
-  'bamboo': catalogAssetUrl(`/textures/floor-bamboo.webp`),
-  'laminate': catalogAssetUrl(`/textures/floor-laminate.webp`),
-  'ceramic-white': catalogAssetUrl(`/textures/floor-tile-white.webp`),
-  'ceramic-gray': catalogAssetUrl(`/textures/floor-tile-gray.webp`),
-  'porcelain': catalogAssetUrl(`/textures/floor-porcelain.webp`),
-  'marble-white': catalogAssetUrl(`/textures/floor-marble-white.webp`),
-  'marble-dark': catalogAssetUrl(`/textures/floor-marble-dark.webp`),
-  'carpet-beige': catalogAssetUrl(`/textures/floor-carpet-beige.webp`),
-  'carpet-gray': catalogAssetUrl(`/textures/floor-carpet-gray.webp`),
-  'concrete': catalogAssetUrl(`/textures/floor-concrete.webp`),
-  'slate': catalogAssetUrl(`/textures/floor-slate.webp`),
-  'vinyl': catalogAssetUrl(`/textures/floor-vinyl.webp`),
-};
+const FLOOR_TEXTURES: Record<string, string> = Object.fromEntries(
+  Object.entries(floorTextureFiles).map(([id, file]) => [id, catalogAssetUrl(`/textures/${file}`)])
+);
 
 // Legacy material ID mapping (matches materials.ts getMaterial())
 const LEGACY_FLOOR_MAP: Record<string, string> = {
@@ -531,13 +523,19 @@ export function getFloorTextureCanvas(materialId: string): HTMLCanvasElement | n
   }
 
   const loadKey = `floor-${resolvedId}`;
-  if (!loadingSet.has(loadKey)) {
+  if (!loadingSet.has(loadKey) && Date.now() >= (retryAfter.get(loadKey) ?? 0)) {
     loadingSet.add(loadKey);
     const img = new Image();
     img.onload = () => {
+      loadingSet.delete(loadKey);
+      retryAfter.delete(loadKey);
       imageCache.set(loadKey, img);
       cache.delete(cacheKey);
       notifyTextureLoad();
+    };
+    img.onerror = () => {
+      loadingSet.delete(loadKey);
+      retryAfter.set(loadKey, Date.now() + TEXTURE_RETRY_DELAY_MS);
     };
     img.src = url;
   }

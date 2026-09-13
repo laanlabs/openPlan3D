@@ -32,7 +32,7 @@ test('3D sleeps when idle and wakes for controls, scene changes and walkthrough'
   await page.getByRole('button', { name: '3D', exact: true }).click();
   await page.waitForLoadState('networkidle');
   const hint = page.getByRole('button', { name: 'Got it', exact: true });
-  if (await hint.isVisible()) await hint.click();
+  await expect(hint).toBeHidden({ timeout: 15_000 });
   const canvas = page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').last();
   const audit = () => page.evaluate(() => (window as any).__animationAudit());
   const activeDraws = async () => (await gpu(page)).find((entry: any) => entry.connected && !entry.lost)?.draws ?? 0;

@@ -1,6 +1,7 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
+import { renderLabAsset } from './tooling/render-lab-asset';
 import { catalogAssets } from './tooling/catalog-assets.mjs';
 
 export default defineConfig({
@@ -13,6 +14,6 @@ export default defineConfig({
         }
       },
     },
-    catalogAssets(), tailwindcss(), sveltekit(),
+    renderLabAsset(), catalogAssets(), tailwindcss(), sveltekit(),
   ]
 });
