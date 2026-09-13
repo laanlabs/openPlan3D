@@ -26,8 +26,8 @@ RoomPlan propagation, mesh-winding and asymmetric visual validation remain unfin
 Update: native test `69010` finished with `TEST SUCCEEDED` and exit 0, covering
 omitted legacy flags, coding round-trip and transformed points for X/Y/both
 reflections without angle mutation. Web type check `16540` passed with zero
-errors/warnings. Reflection production build `19450` is active, log
-`/tmp/web-reflection-production-build.log`; poll before rebuilding or browser QA.
+errors/warnings. Reflection production build `19450` passed with exit 0, log
+`/tmp/web-reflection-production-build.log`.
 
 The five pre-reflection browser failures exhausted total workflow budgets. Guide
 completed Undo/Redo checks; entourage stopped at the final Redo download. AI desktop
@@ -38,6 +38,13 @@ Accessory/alignment cases now have a 180-second file-level budget and AI provide
 cases 360 seconds, including fixtures. Assertions and workflow steps are unchanged.
 The pending rerun will cover exactly those five failed Chromium cases; passing
 collection or larger budgets alone are not behavioral qualification.
+
+Five-case collection passed (`12762`). Rerun `67115` is active, log
+`/tmp/web-reflection-failed-workflows-rerun.log`; guide drag has passed the complete
+workflow. Poll before another browser run. Native winding test `40145` is active,
+log `/tmp/openplan3d-reflection-winding-tests.log`. It checks each exported face's
+normal against the box center for all four reflection combinations. RoomPlan
+still imports heading only, so its reflection propagation is not yet implemented.
 
 ## Native editor action labels — Catalyst build and live checks passed
 
