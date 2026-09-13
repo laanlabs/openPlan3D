@@ -103,3 +103,22 @@ Log: `/tmp/web-nested-undo-coordinate-diagnostics.log`; traces preserved in
 attachments were inspected and contain 42 and 81 draw records respectively,
 with exact pre-drag/restored screen-anchor equality and separate local/transform/
 canvas data. The intermittent defect remains open; these passes do not prove a fix.
+
+## September 13 — transient preview versus saved history
+
+Added a focused state regression for both saved and newly detected rooms. It
+starts the same undo group used by label dragging, updates only the detected-room
+preview, verifies saved metadata is untouched, commits the label offset, then
+performs two Undo/Redo cycles. On each Undo the saved room list exactly matches
+its baseline, and resolving geometry with the stale moved preview does not
+resurrect its offset. Stable room ID and exact redo metadata are retained.
+
+All 16 history, room resolution and nesting tests passed in session `11923`,
+exit 0, 769 ms. Log: `/tmp/web-room-label-state-history.log`. This rules out
+preview-offset resurrection for the tested store/resolver sequence. It does not
+cover browser event ordering, draw scheduling or viewport changes and does not
+close the original intermittent browser defect. No runtime change was made.
+
+Next useful failure evidence remains the existing browser coordinate attachment,
+paired with pointer/history event order and saved project state if it recurs;
+repeated green runs alone would not establish a fix.

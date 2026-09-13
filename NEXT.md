@@ -4,6 +4,18 @@ The user-facing goal status is maintained in [STATUS.md](STATUS.md). Update it
 when implementation, validation, blockers or next priorities change; keep this
 file as the detailed backlog and evidence history.
 
+## September 13, 00:04 EDT — label history state regression
+
+Added grouped label-drag state coverage for saved and newly detected rooms.
+Preview movement leaves stored metadata untouched; commit, two Undo/Redo cycles,
+and geometry resolution with a stale moved preview retain exact metadata and
+stable IDs without resurrecting the offset. All 16 history/resolution/nesting
+tests passed in `11923` (exit 0, 769 ms), `/tmp/web-room-label-state-history.log`.
+
+The original intermittent browser issue remains open: this narrows the tested
+state/resolver path, not browser event order, draw scheduling or viewport changes.
+No speculative runtime fix was made. See the nested-room reproduction review.
+
 ## September 13 — native Save destination verified
 
 Repeated the actual package export, waited for the full expanded Save panel,

@@ -1,6 +1,6 @@
 # OpenPlan3D status
 
-Last verified: **September 13, 2026, 00:02 EDT**.
+Last verified: **September 13, 2026, 00:04 EDT**.
 
 ## Goal and overall state
 
@@ -151,8 +151,11 @@ qualifying the repair in the original failing environment.
 1. Continue furniture fidelity and height editing usability; complete physical
    iPhone/iPad handoff when a device is available. The Catalyst UI/package
    preservation check is complete, with its actual export retained as a fixture.
-2. Continue the nested-room Undo investigation. Repeated scoped checks passed,
-   but the original intermittent failure has no established root cause.
+2. Continue the nested-room Undo investigation. New state coverage verifies
+   grouped drag preview → saved edit → repeated Undo/Redo for saved and detected
+   rooms: all 16 history/resolution/nesting tests passed. This excludes stale
+   preview metadata for that sequence; browser event/draw ordering remains
+   unproven and the original intermittent failure has no established root cause.
 3. Continue the remaining geometry, usability, performance, and release work in
    `NEXT.md` after these immediate issues.
 
