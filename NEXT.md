@@ -13,6 +13,12 @@ were exercised, and the saved plan confirms a 15-degree rotation and 24-inch wid
 See `docs/reviews/2026-09-12-native-editor-action-labels.md` for scope. Physical
 VoiceOver/touch qualification remains open; device inventory found no devices.
 
+Follow-up actions also exercised left rotation, duplication, Mirror, deletion
+and deletion Undo. Saved data confirms the duplicate and restored deletion.
+However, native Mirror only negates the angle (`mirrorSelectedFurniture`), with
+no shape-reflection state in `PlanDocument.Furniture`. True furniture mirroring
+and renderer/package propagation remain an explicit native fidelity issue.
+
 ## Current regression qualification — September 12
 
 Browser collection at `b65549e` succeeds with 1,179 cases in 146 files: 393 per

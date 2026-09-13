@@ -38,3 +38,24 @@ exceeded the 90-second total budget despite completed, successful geometry Undo
 and Redo assertions. Trace/error context are preserved in
 `/tmp/openplan-full-browser-guide-timeout`. This does not establish a guide Undo
 defect. Investigate other failures and adjust timing only after the active run.
+
+## Follow-up action inspection
+
+In a second fresh drawn plan, the labeled left rotation, duplicate, Mirror,
+delete, Undo and Done actions were exercised. Saved isolated session
+`E4039C6D-324F-4A00-BC2C-BCC2B85C2B51` contains two distinct chair IDs with the
+expected duplicate offset of 0.3 metres on both axes. Deletion Undo retained
+the second chair. Original and duplicate angles are -15 and +15 degrees.
+
+The initial verification expected both angles to stay -15 degrees and failed.
+Source inspection established that `mirrorSelectedFurniture()` only negates
+the angle; `PlanDocument.Furniture` has no mirror state. Corrected checks confirm
+the observed angle-negation behavior, duplication and retained deletion Undo.
+This does **not** qualify true shape mirroring. That behavior and its renderer/
+package propagation remain an open native fidelity issue.
+
+The concurrent browser entourage-drag failure also exhausted its 90-second
+budget. Every Undo equality assertion completed successfully, but the final
+Redo JSON download did not complete. Preserved artifacts:
+`/tmp/openplan-full-browser-entourage-timeout`. This does not establish incorrect
+Undo geometry or a passing Redo round-trip. The full run `5924` remains active.
