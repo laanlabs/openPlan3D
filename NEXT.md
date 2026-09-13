@@ -40,9 +40,12 @@ Active work — poll these handles before competing runs:
   live Mirror/Undo/Redo with visible handle reflection and persisted `mirrorX: true`
   at the unchanged 15-degree angle. See the reflection review for exact saved data.
 
-Next: export the saved reflected plan from `/tmp/OpenPlan3D-Reflection-Sept12-QA.app`
-and verify its web import. Actual cross-app reflected package return, current full
-browser qualification and physical-device testing remain open. The package validator
+The isolated app exported its actual reflected ZIP, now committed as
+`tests/fixtures/native-ui-reflection-package.zip`. Web service import, exact native
+furniture re-export comparison and a second web import passed with all 33 package
+tests (`43006`, `/tmp/web-native-ui-reflection-package-tests-final.log`).
+A fresh native UI import of the web return, current full browser qualification
+and physical-device testing remain open. The package validator
 now scopes reflection flag types to furniture; all 32 package tests passed in
 `21070`. This correction is newer than the build used by browser run `96834`.
 

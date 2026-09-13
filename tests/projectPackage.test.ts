@@ -35,6 +35,25 @@ function webFixture() {
 }
 beforeEach(() => { mockStorage(); });
 
+it('imports and returns the actual native UI reflected refrigerator package', () => {
+  const bytes = new Uint8Array(readFileSync('tests/fixtures/native-ui-reflection-package.zip'));
+  const original = packageJSON(readPackageZip(bytes)['plan.json']);
+  expect(original.furniture).toHaveLength(1);
+  expect(original.furniture[0]).toMatchObject({ category: 'refrigerator', mirrorX: true, angle: Math.PI / 12 });
+  const project = readProjectPackage(bytes).project;
+  expect(project.floors[0].furniture).toHaveLength(1);
+  expect(project.floors[0].furniture[0]).toMatchObject({
+    catalogId: 'fridge', width: 70, depth: 70,
+    position: { x: 250, y: 200 }, scale: { x: -1, y: 1, z: 1 },
+  });
+  expect(project.floors[0].furniture[0].rotation).toBeCloseTo(15, 10);
+  const returned = packageJSON(readPackageZip(projectPackageBytes(project))['plan.json']);
+  const normalized = (items: any[]) => items.map(item => ({ ...item, id: item.id.toLowerCase() }));
+  expect(normalized(returned.furniture)).toEqual(normalized(original.furniture));
+  expect(readProjectPackage(projectPackageBytes(project)).project.floors[0].furniture[0].scale)
+    .toEqual({ x: -1, y: 1, z: 1 });
+});
+
 it('merges native reflection edits without flattening web scale or changing rotation', () => {
   const source = webFixture();
   const files = readPackageZip(projectPackageBytes(source));

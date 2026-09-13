@@ -62,3 +62,22 @@ unrelated native extension fields with the same names on walls/rooms. All 32
 package tests passed (`21070`, `/tmp/web-reflection-extension-scope-tests.log`).
 The active full browser run `96834` uses the production build before this narrow
 validator correction; its results must retain that source provenance.
+
+## Actual native UI package fixture
+
+The isolated app exported the saved reflected plan via Export → Export Options
+→ Export Project Package. A first Save/Go-to-folder attempt dismissed without a
+file; retrying with the Save dialog's Documents destination succeeded. The actual
+1,197-byte ZIP is committed as `tests/fixtures/native-ui-reflection-package.zip`.
+It contains the native refrigerator record with `mirrorX: true` and the original
+15-degree angle, 0.7-metre dimensions and `(2.5, 2)` center.
+
+Web package tests import that exact file, verify the `fridge` identity, signed
+scale, centimetre dimensions and rotation, re-export it, compare every furniture
+field with the original (UUID letter case normalized), and import the web return
+again to check retained reflection. All 33 package tests passed in `43006`, log
+`/tmp/web-native-ui-reflection-package-tests-final.log`. The first run `61310`
+failed an exact 15-degree expectation because radians conversion yielded
+14.999999999999998; the angle now uses a ten-decimal-place tolerance. No runtime
+change was needed. This is actual native UI export plus web service import/return,
+not a fresh native UI import of that web return or a physical-device handoff.
