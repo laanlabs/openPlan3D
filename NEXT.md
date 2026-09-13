@@ -46,6 +46,18 @@ log `/tmp/openplan3d-reflection-winding-tests.log`. It checks each exported face
 normal against the box center for all four reflection combinations. RoomPlan
 still imports heading only, so its reflection propagation is not yet implemented.
 
+RoomPlan propagation checkpoint: native export now includes axis signs in the
+object transform; native and web import derive heading from local X and retain
+negative planar determinant as Y reflection. This equivalent decomposition keeps
+shape orientation but need not keep identical angle/axis fields (package returns
+retain those independently). All 28 web RoomPlan tests passed (`58649`, log
+`/tmp/web-roomplan-reflection-tests.log`), including transformed-point checks for
+all four reflection combinations. Type check `54415` is active, log
+`/tmp/web-roomplan-reflection-check.log`. The new native RoomPlan round-trip test
+has not run yet: wait for winding session `40145` before starting another native
+test in that derived directory. The browser retry `67115` has passed both guide
+and entourage workflows; its production build predates this RoomPlan source edit.
+
 ## Native editor action labels — Catalyst build and live checks passed
 
 Native `43fd94f` explicitly names Undo/Redo and contextual properties, left/right

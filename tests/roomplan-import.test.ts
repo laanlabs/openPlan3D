@@ -12,6 +12,23 @@ const fixture = JSON.parse(readFileSync(new URL('./fixtures/handoff-roomplan.jso
 const native = JSON.parse(readFileSync(new URL('./fixtures/handoff-plan.json', import.meta.url), 'utf8'));
 const capture = () => structuredClone(fixture);
 
+it('preserves reflected RoomPlan furniture orientation for all local axis combinations', () => {
+  for (const [sx, sy] of [[1, 1], [-1, 1], [1, -1], [-1, -1]]) {
+    const input = capture(), object = input.objects[0], angle = Math.PI / 6;
+    const c = Math.cos(angle), s = Math.sin(angle);
+    object.transform[0] = c * sx; object.transform[2] = s * sx;
+    object.transform[8] = -s * sy; object.transform[10] = c * sy;
+    const item = importRoomPlanFloors(input).flatMap(f => f.furniture).find(f => f.id === object.identifier)!;
+    const rotation = item.rotation * Math.PI / 180;
+    for (const [x, y] of [[0.4, 0.7], [-0.3, 0.2]]) {
+      const actualX = Math.cos(rotation) * item.scale.x * x - Math.sin(rotation) * item.scale.y * y;
+      const actualY = Math.sin(rotation) * item.scale.x * x + Math.cos(rotation) * item.scale.y * y;
+      expect(actualX).toBeCloseTo(c * sx * x - s * sy * y, 8);
+      expect(actualY).toBeCloseTo(s * sx * x + c * sy * y, 8);
+    }
+  }
+});
+
 it('preserves iOS floors, exact wall geometry, thickness, heights and identifiers', () => {
   const floors = importRoomPlanFloors(capture());
   expect(floors.map(f => [f.level, f.name])).toEqual([[0, 'Entry'], [2, 'Loft'], [3, 'Future Floor']]);

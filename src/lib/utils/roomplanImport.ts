@@ -680,12 +680,15 @@ export function importRoomPlan(jsonData: any, options: RoomPlanImportOptions = r
     // `rotation` convention is atan2(dy, dx) in data coords (see snapFurnitureToWall
     // / drawFurnitureItem), so derive it from the transform columns directly.
     const angle2d = Math.atan2(ro.transform[2], ro.transform[0]);
+    // Local X supplies heading; the determinant retains the remaining Y
+    // reflection, including native mirrored furniture exported without sidecars.
+    const reflected = ro.transform[0] * ro.transform[10] - ro.transform[2] * ro.transform[8] < 0;
     furniture.push({
       id: ro.identifier,
       ...importedFurnitureCategory(getCategoryKey(ro.category), centimetres(ro.dimensions[0])),
       position: toOurPoint(pos.x, pos.z),
       rotation: (angle2d * 180) / Math.PI,
-      scale: { x: 1, y: 1, z: 1 },
+      scale: { x: 1, y: reflected ? -1 : 1, z: 1 },
       width: centimetres(ro.dimensions[0]),
       depth: centimetres(ro.dimensions[2]),
       height: centimetres(ro.dimensions[1]),
