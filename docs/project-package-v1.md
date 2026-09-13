@@ -76,6 +76,37 @@ Matching `native-project-package.zip` and `web-project-package.zip` fixtures liv
 
 Simulator builds/tests validate code and local persistence. Physical-device Files/AirDrop delivery, LiDAR capture, and App Store/TestFlight distribution remain explicit release work in [issue #30](https://github.com/laanlabs/openPlan3D/issues/30). This format does not change upload quotas, Storage rules, billing configuration or native distribution status.
 
+## Furniture reflection
+
+The current development implementation adds optional boolean `mirrorX` and
+`mirrorY` fields to native furniture records. They reflect local width/depth axes
+before the stored angle is applied. Missing fields in standalone native plans
+mean no reflection. The native Mirror action toggles X without changing the
+angle, and duplication retains both flags. Native glyphs and SceneKit transforms
+apply the reflection; neutral mesh exports reverse face winding when needed.
+
+Web package export derives these flags from the signs of `scale.x` and `scale.y`.
+Native footprint dimensions already include the absolute web scale. On return,
+edited signs preserve web scale magnitudes and Z scale; footprint edits still
+divide out the retained magnitude. Reflection and resizing therefore compose
+without flattening the web scale or changing its physical size accidentally.
+
+When a returned package has a saved baseline, an omitted reflection flag inherits
+that baseline's value. This protects files saved by older native encoders that
+drop unknown fields. An explicit `false` removes reflection. New objects without
+a matching baseline use the standalone default. Non-boolean values are rejected.
+These optional fields do not change package format version 1.
+
+Standalone RoomPlan export carries reflection in its transform matrix. Import
+derives heading from local X and represents a negative planar determinant as a
+Y reflection. This preserves planar orientation, although the resulting angle
+and choice of reflected axis may differ from the original decomposition. Package
+returns preserve the independent stored angle and axis choices.
+
+Qualification is in progress: package and web RoomPlan tests pass; native
+round-trip and asymmetric-render verification are tracked in `NEXT.md`. These
+changes do not claim App Store release or physical-device qualification.
+
 ## Furniture category display contract
 
 Both web import paths share display aliases; exact web catalog IDs win over
