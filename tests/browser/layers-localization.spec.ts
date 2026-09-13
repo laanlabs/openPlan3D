@@ -1,7 +1,7 @@
 import { expect, test, type Locator } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
-for (const width of [1440, 390]) test(`Portuguese layers preserve visibility, selection and source text at ${width}px`, async ({ page }) => {
+for (const width of [1440, 390]) test(`Portuguese layers preserve visibility, selection and source text at ${width}px`, async ({ page }, testInfo) => {
   await page.addInitScript(() => localStorage.setItem('o3d_locale', 'pt'));
   await page.setViewportSize({ width, height: 900 });
   const plan = JSON.parse(await readFile('tests/fixtures/connected-dimensions.openplan.json', 'utf8'));
@@ -23,6 +23,9 @@ for (const width of [1440, 390]) test(`Portuguese layers preserve visibility, se
     async function clickStatusControl(control: Locator) {
       // WebKit's scrolling layer can retain the previous hit-test position
       // briefly after programmatic horizontal scrolling.
+      await expect.poll(() => control.evaluate(element =>
+        element.getBoundingClientRect().height >= parseFloat(getComputedStyle(element).lineHeight)
+      )).toBe(true);
       await control.scrollIntoViewIfNeeded();
       await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
       await expect.poll(() => control.evaluate(element => {
@@ -38,6 +41,7 @@ for (const width of [1440, 390]) test(`Portuguese layers preserve visibility, se
       await expect(toggle).toHaveAttribute('aria-pressed', before === 'true' ? 'false' : 'true');
       await clickStatusControl(toggle);
       await expect(toggle).toHaveAttribute('aria-pressed', before!);
+      if (title === 'Alternar grade (G)') await testInfo.attach('phone-status-controls', { body: await page.screenshot(), contentType: 'image/png' });
     }
     const visibility = page.getByRole('button', { name: '🗂 Camadas', exact: true });
     await clickStatusControl(visibility);
