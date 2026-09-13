@@ -12,6 +12,9 @@ the exact contract; this is not a release or physical-device qualification.
 
 Verified:
 - Native coding/transform test `69010` and outward-face test `40145` passed.
+- Combined native run `85762` passed all three reflection tests, including RoomPlan
+  round-trip. The xcresult summary confirms three passes, zero failures/skips
+  (`/tmp/openplan3d-reflection-roundtrip-summary.json`).
 - All 31 package tests passed (`75847`, `/tmp/web-package-reflection-tests-final.log`).
 - All 28 web RoomPlan tests passed (`58649`, `/tmp/web-roomplan-reflection-tests.log`).
 - Both web type checks passed with zero diagnostics (`16540`, `54415`).
@@ -22,17 +25,16 @@ Verified:
   build, which predates the RoomPlan source change.
 
 Active work — poll these handles before competing runs:
-- Native `85762`: three reflection coding/transform, outward-face and RoomPlan
-  round-trip tests; `/tmp/openplan3d-reflection-roundtrip-tests.log`.
+- Native asymmetric pixel test `12787`: `/tmp/openplan3d-reflection-asymmetric-tests.log`.
+- Full web unit run `32001`: `/tmp/web-reflection-full-unit.log` (two workers).
 - Web build `69534`: current RoomPlan source; `/tmp/web-roomplan-reflection-production-build.log`.
 
-Next: after `85762`, run the committed asymmetric pixel test in
+The active pixel test is
 `LegacyObjectFidelityTests.testRefrigeratorHandleReflectsAcrossLocalX` (`c89af98`).
 It uses the off-centre refrigerator handle, compares original/reflected renderer
-pixels and attaches images; inspect those images as well. Fresh live native Mirror
+pixels and attaches images; inspect those images when it finishes. Fresh live native Mirror
 UI checks, actual cross-app package return and current full browser qualification
-remain. Native RoomPlan round-trip, asymmetric pixels and live reflection behavior
-are not yet claimed as passing.
+remain. Asymmetric pixels and live reflection behavior are not yet claimed as passing.
 
 ## Native editor action labels — Catalyst build and live checks passed
 

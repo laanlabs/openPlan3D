@@ -103,8 +103,9 @@ Y reflection. This preserves planar orientation, although the resulting angle
 and choice of reflected axis may differ from the original decomposition. Package
 returns preserve the independent stored angle and axis choices.
 
-Qualification is in progress: package and web RoomPlan tests pass; native
-round-trip and asymmetric-render verification are tracked in `NEXT.md`. These
+Qualification is in progress: package, web RoomPlan, native reflection coding,
+RoomPlan round-trip and export-winding tests pass. Asymmetric-render and live
+UI verification are tracked in `NEXT.md`. These
 changes do not claim App Store release or physical-device qualification.
 
 ## Furniture category display contract
