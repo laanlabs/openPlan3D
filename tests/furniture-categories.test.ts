@@ -131,7 +131,10 @@ it('actual Swift returns retain source identities and apply fractional edits in 
     expect(project.floors[0].furniture[0].details?.note).toBe('Native category edit');
     // Swift UUID encoding uses uppercase; UUID identity is case-insensitive.
     const normalizeIDs = (items: any[]) => items.map(item => ({ ...item, id: item.id.toLowerCase() }));
-    expect(normalizeIDs(packageJSON(readPackageZip(projectPackageBytes(project))['plan.json']).furniture)).toEqual(normalizeIDs(plan.furniture));
+    // The old Swift fixture predates reflection fields. Returning its mirrored
+    // web objects now explicitly shares that existing reflection with native.
+    const expected = plan.furniture.map((item: any) => name === 'web' ? { ...item, mirrorX: true } : item);
+    expect(normalizeIDs(packageJSON(readPackageZip(projectPackageBytes(project))['plan.json']).furniture)).toEqual(normalizeIDs(expected));
     if (name === 'web') expect(project.floors[0].furniture[0]).toMatchObject({ catalogId: 'bed_queen', height: 94.625, scale: { x: -1.25, y: 1.125, z: 1 }, color: '#245678' });
   }
 });

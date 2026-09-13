@@ -24,17 +24,23 @@ Verified:
   preserve every assertion; these are scoped passes on the package-reflection
   build, which predates the RoomPlan source change.
 
-Active work — poll these handles before competing runs:
-- Native asymmetric pixel test `12787`: `/tmp/openplan3d-reflection-asymmetric-tests.log`.
-- Full web unit run `32001`: `/tmp/web-reflection-full-unit.log` (two workers).
-- Web build `69534`: current RoomPlan source; `/tmp/web-roomplan-reflection-production-build.log`.
+The asymmetric renderer test `12787` passed and both exported images were
+visually inspected: the refrigerator handle changes sides while the body stays
+fixed. Images and exact validation scope are in
+`docs/reviews/2026-09-12-furniture-reflection.md`.
+Full unit run `32001` had 1,135 passes and one stale exact-output expectation:
+mirrored web fixtures now correctly export `mirrorX: true`. That expectation was
+updated explicitly, and all 55 category cases passed in `58515`; no runtime fix
+or comparison relaxation was needed. Build `69534` passed.
 
-The active pixel test is
-`LegacyObjectFidelityTests.testRefrigeratorHandleReflectsAcrossLocalX` (`c89af98`).
-It uses the off-centre refrigerator handle, compares original/reflected renderer
-pixels and attaches images; inspect those images when it finishes. Fresh live native Mirror
-UI checks, actual cross-app package return and current full browser qualification
-remain. Asymmetric pixels and live reflection behavior are not yet claimed as passing.
+Active work — poll these handles before competing runs:
+- Full current-build browser run `96834`: `/tmp/web-roomplan-reflection-full-browser.log`;
+  JSON report `/tmp/web-roomplan-reflection-full-browser.json`, five-failure stop.
+- Fresh Catalyst build `11694`: `/tmp/openplan3d-reflection-catalyst-build.log`.
+
+Next: create a fresh isolated app from `11694` for actual Mirror/Undo/Redo and
+saved-state checks. Actual cross-app reflected package return, current full
+browser qualification and physical-device testing remain open.
 
 ## Native editor action labels — Catalyst build and live checks passed
 
