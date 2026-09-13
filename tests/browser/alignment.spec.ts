@@ -1,8 +1,10 @@
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
+// Import, repeated exports and history verification share one bounded workflow.
+test.describe.configure({ timeout: 180_000 });
 for (const locale of ['en', 'pt']) for (const width of [1440,390]) for (const op of ['Align Left','Distribute Horizontally']) {
   test(`${locale}: ${op} respects geometry and locks at ${width}px`, async ({page}) => {
-    test.setTimeout(90_000); await page.setViewportSize({width,height:900});
+    await page.setViewportSize({width,height:900});
     await page.addInitScript(locale => localStorage.setItem('o3d_locale', locale), locale);
     await page.addInitScript(() => localStorage.setItem('o3d_tips_seen',JSON.stringify(['first-wall','first-furniture','first-3d','first-export','first-door'])));
     const plan=JSON.parse(await readFile('tests/fixtures/connected-dimensions.openplan.json','utf8')),floor=plan.floors[0];

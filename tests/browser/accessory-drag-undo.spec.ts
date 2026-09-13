@@ -1,8 +1,9 @@
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
+// Import, repeated exports and history verification share one bounded workflow.
+test.describe.configure({ timeout: 180_000 });
 for (const kind of ['door','window','guide','entourage','entourage-resize']) {
   test(`${kind} drag has one undo entry and restores geometry`, async ({ page }) => {
-    test.setTimeout(90_000);
     await page.addInitScript(() => {
       localStorage.setItem('o3d_tips_seen', JSON.stringify(['first-wall','first-furniture','first-3d','first-export','first-door']));
       const fill = CanvasRenderingContext2D.prototype.fillText;

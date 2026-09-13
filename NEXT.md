@@ -6,9 +6,9 @@ Native furniture now has optional local-axis `mirrorX`/`mirrorY` fields (absent
 means unreflected). The Mirror action toggles X reflection without changing the
 angle; duplication preserves both axes. Plan glyph and SceneKit transforms use
 the fields, and neutral mesh export reverses face winding for reflected transforms.
-A coding/legacy-default/transformed-point test is running in session `69010`, log
+A coding/legacy-default/transformed-point test passed in session `69010`, log
 `/tmp/openplan3d-native-reflection-tests.log`, isolated simulator derived data
-`/tmp/openplan3d-render-ios-build`. Poll that handle before another native test.
+`/tmp/openplan3d-render-ios-build` (terminal exit 0).
 This is an incomplete checkpoint: package bridge/sign-and-scale merging,
 RoomPlan export/import, neutral-export winding tests and live asymmetric-shape
 checks remain required before declaring mirroring supported end to end. The
@@ -19,10 +19,25 @@ scale magnitudes, and passes the saved baseline as a fallback when old native
 apps omit unknown reflection fields. Explicit false still removes reflection.
 All 31 package tests passed in `75847`, log
 `/tmp/web-package-reflection-tests-final.log` (initial `14594` had one test-field
-typo, corrected from `notes` to `note`). Web type check `16540` is running, log
-`/tmp/web-package-reflection-check.log`. No production rebuild has been started
-while browser run `5924` owns the old build. RoomPlan propagation, native test
-completion, mesh-winding and asymmetric visual validation remain unfinished.
+typo, corrected from `notes` to `note`). Web type check `16540` passed, log
+`/tmp/web-package-reflection-check.log`. Browser run `5924` is now terminal.
+RoomPlan propagation, mesh-winding and asymmetric visual validation remain unfinished.
+
+Update: native test `69010` finished with `TEST SUCCEEDED` and exit 0, covering
+omitted legacy flags, coding round-trip and transformed points for X/Y/both
+reflections without angle mutation. Web type check `16540` passed with zero
+errors/warnings. Reflection production build `19450` is active, log
+`/tmp/web-reflection-production-build.log`; poll before rebuilding or browser QA.
+
+The five pre-reflection browser failures exhausted total workflow budgets. Guide
+completed Undo/Redo checks; entourage stopped at the final Redo download. AI desktop
+stopped during Generate activation, AI mobile during its screenshot after exact
+download validation, and Portuguese alignment exhausted 90 seconds amid exports.
+The report's runner-level error is simply the configured five-failure stop.
+Accessory/alignment cases now have a 180-second file-level budget and AI provider
+cases 360 seconds, including fixtures. Assertions and workflow steps are unchanged.
+The pending rerun will cover exactly those five failed Chromium cases; passing
+collection or larger budgets alone are not behavioral qualification.
 
 ## Native editor action labels — Catalyst build and live checks passed
 
