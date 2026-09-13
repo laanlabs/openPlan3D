@@ -4,6 +4,17 @@ The user-facing goal status is maintained in [STATUS.md](STATUS.md). Update it
 when implementation, validation, blockers or next priorities change; keep this
 file as the detailed backlog and evidence history.
 
+## September 12 — native furniture height properties
+
+Native `2fc1dd9` adds decimal height in the selected cm/in units and Use Category
+Height, storing explicit reset values for package merging. Catalyst build
+`64930` passed. Actual isolated UI entered 48.5 in for a new chair, then Undo,
+Redo and Save; saved height was 1.2318993347743592 m, width/depth still 0.5 m.
+See `openplan3d-ios/docs/native-furniture-height-editor.md` for evidence and the
+stale post-Undo accessibility action that produced an empty sheet (dismissed).
+Metric entry, reset/invalid input, intermediate undo value and iOS/device checks
+remain open; earlier full native suites predate this UI change.
+
 ## September 12, 23:43 EDT — actual height handoff passed
 
 Web height output was imported as a copy through isolated Catalyst UI, saved,

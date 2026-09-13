@@ -1,6 +1,6 @@
 # OpenPlan3D status
 
-Last verified: **September 12, 2026, 23:43 EDT**.
+Last verified: **September 12, 2026, 23:53 EDT**.
 
 ## Goal and overall state
 
@@ -21,7 +21,7 @@ Remote state was checked when preparing this report.
 | Repository | Branch | Latest implementation checkpoint | Delivery |
 | --- | --- | --- | --- |
 | Web app: `openPlan3D` | `codex/threejs-render-lab` | `5e09840` — phone status-bar scrollbar clearance | Committed and pushed; [PR #95](https://github.com/laanlabs/openPlan3D/pull/95) remains open |
-| Native app: `openplan3d-ios` | `codex/local-floorplan-render` | `8fdd1bf` — native measured furniture height | Committed and pushed |
+| Native app: `openplan3d-ios` | `codex/local-floorplan-render` | `2fc1dd9` — native furniture height properties | Committed and pushed |
 | Website: `openplan3d-www` | `main` | `520f86e` — App Store links | Committed and pushed; local checkout is one commit behind remote `main` |
 
 All three working trees were clean at the prior checkpoint. The web branch was
@@ -65,6 +65,15 @@ website changes does not, by itself, verify a production deployment.
 | Current full browser CI | **All 18 shards passed** in run `34735405519`, including Linux Firefox shard 3: 74 passed in 5.6 minutes. |
 | Shard inventory | All **1,179 cases** occur exactly once: 393 per engine, divided into groups of 71/61/74/58/64/65. This verifies collection, not execution. |
 | Benchmark CI | Desktop: three passed; phone viewport: three passed. Software-rendered measurements do not qualify physical-phone performance. |
+
+## Native height editing — scoped UI check passed
+
+Native `2fc1dd9` adds decimal height entry in cm/in and an explicit category-height
+reset. Catalyst build `64930` passed. Isolated native UI entered 48.5 in and saved
+1.2318993347743592 m after Undo → Redo, with width/depth unchanged. Metric entry,
+reset/invalid input behavior, intermediate undo value, and iOS/device checks
+remain open. The full native suites below predate this new properties UI.
+Native detail: `openplan3d-ios/docs/native-furniture-height-editor.md`.
 
 ## Furniture-height preservation verified in Catalyst handoff
 
