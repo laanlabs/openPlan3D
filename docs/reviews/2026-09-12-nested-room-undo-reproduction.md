@@ -73,3 +73,29 @@ WebKit after the timeout-scope correction; it does not explain or close the
 original intermittent Undo failure. Chromium and Firefox attempts above remain
 failed setup/workflow-timeout observations, not current passing qualification.
 All runs in this report are now terminal. No application source changed.
+
+## Current-build repetitions and coordinate evidence
+
+Session `65295` terminated with exit 0: two Chromium repetitions (2.5 and 2.2
+minutes) and two Firefox repetitions (1.1 and 1.6 minutes) passed the entire
+original nested-room workflow, including the exact label restoration assertion.
+Total runner time was 8.5 minutes. Command: `npx playwright test
+tests/browser/room-slabs.spec.ts --grep 'nested rooms export one slab'
+--project=chromium --project=firefox --repeat-each=2 --trace=on`. Log:
+`/tmp/web-nested-undo-current-repeat.log`; artifacts copied to
+`/tmp/openplan-nested-undo-current-passing`. The runtime is the successful
+opener-focus production build recorded in `7bc7556`; no room runtime fix was made.
+
+Source inspection rules out the proposed assumption that room geometry only
+refreshes on the next draw: `activeFloor.subscribe` synchronously invokes
+`updateDetectedRooms()` when the restored project is published. The hash includes
+saved rooms as well as walls. This is not a complete root-cause diagnosis.
+
+The browser test now retains the last 90 label draw records (local coordinates,
+canvas transform, CSS bounds, backing dimensions and screen anchors) and attaches
+them with pre-drag and moved anchors after the Undo assertion, including on failure.
+This lets a future failure distinguish viewport movement from unchanged drawing
+coordinates. The exact assertion, timeout and full workflow remain unchanged.
+Validation runs across all three engines in session `68614`, log
+`/tmp/web-nested-undo-coordinate-diagnostics.log`. The intermittent defect remains
+open; passing reruns alone do not prove a fix.

@@ -36,7 +36,7 @@ function checkSlabs(scene: any, elevation: number, thickness = .05) {
   root.traverse(node => { if (node instanceof Mesh) node.geometry.dispose(); }); material.dispose();
 }
 
-test('nested rooms export one slab at each point on active and stacked floors', async ({ page }) => {
+test('nested rooms export one slab at each point on active and stacked floors', async ({ page }, testInfo) => {
   await page.addInitScript(() => {
     const fill=CanvasRenderingContext2D.prototype.fillText;
     CanvasRenderingContext2D.prototype.fillText=function(text,x,y,maxWidth) {
@@ -44,6 +44,12 @@ test('nested rooms export one slab at each point on active and stacked floors', 
         const p=new DOMPoint(x,y).matrixTransform(this.getTransform()), b=this.canvas.getBoundingClientRect();
         const anchors=(window as any).__nestedAnchors ??= {};
         anchors[text.split(' (')[0]]={x:b.x+p.x*b.width/this.canvas.width,y:b.y+p.y*b.height/this.canvas.height};
+        const draws=(window as any).__nestedDraws ??= [];
+        draws.push({time:performance.now(),text,local:{x,y},
+          transform:Array.from(this.getTransform().toFloat64Array()),
+          canvas:{x:b.x,y:b.y,width:b.width,height:b.height,pixelWidth:this.canvas.width,pixelHeight:this.canvas.height},
+          screen:anchors[text.split(' (')[0]]});
+        if (draws.length>90) draws.shift();
       }
       if (maxWidth===undefined) return fill.call(this,text,x,y);
       return fill.call(this,text,x,y,maxWidth);
@@ -98,8 +104,21 @@ test('nested rooms export one slab at each point on active and stacked floors', 
   await page.mouse.move(start.x,start.y);await page.mouse.down();
   await page.mouse.move(start.x+40,start.y+15,{steps:5});await page.mouse.up();
   await expect.poll(async()=>Math.abs((await anchors())['Nested room 0'].x-start.x-40)).toBeLessThan(2);
-  await page.getByRole('button',{name:'Undo',exact:true}).click();
-  await expect.poll(async()=>Math.abs((await anchors())['Nested room 0'].x-start.x)).toBeLessThan(2);
+  const moved=await anchors();
+  try {
+    await page.getByRole('button',{name:'Undo',exact:true}).click();
+    await expect.poll(async()=>Math.abs((await anchors())['Nested room 0'].x-start.x)).toBeLessThan(2);
+  } finally {
+    // Keep the exact restoration assertion. Record drawing coordinates and
+    // layout separately so an intermittent failure can distinguish stale room
+    // metadata from viewport movement without exposing application internals.
+    const evidence=await page.evaluate(()=>({anchors:(window as any).__nestedAnchors,
+      draws:(window as any).__nestedDraws})).catch(error=>({diagnosticError:String(error)}));
+    await testInfo.attach('nested-label-undo-coordinates',{
+      body:Buffer.from(JSON.stringify({start,moved,...evidence},null,2)),
+      contentType:'application/json',
+    });
+  }
   for (const format of ['PNG','SVG','PDF']) {
     await page.evaluate(capture=>(window as any).__capturePDF=capture,format==='PDF');
     await page.getByRole('button',{name:'Export',exact:true}).click();

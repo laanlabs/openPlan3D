@@ -62,13 +62,18 @@ accessibility/physical-device testing, and native UI return
 qualification. See `docs/reviews/2026-09-12-local-model-import.md` for exact scope,
 logs, source checkpoints and incomplete checks. This does not close broader NEXT work.
 
-## Nested-room Undo reproduction — WebKit passed; original issue remains open
+## Nested-room Undo reproduction — all engines passed; original issue remains open
 
 After moving the existing three-minute test budget before fixtures, the full
 WebKit nested-room workflow passed, including label Undo, exports, save/reload,
-and active/stacked slab checks. Session `38782` finished with exit 0. Chromium
-and Firefox attempts timed out before Undo; this does not establish a fix for
-the original intermittent failure. All diagnostic runs are now terminal. See
+and active/stacked slab checks. Session `38782` finished with exit 0. Current-build
+session `65295` also finished with exit 0: two Chromium and two Firefox full
+workflow repetitions passed (8.5 minutes total). Earlier attempts timed out
+before Undo. These passes do not establish a fix for the intermittent failure.
+The test now records label-local coordinates, canvas transforms and bounds around
+Undo, retaining the exact restoration assertion. All-engine diagnostic validation
+is running in session `68614`, log `/tmp/web-nested-undo-coordinate-diagnostics.log`.
+See
 `docs/reviews/2026-09-12-nested-room-undo-reproduction.md` for exact evidence.
 
 ## Scan-count wording correction — Catalyst build and live checks passed
