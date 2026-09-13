@@ -1,5 +1,21 @@
 # Next work and pause handoff
 
+## Imported native package reflection — merger repaired
+
+Height-contract inspection exposed another reflection path: the retained-package
+merger's known furniture fields omitted `mirrorX` and `mirrorY`, so edits to
+imported package furniture were not exported. Native `72906c0` includes both
+fields. Regression `94702` passed (exit 0, 1.086 seconds): actual native and web
+package import, save, and export retain edited true/false flags and explicit
+removal, without changing angle, unknown metadata or retained web/baseline/mapping
+documents. Log: `/tmp/native-reflection-package-merge-regression.log`. This scoped
+pass is newer than the full native source baseline below. Height remains open.
+
+CI run `34733632131` is now terminal: build and both benchmark profiles passed,
+but all three browser jobs failed. Logs are being retrieved to
+`/tmp/openplan-ci-fixed-benchmark-browser-failures.log`; diagnose these before
+claiming full browser qualification.
+
 ## Benchmark CI collection repair — September 12
 
 Current PR #95 run `34733298723` built successfully but its benchmark jobs

@@ -137,3 +137,15 @@ nine tests in those three files passed unchanged in single-worker rerun `91966`
 leaving 1,139 unrun. Traces are preserved under
 `/tmp/openplan-reflection-full-browser-failures`; browser qualification remains
 open. See NEXT for reproduction state.
+
+## Imported-package edit merger
+
+The earlier live round-trip retained existing reflection but did not exercise a
+new mirror edit after importing a package. The native retained-field merger
+omitted both reflection keys, losing those edits on export. Native `72906c0`
+adds the keys. New regression `94702` passed through actual session storage
+with native and web package fixtures, four edited flag states (including false
+and removal), preserved angle/unknown metadata, and exact retained return
+documents. Exit 0, 1.086 seconds; log
+`/tmp/native-reflection-package-merge-regression.log`. Full-suite passes above
+predate this repair; this is scoped package-path evidence.
