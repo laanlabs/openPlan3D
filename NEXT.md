@@ -9,9 +9,12 @@ the corrected `PlanRenderer`. The new SVG test checks both path transforms for
 X/Y/both reflection and exact unchanged output after removing only the reflection
 transform. Native session `1018` passed (exit 0, test 0.013 seconds), log
 `/tmp/openplan3d-reflection-svg-tests.log`. The full simulator `FloorPlanTests`
-target now runs in session `17153`, log
-`/tmp/openplan3d-reflection-full-native-tests.log`; poll before another native
-test in `/tmp/openplan3d-render-ios-build`. Full browser `96834` remains active.
+target passed in session `17153` (exit 0): 264 reported, 262 passed, two
+opt-in worker integration skips, zero failures, 198.775 seconds XCTest duration.
+Log: `/tmp/openplan3d-reflection-full-native-tests.log`. Full Mac Catalyst
+qualification now runs in `68783`, log
+`/tmp/openplan3d-reflection-full-catalyst-tests.log`; poll before another native
+test in `/tmp/openplan3d-render-ui-build`. Full browser `96834` remains active.
 
 ## Native furniture reflection — end-to-end qualification in progress
 
@@ -80,9 +83,10 @@ VoiceOver/touch qualification remains open; device inventory found no devices.
 
 Follow-up actions also exercised left rotation, duplication, Mirror, deletion
 and deletion Undo. Saved data confirms the duplicate and restored deletion.
-However, native Mirror only negates the angle (`mirrorSelectedFurniture`), with
-no shape-reflection state in `PlanDocument.Furniture`. True furniture mirroring
-and renderer/package propagation remain an explicit native fidelity issue.
+These checks exposed the former Mirror defect: it negated the angle instead of
+reflecting the shape. The reflection implementation and scoped UI/package/export
+verification above supersede that finding. Full regression and physical-device
+qualification remain open.
 
 ## Current regression qualification — September 12
 
@@ -97,7 +101,8 @@ three engines (session `68614`, exit 0, 7.4 minutes); traces are preserved in
 
 Pre-reflection browser qualification `5924` is terminal (exit 1): nine passed,
 five timed out, 1,165 did not run (23.5 minutes). It stopped at the five-failure
-limit; an additional runner-level error also needs inspection. Logs/report:
+limit; inspection confirmed the runner-level error reports that configured
+five-failure stop rather than another application failure. Logs/report:
 `/tmp/web-current-full-browser.log`, `/tmp/web-current-full-browser.json`.
 Artifacts: `/tmp/openplan-full-browser-pre-reflection-artifacts`. Guide and
 entourage Undo equality checks passed before timeout; AI-provider and Portuguese

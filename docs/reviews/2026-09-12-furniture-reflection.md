@@ -109,3 +109,16 @@ removing only the reflection transform. Run `1018` passed (test 0.013 seconds),
 log `/tmp/openplan3d-reflection-svg-tests.log`. PNG/PDF use the already qualified
 `PlanRenderer` path. Full simulator `FloorPlanTests` now runs in `17153`, log
 `/tmp/openplan3d-reflection-full-native-tests.log`; it is not yet a claimed pass.
+
+## Full simulator regression
+
+Session `17153` completed with exit 0 and TEST SUCCEEDED on native source
+`3d076a9`: 264 reported, 262 passed, two opt-in integration skips, zero failures.
+XCTest duration was 198.775 seconds. The skipped cases require an external
+worker result and an enabled synthetic renderer handoff; neither is counted as
+a pass. Log: `/tmp/openplan3d-reflection-full-native-tests.log`. Result bundle:
+`/tmp/openplan3d-render-ios-build/Logs/Test/Test-FloorPlan-2026.09.12_22-25-05--0400.xcresult`.
+
+Full Mac Catalyst regression on the same production source is now running in
+session `68783`, log `/tmp/openplan3d-reflection-full-catalyst-tests.log`. The
+full browser run remains pending; physical-device and release gates remain open.
