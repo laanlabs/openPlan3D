@@ -1,6 +1,6 @@
 # OpenPlan3D status
 
-Last verified: **September 12, 2026, 23:02 EDT**.
+Last verified: **September 12, 2026, 23:10 EDT**.
 
 ## Goal and overall state
 
@@ -22,7 +22,7 @@ Remote state was checked when preparing this report.
 | Repository | Branch | Latest implementation checkpoint | Delivery |
 | --- | --- | --- | --- |
 | Web app: `openPlan3D` | `codex/threejs-render-lab` | `ea84da1` — browser CI sharding and raster rounding | Committed and pushed; [PR #95](https://github.com/laanlabs/openPlan3D/pull/95) remains open |
-| Native app: `openplan3d-ios` | `codex/local-floorplan-render` | `72906c0` — imported-package reflection edits | Committed and pushed |
+| Native app: `openplan3d-ios` | `codex/local-floorplan-render` | `8fdd1bf` — native measured furniture height | Committed and pushed |
 | Website: `openplan3d-www` | `main` | `520f86e` — App Store links | Committed and pushed; local checkout is one commit behind remote `main` |
 
 All three working trees were clean before creating this status document. App work
@@ -48,7 +48,8 @@ website changes does not, by itself, verify a production deployment.
   collection. Both CI benchmark profiles subsequently ran and passed all three
   furnished-home cases. Browser CI now uses six shards per engine.
 - **Raster export:** rounded PNG/PDF canvas dimensions up within the 4096-pixel
-  cap to address Firefox exporting 4095 pixels instead of 4096.
+  cap to address Firefox exporting 4095 pixels instead of 4096. The moved-label
+  export workflow now passes unchanged in all three browser engines.
 
 ## Validation state
 
@@ -63,14 +64,24 @@ website changes does not, by itself, verify a production deployment.
 | Shard inventory | All **1,179 cases** occur exactly once: 393 per engine, divided into groups of 71/61/74/58/64/65. This verifies collection, not execution. |
 | Benchmark CI | Desktop: three passed; phone viewport: three passed. Software-rendered measurements do not qualify physical-phone performance. |
 
+## Furniture-height implementation in progress
+
+Native `8fdd1bf` adds optional measured height in metres, preserves it through
+RoomPlan import, saved plans, duplication, SceneKit preview, RoomPlan export,
+and retained-package merging, and rejects invalid heights on decode/package
+validation. Legacy plans retain category defaults. Both focused simulator tests
+passed (exit 0; 0.022 and 0.057 seconds); **the web package projection and
+cross-platform qualification remain open**. The older full native suite passes do not cover this new change.
+
 ## Checks currently running
 
-- **Raster export browser regression:** local session `26950`, all three engines.
-  Chromium passed in 39.5 seconds; Firefox/WebKit completion is pending.
-  Log: `/tmp/web-raster-rounding-browser.log`. Poll this session before starting
-  another browser run against the same local server.
+- **Native furniture-height regression completed:** session `40396` exited 0;
+  both tests passed. Log: `/tmp/native-furniture-height-regression.log`.
+- **Raster browser regression completed:** session `26950` exited successfully;
+  all three cases passed in 2.2 minutes (Chromium 39.5 s, Firefox 58.2 s, WebKit
+  15.8 s). Log: `/tmp/web-raster-rounding-browser.log`.
 - **CI after sharding/raster fix:** [run 34734473227](https://github.com/laanlabs/openPlan3D/actions/runs/34734473227)
-  was building at the latest observation. Require the full browser matrix and
+  passed its build; browser shards and benchmark jobs are running/queued. Require the full browser matrix and
   benchmark results before declaring current CI green. A later documentation push
   may create an additional run; check its head commit when interpreting results.
 
@@ -78,10 +89,10 @@ website changes does not, by itself, verify a production deployment.
 
 1. Finish raster browser verification and inspect the complete sharded CI results;
    diagnose any remaining failures without dropping coverage or weakening assertions.
-2. Preserve measured **furniture height**. Native RoomPlan import currently drops
-   `dimensions[1]`; preview/export substitutes a category default. Carry measured
-   height through the model, validation, preview/export, duplication, and package
-   bridge, with legacy and round-trip coverage.
+2. Finish **furniture height**: project
+   height through the web package bridge while preserving scale and older native
+   returns, and verify cross-platform round trips. Native implementation is now
+   committed; the full feature is not yet qualified.
 3. Continue the nested-room Undo investigation. Repeated scoped checks passed,
    but the original intermittent failure has no established root cause.
 4. Continue the remaining geometry, usability, performance, and release work in

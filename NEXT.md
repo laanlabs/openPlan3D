@@ -4,6 +4,22 @@ The user-facing goal status is maintained in [STATUS.md](STATUS.md). Update it
 when implementation, validation, blockers or next priorities change; keep this
 file as the detailed backlog and evidence history.
 
+## Current native height work and raster verification
+
+Native `8fdd1bf` retains measured furniture height through RoomPlan import,
+saved documents, duplication, SceneKit preview, RoomPlan export, and package
+merging, with positive/bounded validation and legacy category defaults.
+Both simulator regressions passed in `40396` (exit 0; 0.022 and 0.057 seconds),
+log `/tmp/native-furniture-height-regression.log`. Web package height projection/scale handling
+and cross-platform qualification remain open; earlier full native passes predate
+this implementation.
+
+Raster browser `26950` completed with exit 0: all three engines passed the
+unchanged moved-label export workflow, 2.2 minutes total. Log:
+`/tmp/web-raster-rounding-browser.log`. CI run `34734473227` passed its build;
+the browser shards/benchmarks remain in progress. STATUS.md reflects these
+outcomes. Do not restart the terminal raster run.
+
 ## CI browser capacity and raster rounding — September 12
 
 CI run `34733632131` reached its 720-second suite limit in every engine:
