@@ -4,6 +4,21 @@ The user-facing goal status is maintained in [STATUS.md](STATUS.md). Update it
 when implementation, validation, blockers or next priorities change; keep this
 file as the detailed backlog and evidence history.
 
+## September 12, 23:43 EDT — actual height handoff passed
+
+Web height output was imported as a copy through isolated Catalyst UI, saved,
+inspected in 3D, and exported through the native project-package Save dialog.
+The actual native ZIP now lives at `tests/fixtures/native-ui-height-package.zip`.
+Web service re-import/re-export preserves 3.125 m physical height, 125 cm at
+Z scale 2.5, reflection, rotation, furniture extension metadata and attachment
+bytes. All 38 package tests passed in `25778` (exit 0, 1.48 seconds). An initial
+comparison failure was only UUID letter case, normalized as in existing tests.
+See [handoff evidence](docs/reviews/2026-09-12-furniture-height-handoff.md).
+
+This closes the scoped Catalyst UI/package preservation check; physical-device
+handoff, height editing usability and richer furniture rendering remain open.
+The overall goal remains active. STATUS.md reflects this checkpoint.
+
 ## September 12, 23:36 EDT — full validation completed
 
 CI [34735405519](https://github.com/laanlabs/openPlan3D/actions/runs/34735405519)

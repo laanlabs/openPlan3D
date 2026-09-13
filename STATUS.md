@@ -1,13 +1,12 @@
 # OpenPlan3D status
 
-Last verified: **September 12, 2026, 23:36 EDT**.
+Last verified: **September 12, 2026, 23:43 EDT**.
 
 ## Goal and overall state
 
 **Active goal: keep working on all outstanding issues in `NEXT.md`.**
 
-The goal is not complete. Recent fixes are committed and pushed, but actual furniture-height UI/package
-qualification, broader fidelity work,
+The goal is not complete. Recent fixes are committed and pushed, but broader fidelity work,
 physical-device testing, and release/cloud gates remain open.
 
 This is the concise, maintained status page. Update it as implementation,
@@ -67,7 +66,7 @@ website changes does not, by itself, verify a production deployment.
 | Shard inventory | All **1,179 cases** occur exactly once: 393 per engine, divided into groups of 71/61/74/58/64/65. This verifies collection, not execution. |
 | Benchmark CI | Desktop: three passed; phone viewport: three passed. Software-rendered measurements do not qualify physical-phone performance. |
 
-## Furniture-height implementation in progress
+## Furniture-height preservation verified in Catalyst handoff
 
 Native `8fdd1bf` adds optional measured height in metres, preserves it through
 RoomPlan import, saved plans, duplication, SceneKit preview, RoomPlan export,
@@ -76,8 +75,12 @@ validation. Legacy plans retain category defaults. Both focused simulator tests
 passed (exit 0; 0.022 and 0.057 seconds). Web `79633db` now imports/exports
 physical height, preserves Z scale, retains heights omitted by older encoders,
 and keeps flat catalog symbols valid. All 92 package/category tests and the web
-type check passed. **Actual cross-platform UI/package height qualification remains
-open**. The current full simulator suite now covers these changes; both full native suites passed.
+type check passed. **Actual web service → Catalyst UI → web service package handoff passed**.
+Native import/save/preview/export retained 3.125 m height; web return retained
+125 cm at Z scale 2.5, reflection, rotation and attachment bytes. All 38 package
+tests passed with the actual native export fixture. Both full native suites
+passed. Physical-device handoff and richer furniture previews remain open.
+See the [handoff record](docs/reviews/2026-09-12-furniture-height-handoff.md).
 
 ## Phone status-bar repair verified
 
@@ -103,7 +106,8 @@ qualifying the repair in the original failing environment.
   changes through `0fcae31` were tests/documentation. Build log: `/tmp/openplan-statusbar-ci-build.log`.
 - **Height handoff package generated:** passing fixture run `81629` produced
   `/tmp/web-height-return-package.zip`, with native height 3.125 m and web height
-  125 cm at Z scale 2.5. Native file/UI exchange is the next qualification step.
+  125 cm at Z scale 2.5. Actual Catalyst import/save/export and web service return
+  subsequently passed; regression session `25778` passed all 38 package tests.
 - **Native furniture-height regression completed:** session `40396` exited 0;
   both tests passed. Log: `/tmp/native-furniture-height-regression.log`.
 - **Raster browser regression completed:** session `26950` exited successfully;
@@ -126,9 +130,9 @@ qualifying the repair in the original failing environment.
 
 ## Next priorities
 
-1. Finish **furniture height** qualification: verify
-   actual cross-platform package/UI round trips. Both implementations and focused
-   native/web tests are committed; the full feature is not yet qualified.
+1. Continue furniture fidelity and height editing usability; complete physical
+   iPhone/iPad handoff when a device is available. The Catalyst UI/package
+   preservation check is complete, with its actual export retained as a fixture.
 2. Continue the nested-room Undo investigation. Repeated scoped checks passed,
    but the original intermittent failure has no established root cause.
 3. Continue the remaining geometry, usability, performance, and release work in

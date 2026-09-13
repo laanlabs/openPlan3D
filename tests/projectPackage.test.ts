@@ -63,6 +63,26 @@ it('merges native height edits without flattening web vertical scale', () => {
   if (process.env.OPENPLAN_HEIGHT_RETURN_PATH) writeFileSync(process.env.OPENPLAN_HEIGHT_RETURN_PATH, returned);
 });
 
+it('returns measured height and web scale from an actual native UI package export', () => {
+  const bytes = new Uint8Array(readFileSync('tests/fixtures/native-ui-height-package.zip'));
+  const files = readPackageZip(bytes);
+  const nativePlan = packageJSON(files['plan.json']);
+  expect(nativePlan.furniture[0]).toMatchObject({ height: 3.125, mirrorX: true, mirrorY: false });
+  const retainedWeb = packageJSON(files['web.json']);
+  const project = readProjectPackage(bytes).project;
+  expect(project.floors[0].furniture).toEqual(retainedWeb.floors[0].furniture);
+  expect(project.floors[0].furniture[0]).toMatchObject({
+    height: 125, width: 65, depth: 55, rotation: 37.5,
+    scale: { x: -2, y: 1.5, z: 2.5 }, future: 'furniture extension',
+  });
+  const returnedFiles = readPackageZip(projectPackageBytes(project));
+  const returned = packageJSON(returnedFiles['plan.json']);
+  const normalized = (items: any[]) => items.map(item => ({ ...item, id: item.id.toLowerCase() }));
+  expect(normalized(returned.furniture)).toEqual(normalized(nativePlan.furniture));
+  expect(returnedFiles['assets/web-underlay-21539630.png'])
+    .toEqual(files['assets/web-underlay-21539630.png']);
+});
+
 it('retains web height when an older native encoder omits it', () => {
   const source = webFixture();
   source.floors[0].furniture[0].scale.z = 2.5;
