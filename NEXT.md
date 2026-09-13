@@ -4,6 +4,25 @@ The user-facing goal status is maintained in [STATUS.md](STATUS.md). Update it
 when implementation, validation, blockers or next priorities change; keep this
 file as the detailed backlog and evidence history.
 
+## September 12, 23:36 EDT — full validation completed
+
+CI [34735405519](https://github.com/laanlabs/openPlan3D/actions/runs/34735405519)
+completed successfully: build, 1,142 unit tests, type check, all 18 browser shards,
+both benchmark profiles and aggregate check passed. Linux Firefox shard 3 passed
+all 74 tests in 5.6 minutes, confirming the phone status-bar repair in the original
+failing environment. Log: `/tmp/openplan-statusbar-ci-firefox3-success.log`.
+This run covers implementation `3020a65`; subsequent changes through `0fcae31`
+are tests/documentation.
+
+Full Catalyst run `25783` also completed with exit 0 on native `8fdd1bf`: 267
+reported tests, 265 passed, two optional integration skips, zero failures;
+XCTest 142.046 seconds. Log: `/tmp/native-height-full-catalyst.log`. Both current
+native full suites now pass. The earlier active/pending entries below are history.
+
+The overall goal remains open. Next: actual furniture-height native UI/package
+exchange, then the remaining investigation, fidelity, device and release scope.
+See [STATUS.md](STATUS.md) for the maintained current state.
+
 ## Current full-suite checkpoint and height handoff artifact
 
 Full simulator run `72751` passed on native `8fdd1bf`: 267 reported, 265 passed,

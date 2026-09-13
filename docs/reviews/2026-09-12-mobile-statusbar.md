@@ -25,5 +25,8 @@ screenshot run `43494` also passed; its image was inspected. Logs:
 ![Full Grid label and status controls visible](assets/mobile-statusbar-firefox-after-macos.png)
 
 These images come from different operating systems. The local result confirms
-readable controls and working clicks on macOS; the original Linux CI environment
-must still pass before its reported defect is fully qualified.
+readable controls and working clicks on macOS. The original Linux CI environment
+subsequently passed in [run 34735405519](https://github.com/laanlabs/openPlan3D/actions/runs/34735405519):
+Firefox shard 3 completed all 74 tests in 5.6 minutes. All 18 browser shards passed.
+The Linux failure is now qualified as repaired. The images above remain a visual
+comparison across different operating systems.

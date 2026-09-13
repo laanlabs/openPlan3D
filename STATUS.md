@@ -1,13 +1,13 @@
 # OpenPlan3D status
 
-Last verified: **September 12, 2026, 23:29 EDT**.
+Last verified: **September 12, 2026, 23:36 EDT**.
 
 ## Goal and overall state
 
 **Active goal: keep working on all outstanding issues in `NEXT.md`.**
 
-The goal is not complete. Recent fixes are committed and pushed, but full browser
-qualification, native furniture-height preservation, broader fidelity work,
+The goal is not complete. Recent fixes are committed and pushed, but actual furniture-height UI/package
+qualification, broader fidelity work,
 physical-device testing, and release/cloud gates remain open.
 
 This is the concise, maintained status page. Update it as implementation,
@@ -25,7 +25,8 @@ Remote state was checked when preparing this report.
 | Native app: `openplan3d-ios` | `codex/local-floorplan-render` | `8fdd1bf` — native measured furniture height | Committed and pushed |
 | Website: `openplan3d-www` | `main` | `520f86e` — App Store links | Committed and pushed; local checkout is one commit behind remote `main` |
 
-All three working trees were clean before creating this status document. App work
+All three working trees were clean at the prior checkpoint. The web branch was
+verified equal to its remote at `0fcae31` before this documentation update. App work
 remains on development branches; it has not been merged into `main`. Pushing the
 website changes does not, by itself, verify a production deployment.
 
@@ -56,12 +57,13 @@ website changes does not, by itself, verify a production deployment.
 | Check | Evidence and limits |
 | --- | --- |
 | Full native simulator suite | **265 passed, two optional integration skips, zero failures** on `8fdd1bf`, covering height and package-merger changes. Session `72751` exited 0; XCTest 93.611 seconds. |
-| Full native Catalyst suite | Earlier `3d076a9` baseline: 262 passed, two skips, zero failures. Current-source full run `25783` is active. |
+| Full native Catalyst suite | **265 passed, two optional integration skips, zero failures** on `8fdd1bf`. Session `25783` exited 0; XCTest 142.046 seconds. |
 | Later native package-merger regression | **Passed**, exit 0, 1.086 seconds, on `72906c0`. This is a focused regression, not a newer full native suite. |
 | Full web unit suite | **1,142 passed in 119 files** in CI run `34735405519` on the status-bar/height implementation. Type check and production build also passed. The earlier local timeout results are superseded for this source. |
 | Raster export unit tests and build | **27 tests passed**; production build passed. |
 | Earlier local full browser run | 35 passed, five timeouts, 1,139 unrun. All five timed-out cases later passed unchanged on the current-at-that-time build. Full coverage was not achieved. |
 | Earlier CI browser run | All engines exceeded the 12-minute suite limit; Firefox also exposed the raster-width assertion failure. This motivated sharding and the raster fix. |
+| Current full browser CI | **All 18 shards passed** in run `34735405519`, including Linux Firefox shard 3: 74 passed in 5.6 minutes. |
 | Shard inventory | All **1,179 cases** occur exactly once: 393 per engine, divided into groups of 71/61/74/58/64/65. This verifies collection, not execution. |
 | Benchmark CI | Desktop: three passed; phone viewport: three passed. Software-rendered measurements do not qualify physical-phone performance. |
 
@@ -75,9 +77,9 @@ passed (exit 0; 0.022 and 0.057 seconds). Web `79633db` now imports/exports
 physical height, preserves Z scale, retains heights omitted by older encoders,
 and keeps flat catalog symbols valid. All 92 package/category tests and the web
 type check passed. **Actual cross-platform UI/package height qualification remains
-open**. The current full simulator suite now covers these changes; Catalyst is running.
+open**. The current full simulator suite now covers these changes; both full native suites passed.
 
-## Phone status-bar repair in progress
+## Phone status-bar repair verified
 
 The failed Linux Firefox screenshot shows the horizontal scrollbar covering the
 status-button text. The workflow passed unchanged in local macOS Firefox, so a
@@ -85,18 +87,20 @@ local pass alone did not close the CI defect. Web `5e09840` gives the phone stat
 bar a 48 px minimum height and centers its controls, leaving room for a classic
 scrollbar. Existing pointer/interaction assertions remain; the test also checks
 that each button fits its text line and captures phone screenshots. The build
-passed. All six desktop/phone cases passed in 1.8 minutes; Linux CI confirmation
-remains open.
+passed. All six local desktop/phone cases passed in 1.8 minutes. Linux Firefox
+shard 3 subsequently passed all 74 tests in 5.6 minutes in CI run `34735405519`,
+qualifying the repair in the original failing environment.
 
 ## Current validation and CI
 
-- **Full native simulator completed:** `72751` passed all 267 reported tests
-  with two optional skips and zero failures. Log: `/tmp/native-height-full-simulator.log`.
-- **Full native Catalyst active:** `25783`, log `/tmp/native-height-full-catalyst.log`.
-  Poll before other native work in `/tmp/openplan3d-render-ui-build`.
-- **Current CI active:** [run 34735405519](https://github.com/laanlabs/openPlan3D/actions/runs/34735405519)
-  passed all 1,142 unit tests, type check, and build; browser shards and benchmarks
-  are running. Build log: `/tmp/openplan-statusbar-ci-build.log`.
+- **Full native simulator completed:** `72751` completed 267 reported tests:
+  265 passed, two optional skips, zero failures. Log: `/tmp/native-height-full-simulator.log`.
+- **Full native Catalyst completed:** `25783` exited 0: 265 passed, two optional
+  skips, zero failures; XCTest 142.046 seconds. Log: `/tmp/native-height-full-catalyst.log`.
+- **Implementation CI completed successfully:** [run 34735405519](https://github.com/laanlabs/openPlan3D/actions/runs/34735405519)
+  passed all 1,142 unit tests, type check, build, all 18 browser shards and both
+  benchmark profiles. This qualifies the implementation at `3020a65`; later
+  changes through `0fcae31` were tests/documentation. Build log: `/tmp/openplan-statusbar-ci-build.log`.
 - **Height handoff package generated:** passing fixture run `81629` produced
   `/tmp/web-height-return-package.zip`, with native height 3.125 m and web height
   125 cm at Z scale 2.5. Native file/UI exchange is the next qualification step.
@@ -110,28 +114,24 @@ remains open.
   `/tmp/web-mobile-statusbar-browser.log`. Build `35608` passed.
   Focused Firefox phone screenshot run `43494` also passed; the inspected image
   shows the full Grid label. Log: `/tmp/web-mobile-statusbar-visual.log`.
-  Linux CI confirmation is still pending. See the
+  Linux Firefox CI confirmation passed (74 tests in shard 3). See the
   [before/after record](docs/reviews/2026-09-12-mobile-statusbar.md).
 - **Web height production build:** session `74745`, log
   `/tmp/web-package-height-production-build.log`; passed with exit 0.
 - **Completed sharded CI:** [run 34734473227](https://github.com/laanlabs/openPlan3D/actions/runs/34734473227)
   passed its build, both benchmarks, and 17 of 18 browser shards. Firefox shard 3
   failed the Portuguese layers test at 390 px: a bottom overlay intercepts clicks
-  on the Grid button. This is an outstanding UI defect, not a suite-capacity
-  timeout. Log: `/tmp/openplan-ci-firefox-shard3-failure.log`.
+  on the Grid button. That defect was repaired and verified in the later successful run above. Log: `/tmp/openplan-ci-firefox-shard3-failure.log`.
 
 
 ## Next priorities
 
-1. Verify the phone status-bar repair locally and in Linux Firefox CI, then
-   complete current full CI qualification. The repair is committed; the CI
-   defect remains open until its failing environment passes.
-2. Finish **furniture height** qualification: verify
+1. Finish **furniture height** qualification: verify
    actual cross-platform package/UI round trips. Both implementations and focused
    native/web tests are committed; the full feature is not yet qualified.
-3. Continue the nested-room Undo investigation. Repeated scoped checks passed,
+2. Continue the nested-room Undo investigation. Repeated scoped checks passed,
    but the original intermittent failure has no established root cause.
-4. Continue the remaining geometry, usability, performance, and release work in
+3. Continue the remaining geometry, usability, performance, and release work in
    `NEXT.md` after these immediate issues.
 
 ## Remaining goal scope
