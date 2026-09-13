@@ -39,3 +39,26 @@ budgets increased using traced action durations. They do not qualify the newer
 RoomPlan build. Full browser run `96834` and fresh Catalyst build `11694` are active
 at this checkpoint. Live Mirror/Undo/Redo, an actual reflected package return and
 physical-device checks remain open. No release or full-browser pass is claimed.
+
+## Live Catalyst verification
+
+Build `11694` passed. A copied, independently signed app at
+`/tmp/OpenPlan3D-Reflection-Sept12-QA.app` uses bundle identifier
+`com.laan.labs.floorplan.reflectionsept12qa`; the Development app was not used.
+In a fresh drawn plan, a refrigerator was added and rotated right 15 degrees.
+Live screenshots before/after Mirror showed the handle moving from right to left
+without changing the angle. Undo returned the handle to the right; Redo moved it
+left again. Selection dismissal changes available canvas space, so those history
+screenshots are not used as exact screen-position comparisons.
+
+Done saved isolated session `11CD2155-A6F3-43B7-8BBE-CB028C770C6C`. Its sole
+furniture record has `mirrorX: true`, angle `0.2617993877991494`, center `(2.5, 2)`
+and width/depth `0.7` metres. This verifies the live command and persisted state.
+An actual reflected package export/import remains the next interoperability check.
+
+Review also found that the new package reflection type validation was applying to
+non-furniture records. It now validates the flags only on furniture, preserving
+unrelated native extension fields with the same names on walls/rooms. All 32
+package tests passed (`21070`, `/tmp/web-reflection-extension-scope-tests.log`).
+The active full browser run `96834` uses the production build before this narrow
+validator correction; its results must retain that source provenance.

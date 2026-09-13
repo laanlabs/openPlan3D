@@ -50,13 +50,16 @@ export function validatePackagePlan(plan: any): ObjectMap {
       for (const field of ['name', 'text', 'note', 'material', 'style', 'category', 'colorHex']) if (item[field] != null && typeof item[field] !== 'string') fail();
       if (item.level != null && (!Number.isSafeInteger(item.level) || Math.abs(item.level) > 1000)) fail();
       if (item.photos != null && (!Array.isArray(item.photos) || item.photos.some((name: any) => typeof name !== 'string' || !safePackagePath(name)))) fail();
-      for (const field of ['hingeLeft', 'opensInward', 'mirrorX', 'mirrorY']) if (item[field] != null && typeof item[field] !== 'boolean') fail();
+      for (const field of ['hingeLeft', 'opensInward']) if (item[field] != null && typeof item[field] !== 'boolean') fail();
       if (kind === 'walls') { xy(item.start); xy(item.end); if (equal(item.start, item.end)) fail(); }
       if (kind === 'openings') {
         if (!['door', 'window'].includes(item.kind) || typeof item.wallID !== 'string' || !result.walls.some((w: any) => key(w.id) === key(item.wallID))) fail();
         num(item.position, 0); if (item.position > 1) fail(); num(item.width, 0, true);
       }
-      if (kind === 'furniture') { xy(item.center); num(item.angle); num(item.width, 0, true); num(item.depth, 0, true); if (typeof item.category !== 'string') fail(); }
+      if (kind === 'furniture') {
+        xy(item.center); num(item.angle); num(item.width, 0, true); num(item.depth, 0, true); if (typeof item.category !== 'string') fail();
+        for (const field of ['mirrorX', 'mirrorY']) if (item[field] != null && typeof item[field] !== 'boolean') fail();
+      }
       if (kind === 'rooms') {
         if (item.floorOpening != null && typeof item.floorOpening !== 'boolean') fail();
         if (item.boundaryWallIDs != null && (!Array.isArray(item.boundaryWallIDs) || item.boundaryWallIDs.length > 5000 || item.boundaryWallIDs.some((id: any) => typeof id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)))) fail();

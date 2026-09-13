@@ -75,6 +75,17 @@ it('imports standalone native reflection and rejects non-boolean reflection flag
   expect(() => validatePackagePlan(plan)).toThrow();
 });
 
+it('preserves unrelated native extension fields named like furniture reflection flags', () => {
+  const files = nativeFiles(), plan = packageJSON(files['plan.json']);
+  plan.walls[0].mirrorX = { vendor: 'wall-only extension' };
+  plan.rooms[0].mirrorY = 'room-only extension';
+  files['plan.json'] = jsonBytes(plan);
+  const imported = readProjectPackage(writePackageZip(files));
+  const result = packageJSON(readPackageZip(projectPackageBytes(imported.project))['plan.json']);
+  expect(result.walls[0].mirrorX).toEqual(plan.walls[0].mirrorX);
+  expect(result.rooms[0].mirrorY).toBe(plan.rooms[0].mirrorY);
+});
+
 it('uses interoperable CRC32 and a strict stored ZIP profile', () => {
   expect(crc32(new TextEncoder().encode('123456789'))).toBe(0xcbf43926);
   const files = nativeFiles(); const bytes = writePackageZip(files);

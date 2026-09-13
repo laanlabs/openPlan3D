@@ -36,11 +36,15 @@ or comparison relaxation was needed. Build `69534` passed.
 Active work — poll these handles before competing runs:
 - Full current-build browser run `96834`: `/tmp/web-roomplan-reflection-full-browser.log`;
   JSON report `/tmp/web-roomplan-reflection-full-browser.json`, five-failure stop.
-- Fresh Catalyst build `11694`: `/tmp/openplan3d-reflection-catalyst-build.log`.
+- Catalyst build `11694` passed and is terminal. Its fresh isolated app passed
+  live Mirror/Undo/Redo with visible handle reflection and persisted `mirrorX: true`
+  at the unchanged 15-degree angle. See the reflection review for exact saved data.
 
-Next: create a fresh isolated app from `11694` for actual Mirror/Undo/Redo and
-saved-state checks. Actual cross-app reflected package return, current full
-browser qualification and physical-device testing remain open.
+Next: export the saved reflected plan from `/tmp/OpenPlan3D-Reflection-Sept12-QA.app`
+and verify its web import. Actual cross-app reflected package return, current full
+browser qualification and physical-device testing remain open. The package validator
+now scopes reflection flag types to furniture; all 32 package tests passed in
+`21070`. This correction is newer than the build used by browser run `96834`.
 
 ## Native editor action labels — Catalyst build and live checks passed
 
