@@ -4,7 +4,9 @@ import common from './playwright.config';
 // Same production build as correctness CI. Timing is informational on shared
 // software-rendered runners; allocation and preservation expectations are gates.
 export default defineConfig({ ...common,
-  testDir: './tests/benchmarks', testMatch: '**/*.bench.ts',
+  // wall-hit.bench.ts belongs to Vitest; importing it here prevents Playwright
+  // from collecting any measurements because it requires Vitest's loader.
+  testDir: './tests/benchmarks', testMatch: '**/viewer.bench.ts',
   outputDir: 'benchmark-results', globalTimeout: 10 * 60_000,
   // The large software-rendered scene took almost three minutes in calibration.
   // Leave per-case headroom; the suite/job limits still bound a stalled runner.

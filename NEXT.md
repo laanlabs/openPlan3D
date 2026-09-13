@@ -1,5 +1,23 @@
 # Next work and pause handoff
 
+## Benchmark CI collection repair — September 12
+
+Current PR #95 run `34733298723` built successfully but its benchmark jobs
+failed before collecting measurements. Desktop job `103660094800` reports an
+unsupported `virtual:` URL in Node's ESM loader. Local collection `24804`
+reproduced that error (exit 1, zero tests). The Playwright benchmark glob also
+matched the Vitest-only `wall-hit.bench.ts`; it now selects `viewer.bench.ts`.
+This retains both desktop/phone viewport profiles and all three furnished-home
+sizes. Corrected collection `87181` passed (exit 0): all six expected tests in
+one file. Log: `/tmp/openplan-benchmark-collection-after.log`. Actual benchmark
+qualification remains pending.
+
+Latest full web unit run `34034` is active in
+`/tmp/web-reflection-current-full-unit.log` and has reported failures in texture
+recovery, catalog asset hashing and portable scene validation. Inspect terminal
+assertion details before treating these as runtime defects or changing budgets.
+Full browser `96834` and full Catalyst `68783` are also still active.
+
 ## Native reflected SVG export — regression passed
 
 Follow-up inspection found that SVG furniture still applied translation/rotation
