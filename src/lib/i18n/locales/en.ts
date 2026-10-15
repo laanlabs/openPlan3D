@@ -689,6 +689,7 @@ export const en = {
   "furnitureProperties.retained": "{material} (retained)",
   "furnitureProperties.appearanceHelp": "Color tints the 3D model; materials adjust its finish. Reset to defaults restores the original appearance.",
   "furnitureProperties.rotation": "Rotation (degrees)",
+  "itemProperties.elevation": "Elevation",
   "furnitureProperties.rotateLeft": "Rotate 90° left",
   "furnitureProperties.rotateRight": "Rotate 90° right",
   "furnitureProperties.flipHorizontal": "Flip horizontally",

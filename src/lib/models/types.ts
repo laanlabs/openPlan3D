@@ -113,6 +113,8 @@ export interface FurnitureItem {
   position: Point;
   rotation: number;
   scale: { x: number; y: number; z: number };
+  /** Vertical offset above the floor surface in cm; omitted means 0. */
+  elevation?: number;
   // Per-item overrides (optional — falls back to catalog defaults)
   color?: string;
   width?: number;   // cm
@@ -133,6 +135,8 @@ export interface Stair {
   id: string;
   position: Point;
   rotation: number;
+  /** Vertical offset above the floor surface in cm; omitted means 0. */
+  elevation?: number;
   width: number;   // default 100cm
   depth: number;   // default 300cm
   riserCount: number; // default 14
@@ -144,6 +148,8 @@ export interface Column {
   id: string;
   position: Point;
   rotation: number;
+  /** Vertical offset above the floor surface in cm; omitted means 0. */
+  elevation?: number;
   shape: 'round' | 'square';
   diameter: number;  // cm (for round) or side length (for square)
   height: number;    // cm
@@ -176,6 +182,8 @@ export interface TextAnnotation {
   fontSize: number;
   color: string;
   rotation: number;
+  /** Vertical offset above the floor surface in cm; omitted means 0. */
+  elevation?: number;
 }
 
 export interface GuideLine {
@@ -200,6 +208,8 @@ export interface EntourageItem {
   position: Point; // center, world cm
   width: number; // real-world width in cm
   rotation: number; // degrees
+  /** Vertical offset above the floor surface in cm; omitted means 0. */
+  elevation?: number;
   opacity?: number; // 0–1, default 1
   locked?: boolean;
 }

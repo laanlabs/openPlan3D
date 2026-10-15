@@ -107,6 +107,14 @@
     if (valid && value !== current) save(value);
     else if (!valid && e.type === 'blur') input.value = String(current);
   }
+  /** Elevation is unit-aware and may be negative (sunken items). */
+  function elevationInput(e: Event, current: number, save: (cm: number) => void) {
+    const input = e.target as HTMLInputElement;
+    const value = inputToCm(input.valueAsNumber);
+    const valid = input.value.trim() && input.validity.valid && Number.isFinite(value);
+    if (valid && input.valueAsNumber !== displayValue(current)) save(value);
+    else if (!valid && e.type === 'blur') input.value = String(displayValue(current));
+  }
   function onStairWidth(e: Event) {
     if (selectedStair) dimensionInput(e, selectedStair.width, value => updateStair(selectedStair!.id, { width: value }));
   }
@@ -220,6 +228,21 @@
   function resetFurnitureDefaults() {
     if (!selectedFurniture) return;
     updateFurniture(selectedFurniture.id, { color: undefined, width: undefined, depth: undefined, height: undefined, material: undefined });
+  }
+  function onFurnitureElevation(e: Event) {
+    if (selectedFurniture) elevationInput(e, selectedFurniture.elevation ?? 0, value => updateFurniture(selectedFurniture!.id, { elevation: value }));
+  }
+  function onStairElevation(e: Event) {
+    if (selectedStair) elevationInput(e, selectedStair.elevation ?? 0, value => updateStair(selectedStair!.id, { elevation: value }));
+  }
+  function onColumnElevation(e: Event) {
+    if (selectedColumn) elevationInput(e, selectedColumn.elevation ?? 0, value => updateColumn(selectedColumn!.id, { elevation: value }));
+  }
+  function onEntourageElevation(e: Event) {
+    if (selectedEntourage) elevationInput(e, selectedEntourage.elevation ?? 0, value => updateEntourageItem(selectedEntourage!.id, { elevation: value }));
+  }
+  function onTextAnnotationElevation(e: Event) {
+    if (selectedTextAnnotation) elevationInput(e, selectedTextAnnotation.elevation ?? 0, value => updateTextAnnotation(selectedTextAnnotation!.id, { elevation: value }));
   }
 
   // Door distance handlers
@@ -724,6 +747,17 @@
 
       <p class="text-xs text-gray-500">{$t('furnitureProperties.appearanceHelp')}</p>
       
+      <!-- Elevation -->
+      <label class="block">
+        <span class="text-xs text-gray-500">{$t('itemProperties.elevation')} ({unitLabel()})</span>
+        <input
+          type="number"
+          value={displayValue(selectedFurniture.elevation ?? 0)}
+          oninput={onFurnitureElevation} onblur={onFurnitureElevation} step="any"
+          class="w-full px-2 py-1 border border-gray-200 rounded text-sm"
+        />
+      </label>
+
       <!-- Rotation -->
       <label class="block">
         <span class="text-xs text-gray-500">{$t('furnitureProperties.rotation')}</span>
@@ -882,6 +916,10 @@
         <input type="number" value={selectedEntourage.rotation} oninput={(e) => scalarInput(e, selectedEntourage!.rotation, value => updateEntourageItem(selectedEntourage!.id, { rotation: value }))} onblur={(e) => scalarInput(e, selectedEntourage!.rotation, value => updateEntourageItem(selectedEntourage!.id, { rotation: value }))} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
+        <span class="text-xs text-gray-500">{$t('itemProperties.elevation')} ({unitLabel()})</span>
+        <input type="number" value={displayValue(selectedEntourage.elevation ?? 0)} oninput={onEntourageElevation} onblur={onEntourageElevation} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
+      </label>
+      <label class="block">
         <span class="text-xs text-gray-500">{$t('symbolProperties.opacity', { percent: Math.round((selectedEntourage.opacity ?? 1) * 100) })}</span>
         <input type="range" min="0.1" max="1" step="0.05" value={selectedEntourage.opacity ?? 1} oninput={(e) => { if (selectedEntourage) updateEntourageItem(selectedEntourage.id, { opacity: Number((e.target as HTMLInputElement).value) }); }} class="w-full" />
       </label>
@@ -929,6 +967,10 @@
         <span class="text-xs text-gray-500">{$t('furnitureProperties.rotation')}</span>
         <input type="number" value={selectedStair.rotation} step="any" oninput={onStairRotation} onblur={onStairRotation} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
+      <label class="block">
+        <span class="text-xs text-gray-500">{$t('itemProperties.elevation')} ({unitLabel()})</span>
+        <input type="number" value={displayValue(selectedStair.elevation ?? 0)} step="any" oninput={onStairElevation} onblur={onStairElevation} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
+      </label>
     </div>
   {:else if selectedColumn}
     <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
@@ -974,6 +1016,10 @@
           <input type="number" value={selectedColumn.rotation} oninput={(e) => scalarInput(e, selectedColumn!.rotation, value => updateColumn(selectedColumn!.id, { rotation: value }))} onblur={(e) => scalarInput(e, selectedColumn!.rotation, value => updateColumn(selectedColumn!.id, { rotation: value }))} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
         </label>
       {/if}
+      <label class="block">
+        <span class="text-xs text-gray-500">{$t('itemProperties.elevation')} ({unitLabel()})</span>
+        <input type="number" value={displayValue(selectedColumn.elevation ?? 0)} step="any" oninput={onColumnElevation} onblur={onColumnElevation} class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
+      </label>
     </div>
   {:else if selectedTextAnnotation}
     <div class="space-y-3">
@@ -999,6 +1045,10 @@
       <label class="block">
         <span class="text-xs text-gray-500">{$t('symbolProperties.rotation')}</span>
         <input type="number" value={selectedTextAnnotation.rotation} oninput={(e) => scalarInput(e, selectedTextAnnotation!.rotation, value => updateTextAnnotation(selectedTextAnnotation!.id, { rotation: value }))} onblur={(e) => scalarInput(e, selectedTextAnnotation!.rotation, value => updateTextAnnotation(selectedTextAnnotation!.id, { rotation: value }))} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
+      </label>
+      <label class="block">
+        <span class="text-xs text-gray-500">{$t('itemProperties.elevation')} ({unitLabel()})</span>
+        <input type="number" value={displayValue(selectedTextAnnotation.elevation ?? 0)} oninput={onTextAnnotationElevation} onblur={onTextAnnotationElevation} step="any" class="w-full px-2 py-1 border border-gray-200 rounded text-sm" />
       </label>
       <label class="block">
         <span class="text-xs text-gray-500">X</span>

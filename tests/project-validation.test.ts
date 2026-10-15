@@ -12,17 +12,17 @@ function completeProject(): any {
   floor.walls[0] = { ...floor.walls[0], thickness: 21.125, startHeight: 0, endHeight: 290.75, curvePoint: { x: 200.25, y: -45.125 }, extensions: { source: 'survey' } };
   floor.doors = [{ id: 'door', wallId: floor.walls[0].id, position: 0, width: 95.125, height: 207.25, type: 'double', swingDirection: 'right', flipSide: true }];
   floor.windows = [{ id: 'window', wallId: floor.walls[1].id, position: 1, width: 100.5, height: 120.25, sillHeight: 0, type: 'casement' }];
-  floor.furniture = [{ id: 'chair', catalogId: 'future-catalog-item', position: { x: 80.5, y: -20.25 }, rotation: -45.5, scale: { x: -1, y: 2.5, z: -1 }, width: 81.125, depth: 60.25, height: 85.75, locked: true, material: 'Wood' }];
-  floor.stairs = [{ id: 'stair', position: { x: 50, y: 75 }, rotation: 90, width: 95.5, depth: 302.5, riserCount: 14, direction: 'down', stairType: 'l-shaped' }];
-  floor.columns = [{ id: 'column', position: { x: 40, y: 30 }, rotation: 0, shape: 'round', diameter: 25.5, height: 270.25, color: '#ccc' }];
+  floor.furniture = [{ id: 'chair', catalogId: 'future-catalog-item', position: { x: 80.5, y: -20.25 }, rotation: -45.5, scale: { x: -1, y: 2.5, z: -1 }, width: 81.125, depth: 60.25, height: 85.75, elevation: 72.5, locked: true, material: 'Wood' }];
+  floor.stairs = [{ id: 'stair', position: { x: 50, y: 75 }, rotation: 90, elevation: -12.25, width: 95.5, depth: 302.5, riserCount: 14, direction: 'down', stairType: 'l-shaped' }];
+  floor.columns = [{ id: 'column', position: { x: 40, y: 30 }, rotation: 0, elevation: 0, shape: 'round', diameter: 25.5, height: 270.25, color: '#ccc' }];
   floor.rooms = [{ id: 'room', name: 'Kitchen', walls: floor.walls.map((wall: any) => wall.id), area: 12.5, floorTexture: 'oak', color: '#fff', roomType: 'kitchen', labelOffset: { x: 2.25, y: -4.5 } }];
   floor.guides = [{ id: 'guide', orientation: 'vertical', position: -2.5 }];
   floor.measurements = [{ id: 'measurement', x1: 0, y1: 0, x2: 10.25, y2: -4.5 }];
   floor.annotations = [{ id: 'dimension', x1: 0, y1: 0, x2: 50.75, y2: 0, offset: -40.25, label: 'Entry' }];
-  floor.textAnnotations = [{ id: 'text', x: 20.25, y: 30.75, text: 'Kitchen notes', fontSize: 16, color: '#111', rotation: 90 }];
+  floor.textAnnotations = [{ id: 'text', x: 20.25, y: 30.75, text: 'Kitchen notes', fontSize: 16, color: '#111', rotation: 90, elevation: 150.5 }];
   floor.groups = [{ id: 'group', elementIds: ['chair', 'column'] }];
   floor.backgroundImage = { dataUrl: 'data:image/png;base64,AA==', position: { x: -30, y: 10 }, scale: 0.5, opacity: 0, rotation: -25, locked: true };
-  floor.entourage = [{ id: 'symbol', defId: 'custom-tree', position: { x: 20, y: 30 }, rotation: 45, width: 70.125, opacity: 0, locked: true }];
+  floor.entourage = [{ id: 'symbol', defId: 'custom-tree', position: { x: 20, y: 30 }, rotation: 45, elevation: 5.25, width: 70.125, opacity: 0, locked: true }];
   project.customEntourage = [{ id: 'custom-tree', name: 'Tree', dataUrl: 'data:image/png;base64,AA==', aspect: 1.25 }];
   return project;
 }
@@ -101,6 +101,11 @@ describe('native project reader', () => {
     ['invalid date', p => p.createdAt = 'not a date', 'createdAt'],
     ['null date', p => p.updatedAt = null, 'updatedAt'],
     ['nonfinite elevation', p => p.floors[0].elevation = Infinity, 'floors[0].elevation'],
+    ['nonfinite furniture elevation', p => p.floors[0].furniture[0].elevation = Infinity, 'furniture[0].elevation'],
+    ['invalid stair elevation', p => p.floors[0].stairs[0].elevation = null, 'stairs[0].elevation'],
+    ['invalid column elevation', p => p.floors[0].columns[0].elevation = NaN, 'columns[0].elevation'],
+    ['invalid text elevation', p => p.floors[0].textAnnotations[0].elevation = 'high', 'textAnnotations[0].elevation'],
+    ['invalid symbol elevation', p => p.floors[0].entourage[0].elevation = Infinity, 'entourage[0].elevation'],
   ];
   it.each(bad)('rejects %s before changing the input', (_, change, path) => {
     const project = completeProject(); change(project); const before = structuredClone(project);

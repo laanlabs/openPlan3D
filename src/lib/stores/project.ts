@@ -1253,7 +1253,7 @@ export function removeTextAnnotation(id: string) {
   removeElement(id);
 }
 
-export function updateTextAnnotation(id: string, updates: Partial<{ x: number; y: number; text: string; fontSize: number; color: string; rotation: number }>) {
+export function updateTextAnnotation(id: string, updates: Partial<{ x: number; y: number; text: string; fontSize: number; color: string; rotation: number; elevation: number }>) {
   mutate(f => {
     if (!f.textAnnotations) return;
     const t = f.textAnnotations.find(t => t.id === id);

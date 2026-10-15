@@ -689,6 +689,7 @@ export const pt = {
   "furnitureProperties.retained": "{material} (preservado)",
   "furnitureProperties.appearanceHelp": "A cor tonaliza o modelo 3D; os materiais ajustam o acabamento. Restaurar padrões recupera a aparência original.",
   "furnitureProperties.rotation": "Rotação (graus)",
+  "itemProperties.elevation": "Elevação",
   "furnitureProperties.rotateLeft": "Girar 90° à esquerda",
   "furnitureProperties.rotateRight": "Girar 90° à direita",
   "furnitureProperties.flipHorizontal": "Espelhar horizontalmente",
