@@ -36,6 +36,7 @@ links implementation scope to regression coverage and records known limits.
 
 ### 🏠 3D View
 - **Real-time 3D preview** — Toggle with `Tab`
+- **Object editing** — In Edit Mode, select any wall, door, window, furniture, stair, column or room to view and edit its properties, with a translate/rotate gizmo (grid snap; hold `Shift` to snap rotation to 15°)
 - **Walkthrough mode** — First-person navigation through your floor plan
 - **Material editor** — Apply textures to walls, floors, and ceilings (wood, tile, marble, carpet, concrete, brick, and more)
 - **Lighting** — Ambient and directional lighting with adjustable intensity
