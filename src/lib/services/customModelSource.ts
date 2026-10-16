@@ -1,6 +1,7 @@
 import type { Project } from '$lib/models/types';
 import { validateCustomModelDefinitions } from '$lib/utils/customModelDefinitions';
 import { readLocalGLB } from '$lib/utils/localGLB';
+import { sha256Hex } from '$lib/utils/sha256';
 
 function checkCanceled(signal?: AbortSignal) {
   if (signal?.aborted) throw new DOMException('Model import was canceled.', 'AbortError');
@@ -28,10 +29,8 @@ export async function readCustomModelSource(project: Project, id: string, signal
   const bytes = new Uint8Array(decoded.length);
   for (let index = 0; index < decoded.length; index++) bytes[index] = decoded.charCodeAt(index);
   checkCanceled(signal);
-  if (!globalThis.crypto?.subtle) throw new Error('This browser cannot verify local model files.');
-  const digest = await crypto.subtle.digest('SHA-256', bytes.buffer);
+  const sha256 = await sha256Hex(bytes);
   checkCanceled(signal);
-  const sha256 = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
   if (sha256 !== model.sha256) throw new Error('The original model attachment has changed or is damaged.');
   const container = readLocalGLB(bytes);
   return { model, bytes, container };

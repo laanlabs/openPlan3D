@@ -1,10 +1,13 @@
 # Local custom furniture models
 
-Open **Objects → My 3D models** and choose a local `.glb` file. Review its preview
+Open **Objects → My Items** and choose a local `.glb` file. Review its preview
 and dimensions, give it a name, and optionally enter attribution, license text and
-a public HTTP/HTTPS source URL. Choose **Add to project**, then use the saved
-model's placement button to place furniture at the center of the current 2D view.
-Save the project to persist the change. Cancellation leaves the project unchanged.
+a public HTTP/HTTPS source URL. Choose **Add to project**. The saved model appears
+as a card like the built-in catalog items (icon, name and footprint); click it to
+arm placement and click the plan, or drag it onto the canvas — custom models use the
+same grid, wall and pre-place rotation behaviour as catalog furniture. Provenance
+(attribution, license, source) is shown in the card's tooltip. Save the project to
+persist the change. Cancellation leaves the project unchanged.
 
 The preview supports pointer orbit/zoom and labeled rotation/zoom buttons. The
 buttons can be focused with Tab and activated with Enter or Space; **Reset preview
@@ -18,7 +21,7 @@ and labels the placed furniture in 2D PNG, SVG, DXF, DWG and PDF exports and in 
 which make room for the whole name however long it is.
 Importing identical bytes reuses the existing model definition and its metadata.
 To remove a definition, first delete its placed furniture on every floor, then
-choose **Remove model**. An unused source is removed with its definition unless
+choose the card's **−** (Remove model) button. An unused source is removed with its definition unless
 another retained reference still needs it. Undo can restore the removal; older
 saved versions and exported backups retain their copies.
 
@@ -26,8 +29,13 @@ saved versions and exported backups retain their copies.
 
 - Static glTF 2.0 binary containers (`.glb`) up to 16 MiB, with nonzero width,
   depth and height. The glTF metre dimensions become project centimetres.
-- Embedded PNG/JPEG textures, up to 32 images, 4096 pixels per side and a combined
-  32 megapixels. Core materials and `KHR_materials_unlit` are supported.
+- Embedded PNG/JPEG/WebP textures, up to 32 images, 4096 pixels per side and a
+  combined 32 megapixels. Core materials, `KHR_materials_unlit` and
+  `EXT_texture_webp` are supported.
+- Draco-compressed geometry (`KHR_draco_mesh_compression`) is decoded by a decoder
+  bundled with the app under `/draco/` (Apache-2.0, see `static/draco/NOTICE`); no
+  external resource is fetched. Compressed files that also use an unsupported
+  extension are still rejected.
 - Bounded scene graphs, geometry and decoded resources. A file below the byte limit
   can still exceed these limits and be rejected with a diagnostic.
 
@@ -40,6 +48,14 @@ model. Opening a source link is a separate user action.
 Projects support up to 64 model definitions. Admission also checks the shared
 64 MiB project/history budget, history expansion and available browser quota.
 Models share the attachment pool with photos and tracing images.
+
+The original bytes are verified with a SHA-256 digest when a model is added and
+again when it is rendered. `crypto.subtle` exists only in a secure context, so on
+a plain-HTTP origin (a self-hosted site or `npm run dev -- --host` on a phone) the
+app falls back to a built-in SHA-256 implementation. Custom models therefore work
+over HTTP too, at a small CPU cost for the digest. The same fallback covers item
+photos, and identifier generation uses `crypto.randomUUID` when available with a
+`getRandomValues`-based v4 UUID otherwise.
 
 ## Saving and exchanging models
 

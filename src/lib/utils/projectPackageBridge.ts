@@ -6,12 +6,13 @@ import { getFurnitureSize } from './furnitureCatalog';
 import { exportedFurnitureCategory, importedFurnitureCategory } from './furnitureCategories';
 import { packageError, safePackagePath } from './projectPackageZip';
 import { nativeItemDetails, withNativeDetails } from './itemDetails';
+import { randomId } from './randomId';
 
 type ObjectMap = Record<string, any>;
 export type { PackageMapping } from '$lib/models/types';
 const kinds = ['walls', 'openings', 'furniture', 'rooms', 'notes', 'levels'];
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-export const packageId = () => crypto.randomUUID();
+export const packageId = () => randomId();
 const key = (id: string) => id.toLowerCase();
 const cm = (m: number) => Math.round(m * 1e10) / 1e8;
 const meters = (n: number) => n / 100;

@@ -16,6 +16,7 @@ test('Portuguese model controls retain user names and explain invalid sources an
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/editor');
   await page.getByRole('button', { name: 'Objetos', exact: true }).click();
+  await page.getByRole('button', { name: 'Meus itens', exact: true }).click();
   const panel = page.getByRole('region', { name: 'Meus modelos 3D', exact: true });
   await panel.locator('input[type=file]').setInputFiles('tests/fixtures/local-model-textured-box.glb');
   const dialog = page.getByRole('dialog', { name: 'Importar modelo GLB', exact: true });
@@ -27,7 +28,8 @@ test('Portuguese model controls retain user names and explain invalid sources an
   await dialog.getByRole('textbox', { name: 'URL de origem (opcional)', exact: true }).fill('https://example.invalid/original');
   await dialog.getByRole('button', { name: 'Adicionar ao projeto', exact: true }).click();
   await expect(dialog).toBeHidden();
-  await panel.getByRole('button', { name: 'Inserir no centro da visualização', exact: true }).click();
+  await panel.getByRole('button', { name: /Mesa \{modelo\}/ }).click();
+  await page.getByLabel(/^(?:Floor plan editor canvas|Área de edição da planta baixa)$/, { exact: true }).click({ position: { x: 300, y: 250 } });
   await expect(page.getByRole('heading', { name: /Propriedades de Mesa \{modelo\}/ })).toBeVisible();
   await expect.poll(() => page.evaluate(() => (window as any).__customModelCaption)).toBe('Mesa {modelo}');
   await panel.getByRole('button', { name: 'Remover modelo', exact: true }).click();
@@ -50,6 +52,7 @@ test('Portuguese GLB diagnostics preserve extension identifiers and explain inva
   await page.addInitScript(() => localStorage.setItem('o3d_locale', 'pt'));
   await page.goto('/editor');
   await page.getByRole('button', { name: 'Objetos', exact: true }).click();
+  await page.getByRole('button', { name: 'Meus itens', exact: true }).click();
   const input = page.getByRole('region', { name: 'Meus modelos 3D', exact: true }).locator('input[type=file]');
   const dialog = page.getByRole('dialog', { name: 'Importar modelo GLB', exact: true });
   await input.setInputFiles({ name: 'extension.glb', mimeType: 'model/gltf-binary', buffer: glb({ asset: { version: '2.0' }, extensionsUsed: ['CUSTOM_{name}'] }) });

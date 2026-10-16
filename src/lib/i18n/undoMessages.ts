@@ -29,6 +29,8 @@ const keys: Extract<TranslationKey, `undoAction.${string}`>[] = [
   'undoAction.reverseWall',
   'undoAction.rotateFurniture',
   'undoAction.rotateSelection',
+  'undoAction.rotate3d',
+  'undoAction.move3d',
   'undoAction.split',
   'undoAction.placeFurniture',
   'undoAction.moveRoomLabel',

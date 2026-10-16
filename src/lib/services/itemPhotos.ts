@@ -5,6 +5,7 @@ import { detailItem, itemDetails } from '$lib/utils/itemDetails';
 import { nativeAssetNames, webToNative } from '$lib/utils/projectPackageBridge';
 import { readProject } from '$lib/utils/projectValidation';
 import { writeSnapshotStorage, type StoredSnapshot } from '$lib/utils/snapshotStorage';
+import { sha256Hex } from '$lib/utils/sha256';
 
 export const PHOTO_FILE_LIMIT = 8 * 1024 * 1024;
 export const PHOTO_STORED_LIMIT = 512 * 1024;
@@ -56,8 +57,7 @@ export async function prepareItemPhoto(file: File): Promise<PreparedPhoto> {
     if (error instanceof Error && error.name !== 'EncodingError') throw error;
     fail('This photo could not be decoded. Choose a different JPG or PNG.');
   } finally { image.src = ''; URL.revokeObjectURL(url); }
-  const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', bytes));
-  const hash = [...digest].map(b => b.toString(16).padStart(2, '0')).join('');
+  const hash = await sha256Hex(bytes);
   const extension = mime === 'image/png' ? 'png' : 'jpg';
   return { name: `photo-${hash}.${extension}`, data: base64(bytes), label: `${file.name.replace(/\.[^.]*$/, '').slice(0, 180) || 'Photo'}.${extension}` };
 }

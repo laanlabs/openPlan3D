@@ -5,9 +5,20 @@ test('Portuguese presentation symbols retain their IDs and sizes through placeme
   await page.addInitScript(() => localStorage.setItem('o3d_locale', 'pt'));
   await page.goto('/editor');
   await page.getByRole('button', { name: 'Objetos', exact: true }).click();
-  for (const name of ['Pessoa','Duas pessoas','Sedã','SUV','Picape','Árvore caducifólia','Conífera','Arbusto','Cerca viva','Planta em vaso','Grama','Ombrelone']) {
-    await expect(page.getByRole('button', { name, exact: true })).toHaveCount(1);
+  await page.getByRole('button', { name: 'Categorias', exact: true }).click();
+  const group = page.getByRole('group', { name: 'Elementos de entorno' });
+  const back = page.getByRole('button', { name: /Voltar/ });
+  for (const [subcard, names] of [
+    ['Elementos de entorno', ['Pessoa', 'Duas pessoas']],
+    ['Veículos', ['Sedã', 'SUV', 'Picape']],
+    ['Vegetação', ['Árvore caducifólia', 'Conífera', 'Arbusto', 'Cerca viva', 'Planta em vaso', 'Grama']],
+    ['Área externa', ['Ombrelone']],
+  ] as [string, string[]][]) {
+    await group.getByRole('button', { name: subcard }).click();
+    for (const name of names) await expect(page.getByRole('button', { name, exact: true })).toHaveCount(1);
+    await back.click();
   }
+  await group.getByRole('button', { name: 'Elementos de entorno' }).click();
   const person = page.getByRole('button', { name: 'Pessoa', exact: true });
   await expect(person).toHaveAttribute('title', 'Pessoa (55 cm) — clique na planta para posicionar; Shift+clique para inserir vários');
   await person.click();

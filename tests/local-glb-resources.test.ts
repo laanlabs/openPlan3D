@@ -56,7 +56,7 @@ it('bounds individual and cumulative image allocations and checks declared MIME'
   candidate.document.images.push({ ...candidate.document.images[0] });
   expect(() => validateLocalGLBResources(candidate)).toThrow('pixel budget');
   const wrongMime = model(); wrongMime.document.images[0].mimeType = 'image/jpeg';
-  expect(() => validateLocalGLBResources(wrongMime)).toThrow('JPG or PNG');
+  expect(() => validateLocalGLBResources(wrongMime)).toThrow('JPG, PNG or WebP');
 });
 
 it('rejects malformed tables and missing resources while allowing a resource-free document', () => {

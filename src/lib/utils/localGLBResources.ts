@@ -50,7 +50,7 @@ export function validateLocalGLBResources(container: ReturnType<typeof readLocal
     const range = ranges[image.bufferView];
     const header = photoHeader(binary!.subarray(range.offset, range.offset + range.length));
     if (!header || header.mime !== image.mimeType || header.width <= 0 || header.height <= 0 ||
-        header.width > 4096 || header.height > 4096) fail('Use embedded JPG or PNG textures up to 4096 pixels per side.');
+        header.width > 4096 || header.height > 4096) fail('Use embedded JPG, PNG or WebP textures up to 4096 pixels per side.');
     pixels += header.width * header.height;
     if (pixels > LOCAL_MODEL_IMAGE_PIXELS) fail('The model exceeds the total texture pixel budget.');
     return header;

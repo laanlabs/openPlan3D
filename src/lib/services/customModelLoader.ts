@@ -1,9 +1,12 @@
 import * as THREE from 'three';
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+import { base } from '$app/paths';
 import type { Project } from '$lib/models/types';
 import { readLocalGLB, LOCAL_GLB_FILE_LIMIT } from '$lib/utils/localGLB';
 import { validateLocalGLBExtensions } from '$lib/utils/localGLBExtensions';
 import { validateLocalGLBMaterials } from '$lib/utils/localGLBMaterials';
+import { validateLocalGLBGeometry } from '$lib/utils/localGLBGeometry';
 import { repackLocalGLBGeometry } from '$lib/utils/localGLBRepack';
 import { decodeLocalGLBImages } from '$lib/utils/localGLBImages';
 import { readCustomModelSource } from './customModelSource';
@@ -32,15 +35,19 @@ function staticScene(document: Record<string, any>) {
 export async function loadLocalGLBModel(input: Uint8Array, signal?: AbortSignal) {
   canceled(signal);
   if (input.length > LOCAL_GLB_FILE_LIMIT) throw new Error('Choose a GLB file up to 16 MiB.');
-  const container = readLocalGLB(input.slice());
+  const rawBytes = input.slice();
+  const container = readLocalGLB(rawBytes);
   validateLocalGLBExtensions(container.document);
   validateLocalGLBMaterials(container);
-  const prepared = repackLocalGLBGeometry(container);
+  // Draco accessors carry no raw buffer view; repacking them would produce zeroed
+  // geometry. Hand the original container to the loader with a decoder instead.
+  const usesDraco = Array.isArray(container.document.extensionsUsed) && container.document.extensionsUsed.includes('KHR_draco_mesh_compression');
+  const prepared = usesDraco ? (validateLocalGLBGeometry(container), rawBytes.buffer) : repackLocalGLBGeometry(container);
   staticScene(container.document);
   canceled(signal);
   const images = await decodeLocalGLBImages(container, signal);
   const textures = new Set<THREE.Texture>(), geometries = new Set<THREE.BufferGeometry>(), materials = new Set<THREE.Material>();
-  let gltf: GLTF | undefined, disposed = false;
+  let gltf: GLTF | undefined, disposed = false, dracoLoader: DRACOLoader | undefined;
   function collect() {
     for (const scene of gltf?.scenes ?? []) scene.traverse(object => {
       const renderable = object as THREE.Mesh;
@@ -58,34 +65,53 @@ export async function loadLocalGLBModel(input: Uint8Array, signal?: AbortSignal)
     for (const material of materials) material.dispose();
     for (const texture of textures) texture.dispose();
     images.dispose();
+    dracoLoader?.dispose(); dracoLoader = undefined;
   };
   try {
     canceled(signal);
     const manager = new THREE.LoadingManager();
     manager.setURLModifier(() => { throw new Error('Model loading attempted an external resource.'); });
     const loader = new GLTFLoader(manager);
+    if (usesDraco) {
+      dracoLoader = new DRACOLoader();
+      dracoLoader.setDecoderPath(`${base}/draco/`);
+      loader.setDRACOLoader(dracoLoader);
+    }
+    /** Build a texture from an already-decoded embedded ImageBitmap. */
+    function buildTexture(parser: any, index: number, sourceIndex: number) {
+      const definition = container.document.textures[index];
+      const sampler = container.document.samplers?.[definition.sampler] ?? {};
+      const texture = new THREE.Texture(images.images[sourceIndex]);
+      textures.add(texture);
+      texture.flipY = false;
+      const wrapping: Record<number, THREE.Wrapping> = { 33071: THREE.ClampToEdgeWrapping, 33648: THREE.MirroredRepeatWrapping, 10497: THREE.RepeatWrapping };
+      const filtering = { 9728: THREE.NearestFilter, 9729: THREE.LinearFilter, 9984: THREE.NearestMipmapNearestFilter,
+        9985: THREE.LinearMipmapNearestFilter, 9986: THREE.NearestMipmapLinearFilter, 9987: THREE.LinearMipmapLinearFilter };
+      texture.wrapS = wrapping[sampler.wrapS] ?? THREE.RepeatWrapping;
+      texture.wrapT = wrapping[sampler.wrapT] ?? THREE.RepeatWrapping;
+      texture.magFilter = sampler.magFilter === 9728 ? THREE.NearestFilter : THREE.LinearFilter;
+      texture.minFilter = filtering[sampler.minFilter as keyof typeof filtering] ?? THREE.LinearMipmapLinearFilter;
+      texture.generateMipmaps = texture.minFilter !== THREE.NearestFilter && texture.minFilter !== THREE.LinearFilter;
+      texture.needsUpdate = true;
+      parser.associations.set(texture, { textures: index });
+      return texture;
+    }
     loader.register(parser => ({
       name: 'OPENPLAN_embedded_images',
-      loadTexture: async index => {
-        const definition = container.document.textures[index];
-        const sampler = container.document.samplers?.[definition.sampler] ?? {};
-        const texture = new THREE.Texture(images.images[definition.source]);
-        textures.add(texture);
-        texture.flipY = false;
-        const wrapping: Record<number, THREE.Wrapping> = { 33071: THREE.ClampToEdgeWrapping, 33648: THREE.MirroredRepeatWrapping, 10497: THREE.RepeatWrapping };
-        const filtering = { 9728: THREE.NearestFilter, 9729: THREE.LinearFilter, 9984: THREE.NearestMipmapNearestFilter,
-          9985: THREE.LinearMipmapNearestFilter, 9986: THREE.NearestMipmapLinearFilter, 9987: THREE.LinearMipmapLinearFilter };
-        texture.wrapS = wrapping[sampler.wrapS] ?? THREE.RepeatWrapping;
-        texture.wrapT = wrapping[sampler.wrapT] ?? THREE.RepeatWrapping;
-        texture.magFilter = sampler.magFilter === 9728 ? THREE.NearestFilter : THREE.LinearFilter;
-        texture.minFilter = filtering[sampler.minFilter as keyof typeof filtering] ?? THREE.LinearMipmapLinearFilter;
-        texture.generateMipmaps = texture.minFilter !== THREE.NearestFilter && texture.minFilter !== THREE.LinearFilter;
-        texture.needsUpdate = true;
-        parser.associations.set(texture, { textures: index });
-        return texture;
+      loadTexture: async (index: number) => buildTexture(parser, index, container.document.textures[index].source),
+    }));
+    // EXT_texture_webp keeps the image source in the extension. Register under the
+    // same name as three's built-in handler so ours replaces it; the built-in path
+    // would fetch a blob URL and trip the external-resource guard above.
+    loader.register(parser => ({
+      name: 'EXT_texture_webp',
+      loadTexture: (index: number) => {
+        const extension = container.document.textures[index]?.extensions?.EXT_texture_webp;
+        return extension ? Promise.resolve(buildTexture(parser, index, extension.source)) : null;
       },
     }));
     gltf = await loader.parseAsync(prepared, '');
+    dracoLoader?.dispose(); dracoLoader = undefined;
     canceled(signal); collect();
     gltf.scene.updateMatrixWorld(true);
     gltf.scene.traverse(object => {
