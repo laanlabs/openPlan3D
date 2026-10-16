@@ -4,6 +4,20 @@ The user-facing goal status is maintained in [STATUS.md](STATUS.md). Update it
 when implementation, validation, blockers or next priorities change; keep this
 file as the detailed backlog and evidence history.
 
+## Room-first Objects panel — October 16
+
+The Build panel's Objects tab is now room-first: a global search bar, three tabs
+(Rooms / Categories / My Items), a room → sub-card → items drill-down over a
+presentation-only taxonomy (`src/lib/utils/objectTaxonomy.ts`), a Favorite card
+and Recent row, a grouped category accordion (incl. Entourage / Vehicles /
+Planting), and the Import GLB model card in My Items. The mobile tools drawer is
+full width. No catalog item data, manifest or native/package contracts changed;
+empty sub-cards are omitted and empty rooms show an empty state. Search matches
+item names, localized names, raw categories and localized category labels.
+Evidence: `tests/object-taxonomy.test.ts`, `tests/browser/objects-panel.spec.ts`,
+`docs/objects-panel-validation.md`. Follow-up: add real items for the empty
+sub-cards (ottoman, cabinets, toys, gym, …).
+
 ## Assistant shares and remote MCP server — September 16
 
 Option A of the hosted connector design is implemented server-side and
