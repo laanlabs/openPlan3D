@@ -16,7 +16,7 @@ sub-cards. It changes no catalog item or data file.
   `subcards`).
 - 4 groups, 63 sub-cards and 13 rooms.
 - Helpers: `getSubcard`, `subcardsForRoom`, `catalogItemsForSubcard`,
-  `entourageItemsForSubcard`, `itemsForRoom`, `subcardHasItems`.
+  `entourageItemsForSubcard`, `itemsForDirectRoom`, `subcardHasItems`.
 
 Invariants covered by `tests/object-taxonomy.test.ts` (6 tests):
 
