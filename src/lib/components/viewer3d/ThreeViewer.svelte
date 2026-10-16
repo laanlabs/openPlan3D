@@ -10,7 +10,7 @@
   import { openAISettings, setOpenAIModel } from '$lib/stores/aiKeys';
   import { generateOpenAIRenderImage, validateOpenAIConfig, getEffectiveModel, normalizeBaseUrl } from '$lib/utils/openaiClient';
   import OpenAIModelPicker from '$lib/components/ai/OpenAIModelPicker.svelte';
-  import { activeFloor, currentProject, selectedElementId, selectedRoomId, beginUndoGroup, endUndoGroup, transformFurnitureDuringDrag, moveStair, moveColumn, moveWallGeometryDuringDrag, updateFurniture, updateStair, updateColumn, updateDoor, updateWindow } from '$lib/stores/project';
+  import { activeFloor, currentProject, selectedElementId, selectedRoomId, detectedRoomsStore, beginUndoGroup, endUndoGroup, transformFurnitureDuringDrag, moveStair, moveColumn, moveWallGeometryDuringDrag, updateFurniture, updateStair, updateColumn, updateDoor, updateWindow } from '$lib/stores/project';
   import type { Floor, Wall, Door, Window as Win, Stair, Column, FurnitureItem } from '$lib/models/types';
   import { getWallStartHeight, getWallEndHeight } from '$lib/models/types';
   import { wallColors, type WallColor } from '$lib/utils/materials';
@@ -1593,7 +1593,14 @@
     // Room floors with materials + floating labels
     const FALLBACK_ROOM_COLORS = [0xbfdbfe, 0xfde68a, 0xbbf7d0, 0xfecaca, 0xddd6fe, 0xa5f3fc, 0xfed7aa];
     // Resolve labels and materials from this floor, including after a 3D floor switch.
-    const rooms = resolveRoomGeometry(floor);
+    // Reuse the shared detected-room identity so 3D selection resolves the same room
+    // the Properties panel does (room IDs are otherwise regenerated per resolution).
+    const previousRooms = get(detectedRoomsStore);
+    const rooms = resolveRoomGeometry(floor, previousRooms);
+    const resolvedRooms = rooms.map(item => item.room);
+    if (previousRooms.length !== resolvedRooms.length || resolvedRooms.some((room, i) => room.id !== previousRooms[i]?.id)) {
+      detectedRoomsStore.set(resolvedRooms);
+    }
     const holes = roomHoles(rooms.map(r => r.polygon));
     for (let ri = 0; ri < rooms.length; ri++) {
       const { room, polygon: poly } = rooms[ri];

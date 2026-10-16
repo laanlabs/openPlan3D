@@ -60,6 +60,25 @@ test('3D edit mode selects walls and shows wall properties', async ({ page }) =>
   await expect(panel.getByText('Thickness (cm)')).toBeVisible();
 });
 
+test('3D edit mode selects a room and edits its properties', async ({ page }) => {
+  test.slow();
+  const { canvas } = await enter3DWithFixture(page, 'tests/fixtures/three-d-room-selection.openplan.json');
+  const bounds = (await canvas.boundingBox())!;
+  await canvas.click({ position: { x: bounds.width / 2, y: bounds.height / 2 } });
+
+  await expect(page.getByText('Room Properties')).toBeVisible();
+  const panel = page.locator('[data-plan-properties]');
+  const cameraPose = () => canvas.evaluate((node: HTMLCanvasElement) => node.dataset.viewerCamera ?? '');
+  const before = await cameraPose();
+  const nameInput = panel.locator('input[type="text"]').first();
+  await nameInput.fill('Living');
+  await nameInput.blur();
+
+  const floors = await exportedFloors(page);
+  expect(floors[0].rooms.some((room: any) => room.name === 'Living')).toBe(true);
+  expect(await cameraPose()).toBe(before);
+});
+
 test('3D gizmo translates a selected object with grid snap', async ({ page, browserName }) => {
   test.skip(browserName !== 'chromium', 'Pixel-guided gizmo drag runs in Chromium; the drag math is unit-tested.');
   test.slow();

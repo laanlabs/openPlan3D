@@ -1,0 +1,28 @@
+{
+  "id": "qa-three-d-room-selection",
+  "name": "QA 3D Room Selection",
+  "floors": [
+    {
+      "id": "ground",
+      "name": "Ground Floor",
+      "level": 0,
+      "walls": [
+        { "id": "w0", "start": { "x": -200, "y": -200 }, "end": { "x": 200, "y": -200 }, "thickness": 15, "height": 280, "color": "#444444" },
+        { "id": "w1", "start": { "x": 200, "y": -200 }, "end": { "x": 200, "y": 200 }, "thickness": 15, "height": 280, "color": "#444444" },
+        { "id": "w2", "start": { "x": 200, "y": 200 }, "end": { "x": -200, "y": 200 }, "thickness": 15, "height": 280, "color": "#444444" },
+        { "id": "w3", "start": { "x": -200, "y": 200 }, "end": { "x": -200, "y": -200 }, "thickness": 15, "height": 280, "color": "#444444" }
+      ],
+      "rooms": [],
+      "doors": [],
+      "windows": [],
+      "furniture": [],
+      "stairs": [],
+      "columns": [],
+      "guides": [],
+      "measurements": [],
+      "annotations": [],
+      "textAnnotations": [],
+      "groups": []
+    }
+  ]
+}
