@@ -73,7 +73,7 @@ for (const width of [1440, 390]) test(`furniture tint, finish and resource reuse
   if (width === 1440) {
     await page.getByRole('button', { name: '2D', exact: true }).click();
     await page.getByRole('button', { name: 'Objects', exact: true }).click();
-    await page.getByPlaceholder('Search furniture...').fill('Armchair');
+    await page.getByPlaceholder('Search').fill('Armchair');
     await expect(page.getByRole('img', { name: 'Armchair', exact: true })).toBeVisible();
     expect(observed.models.filter(url => chairURL.test(url))).toHaveLength(1);
   }

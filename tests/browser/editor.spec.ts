@@ -122,14 +122,14 @@ test('catalog and 3D use bounded, cacheable assets with zero startup model downl
   await importJSON(page, fixture);
   await expect(page.getByRole('combobox', { name: 'Current floor' }).locator('option')).toHaveCount(3);
   await page.getByRole('button', { name: 'Objects', exact: true }).click();
+  await page.getByPlaceholder('Search').fill('Dining Chair');
+  await expect(page.getByRole('button', { name: /Dining Chair/ }).first()).toBeVisible();
   await expect.poll(() => assets.filter(x => x.url.endsWith('.glb')).length).toBeGreaterThan(0);
   await page.waitForLoadState('networkidle');
   await Promise.all(pending);
   const catalogModels = assets.filter(x => x.url.endsWith('.glb'));
   expect(new Set(catalogModels.map(x => x.url)).size).toBeLessThan(25);
   expect(catalogModels.reduce((sum, x) => sum + x.bytes, 0)).toBeLessThan(400_000);
-  await page.getByPlaceholder('Search furniture...').fill('Dining Chair');
-  await expect(page.getByRole('button', { name: /Dining Chair/ }).first()).toBeVisible();
 
   await page.getByRole('button', { name: '3D', exact: true }).click();
   await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible();
