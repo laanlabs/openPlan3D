@@ -1,0 +1,46 @@
+{
+  "openplanPrepared": true,
+  "openplanHandoffVersion": 1,
+  "stories": [{ "index": 0, "name": "Ground Floor" }],
+  "walls": [
+    { "identifier": "w-north", "story": 0, "category": { "wall": {} }, "dimensions": [8, 2.7, 0.2],
+      "transform": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4, 1.35, 0, 1] },
+    { "identifier": "w-east", "story": 0, "category": { "wall": {} }, "dimensions": [5, 2.7, 0.2],
+      "transform": [0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, 0, 8, 1.35, 2.5, 1] },
+    { "identifier": "w-south", "story": 0, "category": { "wall": {} }, "dimensions": [8, 2.7, 0.2],
+      "transform": [-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 4, 1.35, 5, 1] },
+    { "identifier": "w-west", "story": 0, "category": { "wall": {} }, "dimensions": [5, 2.7, 0.2],
+      "transform": [0, 0, -1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1.35, 2.5, 1] },
+    { "identifier": "w-partition", "story": 0, "category": { "wall": {} }, "dimensions": [5, 2.7, 0.12],
+      "transform": [0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, 0, 4.8, 1.35, 2.5, 1] }
+  ],
+  "doors": [
+    { "identifier": "d-entry", "parentIdentifier": "w-south", "story": 0, "category": { "door": {} },
+      "style": "single", "hingeLeft": false, "opensInward": true, "dimensions": [0.9, 2.1, 0.2],
+      "transform": [-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 2, 1.05, 5, 1] },
+    { "identifier": "d-bedroom", "parentIdentifier": "w-partition", "story": 0, "category": { "door": {} },
+      "style": "single", "hingeLeft": true, "opensInward": false, "dimensions": [0.8, 2.1, 0.12],
+      "transform": [0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, 0, 4.8, 1.05, 4, 1] }
+  ],
+  "windows": [
+    { "identifier": "win-living", "parentIdentifier": "w-north", "story": 0, "category": { "window": {} },
+      "style": "sliding", "sillHeight": 0.9, "dimensions": [1.5, 1.2, 0.2],
+      "transform": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 2.4, 1.5, 0, 1] },
+    { "identifier": "win-bedroom", "parentIdentifier": "w-east", "story": 0, "category": { "window": {} },
+      "sillHeight": 0.9, "dimensions": [1.2, 1.2, 0.2],
+      "transform": [0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, 0, 8, 1.5, 2.5, 1] }
+  ],
+  "openings": [],
+  "objects": [
+    { "identifier": "f-sofa", "story": 0, "category": { "sofa": {} }, "dimensions": [2, 0.8, 0.9],
+      "transform": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 2.4, 0.4, 1.2, 1] },
+    { "identifier": "f-coffee-table", "story": 0, "category": { "coffee_table": {} }, "dimensions": [1.2, 0.45, 0.6],
+      "transform": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 2.4, 0.225, 2.6, 1] },
+    { "identifier": "f-bed", "story": 0, "category": { "bed": {} }, "dimensions": [2, 0.5, 1.5],
+      "transform": [0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, 0, 6.4, 0.25, 1.7, 1] }
+  ],
+  "sections": [
+    { "label": "livingRoom", "displayName": "Living Room", "story": 0, "center": [2.4, 0, 2.5] },
+    { "label": "bedroom", "displayName": "Bedroom", "story": 0, "center": [6.4, 0, 2.5] }
+  ]
+}

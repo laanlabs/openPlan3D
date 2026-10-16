@@ -71,3 +71,10 @@ it('keeps both exposed ends of a partially shared wall with distinct fragment id
   expect(detectRooms(outer)).toMatchObject([{ area: 36 }]);
   expect(JSON.stringify(walls)).toBe(original);
 });
+
+it('finds the perimeter around a closet built against it, whichever order the walls were drawn in', () => {
+  const closet = [wall('c0', { x: 200, y: 0 }, { x: 200, y: 200 }), wall('c1', { x: 200, y: 200 }, { x: 400, y: 200 }), wall('c2', { x: 400, y: 200 }, { x: 400, y: 0 })];
+  for (const walls of [[...rectangle(), ...closet], [...closet, ...rectangle()]]) for (const drawn of [walls, [...walls].reverse()]) {
+    expect(detectOuterWalls(drawn)).toEqual(new Set(['r0', 'r1', 'r2', 'r3']));
+  }
+});

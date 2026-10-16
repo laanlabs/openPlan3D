@@ -47,24 +47,32 @@ export async function downloadSnapshotBackup(projectId: string) {
 export const snapshotsStore = writable<Snapshot[]>([]);
 let refreshRequest = 0;
 const writeErrors = new Map<string, string>();
+const unchanged = Symbol('unchanged');
 
-export async function saveSnapshot(project: Project, description: string) {
+/** With onlyIfChanged, a plan equal to the newest stored version is left alone: repeating it would only evict older versions. */
+async function appendSnapshot(project: Project, description: string, onlyIfChanged: boolean) {
   // Freeze now: the editor may keep changing while storage is busy.
   const snapshot = { timestamp: Date.now(), description, data: JSON.stringify(project) };
   try {
     await updateRecord('history', project.id, raw => {
       const snapshots = parseSnapshots(raw);
+      if (onlyIfChanged && snapshots.at(-1)?.data === snapshot.data) throw unchanged;
       return writeSnapshotStorage([...snapshots, snapshot].slice(-MAX_SNAPSHOTS));
     });
-    writeErrors.delete(project.id);
-    if (get(currentProject)?.id === project.id) await refreshSnapshots();
-    return true;
   } catch (error) {
+    if (error === unchanged) return;
     const message = storageErrorMessage(error);
     writeErrors.set(project.id, message);
     if (get(currentProject)?.id === project.id) snapshotError.set(message);
-    return false; // Failed writes retain all previous versions, with no pruning retry.
+    throw new Error(message); // Failed writes retain all previous versions, with no pruning retry.
   }
+  writeErrors.delete(project.id);
+  if (get(currentProject)?.id === project.id) await refreshSnapshots();
+}
+
+export async function saveSnapshot(project: Project, description: string, onlyIfChanged = false) {
+  try { await appendSnapshot(project, description, onlyIfChanged); return true; }
+  catch { return false; }
 }
 
 export async function restoreSnapshot(projectId: string, index: number, expected?: Snapshot): Promise<boolean> {
@@ -78,6 +86,9 @@ export async function restoreSnapshot(projectId: string, index: number, expected
     }
     const project = readProject(JSON.parse(snapshots[index].data));
     if (project.id !== projectId) throw new Error('This version belongs to a different project.');
+    // Loading clears Undo and the next autosave overwrites the library copy: keep the version being replaced first.
+    await appendSnapshot(before, 'Before restore', true);
+    if (get(currentProject) !== before) return false;
     loadProject(project);
     snapshotError.set(null);
     return true;
@@ -114,10 +125,10 @@ export function initVersionHistory() {
   if (intervalId) return;
   intervalId = setInterval(() => {
     const p = get(currentProject);
-    if (p) void saveSnapshot(p, 'Auto-save');
+    if (p) void saveSnapshot(p, 'Auto-save', true);
   }, SNAPSHOT_INTERVAL_MS);
   const p = get(currentProject);
-  if (p) void saveSnapshot(p, 'Session start');
+  if (p) void saveSnapshot(p, 'Session start', true);
 }
 
 export function stopVersionHistory() {

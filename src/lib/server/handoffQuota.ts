@@ -1,7 +1,9 @@
+/** Measured demand, October 9–15 2026: about 260 share attempts and 26 MiB a day; the earlier 100 / 25 MiB
+ *  filled by 12:35–15:47 UTC each day and refused the rest. See docs/handoff-quotas.md. */
 export const HANDOFF_LIMITS = {
   maxBytes: 1024 * 1024,
-  dailyUploads: 100,
-  dailyBytes: 25 * 1024 * 1024,
+  dailyUploads: 1000,
+  dailyBytes: 250 * 1024 * 1024,
   minuteUploads: 10,
 } as const;
 

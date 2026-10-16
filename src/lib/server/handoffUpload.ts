@@ -32,12 +32,23 @@ export async function readCapture(request: Request): Promise<Uint8Array> {
       chunks.push(chunk.value);
     }
     const bytes = Buffer.concat(chunks);
+    // Which stage refused the capture is logged so rejected shares can be diagnosed. Only validator
+    // messages (a field path and a fixed reason) are kept verbatim: JSON.parse quotes the input.
+    let stage: 'utf-8' | 'json' | 'format' | 'validation' = 'utf-8';
     try {
-      const capture = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
+      const text = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+      stage = 'json';
+      const capture = JSON.parse(text);
+      stage = 'format';
       if (!isRoomPlanJson(capture)) throw new Error('Unrecognized RoomPlan export');
+      stage = 'validation';
       validateRoomPlan(capture);
     }
-    catch { throw new HandoffError(422, 'This capture cannot be shared. Check it using Export Editable Plan (JSON).'); }
+    catch (error) {
+      const detail = stage === 'validation' && error instanceof Error && error.message.startsWith('Invalid RoomPlan file:') ? error.message.slice(0, 240) : undefined;
+      console.warn(JSON.stringify({ event: 'handoff_invalid', stage, ...(detail ? { detail } : {}) }));
+      throw new HandoffError(422, 'This capture cannot be shared. Check it using Export Editable Plan (JSON).');
+    }
     return bytes;
   } finally {
     clearTimeout(timer!);

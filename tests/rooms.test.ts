@@ -55,3 +55,24 @@ it('drops rooms that no longer form a closed boundary', () => {
   floor.walls.pop();
   expect(resolveRooms(floor)).toEqual([]);
 });
+
+it('detects a hall over 1000 m² and a room nested in it, and still skips slivers under 0.1 m²', () => {
+  // The 400 x 300 cm fixture rectangle scaled by `factor` and moved by `offset` on both axes.
+  const scaled = (factor: number, prefix = 'a', offset = 0) => rectangleWalls(prefix).map(wall => ({ ...wall,
+    start: { x: wall.start.x * factor + offset, y: wall.start.y * factor + offset },
+    end: { x: wall.end.x * factor + offset, y: wall.end.y * factor + offset } }));
+  const floor = roomProject().floors[0];
+  floor.walls = scaled(10); // 40 x 30 m
+  floor.rooms = [{ ...resolveRooms(floor)[0], name: 'Warehouse' }];
+  expect(resolveRooms(floor)).toMatchObject([{ name: 'Warehouse', area: 1200 }]);
+  floor.walls.push(...scaled(5, 'office', 500)); // a free-standing 20 x 15 m office inside the hall
+  const rooms = resolveRooms(floor);
+  expect(rooms).toHaveLength(2);
+  expect(rooms.find(room => room.name === 'Warehouse')?.area).toBe(900);
+  expect(rooms.find(room => room.name !== 'Warehouse')?.area).toBe(300);
+  floor.rooms = [];
+  floor.walls = scaled(.09); // 36 x 27 cm
+  expect(resolveRooms(floor)).toEqual([]);
+  floor.walls = scaled(.1); // 40 x 30 cm
+  expect(resolveRooms(floor)).toMatchObject([{ area: .12 }]);
+});

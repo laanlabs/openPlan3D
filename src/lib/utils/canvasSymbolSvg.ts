@@ -1,4 +1,6 @@
-const xml = (value: unknown) => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]!));
+import { escapeXml } from './exportText';
+
+const xml = (value: unknown) => escapeXml(String(value));
 
 /** SVG adapter for the drawing commands used by furniture and stair symbols.
  * Consumers set transforms before constructing a path. */

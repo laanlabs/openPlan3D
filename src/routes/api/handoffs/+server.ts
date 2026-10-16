@@ -1,5 +1,6 @@
 import { env } from '$env/dynamic/private';
 import { json } from '@sveltejs/kit';
+import { handoffCorsHeaders } from '$lib/server/handoffCors';
 import { HandoffError } from '$lib/server/handoffQuota';
 import { HandoffStorage, HandoffStorageFailure } from '$lib/server/handoffStorage';
 import { uploadHandoff } from '$lib/server/handoffUpload';
@@ -7,8 +8,16 @@ import { uploadHandoff } from '$lib/server/handoffUpload';
 let storage: HandoffStorage | undefined;
 let minute = -1, requests = 0;
 
+/** Local development origins are trusted only when an operator sets HANDOFF_CORS_ALLOW_LOCAL=true. */
+const cors = (request: Request) => handoffCorsHeaders(request.headers.get('origin'), env.HANDOFF_CORS_ALLOW_LOCAL === 'true');
+
+// Preflight for the sibling planners' cross-origin POST; never touches the quota ledger or the per-minute counter.
+export function OPTIONS({ request }: { request: Request }) {
+  return new Response(null, { status: 204, headers: { 'Cache-Control': 'no-store', ...cors(request) } });
+}
+
 export async function POST({ request }: { request: Request }) {
-  const headers: Record<string, string> = { 'Cache-Control': 'no-store' };
+  const headers: Record<string, string> = { 'Cache-Control': 'no-store', ...cors(request) };
   try {
     if (env.HANDOFF_UPLOADS_ENABLED !== 'true' || !env.HANDOFF_BUCKET) {
       throw new HandoffError(503, 'Link sharing is unavailable. Use Export Editable Plan (JSON) instead.');

@@ -1,4 +1,4 @@
-import { selectedTool, activateMeasurementTool, undo, redo, viewMode, selectedElementId, selectedElementIds, removeElement, panMode, beginUndoGroup, endUndoGroup } from '$lib/stores/project';
+import { selectedTool, activateMeasurementTool, undo, redo, viewMode, selectedElementId, selectedElementIds, removeElement, panMode, beginUndoGroup, endUndoGroup, canvasZoom, canvasMinimumZoom } from '$lib/stores/project';
 import { get } from 'svelte/store';
 import { manualSave } from '$lib/stores/saveStatus';
 import { hasOpenModal } from './modalDialog';
@@ -90,6 +90,14 @@ export function handleGlobalShortcut(e: KeyboardEvent, ctx: ShortcutContext = {}
     e.preventDefault();
     const m = get(viewMode);
     viewMode.set(m === '2d' ? '3d' : '2d');
+    return true;
+  }
+  // + / − (also = / _ and the numpad keys) zoom like the toolbar's Zoom In / Zoom Out.
+  // Ctrl/Cmd returned false above, so the browser's page zoom keeps working.
+  const zoomIn = ['+', '=', 'Add'].includes(e.key), zoomOut = ['-', '_', 'Subtract'].includes(e.key);
+  if (zoomIn || zoomOut) {
+    e.preventDefault();
+    canvasZoom.update(z => zoomIn ? Math.min(10, z * 1.25) : Math.max(get(canvasMinimumZoom), z / 1.25));
     return true;
   }
   if (e.key === 'g' || e.key === 'G') {

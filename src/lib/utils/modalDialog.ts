@@ -38,8 +38,29 @@ export function modalDialog(dialog: HTMLDialogElement) {
   } };
 }
 
+/** Browsers honour preventDefault() on a modal's Escape `cancel` only while the page has
+ * user activation, so a second Escape closes even a dialog that refuses to close. Use as
+ * the dialog's `close` handler: a dialog the browser closed while it is still in the
+ * document is shown again while `keep` holds (a running operation), otherwise the close
+ * is reported so its owner's open state follows the page. Closes from unmounting are ignored. */
+export function reconcileNativeClose(event: Event, keep: boolean, onclose?: () => void): void {
+  const dialog = event.currentTarget as HTMLDialogElement;
+  if (!dialog.isConnected || dialog.open) return;
+  if (keep) dialog.showModal();
+  else onclose?.();
+}
+
 /** Inert background elements still have window/document keyboard listeners.
  * Check before handling editor shortcuts, including capture-phase listeners. */
 export function hasOpenModal(): boolean {
   return typeof document !== 'undefined' && document.querySelector('dialog[open]') !== null;
+}
+
+/** Non-modal popups close themselves on Escape, so editor-wide Escape handlers that run
+ * first (window capture) leave the key to them: a menu marked `data-popup="menu"` closes
+ * on any Escape while open, any other `data-popup` element when the key comes from inside it. */
+export function popupOwnsEscape(target: EventTarget | null): boolean {
+  if (typeof document === 'undefined') return false;
+  if (document.querySelector('[data-popup="menu"]') !== null) return true;
+  return !!(target as Element | null)?.closest?.('[data-popup]');
 }

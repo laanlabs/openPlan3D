@@ -26,6 +26,7 @@ const keys: ServiceKey[] = [
   'projectService.backupJSON', 'projectService.backupFile', 'projectService.backupVersion',
   'projectService.backupProjects', 'projectService.backupThumbnails',
   'projectService.backupHistory', 'projectService.backupRecovery', 'projectService.backupEmpty',
+  'projectService.backupPlanFile', 'projectService.libraryBackupFile',
   'projectService.backupSavedJSON', 'projectService.backupSavedUnreadable',
   'projectService.backupIdMismatch', 'projectService.backupHistoryLimit',
   'projectService.backupHistoryUnreadable', 'projectService.backupPreviewUnsupported',
@@ -55,7 +56,7 @@ const packageKeys: ServiceKey[] = [
   'projectService.packageTooMany', 'projectService.packageLimit',
   'projectService.packageJSONSize', 'projectService.packageJSONUnreadable',
   'projectService.packageJSONDepth', 'projectService.packageJSONDuplicate',
-  'projectService.packageJSONObject', 'projectService.packageManifest',
+  'projectService.packageJSONObject', 'projectService.packageManifest', 'projectService.packageJSONFile',
 ];
 const packageMessages = new Map(packageKeys.map(key => [translate('en', key), key]));
 
@@ -67,10 +68,12 @@ function packageMessage(message: string, language: Locale): string {
   const damaged = /^The file ([\s\S]+) is damaged\.$/.exec(detail);
   const missing = /^Missing attachment: ([\s\S]+)\.$/.exec(detail);
   const unknown = /^Unrecognized package file: ([\s\S]+)\.$/.exec(detail);
+  const tracing = /^The tracing image on floor “([\s\S]*)” is ([\s\S]+), not an embedded PNG, JPEG or GIF image\. Replace it or download a JSON backup to preserve it\.$/.exec(detail);
   const translated = key ? translate(language, key) : damaged
     ? translate(language, 'projectService.packageFileDamaged', { name: damaged[1] }) : missing
     ? translate(language, 'projectService.packageMissingAttachment', { name: missing[1] }) : unknown
-    ? translate(language, 'projectService.packageUnknownFile', { name: unknown[1] }) : detail;
+    ? translate(language, 'projectService.packageUnknownFile', { name: unknown[1] }) : tracing
+    ? translate(language, 'projectService.packageTracingImageFormat', { floor: tracing[1], format: tracing[2] }) : detail;
   return `${translate(language, 'projectService.packageInvalid')} ${translated}`;
 }
 const counts: { pattern: RegExp; one: ServiceKey; many: ServiceKey }[] = [

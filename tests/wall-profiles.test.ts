@@ -1,7 +1,7 @@
 import { beforeEach, expect, it } from 'vitest';
 import { get } from 'svelte/store';
 import { Vector3 } from 'three';
-import { buildWallSegments, openingOnWall, roomCeilingHeight, wallPathSpans, doorPanelPose } from '$lib/utils/wallProfiles';
+import { buildWallSegments, openingOnWall, roomCeilingHeight, wallPathSpans, wallProfileSpans, doorPanelPose } from '$lib/utils/wallProfiles';
 import { createSlopedBoxGeometry } from '$lib/utils/slopedWallGeometry';
 import { addDoor, addWindow, addWall, currentProject, createDefaultProject, reverseWall, splitWall, updateWall, undo } from '$lib/stores/project';
 import { getWallHeightAt, type Door, type Wall, type Window } from '$lib/models/types';
@@ -38,6 +38,26 @@ it('positions clipped end openings at the clipped span centre and ignores openin
   const pieces = buildWallSegments(400, 200, 400, [door({ position: 0, height: 150 })], [window({ sillHeight: 500 })]);
   expect(pieces[0]).toEqual({ width: 50, offsetX: 25, bottomY: 150, topYLeft: 200, topYRight: 225 });
   expect(pieces[1]).toEqual({ width: 350, offsetX: 225, bottomY: 0, topYLeft: 225, topYRight: 400 });
+});
+
+it('cuts 8 cm baseboards at doors and low windows, the same way on straight and curved walls', () => {
+  const doors = [door({ position: 0.125, width: 60 })];
+  const windows = [
+    window({ id: 'floor', position: 0.375, width: 60, sillHeight: 0 }),
+    window({ id: 'low', position: 0.625, width: 60, sillHeight: 5 }),
+    window({ id: 'high', position: 0.875, width: 60, sillHeight: 90 }),
+  ];
+  const board = buildWallSegments(400, 8, 8, doors, windows);
+  // [left, right, bottom, top]: gaps under the door and the floor-level window, a strip
+  // up to a 5 cm sill, and no cut under a sill above the board.
+  expect(board.map(p => [p.offsetX - p.width / 2, p.offsetX + p.width / 2, p.bottomY, p.topYLeft])).toEqual([
+    [0, 20, 0, 8], [80, 120, 0, 8], [180, 220, 0, 8], [220, 280, 0, 5], [280, 400, 0, 8],
+  ]);
+  // Straight walls use buildWallSegments and curved walls use wallProfileSpans; both
+  // must cut a straight wall's baseboard identically.
+  const spans = wallProfileSpans(wall({ height: 8, startHeight: 8, endHeight: 8 }), doors, windows);
+  expect(spans).toHaveLength(1);
+  expect(spans[0].segments).toEqual(board);
 });
 
 it.each([[0, 350], [350, 0], [200, 350], [280, 280]])('builds the actual mesh within the %s → %s profile with outward triangles', (start, end) => {

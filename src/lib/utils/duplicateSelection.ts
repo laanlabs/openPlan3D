@@ -1,4 +1,21 @@
-import type { Floor, Point } from '$lib/models/types';
+import type { Floor, Point, Wall } from '$lib/models/types';
+import { wallPathProfile } from './wallProfiles';
+
+/** Where a copy kept on the same wall lands: a tenth of the wall further along
+ * per step, with its centre held half its width from either end so the whole
+ * opening stays on the wall; an opening wider than its wall is centred on it.
+ * Widths are measured along the viewer's faceted path: a curved wall clamps by
+ * its arc, not its chord. */
+export function shiftedOpeningPosition(wall: Wall, opening: { position: number; width: number }, step = 1): number {
+  const position = Math.max(0, Math.min(1, opening.position + .1 * step));
+  const path = wallPathProfile(wall), center = path.distanceAt(position);
+  const half = Math.min(path.length, opening.width > 0 ? opening.width : 0) / 2;
+  if (!(path.length > 0) || !Number.isFinite(center) || (center >= half && center <= path.length - half)) return position;
+  // Invert distanceAt: saved positions are curve parameters spread evenly over the spans.
+  const target = Math.max(half, Math.min(path.length - half, center));
+  const index = path.spans.findIndex(span => span.length > 0 && target <= span.to), span = path.spans[index];
+  return (index + (target - span.from) / span.length) / path.spans.length;
+}
 
 /** Copy selected plan objects and openings carried by copied walls. Mutates floor only. */
 export function duplicatePlanSelection(floor: Floor, selected: ReadonlySet<string>, uid: () => string): string[] {
@@ -25,7 +42,7 @@ export function pastePlanSelection(source: Floor, floor: Floor, selected: Readon
       const copy = structuredClone(item);
       copy.id = uid(); mapping.set(item.id, copy.id);
       if (mapping.has(item.wallId)) copy.wallId = mapping.get(item.wallId)!;
-      else copy.position = Math.min(1, copy.position + .1 * step);
+      else copy.position = shiftedOpeningPosition(floor.walls.find(wall => wall.id === item.wallId)!, copy, step);
       // The collection determines the opening type; preserve all original fields.
       (items as typeof copy[]).push(copy);
     }

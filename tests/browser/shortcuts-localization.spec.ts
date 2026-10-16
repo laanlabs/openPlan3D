@@ -12,7 +12,7 @@ test('Portuguese shortcut help copies localized labels and supports keyboard dis
   await expect(dialog.getByText('Ferramenta de parede', { exact: true })).toBeVisible();
   await dialog.getByRole('button', { name: 'Copiar todos os atalhos', exact: true }).click();
   const copied = await page.evaluate(() => (window as any).__copiedShortcuts as string);
-  expect(copied).toContain('Atalhos de teclado — Open3D Floorplan');
+  expect(copied).toContain('Atalhos de teclado — OpenPlan3D');
   expect(copied).toMatch(/W\s+Ferramenta de parede/);
   expect(copied).toMatch(/Ctrl\+Z\s+Desfazer/);
   expect(copied).toContain('Clique duplo Finalizar sequência de paredes');

@@ -11,6 +11,9 @@ export const TIP_MESSAGES: Record<TipId, string> = {
   'first-door': 'Click on a wall to place doors and windows.',
 };
 
+// Seen this session, even if storage could not record it.
+const seenThisSession = new Set<TipId>();
+
 function getSeenTips(): Set<string> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -21,16 +24,17 @@ function getSeenTips(): Set<string> {
 }
 
 function persist(seen: Set<string>) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify([...seen]));
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify([...seen])); } catch { /* Dismissal still lasts for this session. */ }
 }
 
 /** Returns true if the tip hasn't been shown yet */
 export function showTip(tipId: TipId): boolean {
-  return !getSeenTips().has(tipId);
+  return !seenThisSession.has(tipId) && !getSeenTips().has(tipId);
 }
 
 /** Mark a tip as seen so it won't show again */
 export function markTipSeen(tipId: TipId): void {
+  seenThisSession.add(tipId);
   const seen = getSeenTips();
   seen.add(tipId);
   persist(seen);
@@ -50,7 +54,9 @@ export function triggerTip(tipId: TipId, x: number, y: number) {
 /** Dismiss the current tip */
 export function dismissTip() {
   if (_activeTip) {
-    markTipSeen(_activeTip.id);
+    const { id } = _activeTip;
+    // Close first: recording the tip must never keep it on screen.
     _activeTip = null;
+    markTipSeen(id);
   }
 }

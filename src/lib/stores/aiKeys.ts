@@ -47,6 +47,13 @@ export function getGeminiKey(): string | null {
   if (typeof window === 'undefined') return null;
   try { return localStorage.getItem('o3d_gemini_key'); } catch { return null; }
 }
+/** Keeps the Gemini key in this browser; a blank key removes it. Throws when storage refuses, so callers can say so. */
+export function setGeminiKey(key: string): void {
+  if (typeof window === 'undefined') return;
+  const value = key.trim();
+  if (value) localStorage.setItem('o3d_gemini_key', value);
+  else localStorage.removeItem('o3d_gemini_key');
+}
 export function hasGeminiKey(): boolean { return !!getGeminiKey(); }
 export function getOpenAIKey(): string | null { return get(openAISettings).apiKey || null; }
 export function hasOpenAIKey(): boolean { return !!getOpenAIKey(); }

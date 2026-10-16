@@ -20,6 +20,8 @@ const keys: Extract<TranslationKey, `undoAction.${string}`>[] = [
   'undoAction.deleteWall',
   'undoAction.duplicate',
   'undoAction.importFloor',
+  'undoAction.addScan',
+  'undoAction.joinDoors',
   'undoAction.moveFurniture',
   'undoAction.paste',
   'undoAction.removeFloor',
@@ -27,6 +29,8 @@ const keys: Extract<TranslationKey, `undoAction.${string}`>[] = [
   'undoAction.reverseWall',
   'undoAction.rotateFurniture',
   'undoAction.rotateSelection',
+  'undoAction.rotate3d',
+  'undoAction.move3d',
   'undoAction.split',
   'undoAction.placeFurniture',
   'undoAction.moveRoomLabel',
@@ -43,8 +47,13 @@ const keys: Extract<TranslationKey, `undoAction.${string}`>[] = [
   'undoAction.itemPhoto',
   'undoAction.reusePhoto',
   'undoAction.deleteAttachment',
+  'undoAction.importCustomModel',
+  'undoAction.placeCustomModel',
+  'undoAction.removeCustomModel',
   'undoAction.lock',
   'undoAction.unlock',
+  'undoAction.renameProject',
+  'undoAction.describeProject',
 ];
 const messages = new Map(keys.map(key => [translate('en', key), key]));
 

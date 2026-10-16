@@ -72,6 +72,31 @@ export function angleSnap(start: Point, end: Point, enabled: boolean): Point {
   return end;
 }
 
+/** Unit vectors of the 45° snap rays, exact on the axes so on-axis points stay untouched. */
+const SNAP_RAYS: ReadonlyArray<readonly [number, number]> = [
+  [1, 0], [Math.SQRT1_2, Math.SQRT1_2], [0, 1], [-Math.SQRT1_2, Math.SQRT1_2],
+  [-1, 0], [-Math.SQRT1_2, -Math.SQRT1_2], [0, -1], [Math.SQRT1_2, -Math.SQRT1_2],
+];
+
+/**
+ * Angle snap with a distance tolerance, for dragging wall endpoints (issue #104).
+ * Moves `end` onto the nearest 45° ray from `start` only when it lies within
+ * `maxDeviation` world units of that ray, keeping its projected length along the
+ * ray rather than the hypotenuse. The correction is bounded by `maxDeviation`
+ * whatever the wall length, unlike angleSnap's 10° threshold, which let a 5 m
+ * wall jump by ~87 cm. Pass Infinity to force the nearest ray (Shift).
+ */
+export function angleSnapWithin(start: Point, end: Point, maxDeviation: number): Point {
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  if (Math.hypot(dx, dy) < 5) return end;
+  const [cos, sin] = SNAP_RAYS[(Math.round(Math.atan2(dy, dx) / (Math.PI / 4)) + 8) % 8];
+  const deviation = Math.abs(dy * cos - dx * sin);
+  if (deviation === 0 || deviation > maxDeviation) return end;
+  const along = dx * cos + dy * sin;
+  return { x: start.x + along * cos, y: start.y + along * sin };
+}
+
 export interface FurnitureResizeInput {
   position: Point;
   rotation: number;

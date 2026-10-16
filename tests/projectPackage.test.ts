@@ -420,3 +420,18 @@ it('rejects non-integer and out-of-range tracing floors', () => {
     expect(() => readProjectPackage(writePackageZip(files))).toThrow();
   }
 });
+it.each([['image/svg+xml', 'image/svg+xml'], ['image/tiff', 'image/tiff'], ['', 'an unknown format']])('names the floor and format of an embedded %s tracing image a package cannot carry', (type, format) => {
+  const source = webFixture(); source.floors.push(createDefaultFloor(1));
+  const floor = source.floors[1]; floor.name = 'Mezzanine';
+  floor.backgroundImage = { ...source.floors[0].backgroundImage, dataUrl: `data:${type};base64,${Buffer.from(pixel).toString('base64')}` };
+  const named = `Invalid project package: The tracing image on floor “Mezzanine” is ${format}, not an embedded PNG, JPEG or GIF image. Replace it or download a JSON backup to preserve it.`;
+  expect(() => projectPackageBytes(source)).toThrow(named);
+  const files = readPackageZip(projectPackageBytes(webFixture())); files['web.json'] = jsonBytes(source);
+  expect(() => readProjectPackage(writePackageZip(files))).toThrow(named);
+});
+it('keeps the generic message for malformed embedded raster data and external symbols', () => {
+  const source = webFixture(); source.floors[0].backgroundImage.dataUrl = 'data:image/png;base64,not base64!';
+  expect(() => projectPackageBytes(source)).toThrow(/^Invalid project package: Project images must be embedded raster images\./);
+  const symbol = webFixture(); symbol.customEntourage = [{ id: 'tree', name: 'Tree', dataUrl: 'https://example.invalid/tree.svg', aspect: 1 }];
+  expect(() => projectPackageBytes(symbol)).toThrow(/^Invalid project package: Project images must be embedded raster images\./);
+});

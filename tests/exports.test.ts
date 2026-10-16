@@ -1,6 +1,9 @@
 import { beforeEach, expect, it, vi } from 'vitest';
+import { get } from 'svelte/store';
 import { exportAsSVG, exportAsPNG, exportPDF } from '$lib/utils/export';
-import { exportDXF } from '$lib/utils/cadExport';
+import { exportDXF, exportDWG } from '$lib/utils/cadExport';
+import { exportNotice, exportDXFWithFeedback, exportDWGWithFeedback } from '$lib/stores/exportNotice';
+import { placeCustomModel } from '$lib/services/customModels';
 import { resolveRooms } from '$lib/utils/roomDetection';
 import { benchmarkProject } from './fixtures/render-benchmark';
 import { rectangleWalls, roomProject } from './fixtures/project';
@@ -84,6 +87,38 @@ it('writes the saved room name into a real DXF download', async () => {
   const dxf = await downloaded[0].text();
   expect(dxf).toContain('Kitchen & Dining <East>');
   expect(dxf).not.toContain('Room 1');
+});
+
+it('exports DWG as a DXF download and reports whether anything was written', async () => {
+  // No window.alert exists in this environment, so a blocking dialog would throw here.
+  expect(exportDWG(namedProject())).toBe(true);
+  expect(downloaded).toHaveLength(1);
+  expect(downloaded[0].type).toBe('application/dxf');
+  expect(await downloaded[0].text()).toContain('Kitchen & Dining <East>');
+  const empty = namedProject(); empty.floors[0].walls = [];
+  expect(exportDWG(empty)).toBe('empty');
+  expect(downloaded).toHaveLength(1);
+});
+
+it('localizes the PDF title block, schedule and summary labels and names OpenPlan3D', async () => {
+  await exportPDF(namedProject());
+  let text = pdfText.mock.calls.map(call => String(call[0]));
+  expect(text).toContain('Created with OpenPlan3D');
+  expect(text).toContain('Room Schedule');
+  expect(text).toContain('Units: m, cm');
+  expect(text.some(value => /^Date: /.test(value))).toBe(true);
+  expect(text.some(value => /^1 rooms  ·  4 walls  ·  0 doors/.test(value))).toBe(true);
+  expect(text.some(value => value.includes('Open 3D'))).toBe(false);
+  pdfText.mockClear();
+  await exportPDF(namedProject(), 'pt');
+  text = pdfText.mock.calls.map(call => String(call[0]));
+  expect(text).toContain('Criado com OpenPlan3D');
+  expect(text).toContain('Tabela de ambientes');
+  expect(text).toContain('Revestimento do piso');
+  expect(text).toContain('Unidades: m, cm');
+  expect(text.some(value => /^Data: /.test(value))).toBe(true);
+  expect(text.some(value => /^1 ambientes  ·  4 paredes/.test(value))).toBe(true);
+  expect(text).not.toContain('Room Schedule');
 });
 
 it('uses the saved name when drawing the PNG export', async () => {
@@ -198,6 +233,43 @@ it('does not capture a viewport for an empty project floor', async () => {
  expect(downloaded).toHaveLength(0);
 });
 
+it('reports whether an SVG or DXF was downloaded so the editor can explain an empty floor', () => {
+ expect(exportAsSVG(namedProject())).toBe(true); expect(downloaded).toHaveLength(1);
+ const empty = namedProject(); empty.floors[0].walls = [];
+ expect(exportAsSVG(empty)).toBe(false); expect(exportDXF(empty)).toBe('empty');
+ const floorless = namedProject(); floorless.floors = [];
+ expect(exportAsSVG(floorless)).toBe(false); expect(exportDXF(floorless)).toBe('empty');
+ expect(downloaded).toHaveLength(1);
+});
+
+it('tells an empty floor from one holding only entourage CAD cannot draw, which SVG still exports', () => {
+  const project = roomProject(), floor = project.floors[0];
+  floor.walls = [];
+  project.customEntourage = [{ id: 'photo', name: 'Photo', dataUrl: 'data:image/png;base64,AAAA', aspect: 1 }];
+  const item = { position: { x: 0, y: 0 }, width: 100, rotation: 0 };
+  for (const entourage of [[{ ...item, id: 'upload', defId: 'photo' }], [{ ...item, id: 'clear', defId: 'person', opacity: 0 }]]) {
+    floor.entourage = entourage;
+    expect(exportDXF(project)).toBe('unsupported');
+    expect(exportDWG(project)).toBe('unsupported');
+    expect(downloaded).toHaveLength(0);
+    exportDXFWithFeedback(project);
+    expect(get(exportNotice)).toEqual({ title: 'exportNotice.dxfTitle', message: 'exportNotice.dxfUnsupported' });
+    exportDWGWithFeedback(project);
+    expect(get(exportNotice)).toEqual({ title: 'exportNotice.dwgErrorTitle', message: 'exportNotice.dwgUnsupported' });
+    expect(exportAsSVG(project)).toBe(true);
+    expect(downloaded.splice(0).map(blob => blob.type)).toEqual(['image/svg+xml']);
+  }
+  // Entourage no export can draw leaves the floor empty; a faint built-in symbol is CAD linework.
+  floor.entourage = [{ ...item, id: 'missing', defId: 'unknown' }];
+  expect(exportDXF(project)).toBe('empty');
+  exportDWGWithFeedback(project);
+  expect(get(exportNotice)?.message).toBe('exportNotice.dwgEmpty');
+  floor.entourage = [{ ...item, id: 'faint', defId: 'person', opacity: 0.25 }];
+  exportDWGWithFeedback(project);
+  expect(get(exportNotice)?.message).toBe('exportNotice.dwgFallback');
+  expect(downloaded.map(blob => blob.type)).toEqual(['application/dxf']);
+});
+
 it('frames an oversized rotated furniture symbol consistently in PNG and PDF', async()=>{
  const project=namedProject();project.floors[0].furniture=[{id:'large',catalogId:'unknown',position:{x:-600,y:-600},rotation:45,width:800,depth:300,scale:{x:1,y:1,z:1}}];
  await exportAsPNG(null,project);const size={width:canvas.width,height:canvas.height};
@@ -278,6 +350,104 @@ it.each([false, true])('exports missing-catalog furniture with shared dimensions
     expect(vertices[i].x).toBeCloseTo(100 + x*Math.cos(angle)-y*Math.sin(angle));
     expect(vertices[i].y).toBeCloseTo(-200 - x*Math.sin(angle)-y*Math.cos(angle));
   }
+  expect(project).toEqual(before);
+});
+
+it('labels placed custom models with their saved name in SVG, DXF, PNG and PDF, as the editor does', async () => {
+  const source = roomProject(), floor = source.floors[0];
+  floor.walls = []; floor.rooms = []; floor.doors = []; floor.windows = [];
+  source.customModels = [{ id: 'credenza', name: 'Walnut & Oak <Credenza>', assetName: 'credenza.glb', sourceFilename: 'Credenza.glb',
+    sha256: 'a'.repeat(64), byteLength: 20, width: 123.5, depth: 67, height: 89 }];
+  const project = placeCustomModel(source, 'credenza', { x: 100, y: 200 });
+  const before = structuredClone(project);
+  const svgs: string[] = [];
+  for (const language of ['en', 'pt'] as const) {
+    exportAsSVG(project, language);
+    const svg = await downloaded.at(-1)!.text();
+    expect(svg).toContain('>Walnut &amp; Oak &lt;Credenza&gt;</text>');
+    expect(svg).not.toContain('Unknown furniture');
+    svgs.push(svg);
+    exportDXF(project, language);
+    const dxf = await downloaded.at(-1)!.text();
+    const lines = dxf.trim().split(/\r?\n/).map(line => line.trim());
+    const entities: Record<string, string>[] = []; let entity: Record<string, string> = {};
+    for (let i = 0; i < lines.length; i += 2) {
+      if (lines[i] === '0') { entity = {}; entities.push(entity); }
+      entity[lines[i]] = lines[i + 1];
+    }
+    const label = entities.find(e => e['0'] === 'TEXT' && e['1'] === 'Walnut & Oak <Credenza>');
+    expect(label?.['8']).toBe('FURNITURE');
+    expect([label?.['10'], label?.['20']]).toEqual(['100', '-200']);
+    expect(dxf).not.toContain('Unknown furniture');
+  }
+  // User-authored names are retained verbatim in every interface language.
+  expect(svgs[1]).toBe(svgs[0]);
+  for (const render of [() => exportAsPNG(null, project), () => exportPDF(project, 'pt')]) {
+    canvasText.mockClear();
+    await render();
+    const captions = canvasText.mock.calls.map(call => call[0]);
+    expect(captions).toContain('Walnut & Oak <Credenza>');
+    expect(captions).not.toContain('Unknown furniture');
+  }
+  expect(project).toEqual(before);
+});
+
+it('frames a long custom-model caption in SVG, PNG and PDF instead of clipping it at the edge', async () => {
+  // Text advance in proportion to length and font size, as in a monospaced font.
+  let font = '10px sans-serif';
+  const context = new Proxy({ measureText: (text: string) => ({ width: text.length * Number(/([\d.]+)px/.exec(font)![1]) * 0.5 }) }, {
+    get: (target, key) => key === 'font' ? font : target[key as keyof typeof target] ?? (() => {}),
+    set: (_, key, value) => { if (key === 'font') font = value; return true; },
+  });
+  canvas.getContext = (() => context) as never;
+  const source = roomProject();
+  source.floors[0].walls = [];
+  const name = 'Mid-century walnut sideboard with brass handles (living room)';
+  source.customModels = [{ id: 'sideboard', name, assetName: 'sideboard.glb', sourceFilename: `${name}.glb`,
+    sha256: 'b'.repeat(64), byteLength: 20, width: 60, depth: 60, height: 80 }];
+  const project = placeCustomModel(source, 'sideboard', { x: 100, y: 200 });
+  // A 60 cm symbol takes the largest caption font, 0.7 × 12 units, so the name is far wider than the symbol.
+  const ink = name.length * 12 * 0.7 * 0.5;
+  exportAsSVG(project);
+  const svg = await downloaded.at(-1)!.text();
+  const width = Number(/viewBox="0 0 ([\d.]+) /.exec(svg)![1]);
+  const x = Number(/data-width="60" data-depth="60" transform="translate\(([\d.]+),/.exec(svg)![1]);
+  expect(svg).toContain(`>${name}</text>`);
+  // The caption keeps the SVG's 50-unit margin on both sides.
+  expect(x - ink / 2).toBeCloseTo(50);
+  expect(width - x - ink / 2).toBeCloseTo(50);
+  await exportAsPNG(null, project);
+  const raster = { width: canvas.width, height: canvas.height };
+  expect(raster.width).toBe(Math.ceil((ink + 2 * 80) * 2));
+  await exportPDF(project);
+  expect({ width: canvas.width, height: canvas.height }).toEqual(raster);
+});
+
+it('keeps DXF tags paired and the SVG well-formed when saved text holds line breaks or control characters', async () => {
+  const source = roomProject(), floor = source.floors[0];
+  floor.rooms = resolveRooms(floor).map(room => ({ ...room, name: 'Living\r\nroom\u0007' }));
+  floor.textAnnotations = [{ id: 'note', x: 200, y: 100, text: 'First line\r\nSecond\u0000 line', fontSize: 16, color: '#123456', rotation: 0 }];
+  floor.annotations = [{ id: 'dim', x1: 0, y1: 400, x2: 300, y2: 400, offset: 40, label: 'Saved\ndimension\u001b' }];
+  source.customModels = [{ id: 'credenza', name: 'Walnut\nCredenza\u0007', assetName: 'credenza.glb', sourceFilename: 'Credenza.glb',
+    sha256: 'a'.repeat(64), byteLength: 20, width: 123.5, depth: 67, height: 89 }];
+  const project = placeCustomModel(source, 'credenza', { x: 200, y: 150 });
+  project.floors[0].furniture[0].color = '#654321\u0007';
+  const before = structuredClone(project);
+  exportDXF(project);
+  // CAD readers take every other line as an integer group code, whichever line ending they split on.
+  const lines = (await downloaded.at(-1)!.text()).split(/\r\n|\r|\n/);
+  expect(lines.length % 2).toBe(0);
+  expect(lines.filter((_, i) => i % 2 === 0).every(code => /^\s*\d+$/.test(code))).toBe(true);
+  const values = lines.filter((_, i) => i % 2 === 1);
+  expect(values).toEqual(expect.arrayContaining(['Living room', 'First line ', 'Second line', 'Saved dimension', 'Walnut Credenza']));
+  expect(values.join('')).not.toMatch(/\p{Cc}/u);
+  exportAsSVG(project);
+  const svg = await downloaded.at(-1)!.text();
+  // XML 1.0 has no representation for these, so a viewer would reject the whole file.
+  expect(svg).not.toMatch(/[\0-\x08\x0B\x0C\x0E-\x1F]/);
+  expect(svg).toContain('>Walnut\nCredenza</text>');
+  expect(svg).toContain('>Living\r\nroom</text>');
+  expect(svg).toContain('#654321');
   expect(project).toEqual(before);
 });
 

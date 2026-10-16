@@ -1,8 +1,8 @@
 import { mockStorage, rawRecords, putRaw, failWrites } from './fixtures/indexeddb';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { get } from 'svelte/store';
 import { currentProject, loadProject, updateWall, undo, redo, undoHistoryStore } from '$lib/stores/project';
-import { getSnapshots, saveSnapshot, restoreSnapshot, refreshSnapshots, snapshotError, snapshotsStore } from '$lib/stores/versionHistory';
+import { getSnapshots, saveSnapshot, restoreSnapshot, refreshSnapshots, snapshotError, snapshotsStore, initVersionHistory, stopVersionHistory } from '$lib/stores/versionHistory';
 import { roomProject } from './fixtures/project';
 
 let data: Map<string, string>;
@@ -12,15 +12,30 @@ beforeEach(async () => {
 });
 const state = () => JSON.stringify(get(currentProject));
 const key = () => get(currentProject)!.id;
+const descriptions = async () => (await getSnapshots(key())).map(s => s.description);
 
 describe('version restoration safety', () => {
-  it('restores a valid version with dates and keeps retained snapshot data intact', async () => {
+  it('restores a valid version with dates and keeps the replaced version in history', async () => {
     const before = state(), id = get(currentProject)!.id;
-    await saveSnapshot(get(currentProject)!, 'Before edit'); const raw = (await rawRecords('history'))[key()];
-    updateWall('a-0', { thickness: 32.5 });
+    await saveSnapshot(get(currentProject)!, 'Before edit'); const [saved] = await getSnapshots(id);
+    updateWall('a-0', { thickness: 32.5 }); const edited = state();
     expect(await restoreSnapshot(id, 0)).toBe(true); expect(state()).toBe(before);
-    expect(get(currentProject)!.createdAt).toBeInstanceOf(Date); expect((await rawRecords('history'))[key()]).toBe(raw);
-    expect(get(snapshotError)).toBeNull();
+    expect(get(currentProject)!.createdAt).toBeInstanceOf(Date); expect(get(snapshotError)).toBeNull();
+    const entries = await getSnapshots(id);
+    expect(entries.map(s => s.description)).toEqual(['Before edit', 'Before restore']);
+    expect(entries[0]).toEqual(saved); expect(entries[1].data).toBe(edited);
+    expect(get(undoHistoryStore).entries).toHaveLength(0); // Undo cannot bring the edit back; a second restore can.
+    expect(await restoreSnapshot(id, 1)).toBe(true); expect(state()).toBe(edited);
+  });
+  it('leaves the plan, undo history and stored versions untouched when the replaced version cannot be saved', async () => {
+    const id = key(); await saveSnapshot(get(currentProject)!, 'Older');
+    updateWall('a-0', { thickness: 32.5 });
+    const before = state(), history = get(undoHistoryStore), raw = (await rawRecords('history'))[id], restore = failWrites('history');
+    expect(await restoreSnapshot(id, 0)).toBe(false); expect(state()).toBe(before);
+    expect(get(undoHistoryStore)).toEqual(history); expect((await rawRecords('history'))[id]).toBe(raw);
+    expect(get(snapshotError)).toMatch(/^Browser storage is full\. .* Your current plan has not changed\.$/);
+    restore(); expect(await restoreSnapshot(id, 0)).toBe(true);
+    expect(get(snapshotError)).toBeNull(); expect(await descriptions()).toEqual(['Older', 'Before restore']);
   });
   it('rejects a malformed snapshot before replacing the plan or clearing redo', async () => {
     const project = get(currentProject)!; updateWall('a-0', { thickness: 32.5 }); undo();
@@ -50,6 +65,37 @@ describe('version restoration safety', () => {
   });
 });
 
+describe('unchanged plans do not repeat versions', () => {
+  const FIVE_MINUTES = 5 * 60 * 1000;
+  const settle = async () => { for (let i = 0; i < 40; i++) await new Promise(resolve => setImmediate(resolve)); };
+  beforeEach(() => { vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] }); });
+  afterEach(() => { stopVersionHistory(); vi.useRealTimers(); });
+
+  it('writes Session start and interval versions only after the plan changed', async () => {
+    initVersionHistory(); await settle();
+    expect(await descriptions()).toEqual(['Session start']);
+    await vi.advanceTimersByTimeAsync(2 * FIVE_MINUTES); await settle();
+    expect(await descriptions()).toEqual(['Session start']);
+    updateWall('a-0', { thickness: 32.5 });
+    await vi.advanceTimersByTimeAsync(FIVE_MINUTES); await settle();
+    expect(await descriptions()).toEqual(['Session start', 'Auto-save']);
+    await vi.advanceTimersByTimeAsync(FIVE_MINUTES); await settle();
+    stopVersionHistory(); initVersionHistory(); await settle(); // the editor reopened without edits
+    expect(await descriptions()).toEqual(['Session start', 'Auto-save']); expect(get(snapshotsStore)).toHaveLength(2);
+  });
+  it('does not repeat the replaced version before a restore when it is already the newest entry', async () => {
+    const id = key(); await saveSnapshot(get(currentProject)!, 'Older');
+    updateWall('a-0', { thickness: 32.5 }); await saveSnapshot(get(currentProject)!, 'Newest');
+    expect(await restoreSnapshot(id, 0)).toBe(true); expect(await descriptions()).toEqual(['Older', 'Newest']);
+    expect(await restoreSnapshot(id, 1)).toBe(true); expect(await descriptions()).toEqual(['Older', 'Newest', 'Before restore']);
+    expect(get(currentProject)!.floors[0].walls[0].thickness).toBe(32.5);
+  });
+  it('still records every manual save', async () => {
+    const project = get(currentProject)!;
+    await saveSnapshot(project, 'Manual save'); await saveSnapshot(project, 'Manual save');
+    expect(await descriptions()).toEqual(['Manual save', 'Manual save']);
+  });
+});
 
 it('retains all previous versions and the failure message after a quota error, then retries', async () => {
   const project = get(currentProject)!;

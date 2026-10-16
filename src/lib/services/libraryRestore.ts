@@ -1,6 +1,8 @@
 import { readProject } from '$lib/utils/projectValidation';
+import { isRoomPlanJson } from '$lib/utils/roomplanValidation';
 import { readSnapshotStorage, writeSnapshotStorage } from '$lib/utils/snapshotStorage';
 import { migrateLegacy, notifyLibraryChange, request, transaction, withDatabase } from './localDatabase';
+import { requestPersistentStorage } from './storagePersistence';
 
 type StringMap = Record<string, string>;
 type Version = { timestamp: number; description: string; data: string; [key: string]: unknown };
@@ -22,6 +24,31 @@ function stringMap(value: unknown, label: string): StringMap {
     throw new Error(`${label} must contain project IDs and saved text. No projects were restored.`);
   }
   return Object.assign(Object.create(null), value);
+}
+
+/** Download JSON saves one project; restore it as a one-project library that keeps the file's bytes for recovery. */
+function singleProject(data: Record<string, unknown>, raw: string): StringMap {
+  const projects: StringMap = Object.create(null);
+  projects[typeof data.id === 'string' && data.id.trim() ? data.id : 'project'] = raw;
+  return projects;
+}
+
+/** A parsed file that holds a whole library: a current backup, or the project map an older release saved. */
+export function isLibraryBackup(data: unknown): boolean {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return false;
+  const value = data as Record<string, unknown>;
+  if (value.format === 'openplan3d-library') return true;
+  const saved = Object.values(value);
+  return !Array.isArray(value.floors) && saved.length > 0 && saved.every(raw => typeof raw === 'string') &&
+    saved.some(raw => /^\s*\{/.test(raw as string));
+}
+
+/** Thrown by a plan-file reader handed a library backup, so its caller can open Restore library backup with that file. */
+export class LibraryBackupFileError extends Error {
+  constructor() {
+    super('This file is a library backup. Use Restore library backup on the Projects page to add its projects.');
+    this.name = 'LibraryBackupFileError';
+  }
 }
 
 /** JSON.parse alone silently drops repeated keys. Check keys in each object,
@@ -68,7 +95,8 @@ export function prepareLibraryRestore(raw: string, sourceName = 'Library backup'
   const data = parseBackup(raw);
   const bundle = data.format === 'openplan3d-library';
   if (bundle && data.version !== 1) throw new Error('This library backup version is not supported. No projects were restored.');
-  const projects = stringMap(bundle ? data.projects : data, 'The project library');
+  if (!bundle && isRoomPlanJson(data)) throw new Error('This is a RoomPlan scan or an interchange JSON file, not a backup. Open it with Import JSON in the editor. No projects were restored.');
+  const projects = !bundle && Array.isArray(data.floors) ? singleProject(data, raw) : stringMap(bundle ? data.projects : data, 'The project library');
   const thumbnails = stringMap(bundle ? data.thumbnails ?? {} : {}, 'Thumbnails');
   const history = stringMap(bundle ? data.history ?? {} : {}, 'Version history');
   const recovery = stringMap(bundle ? data.recovery ?? {} : {}, 'Recovery archives');
@@ -184,6 +212,7 @@ export function prepareLibraryRestore(raw: string, sourceName = 'Library backup'
     }, signal), { migrate: false }).then(result => {
       completed = result;
       for (const project of result.projects) notifyLibraryChange(project.id);
+      void requestPersistentStorage();
       return result;
     }).finally(() => { active = undefined; });
     return active;

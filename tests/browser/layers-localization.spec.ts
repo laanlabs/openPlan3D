@@ -34,7 +34,7 @@ for (const width of [1440, 390]) test(`Portuguese layers preserve visibility, se
       })).toBe(true);
       await control.click();
     }
-    for (const title of ['Alternar grade (G)', 'Alternar ajuste à grade (S)', 'Alternar móveis', 'Alternar réguas', 'Alternar minimapa']) {
+    for (const title of ['Alternar grade (G)', 'Alternar passo do ajuste: grade de 25 cm ou 10 cm (S)', 'Alternar móveis', 'Alternar réguas', 'Alternar minimapa']) {
       const toggle = page.getByTitle(title, { exact: true });
       const before = await toggle.getAttribute('aria-pressed');
       await clickStatusControl(toggle);

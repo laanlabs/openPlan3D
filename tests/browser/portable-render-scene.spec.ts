@@ -14,6 +14,8 @@ for (const locale of ['en', 'pt']) for (const width of [1440, 390]) test(`${loca
   await (await chooser).setFiles(resolve('tests/fixtures/sloped-walls.openplan.json'));
   await page.getByRole('button', { name: '3D', exact: true }).click();
   await page.waitForLoadState('networkidle');
+  // The 3D tip opens once the viewer has started; it must be open before waiting for it to close.
+  await expect(page.locator('canvas[data-plan3d-canvas="true"]')).toBeVisible({ timeout: 60_000 });
   const hint = page.getByRole('button', { name: locale === 'pt' ? 'Entendi' : 'Got it', exact: true });
   await expect(hint).toBeHidden({ timeout: 15_000 });
   const download = async () => {

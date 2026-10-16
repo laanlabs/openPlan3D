@@ -1,8 +1,9 @@
 import { get } from 'svelte/store';
-import { createDefaultProject, loadProject, currentProject, removeElement, undo } from '$lib/stores/project';
+import { createDefaultProject, loadProject, currentProject, removeElement, undo, duplicateDoor, duplicateWindow, duplicateSelection, pasteSelection } from '$lib/stores/project';
 import { expect, it } from 'vitest';
-import type { Floor } from '$lib/models/types';
-import { duplicatePlanSelection, pastePlanSelection } from '$lib/utils/duplicateSelection';
+import type { Floor, Wall } from '$lib/models/types';
+import { duplicatePlanSelection, pastePlanSelection, shiftedOpeningPosition } from '$lib/utils/duplicateSelection';
+import { pathOpening, wallPathProfile } from '$lib/utils/wallProfiles';
 
 it('copies mixed geometry, carried openings and complete groups without aliasing originals', () => {
   const floor = { walls:[{id:'w',start:{x:0,y:0},end:{x:200,y:0},curvePoint:{x:100,y:80}}],
@@ -30,13 +31,60 @@ it('copies mixed geometry, carried openings and complete groups without aliasing
 });
 
 it('keeps standalone openings on their wall and skips missing selections and partial groups', () => {
-  const floor = {walls:[{id:'w',start:{x:0,y:0},end:{x:200,y:0}}],furniture:[],doors:[{id:'d',wallId:'w',position:.95}],windows:[],groups:[{id:'g',elementIds:['d','missing']}]} as unknown as Floor;
+  const floor = {walls:[{id:'w',start:{x:0,y:0},end:{x:200,y:0}}],furniture:[],doors:[{id:'d',wallId:'w',position:.95,width:90}],windows:[],groups:[{id:'g',elementIds:['d','missing']}]} as unknown as Floor;
   expect(duplicatePlanSelection(floor,new Set(['d','missing']),()=> 'copy')).toEqual(['copy']);
-  expect(floor.doors[1]).toMatchObject({wallId:'w',position:1});
+  // The copy's centre stops 45 cm (half the door) short of the 200 cm wall's end.
+  expect(floor.doors[1]).toMatchObject({wallId:'w',position:155/200});
   expect(floor.groups).toHaveLength(1);
   const before = structuredClone(floor);
   expect(duplicatePlanSelection(floor,new Set(['absent']),()=> 'unused')).toEqual([]);
   expect(floor).toEqual(before);
+});
+
+it('stops pasted openings at the wall end so their whole width stays on a straight wall', () => {
+  const floor = {walls:[{id:'w',start:{x:0,y:0},end:{x:200,y:0}}],furniture:[],groups:[],
+    doors:[{id:'d',wallId:'w',position:.5,width:90}],windows:[{id:'win',wallId:'w',position:.5,width:100}]} as unknown as Floor;
+  const source = structuredClone(floor); let i = 0;
+  for (const step of [1,2,3,4]) pastePlanSelection(source,floor,new Set(['d','win']),()=>`copy-${++i}`,step);
+  expect(floor.doors.slice(1).map(d => d.position)).toEqual([.5+.1,.5+.2,155/200,155/200]);
+  expect(floor.windows.slice(1).map(w => w.position)).toEqual([.5+.1,.5+.2,150/200,150/200]);
+  for (const opening of [...floor.doors,...floor.windows]) {
+    expect(opening.position*200-opening.width/2).toBeGreaterThanOrEqual(0);
+    expect(opening.position*200+opening.width/2).toBeLessThanOrEqual(200+1e-9);
+  }
+});
+
+it('measures the clamp along a curved wall and centres an opening wider than its wall', () => {
+  const curved = {id:'c',start:{x:0,y:0},end:{x:400,y:0},curvePoint:{x:200,y:160}} as Wall;
+  const floor = {walls:[curved,{id:'s',start:{x:0,y:0},end:{x:0,y:200}}],furniture:[],groups:[],windows:[],
+    doors:[{id:'d',wallId:'c',position:.95,width:90},{id:'wide',wallId:'c',position:.2,width:600},{id:'short',wallId:'s',position:.5,width:240}]} as unknown as Floor;
+  let i = 0;
+  duplicatePlanSelection(floor,new Set(['d','wide','short']),()=>`copy-${++i}`);
+  const [door,wide,short] = floor.doors.slice(3).map(d => d.position);
+  // The curve is about 10% longer than its 400 cm chord; the jamb must land on the path's end.
+  const path = wallPathProfile(curved);
+  expect(path.distanceAt(door)).toBeCloseTo(path.length-45,9);
+  const cut = pathOpening(path,path.distanceAt(door),90,0,210)!;
+  expect(cut.right-cut.left).toBeCloseTo(90,9);
+  expect(wide).toBeCloseTo(.5,9);
+  expect(short).toBe(.5);
+  expect(shiftedOpeningPosition(curved,{position:.95,width:90})).toBe(door);
+});
+
+it('keeps store duplicates and pastes of doors and windows wholly on their wall', () => {
+  const project = createDefaultProject();
+  const floor = project.floors[0];
+  floor.walls = [{id:'w',start:{x:0,y:0},end:{x:200,y:0},thickness:20,height:250,color:'#fff'}];
+  floor.doors = [{id:'d',wallId:'w',position:.95,width:90,height:210,type:'single',swingDirection:'left',flipSide:false}];
+  floor.windows = [{id:'win',wallId:'w',position:.65,width:120,height:120,sillHeight:90,type:'standard'}];
+  loadProject(project);
+  const clipboard = structuredClone(get(currentProject)!.floors[0]);
+  const door = duplicateDoor('d'), win = duplicateWindow('win');
+  const [selected] = duplicateSelection(new Set(['d'])); // the canvas Duplicate button
+  const [pasted] = pasteSelection(clipboard,new Set(['win']),3); // the third Ctrl+V
+  const copied = get(currentProject)!.floors[0];
+  for (const id of [door,selected]) expect(copied.doors.find(d => d.id === id)).toMatchObject({wallId:'w',position:155/200});
+  for (const id of [win,pasted]) expect(copied.windows.find(w => w.id === id)).toMatchObject({wallId:'w',position:140/200});
 });
 
 it('deletion removes carried opening references and undo restores complete groups', () => {

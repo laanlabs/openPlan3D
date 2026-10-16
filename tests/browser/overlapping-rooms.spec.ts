@@ -36,6 +36,8 @@ test('overlapping walls preserve four room slabs across active-floor switches', 
   await (await chooser).setFiles(resolve('tests/fixtures/overlapping-rooms.openplan.json'));
   await page.getByRole('button', { name: '3D', exact: true }).click();
   await page.waitForLoadState('networkidle');
+  // The 3D tip opens once the viewer has started; it must be open before waiting for it to close.
+  await expect(page.locator('canvas[data-plan3d-canvas="true"]')).toBeVisible({ timeout: 60_000 });
   const hint = page.getByRole('button', { name: 'Got it', exact: true });
   await expect(hint).toBeHidden({ timeout: 15_000 });
   async function exported() {

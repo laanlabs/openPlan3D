@@ -1,6 +1,6 @@
 import { prepareEntourageImage } from './entourageImages';
-import type { Locale } from '$lib/i18n';
-import { furnitureName } from '$lib/i18n/furnitureNames';
+import { translate, type Locale, type TranslationKey } from '$lib/i18n';
+import { furnitureName, customModelName } from '$lib/i18n/furnitureNames';
 import { roomHoles, traceRoomRings } from './roomNesting';
 import { getEntourageDef } from './entourageCatalog';
 import { entouragePlanBounds } from './entouragePlanBounds';
@@ -12,22 +12,31 @@ import { textAnnotationBounds, textAnnotationLines } from './textAnnotationLayou
 import { canvasSymbolSvg } from './canvasSymbolSvg';
 import { furnitureSvg } from './furnitureSvg';
 import { furniturePlanBounds } from './furniturePlanBounds';
+import { furnitureCaptionBounds, furnitureCaptionLayout } from './furnitureCaption';
 import { canvasPNG } from './canvasPNG';
+import { doorSymbol } from './doorSymbol';
 import { planOpening } from './planOpening';
-import { wallPlanBounds, wallPlanDimension } from './wallPlanGeometry';
-import type { Project, Floor } from '$lib/models/types';
+import { wallPlanBounds } from './wallPlanGeometry';
+import { wallDimensionLabel } from './wallDimensionLabel';
+import type { Project, Floor, FurnitureItem } from '$lib/models/types';
 import { getCatalogItem, getFurnitureSize } from '$lib/utils/furnitureCatalog';
 import { resolveRooms, getRoomPolygon, roomLabelPosition } from '$lib/utils/roomDetection';
 import { drawStair, drawFurnitureItem, drawColumn, drawDoorOnWall, drawWindowOnWall, drawEntourageItems, drawTextAnnotations, drawAnnotations, drawPersistedMeasurements } from '$lib/utils/canvasRenderer';
 import type { CanvasState } from '$lib/utils/canvasInteraction';
 import { projectSettings, formatArea, formatLength } from '$lib/stores/settings';
+import { currentPlanExportVisibility } from '$lib/stores/planVisibility';
+import { visibleActiveFloor, type PlanExportVisibility } from './exportVisibility';
 import { get } from 'svelte/store';
 import jsPDF from 'jspdf';
+import { escapeXml } from './exportText';
 
-/** Escape text for safe SVG embedding */
-function escapeXml(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
-}
+/** SVG strokes for the shared door symbol parts (doorSymbol.ts). */
+const DOOR_STROKES = {
+  leaf: 'stroke="#444" stroke-width="2.5"',
+  panel: 'stroke="#444" stroke-width="2"',
+  track: 'stroke="#999" stroke-width="2" stroke-dasharray="4,3"',
+  threshold: 'stroke="#999" stroke-width="1" stroke-dasharray="5,4"',
+};
 
 function download(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
@@ -138,6 +147,18 @@ function extendBoundsForText(floor: Floor, bounds: { minX: number; minY: number;
   }
 }
 
+/** Furniture captions can be far wider than their symbol; `caption` is what the writer is given for each item. */
+function extendBoundsForFurnitureCaptions(floor: Floor, bounds: { minX: number; minY: number; maxX: number; maxY: number }, caption: (item: FurnitureItem) => string | undefined) {
+  const ctx = document.createElement('canvas').getContext('2d');
+  if (!ctx) return;
+  for (const item of floor.furniture) {
+    const b = furnitureCaptionBounds(item, caption(item), ctx);
+    if (!b) continue;
+    bounds.minX = Math.min(bounds.minX, b.minX); bounds.minY = Math.min(bounds.minY, b.minY);
+    bounds.maxX = Math.max(bounds.maxX, b.maxX); bounds.maxY = Math.max(bounds.maxY, b.maxY);
+  }
+}
+
 /**
  * Draw all doors and windows onto an export canvas using the shared
  * full-fidelity renderer. The CanvasState below maps world→canvas as
@@ -174,12 +195,13 @@ function drawOpeningsOnCanvas(
  * Renders all walls/rooms/doors/furniture onto an offscreen canvas
  * so the export isn't limited to the current viewport.
  */
-export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Project) {
+export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Project, visibility: PlanExportVisibility = currentPlanExportVisibility()) {
   const name = project?.name || 'floorplan';
 
   if (project) {
     const snapshot=structuredClone(project);
-    const floor = snapshot.floors.find(f => f.id === snapshot.activeFloorId) ?? snapshot.floors[0];
+    // Layers hidden in the 2D view are left out, like its room labels and automatic dimensions.
+    const floor = visibleActiveFloor(snapshot, visibility);
     const entourage=(floor?.entourage ?? []).flatMap(item=>{
       const def=getEntourageDef(item.defId),custom=def?undefined:snapshot.customEntourage?.find(d=>d.id===item.defId);
       return def || custom ? [{item,custom,aspect:def?.aspect ?? custom!.aspect}] : [];
@@ -206,12 +228,13 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
         bounds.maxX=Math.max(bounds.maxX,b.maxX+2);bounds.maxY=Math.max(bounds.maxY,b.maxY+2);
       }
       extendBoundsForOpenings(floor, bounds);
-      extendBoundsForRoomLabels(floor, bounds);
+      if (visibility.roomLabels) extendBoundsForRoomLabels(floor, bounds);
       extendBoundsForColumns(floor, bounds);
       extendBoundsForStairs(floor, bounds);
       extendBoundsForText(floor, bounds);
       extendBoundsForDimensions(floor, bounds);
       extendBoundsForMeasurements(floor, bounds);
+      extendBoundsForFurnitureCaptions(floor, bounds, item => customModelName(item, snapshot));
       ({ minX, minY, maxX, maxY } = bounds);
       const pad = 80;
       const w = maxX - minX + pad * 2;
@@ -242,6 +265,7 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
         traceRoomRings(ctx, poly, holes[ri], p => ({x:p.x-minX+pad,y:p.y-minY+pad}));
         if (!room.floorOpening) ctx.fill('evenodd');
         ctx.globalAlpha = 1;
+        if (!visibility.roomLabels) continue;
         // Room label
         const c = roomLabelPosition(room, poly, holes[ri]);
         ctx.fillStyle = '#444';
@@ -256,15 +280,16 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
       // Draw walls
       ctx.strokeStyle = '#333';
       ctx.lineCap = 'round';
-      for (const wall of floor.walls) {
+      for (const wall of visibility.walls ? floor.walls : []) {
         ctx.lineWidth = wall.thickness;
         ctx.beginPath();
         ctx.moveTo(wall.start.x - minX + pad, wall.start.y - minY + pad);
         if (wall.curvePoint) ctx.quadraticCurveTo(wall.curvePoint.x - minX + pad, wall.curvePoint.y - minY + pad, wall.end.x - minX + pad, wall.end.y - minY + pad);
         else ctx.lineTo(wall.end.x - minX + pad, wall.end.y - minY + pad);
         ctx.stroke();
+        if (!visibility.wallDimensions) continue;
         // Dimension label
-        const { length: len, point: midpoint } = wallPlanDimension(wall);
+        const { length: len, point: midpoint } = wallDimensionLabel(wall, floor.walls, get(projectSettings).wallMeasureMode);
         const mx = midpoint.x - minX + pad;
         const my = midpoint.y - minY + pad;
         ctx.fillStyle = '#666';
@@ -283,7 +308,7 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
 
       for (const item of floor.furniture) drawFurnitureItem({
         ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY,
-      }, item, false);
+      }, item, false, customModelName(item, snapshot));
 
       ctx.save();
       for (const stair of floor.stairs ?? []) drawStair({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, stair, false);
@@ -313,14 +338,17 @@ export async function exportAsPNG(canvas: HTMLCanvasElement | null, project?: Pr
 
 export { downloadProjectJSON as exportAsJSON } from './projectBackup';
 
-export function exportAsSVG(project: Project, language: Locale = 'en') {
-  const floor = project.floors.find(f => f.id === project.activeFloorId) ?? project.floors[0];
-  if (!floor) return;
+/** Returns whether a file was downloaded (an empty floor exports nothing). Hidden layers are left out, as in PNG. */
+export function exportAsSVG(project: Project, language: Locale = 'en', visibility: PlanExportVisibility = currentPlanExportVisibility()): boolean {
+  const floor = visibleActiveFloor(project, visibility);
+  if (!floor) return false;
   const entourage=(floor.entourage ?? []).flatMap(item=>{
     const def=getEntourageDef(item.defId), custom=def?undefined:project.customEntourage?.find(d=>d.id===item.defId);
     return def || custom ? [{item,def,custom,aspect:def?.aspect ?? custom!.aspect}] : [];
   });
-  if (!hasPlanExportContent(floor) && !entourage.length) return;
+  if (!hasPlanExportContent(floor) && !entourage.length) return false;
+  // Catalog captions follow the export language, so the frame measures the same strings.
+  const caption = (item: FurnitureItem) => customModelName(item, project) ?? (getCatalogItem(item.catalogId) ? furnitureName(item.catalogId, language) : 'Unknown furniture');
 
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const w of floor.walls) {
@@ -341,12 +369,13 @@ export function exportAsSVG(project: Project, language: Locale = 'en') {
     svgBounds.maxX=Math.max(svgBounds.maxX,b.maxX+2);svgBounds.maxY=Math.max(svgBounds.maxY,b.maxY+2);
   }
   extendBoundsForOpenings(floor, svgBounds);
-  extendBoundsForRoomLabels(floor, svgBounds);
+  if (visibility.roomLabels) extendBoundsForRoomLabels(floor, svgBounds);
   extendBoundsForColumns(floor, svgBounds);
   extendBoundsForStairs(floor, svgBounds);
   extendBoundsForText(floor, svgBounds);
   extendBoundsForDimensions(floor, svgBounds);
   extendBoundsForMeasurements(floor, svgBounds);
+  extendBoundsForFurnitureCaptions(floor, svgBounds, caption);
   ({ minX, minY, maxX, maxY } = svgBounds);
   const pad = 50;
   const vw = maxX - minX + pad * 2;
@@ -369,6 +398,7 @@ export function exportAsSVG(project: Project, language: Locale = 'en') {
       const d = [poly,...holes[ri]].map(ring => `M ${ring.map(p=>`${p.x-minX+pad},${p.y-minY+pad}`).join(' L ')} Z`).join(' ');
       paths += `  <path d="${d}" fill="${color}" fill-rule="evenodd" fill-opacity="0.4" stroke="none"/>\n`;
     } else paths += `  <polygon points="${pts}" fill="${color}" fill-opacity="0.4" stroke="none"/>\n`;
+    if (!visibility.roomLabels) continue;
     const c = roomLabelPosition(room, poly, holes[ri]);
     const cx = c.x - minX + pad;
     const cy = c.y - minY + pad;
@@ -376,15 +406,16 @@ export function exportAsSVG(project: Project, language: Locale = 'en') {
     paths += `  <text x="${cx}" y="${cy + 14}" text-anchor="middle" font-size="10" fill="#888" font-family="sans-serif">${formatArea(room.area, get(projectSettings).units)}</text>\n`;
   }
 
-  for (const w of floor.walls) {
+  for (const w of visibility.walls ? floor.walls : []) {
     const x1 = w.start.x - minX + pad;
     const y1 = w.start.y - minY + pad;
     const x2 = w.end.x - minX + pad;
     const y2 = w.end.y - minY + pad;
     if (w.curvePoint) paths += `  <path d="M ${x1} ${y1} Q ${w.curvePoint.x - minX + pad} ${w.curvePoint.y - minY + pad} ${x2} ${y2}" fill="none" stroke="#333" stroke-width="${w.thickness}" stroke-linecap="round"/>\n`;
     else paths += `  <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#333" stroke-width="${w.thickness}" stroke-linecap="round"/>\n`;
+    if (!visibility.wallDimensions) continue;
     // dimension label
-    const { length: len, point: midpoint } = wallPlanDimension(w);
+    const { length: len, point: midpoint } = wallDimensionLabel(w, floor.walls, get(projectSettings).wallMeasureMode);
     const mx = midpoint.x - minX + pad;
     const my = midpoint.y - minY + pad;
     paths += `  <text x="${mx}" y="${my}" text-anchor="middle" font-size="11" fill="#666" font-family="sans-serif">${len} cm</text>\n`;
@@ -422,9 +453,6 @@ export function exportAsSVG(project: Project, language: Locale = 'en') {
     const py = wall.start.y + wdy * d.position - minY + pad;
     const hw = d.width / 2;
     const th = Math.max(wall.thickness, 4) / 2 + 1;
-    const wallAngle = Math.atan2(uy, ux);
-    const swingDir = d.swingDirection === 'left' ? 1 : -1;
-    const sideFlip = (d.flipSide ?? false) ? -1 : 1;
 
     // Clear the wall gap
     const gapPts = [
@@ -442,71 +470,18 @@ export function exportAsSVG(project: Project, language: Locale = 'en') {
       paths += `  <line x1="${n2(jx + nx * (th + 1))}" y1="${n2(jy + ny * (th + 1))}" x2="${n2(jx - nx * (th + 1))}" y2="${n2(jy - ny * (th + 1))}" stroke="#444" stroke-width="1.5"/>\n`;
     }
 
-    const doorType = d.type || 'single';
-    const svgArc = (hx: number, hy: number, r: number, a0: number, a1: number) => {
-      const x0 = hx + r * Math.cos(a0), y0 = hy + r * Math.sin(a0);
-      const x1 = hx + r * Math.cos(a1), y1 = hy + r * Math.sin(a1);
-      return {
-        path: `M ${n2(x0)} ${n2(y0)} A ${n2(r)} ${n2(r)} 0 0 ${a1 > a0 ? 1 : 0} ${n2(x1)} ${n2(y1)}`,
-        ex: x1, ey: y1,
-      };
-    };
-
-    if (doorType === 'single' || doorType === 'pocket') {
-      const r = d.width;
-      const hx = px + ux * hw * swingDir;
-      const hy = py + uy * hw * swingDir;
-      const sa = wallAngle + (swingDir === 1 ? Math.PI : 0);
-      const ea = sa + (-swingDir) * sideFlip * (Math.PI / 2);
-      if (doorType === 'pocket') {
-        paths += `  <line x1="${n2(hx)}" y1="${n2(hy)}" x2="${n2(hx + ux * d.width * swingDir)}" y2="${n2(hy + uy * d.width * swingDir)}" stroke="#999" stroke-width="2" stroke-dasharray="4,3"/>\n`;
+    const tx = (x: number) => n2(x - minX + pad), ty = (y: number) => n2(y - minY + pad);
+    for (const part of doorSymbol(wall, d)) {
+      if (part.role === 'swing') {
+        const { cx, cy, r, from, to } = part;
+        paths += `  <path d="M ${tx(cx + r * Math.cos(from))} ${ty(cy + r * Math.sin(from))} A ${n2(r)} ${n2(r)} 0 0 ${to > from ? 1 : 0} ${tx(cx + r * Math.cos(to))} ${ty(cy + r * Math.sin(to))}" fill="none" stroke="#666" stroke-width="1"/>\n`;
+      } else if (part.role === 'hinge') {
+        paths += `  <circle cx="${tx(part.x)}" cy="${ty(part.y)}" r="${part.r}" fill="#444"/>\n`;
+      } else if (part.points.length > 2) {
+        paths += `  <polyline points="${part.points.map(p => `${tx(p.x)},${ty(p.y)}`).join(' ')}" fill="none" stroke="#444" stroke-width="2"/>\n`;
       } else {
-        const arc = svgArc(hx, hy, r, sa, ea);
-        paths += `  <path d="${arc.path}" fill="none" stroke="#666" stroke-width="1"/>\n`;
-      }
-      const panelAngle = doorType === 'pocket' ? sa : ea;
-      paths += `  <line x1="${n2(hx)}" y1="${n2(hy)}" x2="${n2(hx + r * Math.cos(panelAngle))}" y2="${n2(hy + r * Math.sin(panelAngle))}" stroke="#444" stroke-width="2.5"/>\n`;
-      paths += `  <circle cx="${n2(hx)}" cy="${n2(hy)}" r="2.5" fill="#444"/>\n`;
-    } else if (doorType === 'double' || doorType === 'french') {
-      const r = hw;
-      for (const side of [-1, 1] as const) {
-        const hx = px + ux * hw * side;
-        const hy = py + uy * hw * side;
-        const arcSwing = side === -1 ? swingDir : -swingDir;
-        const sa = wallAngle + Math.PI * (side === 1 ? 1 : 0);
-        const ea = sa + arcSwing * sideFlip * (Math.PI / 2);
-        const arc = svgArc(hx, hy, r, sa, ea);
-        paths += `  <path d="${arc.path}" fill="none" stroke="#666" stroke-width="1"/>\n`;
-        paths += `  <line x1="${n2(hx)}" y1="${n2(hy)}" x2="${n2(hx + r * Math.cos(ea))}" y2="${n2(hy + r * Math.sin(ea))}" stroke="#444" stroke-width="2.5"/>\n`;
-        paths += `  <circle cx="${n2(hx)}" cy="${n2(hy)}" r="2" fill="#444"/>\n`;
-      }
-    } else if (doorType === 'sliding') {
-      const panelW = hw * 0.9;
-      const offset = Math.max(wall.thickness, 4) * 0.15 * sideFlip;
-      paths += `  <line x1="${n2(px - ux * hw)}" y1="${n2(py - uy * hw)}" x2="${n2(px + ux * panelW * 0.1)}" y2="${n2(py + uy * panelW * 0.1)}" stroke="#444" stroke-width="2"/>\n`;
-      paths += `  <line x1="${n2(px - ux * panelW * 0.1 + nx * offset)}" y1="${n2(py - uy * panelW * 0.1 + ny * offset)}" x2="${n2(px + ux * hw + nx * offset)}" y2="${n2(py + uy * hw + ny * offset)}" stroke="#444" stroke-width="2"/>\n`;
-    } else if (doorType === 'bifold') {
-      const panelCount = 4;
-      const panelW = d.width / panelCount;
-      const foldAngle = Math.PI / 6;
-      let bx = px - ux * hw;
-      let by = py - uy * hw;
-      let poly = `${n2(bx)},${n2(by)}`;
-      for (let i = 0; i < panelCount; i++) {
-        const angle = wallAngle + (i % 2 === 0 ? foldAngle * swingDir : -foldAngle * swingDir * 0.3);
-        bx += panelW * Math.cos(angle);
-        by += panelW * Math.sin(angle);
-        poly += ` ${n2(bx)},${n2(by)}`;
-      }
-      paths += `  <polyline points="${poly}" fill="none" stroke="#444" stroke-width="2"/>\n`;
-    } else if (doorType === 'garage') {
-      // Overhead garage door: panel line across the opening
-      paths += `  <line x1="${n2(px - ux * hw)}" y1="${n2(py - uy * hw)}" x2="${n2(px + ux * hw)}" y2="${n2(py + uy * hw)}" stroke="#444" stroke-width="2.5"/>\n`;
-    } else if (doorType === 'opening') {
-      // Plain doorway: dashed threshold lines along both wall faces
-      for (const side of [-1, 1]) {
-        const ox = nx * (th - 1) * side, oy = ny * (th - 1) * side;
-        paths += `  <line x1="${n2(px - ux * hw + ox)}" y1="${n2(py - uy * hw + oy)}" x2="${n2(px + ux * hw + ox)}" y2="${n2(py + uy * hw + oy)}" stroke="#999" stroke-width="1" stroke-dasharray="5,4"/>\n`;
+        const [a, b] = part.points;
+        paths += `  <line x1="${tx(a.x)}" y1="${ty(a.y)}" x2="${tx(b.x)}" y2="${ty(b.y)}" ${DOOR_STROKES[part.role]}/>\n`;
       }
     }
   }
@@ -555,8 +530,8 @@ export function exportAsSVG(project: Project, language: Locale = 'en') {
     const color=fi.color ?? cat?.color ?? '#888888';
     paths+=`  <g data-furniture="${escapeXml(fi.id)}" data-width="${fw}" data-depth="${fd}" transform="translate(${fx},${fy}) rotate(${fi.rotation || 0})">\n`;
     paths+=`<g transform="scale(${Math.sign(fi.scale?.x ?? 1)||1},${Math.sign(fi.scale?.y ?? 1)||1})">${furnitureSvg(fi.catalogId,fw,fd,color)}</g>\n`;
-    const fontSize=Math.max(8,Math.min(12,Math.min(fw,fd)*0.2));
-    if(Math.min(fw,fd)>20) paths+=`<text x="0" y="${fd/2+fontSize*0.8}" text-anchor="middle" dominant-baseline="central" font-size="${fontSize*0.7}" fill="#374151" font-family="sans-serif">${escapeXml(cat ? furnitureName(fi.catalogId, language) : 'Unknown furniture')}</text>\n`;
+    const label=furnitureCaptionLayout(fi);
+    if(label) paths+=`<text x="0" y="${label.y}" text-anchor="middle" dominant-baseline="central" font-size="${label.size}" fill="#374151" font-family="sans-serif">${escapeXml(caption(fi))}</text>\n`;
     paths+='  </g>\n';
   }
 
@@ -638,6 +613,7 @@ ${paths}</svg>`;
 
   const blob = new Blob([svg], { type: 'image/svg+xml' });
   download(blob, `${project.name || 'floorplan'}.svg`);
+  return true;
 }
 
 export function exportAs3DPNG(renderer: { domElement: HTMLCanvasElement }) {
@@ -646,9 +622,9 @@ export function exportAs3DPNG(renderer: { domElement: HTMLCanvasElement }) {
   });
 }
 
-export async function exportPDF(project: Project) {
+export async function exportPDF(project: Project, language: Locale = 'en', visibility: PlanExportVisibility = currentPlanExportVisibility()) {
   const snapshot=structuredClone(project);
-  const floor=snapshot.floors.find(f=>f.id===snapshot.activeFloorId) ?? snapshot.floors[0];
+  const floor=visibleActiveFloor(snapshot, visibility);
   const definitions=[...new Set((floor?.entourage ?? []).flatMap(item=>{
     const def=getEntourageDef(item.defId)?undefined:snapshot.customEntourage?.find(d=>d.id===item.defId);
     return def?[def]:[];
@@ -661,11 +637,11 @@ export async function exportPDF(project: Project) {
     if(context && !context.isContextLost()) capture.image=source.toDataURL('image/png');
   } catch { /* The completed plan can still export without the optional view. */ }
   const preparedImages=new Map(await Promise.all(definitions.map(async def=>[def.id,await prepareEntourageImage(def)] as const)));
-  return renderPDF(snapshot,preparedImages,capture);
+  return renderPDF(snapshot,preparedImages,capture,language,visibility);
 }
 
-function renderPDF(project: Project, preparedImages: ReadonlyMap<string,HTMLImageElement>, capture: {width:number;height:number;image?:string}|null) {
-  const floor = project.floors.find(f => f.id === project.activeFloorId) ?? project.floors[0];
+function renderPDF(project: Project, preparedImages: ReadonlyMap<string,HTMLImageElement>, capture: {width:number;height:number;image?:string}|null, language: Locale, visibility: PlanExportVisibility) {
+  const floor = visibleActiveFloor(project, visibility);
   if (!floor) return;
   const entourage=(floor.entourage ?? []).flatMap(item=>{
     const def=getEntourageDef(item.defId),custom=def?undefined:project.customEntourage?.find(d=>d.id===item.defId);
@@ -674,6 +650,7 @@ function renderPDF(project: Project, preparedImages: ReadonlyMap<string,HTMLImag
   if (!hasPlanExportContent(floor) && !entourage.length) return;
 
   const settings = get(projectSettings);
+  const label = (key: TranslationKey, variables?: Record<string, string | number>) => translate(language, key, variables);
   const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
   const pw = pdf.internal.pageSize.getWidth();   // ~297
   const ph = pdf.internal.pageSize.getHeight();   // ~210
@@ -705,7 +682,7 @@ function renderPDF(project: Project, preparedImages: ReadonlyMap<string,HTMLImag
     // Project name
     pdf.setFontSize(12);
     pdf.setFont('helvetica', 'bold');
-    pdf.text(project.name || 'Untitled Project', margin + 4, tbY + 9);
+    pdf.text(project.name || label('library.untitled'), margin + 4, tbY + 9);
     pdf.setFontSize(8);
     pdf.setFont('helvetica', 'normal');
     pdf.text(floor.name, margin + 4, tbY + 15);
@@ -715,10 +692,10 @@ function renderPDF(project: Project, preparedImages: ReadonlyMap<string,HTMLImag
     }
 
     // Date / scale
-    const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    const today = new Date().toLocaleDateString(language === 'pt' ? 'pt-BR' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     pdf.setFontSize(8);
-    pdf.text(`Date: ${today}`, col1 + 4, tbY + 9);
-    pdf.text(`Units: ${settings.units}`, col1 + 4, tbY + 15);
+    pdf.text(label('pdf.date', { date: today }), col1 + 4, tbY + 9);
+    pdf.text(label('pdf.units', { units: label(settings.units === 'imperial' ? 'settings.imperial' : 'settings.metric') }), col1 + 4, tbY + 15);
 
     // Branding
     pdf.setFontSize(9);
@@ -726,7 +703,7 @@ function renderPDF(project: Project, preparedImages: ReadonlyMap<string,HTMLImag
     pdf.text('openplan3d.com', col2 + 4, tbY + 9);
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(7);
-    pdf.text('Created with Open 3D Floor Planner', col2 + 4, tbY + 15);
+    pdf.text(label('pdf.createdWith'), col2 + 4, tbY + 15);
   }
 
   // ── Page 1: Floor Plan ──
@@ -752,12 +729,13 @@ function renderPDF(project: Project, preparedImages: ReadonlyMap<string,HTMLImag
     pdfBounds.maxX=Math.max(pdfBounds.maxX,b.maxX+2);pdfBounds.maxY=Math.max(pdfBounds.maxY,b.maxY+2);
   }
   extendBoundsForOpenings(floor, pdfBounds);
-  extendBoundsForRoomLabels(floor, pdfBounds);
+  if (visibility.roomLabels) extendBoundsForRoomLabels(floor, pdfBounds);
   extendBoundsForColumns(floor, pdfBounds);
   extendBoundsForStairs(floor, pdfBounds);
   extendBoundsForText(floor, pdfBounds);
   extendBoundsForDimensions(floor, pdfBounds);
   extendBoundsForMeasurements(floor, pdfBounds);
+  extendBoundsForFurnitureCaptions(floor, pdfBounds, item => customModelName(item, project));
   ({ minX, minY, maxX, maxY } = pdfBounds);
 
   const pad = 80;
@@ -786,6 +764,7 @@ function renderPDF(project: Project, preparedImages: ReadonlyMap<string,HTMLImag
     traceRoomRings(ctx, poly, holes[ri], p => ({x:p.x-minX+pad,y:p.y-minY+pad}));
     if (!room.floorOpening) ctx.fill('evenodd');
     ctx.globalAlpha = 1;
+    if (!visibility.roomLabels) continue;
     const c = roomLabelPosition(room, poly, holes[ri]);
     ctx.fillStyle = '#444';
     ctx.font = 'bold 13px sans-serif';
@@ -799,14 +778,15 @@ function renderPDF(project: Project, preparedImages: ReadonlyMap<string,HTMLImag
   // Walls
   ctx.strokeStyle = '#333';
   ctx.lineCap = 'round';
-  for (const wall of floor.walls) {
+  for (const wall of visibility.walls ? floor.walls : []) {
     ctx.lineWidth = wall.thickness;
     ctx.beginPath();
     ctx.moveTo(wall.start.x - minX + pad, wall.start.y - minY + pad);
     if (wall.curvePoint) ctx.quadraticCurveTo(wall.curvePoint.x - minX + pad, wall.curvePoint.y - minY + pad, wall.end.x - minX + pad, wall.end.y - minY + pad);
         else ctx.lineTo(wall.end.x - minX + pad, wall.end.y - minY + pad);
     ctx.stroke();
-    const { length: len, point: midpoint } = wallPlanDimension(wall);
+    if (!visibility.wallDimensions) continue;
+    const { length: len, point: midpoint } = wallDimensionLabel(wall, floor.walls, settings.wallMeasureMode);
     const mx = midpoint.x - minX + pad;
     const my = midpoint.y - minY + pad;
     ctx.fillStyle = '#666';
@@ -825,7 +805,7 @@ function renderPDF(project: Project, preparedImages: ReadonlyMap<string,HTMLImag
 
   for (const item of floor.furniture) drawFurnitureItem({
     ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY,
-  }, item, false);
+  }, item, false, customModelName(item, project));
 
   ctx.save();
   for (const stair of floor.stairs ?? []) drawStair({ ctx, width: pad * 2, height: pad * 2, zoom: 1, camX: minX, camY: minY }, stair, false);
@@ -853,7 +833,7 @@ function renderPDF(project: Project, preparedImages: ReadonlyMap<string,HTMLImag
   if (rooms.length > 0) {
     const tX = margin + 6;
     const colWidths = [12, 70, 45, 55, 65];
-    const headers = ['#', 'Room Name', 'Type', 'Area', 'Floor Texture'];
+    const headers = ['#', label('pdf.columnName'), label('pdf.columnType'), label('pdf.columnArea'), label('pdf.columnTexture')];
     const tableW = colWidths.reduce((a, b) => a + b, 0);
     const bottom = ph - margin - titleBlockH - 4;
     let tY = 0;
@@ -864,7 +844,7 @@ function renderPDF(project: Project, preparedImages: ReadonlyMap<string,HTMLImag
       pdf.setTextColor(40);
       pdf.setFontSize(14);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('Room Schedule', tX, margin + 12);
+      pdf.text(label('pdf.schedule'), tX, margin + 12);
       tY = margin + 20;
       pdf.setFillColor(50, 50, 60);
       pdf.rect(tX, tY, tableW, 8, 'F');
@@ -918,11 +898,13 @@ function renderPDF(project: Project, preparedImages: ReadonlyMap<string,HTMLImag
     pdf.rect(tX, tY, tableW, 8, 'F');
     pdf.setTextColor(255);
     pdf.setFont('helvetica', 'bold');
-    pdf.text('TOTAL', tX + colWidths[0] + 3, tY + 5.5);
+    pdf.text(label('pdf.total'), tX + colWidths[0] + 3, tY + 5.5);
     pdf.text(formatArea(totalArea, settings.units), tX + colWidths[0] + colWidths[1] + colWidths[2] + 3, tY + 5.5);
     pdf.setFont('helvetica', 'normal');
     pdf.setTextColor(80);
-    pdf.text(`${rooms.length} rooms  ·  ${floor.walls.length} walls  ·  ${floor.doors.length} doors  ·  ${floor.windows.length} windows  ·  ${floor.furniture.length} furniture items`, tX, tY + 18);
+    // The summary counts the whole floor, including items on hidden layers.
+    const all = project.floors.find(f => f.id === floor.id) ?? floor;
+    pdf.text(label('pdf.summary', { rooms: rooms.length, walls: all.walls.length, doors: all.doors.length, windows: all.windows.length, furniture: all.furniture.length }), tX, tY + 18);
   }
 
   let omitted3D = Boolean(capture);
@@ -937,7 +919,7 @@ function renderPDF(project: Project, preparedImages: ReadonlyMap<string,HTMLImag
         pdf.setFontSize(14);
         pdf.setFont('helvetica', 'bold');
         pdf.setTextColor(40);
-        pdf.text('3D Perspective View', margin + 6, margin + 12);
+        pdf.text(label('pdf.perspective'), margin + 6, margin + 12);
 
         const da3W = pw - margin * 2 - 4;
         const da3H = ph - margin * 2 - titleBlockH - 20;

@@ -37,16 +37,38 @@ separate from merging the companion source.
 
 ## Enforced limits on this endpoint
 
-| Limit | Initial value |
+| Limit | Value |
 | --- | --- |
 | One capture | 1 MiB |
-| Upload reservations per UTC day | 100 |
-| Reserved capture bytes per UTC day | 25 MiB |
+| Upload reservations per UTC day | 1,000 (100 until October 16, 2026) |
+| Reserved capture bytes per UTC day | 250 MiB (25 MiB until October 16, 2026) |
 | Upload reservations per UTC minute | 10 |
 
-The constants live in `src/lib/server/handoffQuota.ts`. They are conservative
-initial capacity limits, not a dollar budget. Changing them requires a reviewed
-deployment. An additional process-local guard admits at most 30 requests per
+The constants live in `src/lib/server/handoffQuota.ts`. They are capacity
+limits, not a dollar budget. Changing them requires a reviewed deployment.
+
+**Why the daily limits were raised (measured October 16, 2026).** Production
+logs for October 9–15 show the initial limits were too low for real use. Every
+day, the 100th share was accepted between 12:35 and 15:47 UTC, and every later
+attempt that day got 429 until midnight UTC. Each day had 100 accepted shares,
+140–180 refusals and 5–25 invalid captures (422). The cut-off came at about
+9 am US Eastern, so most of the US day had no link sharing. The traffic looked
+organic: uploads were spread across the hours, and most of each day's 100
+captures had distinct sizes. A day's 100 captures came to 7–11 MiB, so a full
+day's demand would also have reached the 25 MiB byte limit.
+
+The new limits cover several times that demand. Worst case, a full day of
+250 MiB stays one day in `inbox/` plus seven days of soft delete, about 2 GiB
+retained. At regional US Storage prices that is a few cents a month. Reads of
+shared captures are not counted by this quota, before or after the change.
+Each request appears twice in the logs (Cloud Run and App Hosting), so halve
+raw log counts.
+
+Rejected captures now log `{"event":"handoff_invalid","stage":…}` with the
+stage that refused them (`utf-8`, `json`, `format` or `validation`). A
+validation failure also logs the validator's message, which holds only a field
+path and a fixed reason. JSON parse messages quote the input, so they are never
+logged. An additional process-local guard admits at most 30 requests per
 minute into parsing/storage work; it is not the authoritative global quota.
 
 A zero-byte object, `_system/handoff-admission-v1`, stores the current day/minute

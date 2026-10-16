@@ -261,10 +261,28 @@ export interface CustomModelDef {
   sourceUrl?: string;
 }
 
+/** Sibling planner blocks retained through import and export. Apple capture keys never qualify. */
+export const INTERCHANGE_BLOCK_KEYS = ['openkitchen3d', 'openlandscape3d', 'opencatio3d'] as const;
+export type InterchangeBlockKey = typeof INTERCHANGE_BLOCK_KEYS[number];
+
+/** Prepared-RoomPlan data the web model cannot hold; utils/interchange.ts re-emits it verbatim. */
+export interface InterchangeState {
+  version: 1;
+  /** Top-level sibling blocks exactly as imported, keyed by INTERCHANGE_BLOCK_KEYS. */
+  blocks: Record<string, unknown>;
+  /** Object identifier → that object's `attributes` (openkitchen3dRole, sku, plantId, opencatio3dKind, …). */
+  attributes?: Record<string, Record<string, unknown>>;
+  /** The file's top-level `defaults` object. */
+  defaults?: Record<string, unknown>;
+  /** The file's top-level `planNotes`. */
+  planNotes?: string;
+}
+
 export interface Project {
   customModels?: CustomModelDef[];
   attachmentNames?: Record<string, string>;
   projectPackage?: ProjectPackageState;
+  interchange?: InterchangeState;
   id: string;
   name: string;
   description?: string;

@@ -4,11 +4,17 @@
   let { onToggleLayers, layersOpen = false, onToggleHistory, historyOpen = false }: { onToggleLayers?: () => void; layersOpen?: boolean; onToggleHistory?: (trigger: HTMLButtonElement) => void; historyOpen?: boolean } = $props();
   import { captureMain3DPNG } from '$lib/utils/captureMain3D';
   import ExportNotice from '$lib/components/ExportNotice.svelte';
-  import { exportNotice, exportPNGWithFeedback, exportPDFWithFeedback as exportPDF } from '$lib/stores/exportNotice';
+  import { exportNotice, exportPNGWithFeedback, exportPDFWithFeedback as exportPDF, exportSVGWithFeedback, exportDXFWithFeedback, exportDWGWithFeedback, downloadInterchangeJson, openInSiblingPlanner, USER_GUIDE_URL } from '$lib/stores/exportNotice';
+  import { SIBLING_PLANNERS, type SiblingPlannerId } from '$lib/utils/transferLink';
+  import { interchangeProjectName } from '$lib/utils/interchange';
   import { modalDialog, hasOpenModal } from '$lib/utils/modalDialog';
-  import { openProject } from '$lib/services/projectOpening';
+  import { focusInlineEditor } from '$lib/utils/inlineEditorFocus';
+  import { openProject, openStoredProject } from '$lib/services/projectOpening';
   import { saveConflict, savingCopy, saveCurrentAsCopy } from '$lib/stores/saveStatus';
   import ImportError from '$lib/components/ImportError.svelte';
+  import ProjectPackageDialog from '$lib/components/ProjectPackageDialog.svelte';
+  import LibraryRestoreDialog from '$lib/components/LibraryRestoreDialog.svelte';
+  import { isLibraryBackup, LibraryBackupFileError } from '$lib/services/libraryRestore';
   import AssistantShareDialog from '$lib/components/AssistantShareDialog.svelte';
   import { onMount, onDestroy } from 'svelte';
   import { base } from '$app/paths';
@@ -17,8 +23,7 @@
   import { currentProject, viewMode, undo, redo, addFloor, removeFloor, setActiveFloor, updateProjectName, createDefaultProject, snapEnabled, canvasZoom, canvasMinimumZoom, panMode, showFurnitureStore, layerVisibility, activeFloor, selectedElementId, elevationWallId, elevationPickMode } from '$lib/stores/project';
   import { get } from 'svelte/store';
   import type { Floor } from '$lib/models/types';
-  import { exportAsJSON, exportAsSVG } from '$lib/utils/export';
-  import { exportDXF, exportDWG } from '$lib/utils/cadExport';
+  import { exportAsJSON } from '$lib/utils/export';
   import { createProjectFromRoomPlan, extractRoomJsonFromZip, isRoomPlanJson } from '$lib/utils/roomplanImport';
   import SettingsDialog from './SettingsDialog.svelte';
   import AreaSummaryPanel from '$lib/components/sidebar/AreaSummaryPanel.svelte';
@@ -31,6 +36,9 @@
 
   let importError = $state<string | null>(null);
   let packageError = $state<string | null>(null);
+  let packageOpen = $state(false);
+  /** A library backup given to Import JSON opens in Restore library backup instead. */
+  let restoreFile = $state.raw<File | null>(null);
   let assistantShareProject = $state<import('$lib/models/types').Project | null>(null);
 
   let settingsOpen = $state(false);
@@ -44,7 +52,6 @@
   let editingName = $state(false);
   let exportOpen = $state(false);
   import { triggerTip } from '$lib/stores/onboarding.svelte';
-  let snapOn = $state(true);
   let exportRef: HTMLDivElement;
   // Mobile (< md) overflow menu for secondary actions
   let moreOpen = $state(false);
@@ -107,6 +114,13 @@
 
   function onNameKeydown(e: KeyboardEvent) {
     if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
+    else if (e.key === 'Escape') {
+      // Cancel: restore the saved name, so the blur's commit changes nothing. The Escape stays
+      // with the field, so the 3D viewer does not also leave its edit mode.
+      e.stopPropagation();
+      projectName = get(currentProject)?.name ?? projectName;
+      (e.target as HTMLInputElement).blur();
+    }
   }
 
   function onAddFloor(seed: FloorSeed = 'outer') {
@@ -191,27 +205,40 @@
     if (project) assistantShareProject = structuredClone(project);
   }
 
+  function onExportInterchange() {
+    const project = get(currentProject);
+    exportOpen = false;
+    if (project) downloadInterchangeJson(structuredClone(project));
+  }
+
+  /** The helper opens the tab synchronously, inside this click, before building the link. */
+  function onOpenInPlanner(id: SiblingPlannerId) {
+    const project = get(currentProject);
+    exportOpen = false;
+    if (project) void openInSiblingPlanner(structuredClone(project), id);
+  }
+
   function onExportSVG() {
     const p = get(currentProject);
-    if (p) exportAsSVG(p, get(locale));
+    if (p) exportSVGWithFeedback(p, get(locale));
     exportOpen = false;
   }
 
   function onExportDXF() {
     const p = get(currentProject);
-    if (p) exportDXF(p, get(locale));
+    if (p) exportDXFWithFeedback(p, get(locale));
     exportOpen = false;
   }
 
   function onExportDWG() {
     const p = get(currentProject);
-    if (p) exportDWG(p, get(locale));
     exportOpen = false;
+    if (p) exportDWGWithFeedback(p, get(locale));
   }
 
   function onExportPDF() {
     const p = get(currentProject);
-    if (p) exportPDF(p);
+    if (p) exportPDF(p, get(locale));
     exportOpen = false;
   }
 
@@ -290,17 +317,33 @@
           const data = /\.zip$/i.test(file.name)
             ? await extractRoomJsonFromZip(file)
             : JSON.parse(await file.text());
+          if (isLibraryBackup(data)) throw new LibraryBackupFileError();
           return isRoomPlanJson(data)
-            ? createProjectFromRoomPlan(data, file.name.replace(/\.(json|zip)$/i, ''))
+            ? createProjectFromRoomPlan(data, interchangeProjectName(data, file.name.replace(/\.(json|zip)$/i, '')))
             : data;
         }, 'import', openingLifetime.signal);
       } catch (e: any) {
+        if (e instanceof LibraryBackupFileError) { restoreFile = file; return; }
         const message = e?.message ?? 'Could not read this file.';
         importError = message.includes('No project was imported.') ? message : `${message} No project was imported.`;
       }
     };
     input.click();
     exportOpen = false;
+  }
+
+  function onImportPackage() {
+    exportOpen = false; importError = null; packageOpen = true;
+  }
+
+  /** The imported copy is already in the library; switch the editor to it (the current plan is saved first). */
+  async function openImportedPackage(id: string) {
+    try {
+      if (await openStoredProject(id, openingLifetime.signal)) packageOpen = false;
+    } catch (error) {
+      // The dialog stays on its "imported" message (the copy is in the library); this explains why it did not open here.
+      importError = error instanceof Error ? error.message : 'Could not open the imported project.';
+    }
   }
 </script>
 
@@ -319,6 +362,7 @@
 
   {#if editingName}
     <input
+      use:focusInlineEditor={{ select: true }}
       type="text"
       aria-label={$t('projectToolbar.name')}
       bind:value={projectName}
@@ -351,7 +395,7 @@
         aria-expanded={floorMenuOpen}
       >+</button>
       {#if floorMenuOpen}
-        <div class="absolute left-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 w-64 z-50">
+        <div data-popup="menu" class="absolute left-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 w-64 z-50">
           <div class="px-3 pt-1 pb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">{$t('floorControls.top')}</div>
           <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => onAddFloor('outer')}>
             {$t('floorControls.exterior')} <span class="text-gray-400">{$t('floorControls.footprint')}</span>
@@ -382,12 +426,13 @@
 
   <div class="h-5 w-px bg-white/20 max-xl:hidden"></div>
 
-  <!-- Snap to grid toggle -->
+  <!-- Snap to grid toggle: drawn from the store, which the Command Palette also toggles -->
   <button
-    onclick={() => { snapEnabled.update(v => !v); snapOn = !snapOn; }}
-    class="p-1.5 rounded transition-colors max-xl:hidden {snapOn ? 'text-white bg-white/20' : 'text-white/40 hover:text-white/70 hover:bg-white/10'}"
-    title={`${$t('toolbarView.snap')} (${snapOn ? $t('toolbarView.on') : $t('toolbarView.off')})`}
+    onclick={() => snapEnabled.update(v => !v)}
+    class="p-1.5 rounded transition-colors max-xl:hidden {$snapEnabled ? 'text-white bg-white/20' : 'text-white/40 hover:text-white/70 hover:bg-white/10'}"
+    title={`${$t('toolbarView.snap')} (${$snapEnabled ? $t('toolbarView.on') : $t('toolbarView.off')})`}
     aria-label={$t('toolbarView.snap')}
+    aria-pressed={$snapEnabled}
   >
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
@@ -511,7 +556,7 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
     </button>
     {#if moreOpen}
-      <div class="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 w-56 z-50 max-h-[70vh] overflow-y-auto">
+      <div data-popup="menu" class="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 w-56 z-50 max-h-[70vh] overflow-y-auto">
         {#if floors.length > 1 || mode === '2d'}
           <div class="px-3 pt-1.5 pb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">{$t('floorControls.floors')}</div>
           {#each floors as fl}
@@ -532,7 +577,7 @@
           <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => canvasZoom.update(z => Math.max($canvasMinimumZoom, z / 1.25))}>{$t('toolbarView.zoomOut')}</button>
           <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => canvasZoom.set(1)}>{$t('toolbarView.resetZoom')} ({$canvasZoom < 0.01 ? ($canvasZoom * 100).toPrecision(2) : Math.round($canvasZoom * 100)}%)</button>
           <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => panMode.update(v => !v)}>{$panMode ? '✓ ' : ''}{$t('toolbarView.pan')}</button>
-          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => { snapEnabled.update(v => !v); snapOn = !snapOn; }}>{snapOn ? '✓ ' : ''}{$t('toolbarView.snap')}</button>
+          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" aria-pressed={$snapEnabled} onclick={() => snapEnabled.update(v => !v)}>{$snapEnabled ? '✓ ' : ''}{$t('toolbarView.snap')}</button>
           <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => layerVisibility.update(v => ({ ...v, furniture: !v.furniture }))}>{$showFurnitureStore ? '✓ ' : ''}{$t('toolbarView.showFurniture')}</button>
           {#if onToggleLayers}
             <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" aria-pressed={layersOpen} onclick={() => { onToggleLayers?.(); moreOpen = false; }}>{$t('layers.title')}</button>
@@ -546,6 +591,7 @@
         <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => { versionHistoryOpen = true; moreOpen = false; }}>{$t('versions.title')}</button>
         <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => { areaOpen = true; moreOpen = false; }}>{$t('areaSummary.title')}</button>
         <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => { settingsOpen = true; moreOpen = false; }}>{$t('settings.title')}</button>
+        <a href={USER_GUIDE_URL} target="_blank" rel="noopener" class="block w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => { moreOpen = false; }}>{$t('help.userGuide')}</a>
       </div>
     {/if}
   </div>
@@ -564,7 +610,7 @@
       <span class="max-xl:hidden">{$t('exportMenu.title')}</span>
     </button>
     {#if exportOpen}
-      <div class="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 w-48 z-50">
+      <div data-popup="menu" class="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 w-56 z-50 max-h-[70vh] overflow-y-auto">
         <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left flex items-center gap-2" onclick={() => { exportOpen = false; window.dispatchEvent(new KeyboardEvent('keydown', { key: 'p', ctrlKey: true })); }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           {$t('print.entry')}
@@ -594,17 +640,30 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 11v6"/><path d="M8 11v6"/><path d="M12 11v6"/></svg>
           {$t('exportMenu.pdf')}
         </button>
+        <p class="px-3 pb-2 text-xs text-gray-500">{$t('exportMenu.planHelp')}</p>
         <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left flex items-center gap-2" onclick={onExportJSON}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
           {$t('exportMenu.json')}
         </button>
         <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={onExportPackage}>{$t('exportMenu.package')}</button>
         <p class="px-3 pb-2 text-xs text-gray-500">{$t('exportMenu.packageHelp')}</p>
+        <div class="h-px bg-gray-100 my-1"></div>
+        <p class="px-3 pt-1 pb-1 text-xs text-gray-500">{$t('exportMenu.plannersTitle')}</p>
+        {#each SIBLING_PLANNERS as planner (planner.id)}
+          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => onOpenInPlanner(planner.id)}>{$t('exportMenu.openIn', { name: planner.name })}</button>
+        {/each}
+        <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={onExportInterchange}>{$t('exportMenu.interchange')}</button>
+        <p class="px-3 pb-2 text-xs text-gray-500">{$t('exportMenu.interchangeHelp')}</p>
+        <div class="h-px bg-gray-100 my-1"></div>
         <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={onShareWithAssistant}>{$t('exportMenu.assistant')}</button>
         <div class="h-px bg-gray-100 my-1"></div>
         <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left flex items-center gap-2" onclick={onImportJSON}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
           {$t('exportMenu.import')}
+        </button>
+        <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left flex items-center gap-2" onclick={onImportPackage}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          {$t('exportMenu.importPackage')}
         </button>
         <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left flex items-center gap-2" onclick={newProject}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -667,6 +726,8 @@
   <ImportError title={$t('projectToolbar.openError')} message={importError} onDismiss={() => importError = null} />
 {/if}
 {#if packageError}<ImportError title={$t('projectToolbar.packageError')} message={packageError} onDismiss={() => packageError = null} />{/if}
+{#if packageOpen}<ProjectPackageDialog onclose={() => packageOpen = false} onimported={openImportedPackage} />{/if}
+{#if restoreFile}<LibraryRestoreDialog file={restoreFile} onclose={() => restoreFile = null} onrestored={async () => {}} />{/if}
 {#if assistantShareProject}<AssistantShareDialog project={assistantShareProject} onclose={() => assistantShareProject = null} />{/if}
 
 <ExportNotice />

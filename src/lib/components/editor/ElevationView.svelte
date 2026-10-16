@@ -1,7 +1,7 @@
 <script lang="ts">
   import { t } from '$lib/i18n';
   import { onDestroy } from 'svelte';
-  import { hasOpenModal } from '$lib/utils/modalDialog';
+  import { hasOpenModal, popupOwnsEscape } from '$lib/utils/modalDialog';
   import { isEditingField } from '$lib/utils/shortcuts';
   /**
    * ElevationView — integrated face-on view + editor for a single wall.
@@ -29,11 +29,15 @@
 
   let units = $derived($projectSettings.units);
 
+  // The store edits walls in place, so hand on a fresh copy: a $derived that returned the same
+  // object would look unchanged, and the length, heights and drawing below would keep showing the
+  // wall as it was before a Properties edit until the elevation was reopened.
   let wall = $derived.by(() => {
     const id = $elevationWallId;
     const f = $activeFloor;
     if (!id || !f) return null;
-    return f.walls.find((w) => w.id === id) ?? null;
+    const found = f.walls.find((w) => w.id === id);
+    return found ? { ...found } : null;
   });
 
   let wallIndex = $derived.by(() => {
@@ -145,13 +149,22 @@
         endDrag();
       }
       if (e.key === 'Escape') {
+        // A focused field or an open menu or panel takes Escape first (see keepFromPlan).
+        if (isEditingField(e.target) || popupOwnsEscape(e.target)) return;
         e.preventDefault();
         e.stopImmediatePropagation();
         backToPlan();
       }
     };
+    // Escape left to a field, menu or panel still stops short of the plan canvas:
+    // document bubbling runs before its window-level handler.
+    const keepFromPlan = (e: KeyboardEvent) => { if (e.key === 'Escape' && !hasOpenModal()) e.stopPropagation(); };
     window.addEventListener('keydown', onKey, true);
-    return () => window.removeEventListener('keydown', onKey, true);
+    document.addEventListener('keydown', keepFromPlan);
+    return () => {
+      window.removeEventListener('keydown', onKey, true);
+      document.removeEventListener('keydown', keepFromPlan);
+    };
   });
 
   // ── Canvas + geometry ─────────────────────────────────────────────
@@ -239,6 +252,11 @@
     const p = toWallCoords(e);
     if (!p) return;
     const hit = hitOpening(p.x, p.y);
+    // Cancelling the press also stops the browser moving focus, so take it as the plan canvas
+    // does. A properties field being edited then blurs, committing to the element it shows before
+    // the selection below changes (the hit test above used what was drawn), and stops keeping
+    // Escape from returning to the plan.
+    canvas?.focus({ preventScroll: true });
     if (hit) {
       // Global selection: the PropertiesPanel now shows this opening
       selectElement(hit.id);
@@ -523,12 +541,13 @@
       <span class="text-[11px] text-gray-400 max-lg:hidden">{$t('elevationView.help')}</span>
     </div>
 
-    <!-- Elevation canvas -->
+    <!-- Elevation canvas: focused only by pressing it (not a Tab stop), so it draws no focus ring -->
     <div class="flex-1 min-h-0 relative" bind:clientWidth={cw} bind:clientHeight={ch}>
       <canvas
         aria-label={$t('elevationView.canvas')}
         bind:this={canvas}
-        class="absolute inset-0 w-full h-full touch-none select-none"
+        tabindex="-1"
+        class="absolute inset-0 w-full h-full touch-none select-none outline-none"
         style="cursor: {cursor}"
         onpointerdown={onPointerDown}
         onpointermove={onPointerMove}

@@ -79,6 +79,8 @@ async function openWalkthrough(page: Page, pointerLock = false, locale = 'en') {
   await page.getByRole('button', { name: locale === 'pt' ? 'Importar JSON' : 'Import JSON', exact: true }).click();
   await (await chooser).setFiles(resolve('tests/fixtures/top-down-framing.openplan.json'));
   await page.getByRole('button', { name: '3D', exact: true }).click();
+  // The 3D tip opens once the viewer has started; it must be open before waiting for it to close.
+  await expect(page.locator('canvas[data-plan3d-canvas="true"]')).toBeVisible({ timeout: 60_000 });
   const hint = page.getByRole('button', { name: locale === 'pt' ? 'Entendi' : 'Got it', exact: true });
   await expect(hint).toBeHidden({ timeout: 15_000 });
   await page.waitForLoadState('networkidle');

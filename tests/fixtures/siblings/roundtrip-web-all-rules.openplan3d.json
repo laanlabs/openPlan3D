@@ -1,0 +1,997 @@
+{
+  "defaults" : {
+    "ceilingHeight" : 2.3999999999999999,
+    "exteriorWallThickness" : 0.20000000000000001,
+    "interiorWallThickness" : 0.12
+  },
+  "doors" : [
+    {
+      "category" : {
+        "door" : {
+
+        }
+      },
+      "dimensions" : [
+        0.94999999999999996,
+        2.1000000000000001,
+        0.20000000000000001
+      ],
+      "hingeLeft" : true,
+      "identifier" : "339a7c7f-6190-4fa2-b611-5eb1fa9157bc",
+      "opensInward" : true,
+      "parentIdentifier" : "359a7fa5-5f90-4c7c-b411-5b8bfc915ae2",
+      "story" : 0,
+      "style" : "single",
+      "transform" : [
+        -1,
+        0,
+        1.2246467991473532e-16,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -1.2246467991473532e-16,
+        0,
+        -1,
+        0,
+        6,
+        1.05,
+        8,
+        1
+      ]
+    }
+  ],
+  "floors" : [
+
+  ],
+  "objects" : [
+    {
+      "attributes" : {
+        "openlandscape3dKind" : "plant",
+        "openlandscape3dRole" : "proposed",
+        "plantId" : "berberis-thunbergii"
+      },
+      "category" : {
+        "bush_large" : {
+
+        }
+      },
+      "dimensions" : [
+        1.1991699632968005,
+        1.1064709226688385,
+        1.1991699632968005
+      ],
+      "identifier" : "752ad1f6-adee-49d5-a05a-d050fcca8fa7",
+      "story" : 0,
+      "transform" : [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        15,
+        0.55323546133441925,
+        9,
+        1
+      ]
+    },
+    {
+      "attributes" : {
+        "openlandscape3dKind" : "plant",
+        "openlandscape3dRole" : "proposed",
+        "plantId" : "abelia-grandiflora"
+      },
+      "category" : {
+        "bush_large" : {
+
+        }
+      },
+      "dimensions" : [
+        1.1991699632968005,
+        1.2134952031398099,
+        1.1991699632968005
+      ],
+      "identifier" : "762ad389-acee-4842-a15a-d1e3fbca8e14",
+      "story" : 0,
+      "transform" : [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        8,
+        0.60674760156990493,
+        16,
+        1
+      ]
+    },
+    {
+      "attributes" : {
+        "openlandscape3dKind" : "plant",
+        "openlandscape3dRole" : "proposed",
+        "plantId" : "ilex-glabra"
+      },
+      "category" : {
+        "bush_large" : {
+
+        }
+      },
+      "dimensions" : [
+        1.520242804709715,
+        1.5345680445527243,
+        1.520242804709715
+      ],
+      "identifier" : "732aced0-abee-46af-a25a-d376feca92cd",
+      "story" : 0,
+      "transform" : [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        15,
+        0.76728402227636217,
+        4,
+        1
+      ]
+    },
+    {
+      "attributes" : {
+        "openlandscape3dKind" : "plant",
+        "openlandscape3dRole" : "proposed",
+        "plantId" : "schizachyrium-scoparium"
+      },
+      "category" : {
+        "grass_large" : {
+
+        }
+      },
+      "dimensions" : [
+        0.46053642070645723,
+        0.74242236172689535,
+        0.46053642070645723
+      ],
+      "identifier" : "742ad063-aaee-451c-a35a-d509fdca913a",
+      "story" : 0,
+      "transform" : [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        3,
+        0.37121118086344768,
+        15,
+        1
+      ]
+    },
+    {
+      "attributes" : {
+        "openlandscape3dKind" : "plant",
+        "openlandscape3dRole" : "proposed",
+        "plantId" : "agastache-rupestris"
+      },
+      "category" : {
+        "flower_red" : {
+
+        }
+      },
+      "dimensions" : [
+        0.34491699632968004,
+        0.51404856094194296,
+        0.34491699632968004
+      ],
+      "identifier" : "812ae4da-b1ee-4021-ac5a-e334f0ca7cc3",
+      "story" : 0,
+      "transform" : [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        15,
+        0.25702428047097148,
+        15,
+        1
+      ]
+    },
+    {
+      "attributes" : {
+        "openlandscape3dKind" : "plant",
+        "openlandscape3dRole" : "proposed",
+        "plantId" : "acer-rubrum"
+      },
+      "category" : {
+        "tree_default" : {
+
+        }
+      },
+      "dimensions" : [
+        9.1041065912241539,
+        13.777368995082373,
+        9.1041065912241539
+      ],
+      "identifier" : "822ae66d-b0ee-4e8e-ad5a-e4c7efca7b30",
+      "story" : 0,
+      "transform" : [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        6,
+        6.8886844975411865,
+        9.5,
+        1
+      ]
+    },
+    {
+      "attributes" : {
+        "openlandscape3dKind" : "plant",
+        "openlandscape3dRole" : "proposed",
+        "plantId" : "acer-rubrum"
+      },
+      "category" : {
+        "tree_default" : {
+
+        }
+      },
+      "dimensions" : [
+        9.1041065912241539,
+        13.777368995082373,
+        9.1041065912241539
+      ],
+      "identifier" : "f327c6b9-aff1-4b92-b661-aeb766c2e7c0",
+      "story" : 0,
+      "transform" : [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        7.5,
+        6.8886844975411865,
+        10.5,
+        1
+      ]
+    },
+    {
+      "attributes" : {
+        "openlandscape3dKind" : "plant",
+        "openlandscape3dRole" : "proposed",
+        "plantId" : "ilex-glabra"
+      },
+      "category" : {
+        "bush_large" : {
+
+        }
+      },
+      "dimensions" : [
+        1.520242804709715,
+        1.5345680445527243,
+        1.520242804709715
+      ],
+      "identifier" : "f227c526-b0f1-4d25-b561-ad2467c2e953",
+      "story" : 0,
+      "transform" : [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        23,
+        0.76728402227636217,
+        10,
+        1
+      ]
+    },
+    {
+      "attributes" : {
+        "areaKind" : "patio",
+        "openlandscape3dKind" : "area",
+        "openlandscape3dRole" : "proposed"
+      },
+      "category" : {
+        "deck_patio" : {
+
+        }
+      },
+      "dimensions" : [
+        6,
+        0.14999999999999999,
+        4
+      ],
+      "identifier" : "7a2ad9d5-a8ee-41f6-a55a-d82ff7ca87c8",
+      "story" : 0,
+      "transform" : [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        15,
+        0.074999999999999997,
+        4,
+        1
+      ]
+    },
+    {
+      "attributes" : {
+        "openlandscape3dKind" : "object",
+        "openlandscape3dRole" : "proposed"
+      },
+      "category" : {
+        "shed" : {
+
+        }
+      },
+      "dimensions" : [
+        2,
+        2.2999999999999998,
+        2.5
+      ],
+      "identifier" : "f127c393-adf1-486c-b861-b1dd68c2eae6",
+      "story" : 0,
+      "transform" : [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        10,
+        1.1499999999999999,
+        -3,
+        1
+      ]
+    }
+  ],
+  "openings" : [
+
+  ],
+  "openlandscape3d" : {
+    "alternatives" : [
+
+    ],
+    "areas" : [
+      {
+        "elevation" : 0,
+        "id" : "7a2ad9d5-a8ee-41f6-a55a-d82ff7ca87c8",
+        "kind" : "patio",
+        "materialId" : "decomposed-granite",
+        "name" : "patio 1",
+        "polygon" : [
+          [
+            12,
+            2
+          ],
+          [
+            18,
+            2
+          ],
+          [
+            18,
+            6
+          ],
+          [
+            12,
+            6
+          ]
+        ]
+      },
+      {
+        "elevation" : 0,
+        "id" : "772ad51c-a7ee-4063-a65a-d9c2faca8c81",
+        "kind" : "bed",
+        "materialId" : "mulch-shredded-hardwood",
+        "name" : "bed 2",
+        "polygon" : [
+          [
+            1,
+            12
+          ],
+          [
+            6,
+            12
+          ],
+          [
+            6,
+            18
+          ],
+          [
+            1,
+            18
+          ]
+        ],
+        "sun" : "shade"
+      },
+      {
+        "elevation" : 0,
+        "id" : "782ad6af-a6ee-4ed0-a75a-db55f9ca8aee",
+        "kind" : "bed",
+        "materialId" : "mulch-shredded-hardwood",
+        "moisture" : "wet",
+        "name" : "bed 3",
+        "polygon" : [
+          [
+            12,
+            12
+          ],
+          [
+            18,
+            12
+          ],
+          [
+            18,
+            18
+          ],
+          [
+            12,
+            18
+          ]
+        ]
+      }
+    ],
+    "building" : null,
+    "captureSource" : "manual",
+    "catalogVersion" : "ol-plants@0.1",
+    "createdAt" : "2027-01-15T00:00:00Z",
+    "groups" : [
+
+    ],
+    "lines" : [
+
+    ],
+    "name" : "Web all rules",
+    "objects" : [
+      {
+        "catalogId" : "shed",
+        "depth" : 2.5,
+        "elevation" : 0,
+        "height" : 2.2999999999999998,
+        "id" : "f127c393-adf1-486c-b861-b1dd68c2eae6",
+        "rotation" : 0,
+        "status" : "proposed",
+        "width" : 2,
+        "x" : 10,
+        "y" : -3
+      }
+    ],
+    "observations" : [
+
+    ],
+    "overrides" : [
+
+    ],
+    "plants" : [
+      {
+        "id" : "752ad1f6-adee-49d5-a05a-d050fcca8fa7",
+        "installHeight" : 0.5,
+        "installSize" : "#3",
+        "installSpread" : 0.45000000000000001,
+        "plantedYear" : 0,
+        "plantId" : "berberis-thunbergii",
+        "seed" : 1414,
+        "status" : "proposed",
+        "x" : 15,
+        "y" : 9
+      },
+      {
+        "id" : "762ad389-acee-4842-a15a-d1e3fbca8e14",
+        "installHeight" : 0.5,
+        "installSize" : "#3",
+        "installSpread" : 0.45000000000000001,
+        "plantedYear" : 0,
+        "plantId" : "abelia-grandiflora",
+        "seed" : 1515,
+        "status" : "proposed",
+        "x" : 8,
+        "y" : 16
+      },
+      {
+        "id" : "732aced0-abee-46af-a25a-d376feca92cd",
+        "installHeight" : 0.5,
+        "installSize" : "#3",
+        "installSpread" : 0.45000000000000001,
+        "plantedYear" : 0,
+        "plantId" : "ilex-glabra",
+        "seed" : 1616,
+        "status" : "proposed",
+        "x" : 15,
+        "y" : 4
+      },
+      {
+        "id" : "742ad063-aaee-451c-a35a-d509fdca913a",
+        "installHeight" : 0.34999999999999998,
+        "installSize" : "#1",
+        "installSpread" : 0.29999999999999999,
+        "plantedYear" : 0,
+        "plantId" : "schizachyrium-scoparium",
+        "seed" : 1717,
+        "status" : "proposed",
+        "x" : 3,
+        "y" : 15
+      },
+      {
+        "id" : "812ae4da-b1ee-4021-ac5a-e334f0ca7cc3",
+        "installHeight" : 0.29999999999999999,
+        "installSize" : "#1",
+        "installSpread" : 0.27000000000000002,
+        "plantedYear" : 0,
+        "plantId" : "agastache-rupestris",
+        "seed" : 1818,
+        "status" : "proposed",
+        "x" : 15,
+        "y" : 15
+      },
+      {
+        "id" : "822ae66d-b0ee-4e8e-ad5a-e4c7efca7b30",
+        "installHeight" : 3.3999999999999999,
+        "installSize" : "BB-2in",
+        "installSpread" : 1.5,
+        "plantedYear" : 0,
+        "plantId" : "acer-rubrum",
+        "seed" : 1919,
+        "status" : "proposed",
+        "x" : 6,
+        "y" : 9.5
+      },
+      {
+        "id" : "f327c6b9-aff1-4b92-b661-aeb766c2e7c0",
+        "installHeight" : 3.3999999999999999,
+        "installSize" : "BB-2in",
+        "installSpread" : 1.5,
+        "plantedYear" : 0,
+        "plantId" : "acer-rubrum",
+        "seed" : 2020,
+        "status" : "proposed",
+        "x" : 7.5,
+        "y" : 10.5
+      },
+      {
+        "id" : "f227c526-b0f1-4d25-b561-ad2467c2e953",
+        "installHeight" : 0.5,
+        "installSize" : "#3",
+        "installSpread" : 0.45000000000000001,
+        "plantedYear" : 0,
+        "plantId" : "ilex-glabra",
+        "seed" : 2121,
+        "status" : "proposed",
+        "x" : 23,
+        "y" : 10
+      }
+    ],
+    "producer" : "ios",
+    "projectId" : "309a77c6-5c90-47c3-b711-6044f9915629",
+    "scenario" : {
+      "hour" : 14,
+      "month" : 6,
+      "year" : 5
+    },
+    "schema" : "openlandscape3d\/project@0.1",
+    "site" : {
+      "boundary" : [
+        [
+          0,
+          0
+        ],
+        [
+          20,
+          0
+        ],
+        [
+          20,
+          20
+        ],
+        [
+          0,
+          20
+        ]
+      ],
+      "frost" : {
+        "firstFall" : "10-20",
+        "lastSpring" : "04-20"
+      },
+      "hardiness" : {
+        "system" : "USDA",
+        "zone" : "5a"
+      },
+      "location" : {
+        "lat" : 42.530000000000001,
+        "lon" : -73.060000000000002,
+        "precision" : "coarse"
+      },
+      "moisture" : "medium",
+      "north" : [
+        0,
+        -1
+      ],
+      "regionId" : "us-northeast",
+      "soil" : "loam",
+      "sun" : "full",
+      "terrain" : {
+        "kind" : "flat"
+      }
+    },
+    "units" : "m",
+    "updatedAt" : "2027-01-15T00:00:00Z",
+    "verification" : {
+      "boundary" : false,
+      "measurements" : {
+
+      }
+    },
+    "web" : {
+      "ghostRings" : false,
+      "layers" : {
+
+      },
+      "plantingYear" : 2027,
+      "units" : "metric"
+    }
+  },
+  "openplanHandoffVersion" : 1,
+  "openplanPrepared" : true,
+  "planNotes" : "Created with OpenLandscape3D for iOS. Boundaries and measurements from GPS or AR are approximate — verify on site before construction.",
+  "sections" : [
+    {
+      "center" : [
+        6,
+        0,
+        5
+      ],
+      "displayName" : "House",
+      "label" : "livingRoom",
+      "story" : 0
+    }
+  ],
+  "stories" : [
+    {
+      "index" : 0,
+      "name" : "Ground Floor"
+    }
+  ],
+  "version" : 2,
+  "walls" : [
+    {
+      "category" : {
+        "wall" : {
+
+        }
+      },
+      "dimensions" : [
+        8,
+        2.7000000000000002,
+        0.20000000000000001
+      ],
+      "identifier" : "2f9a7633-5d90-4956-ba11-64fdf6915170",
+      "story" : 0,
+      "transform" : [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        6,
+        1.3500000000000001,
+        2,
+        1
+      ]
+    },
+    {
+      "category" : {
+        "wall" : {
+
+        }
+      },
+      "dimensions" : [
+        6,
+        2.7000000000000002,
+        0.20000000000000001
+      ],
+      "identifier" : "2e9a74a0-5e90-4ae9-b911-636af7915303",
+      "story" : 0,
+      "transform" : [
+        6.123233995736766e-17,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -1,
+        0,
+        6.123233995736766e-17,
+        0,
+        10,
+        1.3500000000000001,
+        5,
+        1
+      ]
+    },
+    {
+      "category" : {
+        "wall" : {
+
+        }
+      },
+      "dimensions" : [
+        8,
+        2.7000000000000002,
+        0.20000000000000001
+      ],
+      "identifier" : "359a7fa5-5f90-4c7c-b411-5b8bfc915ae2",
+      "story" : 0,
+      "transform" : [
+        -1,
+        0,
+        1.2246467991473532e-16,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -1.2246467991473532e-16,
+        0,
+        -1,
+        0,
+        6,
+        1.3500000000000001,
+        8,
+        1
+      ]
+    },
+    {
+      "category" : {
+        "wall" : {
+
+        }
+      },
+      "dimensions" : [
+        6,
+        2.7000000000000002,
+        0.20000000000000001
+      ],
+      "identifier" : "349a7e12-6090-4e0f-b311-59f8fd915c75",
+      "story" : 0,
+      "transform" : [
+        6.123233995736766e-17,
+        0,
+        -1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        6.123233995736766e-17,
+        0,
+        2,
+        1.3500000000000001,
+        5,
+        1
+      ]
+    }
+  ],
+  "windows" : [
+    {
+      "category" : {
+        "window" : {
+
+        }
+      },
+      "dimensions" : [
+        1.3999999999999999,
+        1.3,
+        0.20000000000000001
+      ],
+      "identifier" : "329a7aec-6290-4135-b511-5d1efb91594f",
+      "parentIdentifier" : "359a7fa5-5f90-4c7c-b411-5b8bfc915ae2",
+      "sillHeight" : 0.90000000000000002,
+      "story" : 0,
+      "style" : "fixed",
+      "transform" : [
+        -1,
+        0,
+        1.2246467991473532e-16,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -1.2246467991473532e-16,
+        0,
+        -1,
+        0,
+        8,
+        1.55,
+        8,
+        1
+      ]
+    },
+    {
+      "category" : {
+        "window" : {
+
+        }
+      },
+      "dimensions" : [
+        1.3999999999999999,
+        1.3,
+        0.20000000000000001
+      ],
+      "identifier" : "399a85f1-6390-42c8-b011-553f0091612e",
+      "parentIdentifier" : "2f9a7633-5d90-4956-ba11-64fdf6915170",
+      "sillHeight" : 0.90000000000000002,
+      "story" : 0,
+      "style" : "fixed",
+      "transform" : [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        4,
+        1.55,
+        2,
+        1
+      ]
+    },
+    {
+      "category" : {
+        "window" : {
+
+        }
+      },
+      "dimensions" : [
+        1.3999999999999999,
+        1.3,
+        0.20000000000000001
+      ],
+      "identifier" : "389a845e-6490-445b-af11-53ac019162c1",
+      "parentIdentifier" : "359a7fa5-5f90-4c7c-b411-5b8bfc915ae2",
+      "sillHeight" : 0.90000000000000002,
+      "story" : 0,
+      "style" : "fixed",
+      "transform" : [
+        -1,
+        0,
+        1.2246467991473532e-16,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -1.2246467991473532e-16,
+        0,
+        -1,
+        0,
+        4,
+        1.55,
+        8,
+        1
+      ]
+    },
+    {
+      "category" : {
+        "window" : {
+
+        }
+      },
+      "dimensions" : [
+        1.3999999999999999,
+        1.3,
+        0.20000000000000001
+      ],
+      "identifier" : "792ad842-a9ee-4389-a45a-d69cf8ca895b",
+      "parentIdentifier" : "2f9a7633-5d90-4956-ba11-64fdf6915170",
+      "sillHeight" : 0.90000000000000002,
+      "story" : 0,
+      "style" : "fixed",
+      "transform" : [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        8,
+        1.55,
+        2,
+        1
+      ]
+    }
+  ]
+}

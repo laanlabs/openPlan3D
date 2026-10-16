@@ -1,0 +1,37 @@
+{
+  "id": "two-room-demo",
+  "name": "Two-room demo",
+  "activeFloorId": "ground",
+  "createdAt": "2026-10-15T00:00:00.000Z",
+  "updatedAt": "2026-10-15T00:00:00.000Z",
+  "floors": [
+    {
+      "id": "ground", "name": "Ground Floor", "level": 0, "elevation": 0,
+      "walls": [
+        { "id": "w-north", "start": { "x": 0, "y": 0 }, "end": { "x": 800, "y": 0 }, "thickness": 20, "height": 270, "color": "#444444" },
+        { "id": "w-east", "start": { "x": 800, "y": 0 }, "end": { "x": 800, "y": 500 }, "thickness": 20, "height": 270, "color": "#444444" },
+        { "id": "w-south", "start": { "x": 800, "y": 500 }, "end": { "x": 0, "y": 500 }, "thickness": 20, "height": 270, "color": "#444444" },
+        { "id": "w-west", "start": { "x": 0, "y": 500 }, "end": { "x": 0, "y": 0 }, "thickness": 20, "height": 270, "color": "#444444" },
+        { "id": "w-partition", "start": { "x": 480, "y": 0 }, "end": { "x": 480, "y": 500 }, "thickness": 12, "height": 270, "color": "#444444" }
+      ],
+      "doors": [
+        { "id": "d-entry", "wallId": "w-south", "position": 0.75, "width": 90, "height": 210, "type": "single", "swingDirection": "left", "flipSide": false },
+        { "id": "d-bedroom", "wallId": "w-partition", "position": 0.8, "width": 80, "height": 210, "type": "single", "swingDirection": "right", "flipSide": true }
+      ],
+      "windows": [
+        { "id": "win-living", "wallId": "w-north", "position": 0.3, "width": 150, "height": 120, "sillHeight": 90, "type": "sliding" },
+        { "id": "win-bedroom", "wallId": "w-east", "position": 0.5, "width": 120, "height": 120, "sillHeight": 90, "type": "standard" }
+      ],
+      "furniture": [
+        { "id": "f-sofa", "catalogId": "sofa", "position": { "x": 240, "y": 120 }, "rotation": 0, "scale": { "x": 1, "y": 1, "z": 1 } },
+        { "id": "f-coffee-table", "catalogId": "coffee_table", "position": { "x": 240, "y": 260 }, "rotation": 0, "scale": { "x": 1, "y": 1, "z": 1 } },
+        { "id": "f-bed", "catalogId": "bed_queen", "position": { "x": 640, "y": 170 }, "rotation": 90, "scale": { "x": 1, "y": 1, "z": 1 } }
+      ],
+      "rooms": [
+        { "id": "r-living", "name": "Living Room", "walls": ["w-north", "w-west", "w-south", "w-partition"], "floorTexture": "light-oak", "area": 24, "roomType": "indoor" },
+        { "id": "r-bedroom", "name": "Bedroom", "walls": ["w-north", "w-east", "w-south", "w-partition"], "floorTexture": "carpet-beige", "area": 16, "roomType": "indoor" }
+      ],
+      "stairs": [], "columns": [], "guides": [], "measurements": [], "annotations": [], "textAnnotations": [], "groups": []
+    }
+  ]
+}

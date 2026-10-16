@@ -43,9 +43,16 @@ export function positionOnWall(p: Point, w: Wall): number {
   return Math.max(0.1, Math.min(0.9, ((p.x - w.start.x) * dx + (p.y - w.start.y) * dy) / len2));
 }
 
+/**
+ * Nearest wall within a 15px screen-space band of its painted body. Walls are
+ * ranked by the distance from the body edge (thickness/2 around the centreline,
+ * negative inside), so a click on a thick wall beats a nearer thin centreline.
+ */
 export function findWallAt(p: Point, walls: Wall[], zoom: number): Wall | null {
   const threshold = 15 / zoom;
+  let nearest: Wall | null = null, best = threshold;
   for (const w of walls) {
+    let distance: number;
     if (w.curvePoint) {
       // A quadratic stays inside the hull of its endpoints and control point.
       // Reject distant pointer positions before solving for the closest point.
@@ -55,12 +62,15 @@ export function findWallAt(p: Point, walls: Wall[], zoom: number): Wall | null {
           p.y < Math.min(w.start.y, w.end.y, w.curvePoint.y) - radius ||
           p.y > Math.max(w.start.y, w.end.y, w.curvePoint.y) + radius) continue;
       const projected = projectOntoWall(p, w);
-      if (projected && projected.distance < radius) return w;
+      if (!projected) continue;
+      distance = projected.distance;
     } else {
-      if (pointToSegmentDist(p, w.start, w.end) < threshold) return w;
+      distance = pointToSegmentDist(p, w.start, w.end);
     }
+    const edge = distance - w.thickness / 2;
+    if (edge < best) { nearest = w; best = edge; }
   }
-  return null;
+  return nearest;
 }
 
 export function findHandleAt(

@@ -204,3 +204,10 @@ describe('project service diagnostics', () => {
     expect(projectServiceMessage(original, 'pt')).toBe('Não foi possível ler este arquivo. Nenhum projeto foi importado.');
   });
 });
+
+it('translates the named tracing-image package error with its floor and format', () => {
+  const message = 'Invalid project package: The tracing image on floor “Mezzanine” is image/svg+xml, not an embedded PNG, JPEG or GIF image. Replace it or download a JSON backup to preserve it.';
+  expect(projectServiceMessage(message, 'en')).toBe(message);
+  expect(projectServiceMessage(message, 'pt')).toBe(`${translate('pt', 'projectService.packageInvalid')} ${translate('pt', 'projectService.packageTracingImageFormat', { floor: 'Mezzanine', format: 'image/svg+xml' })}`);
+  expect(projectServiceMessage(message, 'pt')).toContain('Mezzanine');
+});

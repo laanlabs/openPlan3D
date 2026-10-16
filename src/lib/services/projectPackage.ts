@@ -11,11 +11,19 @@ import { randomId } from '$lib/utils/randomId';
 type PackageState = { version: 1; furnitureCategoriesVersion?: 1; native: Record<string, any>; mapping: PackageMapping; assets: Record<string, string> };
 const docs = ['manifest.json', 'plan.json', 'web.json', 'baseline.json', 'mapping.json'];
 const reservedAssets = new Set(['plan.json', 'room.json', 'room.usdz', 'session.json', 'manifest.json', 'info.json', 'thumbnail.jpg']);
+const rasterTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/avif'];
+const embeddedRaster = /^data:image\/(?:png|jpeg|gif|webp|avif);base64,[A-Za-z0-9+/]*={0,2}$/;
 function validateLocalImages(project: Project) {
-  const images = [...project.floors.flatMap(f => f.backgroundImage ? [f.backgroundImage.dataUrl] : []), ...(project.customEntourage ?? []).map(item => item.dataUrl)];
-  if (images.some(url => !/^data:image\/(?:png|jpeg|gif|webp|avif);base64,[A-Za-z0-9+/]*={0,2}$/.test(url))) {
-    packageError('Project images must be embedded raster images. Download a JSON backup to preserve external image references.');
+  const images = (project.customEntourage ?? []).map(item => item.dataUrl);
+  for (const floor of project.floors) {
+    const url = floor.backgroundImage?.dataUrl;
+    if (!url) continue;
+    // An embedded image of another format names its floor and format; external references get the generic message below.
+    const type = /^data:([^;,]*)/.exec(url)?.[1];
+    if (type !== undefined && !rasterTypes.includes(type)) packageError(`The tracing image on floor “${floor.name}” is ${type || 'an unknown format'}, not an embedded PNG, JPEG or GIF image. Replace it or download a JSON backup to preserve it.`);
+    images.push(url);
   }
+  if (images.some(url => !embeddedRaster.test(url))) packageError('Project images must be embedded raster images. Download a JSON backup to preserve external image references.');
 }
 export const PACKAGE_NOTICE = 'Photos, item notes and costs travel with this package and can be edited in Item details. Retained native metadata stays available on iPhone. The iPhone preview simplifies web-only features; their original data stays in the package for return to the web.';
 const encode64 = (data: Uint8Array) => {
@@ -168,7 +176,10 @@ export function readProjectPackage(bytes: Uint8Array): { project: Project; asset
 }
 export async function prepareProjectPackage(file: File) {
   if (file.size > PACKAGE_LIMIT) packageError('The package exceeds 64 MiB.');
-  const bytes = new Uint8Array(await file.arrayBuffer()), preview = readProjectPackage(bytes);
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  // A JSON backup picked here (with the picker showing all files) opens elsewhere; a ZIP starts with "PK".
+  if (/^\s*[{[]/.test(new TextDecoder().decode(bytes.subarray(0, 64)))) packageError('This is a JSON file, not a project package. Open it with Restore library backup on the Projects page or with Import JSON in the editor.');
+  const preview = readProjectPackage(bytes);
   const restore = prepareLibraryRestore(JSON.stringify({ [preview.project.id]: JSON.stringify(preview.project) }), file.name, 'Imported copy');
   return { ...preview, restore: restore.restore, bytes };
 }

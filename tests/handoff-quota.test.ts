@@ -23,12 +23,19 @@ function request(body: string | ReadableStream<Uint8Array>, headers: Record<stri
 afterEach(() => vi.useRealTimers());
 
 it('reserves globally across concurrent instances without overshooting the last slot', async () => {
-  const store = new MemorySink(); store.seed({ uploads: 99 });
+  const store = new MemorySink(); store.seed({ uploads: HANDOFF_LIMITS.dailyUploads - 1 });
   const results = await Promise.allSettled([reserveHandoff(store, 50, now), reserveHandoff(store, 50, now)]);
   expect(results.filter(x => x.status === 'fulfilled')).toHaveLength(1);
-  expect(store.snapshot!.state.uploads).toBe(100);
+  expect(store.snapshot!.state.uploads).toBe(HANDOFF_LIMITS.dailyUploads);
   expect(store.snapshot!.state.bytes).toBe(50);
   expect((results.find(x => x.status === 'rejected') as PromiseRejectedResult).reason).toMatchObject({ status: 429 });
+});
+
+it('admits a day of the measured demand: 280 shares and 28 MB spread over the afternoon', async () => {
+  // October 9–15 2026: about 100 accepted plus 140–180 refused a day once the earlier 100 / 25 MiB cap filled.
+  const store = new MemorySink(); store.seed({});
+  for (let i = 0; i < 280; i++) await reserveHandoff(store, 100_000, now + i * 61_000);
+  expect(store.snapshot!.state).toMatchObject({ uploads: 280, bytes: 28_000_000 });
 });
 
 it('enforces aggregate bytes even when individual captures and upload count fit', async () => {
@@ -47,7 +54,7 @@ it('enforces the shared minute limit and resets only that limit in the next minu
 });
 
 it('resets both limits at the next UTC day without accepting a backwards clock', async () => {
-  const store = new MemorySink(); store.seed({ uploads: 100, bytes: HANDOFF_LIMITS.dailyBytes, minuteUploads: 10 });
+  const store = new MemorySink(); store.seed({ uploads: HANDOFF_LIMITS.dailyUploads, bytes: HANDOFF_LIMITS.dailyBytes, minuteUploads: HANDOFF_LIMITS.minuteUploads });
   await reserveHandoff(store, 13, now + 86_400_000);
   expect(store.snapshot!.state).toMatchObject({ uploads: 1, bytes: 13, minuteUploads: 1 });
   await expect(reserveHandoff(store, 13, now)).rejects.toThrow('clock mismatch');
@@ -89,6 +96,20 @@ it.each([
   const store = new MemorySink();
   await expect(uploadHandoff(request(body, headers), store, now)).rejects.toMatchObject({ status });
   expect(store.read).not.toHaveBeenCalled();
+});
+
+it('logs which stage refused a capture without quoting the capture', async () => {
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  const secret = 'Private client name';
+  const invalid = JSON.stringify({ openplanHandoffVersion: 1, walls: [{ dimensions: [-1, 2, 0], label: secret }] });
+  for (const [body, stage] of [[`{"name":"${secret}",`, 'json'], ['{"name":"x"}', 'format'], [invalid, 'validation']] as const) {
+    await expect(readCapture(request(body))).rejects.toMatchObject({ status: 422 });
+    const logged = JSON.parse(warn.mock.calls.at(-1)![0] as string);
+    expect(logged).toMatchObject({ event: 'handoff_invalid', stage });
+    expect(JSON.stringify(logged)).not.toContain(secret);
+  }
+  expect(JSON.parse(warn.mock.calls.at(-1)![0] as string).detail).toMatch(/^Invalid RoomPlan file: walls\[0\]/);
+  warn.mockRestore();
 });
 
 it('stops a stalled upload and cancels its reader', async () => {

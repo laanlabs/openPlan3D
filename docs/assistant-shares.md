@@ -70,6 +70,8 @@ compares both implementations on the shared package fixtures; regenerate
 `tests/fixtures/skills/*.json` with the Python scripts when either side
 changes on purpose.
 
+The connector only reads; for the write side (an assistant that creates or edits a plan file the person opens with Import JSON) use the [plan-authoring skill](skills/openplan3d-plan-authoring/SKILL.md).
+
 Claude: **Settings → Connectors → Add custom connector**, URL
 `https://app.openplan3d.com/mcp`, no authentication. Then ask for a summary,
 photo review or handoff and give the code and secret when prompted. The

@@ -1,0 +1,1064 @@
+{
+  "defaults" : {
+    "ceilingHeight" : 2.3999999999999999,
+    "exteriorWallThickness" : 0.20000000000000001,
+    "interiorWallThickness" : 0.12
+  },
+  "doors" : [
+    {
+      "category" : {
+        "door" : {
+
+        }
+      },
+      "dimensions" : [
+        0.85999999999999999,
+        2.0499999999999998,
+        0.12
+      ],
+      "hingeLeft" : true,
+      "identifier" : "0B0E0A00-0000-4000-8000-000000000006",
+      "opensInward" : true,
+      "parentIdentifier" : "0B0E0A00-0000-4000-8000-000000000003",
+      "story" : 0,
+      "style" : "single",
+      "transform" : [
+        -1,
+        0,
+        1.2246467991473532e-16,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -1.2246467991473532e-16,
+        0,
+        -1,
+        0,
+        0.89040000000000008,
+        1.0249999999999999,
+        3.4600000000000004,
+        1
+      ]
+    }
+  ],
+  "floors" : [
+
+  ],
+  "objects" : [
+    {
+      "attributes" : {
+        "openkitchen3dRole" : "proposed",
+        "sku" : "SB30"
+      },
+      "category" : {
+        "sink_k" : {
+
+        }
+      },
+      "dimensions" : [
+        0.76200000000000001,
+        0.876,
+        0.60999999999999999
+      ],
+      "identifier" : "0B0E0A00-0000-4000-8000-000000000007",
+      "story" : 0,
+      "transform" : [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -0,
+        0,
+        1,
+        0,
+        2.1000000000000001,
+        0.438,
+        0.30499999999999999,
+        1
+      ]
+    },
+    {
+      "attributes" : {
+        "openkitchen3dRole" : "proposed",
+        "sku" : "DW24"
+      },
+      "category" : {
+        "dishwasher" : {
+
+        }
+      },
+      "dimensions" : [
+        0.60999999999999999,
+        0.876,
+        0.60999999999999999
+      ],
+      "identifier" : "0B0E0A00-0000-4000-8000-000000000008",
+      "story" : 0,
+      "transform" : [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -0,
+        0,
+        1,
+        0,
+        2.786,
+        0.438,
+        0.30499999999999999,
+        1
+      ]
+    },
+    {
+      "attributes" : {
+        "openkitchen3dRole" : "proposed",
+        "sku" : "B48"
+      },
+      "category" : {
+        "base_cabinet" : {
+
+        }
+      },
+      "dimensions" : [
+        1.2190000000000001,
+        0.876,
+        0.60999999999999999
+      ],
+      "identifier" : "0B0E0A00-0000-4000-8000-000000000009",
+      "story" : 0,
+      "transform" : [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -0,
+        0,
+        1,
+        0,
+        0.60950000000000004,
+        0.438,
+        0.30499999999999999,
+        1
+      ]
+    },
+    {
+      "attributes" : {
+        "openkitchen3dRole" : "proposed",
+        "sku" : "B42"
+      },
+      "category" : {
+        "base_cabinet" : {
+
+        }
+      },
+      "dimensions" : [
+        1.0669999999999999,
+        0.876,
+        0.60999999999999999
+      ],
+      "identifier" : "0B0E0A00-0000-4000-8000-00000000000A",
+      "story" : 0,
+      "transform" : [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -0,
+        0,
+        1,
+        0,
+        3.6244999999999998,
+        0.438,
+        0.30499999999999999,
+        1
+      ]
+    },
+    {
+      "attributes" : {
+        "openkitchen3dRole" : "proposed",
+        "sku" : "B18"
+      },
+      "category" : {
+        "base_cabinet" : {
+
+        }
+      },
+      "dimensions" : [
+        0.45700000000000002,
+        0.876,
+        0.60999999999999999
+      ],
+      "identifier" : "0B0E0A00-0000-4000-8000-00000000000B",
+      "story" : 0,
+      "transform" : [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -0,
+        0,
+        1,
+        0,
+        1.4475,
+        0.438,
+        0.30499999999999999,
+        1
+      ]
+    },
+    {
+      "attributes" : {
+        "openkitchen3dRole" : "proposed",
+        "sku" : "B30"
+      },
+      "category" : {
+        "base_cabinet" : {
+
+        }
+      },
+      "dimensions" : [
+        0.76200000000000001,
+        0.876,
+        0.60999999999999999
+      ],
+      "identifier" : "0B0E0A00-0000-4000-8000-00000000000C",
+      "story" : 0,
+      "transform" : [
+        -1.6081226496766366e-16,
+        0,
+        -1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        -1.6081226496766366e-16,
+        0,
+        0.30499999999999999,
+        0.438,
+        1.038,
+        1
+      ]
+    },
+    {
+      "attributes" : {
+        "openkitchen3dRole" : "proposed",
+        "sku" : "RNG30"
+      },
+      "category" : {
+        "stove" : {
+
+        }
+      },
+      "dimensions" : [
+        0.76200000000000001,
+        0.91400000000000003,
+        0.66000000000000003
+      ],
+      "identifier" : "0B0E0A00-0000-4000-8000-00000000000D",
+      "story" : 0,
+      "transform" : [
+        6.123233995736766e-17,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -1,
+        0,
+        6.123233995736766e-17,
+        0,
+        3.8700000000000001,
+        0.45700000000000002,
+        1.7,
+        1
+      ]
+    },
+    {
+      "attributes" : {
+        "openkitchen3dRole" : "proposed",
+        "sku" : "B48"
+      },
+      "category" : {
+        "base_cabinet" : {
+
+        }
+      },
+      "dimensions" : [
+        1.2190000000000001,
+        0.876,
+        0.60999999999999999
+      ],
+      "identifier" : "0B0E0A00-0000-4000-8000-00000000000E",
+      "story" : 0,
+      "transform" : [
+        6.123233995736766e-17,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -1,
+        0,
+        6.123233995736766e-17,
+        0,
+        3.895,
+        0.438,
+        2.6905000000000001,
+        1
+      ]
+    },
+    {
+      "attributes" : {
+        "openkitchen3dRole" : "proposed",
+        "sku" : "B27"
+      },
+      "category" : {
+        "base_cabinet" : {
+
+        }
+      },
+      "dimensions" : [
+        0.68600000000000005,
+        0.876,
+        0.60999999999999999
+      ],
+      "identifier" : "0B0E0A00-0000-4000-8000-00000000000F",
+      "story" : 0,
+      "transform" : [
+        6.123233995736766e-17,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -1,
+        0,
+        6.123233995736766e-17,
+        0,
+        3.895,
+        0.438,
+        0.97599999999999998,
+        1
+      ]
+    },
+    {
+      "attributes" : {
+        "openkitchen3dRole" : "proposed",
+        "sku" : "W3630"
+      },
+      "category" : {
+        "wall_cabinet" : {
+
+        }
+      },
+      "dimensions" : [
+        0.91400000000000003,
+        0.76200000000000001,
+        0.30499999999999999
+      ],
+      "identifier" : "0B0E0A00-0000-4000-8000-000000000010",
+      "story" : 0,
+      "transform" : [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -0,
+        0,
+        1,
+        0,
+        0.60950000000000004,
+        1.7530000000000001,
+        0.1525,
+        1
+      ]
+    },
+    {
+      "attributes" : {
+        "openkitchen3dRole" : "proposed",
+        "sku" : "W3630"
+      },
+      "category" : {
+        "wall_cabinet" : {
+
+        }
+      },
+      "dimensions" : [
+        0.91400000000000003,
+        0.76200000000000001,
+        0.30499999999999999
+      ],
+      "identifier" : "0B0E0A00-0000-4000-8000-000000000011",
+      "story" : 0,
+      "transform" : [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -0,
+        0,
+        1,
+        0,
+        3.6244999999999998,
+        1.7530000000000001,
+        0.1525,
+        1
+      ]
+    },
+    {
+      "attributes" : {
+        "openkitchen3dRole" : "proposed",
+        "sku" : "W3630"
+      },
+      "category" : {
+        "wall_cabinet" : {
+
+        }
+      },
+      "dimensions" : [
+        0.91400000000000003,
+        0.76200000000000001,
+        0.30499999999999999
+      ],
+      "identifier" : "0B0E0A00-0000-4000-8000-000000000012",
+      "story" : 0,
+      "transform" : [
+        -1.6081226496766366e-16,
+        0,
+        -1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        -1.6081226496766366e-16,
+        0,
+        0.1525,
+        1.7530000000000001,
+        2.0285000000000002,
+        1
+      ]
+    },
+    {
+      "attributes" : {
+        "openkitchen3dRole" : "proposed",
+        "sku" : "W3030"
+      },
+      "category" : {
+        "wall_cabinet" : {
+
+        }
+      },
+      "dimensions" : [
+        0.76200000000000001,
+        0.76200000000000001,
+        0.30499999999999999
+      ],
+      "identifier" : "0B0E0A00-0000-4000-8000-000000000013",
+      "story" : 0,
+      "transform" : [
+        -1.6081226496766366e-16,
+        0,
+        -1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        -1.6081226496766366e-16,
+        0,
+        0.1525,
+        1.7530000000000001,
+        1.038,
+        1
+      ]
+    },
+    {
+      "attributes" : {
+        "openkitchen3dRole" : "proposed",
+        "sku" : "W2730"
+      },
+      "category" : {
+        "wall_cabinet" : {
+
+        }
+      },
+      "dimensions" : [
+        0.68600000000000005,
+        0.76200000000000001,
+        0.30499999999999999
+      ],
+      "identifier" : "0B0E0A00-0000-4000-8000-000000000014",
+      "story" : 0,
+      "transform" : [
+        6.123233995736766e-17,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -1,
+        0,
+        6.123233995736766e-17,
+        0,
+        4.0475000000000003,
+        1.7530000000000001,
+        0.97599999999999998,
+        1
+      ]
+    },
+    {
+      "attributes" : {
+        "openkitchen3dRole" : "proposed",
+        "sku" : "HD30"
+      },
+      "category" : {
+        "range_hood" : {
+
+        }
+      },
+      "dimensions" : [
+        0.76200000000000001,
+        0.45700000000000002,
+        0.50800000000000001
+      ],
+      "identifier" : "0B0E0A00-0000-4000-8000-000000000015",
+      "story" : 0,
+      "transform" : [
+        6.123233995736766e-17,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -1,
+        0,
+        6.123233995736766e-17,
+        0,
+        3.9460000000000002,
+        1.8285,
+        1.7,
+        1
+      ]
+    },
+    {
+      "attributes" : {
+        "openkitchen3dRole" : "proposed",
+        "sku" : "W3630"
+      },
+      "category" : {
+        "wall_cabinet" : {
+
+        }
+      },
+      "dimensions" : [
+        0.91400000000000003,
+        0.76200000000000001,
+        0.30499999999999999
+      ],
+      "identifier" : "0B0E0A00-0000-4000-8000-000000000016",
+      "story" : 0,
+      "transform" : [
+        6.123233995736766e-17,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -1,
+        0,
+        6.123233995736766e-17,
+        0,
+        4.0475000000000003,
+        1.7530000000000001,
+        2.6905000000000001,
+        1
+      ]
+    }
+  ],
+  "openings" : [
+
+  ],
+  "openkitchen3d" : {
+    "cabinets" : [
+      {
+        "depth" : 0.60999999999999999,
+        "elevation" : 0,
+        "family" : "base",
+        "finishId" : "sage",
+        "height" : 0.876,
+        "id" : "0B0E0A00-0000-4000-8000-000000000007",
+        "productId" : "generic-na-base-sb-876-610",
+        "sku" : "SB30",
+        "wallId" : "0B0E0A00-0000-4000-8000-000000000001",
+        "width" : 0.76200000000000001
+      },
+      {
+        "depth" : 0.60999999999999999,
+        "elevation" : 0,
+        "family" : "appliance",
+        "finishId" : "sage",
+        "height" : 0.876,
+        "id" : "0B0E0A00-0000-4000-8000-000000000008",
+        "productId" : "generic-appliances-na-dishwasher-dishwasher-built-in",
+        "sku" : "DW24",
+        "wallId" : "0B0E0A00-0000-4000-8000-000000000001",
+        "width" : 0.60999999999999999
+      },
+      {
+        "depth" : 0.60999999999999999,
+        "elevation" : 0,
+        "family" : "base",
+        "finishId" : "navy",
+        "height" : 0.876,
+        "id" : "0B0E0A00-0000-4000-8000-000000000009",
+        "productId" : "generic-na-base-b-876-610",
+        "sku" : "B48",
+        "wallId" : "0B0E0A00-0000-4000-8000-000000000001",
+        "width" : 1.2190000000000001
+      },
+      {
+        "depth" : 0.60999999999999999,
+        "elevation" : 0,
+        "family" : "base",
+        "finishId" : "sage",
+        "height" : 0.876,
+        "id" : "0B0E0A00-0000-4000-8000-00000000000A",
+        "productId" : "generic-na-base-b-876-610",
+        "sku" : "B42",
+        "wallId" : "0B0E0A00-0000-4000-8000-000000000001",
+        "width" : 1.0669999999999999
+      },
+      {
+        "depth" : 0.60999999999999999,
+        "elevation" : 0,
+        "family" : "base",
+        "finishId" : "sage",
+        "height" : 0.876,
+        "id" : "0B0E0A00-0000-4000-8000-00000000000B",
+        "productId" : "generic-na-base-b-876-610",
+        "sku" : "B18",
+        "wallId" : "0B0E0A00-0000-4000-8000-000000000001",
+        "width" : 0.45700000000000002
+      },
+      {
+        "depth" : 0.60999999999999999,
+        "elevation" : 0,
+        "family" : "base",
+        "finishId" : "sage",
+        "height" : 0.876,
+        "id" : "0B0E0A00-0000-4000-8000-00000000000C",
+        "productId" : "generic-na-base-b-876-610",
+        "sku" : "B30",
+        "wallId" : "0B0E0A00-0000-4000-8000-000000000004",
+        "width" : 0.76200000000000001
+      },
+      {
+        "depth" : 0.66000000000000003,
+        "elevation" : 0,
+        "family" : "appliance",
+        "finishId" : "stainless",
+        "height" : 0.91400000000000003,
+        "id" : "0B0E0A00-0000-4000-8000-00000000000D",
+        "productId" : "generic-appliances-na-range-freestanding\/slide-in-range",
+        "sku" : "RNG30",
+        "wallId" : "0B0E0A00-0000-4000-8000-000000000002",
+        "width" : 0.76200000000000001
+      },
+      {
+        "depth" : 0.60999999999999999,
+        "elevation" : 0,
+        "family" : "base",
+        "finishId" : "sage",
+        "height" : 0.876,
+        "id" : "0B0E0A00-0000-4000-8000-00000000000E",
+        "productId" : "generic-na-base-b-876-610",
+        "sku" : "B48",
+        "wallId" : "0B0E0A00-0000-4000-8000-000000000002",
+        "width" : 1.2190000000000001
+      },
+      {
+        "depth" : 0.60999999999999999,
+        "elevation" : 0,
+        "family" : "base",
+        "finishId" : "sage",
+        "height" : 0.876,
+        "id" : "0B0E0A00-0000-4000-8000-00000000000F",
+        "productId" : "generic-na-base-b-876-610",
+        "sku" : "B27",
+        "wallId" : "0B0E0A00-0000-4000-8000-000000000002",
+        "width" : 0.68600000000000005
+      },
+      {
+        "depth" : 0.30499999999999999,
+        "elevation" : 1.3720000000000001,
+        "family" : "wall",
+        "finishId" : "sage",
+        "height" : 0.76200000000000001,
+        "id" : "0B0E0A00-0000-4000-8000-000000000010",
+        "productId" : "generic-na-wall-w-762-305",
+        "sku" : "W3630",
+        "wallId" : "0B0E0A00-0000-4000-8000-000000000001",
+        "width" : 0.91400000000000003
+      },
+      {
+        "depth" : 0.30499999999999999,
+        "elevation" : 1.3720000000000001,
+        "family" : "wall",
+        "finishId" : "sage",
+        "height" : 0.76200000000000001,
+        "id" : "0B0E0A00-0000-4000-8000-000000000011",
+        "productId" : "generic-na-wall-w-762-305",
+        "sku" : "W3630",
+        "wallId" : "0B0E0A00-0000-4000-8000-000000000001",
+        "width" : 0.91400000000000003
+      },
+      {
+        "depth" : 0.30499999999999999,
+        "elevation" : 1.3720000000000001,
+        "family" : "wall",
+        "finishId" : "sage",
+        "height" : 0.76200000000000001,
+        "id" : "0B0E0A00-0000-4000-8000-000000000012",
+        "productId" : "generic-na-wall-w-762-305",
+        "sku" : "W3630",
+        "wallId" : "0B0E0A00-0000-4000-8000-000000000004",
+        "width" : 0.91400000000000003
+      },
+      {
+        "depth" : 0.30499999999999999,
+        "elevation" : 1.3720000000000001,
+        "family" : "wall",
+        "finishId" : "sage",
+        "height" : 0.76200000000000001,
+        "id" : "0B0E0A00-0000-4000-8000-000000000013",
+        "productId" : "generic-na-wall-w-762-305",
+        "sku" : "W3030",
+        "wallId" : "0B0E0A00-0000-4000-8000-000000000004",
+        "width" : 0.76200000000000001
+      },
+      {
+        "depth" : 0.30499999999999999,
+        "elevation" : 1.3720000000000001,
+        "family" : "wall",
+        "finishId" : "sage",
+        "height" : 0.76200000000000001,
+        "id" : "0B0E0A00-0000-4000-8000-000000000014",
+        "productId" : "generic-na-wall-w-762-305",
+        "sku" : "W2730",
+        "wallId" : "0B0E0A00-0000-4000-8000-000000000002",
+        "width" : 0.68600000000000005
+      },
+      {
+        "depth" : 0.50800000000000001,
+        "elevation" : 1.6000000000000001,
+        "family" : "wall",
+        "finishId" : "sage",
+        "height" : 0.45700000000000002,
+        "id" : "0B0E0A00-0000-4000-8000-000000000015",
+        "productId" : "generic-appliances-na-range-hood-range-hood",
+        "sku" : "HD30",
+        "wallId" : "0B0E0A00-0000-4000-8000-000000000002",
+        "width" : 0.76200000000000001
+      },
+      {
+        "depth" : 0.30499999999999999,
+        "elevation" : 1.3720000000000001,
+        "family" : "wall",
+        "finishId" : "sage",
+        "height" : 0.76200000000000001,
+        "id" : "0B0E0A00-0000-4000-8000-000000000016",
+        "productId" : "generic-na-wall-w-762-305",
+        "sku" : "W3630",
+        "wallId" : "0B0E0A00-0000-4000-8000-000000000002",
+        "width" : 0.91400000000000003
+      }
+    ],
+    "captureSource" : "web",
+    "catalogVersion" : "generic-starter@0.1",
+    "createdAt" : "2026-10-04T00:00:00Z",
+    "name" : "Web NA U-kitchen",
+    "producer" : "ios",
+    "projectId" : "0B0E0000-0000-4000-8000-00000000000A",
+    "roomplanAdapterVersion" : 1,
+    "schema" : "openkitchen3d\/ios-project@0.1",
+    "units" : "m",
+    "updatedAt" : "2026-10-04T00:00:00Z",
+    "verification" : {
+      "ceilingHeight" : false,
+      "walls" : {
+        "0B0E0A00-0000-4000-8000-000000000001" : true,
+        "0B0E0A00-0000-4000-8000-000000000002" : false,
+        "0B0E0A00-0000-4000-8000-000000000003" : true,
+        "0B0E0A00-0000-4000-8000-000000000004" : false
+      }
+    },
+    "web" : {
+      "cabinets" : {
+        "0B0E0A00-0000-4000-8000-00000000000B" : {
+          "configuration" : {
+            "hinge" : "left"
+          }
+        },
+        "0B0E0A00-0000-4000-8000-000000000008" : {
+          "configuration" : {
+            "hinge" : "right"
+          },
+          "finishIds" : {
+            "handle" : "bar-black"
+          }
+        }
+      },
+      "catalogId" : "na",
+      "countertop" : {
+        "overhang" : 25,
+        "thickness" : 30
+      },
+      "currency" : "USD",
+      "style" : {
+        "carcass" : "white",
+        "countertop" : "butcher-block",
+        "front" : "sage",
+        "handle" : "knob-brass"
+      },
+      "units" : "imperial"
+    }
+  },
+  "openplanHandoffVersion" : 1,
+  "openplanPrepared" : true,
+  "planNotes" : "Created with OpenKitchen3D for iOS. Scan geometry is a starting point — field-verify before ordering.",
+  "sections" : [
+    {
+      "ceilingHeight" : 2.3999999999999999,
+      "center" : [
+        2.0999999999999996,
+        0,
+        1.7
+      ],
+      "displayName" : "Web NA U-kitchen",
+      "label" : "kitchen",
+      "story" : 0
+    }
+  ],
+  "stories" : [
+    {
+      "index" : 0,
+      "name" : "Ground Floor"
+    }
+  ],
+  "version" : 2,
+  "walls" : [
+    {
+      "category" : {
+        "wall" : {
+
+        }
+      },
+      "dimensions" : [
+        4.3200000000000003,
+        2.3999999999999999,
+        0.12
+      ],
+      "identifier" : "0B0E0A00-0000-4000-8000-000000000001",
+      "story" : 0,
+      "transform" : [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -0,
+        0,
+        1,
+        0,
+        2.1000000000000001,
+        1.2,
+        -0.059999999999999998,
+        1
+      ]
+    },
+    {
+      "category" : {
+        "wall" : {
+
+        }
+      },
+      "dimensions" : [
+        3.52,
+        2.3999999999999999,
+        0.12
+      ],
+      "identifier" : "0B0E0A00-0000-4000-8000-000000000002",
+      "story" : 0,
+      "transform" : [
+        6.123233995736766e-17,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -1,
+        0,
+        6.123233995736766e-17,
+        0,
+        4.2599999999999998,
+        1.2,
+        1.7,
+        1
+      ]
+    },
+    {
+      "category" : {
+        "wall" : {
+
+        }
+      },
+      "dimensions" : [
+        4.3200000000000003,
+        2.3999999999999999,
+        0.12
+      ],
+      "identifier" : "0B0E0A00-0000-4000-8000-000000000003",
+      "story" : 0,
+      "transform" : [
+        -1,
+        0,
+        1.2246467991473532e-16,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -1.2246467991473532e-16,
+        0,
+        -1,
+        0,
+        2.0999999999999996,
+        1.2,
+        3.46,
+        1
+      ]
+    },
+    {
+      "category" : {
+        "wall" : {
+
+        }
+      },
+      "dimensions" : [
+        3.52,
+        2.3999999999999999,
+        0.12
+      ],
+      "identifier" : "0B0E0A00-0000-4000-8000-000000000004",
+      "story" : 0,
+      "transform" : [
+        6.123233995736766e-17,
+        0,
+        -1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        6.123233995736766e-17,
+        0,
+        -0.059999999999999998,
+        1.2,
+        1.7,
+        1
+      ]
+    }
+  ],
+  "windows" : [
+    {
+      "category" : {
+        "window" : {
+
+        }
+      },
+      "dimensions" : [
+        1.2,
+        1.1499999999999999,
+        0.12
+      ],
+      "identifier" : "0B0E0A00-0000-4000-8000-000000000005",
+      "parentIdentifier" : "0B0E0A00-0000-4000-8000-000000000001",
+      "sillHeight" : 1.05,
+      "story" : 0,
+      "style" : "fixed",
+      "transform" : [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -0,
+        0,
+        1,
+        0,
+        2.1000000000000001,
+        1.625,
+        -0.059999999999999998,
+        1
+      ]
+    }
+  ]
+}

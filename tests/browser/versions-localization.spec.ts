@@ -92,7 +92,7 @@ test('Portuguese history confirmations preserve cancellation and restore the sel
   await expect(entry).toBeVisible();
   const before = await storedRecords(page, 'history');
   const cancelRestore = page.waitForEvent('dialog').then(async confirmation => {
-    expect(confirmation.message()).toBe('Restaurar esta versão? As alterações atuais não salvas serão perdidas.');
+    expect(confirmation.message()).toBe('Restaurar esta versão? A versão atual é mantida no Histórico de versões.');
     await confirmation.dismiss();
   });
   await entry.getByRole('button', { name: 'Restaurar', exact: true }).click();

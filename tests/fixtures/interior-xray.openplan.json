@@ -1,0 +1,49 @@
+{
+  "id": "qa-interior-xray",
+  "name": "QA Interior X-ray",
+  "floors": [
+    {
+      "id": "xray-floor-0",
+      "name": "X-ray Floor 0",
+      "level": 0,
+      "walls": [
+        { "id": "xray-wall-n", "start": { "x": -1500, "y": -1500 }, "end": { "x": 1500, "y": -1500 }, "thickness": 20, "height": 280, "color": "#cccccc" },
+        { "id": "xray-wall-e", "start": { "x": 1500, "y": -1500 }, "end": { "x": 1500, "y": 1500 }, "thickness": 20, "height": 280, "color": "#cccccc" },
+        { "id": "xray-wall-s", "start": { "x": 1500, "y": 1500 }, "end": { "x": -1500, "y": 1500 }, "thickness": 20, "height": 280, "color": "#cccccc" },
+        { "id": "xray-wall-w", "start": { "x": -1500, "y": 1500 }, "end": { "x": -1500, "y": -1500 }, "thickness": 20, "height": 280, "color": "#cccccc" }
+      ],
+      "rooms": [
+        {
+          "id": "xray-room",
+          "name": "X-ray Room",
+          "walls": ["xray-wall-n", "xray-wall-e", "xray-wall-s", "xray-wall-w"],
+          "floorTexture": "none",
+          "color": "#e5e7eb",
+          "area": 900
+        }
+      ],
+      "doors": [],
+      "windows": [
+        { "id": "xray-window-n", "wallId": "xray-wall-n", "position": 0.5, "width": 400, "height": 200, "sillHeight": 50, "type": "fixed" }
+      ],
+      "furniture": [],
+      "stairs": [
+        { "id": "xray-stairs", "position": { "x": -1000, "y": 1000 }, "rotation": 0, "width": 120, "depth": 400, "riserCount": 15, "direction": "up", "stairType": "straight" }
+      ],
+      "columns": [
+        { "id": "xray-probe-outside", "position": { "x": 1800, "y": -200 }, "rotation": 0, "shape": "square", "diameter": 300, "height": 200, "color": "#ff00ff" },
+        { "id": "xray-balance-outside", "position": { "x": -1800, "y": -200 }, "rotation": 0, "shape": "square", "diameter": 300, "height": 200, "color": "#cccccc" },
+        { "id": "xray-probe-inside", "position": { "x": 600, "y": 450 }, "rotation": 0, "shape": "round", "diameter": 100, "height": 200, "color": "#00ff00" }
+      ],
+      "guides": [],
+      "measurements": [],
+      "annotations": [],
+      "textAnnotations": [],
+      "groups": [],
+      "elevation": 0
+    }
+  ],
+  "activeFloorId": "xray-floor-0",
+  "createdAt": "2026-10-16T00:00:00.000Z",
+  "updatedAt": "2026-10-16T00:00:00.000Z"
+}

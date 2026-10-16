@@ -1,22 +1,44 @@
 # OpenPlan3D status
 
-Last verified: **September 13, 2026, 12:50 EDT**.
+Last verified: **October 16, 2026** (local unit suite, type check, build and
+chromium browser runs on `fix/editor-defects-3`; full three-engine browser CI on
+PRs #107–#112; production rollout and CORS preflight checked; see below).
 
-## Work paused by user
+## Current delivery — October 16
 
-Implementation and validation are paused at the user's request until access to
-the Asta 6 model is restored. The overall `NEXT.md` goal remains active and is
-not marked complete. No build, test, browser, or native QA job is running.
+All October 15–16 web work is **merged and live**. The owner merged the stack
+in order at 13:16 UTC: #107 (`318575c`), #108 (`86373ba`), #109 (`d40e729`),
+#110 (`9111859`) and #112 (`7a10d82`). Each merge got its own App Hosting
+rollout, and all five reported success. The live app serves build
+`1792156652723`, and its bundle contains strings from both #107 and #112.
+
+| PR | Content |
+| --- | --- |
+| #107 | Sibling-planner interchange, handoff CORS, issues #102, #104 and #106 |
+| #108 | Join stitched scans at a shared door (#103) |
+| #109 | Six editor defects |
+| #110 | Fifteen bug-hunt defects |
+| #112 | Eighteen more hunt defects, thirteen review fixes, the six problems in the issue #101 comment |
+
+Post-deploy check: `OPTIONS https://app.openplan3d.com/api/handoffs` from
+`https://app.openlandscape3d.com` returns **204** with the origin echoed back and
+the CORS headers. A foreign origin gets no CORS grant. Issues #101–#104 and
+#106 closed on merge.
+
+PR #111, an outside contributor's Docker image built in CI, is a feature
+awaiting the owner's review. It also relaxes the dev-dependency audit gate.
 
 ## Goal and overall state
 
 **Active goal: keep working on all outstanding issues in `NEXT.md`.**
 
-The goal is not complete. Recent fixes are committed and pushed, but broader fidelity work,
-physical-device testing, and release/cloud gates remain open.
+The goal is not complete. The GitHub issues that are bugs (#104, #106) and the
+documentation and stitching requests (#101–#103) are fixed, merged, deployed
+and closed. #105 (publish the iOS repository) and #30 (billing budgets, the
+Storage rules cutover, native distribution) need the owner. Broader fidelity
+work, physical-device testing, and release/cloud gates remain open.
 
-Web PR #95 has merged into `main` as `4bdc00d`; its development branch was
-removed from the remote and local checkout.
+Web `main` is at `7a10d82` (the merge of #112).
 
 This is the concise, maintained status page. Update it as implementation,
 validation, blockers, or priorities change during the goal. Keep the full scope
@@ -29,17 +51,33 @@ Remote state was checked when preparing this report.
 
 | Repository | Branch | Latest implementation checkpoint | Delivery |
 | --- | --- | --- | --- |
-| Web app: `openPlan3D` | `main` | `4bdc00d` — merged PR #95, including interior area comparison | Committed, pushed and merged; [PR #95](https://github.com/laanlabs/openPlan3D/pull/95) is merged |
-| Native app: `openplan3d-ios` | `codex/local-floorplan-render` | `bdaad71` — area convention baseline | Committed and pushed |
-| Website: `openplan3d-www` | `main` | `4802b01` — WebP image delivery and CDN caching | Committed and pushed; local checkout matches remote `main` |
-
-All three working trees are clean and match their remotes at this pause. The web
-development branch was removed after merge. Native app work remains on its own
-development branch. Pushing the
-website changes does not, by itself, verify a production deployment.
+| Web app: `openPlan3D` | `main` | `7a10d82` — merge of #112, after #107–#110 | **Merged and live** (App Hosting rollouts succeeded October 16) |
+| Native app: `openplan3d-ios` | `marketing/youtube-shorts-drawing` | `f2c6ea1` — marketing Shorts; no native code change in this batch | Clean checkout; the earlier `codex/local-floorplan-render` work (`bdaad71`) is unchanged |
+| Website: `openplan3d-www` | `main` | `dfdb9ec` — lists OpenLandscape3D, OpenKitchen3D and OpenCatio3D, with an FAQ entry on the exchange | **Pushed and live** on openplan3d.com |
 
 ## Work completed with scoped verification
 
+- **Editor defects (October 16, PRs #109, #110, #112):** six small editor
+  defects; fifteen from an adversarial bug hunt; eighteen more from the same
+  hunt after two-verifier checks, then thirteen fixes from a seven-reviewer pass
+  over them (3D viewer materials, colour and framing, snapping, dialogs and
+  Escape, exports, blocked storage, room outlines with attached rooms, history
+  and selection). Unit- and browser-tested; deployed October 16.
+- **Issue #101 comment (October 16, PR #112):** the six problems an end user
+  listed were reproduced against the version live then and fixed where still
+  wrong: Duplicate dropping a queued save, exports ignoring hidden layers and
+  dimensions, Print Layout cropping notes and stairs, no persistent-storage
+  request or backup reminder, and JSON backups the library could not restore.
+- **Sibling planner interchange (October 15):** export of the family's
+  prepared RoomPlan JSON and `#/import/v1/` transfer links; the OpenKitchen3D /
+  OpenLandscape3D / OpenCatio3D blocks, object attributes, defaults and notes
+  survive import, save and re-export, verified against each sibling's real
+  fixtures; CORS on `/api/handoffs` for their "Open in OpenPlan3D" buttons.
+  Unit-tested only; not deployed.
+- **Issues #103, #104, #106 (October 15):** RoomPlan scans can be added to the
+  open plan, endpoint dragging no longer jumps with wall length, and plan
+  exports follow Measure walls. **Issues #101 and #102:** user guide and
+  plan-authoring skill.
 - **Website:** stronger links to the [OpenPlan3D App Store listing](https://apps.apple.com/us/app/openplan3d/id6759076170).
 - **Furniture reflection:** actual local-axis mirroring, unchanged rotation,
   duplication, native glyph/SceneKit rendering, SVG export, neutral-export face
@@ -64,6 +102,8 @@ website changes does not, by itself, verify a production deployment.
 
 | Check | Evidence and limits |
 | --- | --- |
+| Full web unit suite, October 16 (local) | **1,577 passed in 163 files** on `fix/editor-defects-3` (#112) with all its review and issue #101 fixes; `npm run check`: 0 errors, 0 warnings; production build passed. Chromium browser runs on that branch: every new or changed spec and the specs that depend on the changed code (about 170 spec files over three rounds), all passing after two fixes found by these runs; the elevation, storage-note, blocked-storage, save-conflict and library specs also in Firefox and WebKit. Full three-engine CI runs on the PR. PRs #107–#110: all 18 browser shards (Chromium, Firefox, WebKit) and both benchmark profiles passed in CI. |
+| Full web unit suite, October 15 (local) | **1,325 passed in 134 files**, zero failures, on the uncommitted `fix/sibling-compat-and-open-issues` tree after the adversarial-review fixes, including the nine new regression files (147 tests). `npm run check`: 0 errors, 0 warnings. Production build: passed. Chromium browser subset on that build: 20 related specs (67 tests) passed before the review fixes and the 11 specs (38 tests) most affected passed again after them. Sibling parity suites (6/22/4) and the cross-planner scratch harness (4 per planner) pass. Firefox, WebKit, full browser CI and devices have not run on this tree. |
 | Full native simulator suite | **265 passed, two optional integration skips, zero failures** on `2fc1dd9`, including the height properties UI source. Session `64276` exited 0; XCTest 130.573 seconds. |
 | Full native Catalyst suite | **265 passed, two optional integration skips, zero failures** on `8fdd1bf`. Session `25783` exited 0; XCTest 142.046 seconds. |
 | Later native package-merger regression | **Passed**, exit 0, 1.086 seconds, on `72906c0`. This is a focused regression, not a newer full native suite. |
@@ -157,15 +197,19 @@ qualifying the repair in the original failing environment.
 
 ## Next priorities
 
-1. Continue furniture fidelity and height editing usability; complete physical
+1. Commit and deploy `fix/sibling-compat-and-open-issues` (web and website);
+   then verify the live `OPTIONS /api/handoffs` preflight and a real handoff
+   from OpenLandscape3D and OpenCatio3D, run full browser CI, and decide
+   whether the native package should carry `project.interchange`.
+2. Continue furniture fidelity and height editing usability; complete physical
    iPhone/iPad handoff when a device is available. The Catalyst UI/package
    preservation check is complete, with its actual export retained as a fixture.
-2. Continue the nested-room Undo investigation. New state coverage verifies
+3. Continue the nested-room Undo investigation. New state coverage verifies
    grouped drag preview → saved edit → repeated Undo/Redo for saved and detected
    rooms: all 16 history/resolution/nesting tests passed. This excludes stale
    preview metadata for that sequence; browser event/draw ordering remains
    unproven and the original intermittent failure has no established root cause.
-3. Continue area alignment: Area Summary now shows a separate interior total
+4. Continue area alignment: Area Summary now shows a separate interior total
    and explicitly describes the existing centerline breakdown. The new wall-
    footprint calculation matches native's 10.64 m² rectangle baseline; 18
    geometry tests and all three localized browser workflows passed, as did
@@ -195,6 +239,7 @@ evidence, but there is still software work available; the overall goal is active
 ## Supporting records
 
 - [Detailed backlog and chronological evidence](NEXT.md)
+- [Sibling interchange, CORS and issues #101–#104/#106](docs/reviews/2026-10-15-sibling-interchange-and-issues.md)
 - [Furniture reflection implementation and verification](docs/reviews/2026-09-12-furniture-reflection.md)
 - [Project package contract](docs/project-package-v1.md)
 - [Local custom-model work](docs/reviews/2026-09-12-local-model-import.md)

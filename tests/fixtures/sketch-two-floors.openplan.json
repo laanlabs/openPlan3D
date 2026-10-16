@@ -1,0 +1,358 @@
+{
+  "id": "fts6gdcm",
+  "name": "Our house - shell",
+  "floors": [
+    {
+      "id": "9wo8eqfb",
+      "name": "Ground Floor",
+      "level": 0,
+      "walls": [
+        {
+          "id": "z3otxv7l",
+          "start": {
+            "x": 0,
+            "y": 0
+          },
+          "end": {
+            "x": 1180,
+            "y": 0
+          },
+          "thickness": 15,
+          "height": 280,
+          "startHeight": 280,
+          "endHeight": 280,
+          "color": "#444444"
+        },
+        {
+          "id": "emul92vy",
+          "start": {
+            "x": 1180,
+            "y": 0
+          },
+          "end": {
+            "x": 1180,
+            "y": 790
+          },
+          "thickness": 15,
+          "height": 280,
+          "startHeight": 280,
+          "endHeight": 280,
+          "color": "#444444"
+        },
+        {
+          "id": "p3j4vyw4",
+          "start": {
+            "x": 1180,
+            "y": 790
+          },
+          "end": {
+            "x": 0,
+            "y": 790
+          },
+          "thickness": 15,
+          "height": 280,
+          "startHeight": 280,
+          "endHeight": 280,
+          "color": "#444444"
+        },
+        {
+          "id": "5282ihdc",
+          "start": {
+            "x": 0,
+            "y": 790
+          },
+          "end": {
+            "x": 0,
+            "y": 0
+          },
+          "thickness": 15,
+          "height": 280,
+          "startHeight": 280,
+          "endHeight": 280,
+          "color": "#444444"
+        },
+        {
+          "id": "vmhpv9tt",
+          "start": {
+            "x": 610,
+            "y": 0
+          },
+          "end": {
+            "x": 610,
+            "y": 790
+          },
+          "thickness": 15,
+          "height": 280,
+          "startHeight": 280,
+          "endHeight": 280,
+          "color": "#444444"
+        }
+      ],
+      "rooms": [
+        {
+          "id": "room-1-1790604300000",
+          "name": "Living room",
+          "walls": [
+            "z3otxv7l",
+            "vmhpv9tt",
+            "p3j4vyw4",
+            "5282ihdc"
+          ],
+          "floorTexture": "hardwood",
+          "area": 48.19
+        },
+        {
+          "id": "room-2-1790604300000",
+          "name": "Kitchen",
+          "walls": [
+            "z3otxv7l",
+            "emul92vy",
+            "p3j4vyw4",
+            "vmhpv9tt"
+          ],
+          "floorTexture": "hardwood",
+          "area": 45.03
+        }
+      ],
+      "doors": [
+        {
+          "id": "668sj0nq",
+          "wallId": "p3j4vyw4",
+          "position": 0.25,
+          "width": 90,
+          "height": 210,
+          "type": "single",
+          "swingDirection": "left",
+          "flipSide": false
+        },
+        {
+          "id": "vyuu1znd",
+          "wallId": "vmhpv9tt",
+          "position": 0.5,
+          "width": 100,
+          "height": 210,
+          "type": "opening",
+          "swingDirection": "left",
+          "flipSide": false
+        },
+        {
+          "id": "dtscrqms",
+          "wallId": "z3otxv7l",
+          "position": 0.75,
+          "width": 180,
+          "height": 210,
+          "type": "sliding",
+          "swingDirection": "left",
+          "flipSide": false
+        }
+      ],
+      "windows": [
+        {
+          "id": "mffflnp8",
+          "wallId": "z3otxv7l",
+          "position": 0.25,
+          "width": 120,
+          "height": 120,
+          "sillHeight": 90,
+          "type": "standard"
+        },
+        {
+          "id": "wj246sz2",
+          "wallId": "emul92vy",
+          "position": 0.5,
+          "width": 80,
+          "height": 130,
+          "sillHeight": 90,
+          "type": "casement"
+        },
+        {
+          "id": "9yr16kax",
+          "wallId": "5282ihdc",
+          "position": 0.5,
+          "width": 120,
+          "height": 120,
+          "sillHeight": 90,
+          "type": "standard"
+        }
+      ],
+      "furniture": [],
+      "stairs": [
+        {
+          "id": "l9486tov",
+          "position": {
+            "x": 900,
+            "y": 600
+          },
+          "rotation": 0,
+          "width": 90,
+          "depth": 300,
+          "riserCount": 16,
+          "direction": "up",
+          "stairType": "l-shaped"
+        }
+      ],
+      "columns": [],
+      "guides": [],
+      "measurements": [
+        {
+          "id": "6chua2jd",
+          "x1": 0,
+          "y1": -60,
+          "x2": 1180,
+          "y2": -60
+        }
+      ],
+      "annotations": [
+        {
+          "id": "uhl9z1fs",
+          "x1": 0,
+          "y1": 850,
+          "x2": 610,
+          "y2": 850,
+          "offset": 40,
+          "label": "approx 6 m"
+        }
+      ],
+      "textAnnotations": [
+        {
+          "id": "0o89yzit",
+          "x": 300,
+          "y": 400,
+          "text": "Check ceiling height",
+          "fontSize": 16,
+          "color": "#1e293b",
+          "rotation": 0
+        },
+        {
+          "id": "2fsnodbh",
+          "x": 900,
+          "y": 200,
+          "text": "Fireplace ~ 1.5 m",
+          "fontSize": 22,
+          "color": "#b91c1c",
+          "rotation": 15
+        }
+      ],
+      "groups": []
+    },
+    {
+      "id": "jh60kedg",
+      "name": "Floor 1",
+      "level": 1,
+      "walls": [
+        {
+          "id": "7jjx4ub8",
+          "start": {
+            "x": 0,
+            "y": 0
+          },
+          "end": {
+            "x": 1100,
+            "y": 0
+          },
+          "thickness": 15,
+          "height": 280,
+          "startHeight": 280,
+          "endHeight": 280,
+          "color": "#444444"
+        },
+        {
+          "id": "boqfatd8",
+          "start": {
+            "x": 1180,
+            "y": 0
+          },
+          "end": {
+            "x": 1180,
+            "y": 790
+          },
+          "thickness": 15,
+          "height": 280,
+          "startHeight": 280,
+          "endHeight": 280,
+          "color": "#444444"
+        },
+        {
+          "id": "dy3ddr1n",
+          "start": {
+            "x": 1180,
+            "y": 790
+          },
+          "end": {
+            "x": 0,
+            "y": 790
+          },
+          "thickness": 15,
+          "height": 280,
+          "startHeight": 280,
+          "endHeight": 280,
+          "color": "#444444"
+        },
+        {
+          "id": "3dl0070f",
+          "start": {
+            "x": 0,
+            "y": 790
+          },
+          "end": {
+            "x": 0,
+            "y": 0
+          },
+          "thickness": 15,
+          "height": 280,
+          "startHeight": 280,
+          "endHeight": 280,
+          "color": "#444444"
+        }
+      ],
+      "rooms": [],
+      "doors": [],
+      "windows": [
+        {
+          "id": "vazglcdr",
+          "wallId": "boqfatd8",
+          "position": 0.5,
+          "width": 120,
+          "height": 120,
+          "sillHeight": 90,
+          "type": "standard"
+        }
+      ],
+      "furniture": [],
+      "stairs": [
+        {
+          "id": "vzb3g2ix",
+          "position": {
+            "x": 900,
+            "y": 600
+          },
+          "rotation": 0,
+          "width": 100,
+          "depth": 300,
+          "riserCount": 14,
+          "direction": "down",
+          "stairType": "straight"
+        }
+      ],
+      "columns": [],
+      "guides": [],
+      "measurements": [],
+      "annotations": [],
+      "textAnnotations": [
+        {
+          "id": "hmt5jk88",
+          "x": 450,
+          "y": 380,
+          "text": "Bedroom 2",
+          "fontSize": 16,
+          "color": "#1e293b",
+          "rotation": 0
+        }
+      ],
+      "groups": []
+    }
+  ],
+  "activeFloorId": "9wo8eqfb",
+  "createdAt": "2026-09-28T14:00:00.000Z",
+  "updatedAt": "2026-09-28T14:10:00.000Z"
+}

@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 
 export interface ProjectSettings {
   units: 'metric' | 'imperial';         // m,cm vs ft,inch
@@ -38,6 +38,12 @@ function loadSettings(): ProjectSettings {
   return { ...defaultSettings };
 }
 
+// Called once the store holds the change, so blocked or full storage cannot cancel it; it then lasts until reload.
+function persist(value: ProjectSettings) {
+  if (typeof window === 'undefined') return;
+  try { localStorage.setItem('o3d_settings', JSON.stringify(value)); } catch { /* Storage can be disabled or full. */ }
+}
+
 function createSettingsStore() {
   const { subscribe, set, update } = writable<ProjectSettings>(loadSettings());
 
@@ -45,18 +51,11 @@ function createSettingsStore() {
     subscribe,
     set(value: ProjectSettings) {
       set(value);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('o3d_settings', JSON.stringify(value));
-      }
+      persist(value);
     },
     update(fn: (s: ProjectSettings) => ProjectSettings) {
-      update((current) => {
-        const next = fn(current);
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('o3d_settings', JSON.stringify(next));
-        }
-        return next;
-      });
+      update(fn);
+      persist(get({ subscribe }));
     },
     reset() {
       this.set({ ...defaultSettings });

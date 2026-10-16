@@ -10,6 +10,11 @@ Maintainers: see [NEXT.md](NEXT.md) for the current backlog, verified baseline,
 iPhone release gates and Firebase cost constraints. The [capability reference](FEATURES.md)
 links implementation scope to regression coverage and records known limits.
 
+**User guide:** [docs/user-guide.md](docs/user-guide.md) walks through every menu,
+tool, export and import as the hosted editor shows them. **For AI agents:** the
+[plan-authoring skill](docs/skills/openplan3d-plan-authoring/SKILL.md) describes both
+accepted file formats so an assistant can write or edit a plan you open with Import JSON.
+
 <p align="center">
   <img src="plan1_2d.jpg" alt="2D Floor Plan View" width="48%">
   <img src="plan1_3d.jpg" alt="3D Floor Plan View" width="48%">
@@ -58,12 +63,22 @@ links implementation scope to regression coverage and records known limits.
 - **PNG** — High-resolution raster image
 - **JSON** — Project data for backup and transfer
 - **Project package ZIP** — Edited plans and supported attachments for exchange with the native companion; see the [format and limits](docs/project-package-v1.md)
+- **Interchange JSON** — For OpenKitchen3D, OpenLandscape3D, OpenCatio3D and the iPhone app: the family's prepared RoomPlan JSON, saved as `<Project-Name>-openplan3d.json` by **Download interchange JSON**; see the [handoff format](docs/handoff-format-v1.md)
+- **Open in OpenLandscape3D / OpenKitchen3D / OpenCatio3D** — Opens the other planner in a new tab with the whole plan in the link; nothing is uploaded. A plan too large for a link downloads the interchange JSON instead
 
 ### 📥 Import
 - **JSON** — Restore saved projects
-- **Apple RoomPlan** — Import room scans from iOS devices
+- **Apple RoomPlan** — Import room scans from iOS devices as a new project, or **Add to this plan** to stitch several scans into one floor plan
+- **Sibling planner files and handoffs** — OpenKitchen3D, OpenLandscape3D and OpenCatio3D exports open with **Import JSON**, and the **Open in OpenPlan3D** buttons of OpenLandscape3D, OpenCatio3D and the OpenKitchen3D iPhone app open here directly; their cabinets, plants and structures are kept for the trip back
 - **Project package ZIP** — Import edited native plans and supported attachments, with retained data governed by the [package contract](docs/project-package-v1.md)
 - **Clipboard images** — Paste reference images directly onto the canvas
+
+### 🔗 Works with
+- **[OpenLandscape3D](https://openlandscape3d.com)** — gardens planned around the house footprint
+- **[OpenKitchen3D](https://openkitchen3d.com)** — kitchen and cabinet planning inside a room
+- **[OpenCatio3D](https://opencatio3d.com)** — catios designed against the house walls
+
+Three free web planners from the same makers. They read and write the prepared RoomPlan JSON described in [docs/handoff-format-v1.md](docs/handoff-format-v1.md) (their own docs call it "OpenPlan3D JSON"), so a plan moves between the editors through the Export menu, a file, or the **Open in OpenPlan3D** action in OpenLandscape3D, OpenCatio3D and the OpenKitchen3D iPhone app.
 
 ---
 
@@ -223,7 +238,7 @@ The companion iOS app can share an edited plan or [Apple RoomPlan](https://devel
 
    and imports it as a new project. Prepared iPhone exports preserve their angles by default; raw captures retain their scan-cleanup defaults. On success the `import` param is replaced with the new project's `id` so a refresh won't re-import.
 
-During migration, [`storage.rules`](storage.rules) still permits legacy public creates below 10 MiB. **This bypasses aggregate admission limits until cutover.** The new endpoint enforces 1 MiB per capture, 100 reservations / 25 MiB per UTC day, and 10 reservations per minute. See [configuration, costs and the client migration gate](docs/handoff-quotas.md). These limits are not a cap on Firebase spending.
+During migration, [`storage.rules`](storage.rules) still permits legacy public creates below 10 MiB. **This bypasses aggregate admission limits until cutover.** The new endpoint enforces 1 MiB per capture, 1,000 reservations / 250 MiB per UTC day, and 10 reservations per minute. See [configuration, costs and the client migration gate](docs/handoff-quotas.md). These limits are not a cap on Firebase spending.
 
 ### Assistant shares
 

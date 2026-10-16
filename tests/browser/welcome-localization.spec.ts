@@ -9,6 +9,7 @@ test.beforeEach(async ({ page }) => {
 test('Portuguese welcome recovers from invalid JSON and creates the selected template', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Bem-vindo', exact: true })).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'Bem-vindo', exact: true })).toBeVisible();
   const chooser = page.waitForEvent('filechooser');
   await page.getByRole('button', { name: /Importar uma Planta/ }).click();
   await (await chooser).setFiles({ name: 'broken.json', mimeType: 'application/json', buffer: Buffer.from('{broken') });

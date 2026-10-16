@@ -11,6 +11,7 @@
   import { generateOpenAIRenderImage, validateOpenAIConfig, getEffectiveModel, normalizeBaseUrl } from '$lib/utils/openaiClient';
   import OpenAIModelPicker from '$lib/components/ai/OpenAIModelPicker.svelte';
   import { activeFloor, currentProject, selectedElementId, selectedRoomId, detectedRoomsStore, beginUndoGroup, endUndoGroup, transformFurnitureDuringDrag, moveStair, moveColumn, moveWallGeometryDuringDrag, updateFurniture, updateStair, updateColumn, updateDoor, updateWindow } from '$lib/stores/project';
+  import { triggerTip } from '$lib/stores/onboarding.svelte';
   import type { Floor, Wall, Door, Window as Win, Stair, Column, FurnitureItem } from '$lib/models/types';
   import { getWallStartHeight, getWallEndHeight } from '$lib/models/types';
   import { wallColors, type WallColor } from '$lib/utils/materials';
@@ -18,7 +19,7 @@
   import * as THREE from 'three';
   import { createRoomSlabGeometry } from '$lib/utils/roomSlabGeometry';
   import { roomHoles } from '$lib/utils/roomNesting';
-  import { createSlopedBoxGeometry } from '$lib/utils/slopedWallGeometry';
+  import { createSlopedBoxGeometry, mapWallUVs } from '$lib/utils/slopedWallGeometry';
   import { buildWallSegments, roomCeilingHeight, wallProfileSpans, wallPathProfile, pathOpening, doorPanelPose } from '$lib/utils/wallProfiles';
   import { assembleFloorStack } from '$lib/utils/floorStack';
   import { setFloorCameraPose } from '$lib/utils/floorCamera';
@@ -26,6 +27,7 @@
   import { updateOrbitDamping } from '$lib/utils/orbitDamping';
   import { portableRenderSceneJSON } from '$lib/utils/portableRenderScene';
   import { sceneSignature } from '$lib/utils/sceneSignature';
+  import { framingContext, shouldFrameScene, type FramingContext } from '$lib/utils/sceneFraming';
   import { WalkthroughMotion } from '$lib/utils/walkthroughMotion';
   import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
   import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
@@ -33,7 +35,10 @@
   import type { FurnitureDef } from '$lib/utils/furnitureCatalog';
   import { createElementHighlight, type ElementRef } from '$lib/utils/elementHighlight';
   import { createTransformGizmo, pointerAxisValue, pointerAngleDeg, GIZMO_AXIS_DIRECTION, type GizmoAxis } from '$lib/utils/threeGizmo';
+  import { createWallHighlight } from '$lib/utils/wallHighlight';
+  import { applyWallXray } from '$lib/utils/wallXray';
   import { disposeModel, ownTexture } from '$lib/utils/furnitureModelResources';
+  import { ownColorCanvasTexture, refreshBackgroundTexture } from '$lib/utils/viewerTextures';
   import { createFurnitureModelWithGLB, createPlacedFurnitureModel } from '$lib/utils/furnitureModelLoader';
   import { addFurniture } from '$lib/stores/project';
   import { detectRooms, resolveRoomGeometry, getRoomPolygon, roomCentroid, roomLabelPosition } from '$lib/utils/roomDetection';
@@ -56,6 +61,8 @@
   };
 
   let viewerMounted = false;
+  // The browser could not create a WebGL context: the view explains that instead of offering a viewer.
+  let webglUnavailable = $state(false);
   let animId: number | undefined;
   function requestRender() {
     if (viewerMounted && animId === undefined) animId = requestAnimationFrame(animate);
@@ -67,6 +74,7 @@
   let pointerControls: PointerLockControls;
   let currentFloor = $state.raw<Floor | null>(null);
   let renderedSignature: string | null = null;
+  let framedContext: FramingContext | null = null;
   let wallGroup: THREE.Group;
 
   // Raycasting for object selection in 3D
@@ -78,6 +86,8 @@
   let selectedIdValue: string | null = null;
   let selectedRoomIdValue: string | null = null;
   const elementHighlight = createElementHighlight();
+  let selectedWallId3D: string | null = null;
+  const wallHighlight = createWallHighlight();
 
   // Custom translate/rotate gizmo (edit mode only)
   type SelectedInfo =
@@ -424,35 +434,13 @@
     interiorCamera.updateProjectionMatrix();
   }
 
-  /** Set wall/ceiling/door meshes to transparent for x-ray preview.
-   *  Saves original material state so it can be restored cleanly. */
-  const xrayOriginals = new Map<THREE.Mesh, { transparent: boolean; opacity: number; depthWrite: boolean }>();
+  /** Fade walls with their baseboards, doors and windows, and ceilings (the meshes
+   *  buildWalls flags userData.xray) for the x-ray preview; room contents keep their
+   *  look. Every faded material is restored exactly when x-ray is switched off. */
+  let restoreWallsXray: (() => void) | null = null;
   function setWallsXray(xray: boolean) {
-    if (!wallGroup) return;
-    if (xray) {
-      xrayOriginals.clear();
-      wallGroup.traverse((obj) => {
-        if (obj instanceof THREE.Mesh && !(obj instanceof THREE.Sprite)) {
-          const mat = obj.material as THREE.MeshStandardMaterial;
-          if (!mat) return;
-          xrayOriginals.set(obj, { transparent: mat.transparent, opacity: mat.opacity, depthWrite: mat.depthWrite });
-          mat.transparent = true;
-          mat.opacity = 0.12;
-          mat.depthWrite = false;
-          mat.needsUpdate = true;
-        }
-      });
-    } else {
-      for (const [mesh, orig] of xrayOriginals) {
-        const mat = mesh.material as THREE.MeshStandardMaterial;
-        if (!mat) continue;
-        mat.transparent = orig.transparent;
-        mat.opacity = orig.opacity;
-        mat.depthWrite = orig.depthWrite;
-        mat.needsUpdate = true;
-      }
-      xrayOriginals.clear();
-    }
+    restoreWallsXray?.();
+    restoreWallsXray = xray && wallGroup ? applyWallXray(wallGroup) : null;
   }
 
   function captureInteriorPhoto() {
@@ -625,7 +613,7 @@
     grad.addColorStop(1.0, '#b8b0a0');
     cx.fillStyle = grad;
     cx.fillRect(0, 0, 4, 512);
-    skyTexture.needsUpdate = true;
+    refreshBackgroundTexture(skyTexture);
   }
 
   function applyTimePreset(preset: 'morning' | 'noon' | 'evening' | 'night') {
@@ -648,6 +636,8 @@
     if (fillLight) fillLight.intensity = preset === 'night' ? 0.05 : 0.4;
     if (rimLight) rimLight.intensity = preset === 'night' ? 0.05 : 0.25;
     updateSkyGradient(p.skyTop, p.skyMid, p.skyHorizon);
+    // The main view redraws for the new lights; an open interior preview redraws only when asked.
+    if (cameraPlaced) cameraPreviewDirty = true;
   }
 
   const WALL_THICKNESS = 15;
@@ -672,7 +662,7 @@
         cx.strokeRect(x + offset, y, 62, 30);
       }
     }
-    const tex = ownTexture(new THREE.CanvasTexture(c));
+    const tex = ownColorCanvasTexture(c);
     tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
     tex.repeat.set(10, 10);
     return tex;
@@ -759,7 +749,7 @@
     grad.addColorStop(1.0, '#b8b0a0');
     cx.fillStyle = grad;
     cx.fillRect(0, 0, 4, 512);
-    skyTexture = ownTexture(new THREE.CanvasTexture(skyCanvas));
+    skyTexture = ownColorCanvasTexture(skyCanvas);
     // Use as scene background (maps onto equirectangular projection)
     skyTexture.mapping = THREE.EquirectangularReflectionMapping;
     scene.background = skyTexture;
@@ -801,7 +791,7 @@
     for (let y = 0; y <= 1024; y += gridStep * 4) {
       gctx.beginPath(); gctx.moveTo(0, y); gctx.lineTo(1024, y); gctx.stroke();
     }
-    const groundTex = ownTexture(new THREE.CanvasTexture(groundCanvas));
+    const groundTex = ownColorCanvasTexture(groundCanvas);
     groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping;
     groundTex.repeat.set(groundSize / 4000, groundSize / 4000);
     const groundMat = new THREE.MeshStandardMaterial({
@@ -822,7 +812,16 @@
     camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 1, 20000);
     camera.position.set(800, 600, 800);
 
-    renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+    } catch {
+      // WebGL is off, blocked or unsupported in this browser, and three has logged the error. Release
+      // the scene built so far; onMount then starts nothing that needs a renderer.
+      skyTexture.dispose();
+      clearGroup(scene);
+      webglUnavailable = true;
+      return false;
+    }
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.shadowMap.enabled = true;
@@ -1041,6 +1040,7 @@
     wallGroup = new THREE.Group();
     scene.add(wallGroup);
     scene.add(gizmo.object);
+    return true;
   }
 
   function createGhostPreview(catalogId: string) {
@@ -1067,8 +1067,8 @@
     controls.update();
   }
 
-  /** Generate a wall texture. wallWidth/wallHeight in cm to set proper tiling. */
-  function generateWallTexture(textureId: string, color: string, wallWidth: number = 300, wallHeight: number = 280): THREE.CanvasTexture {
+  /** Generate a wall texture. Wall UVs already count 200 cm tiles (mapWallUVs), so it sets no repeat. */
+  function generateWallTexture(textureId: string, color: string): THREE.CanvasTexture {
     const canvas = getWallTextureCanvas(textureId, color);
     if (!canvas) {
       const c = document.createElement('canvas');
@@ -1076,15 +1076,12 @@
       const cx = c.getContext('2d')!;
       cx.fillStyle = color;
       cx.fillRect(0, 0, 64, 64);
-      const tex = ownTexture(new THREE.CanvasTexture(c));
+      const tex = ownColorCanvasTexture(c);
       tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
       return tex;
     }
-    const tex = ownTexture(new THREE.CanvasTexture(canvas));
+    const tex = ownColorCanvasTexture(canvas);
     tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    // Each texture tile covers ~200cm of real wall
-    const tileSizeCm = 200;
-    tex.repeat.set(wallWidth / tileSizeCm, wallHeight / tileSizeCm);
     return tex;
   }
 
@@ -1260,13 +1257,15 @@
       mesh.position.set(center.x, (rect.bottom + rect.top) / 2, center.y);
       mesh.rotation.y = -Math.atan2(span.end.y - span.start.y, span.end.x - span.start.x);
       mesh.userData.renderExclude = excludeFromRender;
+      mesh.userData.xray = true;
       mesh.castShadow = !excludeFromRender;
       wallGroup.add(mesh);
       if (ref) elementMeshMap.set(mesh, ref);
     }
   }
 
-  function buildWalls(floor: Floor, reframe = true) {
+  function buildWalls(floor: Floor) {
+    wallHighlight.clear();
     elementHighlight.clear();
     clearGroup(wallGroup);
     cameraHelper = null;
@@ -1281,12 +1280,11 @@
     for (const wall of floor.walls) {
       // Resolve per-side materials: interior and exterior can have independent color/texture
       const DEFAULT_2D_COLORS = ['#cccccc', '#888888', '#444444', '#404040'];
-      const wLen = Math.hypot(wall.end.x - wall.start.x, wall.end.y - wall.start.y);
 
       function resolveWallMat(color: string | undefined, texture: string | undefined, fallback: THREE.MeshStandardMaterial, isInterior: boolean = false): THREE.MeshStandardMaterial {
         const polyOff = isInterior ? { polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 } : {};
         if (texture) {
-          const tex = generateWallTexture(texture, color || '#888888', wLen, wall.height);
+          const tex = generateWallTexture(texture, color || '#888888');
           return new THREE.MeshStandardMaterial({ map: tex, roughness: 0.85, ...polyOff });
         }
         if (color && !DEFAULT_2D_COLORS.includes(color.toLowerCase())) {
@@ -1310,7 +1308,7 @@
       if (extTex || wall.exteriorColor) {
         exteriorMat = resolveWallMat(wall.exteriorColor, extTex, defaultExteriorMat);
       } else if (wall.texture) {
-        const extTex = generateWallTexture(wall.texture, wall.color || '#888888', wLen, wall.height);
+        const extTex = generateWallTexture(wall.texture, wall.color || '#888888');
         exteriorMat = new THREE.MeshStandardMaterial({ map: extTex, roughness: 0.85 });
       } else if (wall.color && !DEFAULT_2D_COLORS.includes(wall.color.toLowerCase())) {
         const c = new THREE.Color(wall.color).offsetHSL(0, -0.05, -0.1);
@@ -1335,11 +1333,11 @@
         for (const span of wallProfileSpans(wall, doors, windows)) {
           const angle = Math.atan2(span.end.y - span.start.y, span.end.x - span.start.x);
           for (const segment of span.segments) {
-            const geo = createSlopedBoxGeometry(segment.width, t, segment.bottomY, segment.topYLeft, segment.topYRight);
+            const geo = mapWallUVs(createSlopedBoxGeometry(segment.width, t, segment.bottomY, segment.topYLeft, segment.topYRight), span.from + segment.offsetX);
             const mesh = new THREE.Mesh(geo, materials);
             mesh.castShadow = true; mesh.receiveShadow = true;
             mesh.position.set(span.start.x + segment.offsetX * Math.cos(angle), 0, span.start.y + segment.offsetX * Math.sin(angle));
-            mesh.rotation.y = -angle; mesh.userData.wallId = wall.id;
+            mesh.rotation.y = -angle; mesh.userData.wallId = wall.id; mesh.userData.xray = true;
             wallMeshMap.set(mesh, wall.id); elementMeshMap.set(mesh, wallRef); wallGroup.add(mesh);
           }
         }
@@ -1351,7 +1349,7 @@
             for (const segment of span.segments) {
               const mesh = new THREE.Mesh(createSlopedBoxGeometry(segment.width, t + 2, segment.bottomY, segment.topYLeft, segment.topYRight), baseboardMat);
               mesh.position.set(span.start.x + segment.offsetX * Math.cos(angle), 0, span.start.y + segment.offsetX * Math.sin(angle));
-              mesh.rotation.y = -angle; mesh.castShadow = true; elementMeshMap.set(mesh, wallRef); wallGroup.add(mesh);
+              mesh.rotation.y = -angle; mesh.castShadow = true; mesh.userData.xray = true; elementMeshMap.set(mesh, wallRef); wallGroup.add(mesh);
             }
           }
         }
@@ -1373,7 +1371,7 @@
         const segments = buildWallSegments(len, startH, endH, doorOpenings, winOpenings);
 
         for (const seg of segments) {
-          const geo = createSlopedBoxGeometry(seg.width, t, seg.bottomY, seg.topYLeft, seg.topYRight);
+          const geo = mapWallUVs(createSlopedBoxGeometry(seg.width, t, seg.bottomY, seg.topYLeft, seg.topYRight), seg.offsetX);
 
           // Create a multi-material wall: interior white, exterior brown
           const materials = [
@@ -1393,63 +1391,26 @@
           );
           mesh.rotation.y = -angle;
           mesh.userData.wallId = wall.id;
+          mesh.userData.xray = true;
           wallMeshMap.set(mesh, wall.id);
           elementMeshMap.set(mesh, wallRef);
           wallGroup.add(mesh);
         }
 
-        // Baseboard — with gaps at door openings
+        // Baseboard — the wall's own opening cuts at baseboard height, as on curved
+        // walls: doors and windows whose sill is below the board cut it too.
         if (Math.min(startH, endH) >= BASEBOARD_HEIGHT) {
-        const doorOpeningsForBB = floor.doors.filter((d) => d.wallId === wall.id);
-        if (doorOpeningsForBB.length === 0) {
-          const bbGeo = new THREE.BoxGeometry(len, BASEBOARD_HEIGHT, t + 2);
-          const bbMesh = new THREE.Mesh(bbGeo, baseboardMat);
-          bbMesh.position.set(cx, BASEBOARD_HEIGHT / 2, cy);
-          bbMesh.rotation.y = -angle;
-          bbMesh.castShadow = true;
-          elementMeshMap.set(bbMesh, wallRef);
-          wallGroup.add(bbMesh);
-        } else {
-          // Build baseboard segments skipping door gaps
-          const sortedDoors = [...doorOpeningsForBB].sort((a, b) => a.position - b.position);
-          let bbCursor = 0;
-          for (const door of sortedDoors) {
-            const dLeft = door.position * len - door.width / 2;
-            const dRight = door.position * len + door.width / 2;
-            if (dLeft > bbCursor) {
-              const segLen = dLeft - bbCursor;
-              const segCenter = bbCursor + segLen / 2 - len / 2;
-              const bbGeo = new THREE.BoxGeometry(segLen, BASEBOARD_HEIGHT, t + 2);
-              const bbMesh = new THREE.Mesh(bbGeo, baseboardMat);
-              bbMesh.position.set(
-                cx + segCenter * Math.cos(angle),
-                BASEBOARD_HEIGHT / 2,
-                cy + segCenter * Math.sin(angle)
-              );
-              bbMesh.rotation.y = -angle;
-              bbMesh.castShadow = true;
-              elementMeshMap.set(bbMesh, wallRef);
-              wallGroup.add(bbMesh);
-            }
-            bbCursor = Math.max(bbCursor, dRight);
-          }
-          if (bbCursor < len) {
-            const segLen = len - bbCursor;
-            const segCenter = bbCursor + segLen / 2 - len / 2;
-            const bbGeo = new THREE.BoxGeometry(segLen, BASEBOARD_HEIGHT, t + 2);
-            const bbMesh = new THREE.Mesh(bbGeo, baseboardMat);
-            bbMesh.position.set(
-              cx + segCenter * Math.cos(angle),
-              BASEBOARD_HEIGHT / 2,
-              cy + segCenter * Math.sin(angle)
-            );
+          for (const seg of buildWallSegments(len, BASEBOARD_HEIGHT, BASEBOARD_HEIGHT, doorOpenings, winOpenings)) {
+            const bbMesh = new THREE.Mesh(createSlopedBoxGeometry(seg.width, t + 2, seg.bottomY, seg.topYLeft, seg.topYRight), baseboardMat);
+            const localX = seg.offsetX - len / 2;
+            bbMesh.position.set(cx + localX * Math.cos(angle), 0, cy + localX * Math.sin(angle));
             bbMesh.rotation.y = -angle;
             bbMesh.castShadow = true;
+            bbMesh.userData.xray = true;
             elementMeshMap.set(bbMesh, wallRef);
             wallGroup.add(bbMesh);
           }
         }
-      }
     }
 
     // Doors
@@ -1492,6 +1453,7 @@
           secMesh.rotation.y = -angle;
           secMesh.castShadow = true;
           elementMeshMap.set(secMesh, doorRef);
+          secMesh.userData.xray = true;
           wallGroup.add(secMesh);
         }
       } else {
@@ -1506,6 +1468,7 @@
         panelMesh.rotation.y = -pose.yaw;
         panelMesh.castShadow = true;
         elementMeshMap.set(panelMesh, doorRef);
+        panelMesh.userData.xray = true;
         wallGroup.add(panelMesh);
 
         // Door handle (small sphere)
@@ -1522,6 +1485,7 @@
           panelMesh.position.z + handleLocalX * handleSin
         );
         elementMeshMap.set(handleMesh, doorRef);
+        handleMesh.userData.xray = true;
         wallGroup.add(handleMesh);
       }
     }
@@ -1664,7 +1628,7 @@
         const floorMat = getMaterial(room.floorTexture);
         const floorCanvas = getFloorTextureCanvas(room.floorTexture);
         if (floorCanvas) {
-          const tex = ownTexture(new THREE.CanvasTexture(floorCanvas));
+          const tex = ownColorCanvasTexture(floorCanvas);
           tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
           // Tile every 200cm — now UVs are 0-1, so repeat = room size / tile size
           const tileSizeCm = 200;
@@ -1720,7 +1684,7 @@
       ctx2.fillStyle = '#d1d5db';
       ctx2.fillText(formatArea(room.area, get(projectSettings).units), 128, 50);
 
-      const tex = ownTexture(new THREE.CanvasTexture(canvas));
+      const tex = ownColorCanvasTexture(canvas);
       const spriteMat = new THREE.SpriteMaterial({ map: tex, transparent: true });
       const sprite = new THREE.Sprite(spriteMat);
       sprite.position.set(centroid.x, 30, centroid.y);
@@ -1739,6 +1703,7 @@
         const ceilGeo = new THREE.ShapeGeometry(shape);
         const ceilMesh = new THREE.Mesh(ceilGeo, ceilMat);
         ceilMesh.userData.renderExclude = true;
+        ceilMesh.userData.xray = true;
         ceilMesh.rotation.x = -Math.PI / 2;
         ceilMesh.position.y = ceilingHeight;
         ceilMesh.receiveShadow = true;
@@ -1754,17 +1719,16 @@
     buildColumns(floor);
 
     applyWallTransparency();
-    if (reframe) autoCenterCamera();
   }
 
   /** Build all floors stacked vertically in 3D */
-  function buildAllFloorsStacked(reframe = true) {
+  function buildAllFloorsStacked() {
     const project = get(currentProject);
     if (!project || project.floors.length === 0) return;
 
     // Use buildWalls for the active floor first (it clears wallGroup)
     const activeF = project.floors.find(f => f.id === project.activeFloorId) ?? project.floors[0];
-    buildWalls(activeF, reframe);
+    buildWalls(activeF);
 
     const entries = assembleFloorStack(wallGroup, project.floors, activeF.id,
       (floor, group, offset) => buildFloorIntoGroup(floor, group, offset, 0.35));
@@ -1778,7 +1742,6 @@
     floorPlane.constant = -activeFloorElevation;
     // Keep the presentation ground below basements as well as above-ground floors.
     sceneGround.position.y = Math.min(0, ...entries.map(entry => entry.yOffset)) - 1;
-    if (reframe) autoCenterCamera();
   }
 
   function addFloorLabel(name: string, yOffset: number, labelX: number, labelZ: number) {
@@ -1793,7 +1756,7 @@
     ctx.textAlign = 'center';
     ctx.fillText(name, 128, 32);
 
-    const tex = ownTexture(new THREE.CanvasTexture(canvas));
+    const tex = ownColorCanvasTexture(canvas);
     const spriteMat = new THREE.SpriteMaterial({ map: tex, transparent: true });
     const sprite = new THREE.Sprite(spriteMat);
 
@@ -2101,10 +2064,10 @@
     rotateLabel = null;
     renderer.domElement.style.cursor = '';
     endUndoGroup(rotated ? 'Rotated in 3D' : 'Moved in 3D');
-    rebuildScene(true, false);
+    rebuildScene(true);
   }
 
-  function rebuildScene(force = false, reframe = true) {
+  function rebuildScene(force = false) {
     // A gizmo drag updates store + live transforms directly; defer the full rebuild.
     if (gizmoDragging) return;
     const project = get(currentProject);
@@ -2114,13 +2077,19 @@
     const walkingPosition = walkthroughMode ? camera.position.clone() : null;
     const walkingRotation = walkthroughMode ? camera.quaternion.clone() : null;
     if (showAllFloors) {
-      buildAllFloorsStacked(reframe);
+      buildAllFloorsStacked();
     } else if (currentFloor) {
       activeFloorElevation = 0;
       floorPlane.constant = 0;
       sceneGround.position.y = -1;
-      buildWalls(currentFloor, reframe);
+      buildWalls(currentFloor);
     }
+    // Fit the orbit camera only for a new project, floor or stacking choice, so edits, Undo/Redo,
+    // unit changes and arriving textures keep the user's view. Walkthrough restores its pose below.
+    const context = framingContext(project, currentFloor, showAllFloors);
+    if (shouldFrameScene(framedContext, context)) autoCenterCamera();
+    framedContext = context;
+    wallHighlight.apply(wallMeshMap, selectedWallId3D);
     applySelectionHighlight();
     refreshGizmo();
     if (walkingPosition && walkingRotation) {
@@ -2151,7 +2120,9 @@
 
   function toggleWallTransparency() {
     wallsTransparent = !wallsTransparent;
+    wallHighlight.clear();
     applyWallTransparency();
+    wallHighlight.apply(wallMeshMap, selectedWallId3D);
     applySelectionHighlight();
     markSceneDirty();
   }
@@ -2317,14 +2288,17 @@
       cancelAIRender();
       openaiModel = getEffectiveModel(config);
     });
-    init();
+    // Without WebGL nothing below may start: every listener, observer and frame reaches the renderer.
+    if (!init()) { stopAISettings(); return; }
     viewerMounted = true;
     markSceneDirty();
+    // The one-time tip offers orbit and walkthrough, so only a view with a renderer uses it up.
+    triggerTip('first-3d', 200, 80);
 
     // Rebuild 3D scene when photo textures finish loading
     const stopTextures = setTextureLoadCallback(() => {
       // New image pixels are not represented in the project's value snapshot.
-      if (currentFloor) rebuildScene(true, false);
+      if (currentFloor) rebuildScene(true);
     });
 
     const resizeObs = new ResizeObserver(onResize);
@@ -2339,15 +2313,17 @@
         if (walkthroughMode) exitWalkthroughMode();
       }
       currentFloor = f;
-      if (f) rebuildScene(false, floorChanged);
+      if (f) rebuildScene(false);
     });
     // Room area labels are textures and must refresh when display units change.
     const stopSettings = projectSettings.subscribe(() => {
-      if (currentFloor) rebuildScene(false, false);
+      if (currentFloor) rebuildScene(false);
     });
 
     const unsubSel = selectedElementId.subscribe((id) => {
       selectedIdValue = id;
+      selectedWallId3D = id;
+      wallHighlight.apply(wallMeshMap, id);
       applySelectionHighlight();
       refreshGizmo();
       markSceneDirty();
@@ -2381,6 +2357,7 @@
       walkthroughMotion.reset();
       releaseCameraPreview();
       elementHighlight.clear();
+      wallHighlight.clear();
       removeGhostPreview();
       skyTexture.dispose();
       sunLight.shadow.dispose();
@@ -2398,6 +2375,11 @@
 </script>
 
 <div bind:this={container} class="w-full h-full relative" role="region" aria-label={$t('viewerNav.region')}>
+  {#if webglUnavailable}
+    <div class="flex h-full items-center justify-center p-6">
+      <p role="alert" class="max-w-md rounded-lg bg-black/80 px-4 py-3 text-center text-sm text-white">{$t('viewerNav.webglUnavailable')}</p>
+    </div>
+  {:else}<!-- Every control below needs the renderer. -->
   <div class="absolute bottom-16 left-4 z-10 max-w-xs">
     {#if renderExportMessage}<p role="status" class="mb-2 rounded bg-black/80 p-2 text-xs text-white">{renderExportLabels[renderExportMessage] ? $t(renderExportLabels[renderExportMessage]) : renderExportMessage}</p>{/if}
     <button class="rounded bg-black/70 px-3 py-2 text-sm text-white hover:bg-black/80" onclick={exportBlenderScene}
@@ -2907,4 +2889,5 @@
       role="status"
     >{rotateLabel}</div>
   {/if}
+  {/if}<!-- end of the controls that need the renderer -->
 </div>

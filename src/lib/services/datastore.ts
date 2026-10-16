@@ -1,6 +1,7 @@
 import { readProject } from '$lib/utils/projectValidation';
 import type { Project } from '$lib/models/types';
 import { withDatabase, transaction, request, records, readRecord, libraryBackup, notifyLibraryChange } from './localDatabase';
+import { requestPersistentStorage } from './storagePersistence';
 export { PROJECTS_STORAGE_KEY, LIBRARY_CHANGE_KEY } from './localDatabase';
 
 export interface DataStore {
@@ -25,10 +26,18 @@ export class ProjectConflictError extends Error {
   }
 }
 
-/** Keep in-document saves ordered; IndexedDB transactions also protect browsers without Web Locks. */
+/** Keep in-document saves ordered; IndexedDB transactions also protect browsers without Web Locks.
+ *  The lock callback never rejects: Firefox reports a lock callback that rejects at once (indexedDB.open with
+ *  site data blocked) as an uncaught error even though the request's promise is handled, so the outcome is
+ *  carried out of the lock and rethrown here. */
 async function mutateLibrary<T>(change: () => Promise<T>): Promise<T> {
   if (typeof window !== 'undefined' && typeof navigator !== 'undefined' && navigator.locks?.request) {
-    return navigator.locks.request('openplan3d-project-library', change);
+    const outcome = await navigator.locks.request('openplan3d-project-library', async () => {
+      try { return { ok: true as const, value: await change() }; }
+      catch (error) { return { ok: false as const, error }; }
+    });
+    if (!outcome.ok) throw outcome.error;
+    return outcome.value;
   }
   // IndexedDB compare-and-write transactions remain atomic without Web Locks.
   return change();
@@ -83,6 +92,8 @@ export function createLocalStore(): DataStore {
         opened.set(id, raw);
         notifyLibraryChange(id);
       });
+      // Committed work can now ask the browser to keep the library; the save never waits.
+      void requestPersistentStorage();
     },
 
     async saveCopy(project, suffix = 'Recovered copy') {
@@ -101,6 +112,7 @@ export function createLocalStore(): DataStore {
         }));
         opened.set(copy.id, JSON.stringify(copy));
         notifyLibraryChange(copy.id);
+        void requestPersistentStorage();
         return copy;
       });
     },
@@ -151,8 +163,14 @@ export function createLocalStore(): DataStore {
     },
 
     async duplicate(id) {
-      const original = await this.load(id);
-      if (!original) return null;
+      // Copying is not opening, so this tab's record of the original stays as it is: a save the
+      // editor queued on the way out must still land, not fail as a conflict. Waiting for queued
+      // library writes first lets the copy include those edits.
+      await mutateLibrary(async () => {});
+      const raw = await readRecord('projects', id);
+      if (raw === null) return null;
+      const original = readProject(JSON.parse(raw));
+      if (original.id !== id) throw new Error('The saved project ID does not match its library entry. Download a library backup before recovery.');
       const dup = await this.saveCopy(original, 'Copy');
       const thumb = await this.getThumbnail(id);
       if (thumb) await this.saveThumbnail(dup.id, thumb);

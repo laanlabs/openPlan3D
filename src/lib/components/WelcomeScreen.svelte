@@ -4,16 +4,19 @@
   import { onDestroy } from 'svelte';
   import { isRoomPlanJson } from '$lib/utils/roomplanValidation';
   import { openProject } from '$lib/services/projectOpening';
+  import { isLibraryBackup, LibraryBackupFileError } from '$lib/services/libraryRestore';
   import ImportError from '$lib/components/ImportError.svelte';
   import { goto } from '$app/navigation';
   import { base } from '$app/paths';
   import { createDefaultProject } from '$lib/stores/project';
   import { houseTemplates } from '$lib/utils/houseTemplates';
+  import { modalDialog, reconcileNativeClose } from '$lib/utils/modalDialog';
 
   const openingLifetime = new AbortController();
   onDestroy(() => openingLifetime.abort());
 
-  let { onDismiss, onRestoreLibrary, onImportPackage }: { onDismiss: () => void; onRestoreLibrary?: () => void; onImportPackage?: () => void } = $props();
+  /** `onRestoreLibrary` receives the file when Import a Plan was given a library backup. */
+  let { onDismiss, onRestoreLibrary, onImportPackage }: { onDismiss: () => void; onRestoreLibrary?: (file?: File) => void; onImportPackage?: () => void } = $props();
 
   let importError = $state<string | null>(null);
   let showTour = $state(false);
@@ -61,14 +64,17 @@
     try {
       const project = await openProject(async () => {
         const data = JSON.parse(await file.text());
+        // A library backup holds every project: Restore previews it and adds them as copies.
+        if (isLibraryBackup(data)) throw new LibraryBackupFileError();
         return isRoomPlanJson(data)
-          ? (await import('$lib/utils/roomplanImport')).createProjectFromRoomPlan(data, file.name.replace(/\.json$/i, ''))
+          ? (await import('$lib/utils/roomplanImport')).createProjectFromRoomPlan(data, (await import('$lib/utils/interchange')).interchangeProjectName(data, file.name.replace(/\.json$/i, '')))
           : data;
       }, 'import', openingLifetime.signal);
       if (!project) return;
       markSeen();
       goto(`${base}/editor?id=${encodeURIComponent(project.id)}`);
     } catch (error) {
+      if (error instanceof LibraryBackupFileError && onRestoreLibrary) { onRestoreLibrary(file); return; }
       const message = error instanceof Error ? error.message : $t('welcome.fileFailed');
       importError = message.includes('No project was imported.') ? message : `${message} ${$t('welcome.noImport')}`;
     } finally {
@@ -89,14 +95,26 @@
       markSeen();
     }
   }
+
+  /** Escape goes back from the tour and the templates. The main card has no dismiss
+   * control, so Escape is refused there. */
+  function goBack(event: Event) {
+    event.preventDefault();
+    if (showTour) showTour = false;
+    else if (showTemplates) showTemplates = false;
+  }
 </script>
 
-<input type="file" accept=".json" class="hidden" bind:this={fileInput} onchange={onFileSelected} />
+<!-- Backdrop: a native modal keeps focus here and the library behind it inert. A close the
+     browser forces anyway (a repeated Escape, or Back on Android) dismisses the welcome for
+     this visit without marking it seen; reopening it would trap those close requests. -->
+<dialog use:modalDialog aria-label={$t('welcome.title')} oncancel={goBack} onclose={(event) => reconcileNativeClose(event, false, onDismiss)}
+  class="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+  <!-- Inside the dialog: everything outside an open modal is inert. -->
+  <input type="file" accept=".json" class="hidden" bind:this={fileInput} onchange={onFileSelected} />
 
-{#if importError}<ImportError title={$t('welcome.openFailed')} message={importError} onDismiss={() => importError = null} />{/if}
+  {#if importError}<ImportError title={$t('welcome.openFailed')} message={importError} onDismiss={() => importError = null} />{/if}
 
-<!-- Backdrop -->
-<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
   {#if showTour}
     <!-- Tour overlay -->
     <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 text-center">
@@ -192,11 +210,11 @@
         </button>
       </div>
       {#if onRestoreLibrary}
-        <button onclick={onRestoreLibrary} class="mt-5 text-sm font-semibold text-blue-600 underline">{$t('welcome.restore')}</button>
+        <button onclick={() => onRestoreLibrary?.()} class="mt-5 text-sm font-semibold text-blue-600 underline">{$t('welcome.restore')}</button>
       {/if}
       {#if onImportPackage}
         <button onclick={onImportPackage} class="mt-3 block w-full text-sm font-semibold text-blue-600 underline">{$t('welcome.package')}</button>
       {/if}
     </div>
   {/if}
-</div>
+</dialog>

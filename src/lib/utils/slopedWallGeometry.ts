@@ -93,3 +93,26 @@ export function createSlopedBoxGeometry(
 
   return geo;
 }
+
+/** Real-world size of one wall texture tile, in centimetres. */
+export const WALL_TEXTURE_TILE_CM = 200;
+
+/** Map the UVs of a createSlopedBoxGeometry wall piece in wall units, so a texture
+ * tile covers the same `tile` centimetres on every piece and face and the pattern runs
+ * on across the pieces cut around openings and along curves. `along` is the distance
+ * from the wall's start to the piece's local origin. Each face keeps BoxGeometry's
+ * texture orientation; the top keeps it at any slope. */
+export function mapWallUVs(geometry: THREE.BufferGeometry, along: number, tile = WALL_TEXTURE_TILE_CM) {
+  const position = geometry.getAttribute('position'), normal = geometry.getAttribute('normal'), uv = geometry.getAttribute('uv');
+  for (let i = 0; i < position.count; i++) {
+    const x = along + position.getX(i), y = position.getY(i), z = position.getZ(i);
+    const nx = normal.getX(i), ny = normal.getY(i), nz = normal.getZ(i);
+    let u: number, v: number;
+    if (Math.abs(nz) > 0.5) { u = nz > 0 ? x : -x; v = y; } // interior and exterior faces
+    else if (Math.abs(ny) > 1e-6) { u = x; v = ny > 0 ? -z : z; } // top, bottom, sills and heads
+    else { u = nx > 0 ? -z : z; v = y; } // vertical wall ends and opening reveals
+    uv.setXY(i, u / tile, v / tile);
+  }
+  uv.needsUpdate = true;
+  return geometry;
+}

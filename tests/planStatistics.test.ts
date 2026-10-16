@@ -2,6 +2,8 @@ import { expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { projectPackageBytes, readProjectPackage } from '$lib/services/projectPackage';
 import { readPackageZip, writePackageZip, jsonBytes, packageJSON } from '$lib/utils/projectPackageZip';
+import { resolveRooms } from '$lib/utils/roomDetection';
+import { interiorRoomArea } from '$lib/utils/interiorArea';
 import { roomProject } from './fixtures/project';
 
 // Paired with native ProjectPackageTests.testExportedPlanCarriesFreshDerivedStatistics.
@@ -28,6 +30,20 @@ it('writes a derived statistics block that matches the interior-face area conven
   expect(statistics.costs).toEqual({ openingCost: 0, furnitureCost: 0, totalCost: 0, pricedOpeningCount: 0, pricedFurnitureCount: 0 });
   // The baseline used for change detection never carries the derived block.
   expect(packageJSON(files['baseline.json']).statistics).toBeUndefined();
+});
+
+it('counts the floor of a closet built against a room once', () => {
+  const project: any = roomProject(), floor = project.floors[0];
+  const leg = (id: string, x: number, y: number, xx: number, yy: number) => ({ ...floor.walls[0], id, start: { x, y }, end: { x: xx, y: yy } });
+  floor.walls = [leg('a-0', 0, 0, 1000, 0), leg('a-1', 1000, 0, 1000, 750), leg('a-2', 1000, 750, 0, 750), leg('a-3', 0, 750, 0, 0),
+    leg('closet-0', 400, 0, 400, 400), leg('closet-1', 400, 400, 650, 400), leg('closet-2', 650, 400, 650, 0)];
+  floor.rooms = resolveRooms(floor).map((room: any) => ({ ...room, name: room.area > 50 ? 'Living' : 'Closet' }));
+  const statistics = packageJSON(readPackageZip(projectPackageBytes(project))['plan.json']).statistics;
+  // The two rooms partition the house: its interior less every wall footprint, the closet's included.
+  const house = interiorRoomArea(floor.walls.slice(0, 4).map((wall: any) => wall.start), [], floor.walls)!;
+  expect(statistics.rooms).toHaveLength(2);
+  expect(statistics.rooms[0].floorArea + statistics.rooms[1].floorArea).toBeCloseTo(house, 6);
+  expect(statistics.totals.livingArea).toBeCloseTo(house, 6);
 });
 
 it('replaces a stale statistics block from an imported native package and counts unenclosed rooms', () => {

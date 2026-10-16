@@ -2,9 +2,9 @@ import { rawRecords, putRaw } from './fixtures/indexeddb';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { get } from 'svelte/store';
 import { openProject } from '$lib/services/projectOpening';
-import { localStore } from '$lib/services/datastore';
+import { createLocalStore, localStore } from '$lib/services/datastore';
 import { currentProject, loadProject, updateProjectName } from '$lib/stores/project';
-import { initAutoSave, markClean, saveError, saveState } from '$lib/stores/saveStatus';
+import { initAutoSave, markClean, saveConflict, saveError, saveState } from '$lib/stores/saveStatus';
 import { roomProject } from './fixtures/project';
 
 vi.mock('$lib/stores/versionHistory', () => ({ saveSnapshot: vi.fn() }));
@@ -188,3 +188,21 @@ it('ignores an import if another project was loaded during the file read', async
   expect(await pending).toBeNull();
   expect(get(currentProject)).toBe(next);
 });
+
+it.each([['this tab', () => localStore], ['another tab', createLocalStore]])(
+  'imports the backup of an open plan deleted in %s as a copy that keeps saving', async (_tab, store) => {
+    const deleted = get(currentProject)!, backup = JSON.parse(JSON.stringify(deleted));
+    const library = store(); await library.list(); await library.delete(deleted.id);
+    // Back in the library this tab starts a new plan, then imports the backup from the editor.
+    const fresh = (await openProject(roomProject, 'new'))!;
+    const restored = (await openProject(() => backup))!;
+    expect(restored.id).not.toBe(deleted.id);
+    expect(restored.name).toBe('Regression plan (Imported copy)');
+    expect(restored.floors).toEqual(deleted.floors);
+    expect(get(saveState)).toBe('saved'); expect(get(saveConflict)).toBe(false);
+    updateProjectName('Edited after restoring');
+    await vi.runAllTimersAsync();
+    await vi.waitFor(() => expect(get(saveState)).toBe('saved'));
+    expect((await localStore.list()).map(p => p.id).sort()).toEqual([fresh.id, restored.id].sort());
+    expect((await localStore.load(restored.id))!.name).toBe('Edited after restoring');
+  });

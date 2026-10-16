@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { get } from 'svelte/store';
 import { activateMeasurementTool, selectedTool, placingFurnitureId, placingStair, placingColumn,
-  placingEntourageId, calibrationMode, elevationPickMode, panMode } from '$lib/stores/project';
+  placingEntourageId, calibrationMode, elevationPickMode, panMode, canvasZoom, canvasMinimumZoom } from '$lib/stores/project';
 import { handleGlobalShortcut } from '$lib/utils/shortcuts';
 import { manualSave } from '$lib/stores/saveStatus';
 
@@ -15,12 +15,13 @@ afterEach(() => vi.unstubAllGlobals());
 it('leaves modal keystrokes alone even when a background canvas is the event target', () => {
   vi.stubGlobal('document', { querySelector: () => ({ open: true }) });
   selectedTool.set('wall');
-  for (const key of ['Delete', 'Backspace', 'Escape', 'Tab', 'v', 'm', 'n', 'r']) {
+  for (const key of ['Delete', 'Backspace', 'Escape', 'Tab', 'v', 'm', 'n', 'r', '+', '-']) {
     const event = keyEvent(key);
     expect(handleGlobalShortcut(event)).toBe(false);
     expect(event.preventDefault).not.toHaveBeenCalled();
     expect(get(selectedTool)).toBe('wall');
   }
+  expect(get(canvasZoom)).toBe(1);
   expect(handleGlobalShortcut(keyEvent('s', { ctrlKey: true }))).toBe(false);
   expect(manualSave).not.toHaveBeenCalled();
 });
@@ -83,6 +84,38 @@ it.each([
     expect(handleGlobalShortcut(keyEvent('s', { target, [modifier]: true }))).toBe(true);
   }
   expect(manualSave).toHaveBeenCalledTimes(2);
+});
+
+it('zooms the plan with + / − (also = / _ and numpad keys) like the toolbar, within the zoom limits', () => {
+  canvasZoom.set(1); canvasMinimumZoom.set(0.1);
+  for (const key of ['+', '=', 'Add']) {
+    const event = keyEvent(key, { shiftKey: key === '+' });
+    expect(handleGlobalShortcut(event)).toBe(true);
+    expect(event.preventDefault).toHaveBeenCalled();
+  }
+  expect(get(canvasZoom)).toBeCloseTo(1.25 ** 3);
+  for (const key of ['-', '_', 'Subtract']) expect(handleGlobalShortcut(keyEvent(key, { shiftKey: key === '_' }))).toBe(true);
+  expect(get(canvasZoom)).toBeCloseTo(1);
+  canvasZoom.set(9);
+  for (let i = 0; i < 3; i++) handleGlobalShortcut(keyEvent('+'));
+  expect(get(canvasZoom)).toBe(10);
+  canvasZoom.set(0.12);
+  for (let i = 0; i < 3; i++) handleGlobalShortcut(keyEvent('-'));
+  expect(get(canvasZoom)).toBe(0.1);
+  expect(get(selectedTool)).toBe('select');
+  canvasZoom.set(1);
+});
+
+it('leaves Ctrl/Cmd+plus/minus to the browser and ignores zoom keys while typing', () => {
+  canvasZoom.set(1);
+  for (const extra of [{ ctrlKey: true }, { metaKey: true }, { altKey: true }, { target: { tagName: 'INPUT' } }, { target: { tagName: 'SPAN', isContentEditable: true } }]) {
+    for (const key of ['+', '=', '-', '_']) {
+      const event = keyEvent(key, extra);
+      expect(handleGlobalShortcut(event)).toBe(false);
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    }
+  }
+  expect(get(canvasZoom)).toBe(1);
 });
 
 it('leaves activation and Tab on focused controls to the browser', () => {

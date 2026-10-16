@@ -186,3 +186,28 @@ it('checks copy IDs against the library while holding the mutation lock', async 
   expect(copy.id).toBe('fresh-copy-id'); expect(uuid.mock.calls.length).toBeGreaterThanOrEqual(2);
   expect((await first.load(a.id))!.name).toBe(a.name);
 });
+
+it('keeps refusing the deleting tab\'s own retained revision, so re-importing it must take a new ID', async () => {
+  const { first, a } = await twoTabs();
+  await first.list(); await first.delete(a.id);
+  expect(await first.has(a.id)).toBe(false);
+  await expect(first.assertCurrent(a.id)).rejects.toBeInstanceOf(ProjectConflictError);
+  await expect(first.save(a)).rejects.toBeInstanceOf(ProjectConflictError);
+  expect(await rawRecords()).toEqual({});
+});
+
+it('fails a save with blocked storage outside the library lock: the lock callback itself never rejects', async () => {
+  // Firefox reports a Web Locks callback whose promise rejects at once as an uncaught page error.
+  let rejectedInsideLock = false;
+  const request = vi.fn((_name: string, run: () => Promise<unknown>) => {
+    const result = run();
+    result.catch(() => { rejectedInsideLock = true; });
+    return result;
+  });
+  vi.stubGlobal('window', {});
+  vi.stubGlobal('navigator', { locks: { request } });
+  vi.spyOn(indexedDB, 'open').mockImplementation(() => { throw new DOMException('Access is denied for this document.', 'SecurityError'); });
+  await expect(createLocalStore().save(roomProject())).rejects.toMatchObject({ name: 'SecurityError' });
+  expect(request).toHaveBeenCalledWith('openplan3d-project-library', expect.any(Function));
+  expect(rejectedInsideLock).toBe(false);
+});

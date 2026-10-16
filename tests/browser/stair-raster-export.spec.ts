@@ -53,3 +53,43 @@ test('stair-only plans retain every shape in all plan export formats',async({pag
 
  expect(JSON.parse((await download('Download JSON')).toString()).floors).toEqual(before.floors);
 });
+
+test('Print Layout keeps stair captions and a multi-line note at the plan edge inside the Fit page',async({page})=>{
+ // Record the device-pixel ink of every caption drawn on the print sheet.
+ await page.addInitScript(()=>{
+  const fill=CanvasRenderingContext2D.prototype.fillText;
+  CanvasRenderingContext2D.prototype.fillText=function(text,x,y,maxWidth){
+   if(this.canvas.getAttribute('aria-label')==='Floor plan print preview'){
+    const m=this.measureText(text),t=this.getTransform();
+    const corners=[[x-m.actualBoundingBoxLeft,y-m.actualBoundingBoxAscent],[x+m.actualBoundingBoxRight,y+m.actualBoundingBoxDescent]].map(([px,py])=>new DOMPoint(px,py).matrixTransform(t));
+    ((window as any).__printInk??=[]).push({text:String(text),left:Math.min(...corners.map(p=>p.x)),right:Math.max(...corners.map(p=>p.x)),top:Math.min(...corners.map(p=>p.y)),bottom:Math.max(...corners.map(p=>p.y))});
+   }
+   return maxWidth===undefined?fill.call(this,text,x,y):fill.call(this,text,x,y,maxWidth);
+  };
+ });
+ await page.goto('/editor');const project=benchmarkProject('small'),floor=project.floors[0];
+ for(const key of ['walls','doors','windows','rooms','columns','furniture'] as const)floor[key]=[];
+ floor.stairs=(['straight','l-shaped','u-shaped','spiral'] as const).map((stairType,i)=>({id:`s${i}`,stairType,position:{x:(i%2)*650-500,y:Math.floor(i/2)*650-500},width:150,depth:300,rotation:i===1?35:i===2?-20:0,riserCount:15,direction:i%2?'down':'up'}));
+ floor.textAnnotations=[{id:'note',x:-170,y:-760,text:'Upper landing\nmeasure again\non site',fontSize:24,color:'#1e293b',rotation:0}];
+ await page.getByRole('button',{name:'Export',exact:true}).click();const chooser=page.waitForEvent('filechooser');await page.getByRole('button',{name:'Import JSON',exact:true}).click();
+ await(await chooser).setFiles({name:'stairs-print.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(project))});await expect(page.getByRole('button',{name:project.name,exact:true})).toBeVisible();
+ const openPrint=async()=>{await page.getByRole('button',{name:'Export',exact:true}).click();await page.getByRole('button',{name:'Print Layout',exact:true}).click();};
+ const dialog=page.getByRole('dialog',{name:'Print Preview',exact:true});
+ // Pick Fit, then reopen so the only sheet recorded is the Fit one (the dialog keeps its scale).
+ await openPrint();await dialog.getByRole('combobox',{name:'Scale:',exact:true}).selectOption('fit');
+ await expect(dialog.getByRole('button',{name:'Download PDF',exact:true})).toBeEnabled();
+ await dialog.getByRole('button',{name:'Close',exact:true}).click();
+ await page.evaluate(()=>{(window as any).__printInk=[];});
+ await openPrint();
+ const labels=['UP','DN (l-shaped)','UP (u-shaped)','DN','Upper landing','measure again','on site'];
+ await expect.poll(()=>page.evaluate(labels=>labels.every(label=>((window as any).__printInk??[]).some((ink:{text:string})=>ink.text===label)),labels)).toBe(true);
+ const sheet=await dialog.getByLabel('Floor plan print preview',{exact:true}).evaluate(node=>({width:(node as HTMLCanvasElement).width,height:(node as HTMLCanvasElement).height}));
+ // Letter landscape: 279.4 × 215.9 mm; the drawing area runs from 12 mm to 12 mm short of the sides, 30 mm below the top and 22 mm above the bottom.
+ const sx=sheet.width/279.4,sy=sheet.height/215.9,area={left:12*sx,right:(279.4-12)*sx,top:30*sy,bottom:(215.9-22)*sy};
+ const ink=await page.evaluate(labels=>((window as any).__printInk as {text:string}[]).filter(entry=>labels.includes(entry.text)),labels) as {text:string;left:number;right:number;top:number;bottom:number}[];
+ for(const entry of ink){
+  expect(entry.left,entry.text).toBeGreaterThanOrEqual(area.left-1);expect(entry.right,entry.text).toBeLessThanOrEqual(area.right+1);
+  expect(entry.top,entry.text).toBeGreaterThanOrEqual(area.top-1);expect(entry.bottom,entry.text).toBeLessThanOrEqual(area.bottom+1);
+ }
+ await dialog.getByRole('button',{name:'Close',exact:true}).click();
+});

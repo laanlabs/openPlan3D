@@ -56,6 +56,7 @@
 	"overrides": {
 		"@sveltejs/kit": {
 			"cookie": "^0.7.2"
-		}
+		},
+		"@grpc/grpc-js": "^1.14.6"
 	}
 }

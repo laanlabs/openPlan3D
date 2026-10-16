@@ -1,6 +1,9 @@
-import type { CustomEntourageDef, Floor, Point, Project } from '$lib/models/types';
+import type { CustomEntourageDef, Floor, FurnitureItem, Point, Project } from '$lib/models/types';
+import { furnitureCaptionBounds } from './furnitureCaption';
 import { getFurnitureSize } from './furnitureCatalog';
 import { wallPointAt, entourageAspect } from './canvasRenderer';
+import { planContentBounds } from './planContentBounds';
+import { getRoomPolygon, resolveRooms } from './roomDetection';
 
 export type PrintOptions = { pageSize: 'a4' | 'letter'; orientation: 'landscape' | 'portrait'; scale: 'fit' | 25 | 50 | 100 | 200 };
 export type Bounds = { minX: number; minY: number; maxX: number; maxY: number };
@@ -37,6 +40,49 @@ export function printBounds(floor: Floor, customEntourage?: CustomEntourageDef[]
   const valid = points.filter(p => Number.isFinite(p.x) && Number.isFinite(p.y));
   if (!valid.length) return null;
   return { minX: Math.min(...valid.map(p => p.x)), minY: Math.min(...valid.map(p => p.y)), maxX: Math.max(...valid.map(p => p.x)), maxY: Math.max(...valid.map(p => p.y)) };
+}
+
+/** What the page draws in text, measured on its canvas: labels keep a pixel size on paper, so their extent depends on the scale. */
+export type PrintInk = {
+  context: CanvasRenderingContext2D; pixelsPerMm: number; roomLabels: boolean; roomDimensions: boolean; units: 'metric' | 'imperial';
+  /** The caption a furniture item is drawn with (a custom model's own name); undefined uses the catalog name. */
+  furnitureCaption?: (item: FurnitureItem) => string | undefined;
+};
+
+/**
+ * Lay the floor out on the page with room labels, notes, furniture captions and stair, measurement and
+ * dimension captions inside the drawing area, not only the geometry, so Fit and the overflow check do
+ * not crop them. Captions keep their size on paper, so their extent in plan centimetres grows as the
+ * scale shrinks: Fit is measured again at each scale until it settles.
+ */
+export function printPageLayout(floor: Floor, customEntourage: CustomEntourageDef[] | undefined, options: PrintOptions, ink?: PrintInk) {
+  const geometry = printBounds(floor, customEntourage);
+  if (!geometry) return null;
+  let layout = calculatePrintLayout(geometry, options);
+  if (!ink) return layout;
+  const rooms = ink.roomLabels || ink.roomDimensions ? resolveRooms(floor).map(room => ({ room, polygon: getRoomPolygon(room, floor.walls) })) : [];
+  for (let pass = 0; pass < 8; pass++) {
+    const zoom = layout.mmPerCm * ink.pixelsPerMm;
+    const text = planContentBounds(floor, { context: ink.context, zoom, units: ink.units,
+      entourageAspect: id => entourageAspect(id, customEntourage) || 1,
+      roomLabels: ink.roomLabels ? rooms : undefined,
+      automaticDimensions: { external: false, internal: ink.roomDimensions, edge: false },
+      dimensionRooms: ink.roomDimensions ? rooms : undefined });
+    const bounds = text ? { minX: Math.min(geometry.minX, text.minX), minY: Math.min(geometry.minY, text.minY),
+      maxX: Math.max(geometry.maxX, text.maxX), maxY: Math.max(geometry.maxY, text.maxY) } : { ...geometry };
+    for (const item of floor.furniture) {
+      const b = furnitureCaptionBounds(item, ink.furnitureCaption?.(item), ink.context, zoom);
+      if (!b) continue;
+      bounds.minX = Math.min(bounds.minX, b.minX); bounds.minY = Math.min(bounds.minY, b.minY);
+      bounds.maxX = Math.max(bounds.maxX, b.maxX); bounds.maxY = Math.max(bounds.maxY, b.maxY);
+    }
+    const next = calculatePrintLayout(bounds, options);
+    // Done once the scale the captions were measured at is the scale the page uses.
+    const settled = Math.abs(next.mmPerCm - layout.mmPerCm) <= layout.mmPerCm * 1e-5;
+    layout = next;
+    if (settled) break;
+  }
+  return layout;
 }
 
 export function calculatePrintLayout(bounds: Bounds, options: PrintOptions) {

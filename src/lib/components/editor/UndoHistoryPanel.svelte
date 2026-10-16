@@ -50,7 +50,7 @@
 </script>
 
 {#if visible}
-  <div bind:this={panel} role="region" aria-label={$t('undoHistory.title')} class="undo-history fixed bottom-12 left-4 w-64 max-h-80 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 flex flex-col overflow-hidden">
+  <div bind:this={panel} role="region" aria-label={$t('undoHistory.title')} data-popup="panel" class="undo-history fixed bottom-12 left-4 w-64 max-h-80 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 flex flex-col overflow-hidden">
     <!-- Header -->
     <div class="flex items-center justify-between px-3 py-2 border-b border-gray-100 bg-gray-50">
       <div class="flex items-center gap-1.5">

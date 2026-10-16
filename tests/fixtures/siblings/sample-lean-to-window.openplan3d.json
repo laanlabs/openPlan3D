@@ -1,0 +1,415 @@
+{
+ "defaults": {
+  "ceilingHeight": 2.4,
+  "exteriorWallThickness": 0.2,
+  "interiorWallThickness": 0.12
+ },
+ "doors": [
+  {
+   "dimensions": [
+    0.9,
+    2.03,
+    0.2
+   ],
+   "identifier": "de674811-a70d-44de-ba94-f57734acda54",
+   "parentIdentifier": "56804571-79ea-4d06-ade8-0de3334dfa18",
+   "story": 0,
+   "style": "single",
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    7.05,
+    1.015,
+    -0.1,
+    1
+   ]
+  }
+ ],
+ "floors": [],
+ "objects": [
+  {
+   "attributes": {
+    "opencatio3dKind": "lean-to",
+    "opencatio3dRole": "structure",
+    "structureId": "d320061e-8ca0-463f-bc7d-b65ce55d6a8d"
+   },
+   "category": {
+    "greenhouse": {}
+   },
+   "dimensions": [
+    2.438,
+    2.134,
+    1.219
+   ],
+   "identifier": "d320061e-8ca0-463f-bc7d-b65ce55d6a8d",
+   "story": 0,
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    3.45,
+    1.067,
+    0.6095,
+    1
+   ]
+  }
+ ],
+ "opencatio3d": {
+  "alternatives": [],
+  "assumptions": {
+   "fastenerOverage": 0.1,
+   "kerf": 0.003,
+   "stockLengths": [],
+   "wasteFactor": 0.1
+  },
+  "building": null,
+  "captureSource": "sample",
+  "catalogVersion": "oc-catalog@0.1",
+  "cats": [
+   {
+    "ageClass": "adult",
+    "climber": true,
+    "escapeRisk": "high",
+    "id": "fa10c6d2-dae8-4a5f-8bde-a4787fa430c5",
+    "mobility": "full",
+    "name": "Miso",
+    "size": "medium"
+   },
+   {
+    "ageClass": "adult",
+    "climber": true,
+    "escapeRisk": "medium",
+    "id": "e65bf501-2868-4d2a-ba38-409f55e923d8",
+    "mobility": "full",
+    "name": "Juniper",
+    "size": "small"
+   }
+  ],
+  "createdAt": "2026-10-12T12:00:00.000Z",
+  "currency": "USD",
+  "lengthUnit": "m",
+  "name": "Lean-to on the back wall",
+  "observations": [],
+  "overrides": [],
+  "plants": [
+   {
+    "furnishingId": "0a42d655-3216-4d26-bf18-b8eb11a07a2c",
+    "id": "914355bc-5989-46e9-8096-ecc6fec919b3",
+    "plantId": "spider-plant",
+    "structureId": "d320061e-8ca0-463f-bc7d-b65ce55d6a8d"
+   },
+   {
+    "furnishingId": "0942d4c2-3316-4eb9-be18-b75812a07bbf",
+    "id": "9243574f-5889-4556-8196-ee59fdc91820",
+    "plantId": "rosemary",
+    "structureId": "d320061e-8ca0-463f-bc7d-b65ce55d6a8d"
+   },
+   {
+    "furnishingId": "0942d4c2-3316-4eb9-be18-b75812a07bbf",
+    "id": "934358e2-5789-43c3-be96-e9a000c91cd9",
+    "plantId": "boston-fern",
+    "structureId": "d320061e-8ca0-463f-bc7d-b65ce55d6a8d"
+   }
+  ],
+  "producer": "web",
+  "projectId": "1cd4fdd9-7bbd-4828-85af-b7475025579e",
+  "region": {
+   "climate": {
+    "hot": false,
+    "rainy": true,
+    "snowLoad": "none",
+    "wind": "normal"
+   },
+   "country": "US",
+   "state": "OR"
+  },
+  "schema": "opencatio3d/project@0.1",
+  "site": {
+   "ground": "concrete",
+   "measurements": [
+    {
+     "confirmed": true,
+     "field": "width",
+     "id": "b73c1e89-2153-4478-8bbd-035fe392256e",
+     "source": "tape",
+     "targetId": "d320061e-8ca0-463f-bc7d-b65ce55d6a8d",
+     "value": 2.438
+    },
+    {
+     "confirmed": true,
+     "field": "depth",
+     "id": "b63c1cf6-2253-460b-8abd-01cce4922701",
+     "source": "tape",
+     "targetId": "d320061e-8ca0-463f-bc7d-b65ce55d6a8d",
+     "value": 1.219
+    },
+    {
+     "confirmed": true,
+     "field": "height",
+     "id": "b53c1b63-2353-479e-8dbd-0685e1922248",
+     "source": "tape",
+     "targetId": "d320061e-8ca0-463f-bc7d-b65ce55d6a8d",
+     "value": 2.134
+    }
+   ],
+   "northDeg": 0,
+   "obstacles": [],
+   "walls": [
+    {
+     "a": [
+      0,
+      0
+     ],
+     "b": [
+      9,
+      0
+     ],
+     "height": 2.7,
+     "id": "56804571-79ea-4d06-ade8-0de3334dfa18",
+     "openings": [
+      {
+       "height": 1.2,
+       "id": "dd67467e-a80d-4671-b994-f3e435acdbe7",
+       "kind": "window",
+       "name": "Living room window",
+       "offset": 3,
+       "sill": 0.9,
+       "width": 0.9
+      },
+      {
+       "height": 2.03,
+       "id": "de674811-a70d-44de-ba94-f57734acda54",
+       "kind": "door",
+       "name": "Back door",
+       "offset": 6.6,
+       "sill": 0,
+       "width": 0.9
+      },
+      {
+       "height": 0.15,
+       "id": "db674358-a60d-434b-bb94-f70a37acdf0d",
+       "kind": "dryer-vent",
+       "name": "Dryer vent",
+       "offset": 0.6,
+       "sill": 0.5,
+       "width": 0.15
+      }
+     ]
+    }
+   ]
+  },
+  "structures": [
+   {
+    "base": {
+     "kind": "pavers"
+    },
+    "depth": 1.219,
+    "frame": {
+     "materialId": "lumber-2x3-pt",
+     "maxPostSpacing": 1.2,
+     "profile": "wood-2x3",
+     "railSpacing": 0.9
+    },
+    "furnishings": [
+     {
+      "componentId": "shelf",
+      "id": "0442cce3-3416-404c-8518-c25d0fa07706",
+      "length": 0.6,
+      "mountHeight": 0.9,
+      "offset": 0.3,
+      "side": "left"
+     },
+     {
+      "componentId": "shelf",
+      "id": "0342cb50-3516-41df-8418-c0ca10a07899",
+      "length": 0.6,
+      "mountHeight": 1.4,
+      "offset": 0.3,
+      "side": "right"
+     },
+     {
+      "componentId": "scratcher-post",
+      "id": "0642d009-3616-4372-8318-bf370da073e0",
+      "mountHeight": 0.9,
+      "offset": 0.95,
+      "side": "left"
+     },
+     {
+      "componentId": "bed",
+      "id": "0542ce76-3716-4505-8218-bda40ea07573",
+      "mountHeight": 0,
+      "offset": 0.15,
+      "side": "front"
+     },
+     {
+      "componentId": "water-station",
+      "id": "0842d32f-3016-4a00-8118-bc1113a07d52",
+      "mountHeight": 0,
+      "offset": 0.9,
+      "side": "right"
+     },
+     {
+      "componentId": "ramp",
+      "id": "0742d19c-3116-4b93-8018-ba7e14a07ee5",
+      "length": 1.05,
+      "mountHeight": 0.9,
+      "offset": 0.05,
+      "side": "right"
+     },
+     {
+      "componentId": "planter-small",
+      "id": "0a42d655-3216-4d26-bf18-b8eb11a07a2c",
+      "mountHeight": 0,
+      "offset": 1.85,
+      "side": "front"
+     },
+     {
+      "componentId": "planter-large",
+      "id": "0942d4c2-3316-4eb9-be18-b75812a07bbf",
+      "mountHeight": 0,
+      "offset": 0.05,
+      "side": "left"
+     }
+    ],
+    "height": 2.134,
+    "hostOpeningId": "dd67467e-a80d-4671-b994-f3e435acdbe7",
+    "hostWallId": "56804571-79ea-4d06-ade8-0de3334dfa18",
+    "id": "d320061e-8ca0-463f-bc7d-b65ce55d6a8d",
+    "lowHeight": 1.829,
+    "mesh": {
+     "materialId": "mesh-1x1-16ga-gaw-48"
+    },
+    "name": "Window lean-to",
+    "openings": [
+     {
+      "height": 1.651,
+      "hinge": "left",
+      "id": "dcd4ad76-646e-4f57-9080-5d6c70d20fb5",
+      "kind": "human-door",
+      "latch": "hasp",
+      "offset": 0.838,
+      "selfClosing": true,
+      "side": "front",
+      "swing": "out",
+      "width": 0.762
+     },
+     {
+      "height": 1.2,
+      "id": "ddd4af09-636e-4dc4-9180-5eff6fd20e22",
+      "kind": "window-access",
+      "offset": 0.7690000000000001,
+      "side": "back",
+      "sill": 0.9,
+      "width": 0.9
+     }
+    ],
+    "roof": {
+     "coverFraction": 0.5,
+     "kind": "partial",
+     "materialId": "roof-polycarb-corrugated"
+    },
+    "rotation": 0,
+    "template": "lean-to",
+    "width": 2.438,
+    "x": 2.231,
+    "y": 0
+   }
+  ],
+  "units": "imperial",
+  "updatedAt": "2026-10-12T12:00:00.000Z",
+  "web": {
+   "sampleId": "lean-to-window"
+  }
+ },
+ "openings": [],
+ "openplanHandoffVersion": 1,
+ "openplanPrepared": true,
+ "planNotes": "Created with OpenCatio3D. Catios are shown as boxes; the full design is in the opencatio3d block. Planning guidance only — confirm dimensions on site.",
+ "sections": [],
+ "stories": [
+  {
+   "index": 0,
+   "name": "Ground Floor"
+  }
+ ],
+ "version": 2,
+ "walls": [
+  {
+   "dimensions": [
+    9,
+    2.7,
+    0.2
+   ],
+   "identifier": "56804571-79ea-4d06-ade8-0de3334dfa18",
+   "story": 0,
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    4.5,
+    1.35,
+    -0.1,
+    1
+   ]
+  }
+ ],
+ "windows": [
+  {
+   "dimensions": [
+    0.9,
+    1.2,
+    0.2
+   ],
+   "identifier": "dd67467e-a80d-4671-b994-f3e435acdbe7",
+   "parentIdentifier": "56804571-79ea-4d06-ade8-0de3334dfa18",
+   "sillHeight": 0.9,
+   "story": 0,
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    3.45,
+    1.5,
+    -0.1,
+    1
+   ]
+  }
+ ]
+}

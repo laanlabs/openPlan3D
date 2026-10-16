@@ -18,6 +18,332 @@ Evidence: `tests/object-taxonomy.test.ts`, `tests/browser/objects-panel.spec.ts`
 `docs/objects-panel-validation.md`. Follow-up: add real items for the empty
 sub-cards (ottoman, cabinets, toys, gym, …).
 
+## Eighteen more hunt defects, a review round and issue #101 — October 16
+
+Branch `fix/editor-defects-3` (PR #112, stacked on #110). **Merged and deployed October 16**, with #107–#110: all five App Hosting rollouts succeeded, and the live handoff preflight returns 204 for the sibling origins. The 21 lower-ranked
+findings left over from the October 15 hunt were re-checked by two verifiers
+each (one reproducing, one refuting): 17 confirmed outright, the elevation
+Escape defect by one verifier plus a reading of the code, the interchange
+round-trip loss judged the documented v1 contract (documentation only), the
+history-panel claim refuted, and the Portuguese leaks verified while fixing
+(room-type names stay English by design: the name is also the room-type key
+for fills, patterns, the Type dropdown and the sibling category). Fixed in
+eight parallel worktrees, then reviewed by seven reviewers, whose 13 findings
+were fixed in a second round:
+
+- **3D viewer**: X-ray fades only the wall shell and restores every material
+  (`wallXray.ts`); colour canvas textures decode as sRGB (`viewerTextures.ts`);
+  time-of-day presets repaint the sky (three caches the background cube, so the
+  texture is disposed after a redraw); wall textures tile at a constant 200 cm
+  (`mapWallUVs`); straight-wall baseboards are cut at floor-level windows;
+  without WebGL the view explains why and the one-time 3D tip waits for a
+  working view; the orbit camera re-frames only on a new context
+  (`sceneFraming.ts`), not on edits or texture loads.
+- **Snapping**: the top-bar Snap button and More item follow the store; the
+  status-bar Snap shows the step (25 cm / 10 cm) or "Snap off"; with Snap to
+  Grid off, room, multi-selection and parallel-wall drags and magnetic
+  endpoint snapping stop snapping, as the guide always said (Shift still forces
+  45°; guide-line and wall-alignment snapping for furniture keep their own
+  switches); the canvas now uses the shared `snap()` the unit tests cover.
+- **Keyboard and dialogs**: the project name focuses and selects on click and
+  Escape cancels (`inlineEditorFocus.ts`); the elevation view leaves Escape to
+  focused fields and open menus/panels (`popupOwnsEscape`) and its canvas takes
+  focus when pressed; busy Restore, Import, Share and library rename/delete
+  dialogs re-show after a forced close (`reconcileNativeClose`); Share no longer
+  fails with "could not be cloned"; the welcome overlay is a real modal.
+- **Exports**: SVG/DXF/DWG explain an empty floor, and DXF/DWG a floor whose
+  only content cannot be drawn in CAD (uploaded or fully transparent
+  entourage); custom models are labelled by name everywhere; user text in DXF
+  and SVG is stripped of line breaks and XML-invalid characters
+  (`exportText.ts`); long furniture captions are framed rather than clipped
+  (`furnitureCaption.ts`).
+- **Storage**: blocked site storage shows the designed message; theme, settings
+  (S key, Settings > Dimensions), catalog recents/favourites and the Gemini key
+  apply for the session and fail visibly instead of throwing; onboarding tips
+  dismiss when writes fail; a theme chosen in another tab now holds; the
+  library lock callback never rejects (Firefox reported an immediately
+  rejected Web Locks callback as an uncaught error on every blocked save).
+- **Geometry**: rooms over 1000 m² are detected; a room's outline is now the
+  face it encloses, so a room with an attached closet or office no longer gets
+  the whole perimeter (or the neighbour's outline) as its fill, 3D floor,
+  slab, ceiling, interchange anchor and interior area; duplicated and pasted
+  openings stay fully on their wall.
+- **Portuguese**: Undo History entries, canvas tool hints, painted canvas
+  labels and the error page are translated.
+- **Docs**: interchange lossy lists name floor openings and floor
+  elevation/slab thickness; the in-app help says interchange carries geometry
+  only.
+
+### Issue #101: the six problems in its comment
+
+Under "Is there a Wiki?", an end user (Windows 11, Firefox, everything drawn by
+hand) listed six problems on 2026-09-29; the October 15 work answered only the
+documentation question. Each was reproduced with the modules of the version
+live then (`d68cadf`) and fixed where still wrong:
+
+1. **Duplicating a layout**: a Duplicate started while the editor's last save
+   was still queued turned that save into a conflict and copied the older
+   version, with no visible error, and a successful Duplicate only re-sorted
+   the list. Duplicate now waits for queued library writes without
+   invalidating them, and the library names, outlines and scrolls to the copy.
+   A one-step "duplicate floor" does not exist (feature gap, not built); the
+   guide documents Add Floor's wall seeding and copy/paste between floors.
+2. **An image without dimensions**: no export looked at what was hidden on
+   screen. PNG, PDF, SVG, DXF/DWG and Print Layout now follow the 2D view's
+   layer switches, Room Labels and Settings > Dimensions
+   (`exportVisibility.ts`); everything still exports by default, and a floor
+   whose content is all hidden gets a notice. The status-bar "Automatic
+   dimensions" checkbox now writes the saved Settings > Dimensions switch.
+3. and 4. **Text labels and stairs missing from images**: PNG and PDF gained
+   notes and stairs on 2026-09-13 (#95), so the user most likely exported
+   before that; Print Layout still cropped notes, room labels and L/U/spiral
+   stairs at Fit and drew entourage over them. One fit loop
+   (`printPageLayout`) now measures labels, notes, stair, measurement,
+   dimension and furniture captions at the sheet's scale.
+5. **Projects disappeared**: nothing asked the browser to keep the library.
+   After the first save a person makes, the app now calls
+   `navigator.storage.persist()` once, and while storage is not persistent the
+   library shows a dismissible note recommending Download library backup; the
+   guide explains Firefox's prompt, delete-on-close settings and profiles. The
+   app cannot bring lost projects back.
+6. **A JSON backup that would not load**: Download JSON files imported
+   through Import a Plan and Import JSON, but Restore library backup rejected
+   them, Import JSON rejected library backups, and the project-package picker
+   reported a ZIP layout error. Restore now takes a single-project JSON (as a
+   copy), Import JSON and Import a Plan send library backups to Restore, and the
+   package dialog says where JSON files go. A backup of a plan deleted in the
+   same tab was fixed earlier in this series (`044a797`).
+
+Also fixed while verifying: the wall elevation now refreshes when the shown
+wall is edited in Properties (it kept the old length and heights until
+reopened, because the store edits walls in place).
+
+Verification, October 16, local: `npm test` **1,577 tests in 163 files**, `npm run check` clean,
+production build. Chromium browser runs, each on a fresh build: the first
+round's 18 new or changed specs (32 tests) and 72 dependent specs (193 tests);
+the review round's 63 specs (165 of 166 tests; the elevation case failed on the
+older refresh bug described above, and the four elevation specs then passed in
+all three engines, 24 tests); the issue #101 round's 35 specs (119 of 120; the
+storage-note case relied on the user activation automation grants and now
+models a person's, 18 tests in all three engines). Blocked-storage,
+save-conflict and library specs: 39 tests in all three engines, after a fix for
+Firefox reporting an immediately rejected Web Locks callback as an uncaught
+error. Full three-engine CI runs on the PR.
+
+Known trade-offs and follow-ups (not fixed here):
+- A hand-dragged label in a room whose outline was wrong moves once on reopen
+  (its offset is measured from the outline's centroid).
+- `getRoomPolygon` re-traces faces per call; exports of very large plans are
+  about 1.8× slower (a 266-wall test plan: 176 → 325 ms per pass).
+- 2D PNG, PDF and Print Layout label catalog furniture in English when the UI
+  is Portuguese (SVG/DXF are localized).
+- Export 3D PNG without WebGL waits for its 10 s capture timeout before the
+  failure notice.
+- `ContextToolbar.svelte` is dead code and the user guide (around lines
+  217–219) describes its flip buttons; FloorPlanCanvas still imports
+  `duplicateDoor`/`duplicateWindow` without using them.
+- The render panel reads the Gemini key directly; with storage blocked it
+  shows the browser's raw SecurityError text.
+- New Portuguese strings could use a native speaker's check.
+
+## Fifteen defects from the October 15 bug hunt — October 16
+
+Branch `fix/editor-defects-2` (stacked on the three branches below). A
+37-agent hunt over the editor's core flows, with two refuters per finding,
+confirmed fifteen defects; all are fixed here with fixture-based regressions:
+
+- **Version History** (high): Restore now writes the version being replaced as
+  a "Before restore" snapshot first and aborts when that write fails; the
+  confirm text says the current version is kept. Automatic snapshots
+  ("Session start", the 5-minute "Auto-save", "Before restore") are skipped
+  while identical to the newest stored one, so ten idle ticks no longer evict
+  every distinct version (`versionHistory.ts`, `tests/version-history.test.ts`).
+- **Room detection** (high): a room with two or more dangling stub walls no
+  longer vanishes; the face walk's step budget counts directed edges and a face
+  closes on its starting directed edge, so stub-bearing faces trace completely
+  whatever the wall order (`roomDetection.ts`, `tests/room-detection-stubs.test.ts`).
+- **DXF/DWG door symbol** (high): the arc was hinged at the opening centre with
+  half the radius, the leaf lay along the wall and the swing side was mirrored;
+  `doorSymbol.ts` now gives SVG and DXF one shared, type-aware glyph and the
+  SVG output is byte-identical (`tests/dxf-door-symbol.test.ts`).
+- **RoomPlan import**: section labels go to the smallest enclosing room and a
+  second label inside a claimed room becomes a wall-less metadata room instead
+  of stealing a neighbour; walls collapsed below 1 cm by straighten/orthogonal
+  are dropped with their openings re-homed, so the package export no longer
+  fails on a web plan (`roomplanImport.ts`, `tests/roomplan-import-labels.test.ts`).
+- **Re-import after delete**: a backup of a plan deleted in this tab imports
+  under a fresh id instead of failing every autosave with a false "another
+  tab" conflict (`projectOpening.ts`).
+- **Tracing images**: the picker accepts PNG/JPEG/GIF/WebP, re-encodes other
+  picks to PNG, and the package exporter names the floor and format of an
+  image it cannot carry (`projectPackage.ts`, `BuildPanel.svelte`); the paste
+  path accepts the same formats.
+- **Hit testing**: straight walls are hit across their painted body and the
+  nearest wall wins, like curved walls (`hitTesting.ts`, `tests/wall-hit-testing.test.ts`).
+- **History semantics**: rename and description edits are history steps;
+  the selection travels with each history entry, so Undo re-selects what was
+  selected before the step and Redo what was selected after it (Duplicate,
+  Undo, Redo, Delete removes the copies again), with ids the restored floor no
+  longer holds dropped; `mutate` records nothing for a no-op edit and
+  `endUndoGroup` ignores timestamps (`stores/project.ts`,
+  `tests/history-semantics.test.ts`).
+- **Canvas**: stair/column placement cancels on Escape, on a tool change and
+  via its own toggle button; dragging a room translates curved walls rigidly;
+  marquee selection locates openings on curved walls where they are drawn
+  (`placementArming.ts`, `wallTranslation.ts`, `marqueeSelection.ts`).
+
+Verification, October 16, local: `npm test` **1,414 tests in 144 files**,
+`npm run check` clean, production build; chromium browser cases for the
+touched areas: 73 passed in two batches (versions, project package, exports,
+shortcuts, stitching, door join, PDF, walls, rooms, history, editor).
+Sibling parity suites (6/22/4) and the cross-planner harness (4 per planner)
+still pass. Firefox/WebKit not run locally.
+
+The 21 lower-ranked candidates from the same hunt were verified and handled
+in the next batch (PR #112, the section above).
+
+## Editor defects found during the October 15 review — October 15
+
+Branch `fix/editor-small-bugs` (stacked on the two branches above). Six
+user-visible defects, each with a regression:
+
+- Zoom keys: `+` / `=` / `-` / `_` (and numpad) now zoom the plan ×1.25 within
+  the canvas limits from `handleGlobalShortcut`; the shortcuts dialog had
+  advertised them with no handler. Never with Ctrl/Cmd, while typing or with a
+  modal open (`tests/shortcuts.test.ts`).
+- Export as DWG: the English `alert()` is gone; the DXF downloads and an
+  ExportNotice ("DWG saved as DXF") explains it. `exportDXF`/`exportDWG` return
+  whether a file was downloaded (since PR #112, `true` or why nothing was
+  written: `'empty'` or `'unsupported'`) (`tests/exports.test.ts`,
+  `tests/browser/dimension-exports.spec.ts`).
+- Build → Import Image: the 5 MB `alert()` is a localized inline note.
+- Wall geometry: `addWall`, `moveWallEndpoint` and `moveWallGeometryDuringDrag`
+  store fresh `{ x, y }` points, so magnet-snap flags (`snappedToEndpoint`,
+  `snappedToWall`, `snappedWallId`) no longer reach saves or Download JSON and
+  joined corners no longer share one object. Older saved projects that already
+  carry those keys are not rewritten; the keys are harmless and vanish when the
+  endpoint next moves (`tests/wall-geometry-drag.test.ts`).
+- Product name "OpenPlan3D" in the shortcuts Copy All text and the PDF title
+  block; PDF labels are localized through `pdf.*` keys, with `exportPDF` and
+  `exportPDFWithFeedback` taking a language (default `en`).
+- Export menu → **Import project package** opens the package dialog in the
+  editor and switches to the imported copy; `ProjectPackageDialog.onimported`
+  now receives the imported project's library id
+  (`tests/browser/project-package.spec.ts`).
+
+Verification: `npm test` 1,339 tests in 135 files; `npm run check` clean;
+production build; chromium browser cases for shortcuts, project package, PDF
+and DXF exports pass (18). Firefox/WebKit not run locally.
+
+## Sibling interchange, CORS and five GitHub issues — October 15
+
+Web branch `fix/sibling-compat-and-open-issues`, uncommitted at the time of
+writing; nothing below is pushed or deployed. Dated record:
+[docs/reviews/2026-10-15-sibling-interchange-and-issues.md](docs/reviews/2026-10-15-sibling-interchange-and-issues.md).
+
+- **CORS on `POST /api/handoffs`** (`src/lib/server/handoffCors.ts`, the
+  route): `OPTIONS` answers 204 and every answer carries
+  `Access-Control-Allow-Origin` for the family's deployed origins only (apex
+  and `app.` hosts of openplan3d.com, openlandscape3d.com, openkitchen3d.com
+  and opencatio3d.com, plus `openkitchen3d-cloud.web.app` and
+  `.firebaseapp.com`, as an exact list; `http://localhost` / `127.0.0.1` only
+  with `HANDOFF_CORS_ALLOW_LOCAL=true`); never credentials; `Retry-After`
+  exposed. The
+  OpenLandscape3D and OpenCatio3D "Open in OpenPlan3D" buttons POST
+  cross-origin JSON; the live endpoint answered their preflight with 405 on
+  October 15, so they always fell back to a JSON download. Not deployed yet.
+- **Interchange export** (`src/lib/utils/interchange.ts`, `transferLink.ts`):
+  `projectToPreparedRoomPlan` writes the family's prepared RoomPlan JSON from
+  a web project; `siblingImportUrl` builds `<origin>/#/import/v1/<payload>`
+  links (unpadded base64url of raw-DEFLATE compact JSON, 262,144-character
+  cap; the kitchen origin is `https://openkitchen3d-cloud.web.app` until
+  app.openkitchen3d.com is live). Import keeps the `openkitchen3d` /
+  `openlandscape3d` / `opencatio3d` blocks, object attributes, `defaults` and
+  `planNotes` on `project.interchange` (validated by `readProject`, saved in
+  project JSON, not in the native package; **Add to this plan** merges them
+  too) and export writes them back without a `webProject` snapshot, with a
+  refreshed `building` and a ceiling default that follows the walls, and with
+  the family's link-privacy rules on links, checked against each sibling's
+  real fixtures (`tests/fixtures/siblings/`) and importers.
+  The Export menu gains **Other planners** → **Open in OpenLandscape3D /
+  OpenKitchen3D / OpenCatio3D** (new tab, plan in the link fragment, file
+  download when too large) and **Download interchange JSON**
+  (`<Project-Name>-openplan3d.json`).
+- **Issue #106** — PDF/PNG/SVG/DXF wall dimensions follow Settings → Measure
+  walls; curved walls keep centreline lengths (`wallDimensionLabel.ts`).
+- **Issue #104** — endpoint drag: the 45° snap only attracts within the
+  magnet's ~15 screen px whatever the wall length or zoom; Alt/Option = free
+  move, Shift = force the nearest 45° ray, a magnet join is kept
+  (`angleSnapWithin`, `FloorPlanCanvas.svelte`).
+- **Issue #103** — Build → Import RoomPlan → **Where to put it**: **Open as a
+  new project** (default) or **Add to this plan**; the scan lands 100 cm
+  right of the matching floor's content, ids are re-issued on collision,
+  rooms and names are kept, one Undo ("Added RoomPlan scan") removes it; the
+  new elements are selected with a clean editing context and the view fits
+  plan and scan together, and R rotates a multi-selection including walls
+  when the selected walls form a closed group (`roomplanMerge.ts`,
+  `stores/project.ts`, `BuildPanel.svelte`). Door-to-door alignment: right-click
+  a door → **Join to another door…** → click the matching door; the scan's wall
+  group turns and slides to the far side of that wall, one wall thickness
+  apart, with its furniture, as one history entry (`scanAlignment.ts`,
+  `tests/scan-alignment.test.ts`, `tests/browser/scan-door-join.spec.ts`).
+  Open: a gap control in the UI, merging the doubled wall into one, carrying
+  T-junction walls.
+- **Issue #102** — `docs/skills/openplan3d-plan-authoring/SKILL.md` with two
+  examples checked by `tests/skill-examples.test.ts`. **Issue #101** —
+  `docs/user-guide.md`, linked from the editor as **User guide**.
+- Website (`openplan3d-www`, uncommitted): the three planners are listed and
+  an FAQ entry explains the exchange.
+
+Verification, October 15, local, this working tree, after the adversarial
+review fixes below: `npm test` passed **1,325 tests in 134 files** (zero
+failures); `npm run check` found 0 errors and 0 warnings; the production build
+succeeded. Browser checks on that build, chromium only: 20 related specs
+(67 tests) passed before the review fixes, and the 11 specs (38 tests) most affected by
+them passed again afterwards, including the two new specs
+`tests/browser/roomplan-add-to-plan.spec.ts` and
+`tests/browser/interchange-export.spec.ts`. The nine new unit files: 147 tests
+(`handoff-cors` 39, `sibling-interchange` 36, `interchange` 18,
+`endpoint-drag-snap` 13, `roomplan-merge` 15, `interchange-ui` 8,
+`export-wall-measure-mode` 6, `transfer-link` 6, `skill-examples` 6; counts
+from `npx vitest run <file>`). The siblings' own parity suites against this
+checkout pass (OpenLandscape3D 6, OpenCatio3D 22, OpenKitchen3D Swift
+fixtures 4), and a session-scratch harness that feeds this editor's export to
+each sibling's real `fromOpenPlan` and `decodePayload` passes 4 cases per
+planner, including a web file with an embedded `webProject` whose wall edits
+made here arrive in OpenKitchen3D and OpenLandscape3D. Firefox, WebKit, full
+browser CI and physical devices have not run on this tree.
+
+Adversarial review (44 agents: four finders, two refuters per finding): 20
+findings, 17 confirmed, all addressed in this tree — retained blocks no longer
+re-emit `webProject`, refresh `building` and the ceiling default, and links
+apply the family's privacy rules; section anchors are interior points;
+**Add to this plan** keeps the sibling block and attributes and resets the
+editing context; walls rotate only as a closed group; the Export menu scrolls;
+the CORS allow-list is exact with local origins behind
+`HANDOFF_CORS_ALLOW_LOCAL`; the DXF export follows Measure walls; and the
+documentation passages the review called out were corrected.
+
+Open:
+
+- Deploy, then verify the live preflight (curl command in the record) and a
+  real "Open in OpenPlan3D" from OpenLandscape3D and OpenCatio3D.
+- Decide whether the native project package should carry
+  `project.interchange`; today it survives only in project JSON and library
+  backups.
+- Sibling contract questions: OpenPlan3D edits are not written back into the
+  retained blocks (a moved wall leaves the kitchen block as imported); the
+  format has no project-name slot beyond `<block>.name`; and OpenCatio3D
+  rebuilds its house from `site.walls` inside its block, so wall edits made
+  here do not reach its host walls until its importer prefers the top-level
+  arrays of a re-exported file.
+- Retain an incoming section `label` and a per-room ceiling on import; export
+  derives the label from the room type or name and the ceiling default from
+  wall heights.
+- Switch the OpenKitchen3D origin to app.openkitchen3d.com when it is live.
+- Issues #105 (iOS repository not yet public) and #30 (ops/billing) remain;
+  neither is a code change here.
+
 ## Assistant shares and remote MCP server — September 16
 
 Option A of the hosted connector design is implemented server-side and

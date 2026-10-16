@@ -44,4 +44,18 @@ describe('provider settings', () => {
     vi.mocked(localStorage.getItem).mockImplementation(() => { throw new Error('blocked'); });
     expect(get((await import('../src/lib/stores/aiKeys')).openAISettings).apiKey).toBe('');
   });
+  it('stores a trimmed Gemini key, removes a blank one, and reports storage that refuses either', async () => {
+    const keys = await import('../src/lib/stores/aiKeys');
+    keys.setGeminiKey(' AIza-key ');
+    expect(keys.getGeminiKey()).toBe('AIza-key');
+    keys.setGeminiKey(' ');
+    expect(keys.getGeminiKey()).toBeNull();
+    // Settings > AI shows its failure message instead of "Saved" when these throw.
+    const denied = () => { throw new DOMException('Access is denied for this document.', 'SecurityError'); };
+    vi.mocked(localStorage.setItem).mockImplementation(denied);
+    vi.mocked(localStorage.removeItem).mockImplementation(denied);
+    expect(() => keys.setGeminiKey('AIza-new')).toThrow(/denied/);
+    expect(() => keys.setGeminiKey('')).toThrow(/denied/);
+    expect(keys.getGeminiKey()).toBeNull();
+  });
 });

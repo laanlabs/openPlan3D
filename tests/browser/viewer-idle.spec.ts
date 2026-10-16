@@ -31,6 +31,8 @@ test('3D sleeps when idle and wakes for controls, scene changes and walkthrough'
   await (await chooser).setFiles(resolve('tests/fixtures/top-down-framing.openplan.json'));
   await page.getByRole('button', { name: '3D', exact: true }).click();
   await page.waitForLoadState('networkidle');
+  // The 3D tip opens once the viewer has started; it must be open before waiting for it to close.
+  await expect(page.locator('canvas[data-plan3d-canvas="true"]')).toBeVisible({ timeout: 60_000 });
   const hint = page.getByRole('button', { name: 'Got it', exact: true });
   await expect(hint).toBeHidden({ timeout: 15_000 });
   const canvas = page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').last();

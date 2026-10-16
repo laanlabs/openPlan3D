@@ -59,6 +59,18 @@ export function readProject(value: unknown): Project {
     record(project!.attachmentNames, 'attachmentNames');
     for (const [name, label] of Object.entries(project!.attachmentNames)) text(label, `attachmentNames.${name}`);
   }
+  if (project!.interchange !== undefined) {
+    const state = record(project!.interchange, 'interchange');
+    if (state.version !== 1) fail('interchange.version', 'is not supported');
+    const blocks = record(state.blocks, 'interchange.blocks');
+    for (const key of Object.keys(blocks)) record(blocks[key], `interchange.blocks.${key}`);
+    if (state.attributes !== undefined) {
+      const attributes = record(state.attributes, 'interchange.attributes');
+      for (const key of Object.keys(attributes)) record(attributes[key], `interchange.attributes.${key}`);
+    }
+    if (state.defaults !== undefined) record(state.defaults, 'interchange.defaults');
+    if (state.planNotes !== undefined) text(state.planNotes, 'interchange.planNotes');
+  }
   const floors = list(project!, 'floors', 'document', false);
   if (floors.length === 0) fail('floors', 'must contain at least one floor');
   const floorIds = new Set<string>();

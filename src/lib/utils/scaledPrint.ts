@@ -1,25 +1,36 @@
 import jsPDF from 'jspdf';
 import { translate, type Locale } from '$lib/i18n';
+import { customModelName } from '$lib/i18n/furnitureNames';
 import { get } from 'svelte/store';
 import type { Project } from '$lib/models/types';
 import { projectSettings, formatArea } from '$lib/stores/settings';
+import { currentPlanExportVisibility } from '$lib/stores/planVisibility';
+import { visiblePlanFloor, type PlanExportVisibility } from './exportVisibility';
 import { resolveRooms } from './roomDetection';
 import { drawRooms, drawDoorOnWall, drawWindowOnWall, drawFurnitureItem, drawStair, drawColumn, drawAnnotations, drawPersistedMeasurements, drawTextAnnotations, drawEntourageItems } from './canvasRenderer';
 import { worldToScreen, type CanvasState } from './canvasInteraction';
-import { activePrintFloor, printBounds, calculatePrintLayout, type PrintOptions } from './printLayout';
+import { activePrintFloor, printPageLayout, type PrintInk, type PrintOptions } from './printLayout';
 
 const PIXELS_PER_MM = 6;
 
-/** Preview and PDF use the same fixed physical page, independent of screen size/DPR. */
-export function renderPrintPage(canvas: HTMLCanvasElement, project: Project, options: PrintOptions, language: Locale = 'en') {
-  const floor = activePrintFloor(project);
-  const bounds = floor && printBounds(floor, project.customEntourage);
-  if (!bounds) return null;
-  const layout = calculatePrintLayout(bounds, options);
+/** Labels and furniture captions are measured on the page canvas itself, at the page's pixel density. */
+function printInk(canvas: HTMLCanvasElement, project: Project, visibility: PlanExportVisibility): PrintInk | undefined {
+  const context = typeof canvas.getContext === 'function' ? canvas.getContext('2d') : null;
+  return context ? {
+    context, pixelsPerMm: PIXELS_PER_MM, roomLabels: visibility.roomLabels, roomDimensions: visibility.roomDimensions,
+    units: get(projectSettings).units, furnitureCaption: item => customModelName(item, project),
+  } : undefined;
+}
+
+/** Preview and PDF use the same fixed physical page, independent of screen size/DPR. Layers hidden in the 2D view are left out. */
+export function renderPrintPage(canvas: HTMLCanvasElement, project: Project, options: PrintOptions, language: Locale = 'en', visibility: PlanExportVisibility = currentPlanExportVisibility()) {
+  const source = activePrintFloor(project), floor = source && visiblePlanFloor(source, visibility);
+  const layout = floor && printPageLayout(floor, project.customEntourage, options, printInk(canvas, project, visibility));
+  if (!floor || !layout) return null;
+  const ctx = canvas.getContext('2d')!;
   const { pageWidth, pageHeight, area, center, mmPerCm } = layout;
   canvas.width = Math.round(pageWidth * PIXELS_PER_MM);
   canvas.height = Math.round(pageHeight * PIXELS_PER_MM);
-  const ctx = canvas.getContext('2d')!;
   // Separate axes compensate for pixel rounding on Letter pages.
   const px = canvas.width / pageWidth, py = canvas.height / pageHeight;
   ctx.scale(px, py);
@@ -44,10 +55,10 @@ export function renderPrintPage(canvas: HTMLCanvasElement, project: Project, opt
   ctx.scale(1 / PIXELS_PER_MM, 1 / PIXELS_PER_MM);
   const cs: CanvasState = { ctx, width: area.width * PIXELS_PER_MM, height: area.height * PIXELS_PER_MM, zoom: mmPerCm * PIXELS_PER_MM, camX: center.x, camY: center.y };
   const settings = get(projectSettings);
-  drawRooms(cs, floor, resolveRooms(floor), null, true, true, settings);
+  drawRooms(cs, floor, resolveRooms(floor), null, visibility.roomLabels, visibility.roomDimensions, settings);
   ctx.strokeStyle = '#334155';
   ctx.lineCap = 'round';
-  for (const wall of floor.walls) {
+  for (const wall of visibility.walls ? floor.walls : []) {
     const a = worldToScreen(cs, wall.start.x, wall.start.y), b = worldToScreen(cs, wall.end.x, wall.end.y);
     ctx.lineWidth = wall.thickness * cs.zoom;
     ctx.beginPath(); ctx.moveTo(a.x, a.y);
@@ -59,13 +70,14 @@ export function renderPrintPage(canvas: HTMLCanvasElement, project: Project, opt
   }
   for (const door of floor.doors) { const wall = floor.walls.find(w => w.id === door.wallId); if (wall) drawDoorOnWall(cs, wall, door); }
   for (const win of floor.windows) { const wall = floor.walls.find(w => w.id === win.wallId); if (wall) drawWindowOnWall(cs, wall, win); }
-  for (const item of floor.furniture) drawFurnitureItem(cs, item, false);
+  // Under furniture, stairs and notes, as in the editor and the other exports, so an uploaded symbol cannot cover a label.
+  drawEntourageItems(cs, floor, null, project.customEntourage);
+  for (const item of floor.furniture) drawFurnitureItem(cs, item, false, customModelName(item, project));
   for (const item of floor.stairs ?? []) drawStair(cs, item, false);
   for (const item of floor.columns ?? []) drawColumn(cs, item, false);
   drawAnnotations(cs, floor, null, settings);
   drawPersistedMeasurements(cs, floor, null, settings);
   drawTextAnnotations(cs, floor, null, null);
-  drawEntourageItems(cs, floor, null, project.customEntourage);
   ctx.restore();
   ctx.textAlign = 'left'; ctx.fillStyle = '#64748b'; ctx.font = '2.5px sans-serif';
   ctx.fillText(translate(language, 'print.sheetFooter'), 12, pageHeight - 7, pageWidth - 24);
@@ -78,10 +90,10 @@ export function renderPrintPage(canvas: HTMLCanvasElement, project: Project, opt
   return layout;
 }
 
-export function createPrintPDF(canvas: HTMLCanvasElement, project: Project, options: PrintOptions, language: Locale = 'en') {
-  const floor = activePrintFloor(project), bounds = floor && printBounds(floor, project.customEntourage);
-  if (!bounds) throw new Error(translate(language, 'print.empty'));
-  const layout = calculatePrintLayout(bounds, options);
+export function createPrintPDF(canvas: HTMLCanvasElement, project: Project, options: PrintOptions, language: Locale = 'en', visibility: PlanExportVisibility = currentPlanExportVisibility()) {
+  const source = activePrintFloor(project), floor = source && visiblePlanFloor(source, visibility);
+  const layout = floor && printPageLayout(floor, project.customEntourage, options, printInk(canvas, project, visibility));
+  if (!floor || !layout) throw new Error(translate(language, 'print.empty'));
   if (!layout.fits) throw new Error(translate(language, 'print.pdfOverflow'));
   const pdf = new jsPDF({ unit: 'mm', format: options.pageSize, orientation: options.orientation });
   pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, layout.pageWidth, layout.pageHeight);

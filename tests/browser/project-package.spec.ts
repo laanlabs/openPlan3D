@@ -162,6 +162,29 @@ test('package cancellation, invalid file and quota retry preserve the existing l
   check();
 });
 
+test('the editor imports a project package from the Export menu and opens the copy', async ({ page }) => {
+  const check = observe(page);
+  await page.goto('/editor');
+  await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Export', exact: true }).click();
+  await page.getByRole('button', { name: 'Import project package', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: 'Import project package', exact: true });
+  await choose(page);
+  await expect(dialog).toContainText('3 floors · 5 walls · 2 attachment files');
+  await dialog.getByRole('button', { name: 'Import as copy', exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'QA Project Package (Imported copy)', exact: true })).toBeVisible();
+  const projects = await savedProjects(page);
+  const imported = Object.values(projects).find(project => project.name === 'QA Project Package (Imported copy)');
+  expect(imported).toBeTruthy();
+  expect(Object.keys(projects)).toHaveLength(2);
+  await expect(page).toHaveURL(new RegExp(`/editor\\?id=${imported.id}$`));
+  await expect(page.getByRole('combobox', { name: 'Current floor', exact: true }).locator('option')).toHaveCount(3);
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'QA Project Package (Imported copy)', exact: true })).toBeVisible();
+  check();
+});
+
 test('slab thickness edits reach the native package in metres', async ({ page }) => {
   const check = observe(page);
   await page.goto('/');

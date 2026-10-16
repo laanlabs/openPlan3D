@@ -136,10 +136,32 @@ export function detectRooms(walls: Wall[]): Room[] {
   if (walls.length < 2) return [];
 
   // Split walls at T-junctions and crossings so shared-wall rooms are separated
-  return detectSplitRooms(splitWallsAtJunctions(walls));
+  return detectSplitRooms(splitWallsAtJunctions(walls)).map(face => face.room);
 }
 
-function detectSplitRooms(splitEdges: Edge[]): Room[] {
+/** A detected room and the outline of the face it was traced from. */
+interface RoomFace {
+  room: Room;
+  polygon: Point[];
+}
+
+/** Drop the out-and-back steps a face walk takes along a dead-end wall
+ * (a -> b -> a), so a stub leaves no zero-width spike in the outline. Takes the
+ * closed walk's vertices (the first is not repeated at the end) and cancels
+ * every step that the next step retraces. */
+function withoutSpikes(walk: number[]): number[] {
+  const steps: [number, number][] = [];
+  for (let i = 0; i < walk.length; i++) {
+    const from = walk[i], to = walk[(i + 1) % walk.length], last = steps[steps.length - 1];
+    if (last && last[0] === to && last[1] === from) steps.pop();
+    else steps.push([from, to]);
+  }
+  // A stub can also hang off the vertex where the walk began.
+  while (steps.length > 1 && steps[0][1] === steps[steps.length - 1][0]) { steps.shift(); steps.pop(); }
+  return steps.map(([from]) => from);
+}
+
+function detectSplitRooms(splitEdges: Edge[]): RoomFace[] {
   // Build adjacency: collect unique vertices & edges
   const vertices: Point[] = [];
   const edges: Edge[] = [];
@@ -184,8 +206,10 @@ function detectSplitRooms(splitEdges: Edge[]): Room[] {
   const polygons: Point[][] = [];
   let roomCount = 0;
 
-  // A cycle cannot visit more edges than exist in the graph.
-  const maxCycleSteps = edges.length + 1;
+  // A face walks a dead-end wall inside a room out and back, so it can visit
+  // every undirected edge twice. Budget by directed edges, plus one step to
+  // observe the closing return to the starting directed edge.
+  const maxCycleSteps = 2 * edges.length + 1;
 
   for (const e of edges) {
     const si = findOrAddVertex(e.start);
@@ -199,11 +223,15 @@ function detectSplitRooms(splitEdges: Edge[]): Room[] {
       const wallIds: string[] = [];
       let cur = from;
       let next = to;
-      let valid = true;
+      let closed = false;
 
       for (let step = 0; step < maxCycleSteps; step++) {
+        // A face is closed when it returns to its starting directed edge. It
+        // may pass through `from` earlier (a dead-end branch hanging off it is
+        // walked out and back), so a return to the vertex alone is not closure.
+        if (step > 0 && cur === from && next === to) { closed = true; break; }
         const dk = `${cur}-${next}`;
-        if (usedDirected.has(dk)) { valid = false; break; }
+        if (usedDirected.has(dk)) break;
         usedDirected.add(dk);
         cycle.push(next);
 
@@ -212,14 +240,12 @@ function detectSplitRooms(splitEdges: Edge[]): Room[] {
         const edgeInfo = neighbors?.find(n => n.to === next);
         if (edgeInfo) wallIds.push(...edgeInfo.wallIds);
 
-        if (next === from && cycle.length > 3) break; // closed
-
         // Pick the next edge clockwise from the back direction at `next`.
         // This is the standard planar face-finding step and traces minimal
         // interior faces CCW (positive signed area) in math coordinates.
         const inAngle = Math.atan2(vertices[cur].y - vertices[next].y, vertices[cur].x - vertices[next].x);
         const neighbors2 = adj.get(next);
-        if (!neighbors2 || neighbors2.length === 0) { valid = false; break; }
+        if (!neighbors2 || neighbors2.length === 0) break;
 
         let bestIdx = -1;
         let bestDelta = Infinity;
@@ -235,25 +261,28 @@ function detectSplitRooms(splitEdges: Edge[]): Room[] {
             bestIdx = i;
           }
         }
-        if (bestIdx === -1) { valid = false; break; }
+        if (bestIdx === -1) break;
 
         cur = next;
         next = neighbors2[bestIdx].to;
       }
 
-      if (!valid || cycle[cycle.length - 1] !== from || cycle.length < 4) continue;
+      if (!closed || cycle.length < 4) continue;
 
       // Compute signed area using shoelace.
       // With this traversal (smallest CCW turn from the reverse-direction) in
       // screen coordinates, interior faces have positive signed area and the
       // outer (unbounded) face is negative — skip it so it isn't counted as a room.
-      const poly = cycle.slice(0, -1).map(i => vertices[i]);
+      // The traced face is the room's outline: walls shared with a neighbour
+      // bound it only along the sub-segments this walk took.
+      const poly = withoutSpikes(cycle.slice(0, -1)).map(i => ({ x: vertices[i].x, y: vertices[i].y }));
       const signedArea = shoelace(poly);
       if (signedArea <= 0) continue;
       const area = signedArea;
 
-      // Skip very large or tiny areas
-      if (area < 1000 || area > 10000000) continue;
+      // Skip slivers under 0.1 m² (1000 cm²). There is no upper bound: the
+      // outside face was already rejected by its sign, so a hall is a room too.
+      if (area < 1000) continue;
 
       // Compute centroid
       const cx = poly.reduce((s, p) => s + p.x, 0) / poly.length;
@@ -282,31 +311,28 @@ function detectSplitRooms(splitEdges: Edge[]): Room[] {
   // Deduct only immediate children using unrounded geometry. A grandchild is
   // already included in its parent's footprint and must not be deducted twice.
   const holes = roomHoles(polygons);
-  return rooms.map((room, i) => ({ ...room,
+  return rooms.map((room, i) => ({ room: { ...room,
     area: Math.round((Math.abs(shoelace(polygons[i])) -
       holes[i].reduce((sum, ring) => sum + Math.abs(shoelace(ring)), 0)) / 100) / 100,
-  }));
+  }, polygon: polygons[i] }));
 }
 
 /** Recompute geometry while retaining user metadata by boundary identity, never name. */
 export function resolveRooms(floor: Pick<Floor, 'walls' | 'rooms'>, previousRooms: Room[] = []): Room[] {
-  return resolveSplitRooms(floor, previousRooms, splitWallsAtJunctions(floor.walls));
+  return resolveSplitRooms(floor, previousRooms, splitWallsAtJunctions(floor.walls)).map(face => face.room);
 }
 
 /** Resolve all room polygons against one ephemeral graph for this floor build.
  * No identity cache is kept, so in-place wall edits cannot reuse stale geometry.
  */
-export function resolveRoomGeometry(floor: Pick<Floor, 'walls' | 'rooms'>, previousRooms: Room[] = []) {
-  const edges = splitWallsAtJunctions(floor.walls);
-  return resolveSplitRooms(floor, previousRooms, edges).map(room => ({ room, polygon: polygonFromEdges(room, edges) }));
+export function resolveRoomGeometry(floor: Pick<Floor, 'walls' | 'rooms'>, previousRooms: Room[] = []): RoomFace[] {
+  return resolveSplitRooms(floor, previousRooms, splitWallsAtJunctions(floor.walls));
 }
 
-function resolveSplitRooms(floor: Pick<Floor, 'walls' | 'rooms'>, previousRooms: Room[], splitEdges: Edge[]): Room[] {
-  // Include coincident source aliases when matching saved boundaries. Adding a
-  // duplicate wall must not discard a room's name or finish. Ambiguous matches
-  // deliberately remain unmatched rather than picking arbitrary metadata.
+/** A room's boundary identity: its wall ids plus every wall coincident with one of them. */
+function boundaryKey(splitEdges: Edge[]): (room: Pick<Room, 'walls'>) => string {
   const aliasEdges = splitEdges.filter(e => (e.wallIds?.length ?? 0) > 1);
-  const key = (room: Room) => {
+  return room => {
     const ids = new Set(room.walls);
     let changed = true;
     while (changed) {
@@ -317,6 +343,13 @@ function resolveSplitRooms(floor: Pick<Floor, 'walls' | 'rooms'>, previousRooms:
     }
     return JSON.stringify([...ids].sort());
   };
+}
+
+function resolveSplitRooms(floor: Pick<Floor, 'walls' | 'rooms'>, previousRooms: Room[], splitEdges: Edge[]): RoomFace[] {
+  // Include coincident source aliases when matching saved boundaries. Adding a
+  // duplicate wall must not discard a room's name or finish. Ambiguous matches
+  // deliberately remain unmatched rather than picking arbitrary metadata.
+  const key = boundaryKey(splitEdges);
   const indexed = (rooms: Room[]) => {
     const result = new Map<string, Room | null>();
     for (const room of rooms) { const k = key(room); result.set(k, result.has(k) ? null : room); }
@@ -324,12 +357,12 @@ function resolveSplitRooms(floor: Pick<Floor, 'walls' | 'rooms'>, previousRooms:
   };
   const saved = indexed(floor.rooms ?? []);
   const previous = indexed(previousRooms);
-  return (floor.walls.length < 2 ? [] : detectSplitRooms(splitEdges)).map(room => {
+  return (floor.walls.length < 2 ? [] : detectSplitRooms(splitEdges)).map(({ room, polygon }) => {
     const metadata = saved.get(key(room));
-    if (metadata) return { ...room, ...metadata, walls: room.walls, area: metadata.floorOpening ? 0 : room.area };
+    if (metadata) return { room: { ...room, ...metadata, walls: room.walls, area: metadata.floorOpening ? 0 : room.area }, polygon };
     // Only the transient ID survives. Falling back to old metadata would undo
     // an intentional metadata removal (e.g. undoing a room rename).
-    return { ...room, id: previous.get(key(room))?.id ?? room.id };
+    return { room: { ...room, id: previous.get(key(room))?.id ?? room.id }, polygon };
   });
 }
 
@@ -345,18 +378,32 @@ function shoelace(pts: Point[]): number {
 /**
  * Get polygon vertices for a room from its walls.
  *
- * detectRooms() traces cycles over walls split at junctions, so a room may
- * border only a sub-segment of a wall. Chaining full wall segments here would
- * overshoot the room at such walls and break the loop (partial polygons with a
- * spurious diagonal closing edge), so we chain the same split edges instead.
+ * The outline is the face room detection traces for the room, found again from
+ * the current walls: the detected room with exactly these walls, else the only
+ * one with the same boundary identity, which resolveRooms() gives this saved
+ * room's metadata. Re-chaining the room's own wall edges is just the fallback
+ * for a saved room that no longer encloses a face: walls it shares with a
+ * neighbour (a closet on one wall, an office against a hall's outer wall) close
+ * the neighbour's loop as well, so a chain can take the wrong one.
  */
 export function getRoomPolygon(room: Room, walls: Wall[]): Point[] {
   const wallIds = new Set(room.walls);
   if (walls.filter(w => wallIds.has(w.id)).length < 2) return [];
 
-  return polygonFromEdges(room, splitWallsAtJunctions(walls));
+  const edges = splitWallsAtJunctions(walls), faces = detectSplitRooms(edges);
+  const exact = faces.find(face => face.room.walls.length === wallIds.size && face.room.walls.every(id => wallIds.has(id)));
+  if (exact) return exact.polygon;
+  const key = boundaryKey(edges), saved = key(room), matches = faces.filter(face => key(face.room) === saved);
+  return matches.length === 1 ? matches[0].polygon : polygonFromEdges(room, edges);
 }
 
+/**
+ * Chain a room's split wall edges into a loop. detectRooms() traces cycles over
+ * walls split at junctions, so a room may border only a sub-segment of a wall.
+ * Chaining full wall segments here would overshoot the room at such walls and
+ * break the loop (partial polygons with a spurious diagonal closing edge), so we
+ * chain the same split edges instead.
+ */
 function polygonFromEdges(room: Room, splitEdges: Edge[]): Point[] {
   const wallIds = new Set(room.walls);
   let edges = splitEdges.filter(e => (e.wallIds ?? [e.wallId]).some(id => wallIds.has(id)));

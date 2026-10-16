@@ -2,10 +2,11 @@
   import { t, locale } from '$lib/i18n';
   import { projectServiceMessage } from '$lib/i18n/projectServiceMessages';
   import { onDestroy } from 'svelte';
-  import { modalDialog } from '$lib/utils/modalDialog';
+  import { modalDialog, reconcileNativeClose } from '$lib/utils/modalDialog';
   import { prepareProjectPackage } from '$lib/services/projectPackage';
   import { storageErrorMessage } from '$lib/services/datastore';
-  let { onclose, onimported }: { onclose: () => void; onimported: () => Promise<void> } = $props();
+  /** `onimported` receives the library ID of the imported copy, so the editor can open it. */
+  let { onclose, onimported }: { onclose: () => void; onimported: (id: string) => Promise<void> } = $props();
   let input = $state<HTMLInputElement>();
   let preview = $state.raw<Awaited<ReturnType<typeof prepareProjectPackage>> | null>(null);
   let error = $state<string | null>(null), reading = $state(false), importing = $state(false), complete = $state(false);
@@ -28,11 +29,11 @@
     if (!preview || importing || complete) return;
     importing = true; error = null;
     try {
-      await preview.restore(lifetime.signal);
+      const { projects } = await preview.restore(lifetime.signal);
       if (lifetime.signal.aborted) return;
       complete = true;
       try { localStorage.setItem('hasSeenWelcome', 'true'); } catch {}
-      await onimported();
+      await onimported(projects[0].id);
     } catch (reason) {
       if (!lifetime.signal.aborted) error = complete ? $t('package.refreshFailed') : `${storageErrorMessage(reason)} ${$t('package.retry')}`;
     } finally { importing = false; }
@@ -45,6 +46,7 @@
 </script>
 <dialog use:modalDialog aria-labelledby="package-title" aria-describedby="package-description"
   oncancel={(event) => { if (importing) event.preventDefault(); else onclose(); }}
+  onclose={(event) => reconcileNativeClose(event, importing, onclose)}
   class="m-auto w-[36rem] max-w-[calc(100vw-2rem)] max-h-[85vh] rounded-2xl bg-white p-0 shadow-2xl backdrop:bg-black/50">
   <div class="flex max-h-[85vh] flex-col text-gray-800">
     <div class="border-b border-gray-100 px-5 py-4">

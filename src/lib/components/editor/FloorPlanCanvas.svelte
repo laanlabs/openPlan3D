@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { t, locale } from '$lib/i18n';
+  import { t, locale, translate } from '$lib/i18n';
+  import { connectedWallGroup } from '$lib/utils/scanAlignment';
   import { furnitureName, customModelName } from '$lib/i18n/furnitureNames';
   import { multiSelectionBounds } from '$lib/utils/multiSelectionBounds';
   import { onMount, onDestroy, tick } from 'svelte';
@@ -9,7 +10,7 @@
   import { planContentBounds, hasPlanContent } from '$lib/utils/planContentBounds';
   import { connectedWallEndpoints } from '$lib/utils/wallEditing';
   import { createDrawScheduler } from '$lib/utils/drawScheduler';
-  import { activeFloor, selectedTool, selectedElementId, selectedElementIds, selectedRoomId, addWall, addDoor, addWindow, updateWall, moveWallEndpoint, moveWallGeometryDuringDrag, updateDoor, updateWindow, addFurniture, moveFurniture, transformFurnitureDuringDrag, rotateFurniture, rotateSelection, setFurnitureRotation, scaleFurniture, removeElement, placingFurnitureId, placingRotation, placingDoorType, placingWindowType, detectedRoomsStore, duplicateDoor, duplicateWindow, duplicateFurniture, duplicateSelection, pasteSelection, moveWallParallel, splitWall, wallSplitIntersectsOpening, snapEnabled, placingStair, addStair, moveStair, updateStair, placingColumn, placingColumnShape, addColumn, moveColumn, updateColumn, calibrationMode, calibrationPoints, updateBackgroundImage, setBackgroundImage, canvasZoom, canvasMinimumZoom, canvasCamX, canvasCamY, panMode, showFurnitureStore, addGuide, moveGuide, removeGuide, beginUndoGroup, endUndoGroup, layerVisibility, updateRoom, addMeasurement, updateMeasurement, removeMeasurement, addAnnotation, removeAnnotation, updateAnnotation, addTextAnnotation, removeTextAnnotation, updateTextAnnotation, moveTextAnnotation, toggleFurnitureLock, toggleSelectionLock, createGroup, ungroupElements, findGroupForElement, placingEntourageId, addEntourageItem, moveEntourage, resizeEntourage, currentProject, elevationWallId, elevationPickMode } from '$lib/stores/project';
+  import { activeFloor, selectedTool, selectedElementId, selectedElementIds, selectedRoomId, addWall, addDoor, addWindow, updateWall, moveWallEndpoint, moveWallGeometryDuringDrag, updateDoor, updateWindow, addFurniture, moveFurniture, transformFurnitureDuringDrag, rotateFurniture, rotateSelection, setFurnitureRotation, scaleFurniture, removeElement, placingFurnitureId, placingRotation, placingDoorType, placingWindowType, detectedRoomsStore, duplicateDoor, duplicateWindow, duplicateFurniture, duplicateSelection, pasteSelection, moveWallParallel, splitWall, wallSplitIntersectsOpening, snapEnabled, placingStair, addStair, moveStair, updateStair, placingColumn, placingColumnShape, addColumn, moveColumn, updateColumn, calibrationMode, calibrationPoints, updateBackgroundImage, setBackgroundImage, canvasZoom, canvasMinimumZoom, canvasCamX, canvasCamY, panMode, showFurnitureStore, addGuide, moveGuide, removeGuide, beginUndoGroup, endUndoGroup, layerVisibility, updateRoom, addMeasurement, updateMeasurement, removeMeasurement, addAnnotation, removeAnnotation, updateAnnotation, addTextAnnotation, removeTextAnnotation, updateTextAnnotation, moveTextAnnotation, toggleFurnitureLock, toggleSelectionLock, createGroup, ungroupElements, findGroupForElement, placingEntourageId, addEntourageItem, moveEntourage, resizeEntourage, currentProject, elevationWallId, elevationPickMode, doorJoinMode, joinScanDoors } from '$lib/stores/project';
   import type { Point, Wall, Door, Window as Win, FurnitureItem, Stair, Column, GuideLine, Measurement, Annotation, TextAnnotation, CustomEntourageDef } from '$lib/models/types';
   import type { Floor, Room } from '$lib/models/types';
   import { resolveRoomGeometry, roomLabelPosition, roomCentroid } from '$lib/utils/roomDetection';
@@ -22,6 +23,7 @@
   import { drawFurnitureIcon } from '$lib/utils/furnitureIcons';
   import { handleGlobalShortcut, isEditingField, isControlKey } from '$lib/utils/shortcuts';
   import { hasOpenModal } from '$lib/utils/modalDialog';
+  import { focusInlineEditor } from '$lib/utils/inlineEditorFocus';
   import ContextMenu from './ContextMenu.svelte';
   import { roomPresets, placePreset } from '$lib/utils/roomPresets';
   import { roomTemplates, placeRoomTemplate } from '$lib/utils/roomTemplates';
@@ -29,10 +31,14 @@
   import { getWallTextureCanvas, getFloorTextureCanvas, setTextureLoadCallback } from '$lib/utils/textureGenerator';
   import { projectSettings, formatLength, formatArea } from '$lib/stores/settings';
   import type { ProjectSettings } from '$lib/stores/settings';
-  import { resizeFurnitureFromHandle, type CanvasState } from '$lib/utils/canvasInteraction';
+  import { snapStatus } from '$lib/utils/snapStep';
+  import { angleSnapWithin, resizeFurnitureFromHandle, snap as _snap, type CanvasState } from '$lib/utils/canvasInteraction';
   import { drawWall as _drawWall, drawDoorOnWall as _drawDoorOnWall, drawWindowOnWall as _drawWindowOnWall, drawDoorDistanceDimensions as _drawDoorDistanceDimensions, drawWindowDistanceDimensions as _drawWindowDistanceDimensions, drawFurnitureItem, drawStair as _drawStair, drawColumn as _drawColumn, drawGuides as _drawGuides, drawPersistedMeasurements as _drawPersistedMeasurements, drawTextAnnotations as _drawTextAnnotations, drawAnnotation as _drawAnnotation, drawAnnotations as _drawAnnotations, drawRooms as _drawRooms, drawWallJoints as _drawWallJoints, drawSnapPoints as _drawSnapPoints, drawMinimap as _drawMinimap, drawEntourageItems as _drawEntourageItems, drawEntourageGhost as _drawEntourageGhost, drawFloorBelowGhost as _drawFloorBelowGhost, entourageAspect } from '$lib/utils/canvasRenderer';
   import { getEntourageDef } from '$lib/utils/entourageCatalog';
   import { translatedOpeningPosition } from '$lib/utils/openingTranslation';
+  import { translatedWallGeometry, wallGeometryOf, type WallGeometry } from '$lib/utils/wallTranslation';
+  import { marqueeSelectionIds } from '$lib/utils/marqueeSelection';
+  import { isTracingImageType } from '$lib/utils/tracingImage';
   import { findRoomLabelAt as _findRoomLabelAt, positionOnWall, findWallAt as _findWallAt, findHandleAt as _findHandleAt, findFurnitureAt as _findFurnitureAt, findColumnAt as _findColumnAt, findStairAt as _findStairAt, findDoorAt as _findDoorAt, findWindowAt as _findWindowAt, findRoomAt as _findRoomAt, hitTestMeasurement as _hitTestMeasurement, hitTestAnnotation as _hitTestAnnotation, hitTestTextAnnotation as _hitTestTextAnnotation, findEntourageAt } from '$lib/utils/hitTesting';
 
   let canvas: HTMLCanvasElement;
@@ -122,15 +128,6 @@
     editingDimensionId = null;
   }
 
-  function focusInlineEditor(node: HTMLInputElement) {
-    // Placement starts on mousedown. Focus after its default canvas focus has
-    // completed, and cancel pending focus when the inline editor is dismissed.
-    const frame = requestAnimationFrame(() => {
-      if (node.isConnected && !hasOpenModal()) node.focus({ preventScroll: true });
-    });
-    return { destroy: () => cancelAnimationFrame(frame) };
-  }
-
   // Text annotation tool
   let textAnnotationMode = $state(false);
   let editingTextAnnotationId: string | null = $state(null);
@@ -147,13 +144,14 @@
   let showRulers = $state(true);
 
   // Layer visibility toggles
-  let layerVis = $state({ walls: true, doors: true, windows: true, furniture: true, stairs: true, columns: true, guides: true, measurements: true, annotations: true, textAnnotations: true, entourage: true, floorBelow: true });
+  let layerVis = $state({ walls: true, doors: true, windows: true, furniture: true, stairs: true, columns: true, guides: true, measurements: true, annotations: true, textAnnotations: true, entourage: true, floorBelow: true, roomLabels: true });
   // Sync showFurnitureStore ↔ layerVisibility.furniture
   let showFurniture = $derived(layerVis.furniture);
   $effect(() => { showFurnitureStore.set(layerVis.furniture); });
   let showDoors = $derived(layerVis.doors);
   let showWindows = $derived(layerVis.windows);
-  let showRoomLabels = $state(true);
+  // Shared with the plan exports: Room Labels is a layer switch, Automatic dimensions is Settings → Dimensions → Dimensions.
+  let showRoomLabels = $derived(layerVis.roomLabels);
   let showDimensions = $state(true);
   let dimSettings: ProjectSettings = $state({
     units: 'metric', showDimensions: true, showExternalDimensions: true,
@@ -194,7 +192,6 @@
   let lastFloorBelowHash = '';
 
   const GRID = 20;
-  const SNAP = 10;
   const MAGNETIC_SNAP = 15;
   // Store subscriptions
   let currentFloor: Floor | null = $state(null);
@@ -208,6 +205,8 @@
   let currentSnapToGrid: boolean = $state(true);
   let currentSnapToWalls: boolean = $state(true);
   let currentGridSize: number = $state(25);
+  // Status-bar Snap button: the step S picked, or "Snap off" while the top-bar switch is off.
+  let snapControl = $derived(snapStatus($t, { enabled: currentSnapEnabled, snapToGrid: currentSnapToGrid, gridSize: currentGridSize }, $projectSettings.units));
   let isPlacingStair: boolean = $state(false);
   let draggingStairId: string | null = $state(null);
   let stairDragOffset: Point = { x: 0, y: 0 };
@@ -230,7 +229,7 @@
   // Room drag state
   let draggingRoomId: string | null = $state(null);
   let roomDragStartMouse: Point = { x: 0, y: 0 };
-  let roomDragStartPositions: Map<string, { start: Point; end: Point }> = new Map();
+  let roomDragStartPositions: Map<string, WallGeometry> = new Map();
 
   // Wall endpoint drag state (includes all connected walls at the corner)
   let draggingWallEndpoint: { wallId: string; endpoint: 'start' | 'end' } | null = $state(null);
@@ -346,9 +345,7 @@
   }
 
   function snap(v: number): number {
-    if (!currentSnapEnabled) return v;
-    const step = currentSnapToGrid ? currentGridSize : SNAP;
-    return Math.round(v / step) * step;
+    return _snap(v, currentSnapEnabled, currentSnapToGrid, currentGridSize);
   }
 
   function screenToWorld(sx: number, sy: number): Point {
@@ -365,7 +362,8 @@
   }
 
   function magneticSnap(p: Point, excludeWallIds?: Set<string>): Point & { snappedToEndpoint?: boolean; snappedToWall?: boolean; snappedWallId?: string } {
-    if (!currentFloor) return { x: snap(p.x), y: snap(p.y) };
+    // The top-bar Snap to Grid switch turns the magnet off along with grid and angle snapping.
+    if (!currentFloor || !currentSnapEnabled) return { x: snap(p.x), y: snap(p.y) };
     let best: Point & { snappedToEndpoint?: boolean; snappedToWall?: boolean; snappedWallId?: string } = { x: snap(p.x), y: snap(p.y) };
     let bestDist = MAGNETIC_SNAP / zoom;
     // First pass: snap to endpoints (highest priority)
@@ -538,6 +536,24 @@
     _drawDoorOnWall(getCS(), wall, door);
   }
 
+  /** Dashed box around an opening, turned with its wall: the selection mark, or the door picked for a scan join. */
+  function drawOpeningBox(wall: Wall, opening: Door | Win, color: string) {
+    const wpt = wallPointAt(wall, opening.position);
+    const sp = worldToScreen(wpt.x, wpt.y);
+    const hw = (opening.width / 2) * zoom + 4;
+    const hh = (wall.thickness / 2) * zoom + 8;
+    const angle = Math.atan2(wall.end.y - wall.start.y, wall.end.x - wall.start.x);
+    ctx.save();
+    ctx.translate(sp.x, sp.y);
+    ctx.rotate(angle);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 3]);
+    ctx.strokeRect(-hw, -hh, hw * 2, hh * 2);
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+
   function drawWindowOnWall(wall: Wall, win: Win) {
     _drawWindowOnWall(getCS(), wall, win);
   }
@@ -677,7 +693,7 @@
     ctx.globalAlpha = 1;
 
     ctx.font = 'bold 11px system-ui, sans-serif';
-    const text = isDoor ? 'Click to place door' : 'Click to place window';
+    const text = translate(get(locale), isDoor ? 'canvasHints.placeDoor' : 'canvasHints.placeWindow');
     const tm = ctx.measureText(text);
     const tx = s.x, ty = s.y - thickness / 2 - 24;
     const pw = tm.width + 12, ph = 20;
@@ -1169,24 +1185,9 @@
         const wall = floor.walls.find((w) => w.id === d.wallId);
         if (wall) {
           drawDoorOnWall(wall, d);
-          if (isSelected(d.id)) {
-            // Selection highlight box
-            const t = d.position;
-            const wpt = wallPointAt(wall, t);
-            const sp = worldToScreen(wpt.x, wpt.y);
-            const hw = (d.width / 2) * zoom + 4;
-            const hh = (wall.thickness / 2) * zoom + 8;
-            const angle = Math.atan2(wall.end.y - wall.start.y, wall.end.x - wall.start.x);
-            ctx.save();
-            ctx.translate(sp.x, sp.y);
-            ctx.rotate(angle);
-            ctx.strokeStyle = '#3b82f6';
-            ctx.lineWidth = 1.5;
-            ctx.setLineDash([4, 3]);
-            ctx.strokeRect(-hw, -hh, hw * 2, hh * 2);
-            ctx.setLineDash([]);
-            ctx.restore();
-          }
+          if (isSelected(d.id)) drawOpeningBox(wall, d, '#3b82f6');
+          // The door picked first for a scan join stays marked until the second click or Esc.
+          if (joinMode?.firstDoorId === d.id) drawOpeningBox(wall, d, '#d97706');
           if (showDimensions && isSelected(d.id)) drawDoorDistanceDimensions(wall, d);
         }
       }
@@ -1196,23 +1197,7 @@
         const wall = floor.walls.find((w) => w.id === win.wallId);
         if (wall) {
           drawWindowOnWall(wall, win);
-          if (isSelected(win.id)) {
-            const t = win.position;
-            const wpt = wallPointAt(wall, t);
-            const sp = worldToScreen(wpt.x, wpt.y);
-            const hw = (win.width / 2) * zoom + 4;
-            const hh = (wall.thickness / 2) * zoom + 8;
-            const angle = Math.atan2(wall.end.y - wall.start.y, wall.end.x - wall.start.x);
-            ctx.save();
-            ctx.translate(sp.x, sp.y);
-            ctx.rotate(angle);
-            ctx.strokeStyle = '#3b82f6';
-            ctx.lineWidth = 1.5;
-            ctx.setLineDash([4, 3]);
-            ctx.strokeRect(-hw, -hh, hw * 2, hh * 2);
-            ctx.setLineDash([]);
-            ctx.restore();
-          }
+          if (isSelected(win.id)) drawOpeningBox(wall, win, '#3b82f6');
           if (showDimensions && isSelected(win.id)) drawWindowDistanceDimensions(wall, win);
         }
       }
@@ -1612,7 +1597,7 @@
         }
         // "Extend to wall" tooltip
         ctx.font = 'bold 10px system-ui, sans-serif';
-        const extText = 'Snap to wall';
+        const extText = translate(get(locale), 'canvasHints.snapWall');
         const extTW = ctx.measureText(extText).width;
         ctx.fillStyle = '#ec4899';
         ctx.beginPath();
@@ -1762,6 +1747,9 @@
   let elevationOpen = $state(false);
   /** Armed via the Elevation segment with no wall selected: next wall click opens its elevation */
   let pickingElevation = $state(false);
+  /** Scan door join (issue #103): the door picked first, while the second click is awaited. */
+  let joinMode: { firstDoorId: string } | null = $state(null);
+  let joinHint: 'doorJoin.hint' | 'doorJoin.sameRoom' = $state('doorJoin.hint');
 
   onMount(() => {
     ctx = canvas.getContext('2d')!;
@@ -1828,6 +1816,10 @@
     const unsub6 = selectedTool.subscribe((t) => {
       if (t !== currentTool) {
         finishCanvasGesture();
+        if (joinMode) doorJoinMode.set(null);
+        // Stair/column arming belongs to the select tool; another tool's click must not place one.
+        placingStair.set(false);
+        placingColumn.set(false);
         measureStart = null;
         measureEnd = null;
         annotationStart = null;
@@ -1847,7 +1839,7 @@
     const unsub10 = snapEnabled.subscribe((v) => { currentSnapEnabled = v; markDirty(); });
     const unsub_snapgrid = projectSettings.subscribe((s) => { currentSnapToGrid = s.snapToGrid; currentSnapToWalls = s.snapToWalls; currentGridSize = s.gridSize; markDirty(); });
     const unsub11 = placingStair.subscribe((v) => { isPlacingStair = v; markDirty(); });
-    const unsubEnt1 = placingEntourageId.subscribe((id) => { currentEntourageDefId = id; markDirty(); });
+    const unsubEnt1 = placingEntourageId.subscribe((id) => { currentEntourageDefId = id; if (id) { placingStair.set(false); placingColumn.set(false); } markDirty(); });
     const unsubEnt2 = currentProject.subscribe((pr) => {
       if (clipboard && clipboard.projectId !== pr?.id) clipboard = null;
       customEntourageDefs = pr?.customEntourage;
@@ -1878,6 +1870,7 @@
     const unsub_multi = selectedElementIds.subscribe((ids) => { currentSelectedIds = ids; markDirty(); });
     const unsub_elevopen = elevationWallId.subscribe((id) => { elevationOpen = !!id; markDirty(); });
     const unsub_elevpick = elevationPickMode.subscribe((v) => { pickingElevation = v; markDirty(); });
+    const unsub_join = doorJoinMode.subscribe((v) => { joinMode = v; joinHint = 'doorJoin.hint'; markDirty(); });
     let backgroundSource: string | undefined;
     const unsub14 = activeFloor.subscribe((f) => {
       const source = f?.backgroundImage?.dataUrl;
@@ -1910,7 +1903,7 @@
       if (clipboard && clipboard.ids.length > 0) return; // internal clipboard takes priority
       const files = e.clipboardData.files;
       for (let i = 0; i < files.length; i++) {
-        if (files[i].type.startsWith('image/')) {
+        if (isTracingImageType(files[i].type)) {
           e.preventDefault();
           const reader = new FileReader();
           reader.onload = () => {
@@ -1937,7 +1930,7 @@
     canvas.addEventListener('touchend', onTouchEnd, { passive: false });
     canvas.addEventListener('touchcancel', onTouchEnd, { passive: false });
 
-    return () => { mounted = false; drawing?.stop(); stopTextures(); resizeObs.disconnect(); unsub1(); unsub2(); unsub3(); unsub4(); unsub5(); unsub6(); unsub7(); unsub8(); unsub9(); unsub10(); unsub11(); unsub12(); unsub13(); unsub_multi(); unsub_elevopen(); unsub_elevpick(); unsub14(); unsub_col(); unsub_cols(); unsub_layers(); unsub_snapgrid(); unsubEnt1(); unsubEnt2(); document.removeEventListener('paste', handlePaste); canvas.removeEventListener('touchstart', onTouchStart); canvas.removeEventListener('touchmove', onTouchMove); canvas.removeEventListener('touchend', onTouchEnd); canvas.removeEventListener('touchcancel', onTouchEnd); };
+    return () => { mounted = false; drawing?.stop(); stopTextures(); resizeObs.disconnect(); unsub1(); unsub2(); unsub3(); unsub4(); unsub5(); unsub6(); unsub7(); unsub8(); unsub9(); unsub10(); unsub11(); unsub12(); unsub13(); unsub_multi(); unsub_elevopen(); unsub_elevpick(); unsub_join(); unsub14(); unsub_col(); unsub_cols(); unsub_layers(); unsub_snapgrid(); unsubEnt1(); unsubEnt2(); document.removeEventListener('paste', handlePaste); canvas.removeEventListener('touchstart', onTouchStart); canvas.removeEventListener('touchmove', onTouchMove); canvas.removeEventListener('touchend', onTouchEnd); canvas.removeEventListener('touchcancel', onTouchEnd); };
   });
 
   /** Compute world bounding box of all elements */
@@ -2260,6 +2253,21 @@
       return;
     }
 
+    // Scan door join: the next door clicked receives the wall group of the door
+    // picked first; any other click keeps the mode and Esc ends it. The click is
+    // consumed so the selection stays as it is. A first door the floor no longer
+    // has (undone, deleted) ends the mode instead.
+    if (joinMode && !currentFloor?.doors.some(d => d.id === joinMode!.firstDoorId)) doorJoinMode.set(null);
+    if (joinMode) {
+      const door = findDoorAt(wp);
+      if (door && door.id !== joinMode.firstDoorId && !joinScanDoors(joinMode.firstDoorId, door.id) && currentFloor) {
+        const first = currentFloor.doors.find(d => d.id === joinMode!.firstDoorId);
+        joinHint = first && connectedWallGroup(currentFloor.walls, first.wallId).has(door.wallId) ? 'doorJoin.sameRoom' : 'doorJoin.hint';
+        markDirty();
+      }
+      return;
+    }
+
     // Text annotation tool: click to place text
     if (textAnnotationMode) {
       const snapped = { x: snap(wp.x), y: snap(wp.y) };
@@ -2313,8 +2321,8 @@
       return;
     }
 
-    // Column placement (before select-mode handlers to avoid interception)
-    if (isPlacingColumn) {
+    // Column placement: a select-tool mode (before select-mode handlers to avoid interception)
+    if (isPlacingColumn && tool === 'select') {
       const pos = { x: snap(wp.x), y: snap(wp.y) };
       const id = addColumn(pos, placingColShape);
       selectedElementId.set(id);
@@ -2331,7 +2339,7 @@
       return;
     }
 
-    if (isPlacingStair) {
+    if (isPlacingStair && tool === 'select') {
       const pos = { x: snap(wp.x), y: snap(wp.y) };
       const id = addStair(pos);
       selectedElementId.set(id);
@@ -2631,7 +2639,7 @@
           roomDragStartPositions.clear();
           for (const wid of room.walls) {
             const w = currentFloor!.walls.find(wall => wall.id === wid);
-            if (w) roomDragStartPositions.set(wid, { start: { ...w.start }, end: { ...w.end } });
+            if (w) roomDragStartPositions.set(wid, wallGeometryOf(w));
           }
         } else {
           // Empty space — start marquee selection
@@ -2791,13 +2799,19 @@
     if (draggingWallEndpoint) {
       // Exclude the dragged wall and all connected walls from magnetic snap targets
       const excludeIds = new Set<string>([draggingWallEndpoint.wallId, ...draggingConnectedEndpoints.map(c => c.wallId)]);
-      let pt = magneticSnap(mousePos, excludeIds);
-      // Angle snap to the opposite endpoint of the primary wall being dragged
-      if (currentFloor) {
+      // Alt: free move without magnet, grid or angle snapping
+      let pt: Point & { snappedToEndpoint?: boolean; snappedToWall?: boolean } = e.altKey
+        ? { x: mousePos.x, y: mousePos.y }
+        : magneticSnap(mousePos, excludeIds);
+      // Angle snap to the opposite endpoint of the primary wall being dragged. Shift forces the
+      // nearest 45° ray; otherwise the ray only attracts within the magnet's screen-pixel reach,
+      // so the correction cannot grow with wall length (issue #104), and a magnet join is kept.
+      if (!e.altKey && currentFloor) {
         const wall = currentFloor.walls.find(w => w.id === draggingWallEndpoint!.wallId);
         if (wall) {
           const other = draggingWallEndpoint.endpoint === 'start' ? wall.end : wall.start;
-          pt = angleSnap(other, pt);
+          if (e.shiftKey) pt = angleSnapWithin(other, pt, Infinity);
+          else if (currentSnapEnabled && !pt.snappedToEndpoint && !pt.snappedToWall) pt = angleSnapWithin(other, pt, MAGNETIC_SNAP / zoom);
         }
       }
       moveWallEndpoint(draggingWallEndpoint.wallId, draggingWallEndpoint.endpoint, pt);
@@ -2813,10 +2827,9 @@
         {
           const mdx = mousePos.x - draggingWallParallel.startMousePos.x;
           const mdy = mousePos.y - draggingWallParallel.startMousePos.y;
-          // Snap delta to grid
-          const snapStep = currentSnapToGrid ? currentGridSize : SNAP;
-          const dx = Math.round(mdx / snapStep) * snapStep;
-          const dy = Math.round(mdy / snapStep) * snapStep;
+          // Snap the delta like a point: to the snap step, or not at all with Snap to Grid off
+          const dx = snap(mdx);
+          const dy = snap(mdy);
           // Set wall positions from original + offset
           const newStart = {
             x: draggingWallParallel.origStart.x + dx,
@@ -2839,9 +2852,8 @@
       }
     }
     if (draggingMultiSelect && currentFloor) {
-      const mSnapStep = currentSnapToGrid ? currentGridSize : SNAP;
-      const dx = Math.round((mousePos.x - draggingMultiSelect.startMousePos.x) / mSnapStep) * mSnapStep;
-      const dy = Math.round((mousePos.y - draggingMultiSelect.startMousePos.y) / mSnapStep) * mSnapStep;
+      const dx = snap(mousePos.x - draggingMultiSelect.startMousePos.x);
+      const dy = snap(mousePos.y - draggingMultiSelect.startMousePos.y);
       for (const [id, orig] of draggingMultiSelect.origPositions) {
         if (orig.opening) {
           const wall=currentFloor.walls.find(item => item.id === orig.opening!.wallId);
@@ -2872,13 +2884,10 @@
       }
     }
     if (draggingRoomId && currentFloor && roomDragStartPositions.size > 0) {
-      const rSnapStep = currentSnapToGrid ? currentGridSize : SNAP;
-      const dx = Math.round((mousePos.x - roomDragStartMouse.x) / rSnapStep) * rSnapStep;
-      const dy = Math.round((mousePos.y - roomDragStartMouse.y) / rSnapStep) * rSnapStep;
-      for (const [wid, orig] of roomDragStartPositions) {
-        moveWallEndpoint(wid, 'start', { x: orig.start.x + dx, y: orig.start.y + dy });
-        moveWallEndpoint(wid, 'end', { x: orig.end.x + dx, y: orig.end.y + dy });
-      }
+      const dx = snap(mousePos.x - roomDragStartMouse.x);
+      const dy = snap(mousePos.y - roomDragStartMouse.y);
+      // Rigid move of every boundary wall; a curved wall's control point travels with it.
+      for (const [wid, orig] of roomDragStartPositions) moveWallGeometryDuringDrag(wid, translatedWallGeometry(orig, dx, dy));
     }
     if (draggingCurveHandle && currentFloor) {
       const wall = currentFloor.walls.find(w => w.id === draggingCurveHandle);
@@ -3060,59 +3069,7 @@
       // Only treat as marquee if dragged at least a small distance
       if (marqueeW > 5 || marqueeH > 5) {
         const ids = new Set<string>(e.shiftKey ? currentSelectedIds : []);
-
-        function ptInRect(p: Point) {
-          return p.x >= minX && p.x <= maxX && p.y >= minY && p.y <= maxY;
-        }
-
-        // Walls: both endpoints inside
-        for (const w of currentFloor.walls) {
-          if (ptInRect(w.start) && ptInRect(w.end)) ids.add(w.id);
-        }
-        // Doors/windows: center point inside
-        for (const d of currentFloor.doors) {
-          const w = currentFloor.walls.find(w => w.id === d.wallId);
-          if (w) {
-            const cx = w.start.x + (w.end.x - w.start.x) * d.position;
-            const cy = w.start.y + (w.end.y - w.start.y) * d.position;
-            if (ptInRect({ x: cx, y: cy })) ids.add(d.id);
-          }
-        }
-        for (const win of currentFloor.windows) {
-          const w = currentFloor.walls.find(w => w.id === win.wallId);
-          if (w) {
-            const cx = w.start.x + (w.end.x - w.start.x) * win.position;
-            const cy = w.start.y + (w.end.y - w.start.y) * win.position;
-            if (ptInRect({ x: cx, y: cy })) ids.add(win.id);
-          }
-        }
-        // Furniture: center inside
-        for (const fi of currentFloor.furniture) {
-          if (ptInRect(fi.position)) ids.add(fi.id);
-        }
-        // Stairs: center inside
-        if (currentFloor.stairs) {
-          for (const st of currentFloor.stairs) {
-            if (ptInRect(st.position)) ids.add(st.id);
-          }
-        }
-        // Columns: center inside
-        if (currentFloor.columns) {
-          for (const col of currentFloor.columns) {
-            if (ptInRect(col.position)) ids.add(col.id);
-          }
-        }
-
-        for (const item of currentFloor.entourage ?? []) {
-          if (ptInRect(item.position)) ids.add(item.id);
-        }
-
-        if (layerVis.textAnnotations) for (const item of currentFloor.textAnnotations ?? []) {
-          if (ptInRect(item)) ids.add(item.id);
-        }
-        for (const item of [...(layerVis.measurements ? currentFloor.measurements ?? [] : []), ...(layerVis.annotations ? currentFloor.annotations ?? [] : [])]) {
-          if (ptInRect({ x: item.x1, y: item.y1 }) && ptInRect({ x: item.x2, y: item.y2 })) ids.add(item.id);
-        }
+        for (const id of marqueeSelectionIds(currentFloor, { minX, maxX, minY, maxY }, layerVis)) ids.add(id);
 
         if (ids.size > 0) {
           clearAuxiliarySelection();
@@ -3442,6 +3399,7 @@
       splitBlocked = false;
       calibrationMode.set(false);
       calibrationPoints.set([]);
+      doorJoinMode.set(null);
       finishCanvasGesture();
       clearAuxiliarySelection();
       selectedRoomId.set(null);
@@ -3449,6 +3407,8 @@
       wallStart = null; wallSequenceFirst = null; typedWallLength = '';
       placingFurnitureId.set(null);
       placingEntourageId.set(null);
+      placingStair.set(false);
+      placingColumn.set(false);
       placingRotation.set(0);
       editingTextAnnotationId = null;
       textAnnotationMode = false;
@@ -3885,6 +3845,11 @@
         }
         break;
 
+      // Door actions
+      case 'join-door':
+        if (id) doorJoinMode.set({ firstDoorId: id });
+        break;
+
       // Shared actions
       case 'delete':
         if (id) { removeElement(id); selectedElementId.set(null); }
@@ -3955,6 +3920,13 @@
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9H3z"/><rect x="10" y="14" width="4" height="6"/><rect x="5.5" y="13" width="3" height="3"/></svg>
       <span class="max-md:hidden">{$t('canvasHints.pick')}</span>
       <span class="md:hidden">{$t('canvasHints.pickTouch')}</span>
+    </div>
+  {/if}
+  <!-- Scan door-join hint chip: shows while the second door is awaited -->
+  {#if joinMode && !pickingElevation}
+    <div role="status" class="absolute top-3 left-1/2 -translate-x-1/2 z-30 bg-slate-800/90 text-white text-xs font-medium px-3.5 py-1.5 rounded-full shadow-lg pointer-events-none flex items-center gap-1.5">
+      <span aria-hidden="true">🚪</span>
+      <span>{$t(joinHint)}</span>
     </div>
   {/if}
   <!-- Inline room name editor -->
@@ -4105,8 +4077,9 @@
     <button class="hover:text-gray-700" onclick={() => showGrid = !showGrid} title={$t('canvasDisplay.gridHint')} aria-pressed={showGrid}>
       {showGrid ? '▦' : '▢'} {$t('canvasDisplay.grid')}
     </button>
-    <button class="hover:text-gray-700" onclick={() => projectSettings.update(s => ({ ...s, snapToGrid: !s.snapToGrid }))} title={$t('canvasDisplay.snapHint')} aria-pressed={currentSnapToGrid}>
-      {currentSnapToGrid ? '🧲' : '↔'} {$t('canvasDisplay.snap')}
+    <!-- Snap (S) picks the step snapping rounds to and shows it; the top-bar Snap to Grid turns snapping off, and then this reads "Snap off". -->
+    <button class="hover:text-gray-700" onclick={() => projectSettings.update(s => ({ ...s, snapToGrid: !s.snapToGrid }))} title={snapControl.title} aria-pressed={snapControl.pressed}>
+      <span class:opacity-40={!currentSnapEnabled}>🧲</span> {snapControl.label}
     </button>
     <button class="hover:text-gray-700" onclick={() => layerVisibility.update(v => ({ ...v, furniture: !v.furniture }))} title={$t('canvasDisplay.furnitureHint')} aria-pressed={showFurniture}>
       {showFurniture ? '🪑' : '👻'} {$t('canvasDisplay.furniture')}
@@ -4137,11 +4110,11 @@
         <span>{floorBelow ? $t('layerVisibility.belowNamed', { name: floorBelow.name }) : $t('layerVisibility.below')}</span>
       </label>
       <label class="flex items-center gap-2 py-0.5 cursor-pointer hover:bg-gray-50 rounded px-1">
-        <input type="checkbox" bind:checked={showRoomLabels} class="accent-blue-500" />
+        <input type="checkbox" checked={showRoomLabels} onchange={() => layerVisibility.update(v => ({ ...v, roomLabels: !v.roomLabels }))} class="accent-blue-500" />
         <span>{$t('layerVisibility.roomLabels')}</span>
       </label>
       <label class="flex items-center gap-2 py-0.5 cursor-pointer hover:bg-gray-50 rounded px-1">
-        <input type="checkbox" bind:checked={showDimensions} class="accent-blue-500" />
+        <input type="checkbox" checked={showDimensions} onchange={() => projectSettings.update(s => ({ ...s, showDimensions: !s.showDimensions }))} class="accent-blue-500" />
         <span>{$t('layerVisibility.automaticDimensions')}</span>
       </label>
     </div>
@@ -4252,27 +4225,27 @@
   {/if}
   {#if currentTool === 'wall' && wallStart}
     <div class="absolute top-2 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-3 py-1 rounded-full text-xs shadow">
-      Click to add wall segment · Double-click to finish · C to close loop · Esc to cancel
+      {$t('canvasHints.wall')}
     </div>
   {/if}
   {#if currentPlacingId && currentTool === 'furniture'}
     <div class="absolute top-2 left-1/2 -translate-x-1/2 bg-purple-600 text-white px-3 py-1 rounded-full text-xs shadow">
-      Click to place · Scroll or R to rotate ({currentPlacingRotation}°) · Esc to cancel
+      {$t('canvasHints.furniture', { angle: currentPlacingRotation })}
     </div>
   {/if}
   {#if measuring}
     <div class="absolute top-2 left-1/2 -translate-x-1/2 bg-red-600 text-white px-3 py-1 rounded-full text-xs shadow">
-      Click or tap two points to measure · M to exit · Esc to cancel
+      {$t('canvasHints.measure')}
     </div>
   {/if}
   {#if textAnnotationMode}
     <div class="absolute top-2 left-1/2 -translate-x-1/2 bg-emerald-600 text-white px-3 py-1 rounded-full text-xs shadow">
-      Click to place text label · Esc to cancel
+      {$t('canvasHints.text')}
     </div>
   {/if}
   {#if annotating}
     <div class="absolute top-2 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-3 py-1 rounded-full text-xs shadow">
-      {annotationStart ? 'Click second point to create annotation' : 'Click first point'} · N to exit · Esc to cancel
+      {$t(annotationStart ? 'canvasHints.annotateEnd' : 'canvasHints.annotateStart')}
     </div>
   {/if}
 

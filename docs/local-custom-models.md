@@ -13,7 +13,9 @@ visually checked. Other browsers and physical assistive technology remain to be
 qualified. A device without WebGL can still add a valid
 model after validation, but cannot display its preview.
 
-Your model name appears in the canvas, Layers and Properties without translation.
+Your model name appears in the canvas, Layers and Properties without translation,
+and labels the placed furniture in 2D PNG, SVG, DXF, DWG and PDF exports and in Print Layout,
+which make room for the whole name however long it is.
 Importing identical bytes reuses the existing model definition and its metadata.
 To remove a definition, first delete its placed furniture on every floor, then
 choose **Remove model**. An unused source is removed with its definition unless

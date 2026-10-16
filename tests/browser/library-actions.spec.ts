@@ -142,6 +142,8 @@ test('library copies once while busy and deletes only the confirmed project', as
   expect(await storedRecords(page)).toEqual(before);
   await releaseWrites(page);
   await expect(page.getByRole('link', { name: `${project.name} (Copy)`, exact: true })).toBeVisible();
+  // The copy is listed first, so the outcome names it rather than leaving the list to change silently.
+  await expect(page.getByRole('status')).toHaveText(`Duplicated as “${project.name} (Copy)”.`);
   const copied = await savedProjects(page), copy = Object.values(copied).find(p => p.name === `${project.name} (Copy)`)!;
   expect(Object.keys(copied)).toHaveLength(3); expect(copy.floors).toEqual(project.floors);
   await action(page, 'Delete', copy.name);
@@ -178,5 +180,48 @@ test('failed library deletion keeps its confirmation available for retry', async
   await expect(dialog).toHaveCount(0);
   await expect(trigger(page)).toHaveCount(0);
   expect(await storedRecords(page)).toEqual({ 'qa-library-second': before['qa-library-second'] });
+  check();
+});
+
+test('busy rename and deletion dialogs survive repeated Escape and still show their outcome', async ({ page }) => {
+  const check = observe(page), project = await seed(page), before = await storedRecords(page);
+  await action(page, 'Rename');
+  const rename = page.getByRole('dialog', { name: 'Rename project', exact: true });
+  const field = rename.getByRole('textbox', { name: 'Project name', exact: true });
+  await field.fill('Renamed while busy');
+  await failProjectWrites(page); await holdWrites(page);
+  await field.press('Enter');
+  await expect(rename.getByRole('status')).toHaveText('Saving name…');
+  // A prevented Escape is honoured once per user activation; the next press closes the
+  // dialog anyway. No assertions between the presses: they can count as activation.
+  for (let press = 0; press < 3; press++) await page.keyboard.press('Escape');
+  await expect(rename).toBeVisible();
+  await expect(rename).toHaveAttribute('open', '');
+  await releaseWrites(page);
+  // The failure lands in a dialog the user can still see, with the draft kept for retry.
+  await expect(rename.getByRole('alert')).toContainText('Browser storage is full');
+  await expect(field).toHaveValue('Renamed while busy');
+  expect(await storedRecords(page)).toEqual(before);
+  await rename.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await expect(rename).toHaveCount(0);
+  await page.evaluate(() => { (window as any).failProjectWrites = false; });
+
+  await action(page, 'Delete', 'Second project');
+  const deletion = page.getByRole('dialog', { name: 'Delete project', exact: true });
+  await holdWrites(page);
+  await deletion.getByRole('button', { name: 'Delete project', exact: true }).click();
+  await expect(deletion.getByRole('status')).toHaveText('Deleting project…');
+  for (let press = 0; press < 3; press++) await page.keyboard.press('Escape');
+  await expect(deletion).toBeVisible();
+  await expect(deletion).toHaveAttribute('open', '');
+  await releaseWrites(page);
+  await expect(deletion).toHaveCount(0);
+  await expect(trigger(page, 'Second project')).toHaveCount(0);
+  // Neither forced close left the dialog stuck: Rename still opens it.
+  await action(page, 'Rename');
+  await expect(rename).toBeVisible();
+  await expect(field).toHaveValue(project.name);
+  await page.keyboard.press('Escape'); await expect(rename).toHaveCount(0);
+  expect(await storedRecords(page)).toEqual({ [project.id]: before[project.id] });
   check();
 });
