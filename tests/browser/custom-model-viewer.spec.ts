@@ -29,6 +29,7 @@ test('full 3D viewer shares model decoding and releases images when leaving the 
   const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
   await page.goto('/editor');
   await page.getByRole('button', { name: 'Objects', exact: true }).click();
+  await page.getByRole('button', { name: 'My Items', exact: true }).click();
   const panel = page.getByRole('region', { name: 'My 3D models', exact: true });
   await panel.locator('input[type=file]').setInputFiles('tests/fixtures/local-model-textured-box.glb');
   const dialog = page.getByRole('dialog', { name: 'Import GLB model', exact: true });

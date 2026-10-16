@@ -35,3 +35,11 @@ test('Categories tab lists grouped sub-cards and opens one', async ({ page }) =>
   await page.getByRole('button', { name: /Appliances/ }).click();
   await expect(page.getByRole('button', { name: /^Fridge/ }).first()).toBeVisible();
 });
+
+test('My Items tab exposes the GLB import button', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('hasSeenWelcome', 'true'));
+  await page.goto('/editor');
+  await page.getByRole('button', { name: 'Objects', exact: true }).click();
+  await page.getByRole('button', { name: 'My Items', exact: true }).click();
+  await expect(page.getByRole('region', { name: 'My 3D models', exact: true }).getByRole('button', { name: 'Import GLB model', exact: true })).toBeVisible();
+});

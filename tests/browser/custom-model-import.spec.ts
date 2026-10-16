@@ -10,6 +10,7 @@ test('imports, previews, places and retains a local custom model through undo an
   const bytes = await readFile('tests/fixtures/local-model-textured-box.glb');
   await page.goto('/editor');
   await page.getByRole('button', { name: 'Objects', exact: true }).click();
+  await page.getByRole('button', { name: 'My Items', exact: true }).click();
   const panel = page.getByRole('region', { name: 'My 3D models', exact: true });
   const input = panel.locator('input[type=file]');
   await input.setInputFiles('tests/fixtures/local-model-textured-box.glb');
@@ -62,6 +63,7 @@ test('imports and renders a custom model when Web Crypto is unavailable (insecur
   page.on('console', message => { if (message.type() === 'warning') warnings.push(message.text()); });
   await page.goto('/editor');
   await page.getByRole('button', { name: 'Objects', exact: true }).click();
+  await page.getByRole('button', { name: 'My Items', exact: true }).click();
   const panel = page.getByRole('region', { name: 'My 3D models', exact: true });
   await panel.locator('input[type=file]').setInputFiles('tests/fixtures/local-model-textured-box.glb');
   const dialog = page.getByRole('dialog', { name: 'Import GLB model', exact: true });

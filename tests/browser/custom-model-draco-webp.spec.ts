@@ -15,6 +15,7 @@ test('imports a Draco + WebP GLB using the locally bundled decoder', async ({ pa
 
   await page.goto('/editor');
   await page.getByRole('button', { name: 'Objects', exact: true }).click();
+  await page.getByRole('button', { name: 'My Items', exact: true }).click();
   const panel = page.getByRole('region', { name: 'My 3D models', exact: true });
   await panel.locator('input[type=file]').setInputFiles('tests/fixtures/local-model-draco-webp-box.glb');
   const dialog = page.getByRole('dialog', { name: 'Import GLB model', exact: true });

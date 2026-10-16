@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy } from 'svelte';
+  import { onDestroy, tick } from 'svelte';
   import { t, locale } from '$lib/i18n';
   import { furnitureName } from '$lib/i18n/furnitureNames';
   import { normalizeCatalogSearch } from '$lib/i18n/catalogCategories';
@@ -21,11 +21,13 @@
   import ObjectItemCard from './ObjectItemCard.svelte';
   import EntourageItemCard from './EntourageItemCard.svelte';
   import CategoryAccordion from './CategoryAccordion.svelte';
+  import MyItemsPanel from './MyItemsPanel.svelte';
 
   let { onClose }: { onClose?: () => void } = $props();
 
   type Tab = 'rooms' | 'categories' | 'items';
   let tab = $state<Tab>('rooms');
+  let myItems = $state<{ openPicker: () => void }>();
   let search = $state('');
   let openRoom = $state<ObjectRoom | null>(null);
   let openSubcard = $state<ObjectSubcard | null>(null);
@@ -162,6 +164,17 @@
 
     <div class="flex-1 overflow-y-auto p-3">
       {#if tab === 'rooms'}
+        {#if !openRoom && !showFavorites}
+          <div class="mb-3 rounded-xl border border-dashed border-gray-300 p-3">
+            <div class="text-sm font-semibold text-gray-700">{$t('objectPanel.createItems')}</div>
+            <p class="mb-2 text-xs text-gray-500">{$t('objectPanel.createItemsHelp')}</p>
+            <button
+              type="button"
+              class="w-full rounded-full bg-green-100 px-3 py-2 text-sm font-medium text-green-700"
+              onclick={async () => { selectTab('items'); await tick(); myItems?.openPicker(); }}
+            >+ {$t('objectPanel.createItemsAction')}</button>
+          </div>
+        {/if}
         {#if showFavorites}
           <div class="mb-2 flex items-center gap-2">
             <button type="button" class="text-xs text-blue-600 hover:underline" onclick={() => showFavorites = false}>← {$t('objectPanel.back')}</button>
@@ -273,7 +286,7 @@
           <CategoryAccordion onOpen={(value) => openSubcard = value} />
         {/if}
       {:else}
-        <EmptyState label={$t('objectPanel.empty')} />
+        <MyItemsPanel bind:this={myItems} />
       {/if}
     </div>
   {/if}

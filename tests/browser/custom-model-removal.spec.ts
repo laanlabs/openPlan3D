@@ -14,6 +14,7 @@ test('cancel and invalid imports preserve the project and restore focus', async 
   await page.goto('/editor');
   const before = await exported(page);
   await page.getByRole('button', { name: 'Objects', exact: true }).click();
+  await page.getByRole('button', { name: 'My Items', exact: true }).click();
   const panel = page.getByRole('region', { name: 'My 3D models', exact: true });
   const opener = panel.getByRole('button', { name: 'Import GLB model', exact: true });
   async function choose() {
@@ -37,6 +38,7 @@ test('unused model removal restores source bytes and metadata through undo and r
   const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
   await page.goto('/editor');
   await page.getByRole('button', { name: 'Objects', exact: true }).click();
+  await page.getByRole('button', { name: 'My Items', exact: true }).click();
   const panel = page.getByRole('region', { name: 'My 3D models', exact: true });
   await panel.locator('input[type=file]').setInputFiles('tests/fixtures/local-model-textured-box.glb');
   const dialog = page.getByRole('dialog', { name: 'Import GLB model', exact: true });

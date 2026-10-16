@@ -8,7 +8,7 @@
   import { modalDialog } from '$lib/utils/modalDialog';
   import type { PreparedCustomModel } from '$lib/services/customModelImport';
   import { placeCustomModel, removeCustomModel } from '$lib/services/customModels';
-  import type CustomModelPreview from './CustomModelPreview.svelte';
+  import type CustomModelPreview from '../CustomModelPreview.svelte';
 
   let input: HTMLInputElement;
   let Preview = $state.raw<typeof CustomModelPreview>();
@@ -18,6 +18,7 @@
   let removal = $state<string | null>(null);
   let controller: AbortController | undefined;
   let generation = 0, projectId: string | undefined;
+  export function openPicker() { input?.click(); }
   function close() {
     generation++; controller?.abort(); controller = undefined;
     prepared?.dispose(); prepared = null; open = false; busy = false; saving = false; error = '';
@@ -34,7 +35,7 @@
     const request = generation, lifetime = new AbortController(); controller = lifetime;
     try {
       const [{ prepareCustomModel }, preview] = await Promise.all([
-        import('$lib/services/customModelImport'), import('./CustomModelPreview.svelte'),
+        import('$lib/services/customModelImport'), import('../CustomModelPreview.svelte'),
       ]);
       if (request !== generation) return;
       Preview = preview.default;
@@ -83,13 +84,18 @@
     } catch (e) { error = e instanceof Error ? e.message : get(t)('customModel.failed'); removal = null; }
   }
 </script>
-<section class="space-y-2 rounded-lg border border-gray-200 p-2" aria-label={$t('customModel.heading')}>
-  <h3 class="text-sm font-semibold">{$t('customModel.heading')}</h3>
+<section class="space-y-3 rounded-lg border border-gray-200 p-3" aria-label={$t('customModel.heading')}>
   <input bind:this={input} type="file" accept=".glb,model/gltf-binary" class="hidden" onchange={choose} />
-  <button class="rounded border border-blue-600 px-3 py-1.5 text-sm text-blue-700" onclick={(event) => { event.currentTarget.focus({ preventScroll: true }); input.click(); }} disabled={!$currentProject}>{$t('customModel.import')}</button>
-  <p class="text-xs text-gray-500">{$t('customModel.help')}</p>
+  <button
+    class="w-full rounded-full bg-green-100 px-3 py-2 text-sm font-medium text-green-700 disabled:opacity-50"
+    onclick={(event) => { event.currentTarget.focus({ preventScroll: true }); input.click(); }}
+    disabled={!$currentProject}
+  >{$t('customModel.import')}</button>
+  {#if !($currentProject?.customModels ?? []).length}
+    <p class="text-xs text-gray-500">{$t('customModel.help')}</p>
+  {/if}
   {#each $currentProject?.customModels ?? [] as model (model.id)}
-    <div class="rounded border border-gray-200 p-2 text-xs">
+    <div class="rounded-lg border border-gray-200 p-2 text-xs">
       <strong class="break-words">{model.name}</strong>
       <p>{model.width.toFixed(1)} × {model.depth.toFixed(1)} × {model.height.toFixed(1)} cm</p>
       {#if model.attribution}<p class="break-words">{model.attribution}</p>{/if}
