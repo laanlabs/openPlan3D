@@ -8,6 +8,10 @@ on:
 permissions:
   contents: read
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -131,3 +135,72 @@ jobs:
           BROWSER_RESULT: ${{ needs.browser.result }}
           BENCHMARK_RESULT: ${{ needs.benchmark.result }}
         run: test "$BUILD_RESULT" = success && test "$BROWSER_RESULT" = success && test "$BENCHMARK_RESULT" = success
+
+  container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    needs:
+      - build
+      - browser
+      - benchmark
+      - check
+
+    permissions:
+      packages: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: browser-build
+          path: build/
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=edge,branch=main
+            type=ref,event=pr
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v7
+        id: build-and-push
+        with:
+          context: .
+          file: ./.github/github.dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # This step generates an artifact attestation for the image, which is an
+      # unforgeable statement about where and how it was built. It increases
+      # supply chain security for people who consume the image.
+      - name: Generate artifact attestation
+        uses: actions/attest@v4
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.build-and-push.outputs.digest }}
+          push-to-registry: true
