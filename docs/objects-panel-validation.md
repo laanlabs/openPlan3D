@@ -14,7 +14,7 @@ sub-cards. It changes no catalog item or data file.
   `ObjectSubcard` (`id`, `labelKey`, `icon`, `group`, `source`, `itemIds`) and
   `ObjectRoom` (`id`, `labelKey`, `icon`, `kind: 'subcards' | 'direct'`,
   `subcards`).
-- 4 groups, 64 sub-cards and 13 rooms.
+- 4 groups, 63 sub-cards and 13 rooms.
 - Helpers: `getSubcard`, `subcardsForRoom`, `catalogItemsForSubcard`,
   `entourageItemsForSubcard`, `itemsForRoom`, `subcardHasItems`.
 
