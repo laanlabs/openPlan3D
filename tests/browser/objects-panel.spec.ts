@@ -25,3 +25,13 @@ test('global search filters items and clears', async ({ page }) => {
   await expect(search).toHaveValue('');
   await expect(page.getByRole('button', { name: /Living room/ }).first()).toBeVisible();
 });
+
+test('Categories tab lists grouped sub-cards and opens one', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('hasSeenWelcome', 'true'));
+  await page.goto('/editor');
+  await page.getByRole('button', { name: 'Objects', exact: true }).click();
+  await page.getByRole('button', { name: 'Categories', exact: true }).click();
+  await expect(page.getByText('Furniture', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: /Appliances/ }).click();
+  await expect(page.getByRole('button', { name: /^Fridge/ }).first()).toBeVisible();
+});

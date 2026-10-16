@@ -4,8 +4,9 @@
   import { furnitureName } from '$lib/i18n/furnitureNames';
   import { normalizeCatalogSearch } from '$lib/i18n/catalogCategories';
   import {
-    placingFurnitureId, placingEntourageId, selectedTool,
+    placingFurnitureId, placingEntourageId, selectedTool, currentProject, addCustomEntourage,
   } from '$lib/stores/project';
+  import type { CustomEntourageDef } from '$lib/models/types';
   import { furnitureCatalog, type FurnitureDef } from '$lib/utils/furnitureCatalog';
   import { entourageCatalog } from '$lib/utils/entourageCatalog';
   import {
@@ -19,6 +20,7 @@
   import SubcardCard from './SubcardCard.svelte';
   import ObjectItemCard from './ObjectItemCard.svelte';
   import EntourageItemCard from './EntourageItemCard.svelte';
+  import CategoryAccordion from './CategoryAccordion.svelte';
 
   let { onClose }: { onClose?: () => void } = $props();
 
@@ -62,6 +64,34 @@
   function armEntourage(id: string) {
     placingEntourageId.set(placingEntId === id ? null : id);
     selectedTool.set('select');
+  }
+
+  let customEntDefs = $state<CustomEntourageDef[]>([]);
+  onDestroy(currentProject.subscribe((project) => { customEntDefs = project?.customEntourage ?? []; }));
+  let entourageFileInput = $state<HTMLInputElement | null>(null);
+  let symbolUploadError = $state<'tooLarge' | 'readFailed' | 'invalid' | null>(null);
+
+  function onEntourageUpload(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    symbolUploadError = null;
+    if (file.size > 2 * 1024 * 1024) { symbolUploadError = 'tooLarge'; return; }
+    const reader = new FileReader();
+    reader.onerror = () => { symbolUploadError = 'readFailed'; };
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      const image = new Image();
+      image.onerror = () => { symbolUploadError = 'invalid'; };
+      image.onload = () => {
+        const aspect = image.naturalHeight / image.naturalWidth || 1;
+        const id = addCustomEntourage(file.name.replace(/\.[^.]+$/, ''), dataUrl, aspect);
+        placingEntourageId.set(id);
+      };
+      image.src = dataUrl;
+    };
+    reader.readAsDataURL(file);
   }
 
   function resetNavigation() { openRoom = null; openSubcard = null; showFavorites = false; }
@@ -203,7 +233,45 @@
           </div>
         {/if}
       {:else if tab === 'categories'}
-        <EmptyState label={$t('objectPanel.empty')} />
+        {#if openSubcard}
+          <div class="mb-2 flex items-center gap-2">
+            <button type="button" class="text-xs text-blue-600 hover:underline" onclick={() => openSubcard = null}>← {$t('objectPanel.back')}</button>
+            <span class="text-xs font-semibold text-gray-600">{openSubcard.icon} {$t(openSubcard.labelKey)}</span>
+          </div>
+          {#if openSubcard.source === 'entourage'}
+            <div class="grid grid-cols-3 gap-1.5">
+              {#each entourageItemsForSubcard(openSubcard) as def (def.id)}
+                <EntourageItemCard {def} placing={placingEntId === def.id} onPlace={armEntourage} />
+              {/each}
+            </div>
+            {#if openSubcard.id === 'entourage'}
+              {#if customEntDefs.length}
+                <div class="mt-3">
+                  <span class="text-[10px] font-medium text-gray-500">🖼️ {$t('entourageLabels.custom')}</span>
+                  <div class="grid grid-cols-3 gap-1.5 mt-1">
+                    {#each customEntDefs as def (def.id)}
+                      <button type="button" class="p-1.5 rounded-lg border text-center hover:border-blue-300 hover:bg-blue-50 transition-colors {placingEntId === def.id ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-200' : 'border-gray-200'}" title={def.name} onclick={() => armEntourage(def.id)}>
+                        <img src={def.dataUrl} alt={def.name} class="w-full h-8 object-contain" />
+                        <span class="text-[9px] text-gray-500 leading-tight block truncate">{def.name}</span>
+                      </button>
+                    {/each}
+                  </div>
+                </div>
+              {/if}
+              <button type="button" class="mt-2 w-full py-1.5 border border-dashed border-gray-300 rounded-lg text-xs text-gray-500 hover:border-blue-300 hover:text-blue-600 transition-colors" onclick={() => entourageFileInput?.click()}>+ {$t('entourageLabels.upload')}</button>
+              {#if symbolUploadError}<p role="alert" class="text-xs text-red-700">{$t(`entourageLabels.${symbolUploadError}`)}</p>{/if}
+              <input type="file" accept="image/png,image/jpeg,image/webp" class="hidden" bind:this={entourageFileInput} onchange={onEntourageUpload} />
+            {/if}
+          {:else}
+            <div class="grid grid-cols-2 gap-2">
+              {#each catalogItemsForSubcard(openSubcard) as item (item.id)}
+                <ObjectItemCard {item} placing={currentPlacing === item.id} favorite={favoriteIds.includes(item.id)} onPlace={place} onToggleFavorite={toggleFavorite} />
+              {/each}
+            </div>
+          {/if}
+        {:else}
+          <CategoryAccordion onOpen={(value) => openSubcard = value} />
+        {/if}
       {:else}
         <EmptyState label={$t('objectPanel.empty')} />
       {/if}
