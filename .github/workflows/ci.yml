@@ -176,10 +176,14 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=ref,event=branch
-            type=sha,prefix={{branch}}-
-            type=edge,branch=main
-            type=ref,event=pr
+            # 1. Latest for main
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+
+            # 2. Ref for a tag
+            type=ref,event=tag
+
+            # 3. Pull Requests: 'pr-{number}'
+            type=raw,value=pr-${{ github.event.number }},enable=${{ github.event_name == 'pull_request' }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
