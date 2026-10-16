@@ -13,6 +13,8 @@
   import { createProjectFromRoomPlan, extractRoomJsonFromZip, roomPlanImportOptions, validateRoomPlan, ORTHO_VERSION } from '$lib/utils/roomplanImport';
   import ObjectsPanel from './objects/ObjectsPanel.svelte';
 
+  let { onClose }: { onClose?: () => void } = $props();
+
   const openingLifetime = new AbortController();
   onDestroy(() => openingLifetime.abort());
 
@@ -188,7 +190,7 @@
 
 </script>
 
-<div class="w-64 bg-white border-r border-gray-200 flex flex-col h-full overflow-hidden">
+<div class="w-64 max-md:w-full bg-white border-r border-gray-200 flex flex-col h-full overflow-hidden">
   <!-- Tabs -->
   <div class="flex border-b border-gray-200">
     <button
@@ -206,7 +208,7 @@
   </div>
 
   {#if activeTab === 'objects'}
-    <ObjectsPanel />
+    <ObjectsPanel {onClose} />
   {:else}
     <div class="flex-1 overflow-y-auto p-3">
       {#if activeTab === 'draw'}

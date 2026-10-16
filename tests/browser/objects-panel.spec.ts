@@ -43,3 +43,18 @@ test('My Items tab exposes the GLB import button', async ({ page }) => {
   await page.getByRole('button', { name: 'My Items', exact: true }).click();
   await expect(page.getByRole('region', { name: 'My 3D models', exact: true }).getByRole('button', { name: 'Import GLB model', exact: true })).toBeVisible();
 });
+
+test('mobile tools drawer is full width and closes with the panel ✕', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript(() => localStorage.setItem('hasSeenWelcome', 'true'));
+  await page.goto('/editor');
+  const tools = page.getByRole('button', { name: 'Toggle tools panel', exact: true });
+  await tools.click();
+  await page.getByRole('button', { name: 'Objects', exact: true }).click();
+  const search = page.getByRole('textbox', { name: 'Search', exact: true });
+  await expect(search).toBeVisible();
+  const box = (await search.boundingBox())!;
+  expect(box.width).toBeGreaterThan(320);
+  await page.getByRole('button', { name: 'Close panel', exact: true }).click();
+  await expect(tools).toHaveAttribute('aria-expanded', 'false');
+});
