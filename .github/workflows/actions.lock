@@ -13,6 +13,7 @@ workflows:
         - 'docker/login-action@v4'
         - 'docker/metadata-action@v6'
         - 'docker/setup-buildx-action@v4'
+        - 'docker/setup-qemu-action@v3'
 dependencies:
     'actions/attest@v4':
         ref: 'v4'
@@ -59,3 +60,8 @@ dependencies:
         commit: 'sha1-f87e5991a6d7451dcb8d9637bfbc97413f497069'
         owner_id: 5429470
         repo_id: 288485773
+    'docker/setup-qemu-action@v3':
+        ref: 'v3'
+        commit: 'sha1-c7c53464625b32c7a7e944ae62b3e17d2b600130'
+        owner_id: 5429470
+        repo_id: 288487894
