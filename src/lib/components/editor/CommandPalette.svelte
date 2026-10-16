@@ -6,7 +6,7 @@
   import { tick } from 'svelte';
   import { modalDialog } from '$lib/utils/modalDialog';
   import { furnitureCatalog } from '$lib/utils/furnitureCatalog';
-  import { selectedTool, snapEnabled, placingFurnitureId, undo, redo, currentProject, viewMode } from '$lib/stores/project';
+  import { selectedTool, snapEnabled, placingFurnitureId, placingCustomModelId, undo, redo, currentProject, viewMode } from '$lib/stores/project';
   import { exportAsJSON } from '$lib/utils/export';
   import { get } from 'svelte/store';
   import { goto } from '$app/navigation';
@@ -66,6 +66,7 @@
     searchAliases: [f.name, f.category, f.id],
     action: () => {
       selectedTool.set('furniture');
+      placingCustomModelId.set(null);
       placingFurnitureId.set(f.id);
     },
   })));

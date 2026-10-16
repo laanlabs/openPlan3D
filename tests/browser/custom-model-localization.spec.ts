@@ -28,7 +28,8 @@ test('Portuguese model controls retain user names and explain invalid sources an
   await dialog.getByRole('textbox', { name: 'URL de origem (opcional)', exact: true }).fill('https://example.invalid/original');
   await dialog.getByRole('button', { name: 'Adicionar ao projeto', exact: true }).click();
   await expect(dialog).toBeHidden();
-  await panel.getByRole('button', { name: 'Inserir no centro da visualização', exact: true }).click();
+  await panel.getByRole('button', { name: /Mesa \{modelo\}/ }).click();
+  await page.getByLabel(/^(?:Floor plan editor canvas|Área de edição da planta baixa)$/, { exact: true }).click({ position: { x: 300, y: 250 } });
   await expect(page.getByRole('heading', { name: /Propriedades de Mesa \{modelo\}/ })).toBeVisible();
   await expect.poll(() => page.evaluate(() => (window as any).__customModelCaption)).toBe('Mesa {modelo}');
   await panel.getByRole('button', { name: 'Remover modelo', exact: true }).click();

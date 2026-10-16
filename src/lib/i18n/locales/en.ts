@@ -1460,6 +1460,7 @@ export const en = {
   "customModel.removed": "Unused model removed. Save to keep this change.",
   "customModel.source": "Source URL (optional)",
   "customModel.place": "Place at view center",
+  "customModel.placeHint": "Click to place",
   "customModel.remove": "Remove model",
   "customModel.loading": "Checking model and preparing preview…",
   "customModel.dimensions": "Width {width} × depth {depth} × height {height} cm",

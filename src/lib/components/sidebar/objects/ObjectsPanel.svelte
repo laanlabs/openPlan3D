@@ -1,17 +1,14 @@
 <script lang="ts">
   import { onDestroy, tick } from 'svelte';
-  import { get } from 'svelte/store';
   import { t, locale } from '$lib/i18n';
   import { furnitureName } from '$lib/i18n/furnitureNames';
   import { catalogCategoryLabels, normalizeCatalogSearch } from '$lib/i18n/catalogCategories';
   import {
-    placingFurnitureId, placingEntourageId, selectedTool, currentProject, addCustomEntourage,
-    commitItemDetails, canvasCamX, canvasCamY, selectedElementId, selectedElementIds,
+    placingFurnitureId, placingCustomModelId, placingEntourageId, selectedTool, currentProject, addCustomEntourage,
   } from '$lib/stores/project';
   import type { CustomEntourageDef } from '$lib/models/types';
   import { furnitureCatalog, type FurnitureDef } from '$lib/utils/furnitureCatalog';
   import { entourageCatalog } from '$lib/utils/entourageCatalog';
-  import { placeCustomModel } from '$lib/services/customModels';
   import {
     objectRooms, subcardsForRoom,
     catalogItemsForSubcard, entourageItemsForSubcard, itemsForDirectRoom, subcardHasItems,
@@ -24,6 +21,7 @@
   import ObjectItemCard from './ObjectItemCard.svelte';
   import EntourageItemCard from './EntourageItemCard.svelte';
   import CategoryAccordion from './CategoryAccordion.svelte';
+  import CustomModelCard from './CustomModelCard.svelte';
   import MyItemsPanel from './MyItemsPanel.svelte';
 
   let { onClose }: { onClose?: () => void } = $props();
@@ -38,6 +36,9 @@
 
   let currentPlacing = $state<string | null>(null);
   onDestroy(placingFurnitureId.subscribe((id) => { currentPlacing = id; }));
+
+  let currentPlacingModel = $state<string | null>(null);
+  onDestroy(placingCustomModelId.subscribe((id) => { currentPlacingModel = id; }));
 
   let placingEntId = $state<string | null>(null);
   onDestroy(placingEntourageId.subscribe((id) => { placingEntId = id; }));
@@ -63,25 +64,23 @@
   function place(item: FurnitureDef) {
     selectedTool.set('furniture');
     placingEntourageId.set(null);
+    placingCustomModelId.set(null);
     placingFurnitureId.set(item.id);
     addToRecent(item.id);
   }
 
-  function armEntourage(id: string) {
-    placingFurnitureId.set(null);
-    placingEntourageId.set(placingEntId === id ? null : id);
-    selectedTool.set('select');
+  function armModel(id: string) {
+    selectedTool.set('furniture');
+    placingEntourageId.set(null);
+    placingCustomModelId.set(id);
+    placingFurnitureId.set('custom-model');
   }
 
-  function placeModel(id: string) {
-    const project = get(currentProject); if (!project) return;
-    try {
-      const next = placeCustomModel(project, id, { x: get(canvasCamX), y: get(canvasCamY) });
-      const floor = next.floors.find((f) => f.id === next.activeFloorId)!;
-      const item = floor.furniture.at(-1)!;
-      commitItemDetails(project, next, 'Placed custom model');
-      selectedTool.set('select'); selectedElementId.set(item.id); selectedElementIds.set(new Set());
-    } catch { /* keep the panel responsive if placement is rejected */ }
+  function armEntourage(id: string) {
+    placingFurnitureId.set(null);
+    placingCustomModelId.set(null);
+    placingEntourageId.set(placingEntId === id ? null : id);
+    selectedTool.set('select');
   }
 
   let customEntDefs = $state<CustomEntourageDef[]>([]);
@@ -175,10 +174,7 @@
       {#if searchModels.length}
         <div class="grid grid-cols-2 gap-2 mt-2">
           {#each searchModels as model (model.id)}
-            <button type="button" class="flex flex-col items-start gap-1 p-3 rounded-lg border-2 border-gray-100 hover:border-blue-300 hover:bg-blue-50 text-left" onclick={() => placeModel(model.id)}>
-              <span class="text-xs font-medium text-gray-600">{model.name}</span>
-              <span class="text-[10px] text-gray-400">{model.width.toFixed(0)}×{model.depth.toFixed(0)}cm</span>
-            </button>
+            <CustomModelCard {model} placing={currentPlacingModel === model.id} onArm={armModel} />
           {/each}
         </div>
       {/if}
@@ -271,9 +267,11 @@
         {:else}
           {#if recentItems.length}
             <h3 class="mb-1.5 text-[10px] font-semibold uppercase text-gray-400">{$t('objectPanel.recent')}</h3>
-            <div class="mb-3 grid grid-cols-2 gap-2">
+            <div class="mb-3 flex gap-2 overflow-x-auto pb-1">
               {#each recentItems as item (item.id)}
-                <ObjectItemCard {item} placing={currentPlacing === item.id} favorite={favoriteIds.includes(item.id)} onPlace={place} onToggleFavorite={toggleFavorite} />
+                <div class="w-24 shrink-0">
+                  <ObjectItemCard {item} placing={currentPlacing === item.id} favorite={favoriteIds.includes(item.id)} onPlace={place} onToggleFavorite={toggleFavorite} />
+                </div>
               {/each}
             </div>
           {/if}

@@ -1,5 +1,5 @@
 import { get } from 'svelte/store';
-import { placingColumn, placingColumnShape, placingEntourageId, placingFurnitureId, placingStair, selectedTool } from '$lib/stores/project';
+import { placingColumn, placingColumnShape, placingCustomModelId, placingEntourageId, placingFurnitureId, placingStair, selectedTool } from '$lib/stores/project';
 
 /**
  * Stairs and columns are one-shot modes of the select tool, armed from the Build panel: at most one
@@ -9,6 +9,7 @@ import { placingColumn, placingColumnShape, placingEntourageId, placingFurniture
 function armStructure(stair: boolean, column: boolean) {
   selectedTool.set('select');
   placingFurnitureId.set(null);
+  placingCustomModelId.set(null);
   placingEntourageId.set(null);
   placingStair.set(stair);
   placingColumn.set(column);

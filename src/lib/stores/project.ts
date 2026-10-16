@@ -51,6 +51,7 @@ export const selectedTool = writable<Tool>('select');
 export function activateMeasurementTool(tool: 'measure' | 'annotate') {
   panMode.set(false);
   placingFurnitureId.set(null);
+  placingCustomModelId.set(null);
   placingStair.set(false);
   placingColumn.set(false);
   placingEntourageId.set(null);
@@ -206,6 +207,7 @@ function clearFloorContext() {
   elevationPickMode.set(false);
   selectedTool.set('select');
   placingFurnitureId.set(null);
+  placingCustomModelId.set(null);
   placingStair.set(false);
   placingColumn.set(false);
   placingEntourageId.set(null);
@@ -357,10 +359,14 @@ export function addWindow(wallId: string, position: number, windowType: import('
   return id;
 }
 
-export function addFurniture(catalogId: string, position: Point): string {
+export function addFurniture(catalogId: string, position: Point, customModelId?: string): string {
   const id = uid();
   mutate((f) => {
-    f.furniture.push({ id, catalogId, position, rotation: 0, scale: { x: 1, y: 1, z: 1 } });
+    const model = customModelId ? get(currentProject)?.customModels?.find(m => m.id === customModelId) : undefined;
+    f.furniture.push({
+      id, catalogId, position, rotation: 0, scale: { x: 1, y: 1, z: 1 },
+      ...(customModelId ? { customModelId, width: model?.width, depth: model?.depth, height: model?.height } : {}),
+    });
   }, `Added ${catalogId}`);
   if (typeof window !== 'undefined') {
     import('$lib/stores/onboarding.svelte').then(m => m.triggerTip('first-furniture', position.x + 20, position.y + 20)).catch(() => {});
@@ -1079,6 +1085,8 @@ export const selectedRoomId = writable<string | null>(null);
 export const detectedRoomsStore = writable<import('$lib/models/types').Room[]>([]);
 /** catalogId currently being placed (null = not placing) */
 export const placingFurnitureId = writable<string | null>(null);
+/** Custom model id being placed (null = not placing a custom model). Set alongside placingFurnitureId = 'custom-model'. */
+export const placingCustomModelId = writable<string | null>(null);
 /** Rotation angle for furniture being placed */
 export const placingRotation = writable<number>(0);
 /** Door subtype currently selected for placement */

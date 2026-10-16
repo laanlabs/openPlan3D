@@ -3,12 +3,13 @@
   import { get } from 'svelte/store';
   import { t, locale } from '$lib/i18n';
   import { customModelError } from '$lib/i18n/customModelMessages';
-  import { currentProject, commitItemDetails, canvasCamX, canvasCamY, selectedElementId, selectedElementIds, selectedTool } from '$lib/stores/project';
+  import { currentProject, commitItemDetails, placingFurnitureId, placingCustomModelId, selectedTool } from '$lib/stores/project';
   import { getSnapshots } from '$lib/stores/versionHistory';
   import { modalDialog } from '$lib/utils/modalDialog';
   import type { PreparedCustomModel } from '$lib/services/customModelImport';
-  import { placeCustomModel, removeCustomModel } from '$lib/services/customModels';
+  import { removeCustomModel } from '$lib/services/customModels';
   import type CustomModelPreview from '../CustomModelPreview.svelte';
+  import CustomModelCard from './CustomModelCard.svelte';
 
   let input: HTMLInputElement;
   let Preview = $state.raw<typeof CustomModelPreview>();
@@ -16,6 +17,8 @@
   let prepared = $state.raw<PreparedCustomModel | null>(null);
   let name = $state(''), attribution = $state(''), license = $state(''), sourceUrl = $state('');
   let removal = $state<string | null>(null);
+  let currentPlacingModel = $state<string | null>(null);
+  onDestroy(placingCustomModelId.subscribe((id) => { currentPlacingModel = id; }));
   let controller: AbortController | undefined;
   let generation = 0, projectId: string | undefined;
   export function openPicker() { input?.click(); }
@@ -64,17 +67,10 @@
     } catch (e) { if (request === generation) error = e instanceof Error ? e.message : get(t)('customModel.failed'); }
     finally { if (request === generation) saving = false; }
   }
-  function place(id: string) {
-    const project = get(currentProject); if (!project) return;
-    error = ''; status = '';
-    try {
-      const next = placeCustomModel(project, id, { x: get(canvasCamX), y: get(canvasCamY) });
-      const floor = next.floors.find(floor => floor.id === next.activeFloorId)!;
-      const item = floor.furniture.at(-1)!;
-      commitItemDetails(project, next, 'Placed custom model');
-      selectedTool.set('select'); selectedElementId.set(item.id); selectedElementIds.set(new Set());
-      status = get(t)('customModel.placed');
-    } catch (e) { error = e instanceof Error ? e.message : get(t)('customModel.failed'); }
+  function armModel(id: string) {
+    selectedTool.set('furniture');
+    placingCustomModelId.set(id);
+    placingFurnitureId.set('custom-model');
   }
   function remove() {
     const project = get(currentProject); if (!project || !removal) return;
@@ -94,19 +90,13 @@
   {#if !($currentProject?.customModels ?? []).length}
     <p class="text-xs text-gray-500">{$t('customModel.help')}</p>
   {/if}
-  {#each $currentProject?.customModels ?? [] as model (model.id)}
-    <div class="rounded-lg border border-gray-200 p-2 text-xs">
-      <strong class="break-words">{model.name}</strong>
-      <p>{model.width.toFixed(1)} × {model.depth.toFixed(1)} × {model.height.toFixed(1)} cm</p>
-      {#if model.attribution}<p class="break-words">{model.attribution}</p>{/if}
-      {#if model.license}<p class="break-words">{model.license}</p>{/if}
-      {#if model.sourceUrl}<a class="text-blue-700 underline" href={model.sourceUrl} target="_blank" rel="noopener noreferrer">{$t('customModel.source')}</a>{/if}
-      <div class="mt-1 flex flex-wrap gap-2">
-        <button class="text-blue-700 underline" onclick={() => place(model.id)}>{$t('customModel.place')}</button>
-        <button class="text-red-700 underline" onclick={() => { error = ''; removal = model.id; }}>{$t('customModel.remove')}</button>
-      </div>
+  {#if ($currentProject?.customModels ?? []).length}
+    <div class="grid grid-cols-2 gap-2">
+      {#each $currentProject?.customModels ?? [] as model (model.id)}
+        <CustomModelCard {model} placing={currentPlacingModel === model.id} onArm={armModel} onRemove={(id) => { error = ''; removal = id; }} />
+      {/each}
     </div>
-  {/each}
+  {/if}
   {#if !open && error}<p role="alert" class="text-xs text-red-700">{customModelError(error, $locale)}</p>{/if}
   {#if status}<p role="status" class="text-xs text-gray-600">{status}</p>{/if}
 </section>

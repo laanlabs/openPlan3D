@@ -164,6 +164,18 @@ The full-width mobile drawer case (`objects-panel.spec.ts:47`) sets a
 `390 × 844` Playwright viewport. That is a resized desktop browser context, not
 a physical device; it verifies layout and the `✕` close path only.
 
+## Follow-up changes (same branch)
+
+- **Recent strip:** the Rooms-tab Recent section is a single horizontally
+  scrollable row (`ObjectsPanel.svelte`), so it can no longer push the Favorite
+  and room cards down; the stored list is still capped at 10 on each placement.
+- **Custom-model cards:** My Items cards now match the catalog cards (icon, name
+  and `W×Dcm`), with provenance in the card tooltip and a `−` (Remove model)
+  button. Clicking a card (or dragging it) arms the same placement rules as
+  catalog items — grid snap, wall snap and pre-place rotation — via a
+  `placingCustomModelId` store and `addFurniture(..., customModelId)`. The global
+  search result cards use the same flow.
+
 ## Limits
 
 - Physical iPhone/iPad interaction and Safari/WebKit qualification remain open.

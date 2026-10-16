@@ -6,7 +6,7 @@
   import ImportError from '$lib/components/ImportError.svelte';
   import { onDestroy, tick } from 'svelte';
   import { get } from 'svelte/store';
-  import { activateMeasurementTool, selectedTool, placingFurnitureId, placingDoorType, placingWindowType, placingStair, addStair, placingColumn, placingColumnShape, activeFloor, setBackgroundImage, canvasCamX, canvasCamY } from '$lib/stores/project';
+  import { activateMeasurementTool, selectedTool, placingFurnitureId, placingCustomModelId, placingDoorType, placingWindowType, placingStair, addStair, placingColumn, placingColumnShape, activeFloor, setBackgroundImage, canvasCamX, canvasCamY } from '$lib/stores/project';
   import type { Tool } from '$lib/stores/project';
   import { toggleColumnPlacement, toggleStairPlacement } from '$lib/utils/placementArming';
   import type { Door, Window as Win } from '$lib/models/types';
@@ -45,6 +45,7 @@
     if (tool === 'measure' || tool === 'annotate') activateMeasurementTool(tool);
     else selectedTool.set(tool);
     placingFurnitureId.set(null);
+    placingCustomModelId.set(null);
   }
 
   let currentTool = $state<Tool>('select');

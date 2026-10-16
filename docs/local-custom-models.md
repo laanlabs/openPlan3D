@@ -1,10 +1,13 @@
 # Local custom furniture models
 
-Open **Objects → My 3D models** and choose a local `.glb` file. Review its preview
+Open **Objects → My Items** and choose a local `.glb` file. Review its preview
 and dimensions, give it a name, and optionally enter attribution, license text and
-a public HTTP/HTTPS source URL. Choose **Add to project**, then use the saved
-model's placement button to place furniture at the center of the current 2D view.
-Save the project to persist the change. Cancellation leaves the project unchanged.
+a public HTTP/HTTPS source URL. Choose **Add to project**. The saved model appears
+as a card like the built-in catalog items (icon, name and footprint); click it to
+arm placement and click the plan, or drag it onto the canvas — custom models use the
+same grid, wall and pre-place rotation behaviour as catalog furniture. Provenance
+(attribution, license, source) is shown in the card's tooltip. Save the project to
+persist the change. Cancellation leaves the project unchanged.
 
 The preview supports pointer orbit/zoom and labeled rotation/zoom buttons. The
 buttons can be focused with Tab and activated with Enter or Space; **Reset preview
@@ -18,7 +21,7 @@ and labels the placed furniture in 2D PNG, SVG, DXF, DWG and PDF exports and in 
 which make room for the whole name however long it is.
 Importing identical bytes reuses the existing model definition and its metadata.
 To remove a definition, first delete its placed furniture on every floor, then
-choose **Remove model**. An unused source is removed with its definition unless
+choose the card's **−** (Remove model) button. An unused source is removed with its definition unless
 another retained reference still needs it. Undo can restore the removal; older
 saved versions and exported backups retain their copies.
 

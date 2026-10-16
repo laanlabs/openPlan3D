@@ -1460,6 +1460,7 @@ export const pt = {
   "customModel.removed": "Modelo sem uso removido. Salve para manter esta alteração.",
   "customModel.source": "URL de origem (opcional)",
   "customModel.place": "Inserir no centro da visualização",
+  "customModel.placeHint": "Clique para posicionar",
   "customModel.remove": "Remover modelo",
   "customModel.loading": "Verificando modelo e preparando prévia…",
   "customModel.dimensions": "Largura {width} × profundidade {depth} × altura {height} cm",
