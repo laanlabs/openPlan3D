@@ -24,8 +24,13 @@ saved versions and exported backups retain their copies.
 
 - Static glTF 2.0 binary containers (`.glb`) up to 16 MiB, with nonzero width,
   depth and height. The glTF metre dimensions become project centimetres.
-- Embedded PNG/JPEG textures, up to 32 images, 4096 pixels per side and a combined
-  32 megapixels. Core materials and `KHR_materials_unlit` are supported.
+- Embedded PNG/JPEG/WebP textures, up to 32 images, 4096 pixels per side and a
+  combined 32 megapixels. Core materials, `KHR_materials_unlit` and
+  `EXT_texture_webp` are supported.
+- Draco-compressed geometry (`KHR_draco_mesh_compression`) is decoded by a decoder
+  bundled with the app under `/draco/` (Apache-2.0, see `static/draco/NOTICE`); no
+  external resource is fetched. Compressed files that also use an unsupported
+  extension are still rejected.
 - Bounded scene graphs, geometry and decoded resources. A file below the byte limit
   can still exceed these limits and be rejected with a diagnostic.
 

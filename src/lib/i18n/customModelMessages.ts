@@ -46,7 +46,7 @@ export const customModelMessages: Record<string, TranslationKey> = {
   "Invalid GLB resources: Compressed buffer views are not supported.": "customModelValidation.16",
   "Invalid GLB resources: Embed all images in the GLB; external and data URLs are not supported.": "customModelValidation.17",
   "Invalid GLB resources: An image has no valid embedded buffer view.": "customModelValidation.18",
-  "Invalid GLB resources: Use embedded JPG or PNG textures up to 4096 pixels per side.": "customModelValidation.19",
+  "Invalid GLB resources: Use embedded JPG, PNG or WebP textures up to 4096 pixels per side.": "customModelValidation.19",
   "Invalid GLB resources: The model exceeds the total texture pixel budget.": "customModelValidation.20",
   "Invalid GLB resources: Invalid or oversized buffer table.": "customModelValidation.21",
   "Invalid GLB resources: Invalid or oversized buffer view table.": "customModelValidation.22",
@@ -160,6 +160,8 @@ export const customModelMessages: Record<string, TranslationKey> = {
   "Local furniture import does not support animations yet. Export a static mesh.": "customModelValidation.130",
   "Local furniture import does not support skins yet. Export a static mesh.": "customModelValidation.131",
   "Local furniture import does not support cameras yet. Export a static mesh.": "customModelValidation.132",
+  "Unsupported GLB extension: EXT_texture_webp has an invalid declaration.": "customModelValidation.133",
+  "Unsupported GLB extension: KHR_draco_mesh_compression has an invalid declaration.": "customModelValidation.134",
 };
 
 /** Preserve variable glTF identifiers and unknown external decoder diagnostics. */
