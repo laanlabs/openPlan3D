@@ -58,3 +58,16 @@ test('mobile tools drawer is full width and closes with the panel ✕', async ({
   await page.getByRole('button', { name: 'Close panel', exact: true }).click();
   await expect(tools).toHaveAttribute('aria-expanded', 'false');
 });
+
+test('Recent and Favorite cards reflect persisted furniture', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('hasSeenWelcome', 'true');
+    localStorage.setItem('o3d_recent_furniture', JSON.stringify(['sofa']));
+    localStorage.setItem('o3d_favorite_furniture', JSON.stringify(['chair']));
+  });
+  await page.goto('/editor');
+  await page.getByRole('button', { name: 'Objects', exact: true }).click();
+  await expect(page.getByRole('button', { name: /^Sof/ }).first()).toBeVisible();
+  await page.getByRole('button', { name: /Favorite/ }).first().click();
+  await expect(page.getByRole('button', { name: /^Armchair/ }).first()).toBeVisible();
+});
