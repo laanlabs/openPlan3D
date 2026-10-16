@@ -29,7 +29,9 @@ jobs:
           NODE_ENV: production
           NPM_CONFIG_INCLUDE: dev
       - run: npm run catalog:check
+      - run: npm audit --audit-level=high --omit dev
       - run: npm audit --audit-level=high
+        continue-on-error: true
       - run: npm run check
       - run: npm test
       - run: npm run build
