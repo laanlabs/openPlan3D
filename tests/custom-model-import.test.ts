@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { webcrypto } from 'node:crypto';
+import { createHash, webcrypto } from 'node:crypto';
 import { beforeEach, afterEach, expect, it, vi } from 'vitest';
 import { prepareCustomModel, attachCustomModel } from '$lib/services/customModelImport';
 import { readCustomModelSource } from '$lib/services/customModelSource';
@@ -63,4 +63,13 @@ it('rejects invalid files and cancellation before allocating decoded images', as
   const controller = new AbortController(); controller.abort();
   await expect(prepareCustomModel(file(), controller.signal)).rejects.toMatchObject({ name: 'AbortError' });
   expect(createImageBitmap).not.toHaveBeenCalled();
+});
+it('imports and verifies a model without Web Crypto on an insecure origin', async () => {
+  vi.stubGlobal('crypto', { getRandomValues: webcrypto.getRandomValues.bind(webcrypto) });
+  const prepared = await prepareCustomModel(file());
+  try {
+    const result = attachCustomModel(roomProject(), prepared, { name: 'Box' }, []);
+    expect(result.model.sha256).toBe(createHash('sha256').update(bytes).digest('hex'));
+    expect((await readCustomModelSource(result.project, result.model.id)).bytes).toEqual(new Uint8Array(bytes));
+  } finally { prepared.dispose(); }
 });

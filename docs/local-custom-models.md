@@ -44,6 +44,14 @@ Projects support up to 64 model definitions. Admission also checks the shared
 64 MiB project/history budget, history expansion and available browser quota.
 Models share the attachment pool with photos and tracing images.
 
+The original bytes are verified with a SHA-256 digest when a model is added and
+again when it is rendered. `crypto.subtle` exists only in a secure context, so on
+a plain-HTTP origin (a self-hosted site or `npm run dev -- --host` on a phone) the
+app falls back to a built-in SHA-256 implementation. Custom models therefore work
+over HTTP too, at a small CPU cost for the digest. The same fallback covers item
+photos, and identifier generation uses `crypto.randomUUID` when available with a
+`getRandomValues`-based v4 UUID otherwise.
+
 ## Saving and exchanging models
 
 Saved project JSON, library backups and project-package ZIPs retain the original

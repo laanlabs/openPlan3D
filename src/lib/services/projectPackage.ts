@@ -6,6 +6,7 @@ import { planStatistics } from '$lib/utils/planStatistics';
 import { prepareLibraryRestore } from './libraryRestore';
 import type { DetailKind } from '$lib/models/types';
 import { upgradeLegacyFurnitureCategories } from '$lib/utils/legacyFurnitureCategories';
+import { randomId } from '$lib/utils/randomId';
 
 type PackageState = { version: 1; furnitureCategoriesVersion?: 1; native: Record<string, any>; mapping: PackageMapping; assets: Record<string, string> };
 const docs = ['manifest.json', 'plan.json', 'web.json', 'baseline.json', 'mapping.json'];
@@ -90,7 +91,7 @@ export function projectPackageBytes(value: Project): Uint8Array {
     if (bytes && info?.width) {
       const same = Object.entries(assets).find(([, stored]) => stored.length === bytes.length && stored.every((byte, i) => byte === bytes[i]));
       let filename = same?.[0].slice(7) ?? `web-underlay-${crc32(bytes).toString(16)}.${info.type.split('/')[1]}`;
-      if (!same && assets[`assets/${filename}`]) filename = `web-underlay-${crypto.randomUUID()}.${info.type.split('/')[1]}`;
+      if (!same && assets[`assets/${filename}`]) filename = `web-underlay-${randomId()}.${info.type.split('/')[1]}`;
       assets[`assets/${filename}`] = bytes;
       plan.underlay = { imageFilename: filename, center: { x: background.position.x / 100, y: background.position.y / 100 }, widthMeters: background.scale * info.width / 100, angle: background.rotation !== 0 || plan.underlay?.angle != null ? background.rotation * Math.PI / 180 : undefined, level: state?.native.underlay && priorLevel == null ? undefined : plan.levels.find((level: any) => level.id === mapping.find(entry => entry.kind === 'levels' && entry.webId === backgroundFloor.id)?.id)?.index };
       underlayFloorId = backgroundFloor.id;

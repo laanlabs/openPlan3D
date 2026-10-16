@@ -52,3 +52,26 @@ test('imports, previews, places and retains a local custom model through undo an
   expect(retained.floors).toEqual(placed.floors);
   expect(errors).toEqual([]);
 });
+
+test('imports and renders a custom model when Web Crypto is unavailable (insecure origin)', async ({ page }) => {
+  // A plain-HTTP origin has no `crypto.subtle`; simulate it on the secure test origin.
+  await page.addInitScript(() => {
+    Object.defineProperty(Crypto.prototype, 'subtle', { configurable: true, get: () => undefined });
+  });
+  const warnings: string[] = [];
+  page.on('console', message => { if (message.type() === 'warning') warnings.push(message.text()); });
+  await page.goto('/editor');
+  await page.getByRole('button', { name: 'Objects', exact: true }).click();
+  const panel = page.getByRole('region', { name: 'My 3D models', exact: true });
+  await panel.locator('input[type=file]').setInputFiles('tests/fixtures/local-model-textured-box.glb');
+  const dialog = page.getByRole('dialog', { name: 'Import GLB model', exact: true });
+  await expect(dialog.locator('canvas')).toBeVisible({ timeout: 60_000 });
+  await dialog.getByRole('button', { name: 'Add to project', exact: true }).click();
+  await expect(dialog).toBeHidden();
+  await panel.getByRole('button', { name: 'Place at view center', exact: true }).click();
+  // Enter 3D so the retained model is loaded and verified at render time.
+  await page.getByRole('button', { name: '3D', exact: true }).click();
+  await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible({ timeout: 60_000 });
+  await page.waitForTimeout(4_000);
+  expect(warnings.filter(warning => warning.includes('Custom model unavailable'))).toEqual([]);
+});
