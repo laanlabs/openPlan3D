@@ -1,17 +1,20 @@
 <script lang="ts">
   import { onDestroy, tick } from 'svelte';
+  import { get } from 'svelte/store';
   import { t, locale } from '$lib/i18n';
   import { furnitureName } from '$lib/i18n/furnitureNames';
   import { catalogCategoryLabels, normalizeCatalogSearch } from '$lib/i18n/catalogCategories';
   import {
     placingFurnitureId, placingEntourageId, selectedTool, currentProject, addCustomEntourage,
+    commitItemDetails, canvasCamX, canvasCamY, selectedElementId, selectedElementIds,
   } from '$lib/stores/project';
   import type { CustomEntourageDef } from '$lib/models/types';
   import { furnitureCatalog, type FurnitureDef } from '$lib/utils/furnitureCatalog';
   import { entourageCatalog } from '$lib/utils/entourageCatalog';
+  import { placeCustomModel } from '$lib/services/customModels';
   import {
     objectRooms, subcardsForRoom,
-    catalogItemsForSubcard, entourageItemsForSubcard, itemsForRoom, subcardHasItems,
+    catalogItemsForSubcard, entourageItemsForSubcard, itemsForDirectRoom, subcardHasItems,
     type ObjectRoom, type ObjectSubcard,
   } from '$lib/utils/objectTaxonomy';
   import ObjectsSearch from './ObjectsSearch.svelte';
@@ -59,13 +62,26 @@
 
   function place(item: FurnitureDef) {
     selectedTool.set('furniture');
+    placingEntourageId.set(null);
     placingFurnitureId.set(item.id);
     addToRecent(item.id);
   }
 
   function armEntourage(id: string) {
+    placingFurnitureId.set(null);
     placingEntourageId.set(placingEntId === id ? null : id);
     selectedTool.set('select');
+  }
+
+  function placeModel(id: string) {
+    const project = get(currentProject); if (!project) return;
+    try {
+      const next = placeCustomModel(project, id, { x: get(canvasCamX), y: get(canvasCamY) });
+      const floor = next.floors.find((f) => f.id === next.activeFloorId)!;
+      const item = floor.furniture.at(-1)!;
+      commitItemDetails(project, next, 'Placed custom model');
+      selectedTool.set('select'); selectedElementId.set(item.id); selectedElementIds.set(new Set());
+    } catch { /* keep the panel responsive if placement is rejected */ }
   }
 
   let customEntDefs = $state<CustomEntourageDef[]>([]);
@@ -96,18 +112,17 @@
     reader.readAsDataURL(file);
   }
 
-  function resetNavigation() { openRoom = null; openSubcard = null; showFavorites = false; }
+  function resetNavigation() { openRoom = null; openSubcard = null; showFavorites = false; symbolUploadError = null; }
 
   function selectTab(next: Tab) { tab = next; resetNavigation(); }
 
   function roomCount(room: ObjectRoom): number {
     return room.kind === 'direct'
-      ? itemsForRoom(room).length
+      ? itemsForDirectRoom(room).length
       : subcardsForRoom(room.id).reduce((total, subcard) => total + subcard.itemIds.length, 0);
   }
   function roomItems(room: ObjectRoom): FurnitureDef[] {
-    if (room.kind === 'direct') return itemsForRoom(room);
-    return subcardsForRoom(room.id).flatMap((subcard) => catalogItemsForSubcard(subcard));
+    return itemsForDirectRoom(room);
   }
   function visibleSubcards(room: ObjectRoom): ObjectSubcard[] {
     return subcardsForRoom(room.id).filter(subcardHasItems);
@@ -123,7 +138,9 @@
       })
     : []);
   const searchEntourage = $derived(query ? entourageCatalog.filter((def) => normalizeCatalogSearch(def.name).includes(query)) : []);
-  const searchTotal = $derived(searchItems.length + searchEntourage.length);
+  const searchModels = $derived(query ? (($currentProject?.customModels) ?? []).filter((model) => normalizeCatalogSearch(model.name).includes(query)) : []);
+  const searchCustomEntourage = $derived(query ? customEntDefs.filter((def) => normalizeCatalogSearch(def.name).includes(query)) : []);
+  const searchTotal = $derived(searchItems.length + searchEntourage.length + searchModels.length + searchCustomEntourage.length);
 </script>
 
 <div class="flex-1 flex flex-col overflow-hidden bg-white">
@@ -155,7 +172,27 @@
           {/each}
         </div>
       {/if}
-      {#if !searchTotal}<EmptyState label={$t('objectPanel.empty')} />{/if}
+      {#if searchModels.length}
+        <div class="grid grid-cols-2 gap-2 mt-2">
+          {#each searchModels as model (model.id)}
+            <button type="button" class="flex flex-col items-start gap-1 p-3 rounded-lg border-2 border-gray-100 hover:border-blue-300 hover:bg-blue-50 text-left" onclick={() => placeModel(model.id)}>
+              <span class="text-xs font-medium text-gray-600">{model.name}</span>
+              <span class="text-[10px] text-gray-400">{model.width.toFixed(0)}×{model.depth.toFixed(0)}cm</span>
+            </button>
+          {/each}
+        </div>
+      {/if}
+      {#if searchCustomEntourage.length}
+        <div class="grid grid-cols-3 gap-1.5 mt-2">
+          {#each searchCustomEntourage as def (def.id)}
+            <button type="button" class="p-1.5 rounded-lg border text-center hover:border-blue-300 hover:bg-blue-50 transition-colors {placingEntId === def.id ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-200' : 'border-gray-200'}" title={def.name} onclick={() => armEntourage(def.id)}>
+              <img src={def.dataUrl} alt={def.name} class="w-full h-8 object-contain" />
+              <span class="text-[9px] text-gray-500 leading-tight block truncate">{def.name}</span>
+            </button>
+          {/each}
+        </div>
+      {/if}
+      {#if !searchTotal}<EmptyState label={$t('objectPanel.noResults')} />{/if}
     </div>
   {:else}
     <div class="flex border-b border-gray-200">

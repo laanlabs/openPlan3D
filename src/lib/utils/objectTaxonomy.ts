@@ -132,7 +132,7 @@ export function entourageItemsForSubcard(subcard: ObjectSubcard): EntourageDef[]
   return subcard.itemIds.map(id => entourageCatalog.find(def => def.id === id)).filter((def): def is EntourageDef => def !== undefined);
 }
 
-export function itemsForRoom(room: ObjectRoom): FurnitureDef[] {
+export function itemsForDirectRoom(room: ObjectRoom): FurnitureDef[] {
   const subcard = getSubcard(room.subcards[0]);
   return subcard ? catalogItemsForSubcard(subcard) : [];
 }

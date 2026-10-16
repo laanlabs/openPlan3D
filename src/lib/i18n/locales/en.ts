@@ -613,6 +613,7 @@ export const en = {
   "objectPanel.clearSearch": "Clear search",
   "objectPanel.back": "Back",
   "objectPanel.empty": "No items yet",
+  "objectPanel.noResults": "No results",
   "objectPanel.createItems": "Create items",
   "objectPanel.createItemsHelp": "Upload a 3D model",
   "objectPanel.createItemsAction": "Create items",

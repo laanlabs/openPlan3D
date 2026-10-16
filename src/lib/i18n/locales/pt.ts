@@ -613,6 +613,7 @@ export const pt = {
   "objectPanel.clearSearch": "Limpar pesquisa",
   "objectPanel.back": "Voltar",
   "objectPanel.empty": "Nenhum item ainda",
+  "objectPanel.noResults": "Nenhum resultado",
   "objectPanel.createItems": "Criar itens",
   "objectPanel.createItemsHelp": "Envie um modelo 3D",
   "objectPanel.createItemsAction": "Criar itens",

@@ -3,7 +3,7 @@ import { furnitureCatalog } from '$lib/utils/furnitureCatalog';
 import { entourageCatalog } from '$lib/utils/entourageCatalog';
 import {
   objectGroups, objectSubcards, objectRooms, getSubcard, subcardsForRoom,
-  catalogItemsForSubcard, entourageItemsForSubcard, itemsForRoom, subcardHasItems,
+  catalogItemsForSubcard, entourageItemsForSubcard, itemsForDirectRoom, subcardHasItems,
 } from '$lib/utils/objectTaxonomy';
 
 const catalogIds = new Set(furnitureCatalog.map(item => item.id));
@@ -49,6 +49,6 @@ it('exposes helpers over the taxonomy', () => {
   expect(subcardHasItems(getSubcard('ottoman')!)).toBe(false);
   expect(subcardHasItems(getSubcard('appliances')!)).toBe(true);
   const decor = objectRooms.find(room => room.id === 'decor')!;
-  expect(itemsForRoom(decor).map(item => item.id)).toContain('rug');
-  expect(itemsForRoom(decor).every(item => item.category === 'Decor')).toBe(true);
+  expect(itemsForDirectRoom(decor).map(item => item.id)).toContain('rug');
+  expect(itemsForDirectRoom(decor).every(item => item.category === 'Decor')).toBe(true);
 });
