@@ -2,7 +2,7 @@
   import { onDestroy, tick } from 'svelte';
   import { t, locale } from '$lib/i18n';
   import { furnitureName } from '$lib/i18n/furnitureNames';
-  import { normalizeCatalogSearch } from '$lib/i18n/catalogCategories';
+  import { catalogCategoryLabels, normalizeCatalogSearch } from '$lib/i18n/catalogCategories';
   import {
     placingFurnitureId, placingEntourageId, selectedTool, currentProject, addCustomEntourage,
   } from '$lib/stores/project';
@@ -115,7 +115,13 @@
   function subcardCount(subcard: ObjectSubcard): number { return subcard.itemIds.length; }
 
   const query = $derived(normalizeCatalogSearch(search));
-  const searchItems = $derived(query ? furnitureCatalog.filter((item) => normalizeCatalogSearch(furnitureName(item.id, $locale)).includes(query) || normalizeCatalogSearch(item.name).includes(query)) : []);
+  const searchItems = $derived(query
+    ? furnitureCatalog.filter((item) => {
+        const values = [furnitureName(item.id, $locale), item.name, item.category];
+        if (catalogCategoryLabels[item.category]) values.push($t(catalogCategoryLabels[item.category]));
+        return values.some((value) => normalizeCatalogSearch(value).includes(query));
+      })
+    : []);
   const searchEntourage = $derived(query ? entourageCatalog.filter((def) => normalizeCatalogSearch(def.name).includes(query)) : []);
   const searchTotal = $derived(searchItems.length + searchEntourage.length);
 </script>
