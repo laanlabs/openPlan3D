@@ -237,7 +237,7 @@ The companion iOS app can share an edited plan or [Apple RoomPlan](https://devel
 
    and imports it as a new project. Prepared iPhone exports preserve their angles by default; raw captures retain their scan-cleanup defaults. On success the `import` param is replaced with the new project's `id` so a refresh won't re-import.
 
-During migration, [`storage.rules`](storage.rules) still permits legacy public creates below 10 MiB. **This bypasses aggregate admission limits until cutover.** The new endpoint enforces 1 MiB per capture, 1,000 reservations / 250 MiB per UTC day, and 10 reservations per minute. See [configuration, costs and the client migration gate](docs/handoff-quotas.md). These limits are not a cap on Firebase spending.
+[`storage.rules`](storage.rules) allows public reads of a capture by its code and no public writes, so every capture passes the endpoint's admission limits. The endpoint enforces 1 MiB per capture, 1,000 reservations / 250 MiB per UTC day, and 10 reservations per minute. See [configuration, costs and the cutover record](docs/handoff-quotas.md). These limits are not a cap on Firebase spending.
 
 ### Assistant shares
 

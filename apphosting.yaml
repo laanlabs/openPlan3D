@@ -14,8 +14,8 @@ env:
     value: 68M
     availability:
       - RUNTIME
-  # Staged quota endpoint for the updated iPhone app. Legacy direct-upload
-  # rules stay in place until distributed clients have migrated (issue #30).
+  # Quota endpoint for iPhone and sibling-planner link sharing; since the
+  # Storage rules cutover it is the only way captures reach the bucket (issue #30).
   - variable: HANDOFF_UPLOADS_ENABLED
     value: "true"
     availability:

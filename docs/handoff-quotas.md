@@ -8,13 +8,16 @@ this service. No database or extra hosted service is introduced.
 
 ## Deployment state
 
-This release stages the quota endpoint and updates the companion client.
-**The existing public Storage create rule remains deployed for older iPhone
-builds. Consequently, the bucket is not yet protected by an aggregate quota.**
-The cutover candidate is `ops/storage-quota-cutover.rules`; it is deliberately
-not referenced by `firebase.json`. Closing the old path requires confirming that
-distributed iPhone clients have migrated. App Store/TestFlight publication is
-separate from merging the companion source.
+`storage.rules` no longer allows public creates: captures reach the bucket only
+through `POST /api/handoffs`, so the aggregate quota below covers every upload.
+This is the reviewed cutover, formerly `ops/storage-quota-cutover.rules`.
+
+The migration evidence, from production on October 16, 2026: App Store
+version 1.2, released September 17, shares through the endpoint. In the week
+before the cutover the inbox received about 100 endpoint captures a day, which
+was the daily cap, and 4 direct uploads in total from older apps. iPhone apps
+older than 1.2 can no longer share links; they can still export the plan file,
+and updating the app restores sharing.
 
 ## Endpoint contract
 
@@ -91,7 +94,7 @@ before their reuse deadline. Concurrent identical sends share one request. A
 bounded local cache persists only hashes, codes and expiry, never capture contents.
 Changed geometry/import settings and expired entries trigger a new explicit upload.
 
-## Configuration and cutover
+## Configuration
 
 Self-hosted deployments default to sharing disabled. Enable only with
 `HANDOFF_UPLOADS_ENABLED=true` and `HANDOFF_BUCKET` set to the intended bucket.
@@ -107,17 +110,28 @@ The token requests `devstorage.full_control`: the Storage JSON API's
 `devstorage.read_write` allows inserts but fails subsequent quota updates.
 See the method scopes in the [official API definition](https://storage.googleapis.com/$discovery/rest?version=v1).
 
-After the new client is distributed and the compatibility decision is confirmed:
+## Cutover record
 
-1. Verify a synthetic updated-client share and web import against production.
-2. Replace `storage.rules` with the reviewed cutover candidate, commit it, and
-   deploy only Storage rules for project `openplan3d`. Keeping the root rules in
-   sync prevents a later routine deployment from reopening public writes.
-3. Verify direct anonymous creates and public ledger access are denied; verify
-   quota-approved writes, existing-code reads, and local file export still work.
-4. Keep the one-day `inbox/` lifecycle. Do not apply that lifecycle to the ledger.
-   Recheck retained live/soft-deleted bytes and the agreed operating budget.
+The public create rule was closed on October 16, 2026 at 16:30 UTC. The
+Storage release for `openplan3d.firebasestorage.app` moved from ruleset
+`4dd57b5d-7823-4509-9250-95f32c57d4ad` (legacy public creates) to
+`a1d5ef29-ce66-420b-a356-52d433691f22`, which is this repository's
+`storage.rules`. Before the release, the Rules API test method confirmed that
+its only behavior change is denying anonymous creates in `inbox/`; reads by
+code and the denials elsewhere are unchanged. Production checks after the
+release:
 
-Older apps' direct uploads will fail after cutover. Reopening that rule restores
-compatibility but also restores the quota bypass. Avoid describing the staged
-release as full enforcement while this path remains open.
+- An anonymous direct create in `inbox/` returns 403.
+- Public reads of the ledger, and anonymous listing of `inbox/`, return 403.
+- A synthetic share through `POST /api/handoffs` returns 201. A public read of
+  its code, as `/editor?import=CODE` makes, returns 200 with the editor's CORS
+  origin. The synthetic capture was deleted afterwards.
+
+Keep `storage.rules` identical to the deployed rules: deploying an older copy
+with `firebase deploy --only storage` would reopen public writes. To roll back,
+release the previous ruleset again (Firebase console, Storage, Rules history).
+That restores older apps' direct uploads and with them the quota bypass.
+
+Keep the one-day `inbox/` lifecycle, and do not apply it to the ledger. Recheck
+retained live and soft-deleted bytes against the operating budget, which is
+tracked in [issue #116](https://github.com/laanlabs/openPlan3D/issues/116).

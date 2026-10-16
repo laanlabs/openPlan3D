@@ -83,7 +83,7 @@ Undo/redo retains at most 50 steps and approximately 32 MiB of serialized string
 
 Matching `native-project-package.zip` and `web-project-package.zip` fixtures live in both test suites. Native XCTest imports the real web package, edits it, and exports a `swift-return-project-package.zip` attachment. The web suite imports that actual Swift output and asserts both edits and retained web-only data. Additional tests cover unknown fields, attachments, deleted metadata, cross-floor moves, tracing placement, quota retry, cancellation, corrupt archives and independent copies. Browser CI covers desktop/390 px import, metadata edits, optimized/reused photos, undo/redo, item detachment and explicit file deletion, save/reload, ZIP and library exports, quota recovery, stale image decoding and 3D with no external network requests. `web-metadata-package.zip` is imported and edited in XCTest; the actual `swift-metadata-return.zip` verifies native edits and cleared metadata in the web suite.
 
-Simulator builds/tests validate code and local persistence. Physical-device Files/AirDrop delivery, LiDAR capture, and App Store/TestFlight distribution remain explicit release work in [issue #30](https://github.com/laanlabs/openPlan3D/issues/30). This format does not change upload quotas, Storage rules, billing configuration or native distribution status.
+Simulator builds/tests validate code and local persistence. Physical-device Files/AirDrop delivery and LiDAR capture remain explicit release work, tracked in [openplan3d-ios#47](https://github.com/laanlabs/openplan3d-ios/issues/47). This format does not change upload quotas, Storage rules, billing configuration or native distribution status.
 
 ## Furniture reflection
 

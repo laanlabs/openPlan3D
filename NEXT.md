@@ -2218,31 +2218,33 @@ and PR checks for final browser, Safari and deployment verification.
 
 ## 2. Release and Firebase cost gates
 
-Keep [#30](https://github.com/laanlabs/openPlan3D/issues/30) open until all three
-remaining gates are verified:
+[#30](https://github.com/laanlabs/openPlan3D/issues/30) is closed. Its client
+migration and Storage rules gates were completed on October 16, 2026:
 
-1. **Ship and test the updated iPhone client.** Prepare TestFlight/App Store
-   distribution; exercise Files/AirDrop package exchange and real LiDAR/AR
-   capture on physical devices; establish older-client compatibility requirements.
-2. **Migrate clients, then cut over Storage rules.** Legacy public direct creates
-   are still enabled. The staged admission endpoint has quotas, but this bypass
-   means there is **no aggregate bucket cap yet**. After migration, deploy the
-   reviewed candidate and verify anonymous creates/private ledger access are
-   denied while admitted writes, valid links and local file exchange work.
-   Candidate rule tests passed; active rules have not been cut over. Follow
-   [the migration procedure](docs/handoff-quotas.md), including updating committed
-   `storage.rules` so later deployments cannot reopen the bypass.
-3. **Agree a monthly budget with a billing administrator.** Include Storage,
+- **Updated iPhone client.** App Store version 1.2 (September 17) shares through
+  `POST /api/handoffs`. Physical-device QA, including Files/AirDrop package
+  exchange and real LiDAR/AR capture, is tracked in
+  [openplan3d-ios#47](https://github.com/laanlabs/openplan3d-ios/issues/47).
+- **Storage rules cutover.** Deployed and verified; see
+  [the cutover record](docs/handoff-quotas.md#cutover-record). Public clients can
+  no longer create objects, so the endpoint's quota covers every upload. iPhone
+  builds older than 1.2 can no longer share links. Keep committed `storage.rules`
+  identical to the deployed rules so later deployments cannot reopen the bypass.
+
+One gate remains:
+
+1. **Agree a monthly budget with a billing administrator**
+   ([#116](https://github.com/laanlabs/openPlan3D/issues/116)). Include Storage,
    both App Hosting backends and supporting services. Configure/verify alerts;
-   the audit account lacks billing-account access and the Budget API was disabled
-   at the audit. Alerts notify; they do not enforce a spending cap. Recheck current
-   telemetry and retained bytes before changing quotas or retention.
+   the audit account lacks billing-account access and the Budget API is disabled.
+   Alerts notify; they do not enforce a spending cap. Recheck current telemetry
+   and retained bytes before changing quotas or retention.
 
 Preserve the low-cost design: ordinary editing, history, backups, photos and full
 project-package exchange stay local. Reuse bundled, cacheable catalog assets and
 unchanged temporary shares; keep downloads lazy. The endpoint currently bounds
-captures to 1 MiB, 100 reservations or 25 MiB per UTC day, and 10 reservations per
-minute. Failed writes retain reservations. These limits do not cap downloads or
+captures to 1 MiB, 1,000 reservations or 250 MiB per UTC day, and 10 reservations
+per minute. Failed writes retain reservations. These limits do not cap downloads or
 total spending. Keep the audited one-day inbox lifecycle and seven-day soft delete
 unless new measurements justify a reviewed change. Avoid adding a database,
 durable cloud copies, sync or media uploads without a cost model and enforceable

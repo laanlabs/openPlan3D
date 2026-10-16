@@ -32,9 +32,11 @@ device and cost gates.
 - [ ] Review the [release/Firebase gates](../NEXT.md#2-release-and-firebase-cost-gates)
   for the actual scope. Do not mark native release, client migration, Storage-rule
   cutover or billing budget work complete from web CI results.
-- [ ] If changing handoff admission, retention or rules, follow the existing
-  [migration procedure](handoff-quotas.md), verify older-client compatibility and
-  record administrator/budget evidence. Preserve local file exchange.
+- [ ] If changing handoff admission, retention or rules, follow
+  [the handoff quota notes and cutover record](handoff-quotas.md), keep committed
+  `storage.rules` identical to the deployed rules, verify older-client
+  compatibility and record administrator/budget evidence. Preserve local file
+  exchange.
 - [ ] Record the deployment procedure, previously working revision and recovery
   plan for this environment before publishing.
 - [ ] After publishing, verify the served version and affected user workflows.

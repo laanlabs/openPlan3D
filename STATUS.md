@@ -2,7 +2,8 @@
 
 Last verified: **October 16, 2026** (local unit suite, type check, build and
 chromium browser runs on `fix/editor-defects-3`; full three-engine browser CI on
-PRs #107–#112; production rollout and CORS preflight checked; see below).
+PRs #107–#112; production rollout, CORS preflight and the Storage rules cutover
+checked; see below).
 
 ## Current delivery — October 16
 
@@ -28,17 +29,36 @@ the CORS headers. A foreign origin gets no CORS grant. Issues #101–#104 and
 PR #111, an outside contributor's Docker image built in CI, is a feature
 awaiting the owner's review. It also relaxes the dev-dependency audit gate.
 
+### Link sharing capacity and the Storage rules cutover (issue #30)
+
+Later on October 16 the owner merged #114 (`4e66c60`). It raises the daily
+share limits from 100 shares and 25 MiB to 1,000 shares and 250 MiB. Production
+logs had shown the old cap refusing 140–180 shares a day from midday UTC. Its
+rollout succeeded, and the same day's ledger passed 100 admissions.
+
+At 16:30 UTC the Storage rules cutover was deployed through the Firebase Rules
+API: ruleset `a1d5ef29…` replaced the legacy `4dd57b5d…`. Production checks
+returned 403 for anonymous direct uploads, ledger reads and inbox listing. A
+synthetic endpoint share returned 201, and reading its code returned 200. #115
+commits the same `storage.rules` to `main`; see the
+[cutover record](docs/handoff-quotas.md#cutover-record). Issue #30 is closed.
+Budget alerts moved to #116, and physical-iPhone QA moved to
+[openplan3d-ios#47](https://github.com/laanlabs/openplan3d-ios/issues/47).
+
 ## Goal and overall state
 
 **Active goal: keep working on all outstanding issues in `NEXT.md`.**
 
 The goal is not complete. The GitHub issues that are bugs (#104, #106) and the
 documentation and stitching requests (#101–#103) are fixed, merged, deployed
-and closed. #105 (publish the iOS repository) and #30 (billing budgets, the
-Storage rules cutover, native distribution) need the owner. Broader fidelity
-work, physical-device testing, and release/cloud gates remain open.
+and closed. #30 is closed as well: #114 raised the share limits, and the
+Storage rules cutover was deployed and verified (#115). Its owner tasks moved
+to #116 (billing budget alerts) and
+[openplan3d-ios#47](https://github.com/laanlabs/openplan3d-ios/issues/47)
+(physical-iPhone QA). #105 (publish the iOS repository) needs the owner.
+Broader fidelity work and physical-device testing remain open.
 
-Web `main` is at `7a10d82` (the merge of #112).
+Web `main` is at `4e66c60` (the merge of #114).
 
 This is the concise, maintained status page. Update it as implementation,
 validation, blockers, or priorities change during the goal. Keep the full scope
@@ -51,7 +71,7 @@ Remote state was checked when preparing this report.
 
 | Repository | Branch | Latest implementation checkpoint | Delivery |
 | --- | --- | --- | --- |
-| Web app: `openPlan3D` | `main` | `7a10d82` — merge of #112, after #107–#110 | **Merged and live** (App Hosting rollouts succeeded October 16) |
+| Web app: `openPlan3D` | `main` | `4e66c60` — merge of #114, after #107–#113 | **Merged and live** (App Hosting rollouts succeeded October 16) |
 | Native app: `openplan3d-ios` | `marketing/youtube-shorts-drawing` | `f2c6ea1` — marketing Shorts; no native code change in this batch | Clean checkout; the earlier `codex/local-floorplan-render` work (`bdaad71`) is unchanged |
 | Website: `openplan3d-www` | `main` | `dfdb9ec` — lists OpenLandscape3D, OpenKitchen3D and OpenCatio3D, with an FAQ entry on the exchange | **Pushed and live** on openplan3d.com |
 
@@ -229,8 +249,9 @@ qualifying the repair in the original failing environment.
   touch interactions, multi-floor/attachment-heavy projects, and file/share handoff.
   No physical device was connected at the last inventory check.
 - TestFlight/App Store, distribution, Intel support and licensing/release checks.
-- Firebase client migration, storage admission/rules cutover, enforceable quotas,
-  billing/budget decisions, and later AI/collaboration work behind those cost gates.
+- Billing budget decisions (#116), and later AI/collaboration work behind that
+  cost gate. Client migration, the Storage rules cutover and enforced upload
+  quotas were completed on October 16 (#30).
 
 These are open work areas, not a claim that every item is a reproduced defect.
 Physical-device and administrative gates need their corresponding external
