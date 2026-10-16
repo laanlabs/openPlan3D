@@ -44,7 +44,6 @@ jobs:
 
   browser:
     needs: build
-    if: false
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
@@ -91,7 +90,6 @@ jobs:
 
   benchmark:
     needs: build
-    if: false
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
@@ -144,7 +142,7 @@ jobs:
     timeout-minutes: 10
 
     needs:
-      - build
+      - check
 
     permissions:
       packages: write
