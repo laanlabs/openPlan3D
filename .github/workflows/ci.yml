@@ -17,10 +17,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -36,7 +36,7 @@ jobs:
       - run: npm test
       - run: npm run build
       - name: Production build for all browser engines
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@v7
         with:
           name: browser-build
           path: build/
@@ -55,10 +55,10 @@ jobs:
         # the existing per-job limit without dropping tests or assertions.
         shard: [1, 2, 3, 4, 5, 6]
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -66,7 +66,7 @@ jobs:
         env:
           NODE_ENV: production
           NPM_CONFIG_INCLUDE: dev
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@v8
         with:
           name: browser-build
           path: build/
@@ -81,7 +81,7 @@ jobs:
           LIBGL_ALWAYS_SOFTWARE: '1'
       - name: Browser report and failure traces
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@v7
         with:
           name: browser-checks-${{ matrix.browser }}-${{ matrix.shard }}
           path: |
@@ -98,10 +98,10 @@ jobs:
       matrix:
         profile: [desktop, phone-viewport]
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -109,7 +109,7 @@ jobs:
         env:
           NODE_ENV: production
           NPM_CONFIG_INCLUDE: dev
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@v8
         with:
           name: browser-build
           path: build/
@@ -117,7 +117,7 @@ jobs:
       - run: npm run benchmark:viewer -- --project=${{ matrix.profile }}
       - name: Rendering measurements and failure evidence
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@v7
         with:
           name: rendering-benchmarks-${{ matrix.profile }}
           path: benchmark-results/
