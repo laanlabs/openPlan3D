@@ -30,8 +30,7 @@ jobs:
           NPM_CONFIG_INCLUDE: dev
       - run: npm run catalog:check
       - run: npm audit --audit-level=high --omit dev
-      - run: npm audit --audit-level=high
-        continue-on-error: true
+      - run: npm audit --audit-level=high || echo "::warning title=Dependency audit::High-severity vulnerabilities found in dev dependencies."
       - run: npm run check
       - run: npm test
       - run: npm run build
