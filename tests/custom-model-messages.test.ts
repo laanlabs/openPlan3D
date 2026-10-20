@@ -21,7 +21,7 @@ it('translates variable schema identifiers literally and preserves unknown error
     expect(customModelError(source, 'pt')).toContain(name);
     expect(customModelError(source, 'pt')).toContain('formato não suportado');
   }
-  expect(customModelError('Unsupported GLB extension: KHR_draco_mesh_compression is not supported by local model import yet.', 'pt')).toContain('ainda não aceita KHR_draco_mesh_compression');
+  expect(customModelError('Unsupported GLB extension: KHR_texture_basisu is not supported by local model import yet.', 'pt')).toContain('ainda não aceita KHR_texture_basisu');
   expect(customModelError('Unsupported GLB extension: KHR_materials_unlit is missing from extensionsUsed.', 'pt')).toContain('não está declarada em extensionsUsed');
   for (const message of ['constructor', '__proto__', 'Unknown decoder diagnostic']) expect(customModelError(message, 'pt')).toBe(message);
 });

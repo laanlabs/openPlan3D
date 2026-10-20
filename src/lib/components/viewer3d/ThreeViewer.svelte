@@ -10,9 +10,9 @@
   import { openAISettings, setOpenAIModel } from '$lib/stores/aiKeys';
   import { generateOpenAIRenderImage, validateOpenAIConfig, getEffectiveModel, normalizeBaseUrl } from '$lib/utils/openaiClient';
   import OpenAIModelPicker from '$lib/components/ai/OpenAIModelPicker.svelte';
-  import { activeFloor, currentProject, selectedElementId } from '$lib/stores/project';
+  import { activeFloor, currentProject, selectedElementId, selectedRoomId, detectedRoomsStore, beginUndoGroup, endUndoGroup, transformFurnitureDuringDrag, moveStair, moveColumn, moveWallGeometryDuringDrag, updateFurniture, updateStair, updateColumn, updateDoor, updateWindow } from '$lib/stores/project';
   import { triggerTip } from '$lib/stores/onboarding.svelte';
-  import type { Floor, Wall, Door, Window as Win, Stair } from '$lib/models/types';
+  import type { Floor, Wall, Door, Window as Win, Stair, Column, FurnitureItem } from '$lib/models/types';
   import { getWallStartHeight, getWallEndHeight } from '$lib/models/types';
   import { wallColors, type WallColor } from '$lib/utils/materials';
   import { projectSettings, formatArea } from '$lib/stores/settings';
@@ -33,9 +33,11 @@
   import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
   import { getCatalogItem, furnitureCatalog, furnitureCategories } from '$lib/utils/furnitureCatalog';
   import type { FurnitureDef } from '$lib/utils/furnitureCatalog';
+  import { createElementHighlight, type ElementRef } from '$lib/utils/elementHighlight';
+  import { createTransformGizmo, pointerAxisValue, pointerAngleDeg, GIZMO_AXIS_DIRECTION, type GizmoAxis } from '$lib/utils/threeGizmo';
   import { createWallHighlight } from '$lib/utils/wallHighlight';
   import { applyWallXray } from '$lib/utils/wallXray';
-  import { disposeModel } from '$lib/utils/furnitureModelResources';
+  import { disposeModel, ownTexture } from '$lib/utils/furnitureModelResources';
   import { ownColorCanvasTexture, refreshBackgroundTexture } from '$lib/utils/viewerTextures';
   import { createFurnitureModelWithGLB, createPlacedFurnitureModel } from '$lib/utils/furnitureModelLoader';
   import { addFurniture } from '$lib/stores/project';
@@ -75,12 +77,45 @@
   let framedContext: FramingContext | null = null;
   let wallGroup: THREE.Group;
 
-  // Raycasting for wall selection in 3D
+  // Raycasting for object selection in 3D
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
-  const wallMeshMap = new Map<THREE.Object3D, string>(); // mesh → wallId
+  const wallMeshMap = new Map<THREE.Object3D, string>(); // wall mesh → wallId (transparency + highlight)
+  const elementMeshMap = new Map<THREE.Object3D, ElementRef>(); // any selectable mesh → element ref
+  const elementRootMap = new Map<string, THREE.Object3D>(); // element id → live transform root
+  let selectedIdValue: string | null = null;
+  let selectedRoomIdValue: string | null = null;
+  const elementHighlight = createElementHighlight();
   let selectedWallId3D: string | null = null;
   const wallHighlight = createWallHighlight();
+
+  // Custom translate/rotate gizmo (edit mode only)
+  type SelectedInfo =
+    | { kind: 'wall'; item: Wall }
+    | { kind: 'door'; item: Door }
+    | { kind: 'window'; item: Win }
+    | { kind: 'furniture'; item: FurnitureItem }
+    | { kind: 'stair'; item: Stair }
+    | { kind: 'column'; item: Column }
+    | { kind: 'room'; item: { id: string } };
+  const gizmo = createTransformGizmo();
+  let gizmoDragging = false;
+  let shiftDown = false;
+  let rotateLabel = $state<string | null>(null);
+  let rotateLabelPos = $state({ x: 0, y: 0 });
+  let gizmoDrag: {
+    axis: GizmoAxis;
+    info: SelectedInfo;
+    origin: THREE.Vector3;
+    startNdc: THREE.Vector2;
+    startValue: { x: number; y: number; elevation: number };
+    startRotation: number;
+    rootStartRotY: number;
+    rootStartPos: THREE.Vector3;
+    wallStart?: { start: { x: number; y: number }; end: { x: number; y: number }; curvePoint?: { x: number; y: number } };
+    opening?: { kind: 'door' | 'window'; wallLength: number; position: number; dir: THREE.Vector3 };
+    meshStarts?: Map<THREE.Object3D, THREE.Vector3>;
+  } | null = null;
 
   // 3D Edit mode — enables click-to-select
   let editMode = $state(false);
@@ -482,17 +517,20 @@
   /** All temporary presentation changes are restored even if rendering fails. */
   function withInteriorScene<T>(render: () => T, xray = cameraXrayWalls): T {
     const helperVisible = cameraHelper?.visible ?? true;
+    const gizmoVisible = gizmo.object.visible;
     const sprites = new Map<THREE.Sprite, boolean>();
     scene.traverse(obj => {
       if (obj instanceof THREE.Sprite) { sprites.set(obj, obj.visible); obj.visible = false; }
     });
     try {
       if (cameraHelper) cameraHelper.visible = false;
+      gizmo.object.visible = false;
       if (xray) setWallsXray(true);
       return render();
     } finally {
       if (xray) setWallsXray(false);
       if (cameraHelper) cameraHelper.visible = helperVisible;
+      gizmo.object.visible = gizmoVisible;
       for (const [sprite, visible] of sprites) sprite.visible = visible;
     }
   }
@@ -635,6 +673,7 @@
     controls.enabled = true;
     walkthroughMotion.reset();
     markSceneDirty();
+    refreshGizmo();
 
     if (typeof document !== 'undefined' && document.pointerLockElement) {
       document.exitPointerLock();
@@ -642,6 +681,7 @@
   }
 
   function onKeyDown(event: KeyboardEvent) {
+    if (event.key === 'Shift') shiftDown = true;
     if (hasOpenModal()) return;
     // ESC exits edit mode
     if (event.code === 'Escape' && editMode && !walkthroughMode) {
@@ -667,6 +707,7 @@
   }
 
   function onKeyUp(event: KeyboardEvent) {
+    if (event.key === 'Shift') shiftDown = false;
     walkthroughMotion.setKey(event.code, false);
     wakeWalkthrough();
   }
@@ -679,6 +720,7 @@
   }
 
   function resetWalkthroughInput() {
+    shiftDown = false;
     walkthroughMotion.reset();
   }
 
@@ -865,16 +907,29 @@
         return;
       }
 
-      const intersects = raycaster.intersectObjects(wallGroup.children, false);
-      let hitWallId: string | null = null;
+      if (gizmoDragging) return;
+      const intersects = raycaster.intersectObjects(wallGroup.children, true);
+      let ref: ElementRef | null = null;
       for (const hit of intersects) {
-        if (hit.object.userData.wallId) {
-          hitWallId = hit.object.userData.wallId;
-          break;
-        }
+        const found = elementMeshMap.get(hit.object);
+        if (found) { ref = found; break; }
       }
-      selectedElementId.set(hitWallId);
+      selectElement(ref);
     });
+
+    // --- Custom gizmo interaction (capture phase so OrbitControls never starts) ---
+    container.addEventListener('pointerdown', (e) => {
+      if (!editMode || walkthroughMode || cameraPlacementMode || furniturePlacementMode) return;
+      if (e.button !== 0 || !gizmo.object.visible) return;
+      const ndc = eventNdc(e);
+      const axis = gizmo.pick(raycaster, ndc, camera);
+      if (!axis) return;
+      e.stopPropagation();
+      e.preventDefault();
+      beginGizmoDrag(axis, ndc);
+    }, true);
+    window.addEventListener('pointermove', onGizmoPointerMove);
+    window.addEventListener('pointerup', onGizmoPointerUp);
 
     // Hover highlight in edit mode
     let hoveredMesh: THREE.Mesh | null = null;
@@ -914,8 +969,8 @@
       mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
       raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects(wallGroup.children, false);
-      const hit = intersects.find(i => i.object.userData.wallId);
+      const intersects = raycaster.intersectObjects(wallGroup.children, true);
+      const hit = intersects.find(i => elementMeshMap.has(i.object));
       if (hit && hit.object !== hoveredMesh) {
         hoveredMesh = hit.object as THREE.Mesh;
         renderer.domElement.style.cursor = 'url("data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23fff" stroke="%23000" stroke-width="1.5" d="M16.56 8.94L7.62 0 6.21 1.41l2.38 2.38-5.15 5.15a1.49 1.49 0 0 0 0 2.12l5.5 5.5a1.49 1.49 0 0 0 2.12 0l5.5-5.5a1.49 1.49 0 0 0 0-2.12zM5.21 10L10 5.21 14.79 10H5.21zM19 11.5s-2 2.17-2 3.5a2 2 0 1 0 4 0c0-1.33-2-3.5-2-3.5z"/></svg>') + '") 2 22, pointer';
@@ -984,6 +1039,7 @@
 
     wallGroup = new THREE.Group();
     scene.add(wallGroup);
+    scene.add(gizmo.object);
     return true;
   }
 
@@ -1146,6 +1202,9 @@
       if (stair.direction === 'down') {
         stairGroup.rotation.y += Math.PI;
       }
+      tagElement(stairGroup, { id: stair.id, kind: 'stair' });
+      elementRootMap.set(stair.id, stairGroup);
+      if (stair.elevation) stairGroup.position.y += stair.elevation;
       wallGroup.add(stairGroup);
     }
   }
@@ -1164,8 +1223,12 @@
       const mat = new THREE.MeshStandardMaterial({ color: col.color || '#cccccc', roughness: 0.7 });
       const mesh = new THREE.Mesh(geo, mat);
       mesh.position.set(col.position.x, h / 2, col.position.y);
+      mesh.rotation.y = -((col.rotation || 0) * Math.PI) / 180;
       mesh.castShadow = true;
       mesh.receiveShadow = true;
+      tagElement(mesh, { id: col.id, kind: 'column' });
+      elementRootMap.set(col.id, mesh);
+      if (col.elevation) mesh.position.y += col.elevation;
       wallGroup.add(mesh);
     }
   }
@@ -1175,7 +1238,13 @@
     group.clear();
   }
 
-  function addOpeningFrame(wall: Wall, position: number, width: number, bottom: number, height: number, depth: number, material: THREE.Material, excludeFromRender = false) {
+  /** Tag an element's root and every descendant mesh so raycasts and the
+   *  selection highlight can resolve the owning element. */
+  function tagElement(root: THREE.Object3D, ref: ElementRef) {
+    root.traverse((obj) => elementMeshMap.set(obj, ref));
+  }
+
+  function addOpeningFrame(wall: Wall, position: number, width: number, bottom: number, height: number, depth: number, material: THREE.Material, excludeFromRender = false, ref?: ElementRef) {
     const path = wallPathProfile(wall);
     const rect = pathOpening(path, position * path.length, width, bottom, height);
     if (!rect) return;
@@ -1191,14 +1260,18 @@
       mesh.userData.xray = true;
       mesh.castShadow = !excludeFromRender;
       wallGroup.add(mesh);
+      if (ref) elementMeshMap.set(mesh, ref);
     }
   }
 
   function buildWalls(floor: Floor) {
     wallHighlight.clear();
+    elementHighlight.clear();
     clearGroup(wallGroup);
     cameraHelper = null;
     wallMeshMap.clear();
+    elementMeshMap.clear();
+    elementRootMap.clear();
 
     const defaultInteriorMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
     const defaultExteriorMat = new THREE.MeshStandardMaterial({ color: 0xd4cfc9, roughness: 0.85 });
@@ -1245,6 +1318,7 @@
       }
       const startH = getWallStartHeight(wall);
       const endH = getWallEndHeight(wall);
+      const wallRef: ElementRef = { id: wall.id, kind: 'wall' };
 
       // Curved wall handling
       if (wall.curvePoint) {
@@ -1264,7 +1338,7 @@
             mesh.castShadow = true; mesh.receiveShadow = true;
             mesh.position.set(span.start.x + segment.offsetX * Math.cos(angle), 0, span.start.y + segment.offsetX * Math.sin(angle));
             mesh.rotation.y = -angle; mesh.userData.wallId = wall.id; mesh.userData.xray = true;
-            wallMeshMap.set(mesh, wall.id); wallGroup.add(mesh);
+            wallMeshMap.set(mesh, wall.id); elementMeshMap.set(mesh, wallRef); wallGroup.add(mesh);
           }
         }
         // The same cuts keep baseboards out of curved doorways.
@@ -1275,7 +1349,7 @@
             for (const segment of span.segments) {
               const mesh = new THREE.Mesh(createSlopedBoxGeometry(segment.width, t + 2, segment.bottomY, segment.topYLeft, segment.topYRight), baseboardMat);
               mesh.position.set(span.start.x + segment.offsetX * Math.cos(angle), 0, span.start.y + segment.offsetX * Math.sin(angle));
-              mesh.rotation.y = -angle; mesh.castShadow = true; mesh.userData.xray = true; wallGroup.add(mesh);
+              mesh.rotation.y = -angle; mesh.castShadow = true; mesh.userData.xray = true; elementMeshMap.set(mesh, wallRef); wallGroup.add(mesh);
             }
           }
         }
@@ -1319,6 +1393,7 @@
           mesh.userData.wallId = wall.id;
           mesh.userData.xray = true;
           wallMeshMap.set(mesh, wall.id);
+          elementMeshMap.set(mesh, wallRef);
           wallGroup.add(mesh);
         }
 
@@ -1332,6 +1407,7 @@
             bbMesh.rotation.y = -angle;
             bbMesh.castShadow = true;
             bbMesh.userData.xray = true;
+            elementMeshMap.set(bbMesh, wallRef);
             wallGroup.add(bbMesh);
           }
         }
@@ -1355,11 +1431,12 @@
       const frameMat = new THREE.MeshStandardMaterial({ color: 0x6b4423, roughness: 0.6 });
       const doorHeight = opening.top;
       const jamb = 5; // jamb thickness
+      const doorRef: ElementRef = { id: sourceDoor.id, kind: 'door' };
 
       // Clip jambs and header too when an opening reaches the wall profile.
-      addOpeningFrame(wall, (opening.left - jamb / 2) / length, jamb, 0, doorHeight, wt + 2, frameMat);
-      addOpeningFrame(wall, (opening.right + jamb / 2) / length, jamb, 0, doorHeight, wt + 2, frameMat);
-      addOpeningFrame(wall, t, opening.right - opening.left + jamb * 2, doorHeight, jamb, wt + 2, frameMat);
+      addOpeningFrame(wall, (opening.left - jamb / 2) / length, jamb, 0, doorHeight, wt + 2, frameMat, false, doorRef);
+      addOpeningFrame(wall, (opening.right + jamb / 2) / length, jamb, 0, doorHeight, wt + 2, frameMat, false, doorRef);
+      addOpeningFrame(wall, t, opening.right - opening.left + jamb * 2, doorHeight, jamb, wt + 2, frameMat, false, doorRef);
 
       if (door.type === 'opening') {
         // Plain doorway — jambs and header only, no door leaf
@@ -1375,6 +1452,7 @@
           secMesh.position.set(px, secH / 2 + 2 + si * secH, py);
           secMesh.rotation.y = -angle;
           secMesh.castShadow = true;
+          elementMeshMap.set(secMesh, doorRef);
           secMesh.userData.xray = true;
           wallGroup.add(secMesh);
         }
@@ -1389,6 +1467,7 @@
         panelMesh.position.set(pose.x, doorHeight / 2 - 2, pose.z);
         panelMesh.rotation.y = -pose.yaw;
         panelMesh.castShadow = true;
+        elementMeshMap.set(panelMesh, doorRef);
         panelMesh.userData.xray = true;
         wallGroup.add(panelMesh);
 
@@ -1405,6 +1484,7 @@
           Math.min(100, doorHeight * 0.5),
           panelMesh.position.z + handleLocalX * handleSin
         );
+        elementMeshMap.set(handleMesh, doorRef);
         handleMesh.userData.xray = true;
         wallGroup.add(handleMesh);
       }
@@ -1425,6 +1505,7 @@
 
       const frameMat = new THREE.MeshStandardMaterial({ color: 0xe0e0e0, roughness: 0.4, metalness: 0.1 });
       const mullionW = 4; // mullion bar width
+      const windowRef: ElementRef = { id: sourceWindow.id, kind: 'window' };
 
       // Outer frame — 4 bars forming rectangle
       const bars: { w: number; h: number; ox: number; oy: number }[] = [
@@ -1438,7 +1519,7 @@
         { w: win.width, h: mullionW, ox: 0, oy: 0 },
       ];
       for (const bar of bars) {
-        addOpeningFrame(wall, t + bar.ox / length, bar.w, winCY + bar.oy - bar.h / 2, bar.h, mullionW, frameMat);
+        addOpeningFrame(wall, t + bar.ox / length, bar.w, winCY + bar.oy - bar.h / 2, bar.h, mullionW, frameMat, false, windowRef);
       }
 
       // Glass panes (4 quadrants)
@@ -1452,34 +1533,50 @@
         for (const qy of [-1, 1]) {
           const ox = qx * (halfW / 2 + mullionW / 2);
           const centerY = winCY + qy * (halfH / 2 + mullionW / 2);
-          addOpeningFrame(wall, t + ox / length, halfW, centerY - halfH / 2, halfH, 1, glassMat, true);
+          addOpeningFrame(wall, t + ox / length, halfW, centerY - halfH / 2, halfH, 1, glassMat, true, windowRef);
         }
       }
 
       // Sill — protruding ledge
-      addOpeningFrame(wall, t, win.width + 16, win.sillHeight - 4, 4, wt + 10, frameMat);
+      addOpeningFrame(wall, t, win.width + 16, win.sillHeight - 4, 4, wt + 10, frameMat, false, windowRef);
     }
 
     // Furniture
     for (const fi of floor.furniture) {
-      const model = createPlacedFurnitureModel(fi, markSceneDirty, get(currentProject) ?? undefined);
-      if (model) wallGroup.add(model);
+      const ref: ElementRef = { id: fi.id, kind: 'furniture' };
+      // GLB/custom models replace the procedural fallback asynchronously; re-tag
+      // the loaded meshes so they stay selectable.
+      const model = createPlacedFurnitureModel(fi, (loaded) => { tagElement(loaded, ref); markSceneDirty(); }, get(currentProject) ?? undefined);
+      if (!model) continue;
+      tagElement(model, ref);
+      elementRootMap.set(fi.id, model);
+      if (fi.elevation) model.position.y += fi.elevation;
+      wallGroup.add(model);
     }
 
     // Room floors with materials + floating labels
     const FALLBACK_ROOM_COLORS = [0xbfdbfe, 0xfde68a, 0xbbf7d0, 0xfecaca, 0xddd6fe, 0xa5f3fc, 0xfed7aa];
     // Resolve labels and materials from this floor, including after a 3D floor switch.
-    const rooms = resolveRoomGeometry(floor);
+    // Reuse the shared detected-room identity so 3D selection resolves the same room
+    // the Properties panel does (room IDs are otherwise regenerated per resolution).
+    const previousRooms = get(detectedRoomsStore);
+    const rooms = resolveRoomGeometry(floor, previousRooms);
+    const resolvedRooms = rooms.map(item => item.room);
+    if (previousRooms.length !== resolvedRooms.length || resolvedRooms.some((room, i) => room.id !== previousRooms[i]?.id)) {
+      detectedRoomsStore.set(resolvedRooms);
+    }
     const holes = roomHoles(rooms.map(r => r.polygon));
     for (let ri = 0; ri < rooms.length; ri++) {
       const { room, polygon: poly } = rooms[ri];
       if (poly.length < 3) continue;
+      const roomRef: ElementRef = { id: room.id, kind: 'room' };
 
       const slabGeometry = room.floorOpening ? null : createRoomSlabGeometry(poly, floor.slabThickness, holes[ri]);
       if (slabGeometry) {
         const slab = new THREE.Mesh(slabGeometry, new THREE.MeshStandardMaterial({ color: 0xcccccc, roughness: 0.9 }));
         slab.userData.renderMaterial = 'floor';
         slab.receiveShadow = true;
+        elementMeshMap.set(slab, roomRef);
         wallGroup.add(slab);
       }
 
@@ -1567,6 +1664,7 @@
       mesh.rotation.x = -Math.PI / 2;
       mesh.position.y = 1;
       mesh.receiveShadow = true;
+      elementMeshMap.set(mesh, roomRef);
       if (room.floorOpening) { geo.dispose(); material.dispose(); }
       else wallGroup.add(mesh);
 
@@ -1591,6 +1689,7 @@
       const sprite = new THREE.Sprite(spriteMat);
       sprite.position.set(centroid.x, 30, centroid.y);
       sprite.scale.set(150, 40, 1);
+      elementMeshMap.set(sprite, roomRef);
       wallGroup.add(sprite);
 
       // A flat ceiling is valid only when this room's boundary has one height.
@@ -1608,6 +1707,7 @@
         ceilMesh.rotation.x = -Math.PI / 2;
         ceilMesh.position.y = ceilingHeight;
         ceilMesh.receiveShadow = true;
+        elementMeshMap.set(ceilMesh, roomRef);
         wallGroup.add(ceilMesh);
       }
     }
@@ -1751,7 +1851,225 @@
     }
   }
 
+  function selectedElementInfo(): SelectedInfo | null {
+    const floor = currentFloor;
+    if (!floor) return null;
+    if (selectedIdValue) {
+      const id = selectedIdValue;
+      const wall = floor.walls.find(w => w.id === id);
+      if (wall) return { kind: 'wall', item: wall };
+      const door = floor.doors.find(d => d.id === id);
+      if (door) return { kind: 'door', item: door };
+      const win = floor.windows.find(w => w.id === id);
+      if (win) return { kind: 'window', item: win };
+      const furniture = floor.furniture.find(f => f.id === id);
+      if (furniture) return { kind: 'furniture', item: furniture };
+      const stair = floor.stairs?.find(s => s.id === id);
+      if (stair) return { kind: 'stair', item: stair };
+      const column = floor.columns?.find(c => c.id === id);
+      if (column) return { kind: 'column', item: column };
+    }
+    if (selectedRoomIdValue) return { kind: 'room', item: { id: selectedRoomIdValue } };
+    return null;
+  }
+
+  function applySelectionHighlight() {
+    elementHighlight.apply(elementMeshMap, selectedIdValue, selectedRoomIdValue);
+  }
+
+  /** Route a picked element to the right selection store (rooms use their own). */
+  function selectElement(ref: ElementRef | null) {
+    if (!ref) { selectedElementId.set(null); selectedRoomId.set(null); return; }
+    if (ref.kind === 'room') { selectedRoomId.set(ref.id); selectedElementId.set(null); }
+    else { selectedElementId.set(ref.id); selectedRoomId.set(null); }
+  }
+
+  function gizmoScaleFor(position: THREE.Vector3): number {
+    // Arrows are ~84 local units; this keeps them a roughly constant screen size.
+    return camera.position.distanceTo(position) * 0.0012;
+  }
+
+  /** Build the gizmo target for the current selection, or hide it. */
+  function refreshGizmo() {
+    if (!editMode || walkthroughMode || cameraPlacementMode || furniturePlacementMode || gizmoDragging || !currentFloor) {
+      gizmo.setTarget(null);
+      markSceneDirty();
+      return;
+    }
+    const info = selectedElementInfo();
+    if (!info || info.kind === 'room') { gizmo.setTarget(null); markSceneDirty(); return; }
+    const elev = activeFloorElevation;
+    const position = new THREE.Vector3();
+    const allow = { x: true, y: false, z: true, rotate: false };
+    let along: THREE.Vector3 | null = null;
+    if (info.kind === 'wall') {
+      const w = info.item;
+      position.set((w.start.x + w.end.x) / 2, elev + Math.min(getWallStartHeight(w), getWallEndHeight(w)) / 2, (w.start.y + w.end.y) / 2);
+    } else if (info.kind === 'door' || info.kind === 'window') {
+      const opening = info.item;
+      const wall = currentFloor.walls.find(w => w.id === opening.wallId);
+      if (!wall) { gizmo.setTarget(null); markSceneDirty(); return; }
+      const dx = wall.end.x - wall.start.x, dy = wall.end.y - wall.start.y;
+      const len = Math.hypot(dx, dy) || 1;
+      position.set(wall.start.x + dx * opening.position, elev + (info.kind === 'window' ? ((opening as Win).sillHeight ?? 90) : 0) + 40, wall.start.y + dy * opening.position);
+      along = new THREE.Vector3(dx / len, 0, dy / len);
+    } else {
+      const item = info.item;
+      position.set(item.position.x, elev + (item.elevation ?? 0), item.position.y);
+      allow.y = true;
+      allow.rotate = true;
+    }
+    gizmo.setTarget({ position, allow, along });
+    gizmo.setScale(gizmoScaleFor(position));
+    markSceneDirty();
+  }
+
+  function eventNdc(e: PointerEvent): THREE.Vector2 {
+    const rect = renderer.domElement.getBoundingClientRect();
+    return new THREE.Vector2(
+      ((e.clientX - rect.left) / rect.width) * 2 - 1,
+      -((e.clientY - rect.top) / rect.height) * 2 + 1,
+    );
+  }
+
+  function updateRotateLabelPos(worldPos: THREE.Vector3) {
+    const v = worldPos.clone().project(camera);
+    const rect = renderer.domElement.getBoundingClientRect();
+    rotateLabelPos = {
+      x: (v.x * 0.5 + 0.5) * rect.width,
+      y: (-v.y * 0.5 + 0.5) * rect.height - 46,
+    };
+  }
+
+  function beginGizmoDrag(axis: GizmoAxis, ndc: THREE.Vector2) {
+    const info = selectedElementInfo();
+    if (!info || info.kind === 'room' || !currentFloor) return;
+    const origin = gizmo.object.position.clone();
+    const drag: NonNullable<typeof gizmoDrag> = {
+      axis, info, origin, startNdc: ndc,
+      startValue: { x: 0, y: 0, elevation: 0 },
+      startRotation: 0, rootStartRotY: 0, rootStartPos: new THREE.Vector3(),
+    };
+    if (info.kind === 'wall') {
+      drag.wallStart = { start: { ...info.item.start }, end: { ...info.item.end }, curvePoint: info.item.curvePoint ? { ...info.item.curvePoint } : undefined };
+      drag.meshStarts = new Map();
+      for (const [obj, ref] of elementMeshMap) if (ref.kind === 'wall' && ref.id === info.item.id) drag.meshStarts.set(obj, obj.position.clone());
+    } else if (info.kind === 'door' || info.kind === 'window') {
+      const opening = info.item;
+      const wall = currentFloor.walls.find(w => w.id === opening.wallId);
+      if (!wall) return;
+      const dx = wall.end.x - wall.start.x, dy = wall.end.y - wall.start.y;
+      const len = Math.hypot(dx, dy) || 1;
+      drag.opening = { kind: info.kind, wallLength: len, position: opening.position, dir: new THREE.Vector3(dx / len, 0, dy / len) };
+      drag.meshStarts = new Map();
+      for (const [obj, ref] of elementMeshMap) if (ref.id === opening.id) drag.meshStarts.set(obj, obj.position.clone());
+    } else {
+      drag.startValue = { x: info.item.position.x, y: info.item.position.y, elevation: info.item.elevation ?? 0 };
+      drag.startRotation = info.item.rotation ?? 0;
+      const root = elementRootMap.get(info.item.id);
+      if (root) { drag.rootStartRotY = root.rotation.y; drag.rootStartPos = root.position.clone(); }
+    }
+    gizmoDrag = drag;
+    gizmoDragging = true;
+    beginUndoGroup();
+    renderer.domElement.style.cursor = 'grabbing';
+  }
+
+  function applyGizmoTranslation(drag: NonNullable<typeof gizmoDrag>, delta: number, axisVec: THREE.Vector3) {
+    const settings = get(projectSettings);
+    const step = settings.snapToGrid ? settings.gridSize : 0;
+    const snapScalar = (v: number) => step > 0 ? Math.round(v / step) * step : v;
+    const info = drag.info;
+    if (info.kind === 'room') return;
+    if (info.kind === 'wall') {
+      const ws = drag.wallStart!;
+      // Translate the wall rigidly, snapping the shared delta to the grid.
+      const rawDx = axisVec.x * delta, rawDz = axisVec.z * delta;
+      const dx = step > 0 ? Math.round(rawDx / step) * step : rawDx;
+      const dz = step > 0 ? Math.round(rawDz / step) * step : rawDz;
+      const start = { x: ws.start.x + dx, y: ws.start.y + dz };
+      const end = { x: ws.end.x + dx, y: ws.end.y + dz };
+      const curvePoint = ws.curvePoint ? { x: ws.curvePoint.x + dx, y: ws.curvePoint.y + dz } : undefined;
+      moveWallGeometryDuringDrag(info.item.id, { start, end, curvePoint });
+      if (drag.meshStarts) for (const [mesh, p0] of drag.meshStarts) mesh.position.set(p0.x + dx, p0.y, p0.z + dz);
+    } else if (info.kind === 'door' || info.kind === 'window') {
+      const o = drag.opening!;
+      const pos = Math.min(1, Math.max(0, o.position + delta / o.wallLength));
+      if (info.kind === 'door') updateDoor(info.item.id, { position: pos });
+      else updateWindow(info.item.id, { position: pos });
+      if (drag.meshStarts) {
+        const off = (pos - o.position) * o.wallLength;
+        for (const [mesh, p0] of drag.meshStarts) mesh.position.set(p0.x + o.dir.x * off, p0.y, p0.z + o.dir.z * off);
+      }
+    } else {
+      const sv = drag.startValue;
+      let nx = sv.x, ny = sv.y, ne = sv.elevation;
+      if (drag.axis === 'x') nx = snapScalar(sv.x + delta);
+      else if (drag.axis === 'z') ny = snapScalar(sv.y + delta);
+      else if (drag.axis === 'y') ne = snapScalar(sv.elevation + delta);
+      if (info.kind === 'furniture') {
+        transformFurnitureDuringDrag(info.item.id, { position: { x: nx, y: ny } });
+        if (ne !== sv.elevation) updateFurniture(info.item.id, { elevation: ne });
+      } else if (info.kind === 'stair') {
+        moveStair(info.item.id, { x: nx, y: ny });
+        if (ne !== sv.elevation) updateStair(info.item.id, { elevation: ne });
+      } else if (info.kind === 'column') {
+        moveColumn(info.item.id, { x: nx, y: ny });
+        if (ne !== sv.elevation) updateColumn(info.item.id, { elevation: ne });
+      }
+      const root = elementRootMap.get(info.item.id);
+      if (root) root.position.set(drag.rootStartPos.x + (nx - sv.x), drag.rootStartPos.y + (ne - sv.elevation), drag.rootStartPos.z + (ny - sv.y));
+    }
+  }
+
+  function applyGizmoRotation(drag: NonNullable<typeof gizmoDrag>, deg: number) {
+    const info = drag.info;
+    if (info.kind !== 'furniture' && info.kind !== 'stair' && info.kind !== 'column') return;
+    const deltaDeg = deg - drag.startRotation;
+    if (info.kind === 'furniture') updateFurniture(info.item.id, { rotation: deg });
+    else if (info.kind === 'stair') updateStair(info.item.id, { rotation: deg });
+    else updateColumn(info.item.id, { rotation: deg });
+    const root = elementRootMap.get(info.item.id);
+    if (root) root.rotation.y = drag.rootStartRotY - (deltaDeg * Math.PI) / 180;
+  }
+
+  function onGizmoPointerMove(e: PointerEvent) {
+    const drag = gizmoDrag;
+    if (!drag) return;
+    const ndc = eventNdc(e);
+    if (drag.axis === 'rotate') {
+      const angle = pointerAngleDeg(drag.origin, ndc, camera, raycaster);
+      if (angle === null) return;
+      const deg = shiftDown ? Math.round(angle / 15) * 15 : angle;
+      const normalized = ((deg % 360) + 360) % 360;
+      applyGizmoRotation(drag, normalized);
+      rotateLabel = `${Math.round(normalized)}°`;
+      updateRotateLabelPos(drag.origin);
+      markSceneDirty();
+      return;
+    }
+    const axisVec = drag.axis === 'along' ? drag.opening!.dir.clone() : GIZMO_AXIS_DIRECTION[drag.axis as 'x' | 'y' | 'z'];
+    const start = pointerAxisValue(axisVec, drag.origin, drag.startNdc, camera, raycaster);
+    const now = pointerAxisValue(axisVec, drag.origin, ndc, camera, raycaster);
+    if (start === null || now === null) return;
+    applyGizmoTranslation(drag, now - start, axisVec);
+    markSceneDirty();
+  }
+
+  function onGizmoPointerUp() {
+    if (!gizmoDrag) return;
+    const rotated = gizmoDrag.axis === 'rotate';
+    gizmoDrag = null;
+    gizmoDragging = false;
+    rotateLabel = null;
+    renderer.domElement.style.cursor = '';
+    endUndoGroup(rotated ? 'Rotated in 3D' : 'Moved in 3D');
+    rebuildScene(true);
+  }
+
   function rebuildScene(force = false) {
+    // A gizmo drag updates store + live transforms directly; defer the full rebuild.
+    if (gizmoDragging) return;
     const project = get(currentProject);
     if (!project || !currentFloor) return;
     const signature = sceneSignature(project, currentFloor, showAllFloors, get(projectSettings).units);
@@ -1772,6 +2090,8 @@
     if (shouldFrameScene(framedContext, context)) autoCenterCamera();
     framedContext = context;
     wallHighlight.apply(wallMeshMap, selectedWallId3D);
+    applySelectionHighlight();
+    refreshGizmo();
     if (walkingPosition && walkingRotation) {
       camera.position.copy(walkingPosition);
       camera.position.y = activeFloorElevation + eyeHeight;
@@ -1803,6 +2123,7 @@
     wallHighlight.clear();
     applyWallTransparency();
     wallHighlight.apply(wallMeshMap, selectedWallId3D);
+    applySelectionHighlight();
     markSceneDirty();
   }
 
@@ -1887,6 +2208,7 @@
       walkthroughMouseUnavailable = true;
     }
     markSceneDirty();
+    refreshGizmo();
   }
 
 
@@ -1894,6 +2216,7 @@
   let lastOrbitFrame: number | undefined;
   function animate(timestamp: number) {
     animId = undefined;
+    if (gizmo.object.visible && !gizmoDragging) gizmo.setScale(gizmoScaleFor(gizmo.object.position));
 
     if (walkthroughMode) {
       lastOrbitFrame = undefined;
@@ -1915,6 +2238,7 @@
         sceneDirty = false;
         renderer.render(scene, camera);
         renderer.domElement.dataset.rendered = 'true';
+        renderer.domElement.dataset.viewerCamera = `${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}|${controls.target.x.toFixed(2)},${controls.target.y.toFixed(2)},${controls.target.z.toFixed(2)}`;
       }
     }
   }
@@ -1931,9 +2255,13 @@
 
   function takeScreenshot() {
     if (!renderer || !scene || !camera) return;
+    const gizmoVisible = gizmo.object.visible;
+    gizmo.object.visible = false;
     renderer.render(scene, camera);
     renderer.domElement.dataset.rendered = 'true';
     const dataUrl = renderer.domElement.toDataURL('image/png');
+    gizmo.object.visible = gizmoVisible;
+    markSceneDirty();
     const link = document.createElement('a');
     link.download = 'floorplan-3d.png';
     link.href = dataUrl;
@@ -1977,21 +2305,33 @@
     resizeObs.observe(container);
 
     const unsub = activeFloor.subscribe((f) => {
-      if (currentFloor?.id !== f?.id) {
+      // `activeFloor` re-emits on every project edit, but the camera should only
+      // re-frame when the floor identity actually changes (or on first build).
+      const floorChanged = currentFloor?.id !== f?.id;
+      if (floorChanged) {
         closeCamera();
         if (walkthroughMode) exitWalkthroughMode();
       }
       currentFloor = f;
-      if (f) rebuildScene();
+      if (f) rebuildScene(false);
     });
     // Room area labels are textures and must refresh when display units change.
     const stopSettings = projectSettings.subscribe(() => {
-      if (currentFloor) rebuildScene();
+      if (currentFloor) rebuildScene(false);
     });
 
     const unsubSel = selectedElementId.subscribe((id) => {
+      selectedIdValue = id;
       selectedWallId3D = id;
       wallHighlight.apply(wallMeshMap, id);
+      applySelectionHighlight();
+      refreshGizmo();
+      markSceneDirty();
+    });
+    const unsubRoomSel = selectedRoomId.subscribe((id) => {
+      selectedRoomIdValue = id;
+      applySelectionHighlight();
+      refreshGizmo();
       markSceneDirty();
     });
 
@@ -2004,6 +2344,7 @@
       unsub();
       stopSettings();
       unsubSel();
+      unsubRoomSel();
       if (animId !== undefined) cancelAnimationFrame(animId);
       animId = undefined;
       document.removeEventListener('keydown', onKeyDown, false);
@@ -2011,14 +2352,20 @@
       window.removeEventListener('blur', resetWalkthroughInput);
       document.removeEventListener('visibilitychange', resetWalkthroughInput);
       document.removeEventListener('focusin', onWalkthroughFocus);
+      window.removeEventListener('pointermove', onGizmoPointerMove);
+      window.removeEventListener('pointerup', onGizmoPointerUp);
       walkthroughMotion.reset();
       releaseCameraPreview();
+      elementHighlight.clear();
       wallHighlight.clear();
       removeGhostPreview();
       skyTexture.dispose();
       sunLight.shadow.dispose();
       clearGroup(scene);
       wallMeshMap.clear();
+      elementMeshMap.clear();
+      elementRootMap.clear();
+      gizmo.dispose();
       pointerControls.removeEventListener('change', markSceneDirty);
       pointerControls.dispose();
       controls.dispose();
@@ -2091,7 +2438,7 @@
 
     <!-- Edit Mode Toggle -->
     <button
-      onclick={() => { editMode = !editMode; if (editMode && walkthroughMode) { exitWalkthroughMode(); } if (!editMode) { selectedElementId.set(null); } }}
+      onclick={() => { editMode = !editMode; if (editMode && walkthroughMode) { exitWalkthroughMode(); } if (!editMode) { selectedElementId.set(null); } refreshGizmo(); }}
       class="p-2 rounded-lg transition-colors {editMode ? 'bg-blue-600 text-white ring-2 ring-blue-300' : 'bg-black/70 text-white hover:bg-black/80'}"
       title={editMode ? $t('viewerNav.exitEdit') : $t('viewerNav.editHelp')}
       aria-label={editMode ? $t('viewerNav.exitEdit') : $t('viewerNav.edit')}
@@ -2114,6 +2461,7 @@
           if (walkthroughMode) exitWalkthroughMode();
           furniturePlacementMode = false;
         }
+        refreshGizmo();
       }}
       class="p-2 rounded-lg transition-colors {cameraPlacementMode ? 'bg-blue-600 text-white ring-2 ring-blue-300' : 'bg-black/70 text-white hover:bg-black/80'}"
       title={cameraPlacementMode ? $t('viewerNav.cameraCancel') : $t('viewerNav.cameraHelp')}
@@ -2419,7 +2767,7 @@
 
     <!-- Furniture Placement Toggle -->
     <button
-      onclick={() => { furniturePlacementMode = !furniturePlacementMode; if (!furniturePlacementMode) { removeGhostPreview(); selectedCatalogId = null; furniturePickerOpen = false; } else { furniturePickerOpen = true; } }}
+      onclick={() => { furniturePlacementMode = !furniturePlacementMode; if (!furniturePlacementMode) { removeGhostPreview(); selectedCatalogId = null; furniturePickerOpen = false; } else { furniturePickerOpen = true; } refreshGizmo(); }}
       class="absolute top-16 right-28 z-50 p-2 rounded-lg transition-colors {furniturePlacementMode ? 'bg-green-600 text-white ring-2 ring-green-300' : 'bg-black/70 text-white hover:bg-black/80'}"
       title={furniturePlacementMode ? $t('viewerFurniture.exit') : $t('viewerFurniture.place')}
       aria-label={furniturePlacementMode ? $t('viewerFurniture.exit') : $t('viewerFurniture.place')}
@@ -2532,6 +2880,14 @@
         <input type="range" min="0" max="100" value={Math.round(ambientIntensity * 100)} oninput={(e) => { ambientIntensity = parseInt(e.currentTarget.value) / 100; timeOfDay = null; updateAmbientIntensity(); }} class="w-full h-1 accent-blue-400" />
       </label>
     </div>
+  {/if}
+
+  {#if rotateLabel}
+    <div
+      class="pointer-events-none absolute z-[70] -translate-x-1/2 -translate-y-1/2 rounded bg-slate-800 px-2 py-1 text-xs font-bold text-white shadow"
+      style="left: {rotateLabelPos.x}px; top: {rotateLabelPos.y}px"
+      role="status"
+    >{rotateLabel}</div>
   {/if}
   {/if}<!-- end of the controls that need the renderer -->
 </div>

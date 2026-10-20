@@ -1,0 +1,31 @@
+{
+  "id": "qa-three-d-selection",
+  "name": "QA 3D Selection",
+  "floors": [
+    {
+      "id": "ground",
+      "name": "Ground Floor",
+      "level": 0,
+      "walls": [],
+      "rooms": [],
+      "doors": [],
+      "windows": [],
+      "furniture": [
+        {
+          "id": "sofa-1",
+          "catalogId": "sofa",
+          "position": { "x": 0, "y": 0 },
+          "rotation": 0,
+          "scale": { "x": 1, "y": 1, "z": 1 }
+        }
+      ],
+      "stairs": [],
+      "columns": [],
+      "guides": [],
+      "measurements": [],
+      "annotations": [],
+      "textAnnotations": [],
+      "groups": []
+    }
+  ]
+}

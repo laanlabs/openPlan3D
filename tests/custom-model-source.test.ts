@@ -29,6 +29,17 @@ it('verifies the original digest and returns independent metadata and exact GLB 
   result.model.name = 'Changed copy'; result.bytes[0] = 0;
   expect(value).toEqual(before);
 });
+it('verifies the digest without Web Crypto on an insecure origin', async () => {
+  vi.stubGlobal('crypto', { getRandomValues: webcrypto.getRandomValues.bind(webcrypto) });
+  const result = await readCustomModelSource(project(), 'model');
+  expect(result.bytes).toEqual(new Uint8Array(original));
+});
+it('still rejects corruption without Web Crypto', async () => {
+  vi.stubGlobal('crypto', {});
+  const changed = project(), corrupt = Buffer.from(original); corrupt[0] ^= 1;
+  changed.projectPackage!.assets['assets/model.glb'] = corrupt.toString('base64');
+  await expect(readCustomModelSource(changed, 'model')).rejects.toThrow('changed or is damaged');
+});
 it('rejects missing models, detached sources, malformed base64 and same-length corruption', async () => {
   await expect(readCustomModelSource(project(), 'missing')).rejects.toThrow('no longer defined');
   const missing = project(); delete missing.projectPackage;

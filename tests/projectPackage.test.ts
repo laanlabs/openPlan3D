@@ -107,8 +107,23 @@ it('retains web height when an older native encoder omits it', () => {
     .toEqual(source.floors[0].furniture[0]);
 });
 
-it('retains flat catalog symbols without emitting invalid native dimensions', () => {
+it('retains web furniture elevation through a project package round trip', () => {
   const source = webFixture();
+  source.floors[0].furniture[0].elevation = 132.5;
+  const files = readPackageZip(projectPackageBytes(source));
+  expect(packageJSON(files['web.json']).floors[0].furniture[0].elevation).toBe(132.5);
+  // A native edit to a shared field must not drop the web-only elevation.
+  const plan = packageJSON(files['plan.json']);
+  plan.furniture[0].width = 2.2;
+  files['plan.json'] = jsonBytes(plan);
+  const result = readProjectPackage(writePackageZip(files)).project;
+  expect(result.floors[0].furniture[0].elevation).toBe(132.5);
+  expect(result.floors[0].furniture[0].width).toBeCloseTo(110, 10);
+  const reexport = packageJSON(readPackageZip(projectPackageBytes(result))['web.json']);
+  expect(reexport.floors[0].furniture[0].elevation).toBe(132.5);
+});
+
+it('retains flat catalog symbols without emitting invalid native dimensions', () => {  const source = webFixture();
   source.floors[0].furniture[0].catalogId = 'sym_ceiling_fan';
   delete source.floors[0].furniture[0].height;
   const bytes = projectPackageBytes(source);

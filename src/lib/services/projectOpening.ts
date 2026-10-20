@@ -3,6 +3,7 @@ import type { Project } from '$lib/models/types';
 import { currentProject, loadProject } from '$lib/stores/project';
 import { autoSave, markClean, saveError, saveState } from '$lib/stores/saveStatus';
 import { readProject } from '$lib/utils/projectValidation';
+import { randomId } from '$lib/utils/randomId';
 import { localStore, ProjectConflictError } from './datastore';
 import { prepareToLeave } from './deployment';
 
@@ -38,7 +39,7 @@ export async function openProject(
     // must preserve those original bytes, too. A plan this tab opened that was
     // deleted since (here or in another tab) cannot be saved under its old ID
     // again, so its backup imports as a copy.
-    const newId = () => globalThis.crypto?.randomUUID?.() ?? `project-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+    const newId = () => randomId();
     let collision = candidate.id === previous?.id;
     let storageReadable = true;
     try { collision = await taken(candidate.id) || collision; }

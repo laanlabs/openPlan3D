@@ -42,7 +42,9 @@ export function validateLocalGLBMaterials(container: ReturnType<typeof readLocal
     enumeration(sampler.wrapT, [33071, 33648, 10497], 'vertical wrapping');
   });
   textures.forEach(texture => {
-    reference(texture.source, resources.imageHeaders.length, 'image');
+    // EXT_texture_webp stores the image source in the extension instead of `source`.
+    const webp = texture.extensions?.EXT_texture_webp;
+    reference(webp ? webp.source : texture.source, resources.imageHeaders.length, 'image');
     if (texture.sampler !== undefined) reference(texture.sampler, samplers.length, 'sampler');
   });
   const materialUVs = materials.map(material => {

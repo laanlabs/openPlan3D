@@ -236,8 +236,8 @@
             aria-hidden="true"
           ></div>
         {/if}
-        <div class="h-full max-md:fixed max-md:left-0 max-md:top-12 max-md:bottom-0 max-md:h-auto max-md:z-50 max-md:shadow-2xl max-md:transition-transform max-md:duration-200 {buildPanelOpen ? '' : 'max-md:-translate-x-full'}">
-          <BuildPanel />
+        <div class="max-md:w-full h-full max-md:fixed max-md:left-0 max-md:top-12 max-md:bottom-0 max-md:h-auto max-md:z-50 max-md:shadow-2xl max-md:transition-transform max-md:duration-200 {buildPanelOpen ? '' : 'max-md:-translate-x-full'}">
+          <BuildPanel onClose={() => buildPanelOpen = false} />
         </div>
       {/if}
       <div class="flex-1 min-w-0 relative">

@@ -5,6 +5,8 @@ test('symbol upload reports invalid images and recovers without changing prior p
   await page.addInitScript(() => localStorage.setItem('o3d_locale', 'pt'));
   await page.goto('/editor');
   await page.getByRole('button', { name: 'Objetos', exact: true }).click();
+  await page.getByRole('button', { name: 'Categorias', exact: true }).click();
+  await page.getByRole('group', { name: 'Elementos de entorno' }).getByRole('button', { name: 'Elementos de entorno' }).click();
   async function upload(buffer: Buffer) {
     const pending = page.waitForEvent('filechooser');
     await page.getByRole('button', { name: '+ Enviar símbolo (PNG, JPEG, WebP)', exact: true }).click();

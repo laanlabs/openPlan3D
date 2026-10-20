@@ -10,7 +10,7 @@
   import { planContentBounds, hasPlanContent } from '$lib/utils/planContentBounds';
   import { connectedWallEndpoints } from '$lib/utils/wallEditing';
   import { createDrawScheduler } from '$lib/utils/drawScheduler';
-  import { activeFloor, selectedTool, selectedElementId, selectedElementIds, selectedRoomId, addWall, addDoor, addWindow, updateWall, moveWallEndpoint, moveWallGeometryDuringDrag, updateDoor, updateWindow, addFurniture, moveFurniture, transformFurnitureDuringDrag, rotateFurniture, rotateSelection, setFurnitureRotation, scaleFurniture, removeElement, placingFurnitureId, placingRotation, placingDoorType, placingWindowType, detectedRoomsStore, duplicateDoor, duplicateWindow, duplicateFurniture, duplicateSelection, pasteSelection, moveWallParallel, splitWall, wallSplitIntersectsOpening, snapEnabled, placingStair, addStair, moveStair, updateStair, placingColumn, placingColumnShape, addColumn, moveColumn, updateColumn, calibrationMode, calibrationPoints, updateBackgroundImage, setBackgroundImage, canvasZoom, canvasMinimumZoom, canvasCamX, canvasCamY, panMode, showFurnitureStore, addGuide, moveGuide, removeGuide, beginUndoGroup, endUndoGroup, layerVisibility, updateRoom, addMeasurement, updateMeasurement, removeMeasurement, addAnnotation, removeAnnotation, updateAnnotation, addTextAnnotation, removeTextAnnotation, updateTextAnnotation, moveTextAnnotation, toggleFurnitureLock, toggleSelectionLock, createGroup, ungroupElements, findGroupForElement, placingEntourageId, addEntourageItem, moveEntourage, resizeEntourage, currentProject, elevationWallId, elevationPickMode, doorJoinMode, joinScanDoors } from '$lib/stores/project';
+  import { activeFloor, selectedTool, selectedElementId, selectedElementIds, selectedRoomId, addWall, addDoor, addWindow, updateWall, moveWallEndpoint, moveWallGeometryDuringDrag, updateDoor, updateWindow, addFurniture, moveFurniture, transformFurnitureDuringDrag, rotateFurniture, rotateSelection, setFurnitureRotation, scaleFurniture, removeElement, placingFurnitureId, placingCustomModelId, placingRotation, placingDoorType, placingWindowType, detectedRoomsStore, duplicateDoor, duplicateWindow, duplicateFurniture, duplicateSelection, pasteSelection, moveWallParallel, splitWall, wallSplitIntersectsOpening, snapEnabled, placingStair, addStair, moveStair, updateStair, placingColumn, placingColumnShape, addColumn, moveColumn, updateColumn, calibrationMode, calibrationPoints, updateBackgroundImage, setBackgroundImage, canvasZoom, canvasMinimumZoom, canvasCamX, canvasCamY, panMode, showFurnitureStore, addGuide, moveGuide, removeGuide, beginUndoGroup, endUndoGroup, layerVisibility, updateRoom, addMeasurement, updateMeasurement, removeMeasurement, addAnnotation, removeAnnotation, updateAnnotation, addTextAnnotation, removeTextAnnotation, updateTextAnnotation, moveTextAnnotation, toggleFurnitureLock, toggleSelectionLock, createGroup, ungroupElements, findGroupForElement, placingEntourageId, addEntourageItem, moveEntourage, resizeEntourage, currentProject, elevationWallId, elevationPickMode, doorJoinMode, joinScanDoors } from '$lib/stores/project';
   import type { Point, Wall, Door, Window as Win, FurnitureItem, Stair, Column, GuideLine, Measurement, Annotation, TextAnnotation, CustomEntourageDef } from '$lib/models/types';
   import type { Floor, Room } from '$lib/models/types';
   import { resolveRoomGeometry, roomLabelPosition, roomCentroid } from '$lib/utils/roomDetection';
@@ -198,6 +198,7 @@
   let currentSelectedId: string | null = $state(null);
   let currentSelectedRoomId: string | null = $state(null);
   let currentPlacingId: string | null = $state(null);
+  let currentPlacingCustomModelId: string | null = $state(null);
   let currentPlacingRotation: number = $state(0);
   let currentDoorType: Door['type'] = $state('single');
   let currentWindowType: Win['type'] = $state('standard');
@@ -565,9 +566,19 @@
   // Track wall snap during placement preview
   let placementWallSnap: { position: Point; rotation: number; wallId: string } | null = $state(null);
 
+  /** Preview def for the item being placed: a catalog item, or the armed custom model (dims from its definition). */
+  function placingPreviewDef(): FurnitureDef | null {
+    if (currentPlacingCustomModelId) {
+      const model = get(currentProject)?.customModels?.find(m => m.id === currentPlacingCustomModelId);
+      if (!model) return null;
+      return { id: 'custom-model', name: model.name, category: '', icon: '', color: '#64748b', width: model.width, depth: model.depth, height: model.height };
+    }
+    return currentPlacingId ? getCatalogItem(currentPlacingId) ?? null : null;
+  }
+
   function drawFurniturePreview() {
     if (!currentPlacingId) return;
-    const cat = getCatalogItem(currentPlacingId);
+    const cat = placingPreviewDef();
     if (!cat) return;
 
     const wallSnap = snapFurnitureToWall(mousePos, cat);
@@ -1812,6 +1823,7 @@
     });
     const unsub3 = selectedRoomId.subscribe((id) => { currentSelectedRoomId = id; markDirty(); });
     const unsub4 = placingFurnitureId.subscribe((id) => { currentPlacingId = id; markDirty(); });
+    const unsub_cm = placingCustomModelId.subscribe((id) => { currentPlacingCustomModelId = id; markDirty(); });
     const unsub5 = placingRotation.subscribe((r) => { currentPlacingRotation = r; markDirty(); });
     const unsub6 = selectedTool.subscribe((t) => {
       if (t !== currentTool) {
@@ -1930,7 +1942,7 @@
     canvas.addEventListener('touchend', onTouchEnd, { passive: false });
     canvas.addEventListener('touchcancel', onTouchEnd, { passive: false });
 
-    return () => { mounted = false; drawing?.stop(); stopTextures(); resizeObs.disconnect(); unsub1(); unsub2(); unsub3(); unsub4(); unsub5(); unsub6(); unsub7(); unsub8(); unsub9(); unsub10(); unsub11(); unsub12(); unsub13(); unsub_multi(); unsub_elevopen(); unsub_elevpick(); unsub_join(); unsub14(); unsub_col(); unsub_cols(); unsub_layers(); unsub_snapgrid(); unsubEnt1(); unsubEnt2(); document.removeEventListener('paste', handlePaste); canvas.removeEventListener('touchstart', onTouchStart); canvas.removeEventListener('touchmove', onTouchMove); canvas.removeEventListener('touchend', onTouchEnd); canvas.removeEventListener('touchcancel', onTouchEnd); };
+    return () => { mounted = false; drawing?.stop(); stopTextures(); resizeObs.disconnect(); unsub1(); unsub2(); unsub3(); unsub4(); unsub_cm(); unsub5(); unsub6(); unsub7(); unsub8(); unsub9(); unsub10(); unsub11(); unsub12(); unsub13(); unsub_multi(); unsub_elevopen(); unsub_elevpick(); unsub_join(); unsub14(); unsub_col(); unsub_cols(); unsub_layers(); unsub_snapgrid(); unsubEnt1(); unsubEnt2(); document.removeEventListener('paste', handlePaste); canvas.removeEventListener('touchstart', onTouchStart); canvas.removeEventListener('touchmove', onTouchMove); canvas.removeEventListener('touchend', onTouchEnd); canvas.removeEventListener('touchcancel', onTouchEnd); };
   });
 
   /** Compute world bounding box of all elements */
@@ -2424,17 +2436,18 @@
     // Column and stair placement moved earlier (before select-mode handlers)
 
     if (tool === 'furniture' && currentPlacingId) {
-      const placingCat = getCatalogItem(currentPlacingId);
+      const placingCat = placingPreviewDef();
       const wallSnap = placingCat ? snapFurnitureToWall(wp, placingCat) : null;
       const pos = wallSnap ? wallSnap.position : { x: snap(wp.x), y: snap(wp.y) };
       const rot = wallSnap ? wallSnap.rotation : currentPlacingRotation;
+      const customModelId = currentPlacingCustomModelId ?? undefined;
       beginUndoGroup();
       try {
-        const id = addFurniture(currentPlacingId, pos);
+        const id = addFurniture(currentPlacingId, pos, customModelId);
         if (rot !== 0) rotateFurniture(id, rot);
         selectedElementId.set(id);
       } finally {
-        endUndoGroup('Placed furniture');
+        endUndoGroup(customModelId ? 'Placed custom model' : 'Placed furniture');
       }
       return;
     }
@@ -3406,6 +3419,7 @@
       elevationPickMode.set(false);
       wallStart = null; wallSequenceFirst = null; typedWallLength = '';
       placingFurnitureId.set(null);
+      placingCustomModelId.set(null);
       placingEntourageId.set(null);
       placingStair.set(false);
       placingColumn.set(false);
@@ -3573,6 +3587,13 @@
       selectedElementId.set(id);
       selectedTool.set('select');
       placingFurnitureId.set(null);
+      placingCustomModelId.set(null);
+    } else if (itemType === 'custom-model') {
+      const id = addFurniture('custom-model', pos, itemId);
+      selectedElementId.set(id);
+      selectedTool.set('select');
+      placingFurnitureId.set(null);
+      placingCustomModelId.set(null);
     } else if (itemType === 'door' || itemType === 'window') {
       const target = openingDropTarget(wp, currentFloor?.walls ?? []);
       if (target) {

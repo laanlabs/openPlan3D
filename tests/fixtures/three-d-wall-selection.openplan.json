@@ -1,0 +1,32 @@
+{
+  "id": "qa-three-d-wall-selection",
+  "name": "QA 3D Wall Selection",
+  "floors": [
+    {
+      "id": "ground",
+      "name": "Ground Floor",
+      "level": 0,
+      "walls": [
+        {
+          "id": "wall-1",
+          "start": { "x": -300, "y": 0 },
+          "end": { "x": 300, "y": 0 },
+          "thickness": 15,
+          "height": 280,
+          "color": "#444444"
+        }
+      ],
+      "rooms": [],
+      "doors": [],
+      "windows": [],
+      "furniture": [],
+      "stairs": [],
+      "columns": [],
+      "guides": [],
+      "measurements": [],
+      "annotations": [],
+      "textAnnotations": [],
+      "groups": []
+    }
+  ]
+}

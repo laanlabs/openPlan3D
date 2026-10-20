@@ -40,7 +40,7 @@ it('rejects unsupported dynamic features before decoding any textures', async ()
   for (const field of ['animations', 'skins', 'cameras']) {
     await expect(loadLocalGLBModel(variant(document => { document[field] = [{}]; }))).rejects.toThrow(field);
   }
-  await expect(loadLocalGLBModel(variant(document => { document.extensionsUsed = ['KHR_draco_mesh_compression']; }))).rejects.toThrow('not supported');
+  await expect(loadLocalGLBModel(variant(document => { document.extensionsUsed = ['KHR_texture_basisu']; }))).rejects.toThrow('not supported');
   expect(decoder).not.toHaveBeenCalled();
 });
 it('rejects invalid transforms before loading and cleans up decoded images on invalid final bounds', async () => {

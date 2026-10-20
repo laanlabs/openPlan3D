@@ -9,11 +9,12 @@ for (const locale of ['en', 'pt']) for (const recent of [false, true]) test(`${l
   await page.addInitScript(locale => localStorage.setItem('o3d_locale', locale), locale);
   await page.goto('/editor');
   await page.getByRole('button', { name: /^(?:Objects|Objetos)$/, exact: true }).click();
-  const search = page.getByRole('textbox', { name: locale === 'pt' ? 'Pesquisar móveis...' : 'Search furniture...', exact: true });
+  const search = page.getByRole('textbox', { name: locale === 'pt' ? 'Pesquisar' : 'Search', exact: true });
   await search.fill('{number}');
-  await expect(page.getByText(locale === 'pt' ? '0 resultados para "{number}"' : '0 results for "{number}"', { exact: true })).toBeVisible();
+  await expect(page.getByText(locale === 'pt' ? '0 resultados' : '0 results', { exact: true })).toBeVisible();
   await page.getByTitle(locale === 'pt' ? 'Limpar pesquisa' : 'Clear search', { exact: true }).click();
   await expect(search).toHaveValue('');
+  await search.fill('Sofa');
   const canvas = page.getByLabel(/^(?:Floor plan editor canvas|Área de edição da planta baixa)$/, { exact: true });
   const favorite = page.getByRole('button', { name: locale === 'pt' ? 'Adicionar Sofá aos favoritos' : 'Add Sofa to favorites', exact: true }).first();
   await canvas.focus(); await page.keyboard.down('Space');

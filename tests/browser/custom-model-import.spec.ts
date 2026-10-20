@@ -10,6 +10,7 @@ test('imports, previews, places and retains a local custom model through undo an
   const bytes = await readFile('tests/fixtures/local-model-textured-box.glb');
   await page.goto('/editor');
   await page.getByRole('button', { name: 'Objects', exact: true }).click();
+  await page.getByRole('button', { name: 'My Items', exact: true }).click();
   const panel = page.getByRole('region', { name: 'My 3D models', exact: true });
   const input = panel.locator('input[type=file]');
   await input.setInputFiles('tests/fixtures/local-model-textured-box.glb');
@@ -22,7 +23,8 @@ test('imports, previews, places and retains a local custom model through undo an
   await dialog.getByLabel('Attribution (optional)', { exact: true }).fill('Fixture author');
   await dialog.getByRole('button', { name: 'Add to project', exact: true }).click();
   await expect(dialog).toBeHidden();
-  await expect(panel.getByText('My textured box', { exact: true })).toBeVisible();
+  await expect(panel.getByRole('button', { name: /My textured box/ })).toBeVisible();
+  await expect(panel.getByText('100×75cm', { exact: true })).toBeVisible();
   async function exported() {
     await page.getByRole('button', { name: 'Export', exact: true }).click();
     const pending = page.waitForEvent('download');
@@ -33,7 +35,9 @@ test('imports, previews, places and retains a local custom model through undo an
   expect(model).toMatchObject({ name: 'My textured box', attribution: 'Fixture author', width: 100, depth: 75, height: 50,
     sha256: createHash('sha256').update(bytes).digest('hex'), byteLength: bytes.length });
   expect(imported.projectPackage.assets[`assets/${model.assetName}`]).toBe(bytes.toString('base64'));
-  await panel.getByRole('button', { name: 'Place at view center', exact: true }).click();
+  await panel.getByRole('button', { name: /My textured box/ }).click();
+  const canvas = page.getByLabel(/^(?:Floor plan editor canvas|Área de edição da planta baixa)$/, { exact: true });
+  await canvas.click({ position: { x: 300, y: 250 } });
   const placed = await exported();
   const floor = placed.floors.find((floor: any) => floor.id === placed.activeFloorId);
   expect(floor.furniture.at(-1)).toMatchObject({ customModelId: model.id, width: 100, depth: 75, height: 50 });
@@ -51,4 +55,29 @@ test('imports, previews, places and retains a local custom model through undo an
   expect(retained.projectPackage.assets[`assets/${model.assetName}`]).toBe(bytes.toString('base64'));
   expect(retained.floors).toEqual(placed.floors);
   expect(errors).toEqual([]);
+});
+
+test('imports and renders a custom model when Web Crypto is unavailable (insecure origin)', async ({ page }) => {
+  // A plain-HTTP origin has no `crypto.subtle`; simulate it on the secure test origin.
+  await page.addInitScript(() => {
+    Object.defineProperty(Crypto.prototype, 'subtle', { configurable: true, get: () => undefined });
+  });
+  const warnings: string[] = [];
+  page.on('console', message => { if (message.type() === 'warning') warnings.push(message.text()); });
+  await page.goto('/editor');
+  await page.getByRole('button', { name: 'Objects', exact: true }).click();
+  await page.getByRole('button', { name: 'My Items', exact: true }).click();
+  const panel = page.getByRole('region', { name: 'My 3D models', exact: true });
+  await panel.locator('input[type=file]').setInputFiles('tests/fixtures/local-model-textured-box.glb');
+  const dialog = page.getByRole('dialog', { name: 'Import GLB model', exact: true });
+  await expect(dialog.locator('canvas')).toBeVisible({ timeout: 60_000 });
+  await dialog.getByRole('button', { name: 'Add to project', exact: true }).click();
+  await expect(dialog).toBeHidden();
+  await panel.getByRole('button', { name: /local-model-textured-box/ }).click();
+  await page.getByLabel(/^(?:Floor plan editor canvas|Área de edição da planta baixa)$/, { exact: true }).click({ position: { x: 300, y: 250 } });
+  // Enter 3D so the retained model is loaded and verified at render time.
+  await page.getByRole('button', { name: '3D', exact: true }).click();
+  await expect(page.getByRole('region', { name: '3D floor plan viewer' }).locator('canvas').first()).toBeVisible({ timeout: 60_000 });
+  await page.waitForTimeout(4_000);
+  expect(warnings.filter(warning => warning.includes('Custom model unavailable'))).toEqual([]);
 });

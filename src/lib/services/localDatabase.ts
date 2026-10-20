@@ -1,4 +1,5 @@
 import { readProject } from '$lib/utils/projectValidation';
+import { randomId } from '$lib/utils/randomId';
 
 export const DATABASE_NAME = 'openplan3d-local';
 export const PROJECTS_STORAGE_KEY = 'floorplan_projects';
@@ -204,5 +205,5 @@ export async function libraryBackup(): Promise<string> {
 export function notifyLibraryChange(id: string) {
   // A tiny optional signal, never project data. Commit correctness does not depend
   // on notifications or localStorage quota; focus and saves recheck the database.
-  try { localStorage.setItem(LIBRARY_CHANGE_KEY, JSON.stringify({ id, nonce: crypto.randomUUID() })); } catch {}
+  try { localStorage.setItem(LIBRARY_CHANGE_KEY, JSON.stringify({ id, nonce: randomId() })); } catch {}
 }

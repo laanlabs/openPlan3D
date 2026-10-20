@@ -6,6 +6,7 @@ import { webToNative } from '$lib/utils/projectPackageBridge';
 import type { StoredSnapshot } from '$lib/utils/snapshotStorage';
 import { loadLocalGLBModel } from './customModelLoader';
 import { photoStorageBytes, PHOTO_PROJECT_BUDGET } from './itemPhotos';
+import { sha256Hex } from '$lib/utils/sha256';
 
 type LoadedModel = Awaited<ReturnType<typeof loadLocalGLBModel>>;
 export type PreparedCustomModel = LoadedModel & { readonly sourceFilename: string };
@@ -25,10 +26,8 @@ export async function prepareCustomModel(file: File, signal?: AbortSignal): Prom
   const bytes = new Uint8Array(await file.arrayBuffer());
   canceled(signal);
   if (bytes.length !== file.size) throw new Error('The model file changed while reading.');
-  if (!globalThis.crypto?.subtle) throw new Error('This browser cannot verify local model files.');
-  const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', bytes.buffer));
+  const sha256 = await sha256Hex(bytes);
   canceled(signal);
-  const sha256 = [...digest].map(byte => byte.toString(16).padStart(2, '0')).join('');
   const loaded = await loadLocalGLBModel(bytes, signal);
   try {
     canceled(signal);

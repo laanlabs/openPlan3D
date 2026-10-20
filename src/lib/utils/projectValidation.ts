@@ -129,16 +129,19 @@ export function readProject(value: unknown): Project {
       // Mirroring uses negative scale. Do not normalize signs or round dimensions.
       for (const key of ['x', 'y', 'z']) number(item.scale[key], `${path}.scale.${key}`);
       for (const key of ['width', 'depth', 'height']) if (item[key] !== undefined) positive(item[key], `${path}.${key}`);
+      if (item.elevation !== undefined) number(item.elevation, `${path}.elevation`);
       strings(item, ['color', 'material', 'sourceCategory'], path); booleans(item, ['locked'], path);
     });
     elements('stairs', (item, path) => {
       positioned(item, path); positive(item.width, `${path}.width`); positive(item.depth, `${path}.depth`);
+      if (item.elevation !== undefined) number(item.elevation, `${path}.elevation`);
       if (!Number.isSafeInteger(item.riserCount) || item.riserCount < 1) fail(`${path}.riserCount`, 'must be a positive integer');
       defaults(item, { stairType: 'straight', direction: 'up' });
       choice(item.stairType, ['straight', 'l-shaped', 'u-shaped', 'spiral'], `${path}.stairType`); choice(item.direction, ['up', 'down'], `${path}.direction`);
     });
     elements('columns', (item, path) => {
       positioned(item, path); positive(item.diameter, `${path}.diameter`); number(item.height, `${path}.height`, 0);
+      if (item.elevation !== undefined) number(item.elevation, `${path}.elevation`);
       choice(item.shape, ['round', 'square'], `${path}.shape`); defaults(item, { color: '#cccccc' }); text(item.color, `${path}.color`);
     });
     elements('rooms', (item, path) => {
@@ -159,11 +162,13 @@ export function readProject(value: unknown): Project {
       number(item.x, `${path}.x`); number(item.y, `${path}.y`); text(item.text, `${path}.text`);
       defaults(item, { fontSize: 16, color: '#1e293b', rotation: 0 });
       positive(item.fontSize, `${path}.fontSize`); number(item.rotation, `${path}.rotation`); text(item.color, `${path}.color`);
+      if (item.elevation !== undefined) number(item.elevation, `${path}.elevation`);
     });
     elements('groups', (item, path) => { ids(item.elementIds, `${path}.elementIds`); });
     // Avoid adding optional attachment arrays to otherwise unchanged current files.
     if (floor.entourage !== undefined) elements('entourage', (item, path) => {
       text(item.defId, `${path}.defId`, true); positioned(item, path); positive(item.width, `${path}.width`);
+      if (item.elevation !== undefined) number(item.elevation, `${path}.elevation`);
       if (item.opacity !== undefined) number(item.opacity, `${path}.opacity`, 0, 1);
       booleans(item, ['locked'], path);
     });
