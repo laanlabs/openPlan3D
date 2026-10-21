@@ -18,6 +18,7 @@ import { getRoomPolygon, roomCentroid, roomLabelPosition } from '$lib/utils/room
 import { getWallTextureCanvas, getFloorTextureCanvas } from '$lib/utils/textureGenerator';
 import { getEntourageDef } from '$lib/utils/entourageCatalog';
 import type { EntourageItem, CustomEntourageDef } from '$lib/models/types';
+import { interiorRoomExtent } from '$lib/utils/interiorArea';
 
 // ── Wall geometry helpers ────────────────────────────────────────────
 
@@ -1477,6 +1478,17 @@ export function drawRoomFloorPattern(cs: CanvasState, room: Room, screenPoly: Po
   ctx.restore();
 }
 
+/** Clear room sizes, kept until the outline or the walls change: drawRooms runs
+ * on every redraw, and the editor rebuilds outlines whenever the walls change. */
+const clearRoomExtents = new WeakMap<Point[], { walls: Wall[]; extent: ReturnType<typeof interiorRoomExtent> }>();
+function clearRoomExtent(poly: Point[], walls: Wall[]) {
+  const cached = clearRoomExtents.get(poly);
+  if (cached?.walls === walls) return cached.extent;
+  const extent = interiorRoomExtent(poly, walls);
+  clearRoomExtents.set(poly, { walls, extent });
+  return extent;
+}
+
 export function drawRooms(
   cs: CanvasState,
   floor: Floor,
@@ -1524,6 +1536,9 @@ export function drawRooms(
     if (showDimensions && dimSettings.showInternalDimensions && poly.length >= 3) {
       let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
       for (const pt of poly) { if (pt.x < minX) minX = pt.x; if (pt.x > maxX) maxX = pt.x; if (pt.y < minY) minY = pt.y; if (pt.y > maxY) maxY = pt.y; }
+      // Edge to edge gives the clear size between wall faces, as the wall dimensions do (issue #121).
+      const clear = dimSettings.wallMeasureMode === 'edge' ? clearRoomExtent(poly, floor.walls) : null;
+      if (clear) ({ minX, maxX, minY, maxY } = clear);
       const roomW = (maxX - minX) / 100;
       const roomD = (maxY - minY) / 100;
       if (roomW > 0.1 && roomD > 0.1) {

@@ -45,6 +45,8 @@ export function printBounds(floor: Floor, customEntourage?: CustomEntourageDef[]
 /** What the page draws in text, measured on its canvas: labels keep a pixel size on paper, so their extent depends on the scale. */
 export type PrintInk = {
   context: CanvasRenderingContext2D; pixelsPerMm: number; roomLabels: boolean; roomDimensions: boolean; units: 'metric' | 'imperial';
+  /** Settings > Dimensions > Measure walls, which the page's room dimensions follow. */
+  wallMeasureMode?: 'centerline' | 'edge';
   /** The caption a furniture item is drawn with (a custom model's own name); undefined uses the catalog name. */
   furnitureCaption?: (item: FurnitureItem) => string | undefined;
 };
@@ -66,7 +68,7 @@ export function printPageLayout(floor: Floor, customEntourage: CustomEntourageDe
     const text = planContentBounds(floor, { context: ink.context, zoom, units: ink.units,
       entourageAspect: id => entourageAspect(id, customEntourage) || 1,
       roomLabels: ink.roomLabels ? rooms : undefined,
-      automaticDimensions: { external: false, internal: ink.roomDimensions, edge: false },
+      automaticDimensions: { external: false, internal: ink.roomDimensions, edge: ink.wallMeasureMode === 'edge' },
       dimensionRooms: ink.roomDimensions ? rooms : undefined });
     const bounds = text ? { minX: Math.min(geometry.minX, text.minX), minY: Math.min(geometry.minY, text.minY),
       maxX: Math.max(geometry.maxX, text.maxX), maxY: Math.max(geometry.maxY, text.maxY) } : { ...geometry };
