@@ -1,13 +1,16 @@
 # OpenPlan3D status
 
-Last verified: **October 20, 2026** (UTC): a production check of link sharing
-since the Storage cutover; the local unit suite, type check, sibling parity
-suites and three-engine import specs on `fix/handoff-zero-length-walls` (#120);
+Last verified: **October 21, 2026** (UTC): the App Hosting rollout of #120; a
+production check of link sharing from October 20, 08:00 UTC, to October 21,
+22:06 UTC; and, for #124, `npm audit`, the type check, the unit suite, the
+production build and ten browser specs on three engines. On October 20: a
+production check of link sharing since the Storage cutover; the local unit
+suite, type check, sibling parity suites and three-engine import specs on #120;
 and CI and the App Hosting rollouts for the merges of #115 and #119. Earlier,
 on October 16: full three-engine browser CI on PRs #107–#112; production
 rollout, CORS preflight and the Storage rules cutover checked; see below.
 
-## Current delivery — October 16
+## Current delivery — October 16–21
 
 All October 15–16 web work is **merged and live**. The owner merged the stack
 in order at 13:16 UTC: #107 (`318575c`), #108 (`86373ba`), #109 (`d40e729`),
@@ -66,7 +69,8 @@ new spec passed against production.
 A production check on October 20 covered the Storage cutover (October 16,
 16:30 UTC) to 08:00 UTC that day. The live Storage rules still match `main`.
 Link sharing accepted 785 captures and refused 23 (422), with no quota
-refusals and no server errors; every share came from the iPhone app. All 23
+refusals and no server errors. All but three shares came from the iPhone app:
+one came from OpenCatio3D in a browser, and two were uploaded with curl. All 23
 refusals were at `walls[N].dimensions`, from 9 clients, 8 of which got no share
 through afterwards. 422s at 5–25 a day were also logged October 9–15, before
 the server recorded why it refused a capture.
@@ -76,9 +80,21 @@ a corner that welds both ends of a short wall, leaves a wall of length 0, which
 the exporter sends as `[0, height, thickness]`. The phone shows it as a dot and
 does not draw its openings. #120 accepts walls of length 0, leaves them and
 their openings out on import, and logs counts as `handoff_tolerated`, so
-shipped iPhone builds share these plans without an update. **#120 awaits the owner's
-merge.** The editor fix is tracked in
+shipped iPhone builds share these plans without an update. The owner merged
+#120 on October 21 at 21:20 UTC (`5b4a751`), and its rollout succeeded at
+21:22. From October 20, 08:00 UTC, to the deploy, 7 of 353 shares were refused
+the same way, all on October 21, from 3 clients that tried 2, 2 and 3 times.
+From the deploy to 22:06 UTC the new build accepted all 16 shares and refused
+none. No `handoff_tolerated` line had been logged by then, so the new path has
+not yet been seen in production; see [NEXT.md](NEXT.md). The editor fix is
+tracked in
 [openplan3d-ios#49](https://github.com/laanlabs/openplan3d-ios/issues/49).
+
+CI on `main` failed after the merge, at `npm audit --audit-level=high`:
+advisories for vite and vitest were published October 20–21, after #120's own
+checks passed, so the browser and benchmark jobs did not run. Both are
+development tools, and production was not exposed. #124 updates them and
+awaits merge; until it lands, every PR fails the same check.
 
 ## Goal and overall state
 
@@ -92,11 +108,14 @@ to #116 (billing budget alerts) and
 [openplan3d-ios#47](https://github.com/laanlabs/openplan3d-ios/issues/47)
 (physical-iPhone QA). #105 (publish the iOS repository) needs the owner.
 #118, a Build-tab import regression reported on October 17, was fixed by #119
-(merged October 20). Shares refused for walls collapsed on the iPhone are fixed
-in #120, which awaits merge. Broader fidelity work and physical-device testing
-remain open.
+(merged October 20). Link shares refused for walls collapsed on the iPhone are
+accepted since #120 (merged and deployed October 21); on the phone, Share with
+Assistant and package export still fail for those plans
+([openplan3d-ios#49](https://github.com/laanlabs/openplan3d-ios/issues/49)).
+CI on `main` fails at a new `npm audit` advisory until #124 merges. Broader
+fidelity work and physical-device testing remain open.
 
-Web `main` is at `fdb9675` (the merge of #119).
+Web `main`'s latest implementation merge is `5b4a751` (#120); #124 awaits merge.
 
 This is the concise, maintained status page. Update it as implementation,
 validation, blockers, or priorities change during the goal. Keep the full scope
@@ -109,7 +128,7 @@ Remote state was checked when preparing this report.
 
 | Repository | Branch | Latest implementation checkpoint | Delivery |
 | --- | --- | --- | --- |
-| Web app: `openPlan3D` | `main` | `fdb9675` — merge of #119, after #107–#115 | **Merged and live** (App Hosting rollouts succeeded October 16 and 20); #120 open |
+| Web app: `openPlan3D` | `main` | `5b4a751` — merge of #120, after #107–#110, #112–#115 and #119 | **Merged and live** (App Hosting rollouts succeeded October 16, 20 and 21); CI on `main` needs #124 |
 | Native app: `openplan3d-ios` | `marketing/youtube-shorts-drawing` | `f2c6ea1` — marketing Shorts; no native code change in this batch | Clean checkout; the earlier `codex/local-floorplan-render` work (`bdaad71`) is unchanged |
 | Website: `openplan3d-www` | `main` | `dfdb9ec` — lists OpenLandscape3D, OpenKitchen3D and OpenCatio3D, with an FAQ entry on the exchange | **Pushed and live** on openplan3d.com |
 
@@ -131,7 +150,8 @@ Remote state was checked when preparing this report.
   OpenLandscape3D / OpenCatio3D blocks, object attributes, defaults and notes
   survive import, save and re-export, verified against each sibling's real
   fixtures; CORS on `/api/handoffs` for their "Open in OpenPlan3D" buttons.
-  Unit-tested only; not deployed.
+  Merged and deployed October 16 (#107); real shares from OpenCatio3D and
+  OpenLandscape3D were accepted on October 20 and 21.
 - **Issues #103, #104, #106 (October 15):** RoomPlan scans can be added to the
   open plan, endpoint dragging no longer jumps with wall length, and plan
   exports follow Measure walls. **Issues #101 and #102:** user guide and
@@ -255,10 +275,10 @@ qualifying the repair in the original failing environment.
 
 ## Next priorities
 
-1. Commit and deploy `fix/sibling-compat-and-open-issues` (web and website);
-   then verify the live `OPTIONS /api/handoffs` preflight and a real handoff
-   from OpenLandscape3D and OpenCatio3D, run full browser CI, and decide
-   whether the native package should carry `project.interchange`.
+1. Merge #124 so CI on `main` passes again. The sibling-planner work shipped
+   October 16, and real handoffs from OpenCatio3D and OpenLandscape3D have
+   been accepted; still decide whether the native package should carry
+   `project.interchange`.
 2. Continue furniture fidelity and height editing usability; complete physical
    iPhone/iPad handoff when a device is available. The Catalyst UI/package
    preservation check is complete, with its actual export retained as a fixture.

@@ -4,16 +4,68 @@ The user-facing goal status is maintained in [STATUS.md](STATUS.md). Update it
 when implementation, validation, blockers or next priorities change; keep this
 file as the detailed backlog and evidence history.
 
+## #120 deployed; link sharing October 20–21 — October 21
+
+The owner merged #120 on October 21 at 21:20 UTC (`5b4a751`). Its App Hosting
+rollout (`rollout-2026-10-21-001`, build `build-2026-10-21-001`) succeeded at
+21:22:45 UTC. The live app serves build `1792617652975`, and its bundle carries
+#120's per-size refusal reasons. A production check covered October 20, 08:00
+UTC, where the last one ended, to October 21, 22:06 UTC. Clients below are
+grouped by IP and user agent; the iPhone app's user agent is the same on iPad
+and Mac.
+
+- Before the deploy, the old build accepted 346 shares and refused 7, every
+  one at `walls[N].dimensions` with the old reason, and all on October 21.
+  They came from 3 clients, which tried 2, 2 and 3 times, each within two
+  minutes. Two of them had shared successfully earlier in the window; none
+  had shared again by 22:06 UTC. No link share got a 429.
+- After the deploy, the new build accepted all 16 shares, the last at 22:03,
+  and refused none. No `handoff_tolerated` line yet. Expect about 2 a day, not
+  the old 6 refusals a day: the 30 refusals of October 16–21 came from 12
+  clients, several retrying (up to 6 times), and an accepted share is not
+  retried. The first line should appear within a day (about 9 chances in 10).
+  Gaps between refused clients reached 37 hours, so a quiet first day is not a
+  warning sign, but two days would be. On October 22, check that 422s at
+  `walls[N].dimensions` stay at 0 and that `handoff_tolerated` appears.
+- One share came from OpenLandscape3D in a browser (Chrome on Windows). It
+  passed the CORS preflight (204) and was accepted, the first from
+  OpenLandscape3D seen in these checks. The first from OpenCatio3D (Firefox on
+  Android) was accepted on October 20 at 02:17 UTC, in the previous check's
+  window. The other 368 shares came from the iPhone app.
+- Two uploads from the iPhone app ended after 70 and 58 seconds with no status
+  in the App Hosting request log and no entry in the Cloud Run request log, so
+  they never reached the server. One client retried by hand and succeeded a
+  minute later, with the slowest upload of the window (415 KB in 37 seconds);
+  the other had uploaded normally 20 minutes earlier and did not retry.
+  Nothing points at the server. They are the first such uploads since at least
+  October 16.
+- Assistant sharing (`/api/assistant-shares`, with its own cap of 20 a day)
+  reached its cap on October 20, for the first time since at least September
+  22: 14 clients, in the iPhone app and the web editor, sent 23 requests, and
+  3 from two of them were refused with 429. Other days had 3–14 shares.
+- Three 5xx across app.openplan3d.com and openplan3d.com, none on
+  `/api/handoffs` and none with a Cloud Run request log entry: a 500 on
+  `/_app/version.json` at the edge (October 20, 16:44), and two 502s on
+  October 21 at 10:17 for an `openplan3d.com` link that ChatGPT had mangled by
+  appending its French answer, including a bare `%`. App Hosting's edge
+  answers a URL with an invalid percent escape (`%%`) with 502 on both sites.
+  Test requests from this check at 22:09 and 22:26 UTC reproduced it; leave
+  them out of later counts. The only other error-level line was a WordPress
+  scanner's POST to the marketing home page, which has no form.
+- CI on `main` at `5b4a751` failed at `npm audit --audit-level=high`: vite and
+  vitest advisories were published October 20–21, after #120's checks passed
+  on the PR. #124 updates vite to 7.3.7 and vitest to 5.0.5.
+
 ## Shares refused for walls collapsed on the iPhone — October 20
 
-Branch `fix/handoff-zero-length-walls` (PR #120). A production check of link
-sharing from the Storage cutover (October 16, 16:30 UTC) to October 20, 08:00
-UTC counted 785 accepted shares and 23 refusals (422), with no 429 or 5xx on
-`/api/handoffs`. Every refusal logged `walls[N].dimensions must contain valid
-positive width/height and nonnegative depth`. They came from 9 iPhone clients
-(IP and user agent); 8 sent no later successful share, and two tried 6 times
-each. 422s at 5–25 a day were already logged October 9–15, before the server
-recorded why it refused a capture (October 16).
+PR #120, merged and deployed October 21 (see above). A production check of
+link sharing from the Storage cutover (October 16, 16:30 UTC) to October 20,
+08:00 UTC counted 785 accepted shares and 23 refusals (422), with no 429 or
+5xx on `/api/handoffs`. Every refusal logged `walls[N].dimensions must contain
+valid positive width/height and nonnegative depth`. They came from 9 iPhone
+clients (IP and user agent); 8 sent no later successful share, and two tried
+6 times each. 422s at 5–25 a day were already logged October 9–15, before the
+server recorded why it refused a capture (October 16).
 
 Cause, reproduced off-device by compiling the iPhone app's own model, drag and
 export code (openplan3d-ios `09eaa13`): the editor can leave a wall of length 0,
@@ -66,7 +118,8 @@ cannot fail this way.
   import pass on Chromium, Firefox and WebKit (117 runs). Four reviewers
   (correctness, interchange contract, server and logging, evidence) checked the
   change, with a skeptic re-checking each serious finding; the confirmed ones
-  are fixed. The rest of the browser suite runs in CI.
+  are fixed. CI on the PR passed all 22 checks, including the browser suite
+  (October 20).
 - Rollback: a revert would make the editor refuse links already issued for such
   plans. Inbox captures live about a day, and the phone reuses a link for up to
   24 hours.
@@ -80,9 +133,9 @@ cannot fail this way.
 
 ## Build-tab RoomPlan import regression (issue #118) — October 20
 
-Branch `fix/roomplan-import-clone` (PR #119). Build > Import RoomPlan failed
-with "Failed to execute 'structuredClone' on 'Window': #<Object> could not be
-cloned" on both targets whenever a scan's objects carried RoomPlan
+PR #119, merged October 20 at 02:23 UTC (`fdb9675`). Build > Import RoomPlan
+failed with "Failed to execute 'structuredClone' on 'Window': #<Object> could
+not be cloned" on both targets whenever a scan's objects carried RoomPlan
 `attributes`. The repository's own `test-roomplan.json` has eight. Since
 `87352c97` (October 15), `interchangeStateFromRoomPlan` structured-clones those
 attributes and any sibling block so they survive to export. The dialog kept the
@@ -102,7 +155,7 @@ and package dialogs use; its checks against a newer file still work.
   the stores. The Share dialog already snapshots its project (#112).
 - Validation: `npm run check` clean; `npm test` 1,579 passed; the seven specs
   that drive RoomPlan import (84 runs) pass on Chromium, Firefox and WebKit.
-  The rest of the browser suite runs in CI.
+  CI on the PR passed all 22 checks.
 
 ## Eighteen more hunt defects, a review round and issue #101 — October 16
 
