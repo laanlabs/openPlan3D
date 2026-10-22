@@ -4,6 +4,39 @@ The user-facing goal status is maintained in [STATUS.md](STATUS.md). Update it
 when implementation, validation, blockers or next priorities change; keep this
 file as the detailed backlog and evidence history.
 
+## #120 in production; link sharing October 21–22 — October 22
+
+A production check covered the new build from its first share, at 21:22:43
+UTC on October 21, two seconds before its rollout reported success, to October
+22, 15:30 UTC: about 18 hours. Nothing was deployed in between: the live
+rollout is still `rollout-2026-10-21-001`. Counts are by Cloud Run revision,
+as in the check below.
+
+- The new build accepted all 180 shares, including the 16 below, and refused
+  none: no 422, 429 or 503, and no `handoff_invalid` line. The App Hosting and
+  Cloud Run request logs each hold 180 entries for them, all 201, so no upload
+  ended without a status. Of the 180, 178 came from the iPhone app, one from
+  OpenLandscape3D in a browser (the share below) and one from curl at 11:17
+  UTC on October 22, which this check did not send. Two CORS preflights at
+  22:28 UTC on October 21 came from a development server on a private
+  address; production CORS does not admit that origin, and no upload followed.
+- The first `handoff_tolerated` line was logged at 10:07 UTC on October 22,
+  for a plan edited in the iPhone app (`prepared: true`) with 1 wall of length
+  0 among 54. The share was accepted; before #120 it would have been refused.
+  One line in 18 hours fits the expected rate of about 2 a day. The
+  `handoff_tolerated` count will show when an iPhone release stops producing
+  these walls.
+- Assistant sharing accepted 13 shares on October 21 and 5 on October 22 to
+  15:30 UTC, and refused none, so its cap was not reached again.
+- The Cloud Run request log has no 5xx. The App Hosting edge logged the three
+  502s from the October 21 check's own test requests at 22:09 and 22:26 UTC
+  (see below), and two 500s on October 22, from two browsers:
+  `/_app/version.json` on app.openplan3d.com at 12:14 UTC and `/favicon.svg` on
+  openplan3d.com at 14:33 UTC. Like October 20's 500 on `/_app/version.json`,
+  neither has a Cloud Run request log entry. They are 2 of about 12,900
+  requests for those files on the two sites since the deploy.
+- CI on `main` still fails at `npm audit` until #124 merges.
+
 ## #120 deployed; link sharing October 20–21 — October 21
 
 The owner merged #120 on October 21 at 21:20 UTC (`5b4a751`). Its App Hosting

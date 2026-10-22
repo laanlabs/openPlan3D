@@ -1,16 +1,18 @@
 # OpenPlan3D status
 
-Last verified: **October 21, 2026** (UTC): the App Hosting rollout of #120; a
-production check of link sharing from October 20, 08:00 UTC, to October 21,
-22:06 UTC; and, for #124, `npm audit`, the type check, the unit suite, the
-production build and ten browser specs on three engines. On October 20: a
-production check of link sharing since the Storage cutover; the local unit
-suite, type check, sibling parity suites and three-engine import specs on #120;
-and CI and the App Hosting rollouts for the merges of #115 and #119. Earlier,
-on October 16: full three-engine browser CI on PRs #107–#112; production
-rollout, CORS preflight and the Storage rules cutover checked; see below.
+Last verified: **October 22, 2026** (UTC): a production check of link sharing
+from #120's deploy to October 22, 15:30 UTC. On October 21: the App Hosting
+rollout of #120; a production check of link sharing from October 20, 08:00
+UTC, to October 21, 22:06 UTC; and, for #124, `npm audit`, the type check, the
+unit suite, the production build and ten browser specs on three engines. On
+October 20: a production check of link sharing since the Storage cutover; the
+local unit suite, type check, sibling parity suites and three-engine import
+specs on #120; and CI and the App Hosting rollouts for the merges of #115 and
+#119. Earlier, on October 16: full three-engine browser CI on PRs #107–#112;
+production rollout, CORS preflight and the Storage rules cutover checked; see
+below.
 
-## Current delivery — October 16–21
+## Current delivery — October 16–22
 
 All October 15–16 web work is **merged and live**. The owner merged the stack
 in order at 13:16 UTC: #107 (`318575c`), #108 (`86373ba`), #109 (`d40e729`),
@@ -84,17 +86,18 @@ shipped iPhone builds share these plans without an update. The owner merged
 #120 on October 21 at 21:20 UTC (`5b4a751`), and its rollout succeeded at
 21:22. From October 20, 08:00 UTC, to the deploy, 7 of 353 shares were refused
 the same way, all on October 21, from 3 clients that tried 2, 2 and 3 times.
-From the deploy to 22:06 UTC the new build accepted all 16 shares and refused
-none. No `handoff_tolerated` line had been logged by then, so the new path has
-not yet been seen in production; see [NEXT.md](NEXT.md). The editor fix is
-tracked in
+From the deploy to October 22, 15:30 UTC, the new build accepted all 180
+shares and refused none. One of them, from the iPhone app at 10:07 UTC on
+October 22, had a wall of length 0 among its 54 walls; the server accepted it
+and logged the first `handoff_tolerated` line, so the new path works in
+production; see [NEXT.md](NEXT.md). The editor fix is tracked in
 [openplan3d-ios#49](https://github.com/laanlabs/openplan3d-ios/issues/49).
 
 CI on `main` failed after the merge, at `npm audit --audit-level=high`:
 advisories for vite and vitest were published October 20–21, after #120's own
 checks passed, so the browser and benchmark jobs did not run. Both are
 development tools, and production was not exposed. #124 updates them and
-awaits merge; until it lands, every PR fails the same check.
+awaits merge; until it lands, every PR based on `main` fails the same check.
 
 ## Goal and overall state
 
