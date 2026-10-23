@@ -1,7 +1,7 @@
 import { beforeEach, expect, it } from 'vitest';
 import { get } from 'svelte/store';
 import { Vector3 } from 'three';
-import { buildWallSegments, openingOnWall, roomCeilingHeight, wallPathSpans, wallProfileSpans, doorPanelPose } from '$lib/utils/wallProfiles';
+import { baseboardSegment, buildWallSegments, openingOnWall, roomCeilingHeight, wallPathSpans, wallProfileSpans, doorPanelPose } from '$lib/utils/wallProfiles';
 import { createSlopedBoxGeometry } from '$lib/utils/slopedWallGeometry';
 import { addDoor, addWindow, addWall, currentProject, createDefaultProject, reverseWall, splitWall, updateWall, undo } from '$lib/stores/project';
 import { getWallHeightAt, type Door, type Wall, type Window } from '$lib/models/types';
@@ -176,4 +176,16 @@ for (const kind of ['door', 'window'] as const) it(`allows splitting at either $
     expect(opening.position * length - width / 2).toBeGreaterThanOrEqual(-1e-7);
     expect(opening.position * length + width / 2).toBeLessThanOrEqual(length + 1e-7);
   }
+});
+
+it('keeps baseboard ends out of the wall end and reveal planes', () => {
+  // A floor-level opening from 100 to 200 on a 400 cm wall: baseboard segments 0–100 and 200–400.
+  const ends = buildWallSegments(400, 8, 8, [], [window({ position: 0.375, sillHeight: 0, height: 200 })])
+    .map(segment => baseboardSegment(segment, { from: 0, length: 400 }, 400))
+    .map(({ width, offsetX }) => [offsetX - width / 2, offsetX + width / 2]);
+  expect(ends).toEqual([[-1, 99.5], [200.5, 401]]);
+  // A piece narrower than 1 cm between two openings has no width left.
+  expect(baseboardSegment({ width: 0.8, offsetX: 150 }, { from: 0, length: 400 }, 400).width).toBeLessThanOrEqual(0);
+  // Joints between spans of a curved wall stay flush.
+  expect(baseboardSegment({ width: 50, offsetX: 25 }, { from: 100, length: 50 }, 300)).toEqual({ width: 50, offsetX: 25 });
 });

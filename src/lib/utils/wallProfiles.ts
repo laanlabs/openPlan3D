@@ -48,6 +48,18 @@ function segmentsAroundOpenings(length: number, start: number, end: number, open
   return result;
 }
 
+/** Baseboards stand 1 cm proud of both wall faces. At the wall's own ends they also reach 1 cm
+ * past it, and at openings they stop 0.5 cm short of the reveal, so no end face is coplanar with
+ * a wall face. Joints between spans of a curved wall stay as they are. A piece narrower than 1 cm
+ * between two openings comes out with no width; callers skip it. */
+export function baseboardSegment(segment: { width: number; offsetX: number }, span: { from: number; length: number }, pathLength: number) {
+  const left = segment.offsetX - segment.width / 2, right = segment.offsetX + segment.width / 2;
+  const grow = (edge: number, spanEdge: number, pathEdge: number) =>
+    Math.abs(edge - pathEdge) < 1e-6 ? 1 : Math.abs(edge - spanEdge) < 1e-6 ? 0 : -0.5;
+  const l = grow(span.from + left, span.from, 0), r = grow(span.from + right, span.from + span.length, pathLength);
+  return { width: segment.width + l + r, offsetX: segment.offsetX + (r - l) / 2 };
+}
+
 /** Same quadratic parameterization for active and inactive curved walls. */
 export function wallPathSpans(wall: Wall): { start: Point; end: Point; startHeight: number; endHeight: number }[] {
   const count = wall.curvePoint ? 16 : 1;

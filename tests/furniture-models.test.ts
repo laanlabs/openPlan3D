@@ -143,6 +143,15 @@ it.each([false, true])('renders unknown saved furniture with exact world bounds 
   expect(item).toEqual(before);
 });
 
+it('applies the depth offset it is given to every material of the placed model', async () => {
+  const { createPlacedFurnitureModel } = await import('$lib/utils/furnitureModelLoader');
+  const model = createPlacedFurnitureModel({ id: 'a', catalogId: 'unavailable-model', position: { x: 0, y: 0 }, rotation: 0, scale: { x: 1, y: 1, z: 1 } }, undefined, undefined, -3)!;
+  const materials: THREE.Material[] = [];
+  model.traverse(child => { if (child instanceof THREE.Mesh) materials.push(...[child.material].flat()); });
+  expect(materials.length).toBeGreaterThan(0);
+  for (const material of materials) expect(material).toMatchObject({ polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3 });
+});
+
 it('continues omitting explicitly 2D-only catalog symbols from placed 3D furniture', async () => {
   const { createPlacedFurnitureModel } = await import('$lib/utils/furnitureModelLoader');
   const symbol = furnitureCatalog.find(item => item.symbol)!;
