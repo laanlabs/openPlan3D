@@ -122,7 +122,7 @@ export const en = {
   "onboarding.dismiss": "Got it",
   "onboarding.first-wall": "Nice! Connect walls to create rooms. Press Escape when done.",
   "onboarding.first-furniture": "Drag to move, R to rotate, or use handles to resize.",
-  "onboarding.first-3d": "Orbit with mouse, scroll to zoom. Try walkthrough mode!",
+  "onboarding.first-3d": "Orbit with mouse, scroll to zoom, double-click to orbit around a point. Try walkthrough mode!",
   "onboarding.first-export": "Your plan is ready! Try SVG for vector graphics or PDF for printing.",
   "onboarding.first-door": "Click on a wall to place doors and windows.",
   "templates.studio.name": "Studio Apartment",

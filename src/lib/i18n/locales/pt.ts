@@ -122,7 +122,7 @@ export const pt = {
   "onboarding.dismiss": "Entendi",
   "onboarding.first-wall": "Conecte paredes para criar ambientes. Pressione Escape quando terminar.",
   "onboarding.first-furniture": "Arraste para mover, pressione R para girar ou use as alças para redimensionar.",
-  "onboarding.first-3d": "Gire a vista com o mouse e role para ajustar o zoom. Experimente o modo de passeio!",
+  "onboarding.first-3d": "Gire a vista com o mouse, role para ajustar o zoom e clique duas vezes para girar em torno de um ponto. Experimente o modo de passeio!",
   "onboarding.first-export": "Sua planta está pronta! Experimente SVG para gráficos vetoriais ou PDF para impressão.",
   "onboarding.first-door": "Clique em uma parede para colocar portas e janelas.",
   "templates.studio.name": "Apartamento estúdio",

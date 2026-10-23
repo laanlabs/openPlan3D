@@ -6,7 +6,7 @@ export type TipId = 'first-wall' | 'first-furniture' | 'first-3d' | 'first-expor
 export const TIP_MESSAGES: Record<TipId, string> = {
   'first-wall': 'Nice! Connect walls to create rooms. Press Escape when done.',
   'first-furniture': 'Drag to move, R to rotate, or use handles to resize.',
-  'first-3d': 'Orbit with mouse, scroll to zoom. Try walkthrough mode!',
+  'first-3d': 'Orbit with mouse, scroll to zoom, double-click to orbit around a point. Try walkthrough mode!',
   'first-export': 'Your plan is ready! Try SVG for vector graphics or PDF for printing.',
   'first-door': 'Click on a wall to place doors and windows.',
 };

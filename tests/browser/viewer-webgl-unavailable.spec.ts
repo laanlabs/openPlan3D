@@ -106,7 +106,7 @@ test('the one-time 3D tip waits for a working 3D view instead of being used up w
   await page.getByRole('button', { name: '3D', exact: true }).click();
   await expect(main).toBeVisible({ timeout: 60_000 });
   // The first working 3D view still gets the tip, in its usual place.
-  await expect(tip).toContainText('Orbit with mouse, scroll to zoom. Try walkthrough mode!');
+  await expect(tip).toContainText('Orbit with mouse, scroll to zoom, double-click to orbit around a point. Try walkthrough mode!');
   const box = (await tip.boundingBox())!;
   expect([Math.round(box.x), Math.round(box.y)]).toEqual([200, 80]);
   await tip.getByRole('button', { name: 'Got it', exact: true }).click();

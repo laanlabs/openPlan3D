@@ -419,8 +419,8 @@ exports (see [section 11](#what-the-2d-exports-show)).
 
 Press **Tab** or click **3D** in the top bar ("Loading 3D viewer…" appears the
 first time while the viewer downloads). Drag to orbit, scroll or pinch to zoom,
-right-drag (two fingers on touch) to pan. Switching floors in 3D rebuilds the
-scene for that floor.
+right-drag (two fingers on touch) to pan, double-click a point to orbit around
+it. Switching floors in 3D rebuilds the scene for that floor.
 
 The toolbar at the top right has:
 
