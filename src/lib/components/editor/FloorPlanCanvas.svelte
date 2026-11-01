@@ -76,6 +76,12 @@
   // Digits typed while drawing a wall — Enter places the wall at exactly this length (issue #6)
   let typedWallLength = $state('');
   let wallSequenceFirst: Point | null = $state(null);
+  // After a single segment A→B, closing back to A would stack a second wall on the first one,
+  // leaving a hidden wall that blocks doorways and openings (issue #129).
+  function wallAlreadyConnects(a: Point, b: Point): boolean {
+    const near = (p: Point, q: Point) => Math.hypot(p.x - q.x, p.y - q.y) < 1;
+    return !!currentFloor?.walls.some(w => (near(w.start, a) && near(w.end, b)) || (near(w.start, b) && near(w.end, a)));
+  }
   let mousePos: Point = $state({ x: 0, y: 0 });
 
   // Inline room name editing
@@ -2739,7 +2745,8 @@
     }
     if (currentTool === 'wall' && wallStart && wallSequenceFirst) {
       // Auto-close the wall loop back to the first point if we have at least 2 walls
-      if (Math.hypot(wallStart.x - wallSequenceFirst.x, wallStart.y - wallSequenceFirst.y) > 5) {
+      if (Math.hypot(wallStart.x - wallSequenceFirst.x, wallStart.y - wallSequenceFirst.y) > 5
+        && !wallAlreadyConnects(wallStart, wallSequenceFirst)) {
         addWall(wallStart, wallSequenceFirst);
       }
       wallStart = null;
@@ -3525,7 +3532,8 @@
     }
     // 'C' to close wall loop back to first point (but not Ctrl+C)
     if ((e.key === 'c' || e.key === 'C') && !e.ctrlKey && !e.metaKey && wallStart && wallSequenceFirst) {
-      if (Math.hypot(wallStart.x - wallSequenceFirst.x, wallStart.y - wallSequenceFirst.y) > 5) {
+      if (Math.hypot(wallStart.x - wallSequenceFirst.x, wallStart.y - wallSequenceFirst.y) > 5
+        && !wallAlreadyConnects(wallStart, wallSequenceFirst)) {
         addWall(wallStart, wallSequenceFirst);
         wallStart = null;
         wallSequenceFirst = null;
