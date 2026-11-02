@@ -1,5 +1,7 @@
-import { mkdir, writeFile, rename } from 'node:fs/promises';
+import { mkdir, writeFile, rename, readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
+import { applyAgentOps, leanProject, listElements, summarizeProject } from '$lib/utils/agentOps';
+import { readProject } from '$lib/utils/projectValidation';
 
 /**
  * Local agent bridge: lets an agent on the same machine read and edit the project open in an editor tab, through the
@@ -8,8 +10,11 @@ import path from 'node:path';
  *
  * Enabled only in `npm run dev` (or with OPENPLAN3D_AGENT_BRIDGE=1) and only for loopback clients. Nothing here
  * reaches the cloud. OPENPLAN3D_MIRROR_DIR=<dir> also writes every saved project to <dir>/<project id>.json.
+ *
+ * With a mirror folder, agents don't need an open tab: without one, reads and edits work on the mirrored file
+ * (same validated operations), and a tab that later opens the project catches up from it (see syncTab).
  */
-export type BridgeKind = 'status' | 'summary' | 'get' | 'list' | 'apply' | 'replace';
+export type BridgeKind = 'status' | 'summary' | 'get' | 'list' | 'apply' | 'replace' | 'library' | 'delete';
 interface Tab { id: string; send: (event: string, data: unknown) => void; projectId: string | null; seen: number }
 interface Pending { resolve: (value: unknown) => void; reject: (error: Error) => void; timer: ReturnType<typeof setTimeout> }
 interface Hub { tabs: Map<string, Tab>; pending: Map<string, Pending>; seq: number }
@@ -46,10 +51,85 @@ function activeTab(projectId?: string): Tab {
   return tabs[0];
 }
 
-export function request(kind: BridgeKind, args: Record<string, unknown> = {}, timeoutMs = 15_000): Promise<unknown> {
-  const tab = activeTab(typeof args.projectId === 'string' ? args.projectId : undefined);
+const mirrorDir = () => process.env.OPENPLAN3D_MIRROR_DIR || null;
+const SAFE_ID = /^[A-Za-z0-9_.-]{1,128}$/;
+const mirrorFile = (dir: string, id: string) => path.join(dir, `${id}.json`);
+async function readMirror(dir: string, id: string): Promise<any | null> {
+  try { return JSON.parse(await readFile(mirrorFile(dir, id), 'utf8')); } catch { return null; }
+}
+async function writeMirror(dir: string, project: any) {
+  await mkdir(dir, { recursive: true });
+  const file = mirrorFile(dir, project.id), tmp = `${file}.tmp`;
+  await writeFile(tmp, JSON.stringify(project, null, 1));
+  await rename(tmp, file);
+}
+/** Mirrored projects, newest first. */
+export async function mirroredProjects(dir = mirrorDir()): Promise<{ id: string; name: string; updatedAt: string }[]> {
+  if (!dir) return [];
+  const files = (await readdir(dir).catch(() => [] as string[])).filter(f => f.endsWith('.json'));
+  const out = [];
+  for (const f of files) {
+    const p = await readMirror(dir, f.slice(0, -5));
+    if (p?.id) out.push({ id: p.id, name: p.name, updatedAt: String(p.updatedAt), mtime: (await stat(path.join(dir, f))).mtimeMs });
+  }
+  return out.sort((a, b) => b.mtime - a.mtime).map(({ mtime, ...p }) => p);
+}
+
+/** No tab connected: answer from the mirror folder (reads and edits; library operations need a tab). */
+async function viaMirror(kind: BridgeKind, args: Record<string, any>, dir: string) {
+  if (kind === 'library' || kind === 'delete') throw new BridgeError('The project library lives in the browser: open the editor tab for this.');
+  if (kind === 'replace') {
+    const next = readProject(args.project);
+    if (!SAFE_ID.test(next.id)) throw new BridgeError('Project id is not usable as a file name.');
+    const existing = await readMirror(dir, next.id);
+    if (!existing && !args.open) throw new BridgeError(`No mirrored project "${next.id}"; pass open=true to create it.`);
+    next.updatedAt = new Date();
+    await writeMirror(dir, next);
+    return { applied: true, projectId: next.id, via: 'mirror' };
+  }
+  const id = typeof args.projectId === 'string' ? args.projectId : (await mirroredProjects(dir))[0]?.id;
+  if (!id || !SAFE_ID.test(id)) throw new BridgeError('No editor tab is connected and no mirrored project was found.');
+  const raw = await readMirror(dir, id);
+  if (!raw) throw new BridgeError(`No editor tab is connected and "${id}" is not in the mirror folder.`);
+  const project = readProject(raw);
+  switch (kind) {
+    case 'status': return { projectId: project.id, name: project.name, via: 'mirror' };
+    case 'summary': return { ...summarizeProject(project), via: 'mirror' };
+    case 'get': return leanProject(project);
+    case 'list': return listElements(project, args);
+    case 'apply': {
+      const { project: next, changed } = applyAgentOps(project, args.ops);
+      next.updatedAt = new Date();
+      await writeMirror(dir, next);
+      return { applied: true, changed, via: 'mirror' };
+    }
+  }
+}
+
+/**
+ * A tab opened (or switched to) a project: reconcile with the mirror. Newer on disk (an agent edited while no tab
+ * was open) → the tab gets it to apply as one Undo step; newer in the tab → the tab is asked to report a save.
+ */
+export async function syncTab(tabId: string, projectId: string, updatedAt: string): Promise<{ pull?: unknown; push?: boolean }> {
+  tabHello(tabId, projectId);
+  const dir = mirrorDir();
+  if (!dir || !SAFE_ID.test(projectId)) return {};
+  const disk = await readMirror(dir, projectId);
+  if (!disk) return { push: true };
+  const d = Date.parse(disk.updatedAt), t = Date.parse(updatedAt);
+  if (d > t) return { pull: disk };
+  if (t > d) return { push: true };
+  return {};
+}
+
+export async function request(kind: BridgeKind, args: Record<string, unknown> = {}, timeoutMs = 15_000): Promise<unknown> {
+  const wanted = typeof args.projectId === 'string' ? args.projectId : undefined;
+  const dir = mirrorDir();
+  const hasTab = [...hub.tabs.values()].some(t => !wanted || t.projectId === wanted);
+  if (!hasTab && dir && kind !== 'library' && kind !== 'delete') return viaMirror(kind, args as Record<string, any>, dir);
+  const tab = activeTab(wanted);
   const requestId = `r${++hub.seq}-${Date.now().toString(36)}`;
-  return new Promise((resolve, reject) => {
+  return new Promise<unknown>((resolve, reject) => {
     const timer = setTimeout(() => {
       hub.pending.delete(requestId);
       reject(new BridgeError('The editor tab did not answer in time (is it in the background, or showing a dialog?).'));
@@ -71,9 +151,9 @@ export function reply(tabId: string, requestId: string, ok: boolean, payload: un
   return true;
 }
 
-export function status() {
+export async function status() {
   return { tabs: [...hub.tabs.values()].map(t => ({ projectId: t.projectId, lastActive: new Date(t.seen).toISOString() })),
-    mirrorDir: process.env.OPENPLAN3D_MIRROR_DIR ?? null };
+    mirrorDir: mirrorDir(), mirrored: await mirroredProjects() };
 }
 
 /** Write a saved project to the mirror directory (atomically), when configured. */

@@ -3,6 +3,7 @@ import { base } from '$app/paths';
 import { get } from 'svelte/store';
 import { currentProject, applyExternalProject, loadProject } from '$lib/stores/project';
 import { saveState, autoSave } from '$lib/stores/saveStatus';
+import { localStore } from '$lib/services/datastore';
 import { applyAgentOps, leanProject, listElements, summarizeProject } from '$lib/utils/agentOps';
 import { readProject } from '$lib/utils/projectValidation';
 
@@ -37,6 +38,17 @@ export function startAgentBridge(): () => void {
           result = { applied, changed };
           break;
         }
+        case 'library': result = await localStore.list(); break;
+        case 'delete': {
+          const ids: string[] = (req.args.ids ?? []).map(String);
+          if (ids.includes(project.id)) throw new Error(`"${project.id}" is open in this tab; it can't be deleted here.`);
+          const known = new Set((await localStore.list()).map(p => p.id));
+          const missing = ids.filter(id => !known.has(id));
+          if (missing.length) throw new Error(`Not in the library: ${missing.join(', ')}. Nothing was deleted.`);
+          for (const id of ids) await localStore.delete(id);
+          result = { deleted: ids };
+          break;
+        }
         case 'replace': {
           const next = readProject(req.args.project);
           if (next.id === project.id) result = { applied: applyExternalProject(next, req.args.description ?? 'Agent replaced project'), projectId: next.id };
@@ -57,8 +69,22 @@ export function startAgentBridge(): () => void {
   // A server without the bridge (production, remote clients) answers 404: the browser closes the stream; stay quiet.
   source.onerror = () => { if (source?.readyState === EventSource.CLOSED) source = null; };
 
+  // Reconcile with the server's mirror whenever this tab opens a project: pick up edits agents made while no editor
+  // was open (one Undo step), or report our newer copy.
+  const sync = async () => {
+    const p = get(currentProject);
+    if (!p) return;
+    const res = await fetch(`${base}/agent-bridge/sync`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tab, projectId: p.id, updatedAt: new Date(p.updatedAt).toISOString() }) }).catch(() => null);
+    if (!res?.ok) return;
+    const answer = await res.json().catch(() => ({}));
+    if (answer.pull && get(currentProject)?.id === p.id) {
+      try { applyExternalProject(readProject(answer.pull), 'Changes made while the editor was closed'); }
+      catch (error) { console.warn('[agent bridge] could not apply the newer mirrored project:', error); }
+    } else if (answer.push) void post('saved', { tab, project: get(currentProject) });
+  };
   const stopProject = currentProject.subscribe((p) => {
-    if ((p?.id ?? null) !== lastProjectId) { lastProjectId = p?.id ?? null; void hello(); }
+    if ((p?.id ?? null) !== lastProjectId) { lastProjectId = p?.id ?? null; void hello(); void sync(); }
   });
   let previous = get(saveState);
   const stopSave = saveState.subscribe((state) => {

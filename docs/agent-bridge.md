@@ -25,6 +25,14 @@ agent ──MCP/HTTP──▶ dev server /agent-bridge/mcp ──SSE──▶ ed
 - With `OPENPLAN3D_MIRROR_DIR=<dir>`, every completed save is also written to `<dir>/<project id>.json` (atomic
   rename), so tools can watch a file instead of polling.
 
+## Without an open tab
+
+With a mirror folder (`OPENPLAN3D_MIRROR_DIR`), agents don't need a tab at all: when no tab has the project open, reads
+and edits work on `<dir>/<project id>.json` with the same validated operations (answers carry `"via": "mirror"`).
+When a tab later opens that project it reconciles with the mirror (`POST /agent-bridge/sync`): a newer file on disk is
+applied in the tab as one Undo step ("Changes made while the editor was closed"); a newer copy in the tab is saved
+back to the mirror. The browser library itself (`list_library`, `delete_projects`) still needs a tab.
+
 ## MCP endpoint
 
 Streamable HTTP, stateless: `POST http://localhost:5173/agent-bridge/mcp`. For Claude Code:
@@ -40,6 +48,8 @@ claude mcp add --transport http openplan3d-local http://localhost:5173/agent-bri
 | `list_elements` | compact element records; filter by `floorId`, `collection`, `query` (id, catalogId, name, label) |
 | `edit_project` | `ops` applied as one Undo step, all or nothing: `update {id, set}` (a `null` value removes an optional field), `add {floorId, collection, item}`, `remove {id}`, `updateFloor {floorId, set}` |
 | `replace_project` | replace the open project with a full project JSON (same id) as one Undo step, or `open: true` to open a different project |
+| `list_library` | projects in the tab's browser library (needs a tab) |
+| `delete_projects` | delete library projects by id, never the open one; refuses unknown ids (needs a tab) |
 
 Units are the editor's: **centimetres** in plan coordinates (x right, y down), angles in degrees clockwise. Every
 tool accepts an optional `projectId` so an agent never edits a tab that shows a different project.

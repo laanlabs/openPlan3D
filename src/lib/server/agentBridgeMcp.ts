@@ -27,6 +27,9 @@ export function bridgeTools() {
       inputSchema: { type: 'object', properties: { ops: { type: 'array', items: opSchema }, description: { type: 'string', description: 'Undo history label' }, projectId }, required: ['ops'] } },
     { name: 'replace_project', description: 'Replace the open project with a full project JSON (same id), as one Undo step. With open=true a project with another id is added to the library and opened instead. Use for regenerated plans; prefer edit_project for changes.',
       inputSchema: { type: 'object', properties: { project: { type: 'object' }, open: { type: 'boolean' }, description: { type: 'string' }, projectId: { type: 'string', description: 'Optional: the project id open in the tab that should do this' } }, required: ['project'] } },
+    { name: 'list_library', annotations: { readOnlyHint: true }, description: 'Projects in the browser library of the connected editor tab (id, name, last change). Needs an open tab.', inputSchema: { type: 'object', properties: {} } },
+    { name: 'delete_projects', annotations: { destructiveHint: true }, description: 'Delete projects from the browser library by id (never the one open in the tab). Needs an open tab. Irreversible: list first and only delete what the user asked for.',
+      inputSchema: { type: 'object', properties: { ids: { type: 'array', items: { type: 'string' } } }, required: ['ids'] } },
   ];
 }
 
@@ -38,6 +41,10 @@ async function callTool(name: string, args: Record<string, any>) {
   };
   switch (name) {
     case 'status': return status();
+    case 'list_library': return relay('library', {});
+    case 'delete_projects':
+      if (!Array.isArray(args.ids) || !args.ids.length) throw new ToolError('"ids" must be a non-empty array.');
+      return relay('delete', { ids: args.ids });
     case 'get_project': return relay(args.full ? 'get' : 'summary', { projectId: args.projectId });
     case 'list_elements': return relay('list', args);
     case 'edit_project':
