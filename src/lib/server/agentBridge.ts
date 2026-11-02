@@ -1,4 +1,5 @@
 import { mkdir, writeFile, rename, readFile, readdir, stat } from 'node:fs/promises';
+import { watch } from 'node:fs';
 import path from 'node:path';
 import { applyAgentOps, leanProject, listElements, summarizeProject } from '$lib/utils/agentOps';
 import { readProject } from '$lib/utils/projectValidation';
@@ -17,10 +18,11 @@ import { readProject } from '$lib/utils/projectValidation';
 export type BridgeKind = 'status' | 'summary' | 'get' | 'list' | 'apply' | 'replace' | 'library' | 'delete';
 interface Tab { id: string; send: (event: string, data: unknown) => void; projectId: string | null; seen: number }
 interface Pending { resolve: (value: unknown) => void; reject: (error: Error) => void; timer: ReturnType<typeof setTimeout> }
-interface Hub { tabs: Map<string, Tab>; pending: Map<string, Pending>; seq: number }
+interface Hub { tabs: Map<string, Tab>; pending: Map<string, Pending>; seq: number; written: Map<string, string>; watching?: string }
 
 // one hub per server process; globalThis keeps it across dev-server module reloads
-const hub: Hub = ((globalThis as any).__openplanAgentBridge ??= { tabs: new Map(), pending: new Map(), seq: 0 });
+const hub: Hub = ((globalThis as any).__openplanAgentBridge ??= { tabs: new Map(), pending: new Map(), seq: 0, written: new Map() });
+hub.written ??= new Map();
 
 export class BridgeError extends Error {}
 
@@ -32,7 +34,38 @@ export function isLocalClient(address: string): boolean {
   return address === '127.0.0.1' || address === '::1' || address === '::ffff:127.0.0.1' || address === 'localhost';
 }
 
+/**
+ * Files in the mirror folder are an editing interface too: when <dir>/<id>.json changes and it wasn't this server's
+ * own write, tabs with that project open get the new version (applied as one Undo step).
+ */
+function watchMirror() {
+  const dir = mirrorDir();
+  if (!dir || hub.watching === dir) return;
+  hub.watching = dir;
+  const timers = new Map<string, ReturnType<typeof setTimeout>>();
+  try {
+    watch(dir, (_event, name) => {
+      if (!name || !name.endsWith('.json')) return;
+      const id = name.slice(0, -5);
+      clearTimeout(timers.get(id));
+      timers.set(id, setTimeout(async () => {
+        let text: string;
+        try { text = await readFile(mirrorFile(dir, id), 'utf8'); } catch { return; }
+        if (hub.written.get(id) === text) return; // our own write echoing back
+        let project: any;
+        try { project = readProject(JSON.parse(text)); } catch (error) {
+          console.warn(`[agent bridge] ${name} changed on disk but is not a valid project; ignored:`, error instanceof Error ? error.message : error);
+          return;
+        }
+        hub.written.set(id, text);
+        for (const tab of hub.tabs.values()) if (tab.projectId === id) tab.send('external', { project });
+      }, 300));
+    });
+  } catch (error) { console.warn('[agent bridge] cannot watch the mirror folder:', error); hub.watching = undefined; }
+}
+
 export function connectTab(id: string, send: Tab['send']): () => void {
+  watchMirror();
   hub.tabs.set(id, { id, send, projectId: null, seen: Date.now() });
   return () => { hub.tabs.delete(id); };
 }
@@ -59,8 +92,9 @@ async function readMirror(dir: string, id: string): Promise<any | null> {
 }
 async function writeMirror(dir: string, project: any) {
   await mkdir(dir, { recursive: true });
-  const file = mirrorFile(dir, project.id), tmp = `${file}.tmp`;
-  await writeFile(tmp, JSON.stringify(project, null, 1));
+  const file = mirrorFile(dir, project.id), tmp = `${file}.tmp`, text = JSON.stringify(project, null, 1);
+  hub.written.set(project.id, text);
+  await writeFile(tmp, text);
   await rename(tmp, file);
 }
 /** Mirrored projects, newest first. */
@@ -163,6 +197,7 @@ export async function mirrorSave(tabId: string, project: { id?: unknown }, json:
   if (!dir || typeof project.id !== 'string' || !/^[A-Za-z0-9_.-]{1,128}$/.test(project.id)) return null;
   await mkdir(dir, { recursive: true });
   const file = path.join(dir, `${project.id}.json`), tmp = `${file}.tmp`;
+  hub.written.set(project.id, json);
   await writeFile(tmp, json);
   await rename(tmp, file);
   return file;

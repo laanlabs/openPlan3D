@@ -66,6 +66,13 @@ export function startAgentBridge(): () => void {
 
   source = new EventSource(`${base}/agent-bridge/events?tab=${tab}&project=${encodeURIComponent(get(currentProject)?.id ?? '')}`);
   source.addEventListener('request', (event) => void handle(JSON.parse((event as MessageEvent).data)));
+  // the project's mirrored file was edited on disk (by a tool or an agent): take it over as one Undo step
+  source.addEventListener('external', (event) => {
+    const { project } = JSON.parse((event as MessageEvent).data);
+    if (get(currentProject)?.id !== project?.id) return;
+    try { applyExternalProject(readProject(project), 'Edited on disk'); }
+    catch (error) { console.warn('[agent bridge] could not apply the project edited on disk:', error); }
+  });
   // A server without the bridge (production, remote clients) answers 404: the browser closes the stream; stay quiet.
   source.onerror = () => { if (source?.readyState === EventSource.CLOSED) source = null; };
 

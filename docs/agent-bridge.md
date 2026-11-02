@@ -25,6 +25,12 @@ agent ──MCP/HTTP──▶ dev server /agent-bridge/mcp ──SSE──▶ ed
 - With `OPENPLAN3D_MIRROR_DIR=<dir>`, every completed save is also written to `<dir>/<project id>.json` (atomic
   rename), so tools can watch a file instead of polling.
 
+## Editing the mirrored file
+
+The mirror folder is also an input: when `<dir>/<project id>.json` is changed by something other than the server (a
+script, an editor, an agent writing JSON) and it is a valid project, tabs with that project open apply it as one Undo
+step ("Edited on disk"). Invalid files are ignored with a warning in the server log.
+
 ## Without an open tab
 
 With a mirror folder (`OPENPLAN3D_MIRROR_DIR`), agents don't need a tab at all: when no tab has the project open, reads
