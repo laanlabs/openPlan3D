@@ -14,6 +14,7 @@
   import { interchangeProjectName } from '$lib/utils/interchange';
   import { localStore, storageErrorMessage, downloadLibraryBackup } from '$lib/services/datastore';
   import { autoSave, markClean, saveState } from '$lib/stores/saveStatus';
+  import { startAgentBridge } from '$lib/services/agentBridge';
   import { createProjectFromRoomPlan, isRoomPlanJson } from '$lib/utils/roomplanImport';
   import TopBar from '$lib/components/toolbar/TopBar.svelte';
   import BuildPanel from '$lib/components/sidebar/BuildPanel.svelte';
@@ -177,6 +178,8 @@
 
   onMount(() => {
     void initializeEditor();
+    // Local agent bridge (dev server only): agents read and edit this project; see docs/agent-bridge.md.
+    const stopAgentBridge = startAgentBridge();
     // Imports can replace the active project from either sidebar or toolbar.
     // Keep reloads pointed at that project once initial route loading is complete.
     const stopSyncProjectUrl = currentProject.subscribe((project) => {
@@ -200,6 +203,7 @@
     window.addEventListener('beforeunload', onBeforeUnload);
     document.addEventListener('visibilitychange', onVisibilityChange);
     return () => {
+      stopAgentBridge();
       stopSyncProjectUrl();
       window.removeEventListener('beforeunload', onBeforeUnload);
       document.removeEventListener('visibilitychange', onVisibilityChange);

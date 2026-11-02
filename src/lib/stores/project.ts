@@ -850,6 +850,26 @@ export function commitItemDetails(expected: Project, next: Project, description:
   currentProject.set(valid);
 }
 
+/**
+ * Replace the open project with a version prepared outside the editor (the local agent bridge): validated like an
+ * import, recorded as one Undo step, saved by autosave like any edit. Keeps the floor the user is looking at.
+ * Returns false when nothing changed.
+ */
+export function applyExternalProject(next: Project, description = 'Agent edit'): boolean {
+  const current = get(currentProject);
+  if (!current) throw new Error('No project is open.');
+  if (next.id !== current.id) throw new Error('The edit is for a different project than the one open.');
+  const valid = readProject(next);
+  if (valid.floors.some(f => f.id === current.activeFloorId)) valid.activeFloorId = current.activeFloorId;
+  if (JSON.stringify({ ...valid, updatedAt: current.updatedAt }) === JSON.stringify(current)) return false;
+  snapshot(description);
+  resetCoalescing();
+  valid.updatedAt = new Date();
+  currentProject.set(reviveDates(valid));
+  pruneFloorContext(valid);
+  return true;
+}
+
 export function updateItemDetails(target: DetailTarget, patch: ItemDetails) {
   const project = get(currentProject);
   if (!project || project.activeFloorId !== target.floorId) return;
