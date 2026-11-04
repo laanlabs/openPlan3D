@@ -2,7 +2,7 @@ import type { Door } from '$lib/models/types';
 
 /** Glazed door types get metal-framed glass leaves in 3D. */
 export function isGlazedDoor(type: Door['type']): boolean {
-  return type === 'sliding' || type === 'french';
+  return type === 'sliding' || type === 'french' || type === 'bifold';
 }
 
 /** Frame colour used when a door has no `frameColor`: aluminium for glazed doors, wood otherwise. */

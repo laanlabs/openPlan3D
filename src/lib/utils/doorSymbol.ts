@@ -48,13 +48,7 @@ export function doorSymbol(wall: Wall, door: Pick<Door, 'position' | 'width' | '
     line('panel', px - ux * hw, py - uy * hw, px + ux * panelW * 0.1, py + uy * panelW * 0.1);
     line('panel', px - ux * panelW * 0.1 + nx * offset, py - uy * panelW * 0.1 + ny * offset, px + ux * hw + nx * offset, py + uy * hw + ny * offset);
   } else if (type === 'bifold') {
-    const panelCount = 4, panelW = door.width / panelCount, foldAngle = Math.PI / 6;
-    const points: Point[] = [{ x: px - ux * hw, y: py - uy * hw }];
-    for (let i = 0; i < panelCount; i++) {
-      const angle = wallAngle + (i % 2 === 0 ? foldAngle * swingDir : -foldAngle * swingDir * 0.3), last = points[points.length - 1];
-      points.push({ x: last.x + panelW * Math.cos(angle), y: last.y + panelW * Math.sin(angle) });
-    }
-    parts.push({ role: 'panel', points });
+    parts.push({ role: 'panel', points: bifoldPoints(px, py, ux, uy, door.width, swingDir, sideFlip) });
   } else if (type === 'garage') {
     line('leaf', px - ux * hw, py - uy * hw, px + ux * hw, py + uy * hw);
   } else if (type === 'opening') {
@@ -64,4 +58,16 @@ export function doorSymbol(wall: Wall, door: Pick<Door, 'position' | 'width' | '
     }
   }
   return parts;
+}
+
+/** Bifold panel run, matching the 3D model: four equal panels folded in a 30° zig-zag,
+ * stacked from the hinge-side jamb, with the folds pushed out to the opening side. */
+export function bifoldPoints(px: number, py: number, ux: number, uy: number, width: number, swingDir: 1 | -1, sideFlip: 1 | -1): Point[] {
+  const panelCount = 4, pitch = width / panelCount, foldAngle = Math.PI / 6;
+  const along = pitch * Math.cos(foldAngle), out = pitch * Math.sin(foldAngle) * sideFlip;
+  const nx = -uy, ny = ux, hx = px + ux * width / 2 * swingDir, hy = py + uy * width / 2 * swingDir;
+  return Array.from({ length: panelCount + 1 }, (_, i) => {
+    const a = -swingDir * i * along, n = i % 2 ? out : 0;
+    return { x: hx + ux * a + nx * n, y: hy + uy * a + ny * n };
+  });
 }

@@ -1383,7 +1383,7 @@
           wallGroup.add(secMesh);
         }
       } else if (glazed) {
-        // Glazed doors, closed: two metal-framed glass leaves. Sliding leaves run on
+        // Glazed doors: metal-framed glass leaves. Bifolds are below; otherwise closed, two leaves. Sliding leaves run on
         // offset tracks and overlap at the meeting stile; French leaves are hinged at
         // the jambs and meet flush in the wall plane.
         const glassMat = new THREE.MeshStandardMaterial({
@@ -1394,62 +1394,100 @@
         const group = new THREE.Group();
         group.position.set(px, 0, py);
         group.rotation.y = -angle;
-        const addBox = (w: number, h: number, d: number, x: number, y: number, z: number, mat: THREE.Material, glass = false) => {
+        const addBox = (w: number, h: number, d: number, x: number, y: number, z: number, mat: THREE.Material, glass = false, parent: THREE.Object3D = group) => {
           if (w <= 0 || h <= 0) return;
           const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
           mesh.position.set(x, y, z);
           mesh.userData.xray = true;
           mesh.userData.renderExclude = glass;
           mesh.castShadow = !glass;
-          group.add(mesh);
+          parent.add(mesh);
         };
         const W = door.width, H = doorHeight;
-        const sliding = door.type === 'sliding';
-        const bottom = sliding ? 2 : 1; // sliding leaves sit on the floor track
-        const top = sliding ? H - 2 : H - 1;
-        const leafH = top - bottom;
-        const overlap = sliding ? Math.min(6, W * 0.05) : -1; // French leaves leave a 1 cm gap
-        const leafW = W / 2 + overlap / 2;
-        const stile = Math.min(sliding ? 6 : 7, leafW * 0.15);
-        const topRail = Math.min(sliding ? 8 : 9, leafH * 0.08);
-        const bottomRail = Math.min(sliding ? 8 : 14, leafH * 0.1);
-        const depth = sliding ? 4 : 5;
-        const trackOffset = sliding ? Math.min(3, wt / 4) : 0;
-        if (sliding) {
-          // Bottom and head tracks spanning the opening
-          addBox(W, 2, trackOffset * 2 + depth, 0, 1, 0, frameMat);
-          addBox(W, 2, trackOffset * 2 + depth, 0, H - 1, 0, frameMat);
-        }
-        for (const side of [-1, 1]) {
-          const cx = side * (W / 2 - leafW / 2);
-          const z = side * trackOffset;
-          // Frame: two stiles, top and bottom rails
-          addBox(stile, leafH, depth, cx - leafW / 2 + stile / 2, bottom + leafH / 2, z, frameMat);
-          addBox(stile, leafH, depth, cx + leafW / 2 - stile / 2, bottom + leafH / 2, z, frameMat);
-          addBox(leafW - stile * 2, bottomRail, depth, cx, bottom + bottomRail / 2, z, frameMat);
-          addBox(leafW - stile * 2, topRail, depth, cx, top - topRail / 2, z, frameMat);
-          // Glass infill
-          const glassH = leafH - topRail - bottomRail;
-          addBox(leafW - stile * 2, glassH, 1, cx, bottom + bottomRail + glassH / 2, z, glassMat, true);
-          const meetX = cx - side * (leafW / 2 - stile / 2);
-          const handleY = Math.min(100, H * 0.5);
-          if (sliding) {
-            // Vertical pull handle on the meeting stile, on the leaf's outward face
-            addBox(1.5, 30, 2, meetX, handleY, z + side * (depth / 2 + 1.5), frameMat);
-          } else {
-            // Lever handles on both faces of the meeting stile
-            for (const face of [-1, 1]) {
-              const fz = face * (depth / 2 + 1);
-              addBox(2, 6, 2, meetX, handleY, fz, hardwareMat);
-              addBox(11, 1.5, 1.5, meetX + side * 5.5, handleY + 1.5, fz + face * 1.5, hardwareMat);
+        if (door.type === 'bifold') {
+          // Bifold: four glazed panels hung from a head track, folded concertina-style
+          // (30° zig-zag) and stacked toward the hinge-side jamb.
+          const panels = 4, fold = Math.PI / 6;
+          const pitch = W / panels, panelW = pitch - 1;
+          const bottom = 1, top = H - 2, panelH = top - bottom;
+          const stile = Math.min(5, panelW * 0.15), topRail = Math.min(7, panelH * 0.06), bottomRail = Math.min(10, panelH * 0.08), depth = 4;
+          const hingeSide = door.swingDirection === 'left' ? 1 : -1; // matches doorPanelPose
+          const face = door.flipSide ? -1 : 1;
+          const x0 = hingeSide * W / 2, dir = -hingeSide;
+          const c = pitch * Math.cos(fold), sz = pitch * Math.sin(fold) * face;
+          const points = Array.from({ length: panels + 1 }, (_, i) => ({ x: x0 + dir * i * c, z: i % 2 ? sz : 0 }));
+          addBox(W, 2, 6, 0, H - 1, 0, frameMat); // head track
+          for (let i = 0; i < panels; i++) {
+            const a = points[i], b = points[i + 1];
+            const leaf = new THREE.Group();
+            leaf.position.set((a.x + b.x) / 2, 0, (a.z + b.z) / 2);
+            leaf.rotation.y = Math.atan2(-(b.z - a.z), b.x - a.x);
+            group.add(leaf);
+            // Frame: two stiles, top and bottom rails, then the glass
+            addBox(stile, panelH, depth, -panelW / 2 + stile / 2, bottom + panelH / 2, 0, frameMat, false, leaf);
+            addBox(stile, panelH, depth, panelW / 2 - stile / 2, bottom + panelH / 2, 0, frameMat, false, leaf);
+            addBox(panelW - stile * 2, bottomRail, depth, 0, bottom + bottomRail / 2, 0, frameMat, false, leaf);
+            addBox(panelW - stile * 2, topRail, depth, 0, top - topRail / 2, 0, frameMat, false, leaf);
+            const glassH = panelH - topRail - bottomRail;
+            addBox(panelW - stile * 2, glassH, 1, 0, bottom + bottomRail + glassH / 2, 0, glassMat, true, leaf);
+            if (i === panels - 1) {
+              // Pull handles on both faces of the lead panel's free stile
+              for (const side of [-1, 1]) addBox(1.5, 30, 2, panelW / 2 - stile / 2, Math.min(100, H * 0.5), side * (depth / 2 + 1.5), hardwareMat, false, leaf);
             }
-            // Hinge knuckles on the jamb side
-            const hingeX = cx + side * (leafW / 2);
-            const hingeZ = (door.flipSide ? -1 : 1) * (depth / 2 + 0.5);
-            for (const y of [20, leafH / 2, leafH - 20]) addBox(1.5, 10, 1.5, hingeX, bottom + y, hingeZ, hardwareMat);
           }
+          // Hinge knuckles at the jamb and between panels
+          for (let i = 0; i < panels; i++) {
+            for (const y of [20, panelH / 2, panelH - 20]) addBox(1.5, 10, 1.5, points[i].x, bottom + y, points[i].z, hardwareMat);
+          }
+          wallGroup.add(group);
+        } else {
+          const sliding = door.type === 'sliding';
+          const bottom = sliding ? 2 : 1; // sliding leaves sit on the floor track
+          const top = sliding ? H - 2 : H - 1;
+          const leafH = top - bottom;
+          const overlap = sliding ? Math.min(6, W * 0.05) : -1; // French leaves leave a 1 cm gap
+          const leafW = W / 2 + overlap / 2;
+          const stile = Math.min(sliding ? 6 : 7, leafW * 0.15);
+          const topRail = Math.min(sliding ? 8 : 9, leafH * 0.08);
+          const bottomRail = Math.min(sliding ? 8 : 14, leafH * 0.1);
+          const depth = sliding ? 4 : 5;
+          const trackOffset = sliding ? Math.min(3, wt / 4) : 0;
+          if (sliding) {
+            // Bottom and head tracks spanning the opening
+            addBox(W, 2, trackOffset * 2 + depth, 0, 1, 0, frameMat);
+            addBox(W, 2, trackOffset * 2 + depth, 0, H - 1, 0, frameMat);
+          }
+          for (const side of [-1, 1]) {
+            const cx = side * (W / 2 - leafW / 2);
+            const z = side * trackOffset;
+            // Frame: two stiles, top and bottom rails
+            addBox(stile, leafH, depth, cx - leafW / 2 + stile / 2, bottom + leafH / 2, z, frameMat);
+            addBox(stile, leafH, depth, cx + leafW / 2 - stile / 2, bottom + leafH / 2, z, frameMat);
+            addBox(leafW - stile * 2, bottomRail, depth, cx, bottom + bottomRail / 2, z, frameMat);
+            addBox(leafW - stile * 2, topRail, depth, cx, top - topRail / 2, z, frameMat);
+            // Glass infill
+            const glassH = leafH - topRail - bottomRail;
+            addBox(leafW - stile * 2, glassH, 1, cx, bottom + bottomRail + glassH / 2, z, glassMat, true);
+            const meetX = cx - side * (leafW / 2 - stile / 2);
+            const handleY = Math.min(100, H * 0.5);
+            if (sliding) {
+              // Vertical pull handle on the meeting stile, on the leaf's outward face
+              addBox(1.5, 30, 2, meetX, handleY, z + side * (depth / 2 + 1.5), frameMat);
+            } else {
+              // Lever handles on both faces of the meeting stile
+              for (const face of [-1, 1]) {
+                const fz = face * (depth / 2 + 1);
+                addBox(2, 6, 2, meetX, handleY, fz, hardwareMat);
+                addBox(11, 1.5, 1.5, meetX + side * 5.5, handleY + 1.5, fz + face * 1.5, hardwareMat);
+              }
+              // Hinge knuckles on the jamb side
+              const hingeX = cx + side * (leafW / 2);
+              const hingeZ = (door.flipSide ? -1 : 1) * (depth / 2 + 0.5);
+              for (const y of [20, leafH / 2, leafH - 20]) addBox(1.5, 10, 1.5, hingeX, bottom + y, hingeZ, hardwareMat);
+            }
+          }
+          wallGroup.add(group);
         }
-        wallGroup.add(group);
       } else {
         // Wooden door leaves, slightly ajar (15°), opening to the saved side. A single
         // door has one leaf on the saved hinge; a double door has two half-width
