@@ -21,6 +21,7 @@
   import { roomHoles } from '$lib/utils/roomNesting';
   import { createSlopedBoxGeometry, mapWallUVs } from '$lib/utils/slopedWallGeometry';
   import { buildWallSegments, roomCeilingHeight, wallProfileSpans, wallPathProfile, pathOpening, doorPanelPose } from '$lib/utils/wallProfiles';
+  import { doorFrameColor, isGlazedDoor } from '$lib/utils/doorStyle';
   import { assembleFloorStack } from '$lib/utils/floorStack';
   import { setFloorCameraPose } from '$lib/utils/floorCamera';
   import { frameScene } from '$lib/utils/frameScene';
@@ -1352,9 +1353,10 @@
       const angle = Math.atan2(right.y - left.y, right.x - left.x);
       const wt = Math.max(wall.thickness, WALL_THICKNESS);
 
-      const frameMat = door.type === 'sliding'
-        ? new THREE.MeshStandardMaterial({ color: 0xb4b9be, roughness: 0.4, metalness: 0.25 })
-        : new THREE.MeshStandardMaterial({ color: 0x6b4423, roughness: 0.6 });
+      const glazed = isGlazedDoor(door.type);
+      const frameMat = new THREE.MeshStandardMaterial(glazed
+        ? { color: new THREE.Color(doorFrameColor(door)), roughness: 0.4, metalness: 0.25 }
+        : { color: new THREE.Color(doorFrameColor(door)), roughness: 0.6 });
       const doorHeight = opening.top;
       const jamb = 5; // jamb thickness
 
@@ -1380,14 +1382,15 @@
           secMesh.userData.xray = true;
           wallGroup.add(secMesh);
         }
-      } else if (door.type === 'sliding') {
-        // Sliding glass door, closed: two metal-framed glass leaves on offset
-        // tracks, overlapping slightly at the meeting stile.
-        const metalMat = new THREE.MeshStandardMaterial({ color: 0xb4b9be, roughness: 0.4, metalness: 0.25 });
+      } else if (glazed) {
+        // Glazed doors, closed: two metal-framed glass leaves. Sliding leaves run on
+        // offset tracks and overlap at the meeting stile; French leaves are hinged at
+        // the jambs and meet flush in the wall plane.
         const glassMat = new THREE.MeshStandardMaterial({
           color: 0xa8d8ea, transparent: true, opacity: 0.3,
           roughness: 0.05, metalness: 0.1, side: THREE.DoubleSide
         });
+        const hardwareMat = new THREE.MeshStandardMaterial({ color: 0xc8c8c8, roughness: 0.25, metalness: 0.8 });
         const group = new THREE.Group();
         group.position.set(px, 0, py);
         group.rotation.y = -angle;
@@ -1401,28 +1404,50 @@
           group.add(mesh);
         };
         const W = door.width, H = doorHeight;
-        const overlap = Math.min(6, W * 0.05);
+        const sliding = door.type === 'sliding';
+        const bottom = sliding ? 2 : 1; // sliding leaves sit on the floor track
+        const top = sliding ? H - 2 : H - 1;
+        const leafH = top - bottom;
+        const overlap = sliding ? Math.min(6, W * 0.05) : -1; // French leaves leave a 1 cm gap
         const leafW = W / 2 + overlap / 2;
-        const leafH = H - 2;
-        const stile = Math.min(6, leafW * 0.15), rail = Math.min(8, leafH * 0.08), depth = 4;
-        const trackOffset = Math.min(3, wt / 4);
-        // Bottom and head tracks spanning the opening
-        addBox(W, 2, trackOffset * 2 + depth, 0, 1, 0, metalMat);
-        addBox(W, 2, trackOffset * 2 + depth, 0, H - 1, 0, metalMat);
+        const stile = Math.min(sliding ? 6 : 7, leafW * 0.15);
+        const topRail = Math.min(sliding ? 8 : 9, leafH * 0.08);
+        const bottomRail = Math.min(sliding ? 8 : 14, leafH * 0.1);
+        const depth = sliding ? 4 : 5;
+        const trackOffset = sliding ? Math.min(3, wt / 4) : 0;
+        if (sliding) {
+          // Bottom and head tracks spanning the opening
+          addBox(W, 2, trackOffset * 2 + depth, 0, 1, 0, frameMat);
+          addBox(W, 2, trackOffset * 2 + depth, 0, H - 1, 0, frameMat);
+        }
         for (const side of [-1, 1]) {
           const cx = side * (W / 2 - leafW / 2);
           const z = side * trackOffset;
-          const cy = 2 + leafH / 2 - 1;
           // Frame: two stiles, top and bottom rails
-          addBox(stile, leafH, depth, cx - leafW / 2 + stile / 2, cy, z, metalMat);
-          addBox(stile, leafH, depth, cx + leafW / 2 - stile / 2, cy, z, metalMat);
-          addBox(leafW - stile * 2, rail, depth, cx, 1 + rail / 2, z, metalMat);
-          addBox(leafW - stile * 2, rail, depth, cx, 1 + leafH - rail / 2, z, metalMat);
+          addBox(stile, leafH, depth, cx - leafW / 2 + stile / 2, bottom + leafH / 2, z, frameMat);
+          addBox(stile, leafH, depth, cx + leafW / 2 - stile / 2, bottom + leafH / 2, z, frameMat);
+          addBox(leafW - stile * 2, bottomRail, depth, cx, bottom + bottomRail / 2, z, frameMat);
+          addBox(leafW - stile * 2, topRail, depth, cx, top - topRail / 2, z, frameMat);
           // Glass infill
-          addBox(leafW - stile * 2, leafH - rail * 2, 1, cx, 1 + leafH / 2, z, glassMat, true);
-          // Vertical pull handle on the meeting stile, on the leaf's outward face
-          const handleX = cx - side * (leafW / 2 - stile / 2);
-          addBox(1.5, 30, 2, handleX, Math.min(100, H * 0.5), z + side * (depth / 2 + 1.5), metalMat);
+          const glassH = leafH - topRail - bottomRail;
+          addBox(leafW - stile * 2, glassH, 1, cx, bottom + bottomRail + glassH / 2, z, glassMat, true);
+          const meetX = cx - side * (leafW / 2 - stile / 2);
+          const handleY = Math.min(100, H * 0.5);
+          if (sliding) {
+            // Vertical pull handle on the meeting stile, on the leaf's outward face
+            addBox(1.5, 30, 2, meetX, handleY, z + side * (depth / 2 + 1.5), frameMat);
+          } else {
+            // Lever handles on both faces of the meeting stile
+            for (const face of [-1, 1]) {
+              const fz = face * (depth / 2 + 1);
+              addBox(2, 6, 2, meetX, handleY, fz, hardwareMat);
+              addBox(11, 1.5, 1.5, meetX + side * 5.5, handleY + 1.5, fz + face * 1.5, hardwareMat);
+            }
+            // Hinge knuckles on the jamb side
+            const hingeX = cx + side * (leafW / 2);
+            const hingeZ = (door.flipSide ? -1 : 1) * (depth / 2 + 0.5);
+            for (const y of [20, leafH / 2, leafH - 20]) addBox(1.5, 10, 1.5, hingeX, bottom + y, hingeZ, hardwareMat);
+          }
         }
         wallGroup.add(group);
       } else {

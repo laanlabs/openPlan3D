@@ -117,6 +117,7 @@ export function readProject(value: unknown): Project {
         choice(opening.type, ['single', 'double', 'sliding', 'french', 'pocket', 'bifold', 'opening', 'garage'], `${path}.type`);
         choice(opening.swingDirection, ['left', 'right'], `${path}.swingDirection`);
         booleans(opening, ['flipSide'], path);
+        strings(opening, ['frameColor'], path);
       } else {
         choice(opening.type, ['standard', 'fixed', 'casement', 'sliding', 'bay'], `${path}.type`);
         number(opening.sillHeight, `${path}.sillHeight`, 0);
