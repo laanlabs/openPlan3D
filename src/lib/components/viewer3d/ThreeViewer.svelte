@@ -1451,34 +1451,44 @@
         }
         wallGroup.add(group);
       } else {
-        // Door panel — honor the saved hinge and opening side, slightly ajar (15°)
+        // Wooden door leaves, slightly ajar (15°), opening to the saved side. A single
+        // door has one leaf on the saved hinge; a double door has two half-width
+        // leaves hinged at opposite jambs that part in the middle.
         const panelMat = new THREE.MeshStandardMaterial({ color: 0x8B6914, roughness: 0.5 });
-        const panelGeo = new THREE.BoxGeometry(door.width - 2, doorHeight - 4, 4);
-        // Shift geometry so pivot is at left edge
-        panelGeo.translate(door.width / 2 - 1, 0, 0);
-        const panelMesh = new THREE.Mesh(panelGeo, panelMat);
-        const pose = doorPanelPose({ ...wall, start: left, end: right, curvePoint: undefined }, { ...door, position: 0.5 });
-        panelMesh.position.set(pose.x, doorHeight / 2 - 2, pose.z);
-        panelMesh.rotation.y = -pose.yaw;
-        panelMesh.castShadow = true;
-        panelMesh.userData.xray = true;
-        wallGroup.add(panelMesh);
-
-        // Door handle (small sphere)
         const handleMat = new THREE.MeshStandardMaterial({ color: 0xc0c0c0, metalness: 0.8, roughness: 0.2 });
-        const handleGeo = new THREE.SphereGeometry(3, 8, 8);
-        const handleMesh = new THREE.Mesh(handleGeo, handleMat);
-        // Place on the door panel's right side at handle height
-        const handleLocalX = door.width - 12;
-        const handleCos = Math.cos(pose.yaw);
-        const handleSin = Math.sin(pose.yaw);
-        handleMesh.position.set(
-          panelMesh.position.x + handleLocalX * handleCos,
-          Math.min(100, doorHeight * 0.5),
-          panelMesh.position.z + handleLocalX * handleSin
-        );
-        handleMesh.userData.xray = true;
-        wallGroup.add(handleMesh);
+        const mid = { x: (left.x + right.x) / 2, y: (left.y + right.y) / 2 };
+        // A 'right' swing puts the hinge at the leaf's start; 'left' puts it at the end.
+        const leaves: { start: typeof left; end: typeof right; swingDirection: Door['swingDirection']; gap: number }[] = door.type === 'double'
+          ? [{ start: left, end: mid, swingDirection: 'right', gap: 1 }, { start: mid, end: right, swingDirection: 'left', gap: 1 }]
+          : [{ start: left, end: right, swingDirection: door.swingDirection, gap: 2 }];
+        for (const leaf of leaves) {
+          const leafW = Math.hypot(leaf.end.x - leaf.start.x, leaf.end.y - leaf.start.y);
+          if (leafW <= leaf.gap + 2) continue;
+          const panelGeo = new THREE.BoxGeometry(leafW - leaf.gap, doorHeight - 4, 4);
+          // Shift geometry so the pivot is at the hinge edge
+          panelGeo.translate((leafW - leaf.gap) / 2, 0, 0);
+          const panelMesh = new THREE.Mesh(panelGeo, panelMat);
+          const pose = doorPanelPose(
+            { ...wall, start: leaf.start, end: leaf.end, curvePoint: undefined },
+            { ...door, width: leafW, swingDirection: leaf.swingDirection, position: 0.5 }
+          );
+          panelMesh.position.set(pose.x, doorHeight / 2 - 2, pose.z);
+          panelMesh.rotation.y = -pose.yaw;
+          panelMesh.castShadow = true;
+          panelMesh.userData.xray = true;
+          wallGroup.add(panelMesh);
+
+          // Door handle (small sphere) near the leaf's free edge
+          const handleMesh = new THREE.Mesh(new THREE.SphereGeometry(3, 8, 8), handleMat);
+          const handleLocalX = leafW - 12;
+          handleMesh.position.set(
+            panelMesh.position.x + handleLocalX * Math.cos(pose.yaw),
+            Math.min(100, doorHeight * 0.5),
+            panelMesh.position.z + handleLocalX * Math.sin(pose.yaw)
+          );
+          handleMesh.userData.xray = true;
+          wallGroup.add(handleMesh);
+        }
       }
     }
 
