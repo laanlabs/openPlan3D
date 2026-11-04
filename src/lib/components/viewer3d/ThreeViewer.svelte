@@ -1352,7 +1352,9 @@
       const angle = Math.atan2(right.y - left.y, right.x - left.x);
       const wt = Math.max(wall.thickness, WALL_THICKNESS);
 
-      const frameMat = new THREE.MeshStandardMaterial({ color: 0x6b4423, roughness: 0.6 });
+      const frameMat = door.type === 'sliding'
+        ? new THREE.MeshStandardMaterial({ color: 0xb4b9be, roughness: 0.4, metalness: 0.25 })
+        : new THREE.MeshStandardMaterial({ color: 0x6b4423, roughness: 0.6 });
       const doorHeight = opening.top;
       const jamb = 5; // jamb thickness
 
@@ -1378,6 +1380,51 @@
           secMesh.userData.xray = true;
           wallGroup.add(secMesh);
         }
+      } else if (door.type === 'sliding') {
+        // Sliding glass door, closed: two metal-framed glass leaves on offset
+        // tracks, overlapping slightly at the meeting stile.
+        const metalMat = new THREE.MeshStandardMaterial({ color: 0xb4b9be, roughness: 0.4, metalness: 0.25 });
+        const glassMat = new THREE.MeshStandardMaterial({
+          color: 0xa8d8ea, transparent: true, opacity: 0.3,
+          roughness: 0.05, metalness: 0.1, side: THREE.DoubleSide
+        });
+        const group = new THREE.Group();
+        group.position.set(px, 0, py);
+        group.rotation.y = -angle;
+        const addBox = (w: number, h: number, d: number, x: number, y: number, z: number, mat: THREE.Material, glass = false) => {
+          if (w <= 0 || h <= 0) return;
+          const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+          mesh.position.set(x, y, z);
+          mesh.userData.xray = true;
+          mesh.userData.renderExclude = glass;
+          mesh.castShadow = !glass;
+          group.add(mesh);
+        };
+        const W = door.width, H = doorHeight;
+        const overlap = Math.min(6, W * 0.05);
+        const leafW = W / 2 + overlap / 2;
+        const leafH = H - 2;
+        const stile = Math.min(6, leafW * 0.15), rail = Math.min(8, leafH * 0.08), depth = 4;
+        const trackOffset = Math.min(3, wt / 4);
+        // Bottom and head tracks spanning the opening
+        addBox(W, 2, trackOffset * 2 + depth, 0, 1, 0, metalMat);
+        addBox(W, 2, trackOffset * 2 + depth, 0, H - 1, 0, metalMat);
+        for (const side of [-1, 1]) {
+          const cx = side * (W / 2 - leafW / 2);
+          const z = side * trackOffset;
+          const cy = 2 + leafH / 2 - 1;
+          // Frame: two stiles, top and bottom rails
+          addBox(stile, leafH, depth, cx - leafW / 2 + stile / 2, cy, z, metalMat);
+          addBox(stile, leafH, depth, cx + leafW / 2 - stile / 2, cy, z, metalMat);
+          addBox(leafW - stile * 2, rail, depth, cx, 1 + rail / 2, z, metalMat);
+          addBox(leafW - stile * 2, rail, depth, cx, 1 + leafH - rail / 2, z, metalMat);
+          // Glass infill
+          addBox(leafW - stile * 2, leafH - rail * 2, 1, cx, 1 + leafH / 2, z, glassMat, true);
+          // Vertical pull handle on the meeting stile, on the leaf's outward face
+          const handleX = cx - side * (leafW / 2 - stile / 2);
+          addBox(1.5, 30, 2, handleX, Math.min(100, H * 0.5), z + side * (depth / 2 + 1.5), metalMat);
+        }
+        wallGroup.add(group);
       } else {
         // Door panel — honor the saved hinge and opening side, slightly ajar (15°)
         const panelMat = new THREE.MeshStandardMaterial({ color: 0x8B6914, roughness: 0.5 });
