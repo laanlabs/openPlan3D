@@ -1382,6 +1382,31 @@
           secMesh.userData.xray = true;
           wallGroup.add(secMesh);
         }
+      } else if (door.type === 'pocket') {
+        // Pocket door: a plain wooden slab shown half slid into a cavity in the wall on
+        // the hinge side (where the plan symbol draws the dashed pocket).
+        const slabMat = new THREE.MeshStandardMaterial({ color: 0x8B6914, roughness: 0.5 });
+        const pullMat = new THREE.MeshStandardMaterial({ color: 0x2b2b2b, roughness: 0.4, metalness: 0.6 });
+        const group = new THREE.Group();
+        group.position.set(px, 0, py);
+        group.rotation.y = -angle;
+        const pocketSide = door.swingDirection === 'left' ? 1 : -1; // matches the plan symbol's cavity
+        const W = door.width, H = doorHeight, depth = 4;
+        const center = pocketSide * W * 0.5;
+        const slab = new THREE.Mesh(new THREE.BoxGeometry(W, H - 2, depth), slabMat);
+        slab.position.set(center, (H - 2) / 2 + 1, 0);
+        slab.castShadow = true;
+        slab.userData.xray = true;
+        group.add(slab);
+        // Flush pulls on both faces near the leading edge
+        const pullX = center - pocketSide * (W / 2 - 6);
+        for (const face of [-1, 1]) {
+          const pull = new THREE.Mesh(new THREE.BoxGeometry(3, 15, 0.6), pullMat);
+          pull.position.set(pullX, Math.min(100, H * 0.5), face * (depth / 2 + 0.2));
+          pull.userData.xray = true;
+          group.add(pull);
+        }
+        wallGroup.add(group);
       } else if (glazed) {
         // Glazed doors: metal-framed glass leaves. Bifolds are below; otherwise closed, two leaves. Sliding leaves run on
         // offset tracks and overlap at the meeting stile; French leaves are hinged at
