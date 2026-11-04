@@ -573,6 +573,19 @@
           <option value="garage">{$t('openingCatalog.garage')}</option>
         </select>
       </label>
+      {#if selectedDoor.type === 'single' || selectedDoor.type === 'double'}
+      <label class="block">
+        <span class="text-xs text-gray-500">{$t('openingProperties.leafStyle')}</span>
+        <select value={selectedDoor.leafStyle ?? 'slab'} onchange={(e) => { if (selectedDoor) updateDoor(selectedDoor.id, { leafStyle: (e.target as HTMLSelectElement).value as NonNullable<Door['leafStyle']> }); }} class="w-full px-2 py-1 border border-gray-200 rounded text-sm">
+          <option value="slab">{$t('openingProperties.leafStyle.slab')}</option>
+          <option value="shaker">{$t('openingProperties.leafStyle.shaker')}</option>
+          <option value="glazedShaker">{$t('openingProperties.leafStyle.glazedShaker')}</option>
+          <option value="victorian">{$t('openingProperties.leafStyle.victorian')}</option>
+          <option value="glazedVictorian">{$t('openingProperties.leafStyle.glazedVictorian')}</option>
+          <option value="glazed">{$t('openingProperties.leafStyle.glazed')}</option>
+        </select>
+      </label>
+      {/if}
       {#if selectedDoor.type !== 'opening' && selectedDoor.type !== 'garage'}
       <div role="group" aria-label={$t('openingProperties.hinge')}>
         <span class="text-xs text-gray-500">{$t('openingProperties.hinge')}</span>

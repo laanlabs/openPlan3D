@@ -118,6 +118,7 @@ export function readProject(value: unknown): Project {
         choice(opening.swingDirection, ['left', 'right'], `${path}.swingDirection`);
         booleans(opening, ['flipSide'], path);
         strings(opening, ['frameColor'], path);
+        if (opening.leafStyle !== undefined) choice(opening.leafStyle, ['slab', 'shaker', 'glazedShaker', 'victorian', 'glazedVictorian', 'glazed'], `${path}.leafStyle`);
       } else {
         choice(opening.type, ['standard', 'fixed', 'casement', 'sliding', 'bay'], `${path}.type`);
         number(opening.sillHeight, `${path}.sillHeight`, 0);
