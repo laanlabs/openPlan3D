@@ -118,6 +118,9 @@ export interface FurnitureItem {
   width?: number;   // cm
   depth?: number;   // cm
   height?: number;  // cm
+  /** Height of the item's bottom above its floor in cm (wall-mounted TV, plant on a table).
+   *  Omitted means the catalog default: 0, except wall/ceiling decor and lights (furnitureElevation.ts). */
+  elevation?: number;
   material?: string; // material name/id
   locked?: boolean;
 }

@@ -10,6 +10,7 @@
  * - Transforms are column-major 4×4 `[c,0,s,0, 0,1,0,0, -s,0,c,0, x,y,z,1]`; the heading is
  *   `atan2(t[2], t[0])`. A wall sits at its midpoint with y = height / 2, heading start → end, so
  *   the importer's direction reproduces start and end. Openings sit on the wall at `position`.
+ *   An object sits at y = elevation + height / 2 above its floor, as the siblings write theirs.
  * - Mirrored furniture negates the local Z column (`scale.y < 0` → t[8], t[10]); the importer's
  *   determinant test turns that back into `scale.y = -1`. A `scale.x < 0` item negates the local X
  *   column instead, which imports as the same pose written as rotation + 180° with `scale.y = -1`.
@@ -39,6 +40,7 @@ import type { Door, Project, Window } from '$lib/models/types';
 import { INTERCHANGE_BLOCK_KEYS, getWallEndHeight, getWallStartHeight, validWallHeight } from '$lib/models/types';
 import { getFurnitureSize } from './furnitureCatalog';
 import { exportedFurnitureCategory } from './furnitureCategories';
+import { furnitureElevation } from './furnitureElevation';
 import { getRoomPolygon, resolveRooms } from './roomDetection';
 import { roomHoles, roomInteriorPoint } from './roomNesting';
 
@@ -147,7 +149,7 @@ export function projectToPreparedRoomPlan(project: Project, options: { floorIds?
       objects.push({
         identifier: identifier(item.id, story),
         dimensions: [positive(metres(size.width)), height, positive(metres(size.depth))],
-        transform: transformAt(metres(item.position.x), metres(item.position.y), (item.rotation ?? 0) * Math.PI / 180, r8(height / 2), (item.scale?.x ?? 1) < 0, (item.scale?.y ?? 1) < 0),
+        transform: transformAt(metres(item.position.x), metres(item.position.y), (item.rotation ?? 0) * Math.PI / 180, r8(metres(furnitureElevation(item)) + height / 2), (item.scale?.x ?? 1) < 0, (item.scale?.y ?? 1) < 0),
         category: { [exportedFurnitureCategory(item)]: {} },
         ...(plain(attributes) ? { attributes: structuredClone(attributes) } : {}),
         story,

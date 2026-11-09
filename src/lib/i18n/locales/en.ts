@@ -756,6 +756,8 @@ export const en = {
   "furnitureProperties.custom": "Custom:",
   "furnitureProperties.customColor": "Custom color",
   "furnitureProperties.depth": "Depth",
+  "furnitureProperties.elevation": "Height above floor",
+  "furnitureProperties.elevationHelp": "Lifts the item in 3D, for example a wall-mounted TV or a plant on a table.",
   "furnitureProperties.material": "Material",
   "furnitureProperties.original": "Original materials",
   "furnitureProperties.retained": "{material} (retained)",

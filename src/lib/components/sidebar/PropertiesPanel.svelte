@@ -18,6 +18,7 @@
   import { getEntourageDef } from '$lib/utils/entourageCatalog';
   import { floorMaterials, wallColors } from '$lib/utils/materials';
   import { getCatalogItem } from '$lib/utils/furnitureCatalog';
+  import { MAX_FURNITURE_ELEVATION, furnitureElevation, storedFurnitureElevation } from '$lib/utils/furnitureElevation';
   import { projectSettings, formatLength, formatArea, parseLengthInput } from '$lib/stores/settings';
     import type { Floor, Wall, Door, Window as Win, Room, FurnitureItem, Stair, Column, RoomCategory, TextAnnotation } from '$lib/models/types';
   import { getWallStartHeight, getWallEndHeight } from '$lib/models/types';
@@ -209,6 +210,11 @@
     dimensionInput(e, selectedFurniture.height ?? getCatalogItem(selectedFurniture.catalogId)?.height ?? 50,
       value => updateFurniture(selectedFurniture!.id, { height: value }));
   }
+  function onFurnitureElevation(e: Event) {
+    if (!selectedFurniture) return;
+    dimensionInput(e, furnitureElevation(selectedFurniture),
+      value => updateFurniture(selectedFurniture!.id, { elevation: storedFurnitureElevation(selectedFurniture!, value) }), true, MAX_FURNITURE_ELEVATION);
+  }
   function onFurnitureMaterial(e: Event) {
     if (!selectedFurniture) return;
     updateFurniture(selectedFurniture.id, { material: (e.target as HTMLSelectElement).value || undefined });
@@ -219,7 +225,7 @@
   }
   function resetFurnitureDefaults() {
     if (!selectedFurniture) return;
-    updateFurniture(selectedFurniture.id, { color: undefined, width: undefined, depth: undefined, height: undefined, material: undefined });
+    updateFurniture(selectedFurniture.id, { color: undefined, width: undefined, depth: undefined, height: undefined, elevation: undefined, material: undefined });
   }
 
   // Door distance handlers
@@ -712,6 +718,16 @@
           value={displayValue(selectedFurniture.height ?? getCatalogItem(selectedFurniture.catalogId)?.height ?? 50)}
           oninput={onFurnitureHeight} onblur={onFurnitureHeight} min={settings.units === 'imperial' ? 1 / 2.54 : 1} step="any"
           class="w-full px-2 py-1 border border-gray-200 rounded text-sm" 
+        />
+      </label>
+      <label class="block">
+        <span class="text-xs text-gray-500">{$t('furnitureProperties.elevation')} ({unitLabel()})</span>
+        <input
+          type="number"
+          value={displayValue(furnitureElevation(selectedFurniture))}
+          oninput={onFurnitureElevation} onblur={onFurnitureElevation} min="0" step="any"
+          title={$t('furnitureProperties.elevationHelp')}
+          class="w-full px-2 py-1 border border-gray-200 rounded text-sm"
         />
       </label>
       

@@ -756,6 +756,8 @@ export const pt = {
   "furnitureProperties.custom": "Personalizada:",
   "furnitureProperties.customColor": "Cor personalizada",
   "furnitureProperties.depth": "Profundidade",
+  "furnitureProperties.elevation": "Altura acima do piso",
+  "furnitureProperties.elevationHelp": "Eleva o item na vista 3D, por exemplo uma TV na parede ou uma planta sobre uma mesa.",
   "furnitureProperties.material": "Material",
   "furnitureProperties.original": "Materiais originais",
   "furnitureProperties.retained": "{material} (preservado)",

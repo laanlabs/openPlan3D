@@ -38,6 +38,7 @@
   import { disposeModel } from '$lib/utils/furnitureModelResources';
   import { ownColorCanvasTexture, refreshBackgroundTexture } from '$lib/utils/viewerTextures';
   import { createFurnitureModelWithGLB, createPlacedFurnitureModel } from '$lib/utils/furnitureModelLoader';
+  import { placedFurnitureY } from '$lib/utils/furnitureElevation';
   import { addFurniture } from '$lib/stores/project';
   import { detectRooms, resolveRoomGeometry, getRoomPolygon, roomCentroid, roomLabelPosition } from '$lib/utils/roomDetection';
   import { getMaterial } from '$lib/utils/materials';
@@ -891,7 +892,8 @@
             createGhostPreview(selectedCatalogId);
           }
           if (ghostGroup) {
-            ghostGroup.position.set(hit.x, hit.y + 1.5, hit.z);
+            // A new item takes its catalog default height above the floor, as placement will save it.
+            ghostGroup.position.set(hit.x, hit.y + placedFurnitureY({ catalogId: selectedCatalogId, scale: { x: 1, y: 1, z: 1 } }), hit.z);
             ghostGroup.visible = true;
           }
         } else if (ghostGroup) {

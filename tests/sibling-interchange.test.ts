@@ -72,6 +72,9 @@ describe.each(fixtures)('%s', (name, block) => {
       near(item.width, object.dimensions[0] * 100); near(item.height, object.dimensions[1] * 100); near(item.depth, object.dimensions[2] * 100);
       near(item.position.x, object.transform[12] * 100); near(item.position.y, object.transform[14] * 100);
       near(wrap(item.rotation), heading(object.transform));
+      // Prepared y is elevation + height / 2; rounding-sized lifts stay on the floor.
+      const lift = (object.transform[13] - object.dimensions[1] / 2) * 100;
+      near(item.elevation ?? 0, lift >= 0.5 ? lift : 0);
       expect(item.scale).toEqual({ x: 1, y: 1, z: 1 });
     }
   });
@@ -111,7 +114,8 @@ describe.each(fixtures)('%s', (name, block) => {
       expect(exported.story).toBe(story(object));
       for (let i = 0; i < 3; i++) near(exported.dimensions[i], object.dimensions[i]);
       near(exported.transform[12], object.transform[12]); near(exported.transform[14], object.transform[14]);
-      near(exported.transform[13], object.dimensions[1] / 2);
+      // Wall cabinets, hoods and window boxes keep their height above the floor (issue #131).
+      near(exported.transform[13], object.transform[13]);
       near(heading(exported.transform), heading(object.transform));
       if (hasAttributes(object)) expect(exported.attributes).toEqual(object.attributes);
       else expect(exported).not.toHaveProperty('attributes');
@@ -173,6 +177,7 @@ describe.each(fixtures)('%s', (name, block) => {
         expect(f).toMatchObject({ catalogId: item.catalogId, scale: item.scale, ...(item.sourceCategory ? { sourceCategory: item.sourceCategory } : {}) });
         near(f.position.x, item.position.x); near(f.position.y, item.position.y); near(wrap(f.rotation), wrap(item.rotation));
         near(again.width, size.width); near(again.depth, size.depth); near(again.height, size.height);
+        near(f.elevation ?? 0, item.elevation ?? 0);
       });
       expect(twice.rooms.map(r => [r.name, r.walls.length, r.color])).toEqual(floor.rooms.map(r => [r.name, r.walls.length, r.color]));
     }
