@@ -137,6 +137,10 @@ height rather than emitting an invalid zero; their web definition remains in
 `web.json`. Native previews still use simplified category geometry for symbols.
 No package version change is required.
 
+Web furniture `elevation` (height of the item's bottom above its floor, cm) has no
+native slot. It stays in `web.json` and survives package returns like other
+web-only fields; iPhone previews draw the item on its floor.
+
 Native focused tests and web package/category tests pass. Actual cross-platform
 UI/package height qualification and broader regression results remain tracked in
 NEXT and STATUS; the reflection qualification does not prove height qualification.
