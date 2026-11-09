@@ -59,6 +59,15 @@ it('fits original geometry in centimeters and preserves saved position, rotation
   expect(saved).toEqual(before);
   disposeModel(model); expect(close).toHaveBeenCalledTimes(1);
 });
+it('lifts a project model to its saved height above the floor (issue #131)', async () => {
+  const loaded = vi.fn(), model = createPlacedFurnitureModel({ ...item(), elevation: 75 }, loaded, project())!;
+  expect(new THREE.Box3().setFromObject(model).min.y).toBeCloseTo(76.5); // procedural fallback
+  await vi.waitFor(() => expect(loaded).toHaveBeenCalledTimes(1));
+  expect(model.position.toArray()).toEqual([250, 76.5, 300]);
+  const bounds = new THREE.Box3().setFromObject(model);
+  expect(bounds.min.y).toBeCloseTo(76.5); expect(bounds.max.y).toBeCloseTo(276.5);
+  disposeModel(model);
+});
 it('removal during decoding closes the late bitmap and cannot revive a disposed container', async () => {
   let finish!: (bitmap: unknown) => void;
   vi.stubGlobal('createImageBitmap', vi.fn(() => new Promise(resolve => { finish = resolve; })));
