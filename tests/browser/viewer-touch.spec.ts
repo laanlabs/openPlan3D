@@ -2,7 +2,7 @@ import { test, expect, devices } from '@playwright/test';
 import { observeGPU } from './gpu';
 
 // Touch orbit, pan and pinch run through Chromium's touch input. A context lost while drawing shadows
-// (the Pixel 10's PowerVR driver) repaints once restored, without shadows from then on.
+// (the Pixel 10's PowerVR driver) repaints once restored, and a repeated loss turns shadows off on the device.
 const { defaultBrowserType: _, ...phone } = devices['Pixel 7'];
 test.use(phone);
 test.skip(({ browserName }) => browserName !== 'chromium', 'Touch input and mobile emulation use Chromium.');
@@ -10,6 +10,9 @@ test.skip(({ browserName }) => browserName !== 'chromium', 'Touch input and mobi
 test('3D view survives touch orbit, pan and pinch on a phone and repaints a restored context without shadows', async ({ page }) => {
   test.slow();
   await observeGPU(page);
+  // A loss an hour ago makes this one a repeat, however long the viewer has been drawing.
+  const lastLoss = Date.now() - 60 * 60 * 1000;
+  await page.addInitScript(at => localStorage.setItem('o3d_shadows_off', JSON.stringify({ lastLoss: at })), lastLoss);
   await page.addInitScript(() => localStorage.setItem('o3d_tips_seen', JSON.stringify(['first-wall', 'first-furniture', 'first-3d', 'first-export', 'first-door'])));
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -52,6 +55,7 @@ test('3D view survives touch orbit, pan and pinch on a phone and repaints a rest
   });
   // Nothing else asks for a frame: only the restore wakes the idle viewer.
   await expect.poll(draws).toBeGreaterThan(lost);
-  expect(await page.evaluate(() => localStorage.getItem('o3d_shadows_off'))).toBe('true');
+  const remembered = JSON.parse(await page.evaluate(() => localStorage.getItem('o3d_shadows_off')) ?? '{}');
+  expect(remembered.offUntil).toBeGreaterThan(Date.now());
   expect(errors).toEqual([]);
 });

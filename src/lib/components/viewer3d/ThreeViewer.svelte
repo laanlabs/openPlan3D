@@ -203,7 +203,7 @@
     updateInteriorCamera();
     const offRenderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
     offRenderer.setSize(width, height);
-    offRenderer.shadowMap.enabled = shadowsSupported(gpuName(offRenderer.getContext()));
+    offRenderer.shadowMap.enabled = shadowsAllowed(offRenderer);
     offRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
     offRenderer.toneMapping = THREE.ACESFilmicToneMapping;
     try {
@@ -433,7 +433,7 @@
     const offRenderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: false });
     offRenderer.setSize(width, height);
     offRenderer.setPixelRatio(1);
-    offRenderer.shadowMap.enabled = shadowsSupported(gpuName(offRenderer.getContext()));
+    offRenderer.shadowMap.enabled = shadowsAllowed(offRenderer);
     offRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
     offRenderer.toneMapping = THREE.ACESFilmicToneMapping;
     offRenderer.toneMappingExposure = 1.0;
@@ -456,12 +456,24 @@
     link.click();
   }
 
+  /** Set once this page's viewer lost its context while drawing shadows; its other renderers then skip them too. */
+  let shadowsLostHere = false;
+  /** When the viewer's renderer started drawing shadow maps. */
+  let shadowsStartedAt = 0;
+
+  function shadowsAllowed(target: THREE.WebGLRenderer): boolean {
+    return !shadowsLostHere && shadowsSupported(gpuName(target.getContext()));
+  }
+
   /** A driver that drops the context while drawing shadow maps drops it again on every restore, and Chrome then
-   *  blocks WebGL for the site; draw without shadows from now on. A backgrounded tab losing its context is no sign. */
+   *  blocks WebGL for the site, so this page draws without shadows from now on. Only an early or repeated loss is
+   *  remembered on the device, as memory pressure or a GPU reset can drop any context once. A backgrounded tab
+   *  losing its context is no sign. */
   function onContextLost() {
     if (document.visibilityState !== 'visible' || !renderer.shadowMap.enabled) return;
     renderer.shadowMap.enabled = false;
-    rememberShadowsLost();
+    shadowsLostHere = true;
+    rememberShadowsLost(performance.now() - shadowsStartedAt);
   }
 
   function releaseRenderer(target: THREE.WebGLRenderer) {
@@ -527,7 +539,7 @@
 
     if (!cameraPreviewRenderer) {
       cameraPreviewRenderer = new THREE.WebGLRenderer({ canvas: cameraPreviewCanvas, antialias: true, alpha: false });
-      cameraPreviewRenderer.shadowMap.enabled = shadowsSupported(gpuName(cameraPreviewRenderer.getContext()));
+      cameraPreviewRenderer.shadowMap.enabled = shadowsAllowed(cameraPreviewRenderer);
       cameraPreviewRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
       cameraPreviewRenderer.toneMapping = THREE.ACESFilmicToneMapping;
       cameraPreviewRenderer.toneMappingExposure = 1.0;
@@ -808,7 +820,8 @@
     // three.js keeps the scene for a restored context (a mobile GPU reset, say); it only needs a frame.
     renderer.domElement.addEventListener('webglcontextlost', onContextLost);
     renderer.domElement.addEventListener('webglcontextrestored', markSceneDirty);
-    renderer.shadowMap.enabled = shadowsSupported(gpuName(renderer.getContext()));
+    renderer.shadowMap.enabled = shadowsAllowed(renderer);
+    shadowsStartedAt = performance.now();
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.2;
@@ -2270,6 +2283,7 @@
       pointerControls.dispose();
       controls.dispose();
       renderer.domElement.removeEventListener('webglcontextlost', onContextLost);
+      renderer.domElement.removeEventListener('webglcontextrestored', markSceneDirty);
       releaseRenderer(renderer);
     };
   });
