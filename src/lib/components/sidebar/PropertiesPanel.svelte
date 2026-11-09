@@ -17,7 +17,7 @@
   import { openingOnWall } from '$lib/utils/wallProfiles';
   import { getEntourageDef } from '$lib/utils/entourageCatalog';
   import { floorMaterials, wallColors } from '$lib/utils/materials';
-  import { getCatalogItem } from '$lib/utils/furnitureCatalog';
+  import { getCatalogItem, getFurnitureSize } from '$lib/utils/furnitureCatalog';
   import { MAX_FURNITURE_ELEVATION, furnitureElevation, storedFurnitureElevation } from '$lib/utils/furnitureElevation';
   import { projectSettings, formatLength, formatArea, parseLengthInput } from '$lib/stores/settings';
     import type { Floor, Wall, Door, Window as Win, Room, FurnitureItem, Stair, Column, RoomCategory, TextAnnotation } from '$lib/models/types';
@@ -195,20 +195,26 @@
     if (!selectedFurniture) return;
     updateFurniture(selectedFurniture.id, { color });
   }
+  // The displayed size is the effective one (base size x |scale|), because dragging a
+  // canvas handle resizes through scale. Edits store the base size that yields the typed value.
+  let furnitureSize = $derived(selectedFurniture ? getFurnitureSize(selectedFurniture) : null);
+  function furnitureAxisScale(axis: 'x' | 'y' | 'z') {
+    return Math.abs(selectedFurniture?.scale?.[axis] ?? 1) || 1;
+  }
   function onFurnitureWidth(e: Event) {
-    if (!selectedFurniture) return;
-    dimensionInput(e, selectedFurniture.width ?? getCatalogItem(selectedFurniture.catalogId)?.width ?? 50,
-      value => updateFurniture(selectedFurniture!.id, { width: value }));
+    if (!selectedFurniture || !furnitureSize) return;
+    dimensionInput(e, furnitureSize.width,
+      value => updateFurniture(selectedFurniture!.id, { width: value / furnitureAxisScale('x') }));
   }
   function onFurnitureDepth(e: Event) {
-    if (!selectedFurniture) return;
-    dimensionInput(e, selectedFurniture.depth ?? getCatalogItem(selectedFurniture.catalogId)?.depth ?? 50,
-      value => updateFurniture(selectedFurniture!.id, { depth: value }));
+    if (!selectedFurniture || !furnitureSize) return;
+    dimensionInput(e, furnitureSize.depth,
+      value => updateFurniture(selectedFurniture!.id, { depth: value / furnitureAxisScale('y') }));
   }
   function onFurnitureHeight(e: Event) {
-    if (!selectedFurniture) return;
-    dimensionInput(e, selectedFurniture.height ?? getCatalogItem(selectedFurniture.catalogId)?.height ?? 50,
-      value => updateFurniture(selectedFurniture!.id, { height: value }));
+    if (!selectedFurniture || !furnitureSize) return;
+    dimensionInput(e, furnitureSize.height,
+      value => updateFurniture(selectedFurniture!.id, { height: value / furnitureAxisScale('z') }));
   }
   function onFurnitureElevation(e: Event) {
     if (!selectedFurniture) return;
@@ -225,7 +231,12 @@
   }
   function resetFurnitureDefaults() {
     if (!selectedFurniture) return;
-    updateFurniture(selectedFurniture.id, { color: undefined, width: undefined, depth: undefined, height: undefined, elevation: undefined, material: undefined });
+    const s = selectedFurniture.scale;
+    updateFurniture(selectedFurniture.id, {
+      color: undefined, width: undefined, depth: undefined, height: undefined, elevation: undefined, material: undefined,
+      // Handle drags resize through scale; reset magnitudes but keep mirroring.
+      scale: { x: s.x < 0 ? -1 : 1, y: s.y < 0 ? -1 : 1, z: 1 },
+    });
   }
 
   // Door distance handlers
@@ -697,7 +708,7 @@
         <span class="text-xs text-gray-500">{$t('openingProperties.width')} ({unitLabel()})</span>
         <input 
           type="number" 
-          value={displayValue(selectedFurniture.width ?? getCatalogItem(selectedFurniture.catalogId)?.width ?? 50)}
+          value={displayValue(furnitureSize?.width ?? 50)}
           oninput={onFurnitureWidth} onblur={onFurnitureWidth} min={settings.units === 'imperial' ? 1 / 2.54 : 1} step="any"
           class="w-full px-2 py-1 border border-gray-200 rounded text-sm" 
         />
@@ -706,7 +717,7 @@
         <span class="text-xs text-gray-500">{$t('furnitureProperties.depth')} ({unitLabel()})</span>
         <input 
           type="number" 
-          value={displayValue(selectedFurniture.depth ?? getCatalogItem(selectedFurniture.catalogId)?.depth ?? 50)}
+          value={displayValue(furnitureSize?.depth ?? 50)}
           oninput={onFurnitureDepth} onblur={onFurnitureDepth} min={settings.units === 'imperial' ? 1 / 2.54 : 1} step="any"
           class="w-full px-2 py-1 border border-gray-200 rounded text-sm" 
         />
@@ -715,7 +726,7 @@
         <span class="text-xs text-gray-500">{$t('openingProperties.height')} ({unitLabel()})</span>
         <input 
           type="number" 
-          value={displayValue(selectedFurniture.height ?? getCatalogItem(selectedFurniture.catalogId)?.height ?? 50)}
+          value={displayValue(furnitureSize?.height ?? 50)}
           oninput={onFurnitureHeight} onblur={onFurnitureHeight} min={settings.units === 'imperial' ? 1 / 2.54 : 1} step="any"
           class="w-full px-2 py-1 border border-gray-200 rounded text-sm" 
         />
