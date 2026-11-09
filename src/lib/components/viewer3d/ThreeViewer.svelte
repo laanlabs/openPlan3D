@@ -27,6 +27,7 @@
   import { updateOrbitDamping } from '$lib/utils/orbitDamping';
   import { portableRenderSceneJSON } from '$lib/utils/portableRenderScene';
   import { sceneSignature } from '$lib/utils/sceneSignature';
+  import { stairRises, stairSpan } from '$lib/utils/stairLevels';
   import { framingContext, shouldFrameScene, type FramingContext } from '$lib/utils/sceneFraming';
   import { WalkthroughMotion } from '$lib/utils/walkthroughMotion';
   import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
@@ -1047,13 +1048,16 @@
     }
   }
 
-  function buildStairs(floor: Floor) {
-    if (!floor.stairs) return;
+  /** Stairs climb to the next floor (up) or descend to the floor below (down); see stairLevels. */
+  function buildStairs(floor: Floor, group: THREE.Group = wallGroup, yOffset = 0, opacity = 1) {
+    if (!floor.stairs?.length) return;
+    const rises = stairRises(get(currentProject)?.floors ?? [floor], floor.id);
+    const reference = opacity < 1 ? { transparent: true, opacity } : {};
     for (const stair of floor.stairs) {
-      const totalHeight = 260; // standard floor height
+      const { base, rise: totalHeight } = stairSpan(stair, rises);
       const riserHeight = totalHeight / stair.riserCount;
-      const mat = new THREE.MeshStandardMaterial({ color: 0xd4a574, roughness: 0.7 });
-      const sideMat = new THREE.MeshStandardMaterial({ color: 0xb8956a, roughness: 0.8 });
+      const mat = new THREE.MeshStandardMaterial({ color: 0xd4a574, roughness: 0.7, ...reference });
+      const sideMat = new THREE.MeshStandardMaterial({ color: 0xb8956a, roughness: 0.8, ...reference });
       const type = stair.stairType || 'straight';
 
       const stairGroup = new THREE.Group();
@@ -1141,12 +1145,11 @@
         }
       }
 
-      stairGroup.position.set(stair.position.x, 0, stair.position.y);
+      // A down stair is the same flight as the up stair it meets on the floor below, so it keeps
+      // that shape and footprint and only moves down (the plan draws both with the same treads).
+      stairGroup.position.set(stair.position.x, yOffset + base, stair.position.y);
       stairGroup.rotation.y = -(stair.rotation * Math.PI) / 180;
-      if (stair.direction === 'down') {
-        stairGroup.rotation.y += Math.PI;
-      }
-      wallGroup.add(stairGroup);
+      group.add(stairGroup);
     }
   }
 
@@ -1729,6 +1732,9 @@
       slab.receiveShadow = true;
       group.add(slab);
     }
+
+    // Stairs, translucent like the rest of a reference floor
+    buildStairs(floor, group, yOffset, opacity);
 
     // Columns
     if (floor.columns) {

@@ -1,5 +1,6 @@
 import type { Floor, Project } from '$lib/models/types';
 import type { ProjectSettings } from '$lib/stores/settings';
+import { stairRises } from './stairLevels';
 
 function renderedFloor(floor: Floor) {
   // These fields belong to the 2D canvas. In particular, never walk embedded
@@ -21,5 +22,7 @@ function renderedFloor(floor: Floor) {
 export function sceneSignature(project: Project, floor: Floor, stacked: boolean, units: ProjectSettings['units']): string {
   return JSON.stringify({ projectId: project.id, activeFloorId: floor.id, stacked, units,
     customModels: project.customModels,
-    floors: (stacked ? project.floors : [floor]).map(renderedFloor) });
+    floors: (stacked ? project.floors : [floor]).map(renderedFloor),
+    // Stairs reach the neighbouring floors, so their elevations matter even on the active floor alone.
+    ...(!stacked && floor.stairs?.length ? { stairRises: stairRises(project.floors, floor.id) } : {}) });
 }
