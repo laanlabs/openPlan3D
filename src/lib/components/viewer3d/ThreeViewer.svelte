@@ -20,7 +20,8 @@
   import { createRoomSlabGeometry } from '$lib/utils/roomSlabGeometry';
   import { roomHoles } from '$lib/utils/roomNesting';
   import { createSlopedBoxGeometry, mapWallUVs } from '$lib/utils/slopedWallGeometry';
-  import { buildWallSegments, roomCeilingHeight, wallProfileSpans, wallPathProfile, pathOpening, doorPanelPose } from '$lib/utils/wallProfiles';
+  import { buildWallSegments, roomCeilingHeight, wallProfileSpans, wallPathProfile, pathOpening } from '$lib/utils/wallProfiles';
+  import { doorFrameColor, doorOpeningSide, isDoorFrameColor, isGlazedDoor, pocketDoorTravel, swingLeaves } from '$lib/utils/doorStyle';
   import { assembleFloorStack, pickedWallId, stackedFloorMaterial, stackedFloorOccludes, type StackedFloorsStyle } from '$lib/utils/floorStack';
   import { setFloorCameraPose } from '$lib/utils/floorCamera';
   import { frameScene } from '$lib/utils/frameScene';
@@ -1192,6 +1193,67 @@
     group.clear();
   }
 
+  /** A wooden door leaf `w` wide and `h` tall, pivoting on its hinge edge: local x runs
+   * 0..w from the hinge, y is centred on the leaf. Shaker styles are four stacked
+   * recessed panels in a stile-and-rail frame; glazed shaker glazes the top two, and
+   * fully glazed fills the frame with one pane. Victorian styles are a 2×2 grid split by
+   * a centre muntin and a lock rail centred at `lockY` (the handle height); the glazed
+   * version glazes the upper pair. */
+  function buildDoorLeaf(w: number, h: number, style: NonNullable<Door['leafStyle']>, woodMat: THREE.Material, panelMat: THREE.Material, glassMat: THREE.Material, lockY = 0): THREE.Group {
+    const leaf = new THREE.Group();
+    const depth = 4;
+    const add = (bw: number, bh: number, d: number, x: number, y: number, mat: THREE.Material, glass = false) => {
+      if (bw <= 0 || bh <= 0) return;
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, d), mat);
+      mesh.position.set(x, y, 0);
+      mesh.castShadow = !glass;
+      mesh.userData.xray = true;
+      mesh.userData.renderExclude = glass;
+      leaf.add(mesh);
+    };
+    const stile = Math.min(11, w * 0.15), topRail = Math.min(11, h * 0.06), bottomRail = Math.min(20, h * 0.1);
+    if (style === 'slab' || w < stile * 2 + 10 || h < topRail + bottomRail + 20) {
+      add(w, h, depth, w / 2, 0, woodMat);
+      return leaf;
+    }
+    const bottom = -h / 2, top = h / 2, innerW = w - stile * 2, cx = w / 2;
+    add(stile, h, depth, stile / 2, 0, woodMat);
+    add(stile, h, depth, w - stile / 2, 0, woodMat);
+    add(innerW, bottomRail, depth, cx, bottom + bottomRail / 2, woodMat);
+    add(innerW, topRail, depth, cx, top - topRail / 2, woodMat);
+    const openH = h - topRail - bottomRail;
+    if (style === 'glazed') {
+      add(innerW, openH, 1, cx, bottom + bottomRail + openH / 2, glassMat, true);
+      return leaf;
+    }
+    if (style === 'victorian' || style === 'glazedVictorian') {
+      const lockRail = Math.min(18, openH * 0.1), muntin = Math.min(10, innerW * 0.12);
+      // Keep both panel rows at least 15 cm tall wherever the handle sits
+      const lock = Math.max(bottom + bottomRail + 15 + lockRail / 2, Math.min(top - topRail - 15 - lockRail / 2, lockY));
+      add(innerW, lockRail, depth, cx, lock, woodMat);
+      const lowerH = lock - lockRail / 2 - (bottom + bottomRail), upperH = top - topRail - (lock + lockRail / 2);
+      add(muntin, lowerH, depth, cx, bottom + bottomRail + lowerH / 2, woodMat);
+      add(muntin, upperH, depth, cx, top - topRail - upperH / 2, woodMat);
+      const panelW = (innerW - muntin) / 2;
+      for (const side of [-1, 1]) {
+        const px = cx + side * (muntin / 2 + panelW / 2);
+        add(panelW, lowerH, depth - 2, px, bottom + bottomRail + lowerH / 2, panelMat);
+        if (style === 'glazedVictorian') add(panelW, upperH, 1, px, top - topRail - upperH / 2, glassMat, true);
+        else add(panelW, upperH, depth - 2, px, top - topRail - upperH / 2, panelMat);
+      }
+      return leaf;
+    }
+    // Four equal stacked panels split by three intermediate rails
+    const midRail = Math.min(9, openH * 0.06), panelH = (openH - midRail * 3) / 4;
+    for (let i = 0; i < 4; i++) {
+      const y = bottom + bottomRail + i * (panelH + midRail) + panelH / 2;
+      if (style === 'glazedShaker' && i >= 2) add(innerW, panelH, 1, cx, y, glassMat, true);
+      else add(innerW, panelH, depth - 2, cx, y, panelMat); // recessed 1 cm each face
+      if (i < 3) add(innerW, midRail, depth, cx, y + panelH / 2 + midRail / 2, woodMat);
+    }
+    return leaf;
+  }
+
   function addOpeningFrame(wall: Wall, position: number, width: number, bottom: number, height: number, depth: number, material: THREE.Material, excludeFromRender = false) {
     const path = wallPathProfile(wall);
     const rect = pathOpening(path, position * path.length, width, bottom, height);
@@ -1369,7 +1431,12 @@
       const angle = Math.atan2(right.y - left.y, right.x - left.x);
       const wt = Math.max(wall.thickness, WALL_THICKNESS);
 
-      const frameMat = new THREE.MeshStandardMaterial({ color: 0x6b4423, roughness: 0.6 });
+      const glazed = isGlazedDoor(door.type);
+      const frameMat = new THREE.MeshStandardMaterial(glazed
+        ? { color: new THREE.Color(doorFrameColor(door)), roughness: 0.4, metalness: 0.25 }
+        : { color: new THREE.Color(doorFrameColor(door)), roughness: 0.6 });
+      // Wooden leaves follow a chosen frame colour; unset, they keep the natural wood.
+      const leafColor = new THREE.Color(isDoorFrameColor(door.frameColor) ? door.frameColor : 0x8B6914);
       const doorHeight = opening.top;
       const jamb = 5; // jamb thickness
 
@@ -1395,35 +1462,177 @@
           secMesh.userData.xray = true;
           wallGroup.add(secMesh);
         }
+      } else if (door.type === 'pocket') {
+        // Pocket door: a plain wooden slab shown half slid into a cavity in the wall on
+        // the hinge side (where the plan symbol draws the dashed pocket). It slides no
+        // further than the wall runs, and on a curved wall only while the straight slab
+        // stays inside the wall faces; the rest of the door stays across the opening.
+        const slabMat = new THREE.MeshStandardMaterial({ color: leafColor, roughness: 0.5 });
+        const pullMat = new THREE.MeshStandardMaterial({ color: 0x2b2b2b, roughness: 0.4, metalness: 0.6 });
+        const group = new THREE.Group();
+        group.position.set(px, 0, py);
+        group.rotation.y = -angle;
+        const pocketSide = door.swingDirection === 'left' ? 1 : -1; // matches the plan symbol's cavity
+        const W = door.width, H = doorHeight, depth = 4;
+        const along = { x: (right.x - left.x) / W, y: (right.y - left.y) / W };
+        const hidden = pocketDoorTravel(W, pocketSide === 1 ? length - opening.right : opening.left,
+          pocketSide === 1 ? right : left, { x: along.x * pocketSide, y: along.y * pocketSide },
+          path.spans, wt / 2 - depth / 2);
+        const center = pocketSide * hidden;
+        const slab = new THREE.Mesh(new THREE.BoxGeometry(W, H - 2, depth), slabMat);
+        slab.position.set(center, (H - 2) / 2 + 1, 0);
+        slab.castShadow = true;
+        slab.userData.xray = true;
+        group.add(slab);
+        // Flush pulls on both faces near the leading edge
+        const pullX = center - pocketSide * (W / 2 - 6);
+        for (const face of [-1, 1]) {
+          const pull = new THREE.Mesh(new THREE.BoxGeometry(3, 15, 0.6), pullMat);
+          pull.position.set(pullX, Math.min(100, H * 0.5), face * (depth / 2 + 0.2));
+          pull.userData.xray = true;
+          group.add(pull);
+        }
+        wallGroup.add(group);
+      } else if (glazed) {
+        // Glazed doors: metal-framed glass leaves. Bifolds are below; otherwise closed, two leaves. Sliding leaves run on
+        // offset tracks and overlap at the meeting stile; French leaves are hinged at
+        // the jambs and meet flush in the wall plane.
+        const glassMat = new THREE.MeshStandardMaterial({
+          color: 0xa8d8ea, transparent: true, opacity: 0.3,
+          roughness: 0.05, metalness: 0.1, side: THREE.DoubleSide
+        });
+        const hardwareMat = new THREE.MeshStandardMaterial({ color: 0xc8c8c8, roughness: 0.25, metalness: 0.8 });
+        const group = new THREE.Group();
+        group.position.set(px, 0, py);
+        group.rotation.y = -angle;
+        const addBox = (w: number, h: number, d: number, x: number, y: number, z: number, mat: THREE.Material, glass = false, parent: THREE.Object3D = group) => {
+          if (w <= 0 || h <= 0) return;
+          const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+          mesh.position.set(x, y, z);
+          mesh.userData.xray = true;
+          mesh.userData.renderExclude = glass;
+          mesh.castShadow = !glass;
+          parent.add(mesh);
+        };
+        const W = door.width, H = doorHeight;
+        if (door.type === 'bifold') {
+          // Bifold: four glazed panels hung from a head track, folded concertina-style
+          // (30° zig-zag) and stacked toward the hinge-side jamb.
+          const panels = 4, fold = Math.PI / 6;
+          const pitch = W / panels, panelW = pitch - 1;
+          const bottom = 1, top = H - 2, panelH = top - bottom;
+          const stile = Math.min(5, panelW * 0.15), topRail = Math.min(7, panelH * 0.06), bottomRail = Math.min(10, panelH * 0.08), depth = 4;
+          const hingeSide = door.swingDirection === 'left' ? 1 : -1; // matches doorPanelPose
+          const face = door.flipSide ? -1 : 1;
+          const x0 = hingeSide * W / 2, dir = -hingeSide;
+          const c = pitch * Math.cos(fold), sz = pitch * Math.sin(fold) * face;
+          const points = Array.from({ length: panels + 1 }, (_, i) => ({ x: x0 + dir * i * c, z: i % 2 ? sz : 0 }));
+          addBox(W, 2, 6, 0, H - 1, 0, frameMat); // head track
+          for (let i = 0; i < panels; i++) {
+            const a = points[i], b = points[i + 1];
+            const leaf = new THREE.Group();
+            leaf.position.set((a.x + b.x) / 2, 0, (a.z + b.z) / 2);
+            leaf.rotation.y = Math.atan2(-(b.z - a.z), b.x - a.x);
+            group.add(leaf);
+            // Frame: two stiles, top and bottom rails, then the glass
+            addBox(stile, panelH, depth, -panelW / 2 + stile / 2, bottom + panelH / 2, 0, frameMat, false, leaf);
+            addBox(stile, panelH, depth, panelW / 2 - stile / 2, bottom + panelH / 2, 0, frameMat, false, leaf);
+            addBox(panelW - stile * 2, bottomRail, depth, 0, bottom + bottomRail / 2, 0, frameMat, false, leaf);
+            addBox(panelW - stile * 2, topRail, depth, 0, top - topRail / 2, 0, frameMat, false, leaf);
+            const glassH = panelH - topRail - bottomRail;
+            addBox(panelW - stile * 2, glassH, 1, 0, bottom + bottomRail + glassH / 2, 0, glassMat, true, leaf);
+            if (i === panels - 1) {
+              // Pull handles on both faces of the lead panel's free stile
+              for (const side of [-1, 1]) addBox(1.5, 30, 2, panelW / 2 - stile / 2, Math.min(100, H * 0.5), side * (depth / 2 + 1.5), hardwareMat, false, leaf);
+            }
+          }
+          // Hinge knuckles at the jamb and between panels
+          for (let i = 0; i < panels; i++) {
+            for (const y of [20, panelH / 2, panelH - 20]) addBox(1.5, 10, 1.5, points[i].x, bottom + y, points[i].z, hardwareMat);
+          }
+          wallGroup.add(group);
+        } else {
+          const sliding = door.type === 'sliding';
+          const bottom = sliding ? 2 : 1; // sliding leaves sit on the floor track
+          const top = sliding ? H - 2 : H - 1;
+          const leafH = top - bottom;
+          const overlap = sliding ? Math.min(6, W * 0.05) : -1; // French leaves leave a 1 cm gap
+          const leafW = W / 2 + overlap / 2;
+          const stile = Math.min(sliding ? 6 : 7, leafW * 0.15);
+          const topRail = Math.min(sliding ? 8 : 9, leafH * 0.08);
+          const bottomRail = Math.min(sliding ? 8 : 14, leafH * 0.1);
+          const depth = sliding ? 4 : 5;
+          const trackOffset = sliding ? Math.min(3, wt / 4) : 0;
+          if (sliding) {
+            // Bottom and head tracks spanning the opening
+            addBox(W, 2, trackOffset * 2 + depth, 0, 1, 0, frameMat);
+            addBox(W, 2, trackOffset * 2 + depth, 0, H - 1, 0, frameMat);
+          }
+          for (const side of [-1, 1]) {
+            const cx = side * (W / 2 - leafW / 2);
+            // The plan draws the end-side panel on the opening side's face.
+            const z = side * trackOffset * (door.flipSide ? -1 : 1);
+            // Frame: two stiles, top and bottom rails
+            addBox(stile, leafH, depth, cx - leafW / 2 + stile / 2, bottom + leafH / 2, z, frameMat);
+            addBox(stile, leafH, depth, cx + leafW / 2 - stile / 2, bottom + leafH / 2, z, frameMat);
+            addBox(leafW - stile * 2, bottomRail, depth, cx, bottom + bottomRail / 2, z, frameMat);
+            addBox(leafW - stile * 2, topRail, depth, cx, top - topRail / 2, z, frameMat);
+            // Glass infill
+            const glassH = leafH - topRail - bottomRail;
+            addBox(leafW - stile * 2, glassH, 1, cx, bottom + bottomRail + glassH / 2, z, glassMat, true);
+            const meetX = cx - side * (leafW / 2 - stile / 2);
+            const handleY = Math.min(100, H * 0.5);
+            if (sliding) {
+              // Vertical pull handle on the meeting stile, on the leaf's outward face
+              addBox(1.5, 30, 2, meetX, handleY, z + Math.sign(z) * (depth / 2 + 1.5), frameMat);
+            } else {
+              // Lever handles on both faces of the meeting stile
+              for (const face of [-1, 1]) {
+                const fz = face * (depth / 2 + 1);
+                addBox(2, 6, 2, meetX, handleY, fz, hardwareMat);
+                addBox(11, 1.5, 1.5, meetX + side * 5.5, handleY + 1.5, fz + face * 1.5, hardwareMat);
+              }
+              // Hinge knuckles on the jamb side
+              const hingeX = cx + side * (leafW / 2);
+              // Knuckles show on the face the leaves swing toward, as the plan arcs do
+              const hingeZ = doorOpeningSide(door) * (depth / 2 + 0.5);
+              for (const y of [20, leafH / 2, leafH - 20]) addBox(1.5, 10, 1.5, hingeX, bottom + y, hingeZ, hardwareMat);
+            }
+          }
+          wallGroup.add(group);
+        }
       } else {
-        // Door panel — honor the saved hinge and opening side, slightly ajar (15°)
-        const panelMat = new THREE.MeshStandardMaterial({ color: 0x8B6914, roughness: 0.5 });
-        const panelGeo = new THREE.BoxGeometry(door.width - 2, doorHeight - 4, 4);
-        // Shift geometry so pivot is at left edge
-        panelGeo.translate(door.width / 2 - 1, 0, 0);
-        const panelMesh = new THREE.Mesh(panelGeo, panelMat);
-        const pose = doorPanelPose({ ...wall, start: left, end: right, curvePoint: undefined }, { ...door, position: 0.5 });
-        panelMesh.position.set(pose.x, doorHeight / 2 - 2, pose.z);
-        panelMesh.rotation.y = -pose.yaw;
-        panelMesh.castShadow = true;
-        panelMesh.userData.xray = true;
-        wallGroup.add(panelMesh);
-
-        // Door handle (small sphere)
+        // Wooden door leaves, slightly ajar (15°), opening toward the face the plan symbol
+        // draws. A single door has one leaf on the saved hinge; a double door has two
+        // half-width leaves hinged at opposite jambs that part in the middle.
+        const panelMat = new THREE.MeshStandardMaterial({ color: leafColor, roughness: 0.5 });
+        const recessMat = new THREE.MeshStandardMaterial({ color: leafColor.clone().multiplyScalar(0.88), roughness: 0.55 });
+        const leafGlassMat = new THREE.MeshStandardMaterial({
+          color: 0xa8d8ea, transparent: true, opacity: 0.3,
+          roughness: 0.05, metalness: 0.1, side: THREE.DoubleSide
+        });
+        const leafStyle = door.leafStyle ?? 'slab';
         const handleMat = new THREE.MeshStandardMaterial({ color: 0xc0c0c0, metalness: 0.8, roughness: 0.2 });
-        const handleGeo = new THREE.SphereGeometry(3, 8, 8);
-        const handleMesh = new THREE.Mesh(handleGeo, handleMat);
-        // Place on the door panel's right side at handle height
-        const handleLocalX = door.width - 12;
-        const handleCos = Math.cos(pose.yaw);
-        const handleSin = Math.sin(pose.yaw);
-        handleMesh.position.set(
-          panelMesh.position.x + handleLocalX * handleCos,
-          Math.min(100, doorHeight * 0.5),
-          panelMesh.position.z + handleLocalX * handleSin
-        );
-        handleMesh.userData.xray = true;
-        wallGroup.add(handleMesh);
+        const gap = door.type === 'double' ? 1 : 2;
+        for (const { width: leafW, pose } of swingLeaves(left, right, door)) {
+          if (leafW <= gap + 2) continue;
+          const handleY = Math.min(100, doorHeight * 0.5);
+          const panelMesh = buildDoorLeaf(leafW - gap, doorHeight - 4, leafStyle, panelMat, recessMat, leafGlassMat, handleY - (doorHeight / 2 - 2));
+          panelMesh.position.set(pose.x, doorHeight / 2 - 2, pose.z);
+          panelMesh.rotation.y = -pose.yaw;
+          wallGroup.add(panelMesh);
+
+          // Door handle (small sphere) near the leaf's free edge
+          const handleMesh = new THREE.Mesh(new THREE.SphereGeometry(3, 8, 8), handleMat);
+          const handleLocalX = leafW - 12;
+          handleMesh.position.set(
+            panelMesh.position.x + handleLocalX * Math.cos(pose.yaw),
+            handleY,
+            panelMesh.position.z + handleLocalX * Math.sin(pose.yaw)
+          );
+          handleMesh.userData.xray = true;
+          wallGroup.add(handleMesh);
+        }
       }
     }
 

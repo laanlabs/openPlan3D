@@ -17,6 +17,7 @@
   import { openingOnWall } from '$lib/utils/wallProfiles';
   import { getEntourageDef } from '$lib/utils/entourageCatalog';
   import { floorMaterials, wallColors } from '$lib/utils/materials';
+  import { colorInputValue, doorFrameColor, DOOR_FRAME_PRESETS } from '$lib/utils/doorStyle';
   import { getCatalogItem, getFurnitureSize } from '$lib/utils/furnitureCatalog';
   import { MAX_FURNITURE_ELEVATION, furnitureElevation, storedFurnitureElevation } from '$lib/utils/furnitureElevation';
   import { projectSettings, formatLength, formatArea, parseLengthInput } from '$lib/stores/settings';
@@ -589,6 +590,19 @@
           <option value="garage">{$t('openingCatalog.garage')}</option>
         </select>
       </label>
+      {#if selectedDoor.type === 'single' || selectedDoor.type === 'double'}
+      <label class="block">
+        <span class="text-xs text-gray-500">{$t('openingProperties.leafStyle')}</span>
+        <select value={selectedDoor.leafStyle ?? 'slab'} onchange={(e) => { if (selectedDoor) updateDoor(selectedDoor.id, { leafStyle: (e.target as HTMLSelectElement).value as NonNullable<Door['leafStyle']> }); }} class="w-full px-2 py-1 border border-gray-200 rounded text-sm">
+          <option value="slab">{$t('openingProperties.leafStyle.slab')}</option>
+          <option value="shaker">{$t('openingProperties.leafStyle.shaker')}</option>
+          <option value="glazedShaker">{$t('openingProperties.leafStyle.glazedShaker')}</option>
+          <option value="victorian">{$t('openingProperties.leafStyle.victorian')}</option>
+          <option value="glazedVictorian">{$t('openingProperties.leafStyle.glazedVictorian')}</option>
+          <option value="glazed">{$t('openingProperties.leafStyle.glazed')}</option>
+        </select>
+      </label>
+      {/if}
       {#if selectedDoor.type !== 'opening' && selectedDoor.type !== 'garage'}
       <div role="group" aria-label={$t('openingProperties.hinge')}>
         <span class="text-xs text-gray-500">{$t('openingProperties.hinge')}</span>
@@ -602,6 +616,39 @@
         <div class="flex gap-2">
           <button aria-pressed={!selectedDoor.flipSide} onclick={() => { if (selectedDoor) updateDoor(selectedDoor.id, { flipSide: false }); }} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {!(selectedDoor?.flipSide) ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">{$t('openingProperties.inward')}</button>
           <button aria-pressed={!!selectedDoor.flipSide} onclick={() => { if (selectedDoor) updateDoor(selectedDoor.id, { flipSide: true }); }} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedDoor?.flipSide ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">{$t('openingProperties.outward')}</button>
+        </div>
+      </div>
+      {/if}
+      {#if selectedDoor.type !== 'opening'}
+      {@const frameColor = colorInputValue(doorFrameColor(selectedDoor)).toLowerCase()}
+      <div role="group" aria-label={$t('openingProperties.frameColor')}>
+        <span class="text-xs text-gray-500 block mb-2">{$t('openingProperties.frameColor')}</span>
+        <div class="grid grid-cols-7 gap-1.5 mb-2">
+          {#each DOOR_FRAME_PRESETS as { key, color }}
+            <button
+              class="w-6 h-6 rounded border-2 hover:border-gray-300 transition-colors {frameColor === color.toLowerCase() ? 'border-blue-500 ring-1 ring-blue-200' : 'border-gray-200'}"
+              style="background-color: {color}"
+              title={$t(`doorFrameColor.${key}`)}
+              aria-label={$t(`doorFrameColor.${key}`)}
+              aria-pressed={frameColor === color.toLowerCase()}
+              onclick={() => { if (selectedDoor) updateDoor(selectedDoor.id, { frameColor: color }); }}
+            ></button>
+          {/each}
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-gray-500">{$t('furnitureProperties.custom')}</span>
+          <input
+            type="color" aria-label={$t('furnitureProperties.customColor')}
+            value={frameColor}
+            oninput={(e) => { if (selectedDoor) updateDoor(selectedDoor.id, { frameColor: (e.target as HTMLInputElement).value }); }}
+            class="w-8 h-6 rounded border border-gray-200 cursor-pointer"
+          />
+          {#if selectedDoor.frameColor}
+            <button
+              class="ml-auto text-xs text-gray-500 hover:text-gray-700 underline"
+              onclick={() => { if (selectedDoor) updateDoor(selectedDoor.id, { frameColor: undefined }); }}
+            >{$t('openingProperties.defaultFrameColor')}</button>
+          {/if}
         </div>
       </div>
       {/if}

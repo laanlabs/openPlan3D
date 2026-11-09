@@ -89,6 +89,10 @@ export interface Door {
   type: 'single' | 'double' | 'sliding' | 'french' | 'pocket' | 'bifold' | 'opening' | 'garage';
   swingDirection: 'left' | 'right';
   flipSide: boolean; // flip which side of wall the door opens to (vertical flip)
+  /** Hex colour for the door frame and, on glazed doors, the leaf frames. Defaults per type. */
+  frameColor?: string;
+  /** Leaf design for single and double doors. Defaults to 'slab'. */
+  leafStyle?: 'slab' | 'shaker' | 'glazedShaker' | 'victorian' | 'glazedVictorian' | 'glazed';
 }
 
 export interface Window {
