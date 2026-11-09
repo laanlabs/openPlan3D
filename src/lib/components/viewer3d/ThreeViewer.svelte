@@ -20,8 +20,8 @@
   import { createRoomSlabGeometry } from '$lib/utils/roomSlabGeometry';
   import { roomHoles } from '$lib/utils/roomNesting';
   import { createSlopedBoxGeometry, mapWallUVs } from '$lib/utils/slopedWallGeometry';
-  import { buildWallSegments, roomCeilingHeight, wallProfileSpans, wallPathProfile, pathOpening, doorPanelPose } from '$lib/utils/wallProfiles';
-  import { doorFrameColor, isGlazedDoor } from '$lib/utils/doorStyle';
+  import { buildWallSegments, roomCeilingHeight, wallProfileSpans, wallPathProfile, pathOpening } from '$lib/utils/wallProfiles';
+  import { doorFrameColor, doorOpeningSide, isDoorFrameColor, isGlazedDoor, pocketDoorTravel, swingLeaves } from '$lib/utils/doorStyle';
   import { assembleFloorStack, pickedWallId, stackedFloorMaterial, stackedFloorOccludes, type StackedFloorsStyle } from '$lib/utils/floorStack';
   import { setFloorCameraPose } from '$lib/utils/floorCamera';
   import { frameScene } from '$lib/utils/frameScene';
@@ -1436,7 +1436,7 @@
         ? { color: new THREE.Color(doorFrameColor(door)), roughness: 0.4, metalness: 0.25 }
         : { color: new THREE.Color(doorFrameColor(door)), roughness: 0.6 });
       // Wooden leaves follow a chosen frame colour; unset, they keep the natural wood.
-      const leafColor = new THREE.Color(door.frameColor ?? 0x8B6914);
+      const leafColor = new THREE.Color(isDoorFrameColor(door.frameColor) ? door.frameColor : 0x8B6914);
       const doorHeight = opening.top;
       const jamb = 5; // jamb thickness
 
@@ -1464,7 +1464,9 @@
         }
       } else if (door.type === 'pocket') {
         // Pocket door: a plain wooden slab shown half slid into a cavity in the wall on
-        // the hinge side (where the plan symbol draws the dashed pocket).
+        // the hinge side (where the plan symbol draws the dashed pocket). It slides no
+        // further than the wall runs, and on a curved wall only while the straight slab
+        // stays inside the wall faces; the rest of the door stays across the opening.
         const slabMat = new THREE.MeshStandardMaterial({ color: leafColor, roughness: 0.5 });
         const pullMat = new THREE.MeshStandardMaterial({ color: 0x2b2b2b, roughness: 0.4, metalness: 0.6 });
         const group = new THREE.Group();
@@ -1472,7 +1474,11 @@
         group.rotation.y = -angle;
         const pocketSide = door.swingDirection === 'left' ? 1 : -1; // matches the plan symbol's cavity
         const W = door.width, H = doorHeight, depth = 4;
-        const center = pocketSide * W * 0.5;
+        const along = { x: (right.x - left.x) / W, y: (right.y - left.y) / W };
+        const hidden = pocketDoorTravel(W, pocketSide === 1 ? length - opening.right : opening.left,
+          pocketSide === 1 ? right : left, { x: along.x * pocketSide, y: along.y * pocketSide },
+          path.spans, wt / 2 - depth / 2);
+        const center = pocketSide * hidden;
         const slab = new THREE.Mesh(new THREE.BoxGeometry(W, H - 2, depth), slabMat);
         slab.position.set(center, (H - 2) / 2 + 1, 0);
         slab.castShadow = true;
@@ -1564,7 +1570,8 @@
           }
           for (const side of [-1, 1]) {
             const cx = side * (W / 2 - leafW / 2);
-            const z = side * trackOffset;
+            // The plan draws the end-side panel on the opening side's face.
+            const z = side * trackOffset * (door.flipSide ? -1 : 1);
             // Frame: two stiles, top and bottom rails
             addBox(stile, leafH, depth, cx - leafW / 2 + stile / 2, bottom + leafH / 2, z, frameMat);
             addBox(stile, leafH, depth, cx + leafW / 2 - stile / 2, bottom + leafH / 2, z, frameMat);
@@ -1577,7 +1584,7 @@
             const handleY = Math.min(100, H * 0.5);
             if (sliding) {
               // Vertical pull handle on the meeting stile, on the leaf's outward face
-              addBox(1.5, 30, 2, meetX, handleY, z + side * (depth / 2 + 1.5), frameMat);
+              addBox(1.5, 30, 2, meetX, handleY, z + Math.sign(z) * (depth / 2 + 1.5), frameMat);
             } else {
               // Lever handles on both faces of the meeting stile
               for (const face of [-1, 1]) {
@@ -1587,16 +1594,17 @@
               }
               // Hinge knuckles on the jamb side
               const hingeX = cx + side * (leafW / 2);
-              const hingeZ = (door.flipSide ? -1 : 1) * (depth / 2 + 0.5);
+              // Knuckles show on the face the leaves swing toward, as the plan arcs do
+              const hingeZ = doorOpeningSide(door) * (depth / 2 + 0.5);
               for (const y of [20, leafH / 2, leafH - 20]) addBox(1.5, 10, 1.5, hingeX, bottom + y, hingeZ, hardwareMat);
             }
           }
           wallGroup.add(group);
         }
       } else {
-        // Wooden door leaves, slightly ajar (15°), opening to the saved side. A single
-        // door has one leaf on the saved hinge; a double door has two half-width
-        // leaves hinged at opposite jambs that part in the middle.
+        // Wooden door leaves, slightly ajar (15°), opening toward the face the plan symbol
+        // draws. A single door has one leaf on the saved hinge; a double door has two
+        // half-width leaves hinged at opposite jambs that part in the middle.
         const panelMat = new THREE.MeshStandardMaterial({ color: leafColor, roughness: 0.5 });
         const recessMat = new THREE.MeshStandardMaterial({ color: leafColor.clone().multiplyScalar(0.88), roughness: 0.55 });
         const leafGlassMat = new THREE.MeshStandardMaterial({
@@ -1605,20 +1613,11 @@
         });
         const leafStyle = door.leafStyle ?? 'slab';
         const handleMat = new THREE.MeshStandardMaterial({ color: 0xc0c0c0, metalness: 0.8, roughness: 0.2 });
-        const mid = { x: (left.x + right.x) / 2, y: (left.y + right.y) / 2 };
-        // A 'right' swing puts the hinge at the leaf's start; 'left' puts it at the end.
-        const leaves: { start: typeof left; end: typeof right; swingDirection: Door['swingDirection']; gap: number }[] = door.type === 'double'
-          ? [{ start: left, end: mid, swingDirection: 'right', gap: 1 }, { start: mid, end: right, swingDirection: 'left', gap: 1 }]
-          : [{ start: left, end: right, swingDirection: door.swingDirection, gap: 2 }];
-        for (const leaf of leaves) {
-          const leafW = Math.hypot(leaf.end.x - leaf.start.x, leaf.end.y - leaf.start.y);
-          if (leafW <= leaf.gap + 2) continue;
+        const gap = door.type === 'double' ? 1 : 2;
+        for (const { width: leafW, pose } of swingLeaves(left, right, door)) {
+          if (leafW <= gap + 2) continue;
           const handleY = Math.min(100, doorHeight * 0.5);
-          const panelMesh = buildDoorLeaf(leafW - leaf.gap, doorHeight - 4, leafStyle, panelMat, recessMat, leafGlassMat, handleY - (doorHeight / 2 - 2));
-          const pose = doorPanelPose(
-            { ...wall, start: leaf.start, end: leaf.end, curvePoint: undefined },
-            { ...door, width: leafW, swingDirection: leaf.swingDirection, position: 0.5 }
-          );
+          const panelMesh = buildDoorLeaf(leafW - gap, doorHeight - 4, leafStyle, panelMat, recessMat, leafGlassMat, handleY - (doorHeight / 2 - 2));
           panelMesh.position.set(pose.x, doorHeight / 2 - 2, pose.z);
           panelMesh.rotation.y = -pose.yaw;
           wallGroup.add(panelMesh);
