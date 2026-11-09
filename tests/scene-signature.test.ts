@@ -67,3 +67,11 @@ it('invalidates project replacement, active floor, stacking and label units', ()
   expect(sceneSignature(project, project.floors[0], false, 'imperial')).not.toBe(before);
   project.id = 'replacement'; expect(signature(project)).not.toBe(before);
 });
+
+it('rebuilds for the other-floors style only while floors are stacked (issue #130)', () => {
+  const project = benchmarkProject('medium'), floor = project.floors[0];
+  expect(sceneSignature(project, floor, true, 'metric', 'solid'))
+    .not.toBe(sceneSignature(project, floor, true, 'metric', 'translucent'));
+  expect(sceneSignature(project, floor, true, 'metric')).toBe(sceneSignature(project, floor, true, 'metric', 'translucent'));
+  expect(sceneSignature(project, floor, false, 'metric', 'solid')).toBe(sceneSignature(project, floor, false, 'metric', 'translucent'));
+});

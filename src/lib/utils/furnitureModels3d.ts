@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import type { FurnitureDef } from './furnitureCatalog';
+import { proceduralMountOffset } from './furnitureElevation';
 
 // Helper to darken/lighten colors
 function adjustColor(color: string, factor: number): number {
@@ -302,6 +303,10 @@ export function createFurnitureModel(catalogId: string, def: FurnitureDef): THRE
       group.add(mesh);
       break;
   }
+
+  // Every model starts at the floor; wall and ceiling items are lifted by their elevation.
+  const mount = proceduralMountOffset(catalogId, h);
+  if (mount) for (const child of group.children) child.position.y -= mount;
 
   enableShadows(group);
   return group;

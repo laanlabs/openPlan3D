@@ -20,13 +20,15 @@
   import { createRoomSlabGeometry } from '$lib/utils/roomSlabGeometry';
   import { roomHoles } from '$lib/utils/roomNesting';
   import { createSlopedBoxGeometry, mapWallUVs } from '$lib/utils/slopedWallGeometry';
-  import { buildWallSegments, roomCeilingHeight, wallProfileSpans, wallPathProfile, pathOpening, doorPanelPose } from '$lib/utils/wallProfiles';
-  import { assembleFloorStack } from '$lib/utils/floorStack';
+  import { buildWallSegments, roomCeilingHeight, wallProfileSpans, wallPathProfile, pathOpening } from '$lib/utils/wallProfiles';
+  import { doorFrameColor, doorOpeningSide, isDoorFrameColor, isGlazedDoor, pocketDoorTravel, swingLeaves } from '$lib/utils/doorStyle';
+  import { assembleFloorStack, pickedWallId, stackedFloorMaterial, stackedFloorOccludes, type StackedFloorsStyle } from '$lib/utils/floorStack';
   import { setFloorCameraPose } from '$lib/utils/floorCamera';
   import { frameScene } from '$lib/utils/frameScene';
   import { updateOrbitDamping } from '$lib/utils/orbitDamping';
   import { portableRenderSceneJSON } from '$lib/utils/portableRenderScene';
   import { sceneSignature } from '$lib/utils/sceneSignature';
+  import { stairRises, stairSpan } from '$lib/utils/stairLevels';
   import { framingContext, shouldFrameScene, type FramingContext } from '$lib/utils/sceneFraming';
   import { WalkthroughMotion } from '$lib/utils/walkthroughMotion';
   import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
@@ -39,6 +41,7 @@
   import { ownColorCanvasTexture, refreshBackgroundTexture } from '$lib/utils/viewerTextures';
   import { gpuName, rememberShadowsLost, shadowsSupported } from '$lib/utils/viewerShadows';
   import { createFurnitureModelWithGLB, createPlacedFurnitureModel } from '$lib/utils/furnitureModelLoader';
+  import { placedFurnitureY } from '$lib/utils/furnitureElevation';
   import { addFurniture } from '$lib/stores/project';
   import { detectRooms, resolveRoomGeometry, getRoomPolygon, roomCentroid, roomLabelPosition } from '$lib/utils/roomDetection';
   import { getMaterial } from '$lib/utils/materials';
@@ -89,6 +92,17 @@
   let wallsTransparent = $state(false);
   // Multi-floor stacking
   let showAllFloors = $state(false);
+  // How the floors other than the active one are drawn while stacked (issue #130).
+  let otherFloorsStyle = $state<StackedFloorsStyle>('translucent');
+  const OTHER_FLOOR_STYLES: { style: StackedFloorsStyle; label: TranslationKey }[] = [
+    { style: 'translucent', label: 'viewerNav.otherFloorsTranslucent' },
+    { style: 'solid', label: 'viewerNav.otherFloorsSolid' },
+  ];
+  function setOtherFloorsStyle(style: StackedFloorsStyle) {
+    otherFloorsStyle = style;
+    // The scene signature includes the style, so this rebuilds without refitting the camera.
+    rebuildScene();
+  }
   let activeFloorElevation = $state(0);
   let sceneGround: THREE.Mesh;
   // Stacked geometry uses the same floor levels as the 2D reference layer.
@@ -832,7 +846,7 @@
       // Camera placement mode: first click = position, second click = look-at target
       if (cameraPlacementMode) {
         const hit = new THREE.Vector3();
-        if (raycaster.ray.intersectPlane(floorPlane, hit)) {
+        if (activeFloorHit(hit)) {
           if (!cameraPlaced) {
             // First click: place camera position
             cameraPosition = { x: hit.x, y: cameraHeight, z: hit.z };
@@ -870,7 +884,7 @@
       if (furniturePlacementMode && selectedCatalogId) {
         raycaster.setFromCamera(mouse, camera);
         const hit = new THREE.Vector3();
-        if (raycaster.ray.intersectPlane(floorPlane, hit)) {
+        if (activeFloorHit(hit)) {
           // Convert 3D (x, z) to 2D (x, y)
           const pos2D = { x: hit.x, y: hit.z };
           addFurniture(selectedCatalogId, pos2D);
@@ -879,15 +893,8 @@
         return;
       }
 
-      const intersects = raycaster.intersectObjects(wallGroup.children, false);
-      let hitWallId: string | null = null;
-      for (const hit of intersects) {
-        if (hit.object.userData.wallId) {
-          hitWallId = hit.object.userData.wallId;
-          break;
-        }
-      }
-      selectedElementId.set(hitWallId);
+      // A solid stacked floor in front of a wall hides it, so the click stops there.
+      selectedElementId.set(pickedWallId(raycaster.intersectObjects(wallGroup.children, false), otherFloorsStyle));
     });
 
     // Hover highlight in edit mode
@@ -900,12 +907,13 @@
         mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
         raycaster.setFromCamera(mouse, camera);
         const hit = new THREE.Vector3();
-        if (raycaster.ray.intersectPlane(floorPlane, hit)) {
+        if (activeFloorHit(hit)) {
           if (!ghostGroup) {
             createGhostPreview(selectedCatalogId);
           }
           if (ghostGroup) {
-            ghostGroup.position.set(hit.x, hit.y + 1.5, hit.z);
+            // A new item takes its catalog default height above the floor, as placement will save it.
+            ghostGroup.position.set(hit.x, hit.y + placedFurnitureY({ catalogId: selectedCatalogId, scale: { x: 1, y: 1, z: 1 } }), hit.z);
             ghostGroup.visible = true;
           }
         } else if (ghostGroup) {
@@ -929,7 +937,7 @@
       mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
       raycaster.setFromCamera(mouse, camera);
       const intersects = raycaster.intersectObjects(wallGroup.children, false);
-      const hit = intersects.find(i => i.object.userData.wallId);
+      const hit = pickedWallId(intersects, otherFloorsStyle) ? intersects.find(i => i.object.userData.wallId) : undefined;
       if (hit && hit.object !== hoveredMesh) {
         hoveredMesh = hit.object as THREE.Mesh;
         renderer.domElement.style.cursor = 'url("data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23fff" stroke="%23000" stroke-width="1.5" d="M16.56 8.94L7.62 0 6.21 1.41l2.38 2.38-5.15 5.15a1.49 1.49 0 0 0 0 2.12l5.5 5.5a1.49 1.49 0 0 0 2.12 0l5.5-5.5a1.49 1.49 0 0 0 0-2.12zM5.21 10L10 5.21 14.79 10H5.21zM19 11.5s-2 2.17-2 3.5a2 2 0 1 0 4 0c0-1.33-2-3.5-2-3.5z"/></svg>') + '") 2 22, pointer';
@@ -1001,6 +1009,14 @@
     return true;
   }
 
+  /** Where the pointer ray meets the active floor's plane, unless a solid stacked floor hides that spot. */
+  function activeFloorHit(target: THREE.Vector3): boolean {
+    if (!raycaster.ray.intersectPlane(floorPlane, target)) return false;
+    if (otherFloorsStyle !== 'solid') return true;
+    const distance = raycaster.ray.origin.distanceTo(target);
+    return !stackedFloorOccludes(raycaster.intersectObjects(wallGroup.children, false), distance, otherFloorsStyle);
+  }
+
   function createGhostPreview(catalogId: string) {
     removeGhostPreview();
     const cat = getCatalogItem(catalogId);
@@ -1061,13 +1077,16 @@
     }
   }
 
-  function buildStairs(floor: Floor) {
-    if (!floor.stairs) return;
+  /** Stairs climb to the next floor (up) or descend to the floor below (down); see stairLevels. */
+  function buildStairs(floor: Floor, group: THREE.Group = wallGroup, yOffset = 0, opacity = 1) {
+    if (!floor.stairs?.length) return;
+    const rises = stairRises(get(currentProject)?.floors ?? [floor], floor.id);
+    const reference = opacity < 1 ? { transparent: true, opacity } : {};
     for (const stair of floor.stairs) {
-      const totalHeight = 260; // standard floor height
+      const { base, rise: totalHeight } = stairSpan(stair, rises);
       const riserHeight = totalHeight / stair.riserCount;
-      const mat = new THREE.MeshStandardMaterial({ color: 0xd4a574, roughness: 0.7 });
-      const sideMat = new THREE.MeshStandardMaterial({ color: 0xb8956a, roughness: 0.8 });
+      const mat = new THREE.MeshStandardMaterial({ color: 0xd4a574, roughness: 0.7, ...reference });
+      const sideMat = new THREE.MeshStandardMaterial({ color: 0xb8956a, roughness: 0.8, ...reference });
       const type = stair.stairType || 'straight';
 
       const stairGroup = new THREE.Group();
@@ -1155,12 +1174,11 @@
         }
       }
 
-      stairGroup.position.set(stair.position.x, 0, stair.position.y);
+      // A down stair is the same flight as the up stair it meets on the floor below, so it keeps
+      // that shape and footprint and only moves down (the plan draws both with the same treads).
+      stairGroup.position.set(stair.position.x, yOffset + base, stair.position.y);
       stairGroup.rotation.y = -(stair.rotation * Math.PI) / 180;
-      if (stair.direction === 'down') {
-        stairGroup.rotation.y += Math.PI;
-      }
-      wallGroup.add(stairGroup);
+      group.add(stairGroup);
     }
   }
 
@@ -1187,6 +1205,67 @@
   function clearGroup(group: THREE.Object3D) {
     disposeModel(group);
     group.clear();
+  }
+
+  /** A wooden door leaf `w` wide and `h` tall, pivoting on its hinge edge: local x runs
+   * 0..w from the hinge, y is centred on the leaf. Shaker styles are four stacked
+   * recessed panels in a stile-and-rail frame; glazed shaker glazes the top two, and
+   * fully glazed fills the frame with one pane. Victorian styles are a 2×2 grid split by
+   * a centre muntin and a lock rail centred at `lockY` (the handle height); the glazed
+   * version glazes the upper pair. */
+  function buildDoorLeaf(w: number, h: number, style: NonNullable<Door['leafStyle']>, woodMat: THREE.Material, panelMat: THREE.Material, glassMat: THREE.Material, lockY = 0): THREE.Group {
+    const leaf = new THREE.Group();
+    const depth = 4;
+    const add = (bw: number, bh: number, d: number, x: number, y: number, mat: THREE.Material, glass = false) => {
+      if (bw <= 0 || bh <= 0) return;
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, d), mat);
+      mesh.position.set(x, y, 0);
+      mesh.castShadow = !glass;
+      mesh.userData.xray = true;
+      mesh.userData.renderExclude = glass;
+      leaf.add(mesh);
+    };
+    const stile = Math.min(11, w * 0.15), topRail = Math.min(11, h * 0.06), bottomRail = Math.min(20, h * 0.1);
+    if (style === 'slab' || w < stile * 2 + 10 || h < topRail + bottomRail + 20) {
+      add(w, h, depth, w / 2, 0, woodMat);
+      return leaf;
+    }
+    const bottom = -h / 2, top = h / 2, innerW = w - stile * 2, cx = w / 2;
+    add(stile, h, depth, stile / 2, 0, woodMat);
+    add(stile, h, depth, w - stile / 2, 0, woodMat);
+    add(innerW, bottomRail, depth, cx, bottom + bottomRail / 2, woodMat);
+    add(innerW, topRail, depth, cx, top - topRail / 2, woodMat);
+    const openH = h - topRail - bottomRail;
+    if (style === 'glazed') {
+      add(innerW, openH, 1, cx, bottom + bottomRail + openH / 2, glassMat, true);
+      return leaf;
+    }
+    if (style === 'victorian' || style === 'glazedVictorian') {
+      const lockRail = Math.min(18, openH * 0.1), muntin = Math.min(10, innerW * 0.12);
+      // Keep both panel rows at least 15 cm tall wherever the handle sits
+      const lock = Math.max(bottom + bottomRail + 15 + lockRail / 2, Math.min(top - topRail - 15 - lockRail / 2, lockY));
+      add(innerW, lockRail, depth, cx, lock, woodMat);
+      const lowerH = lock - lockRail / 2 - (bottom + bottomRail), upperH = top - topRail - (lock + lockRail / 2);
+      add(muntin, lowerH, depth, cx, bottom + bottomRail + lowerH / 2, woodMat);
+      add(muntin, upperH, depth, cx, top - topRail - upperH / 2, woodMat);
+      const panelW = (innerW - muntin) / 2;
+      for (const side of [-1, 1]) {
+        const px = cx + side * (muntin / 2 + panelW / 2);
+        add(panelW, lowerH, depth - 2, px, bottom + bottomRail + lowerH / 2, panelMat);
+        if (style === 'glazedVictorian') add(panelW, upperH, 1, px, top - topRail - upperH / 2, glassMat, true);
+        else add(panelW, upperH, depth - 2, px, top - topRail - upperH / 2, panelMat);
+      }
+      return leaf;
+    }
+    // Four equal stacked panels split by three intermediate rails
+    const midRail = Math.min(9, openH * 0.06), panelH = (openH - midRail * 3) / 4;
+    for (let i = 0; i < 4; i++) {
+      const y = bottom + bottomRail + i * (panelH + midRail) + panelH / 2;
+      if (style === 'glazedShaker' && i >= 2) add(innerW, panelH, 1, cx, y, glassMat, true);
+      else add(innerW, panelH, depth - 2, cx, y, panelMat); // recessed 1 cm each face
+      if (i < 3) add(innerW, midRail, depth, cx, y + panelH / 2 + midRail / 2, woodMat);
+    }
+    return leaf;
   }
 
   function addOpeningFrame(wall: Wall, position: number, width: number, bottom: number, height: number, depth: number, material: THREE.Material, excludeFromRender = false) {
@@ -1366,7 +1445,12 @@
       const angle = Math.atan2(right.y - left.y, right.x - left.x);
       const wt = Math.max(wall.thickness, WALL_THICKNESS);
 
-      const frameMat = new THREE.MeshStandardMaterial({ color: 0x6b4423, roughness: 0.6 });
+      const glazed = isGlazedDoor(door.type);
+      const frameMat = new THREE.MeshStandardMaterial(glazed
+        ? { color: new THREE.Color(doorFrameColor(door)), roughness: 0.4, metalness: 0.25 }
+        : { color: new THREE.Color(doorFrameColor(door)), roughness: 0.6 });
+      // Wooden leaves follow a chosen frame colour; unset, they keep the natural wood.
+      const leafColor = new THREE.Color(isDoorFrameColor(door.frameColor) ? door.frameColor : 0x8B6914);
       const doorHeight = opening.top;
       const jamb = 5; // jamb thickness
 
@@ -1392,35 +1476,177 @@
           secMesh.userData.xray = true;
           wallGroup.add(secMesh);
         }
+      } else if (door.type === 'pocket') {
+        // Pocket door: a plain wooden slab shown half slid into a cavity in the wall on
+        // the hinge side (where the plan symbol draws the dashed pocket). It slides no
+        // further than the wall runs, and on a curved wall only while the straight slab
+        // stays inside the wall faces; the rest of the door stays across the opening.
+        const slabMat = new THREE.MeshStandardMaterial({ color: leafColor, roughness: 0.5 });
+        const pullMat = new THREE.MeshStandardMaterial({ color: 0x2b2b2b, roughness: 0.4, metalness: 0.6 });
+        const group = new THREE.Group();
+        group.position.set(px, 0, py);
+        group.rotation.y = -angle;
+        const pocketSide = door.swingDirection === 'left' ? 1 : -1; // matches the plan symbol's cavity
+        const W = door.width, H = doorHeight, depth = 4;
+        const along = { x: (right.x - left.x) / W, y: (right.y - left.y) / W };
+        const hidden = pocketDoorTravel(W, pocketSide === 1 ? length - opening.right : opening.left,
+          pocketSide === 1 ? right : left, { x: along.x * pocketSide, y: along.y * pocketSide },
+          path.spans, wt / 2 - depth / 2);
+        const center = pocketSide * hidden;
+        const slab = new THREE.Mesh(new THREE.BoxGeometry(W, H - 2, depth), slabMat);
+        slab.position.set(center, (H - 2) / 2 + 1, 0);
+        slab.castShadow = true;
+        slab.userData.xray = true;
+        group.add(slab);
+        // Flush pulls on both faces near the leading edge
+        const pullX = center - pocketSide * (W / 2 - 6);
+        for (const face of [-1, 1]) {
+          const pull = new THREE.Mesh(new THREE.BoxGeometry(3, 15, 0.6), pullMat);
+          pull.position.set(pullX, Math.min(100, H * 0.5), face * (depth / 2 + 0.2));
+          pull.userData.xray = true;
+          group.add(pull);
+        }
+        wallGroup.add(group);
+      } else if (glazed) {
+        // Glazed doors: metal-framed glass leaves. Bifolds are below; otherwise closed, two leaves. Sliding leaves run on
+        // offset tracks and overlap at the meeting stile; French leaves are hinged at
+        // the jambs and meet flush in the wall plane.
+        const glassMat = new THREE.MeshStandardMaterial({
+          color: 0xa8d8ea, transparent: true, opacity: 0.3,
+          roughness: 0.05, metalness: 0.1, side: THREE.DoubleSide
+        });
+        const hardwareMat = new THREE.MeshStandardMaterial({ color: 0xc8c8c8, roughness: 0.25, metalness: 0.8 });
+        const group = new THREE.Group();
+        group.position.set(px, 0, py);
+        group.rotation.y = -angle;
+        const addBox = (w: number, h: number, d: number, x: number, y: number, z: number, mat: THREE.Material, glass = false, parent: THREE.Object3D = group) => {
+          if (w <= 0 || h <= 0) return;
+          const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+          mesh.position.set(x, y, z);
+          mesh.userData.xray = true;
+          mesh.userData.renderExclude = glass;
+          mesh.castShadow = !glass;
+          parent.add(mesh);
+        };
+        const W = door.width, H = doorHeight;
+        if (door.type === 'bifold') {
+          // Bifold: four glazed panels hung from a head track, folded concertina-style
+          // (30° zig-zag) and stacked toward the hinge-side jamb.
+          const panels = 4, fold = Math.PI / 6;
+          const pitch = W / panels, panelW = pitch - 1;
+          const bottom = 1, top = H - 2, panelH = top - bottom;
+          const stile = Math.min(5, panelW * 0.15), topRail = Math.min(7, panelH * 0.06), bottomRail = Math.min(10, panelH * 0.08), depth = 4;
+          const hingeSide = door.swingDirection === 'left' ? 1 : -1; // matches doorPanelPose
+          const face = door.flipSide ? -1 : 1;
+          const x0 = hingeSide * W / 2, dir = -hingeSide;
+          const c = pitch * Math.cos(fold), sz = pitch * Math.sin(fold) * face;
+          const points = Array.from({ length: panels + 1 }, (_, i) => ({ x: x0 + dir * i * c, z: i % 2 ? sz : 0 }));
+          addBox(W, 2, 6, 0, H - 1, 0, frameMat); // head track
+          for (let i = 0; i < panels; i++) {
+            const a = points[i], b = points[i + 1];
+            const leaf = new THREE.Group();
+            leaf.position.set((a.x + b.x) / 2, 0, (a.z + b.z) / 2);
+            leaf.rotation.y = Math.atan2(-(b.z - a.z), b.x - a.x);
+            group.add(leaf);
+            // Frame: two stiles, top and bottom rails, then the glass
+            addBox(stile, panelH, depth, -panelW / 2 + stile / 2, bottom + panelH / 2, 0, frameMat, false, leaf);
+            addBox(stile, panelH, depth, panelW / 2 - stile / 2, bottom + panelH / 2, 0, frameMat, false, leaf);
+            addBox(panelW - stile * 2, bottomRail, depth, 0, bottom + bottomRail / 2, 0, frameMat, false, leaf);
+            addBox(panelW - stile * 2, topRail, depth, 0, top - topRail / 2, 0, frameMat, false, leaf);
+            const glassH = panelH - topRail - bottomRail;
+            addBox(panelW - stile * 2, glassH, 1, 0, bottom + bottomRail + glassH / 2, 0, glassMat, true, leaf);
+            if (i === panels - 1) {
+              // Pull handles on both faces of the lead panel's free stile
+              for (const side of [-1, 1]) addBox(1.5, 30, 2, panelW / 2 - stile / 2, Math.min(100, H * 0.5), side * (depth / 2 + 1.5), hardwareMat, false, leaf);
+            }
+          }
+          // Hinge knuckles at the jamb and between panels
+          for (let i = 0; i < panels; i++) {
+            for (const y of [20, panelH / 2, panelH - 20]) addBox(1.5, 10, 1.5, points[i].x, bottom + y, points[i].z, hardwareMat);
+          }
+          wallGroup.add(group);
+        } else {
+          const sliding = door.type === 'sliding';
+          const bottom = sliding ? 2 : 1; // sliding leaves sit on the floor track
+          const top = sliding ? H - 2 : H - 1;
+          const leafH = top - bottom;
+          const overlap = sliding ? Math.min(6, W * 0.05) : -1; // French leaves leave a 1 cm gap
+          const leafW = W / 2 + overlap / 2;
+          const stile = Math.min(sliding ? 6 : 7, leafW * 0.15);
+          const topRail = Math.min(sliding ? 8 : 9, leafH * 0.08);
+          const bottomRail = Math.min(sliding ? 8 : 14, leafH * 0.1);
+          const depth = sliding ? 4 : 5;
+          const trackOffset = sliding ? Math.min(3, wt / 4) : 0;
+          if (sliding) {
+            // Bottom and head tracks spanning the opening
+            addBox(W, 2, trackOffset * 2 + depth, 0, 1, 0, frameMat);
+            addBox(W, 2, trackOffset * 2 + depth, 0, H - 1, 0, frameMat);
+          }
+          for (const side of [-1, 1]) {
+            const cx = side * (W / 2 - leafW / 2);
+            // The plan draws the end-side panel on the opening side's face.
+            const z = side * trackOffset * (door.flipSide ? -1 : 1);
+            // Frame: two stiles, top and bottom rails
+            addBox(stile, leafH, depth, cx - leafW / 2 + stile / 2, bottom + leafH / 2, z, frameMat);
+            addBox(stile, leafH, depth, cx + leafW / 2 - stile / 2, bottom + leafH / 2, z, frameMat);
+            addBox(leafW - stile * 2, bottomRail, depth, cx, bottom + bottomRail / 2, z, frameMat);
+            addBox(leafW - stile * 2, topRail, depth, cx, top - topRail / 2, z, frameMat);
+            // Glass infill
+            const glassH = leafH - topRail - bottomRail;
+            addBox(leafW - stile * 2, glassH, 1, cx, bottom + bottomRail + glassH / 2, z, glassMat, true);
+            const meetX = cx - side * (leafW / 2 - stile / 2);
+            const handleY = Math.min(100, H * 0.5);
+            if (sliding) {
+              // Vertical pull handle on the meeting stile, on the leaf's outward face
+              addBox(1.5, 30, 2, meetX, handleY, z + Math.sign(z) * (depth / 2 + 1.5), frameMat);
+            } else {
+              // Lever handles on both faces of the meeting stile
+              for (const face of [-1, 1]) {
+                const fz = face * (depth / 2 + 1);
+                addBox(2, 6, 2, meetX, handleY, fz, hardwareMat);
+                addBox(11, 1.5, 1.5, meetX + side * 5.5, handleY + 1.5, fz + face * 1.5, hardwareMat);
+              }
+              // Hinge knuckles on the jamb side
+              const hingeX = cx + side * (leafW / 2);
+              // Knuckles show on the face the leaves swing toward, as the plan arcs do
+              const hingeZ = doorOpeningSide(door) * (depth / 2 + 0.5);
+              for (const y of [20, leafH / 2, leafH - 20]) addBox(1.5, 10, 1.5, hingeX, bottom + y, hingeZ, hardwareMat);
+            }
+          }
+          wallGroup.add(group);
+        }
       } else {
-        // Door panel — honor the saved hinge and opening side, slightly ajar (15°)
-        const panelMat = new THREE.MeshStandardMaterial({ color: 0x8B6914, roughness: 0.5 });
-        const panelGeo = new THREE.BoxGeometry(door.width - 2, doorHeight - 4, 4);
-        // Shift geometry so pivot is at left edge
-        panelGeo.translate(door.width / 2 - 1, 0, 0);
-        const panelMesh = new THREE.Mesh(panelGeo, panelMat);
-        const pose = doorPanelPose({ ...wall, start: left, end: right, curvePoint: undefined }, { ...door, position: 0.5 });
-        panelMesh.position.set(pose.x, doorHeight / 2 - 2, pose.z);
-        panelMesh.rotation.y = -pose.yaw;
-        panelMesh.castShadow = true;
-        panelMesh.userData.xray = true;
-        wallGroup.add(panelMesh);
-
-        // Door handle (small sphere)
+        // Wooden door leaves, slightly ajar (15°), opening toward the face the plan symbol
+        // draws. A single door has one leaf on the saved hinge; a double door has two
+        // half-width leaves hinged at opposite jambs that part in the middle.
+        const panelMat = new THREE.MeshStandardMaterial({ color: leafColor, roughness: 0.5 });
+        const recessMat = new THREE.MeshStandardMaterial({ color: leafColor.clone().multiplyScalar(0.88), roughness: 0.55 });
+        const leafGlassMat = new THREE.MeshStandardMaterial({
+          color: 0xa8d8ea, transparent: true, opacity: 0.3,
+          roughness: 0.05, metalness: 0.1, side: THREE.DoubleSide
+        });
+        const leafStyle = door.leafStyle ?? 'slab';
         const handleMat = new THREE.MeshStandardMaterial({ color: 0xc0c0c0, metalness: 0.8, roughness: 0.2 });
-        const handleGeo = new THREE.SphereGeometry(3, 8, 8);
-        const handleMesh = new THREE.Mesh(handleGeo, handleMat);
-        // Place on the door panel's right side at handle height
-        const handleLocalX = door.width - 12;
-        const handleCos = Math.cos(pose.yaw);
-        const handleSin = Math.sin(pose.yaw);
-        handleMesh.position.set(
-          panelMesh.position.x + handleLocalX * handleCos,
-          Math.min(100, doorHeight * 0.5),
-          panelMesh.position.z + handleLocalX * handleSin
-        );
-        handleMesh.userData.xray = true;
-        wallGroup.add(handleMesh);
+        const gap = door.type === 'double' ? 1 : 2;
+        for (const { width: leafW, pose } of swingLeaves(left, right, door)) {
+          if (leafW <= gap + 2) continue;
+          const handleY = Math.min(100, doorHeight * 0.5);
+          const panelMesh = buildDoorLeaf(leafW - gap, doorHeight - 4, leafStyle, panelMat, recessMat, leafGlassMat, handleY - (doorHeight / 2 - 2));
+          panelMesh.position.set(pose.x, doorHeight / 2 - 2, pose.z);
+          panelMesh.rotation.y = -pose.yaw;
+          wallGroup.add(panelMesh);
+
+          // Door handle (small sphere) near the leaf's free edge
+          const handleMesh = new THREE.Mesh(new THREE.SphereGeometry(3, 8, 8), handleMat);
+          const handleLocalX = leafW - 12;
+          handleMesh.position.set(
+            panelMesh.position.x + handleLocalX * Math.cos(pose.yaw),
+            handleY,
+            panelMesh.position.z + handleLocalX * Math.sin(pose.yaw)
+          );
+          handleMesh.userData.xray = true;
+          wallGroup.add(handleMesh);
+        }
       }
     }
 
@@ -1644,8 +1870,11 @@
     const activeF = project.floors.find(f => f.id === project.activeFloorId) ?? project.floors[0];
     buildWalls(activeF);
 
-    const entries = assembleFloorStack(wallGroup, project.floors, activeF.id,
-      (floor, group, offset) => buildFloorIntoGroup(floor, group, offset, 0.35));
+    const entries = assembleFloorStack(wallGroup, project.floors, activeF.id, (floor, group, offset) => {
+      buildFloorIntoGroup(floor, group, offset, otherFloorsStyle);
+      // Picking and placement treat solid floors as covering what lies behind them.
+      group.traverse(object => { object.userData.stackedFloor = true; });
+    });
     const box = new THREE.Box3().setFromObject(wallGroup);
     const center = box.getCenter(new THREE.Vector3());
     const labelX = box.isEmpty() ? -200 : box.min.x - 200;
@@ -1679,15 +1908,16 @@
     wallGroup.add(sprite);
   }
 
-  /** Build a single floor's walls/doors/windows into a group at a Y offset with optional transparency */
-  function buildFloorIntoGroup(floor: Floor, group: THREE.Group, yOffset: number, opacity: number) {
-    const transparentMat = (color: number, roughness = 0.9) => new THREE.MeshStandardMaterial({
-      color, roughness, transparent: true, opacity,
+  /** Build another floor's walls, slabs and columns into a group at a Y offset, translucent or solid. */
+  function buildFloorIntoGroup(floor: Floor, group: THREE.Group, yOffset: number, style: StackedFloorsStyle) {
+    const look = stackedFloorMaterial(style);
+    const stackedMat = (color: number, roughness = 0.9) => new THREE.MeshStandardMaterial({
+      color, roughness, ...look,
       polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1
     });
 
-    const defaultInteriorMat = transparentMat(0xffffff);
-    const defaultExteriorMat = transparentMat(0xd4cfc9, 0.85);
+    const defaultInteriorMat = stackedMat(0xffffff);
+    const defaultExteriorMat = stackedMat(0xd4cfc9, 0.85);
 
     for (const sourceWall of floor.walls) {
       for (const span of wallProfileSpans(sourceWall, floor.doors.filter(d => d.wallId === sourceWall.id), floor.windows.filter(w => w.wallId === sourceWall.id))) {
@@ -1737,12 +1967,15 @@
       if (room.floorOpening) continue;
       const geometry = createRoomSlabGeometry(polygon, floor.slabThickness, holes[index]);
       if (!geometry) continue;
-      const slab = new THREE.Mesh(geometry, transparentMat(0xcccccc, 0.95));
+      const slab = new THREE.Mesh(geometry, stackedMat(0xcccccc, 0.95));
       slab.userData.renderMaterial = 'floor';
       slab.position.y = yOffset;
       slab.receiveShadow = true;
       group.add(slab);
     }
+
+    // Stairs, drawn like the rest of a reference floor (translucent or solid)
+    buildStairs(floor, group, yOffset, look.opacity);
 
     // Columns
     if (floor.columns) {
@@ -1755,7 +1988,7 @@
         } else {
           geo = new THREE.CylinderGeometry(d / 2, d / 2, h, 24);
         }
-        const mat = new THREE.MeshStandardMaterial({ color: col.color || '#cccccc', roughness: 0.7, transparent: true, opacity });
+        const mat = new THREE.MeshStandardMaterial({ color: col.color || '#cccccc', roughness: 0.7, ...look });
         const mesh = new THREE.Mesh(geo, mat);
         mesh.position.set(col.position.x, h / 2 + yOffset, col.position.y);
         mesh.castShadow = true;
@@ -1768,7 +2001,7 @@
   function rebuildScene(force = false) {
     const project = get(currentProject);
     if (!project || !currentFloor) return;
-    const signature = sceneSignature(project, currentFloor, showAllFloors, get(projectSettings).units);
+    const signature = sceneSignature(project, currentFloor, showAllFloors, get(projectSettings).units, otherFloorsStyle);
     if (!force && signature === renderedSignature) return;
     const walkingPosition = walkthroughMode ? camera.position.clone() : null;
     const walkingRotation = walkthroughMode ? camera.quaternion.clone() : null;
@@ -2054,8 +2287,19 @@
       title={$t('viewerExport.help')}>{$t('viewerExport.button')}</button>
   </div>
   {#if showAllFloors && currentFloor}
-    <div class="absolute bottom-4 right-4 z-10 rounded bg-black/70 px-3 py-2 text-xs text-white pointer-events-none">
-      {$t('viewerExport.elevation', { name: currentFloor.name, value: activeFloorElevation })}
+    <div class="absolute bottom-4 right-4 z-10 flex flex-col items-end gap-1.5 pointer-events-none">
+      <!-- The visible caption gives way on phones so the control clears Export Blender Scene. -->
+      <div role="group" aria-label={$t('viewerNav.otherFloors')} class="pointer-events-auto flex items-center gap-1 rounded bg-black/70 p-1 text-xs text-white">
+        <span class="hidden px-1.5 sm:inline" aria-hidden="true">{$t('viewerNav.otherFloors')}</span>
+        {#each OTHER_FLOOR_STYLES as option (option.style)}
+          <button type="button" aria-pressed={otherFloorsStyle === option.style} onclick={() => setOtherFloorsStyle(option.style)}
+            class="rounded px-2 py-1 transition-colors {otherFloorsStyle === option.style ? 'bg-purple-600 text-white' : 'hover:bg-white/15'}"
+          >{$t(option.label)}</button>
+        {/each}
+      </div>
+      <div class="rounded bg-black/70 px-3 py-2 text-xs text-white">
+        {$t('viewerExport.elevation', { name: currentFloor.name, value: activeFloorElevation })}
+      </div>
     </div>
   {/if}
   <!-- 3D Toolbar Row -->

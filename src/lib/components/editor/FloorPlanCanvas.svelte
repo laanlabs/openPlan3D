@@ -76,6 +76,35 @@
   // Digits typed while drawing a wall — Enter places the wall at exactly this length (issue #6)
   let typedWallLength = $state('');
   let wallSequenceFirst: Point | null = $state(null);
+  // Closing a chain back to its first point must not lay a wall along an existing one: after a
+  // single segment A→B, or a straight run A→M→C, the closing wall would lie on top of the chain and
+  // hide behind its doorways and windows in 3D (issue #129). Only straight walls are compared.
+  function closingWallOverlaps(a: Point, b: Point): boolean {
+    const dx = b.x - a.x, dy = b.y - a.y, length = Math.hypot(dx, dy);
+    if (length < 1) return true;
+    const ux = dx / length, uy = dy / length;
+    return !!currentFloor?.walls.some(w => {
+      if (w.curvePoint) return false;
+      const off = (p: Point) => Math.abs((p.x - a.x) * uy - (p.y - a.y) * ux);
+      if (off(w.start) > 1 || off(w.end) > 1) return false;
+      const t0 = (w.start.x - a.x) * ux + (w.start.y - a.y) * uy;
+      const t1 = (w.end.x - a.x) * ux + (w.end.y - a.y) * uy;
+      return Math.min(length, Math.max(t0, t1)) - Math.max(0, Math.min(t0, t1)) > 1;
+    });
+  }
+  // The second press of a double-click or double-tap finishes the chain instead of adding a segment.
+  // Synthesised touch presses carry no click count, so they use the double-tap window instead.
+  let lastWallPress: { time: number; x: number; y: number } | null = null;
+  // Whether the active floor's view is settled (fitted once, restored, or chosen by drawing).
+  let initialFitDone = false;
+  function isRepeatWallPress(e: MouseEvent): boolean {
+    const now = performance.now();
+    const previous = lastWallPress;
+    lastWallPress = { time: now, x: e.clientX, y: e.clientY };
+    if (e.detail >= 2) return true;
+    return e.detail === 0 && !!previous && now - previous.time < 350
+      && Math.hypot(e.clientX - previous.x, e.clientY - previous.y) < 30;
+  }
   let mousePos: Point = $state({ x: 0, y: 0 });
 
   // Inline room name editing
@@ -1762,7 +1791,7 @@
 
     const floorViews = new Map<string, { x: number; y: number; zoom: number; minimumZoom: number; fitted: boolean }>();
     let activeViewKey: string | null = null;
-    let initialFitDone = false;
+    initialFitDone = false;
     let initialFitPending = false;
     function queueInitialFit() {
       if (initialFitDone || initialFitPending) return;
@@ -2440,16 +2469,20 @@
     }
 
     if (tool === 'wall') {
+      if (isRepeatWallPress(e)) return;
       let endPt = snapWallEndPoint(wp);
       if (wallStart) endPt = applyTypedWallLength(endPt);
       typedWallLength = '';
       if (!wallStart) {
         wallStart = endPt;
         wallSequenceFirst = endPt;
+        // The person has chosen where to draw: a first wall on an empty floor must not
+        // trigger the initial zoom-to-fit and move the view under the rest of the gesture.
+        initialFitDone = true;
       } else {
         // Auto-close: if clicking near the first point of the sequence, close the loop
         if (wallSequenceFirst && Math.hypot(endPt.x - wallSequenceFirst.x, endPt.y - wallSequenceFirst.y) < 20 && Math.hypot(wallStart.x - wallSequenceFirst.x, wallStart.y - wallSequenceFirst.y) > 20) {
-          addWall(wallStart, wallSequenceFirst);
+          if (!closingWallOverlaps(wallStart, wallSequenceFirst)) addWall(wallStart, wallSequenceFirst);
           wallStart = null;
           wallSequenceFirst = null;
         } else if (Math.hypot(endPt.x - wallStart.x, endPt.y - wallStart.y) > 5) {
@@ -2739,7 +2772,8 @@
     }
     if (currentTool === 'wall' && wallStart && wallSequenceFirst) {
       // Auto-close the wall loop back to the first point if we have at least 2 walls
-      if (Math.hypot(wallStart.x - wallSequenceFirst.x, wallStart.y - wallSequenceFirst.y) > 5) {
+      if (Math.hypot(wallStart.x - wallSequenceFirst.x, wallStart.y - wallSequenceFirst.y) > 5
+        && !closingWallOverlaps(wallStart, wallSequenceFirst)) {
         addWall(wallStart, wallSequenceFirst);
       }
       wallStart = null;
@@ -3526,7 +3560,7 @@
     // 'C' to close wall loop back to first point (but not Ctrl+C)
     if ((e.key === 'c' || e.key === 'C') && !e.ctrlKey && !e.metaKey && wallStart && wallSequenceFirst) {
       if (Math.hypot(wallStart.x - wallSequenceFirst.x, wallStart.y - wallSequenceFirst.y) > 5) {
-        addWall(wallStart, wallSequenceFirst);
+        if (!closingWallOverlaps(wallStart, wallSequenceFirst)) addWall(wallStart, wallSequenceFirst);
         wallStart = null;
         wallSequenceFirst = null;
       }
