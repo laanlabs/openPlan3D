@@ -21,12 +21,13 @@
   import { roomHoles } from '$lib/utils/roomNesting';
   import { createSlopedBoxGeometry, mapWallUVs } from '$lib/utils/slopedWallGeometry';
   import { buildWallSegments, roomCeilingHeight, wallProfileSpans, wallPathProfile, pathOpening, doorPanelPose } from '$lib/utils/wallProfiles';
-  import { assembleFloorStack } from '$lib/utils/floorStack';
+  import { assembleFloorStack, pickedWallId, stackedFloorMaterial, stackedFloorOccludes, type StackedFloorsStyle } from '$lib/utils/floorStack';
   import { setFloorCameraPose } from '$lib/utils/floorCamera';
   import { frameScene } from '$lib/utils/frameScene';
   import { updateOrbitDamping } from '$lib/utils/orbitDamping';
   import { portableRenderSceneJSON } from '$lib/utils/portableRenderScene';
   import { sceneSignature } from '$lib/utils/sceneSignature';
+  import { stairRises, stairSpan } from '$lib/utils/stairLevels';
   import { framingContext, shouldFrameScene, type FramingContext } from '$lib/utils/sceneFraming';
   import { WalkthroughMotion } from '$lib/utils/walkthroughMotion';
   import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
@@ -89,6 +90,17 @@
   let wallsTransparent = $state(false);
   // Multi-floor stacking
   let showAllFloors = $state(false);
+  // How the floors other than the active one are drawn while stacked (issue #130).
+  let otherFloorsStyle = $state<StackedFloorsStyle>('translucent');
+  const OTHER_FLOOR_STYLES: { style: StackedFloorsStyle; label: TranslationKey }[] = [
+    { style: 'translucent', label: 'viewerNav.otherFloorsTranslucent' },
+    { style: 'solid', label: 'viewerNav.otherFloorsSolid' },
+  ];
+  function setOtherFloorsStyle(style: StackedFloorsStyle) {
+    otherFloorsStyle = style;
+    // The scene signature includes the style, so this rebuilds without refitting the camera.
+    rebuildScene();
+  }
   let activeFloorElevation = $state(0);
   let sceneGround: THREE.Mesh;
   // Stacked geometry uses the same floor levels as the 2D reference layer.
@@ -819,7 +831,7 @@
       // Camera placement mode: first click = position, second click = look-at target
       if (cameraPlacementMode) {
         const hit = new THREE.Vector3();
-        if (raycaster.ray.intersectPlane(floorPlane, hit)) {
+        if (activeFloorHit(hit)) {
           if (!cameraPlaced) {
             // First click: place camera position
             cameraPosition = { x: hit.x, y: cameraHeight, z: hit.z };
@@ -857,7 +869,7 @@
       if (furniturePlacementMode && selectedCatalogId) {
         raycaster.setFromCamera(mouse, camera);
         const hit = new THREE.Vector3();
-        if (raycaster.ray.intersectPlane(floorPlane, hit)) {
+        if (activeFloorHit(hit)) {
           // Convert 3D (x, z) to 2D (x, y)
           const pos2D = { x: hit.x, y: hit.z };
           addFurniture(selectedCatalogId, pos2D);
@@ -866,15 +878,8 @@
         return;
       }
 
-      const intersects = raycaster.intersectObjects(wallGroup.children, false);
-      let hitWallId: string | null = null;
-      for (const hit of intersects) {
-        if (hit.object.userData.wallId) {
-          hitWallId = hit.object.userData.wallId;
-          break;
-        }
-      }
-      selectedElementId.set(hitWallId);
+      // A solid stacked floor in front of a wall hides it, so the click stops there.
+      selectedElementId.set(pickedWallId(raycaster.intersectObjects(wallGroup.children, false), otherFloorsStyle));
     });
 
     // Hover highlight in edit mode
@@ -887,7 +892,7 @@
         mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
         raycaster.setFromCamera(mouse, camera);
         const hit = new THREE.Vector3();
-        if (raycaster.ray.intersectPlane(floorPlane, hit)) {
+        if (activeFloorHit(hit)) {
           if (!ghostGroup) {
             createGhostPreview(selectedCatalogId);
           }
@@ -917,7 +922,7 @@
       mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
       raycaster.setFromCamera(mouse, camera);
       const intersects = raycaster.intersectObjects(wallGroup.children, false);
-      const hit = intersects.find(i => i.object.userData.wallId);
+      const hit = pickedWallId(intersects, otherFloorsStyle) ? intersects.find(i => i.object.userData.wallId) : undefined;
       if (hit && hit.object !== hoveredMesh) {
         hoveredMesh = hit.object as THREE.Mesh;
         renderer.domElement.style.cursor = 'url("data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23fff" stroke="%23000" stroke-width="1.5" d="M16.56 8.94L7.62 0 6.21 1.41l2.38 2.38-5.15 5.15a1.49 1.49 0 0 0 0 2.12l5.5 5.5a1.49 1.49 0 0 0 2.12 0l5.5-5.5a1.49 1.49 0 0 0 0-2.12zM5.21 10L10 5.21 14.79 10H5.21zM19 11.5s-2 2.17-2 3.5a2 2 0 1 0 4 0c0-1.33-2-3.5-2-3.5z"/></svg>') + '") 2 22, pointer';
@@ -989,6 +994,14 @@
     return true;
   }
 
+  /** Where the pointer ray meets the active floor's plane, unless a solid stacked floor hides that spot. */
+  function activeFloorHit(target: THREE.Vector3): boolean {
+    if (!raycaster.ray.intersectPlane(floorPlane, target)) return false;
+    if (otherFloorsStyle !== 'solid') return true;
+    const distance = raycaster.ray.origin.distanceTo(target);
+    return !stackedFloorOccludes(raycaster.intersectObjects(wallGroup.children, false), distance, otherFloorsStyle);
+  }
+
   function createGhostPreview(catalogId: string) {
     removeGhostPreview();
     const cat = getCatalogItem(catalogId);
@@ -1049,13 +1062,16 @@
     }
   }
 
-  function buildStairs(floor: Floor) {
-    if (!floor.stairs) return;
+  /** Stairs climb to the next floor (up) or descend to the floor below (down); see stairLevels. */
+  function buildStairs(floor: Floor, group: THREE.Group = wallGroup, yOffset = 0, opacity = 1) {
+    if (!floor.stairs?.length) return;
+    const rises = stairRises(get(currentProject)?.floors ?? [floor], floor.id);
+    const reference = opacity < 1 ? { transparent: true, opacity } : {};
     for (const stair of floor.stairs) {
-      const totalHeight = 260; // standard floor height
+      const { base, rise: totalHeight } = stairSpan(stair, rises);
       const riserHeight = totalHeight / stair.riserCount;
-      const mat = new THREE.MeshStandardMaterial({ color: 0xd4a574, roughness: 0.7 });
-      const sideMat = new THREE.MeshStandardMaterial({ color: 0xb8956a, roughness: 0.8 });
+      const mat = new THREE.MeshStandardMaterial({ color: 0xd4a574, roughness: 0.7, ...reference });
+      const sideMat = new THREE.MeshStandardMaterial({ color: 0xb8956a, roughness: 0.8, ...reference });
       const type = stair.stairType || 'straight';
 
       const stairGroup = new THREE.Group();
@@ -1143,12 +1159,11 @@
         }
       }
 
-      stairGroup.position.set(stair.position.x, 0, stair.position.y);
+      // A down stair is the same flight as the up stair it meets on the floor below, so it keeps
+      // that shape and footprint and only moves down (the plan draws both with the same treads).
+      stairGroup.position.set(stair.position.x, yOffset + base, stair.position.y);
       stairGroup.rotation.y = -(stair.rotation * Math.PI) / 180;
-      if (stair.direction === 'down') {
-        stairGroup.rotation.y += Math.PI;
-      }
-      wallGroup.add(stairGroup);
+      group.add(stairGroup);
     }
   }
 
@@ -1632,8 +1647,11 @@
     const activeF = project.floors.find(f => f.id === project.activeFloorId) ?? project.floors[0];
     buildWalls(activeF);
 
-    const entries = assembleFloorStack(wallGroup, project.floors, activeF.id,
-      (floor, group, offset) => buildFloorIntoGroup(floor, group, offset, 0.35));
+    const entries = assembleFloorStack(wallGroup, project.floors, activeF.id, (floor, group, offset) => {
+      buildFloorIntoGroup(floor, group, offset, otherFloorsStyle);
+      // Picking and placement treat solid floors as covering what lies behind them.
+      group.traverse(object => { object.userData.stackedFloor = true; });
+    });
     const box = new THREE.Box3().setFromObject(wallGroup);
     const center = box.getCenter(new THREE.Vector3());
     const labelX = box.isEmpty() ? -200 : box.min.x - 200;
@@ -1667,15 +1685,16 @@
     wallGroup.add(sprite);
   }
 
-  /** Build a single floor's walls/doors/windows into a group at a Y offset with optional transparency */
-  function buildFloorIntoGroup(floor: Floor, group: THREE.Group, yOffset: number, opacity: number) {
-    const transparentMat = (color: number, roughness = 0.9) => new THREE.MeshStandardMaterial({
-      color, roughness, transparent: true, opacity,
+  /** Build another floor's walls, slabs and columns into a group at a Y offset, translucent or solid. */
+  function buildFloorIntoGroup(floor: Floor, group: THREE.Group, yOffset: number, style: StackedFloorsStyle) {
+    const look = stackedFloorMaterial(style);
+    const stackedMat = (color: number, roughness = 0.9) => new THREE.MeshStandardMaterial({
+      color, roughness, ...look,
       polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1
     });
 
-    const defaultInteriorMat = transparentMat(0xffffff);
-    const defaultExteriorMat = transparentMat(0xd4cfc9, 0.85);
+    const defaultInteriorMat = stackedMat(0xffffff);
+    const defaultExteriorMat = stackedMat(0xd4cfc9, 0.85);
 
     for (const sourceWall of floor.walls) {
       for (const span of wallProfileSpans(sourceWall, floor.doors.filter(d => d.wallId === sourceWall.id), floor.windows.filter(w => w.wallId === sourceWall.id))) {
@@ -1725,12 +1744,15 @@
       if (room.floorOpening) continue;
       const geometry = createRoomSlabGeometry(polygon, floor.slabThickness, holes[index]);
       if (!geometry) continue;
-      const slab = new THREE.Mesh(geometry, transparentMat(0xcccccc, 0.95));
+      const slab = new THREE.Mesh(geometry, stackedMat(0xcccccc, 0.95));
       slab.userData.renderMaterial = 'floor';
       slab.position.y = yOffset;
       slab.receiveShadow = true;
       group.add(slab);
     }
+
+    // Stairs, drawn like the rest of a reference floor (translucent or solid)
+    buildStairs(floor, group, yOffset, look.opacity);
 
     // Columns
     if (floor.columns) {
@@ -1743,7 +1765,7 @@
         } else {
           geo = new THREE.CylinderGeometry(d / 2, d / 2, h, 24);
         }
-        const mat = new THREE.MeshStandardMaterial({ color: col.color || '#cccccc', roughness: 0.7, transparent: true, opacity });
+        const mat = new THREE.MeshStandardMaterial({ color: col.color || '#cccccc', roughness: 0.7, ...look });
         const mesh = new THREE.Mesh(geo, mat);
         mesh.position.set(col.position.x, h / 2 + yOffset, col.position.y);
         mesh.castShadow = true;
@@ -1756,7 +1778,7 @@
   function rebuildScene(force = false) {
     const project = get(currentProject);
     if (!project || !currentFloor) return;
-    const signature = sceneSignature(project, currentFloor, showAllFloors, get(projectSettings).units);
+    const signature = sceneSignature(project, currentFloor, showAllFloors, get(projectSettings).units, otherFloorsStyle);
     if (!force && signature === renderedSignature) return;
     const walkingPosition = walkthroughMode ? camera.position.clone() : null;
     const walkingRotation = walkthroughMode ? camera.quaternion.clone() : null;
@@ -2041,8 +2063,19 @@
       title={$t('viewerExport.help')}>{$t('viewerExport.button')}</button>
   </div>
   {#if showAllFloors && currentFloor}
-    <div class="absolute bottom-4 right-4 z-10 rounded bg-black/70 px-3 py-2 text-xs text-white pointer-events-none">
-      {$t('viewerExport.elevation', { name: currentFloor.name, value: activeFloorElevation })}
+    <div class="absolute bottom-4 right-4 z-10 flex flex-col items-end gap-1.5 pointer-events-none">
+      <!-- The visible caption gives way on phones so the control clears Export Blender Scene. -->
+      <div role="group" aria-label={$t('viewerNav.otherFloors')} class="pointer-events-auto flex items-center gap-1 rounded bg-black/70 p-1 text-xs text-white">
+        <span class="hidden px-1.5 sm:inline" aria-hidden="true">{$t('viewerNav.otherFloors')}</span>
+        {#each OTHER_FLOOR_STYLES as option (option.style)}
+          <button type="button" aria-pressed={otherFloorsStyle === option.style} onclick={() => setOtherFloorsStyle(option.style)}
+            class="rounded px-2 py-1 transition-colors {otherFloorsStyle === option.style ? 'bg-purple-600 text-white' : 'hover:bg-white/15'}"
+          >{$t(option.label)}</button>
+        {/each}
+      </div>
+      <div class="rounded bg-black/70 px-3 py-2 text-xs text-white">
+        {$t('viewerExport.elevation', { name: currentFloor.name, value: activeFloorElevation })}
+      </div>
     </div>
   {/if}
   <!-- 3D Toolbar Row -->
