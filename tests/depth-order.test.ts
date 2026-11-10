@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { expect, it } from 'vitest';
 import type { FurnitureItem } from '$lib/models/types';
 import { DEPTH_ORDER, FURNITURE_DEPTH_LEVELS, FURNITURE_LEVEL_UNITS, depthOffset, furnitureDepthOffsets } from '$lib/utils/depthOrder';
@@ -36,9 +37,39 @@ it('breaks ties in the units alone and bounds them however many pieces stack', (
   expect(FURNITURE_DEPTH_LEVELS).toBeGreaterThan(1);
   // At most 12 units ahead of the first level: about 6 mm of depth at 20 m, 7 cm at 70 m.
   expect((FURNITURE_DEPTH_LEVELS - 1) * FURNITURE_LEVEL_UNITS).toBeLessThanOrEqual(12);
+  // At 1 or 2 units apart, a rug over another of the same height still lost part of the overlap
+  // in Firefox and Safari at low views (see FURNITURE_LEVEL_UNITS).
+  expect(FURNITURE_LEVEL_UNITS).toBeGreaterThanOrEqual(4);
 });
 
 it('lets plan-only symbols take no level from the furniture they overlap', () => {
   const outlet = { ...item(0, 0), catalogId: 'sym_outlet' } as FurnitureItem;
   expect(furnitureDepthOffsets([outlet, item(0, 0)])).toEqual([depthOffset(DEPTH_ORDER.furniture), depthOffset(DEPTH_ORDER.furniture)]);
+});
+
+// Unlisted surfaces, exterior wall faces and wall ends among them, draw with no offset.
+const EXTERIOR_WALL = 0;
+
+it('keeps the order that settles the planes surfaces share in the viewer', () => {
+  const { furniture, roomFloor, openingFrame, interiorWall, slab, basePlane, ground } = DEPTH_ORDER;
+  // Furniture ahead of frames and room floors.
+  expect(furniture).toBeLessThan(Math.min(roomFloor, openingFrame));
+  // Frames and room floors ahead of both wall faces (jambs in the reveals, floors at the wall foot).
+  expect(Math.max(roomFloor, openingFrame)).toBeLessThan(Math.min(EXTERIOR_WALL, interiorWall));
+  // Room floors (1 cm up) ahead of the slab (top at 0) and the site floor plane (0.5 cm): with the
+  // plane ahead, as before #122, it covered every room floor from a distance.
+  expect(roomFloor).toBeLessThan(Math.min(slab, basePlane));
+  // Everything ahead of the ground (1 cm down).
+  expect(Math.max(EXTERIOR_WALL, interiorWall, slab, basePlane)).toBeLessThan(ground);
+});
+
+it('is where the viewer takes every polygon offset from', () => {
+  const viewer = readFileSync(new URL('../src/lib/components/viewer3d/ThreeViewer.svelte', import.meta.url), 'utf8');
+  expect(viewer).not.toMatch(/polygonOffset/);
+  const applied = new Set([...viewer.matchAll(/depthOffset\(DEPTH_ORDER\.(\w+)\)/g)].map(match => match[1]));
+  expect([...applied].sort()).toEqual(Object.keys(DEPTH_ORDER).filter(key => key !== 'furniture').sort());
+  expect(viewer).toMatch(/const floorMat = new THREE\.MeshStandardMaterial\(\{[^}]*\.\.\.depthOffset\(DEPTH_ORDER\.basePlane\) \}\)/);
+  expect(viewer).toContain('Object.assign(groundMat, depthOffset(DEPTH_ORDER.ground));');
+  expect(viewer).toContain('Object.assign(material, depthOffset(DEPTH_ORDER.roomFloor));');
+  expect(viewer).toContain('const furnitureOffsets = furnitureDepthOffsets(floor.furniture);');
 });
