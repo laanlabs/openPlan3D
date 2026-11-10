@@ -53,7 +53,7 @@ for (const width of [1440, 390]) test(`saved legacy furniture refreshes without 
   await expect(page.getByText('Original category: future-appliance. Shown as a neutral box.', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: '🛏️ Queen Bed', exact: true }).click();
   const field = page.getByRole('spinbutton', { name: 'Width (cm)', exact: true });
-  await expect(field).toHaveValue('121.875');
+  await expect(field).toHaveValue('152.344');
   await expect(page.getByRole('textbox', { name: 'Item notes', exact: true })).toHaveValue('Edited locally before preview refresh');
   await expect(page.getByRole('region', { name: 'Item details', exact: true })).toContainText('Item photos (1)');
   // Opening, selecting and exporting must not trigger the one-second autosave.
@@ -66,7 +66,7 @@ for (const width of [1440, 390]) test(`saved legacy furniture refreshes without 
   expect((await storedRecords(page))[id]).toBe(raw);
   expect((await storedRecords(page, 'history'))[id]).toBe(history);
   expect(models).toEqual([]);
-  await field.fill('119.125'); await field.press('Tab');
+  await field.fill('148.90625'); await field.press('Tab');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect.poll(async () => (await savedProjects(page))[id].floors[0].furniture[2].width).toBe(119.125);
   await page.reload();

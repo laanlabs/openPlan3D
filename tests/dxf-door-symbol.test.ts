@@ -163,9 +163,18 @@ it('draws pocket, sliding, bifold, garage and opening symbols without a swing ar
   expect(bifold.map(e => `${e.type}@${e.layer}`)).toEqual(['LWPOLYLINE@DOORS']);
   const vertices = bifold[0].tags['10'].map((x, i) => [Number(x), Number(bifold[0].tags['20'][i])]);
   expect(vertices).toHaveLength(5);
-  expect(vertices[0]).toEqual([155, 0]);
-  expect(vertices.slice(1).every(([, y]) => y < 0)).toBe(true); // panels fold into the room
-  expect(vertices[4][0]).toBeCloseTo(155 + 22.5 * (2 * Math.cos(Math.PI / 6) + 2 * Math.cos(Math.PI / 20)));
+  expect(vertices[0]).toEqual([245, 0]); // stacked from the hinge-side jamb
+  // Four 22.5 cm panels in a 30° zig-zag: folds pushed into the room, hinges back on the wall line
+  vertices.forEach(([x, y], i) => {
+    expect(x).toBeCloseTo(245 - i * 22.5 * Math.cos(Math.PI / 6));
+    expect(y).toBeCloseTo(i % 2 ? -22.5 * Math.sin(Math.PI / 6) : 0);
+  });
+  // The other hinge and opening side mirror the stack and the folds
+  const mirrored = (await dxfDoor({ type: 'bifold', swingDirection: 'right', flipSide: true })).doors[0];
+  const mirroredVertices = mirrored.tags['10'].map((x, i) => [Number(x), Number(mirrored.tags['20'][i])]);
+  expect(mirroredVertices[0]).toEqual([155, 0]);
+  expect(mirroredVertices[1][0]).toBeGreaterThan(155);
+  expect(mirroredVertices[1][1]).toBeCloseTo(22.5 * Math.sin(Math.PI / 6));
 
   const garage = (await dxfDoor({ type: 'garage' })).doors;
   expect(garage.map(e => `${e.type}@${e.layer}`)).toEqual(['LINE@DOORS']);

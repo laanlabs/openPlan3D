@@ -43,7 +43,7 @@ An unknown handoff version is rejected before replacing the current project.
 | Window `style: fixed/sliding` | Fixed/sliding window |
 | Window `sillHeight` | Explicit height above its floor in metres; absent values derive from opening and parent-wall vertical transforms |
 | Apple `openings` | Doorway passages, with no door leaf |
-| Object dimensions and transform | Size, position and rotation; existing category-to-catalog mapping remains in use |
+| Object dimensions and transform | Size, position and rotation; existing category-to-catalog mapping remains in use. In `openplanPrepared` files the vertical translation also gives the height above the floor (`elevation = y − height / 2`, kept from 0.5 cm up); raw Apple captures stay on the floor |
 | Section `center`, `label`, `displayName`, `color` | Detected room association, custom room name and color |
 
 The iPhone exporter sends resolved opening styles and orientation, including the
@@ -235,8 +235,8 @@ and the retained blocks:
 - Geometry follows the conventions above: metres rounded to eight decimals;
   a wall at its midpoint with `y = height / 2`, heading start → end; openings
   on their wall at `position`, windows with `sillHeight`; furniture at its
-  footprint centre with the catalog or override size, a mirrored item
-  negating the local Z column; a section at each detected room's label
+  footprint centre with the catalog or override size at
+  `y = elevation + height / 2`, a mirrored item negating the local Z column; a section at each detected room's label
   position with `label` from the room's native type or a name that matches a
   type (else `room`), `displayName` and `color`; `stories` from every floor,
   bumping floors that share a level like the native package. Identifiers are

@@ -1,7 +1,8 @@
 import { getEntourageImage } from './entourageImages';
 import { roomHoles, traceRoomRings } from './roomNesting';
-import { stairLocalBounds } from './stairPlanGeometry';
+import { SPIRAL_START_ANGLE, SPIRAL_SWEEP, stairLocalBounds } from './stairPlanGeometry';
 import { dimensionPlanGeometry } from './dimensionPlanGeometry';
+import { bifoldPoints } from './doorSymbol';
 /**
  * Canvas rendering functions for the floor plan editor.
  * All functions are pure — they take canvas context + data and render.
@@ -18,6 +19,7 @@ import { getRoomPolygon, roomCentroid, roomLabelPosition } from '$lib/utils/room
 import { getWallTextureCanvas, getFloorTextureCanvas } from '$lib/utils/textureGenerator';
 import { getEntourageDef } from '$lib/utils/entourageCatalog';
 import type { EntourageItem, CustomEntourageDef } from '$lib/models/types';
+import { interiorRoomExtent } from '$lib/utils/interiorArea';
 
 // ── Wall geometry helpers ────────────────────────────────────────────
 
@@ -566,27 +568,18 @@ export function drawDoorOnWall(cs: CanvasState, wall: Wall, door: Door): void {
     ctx.stroke();
 
   } else if (doorType === 'bifold') {
-    const panelCount = 4;
-    const panelW = (door.width / panelCount) * zoom;
-    const foldAngle = Math.PI / 6;
+    // Same zig-zag as the exported symbol and the 3D model; dots mark the hinges.
+    const points = bifoldPoints(s.x, s.y, ux, uy, door.width * zoom, swingDir, sideFlip);
     ctx.strokeStyle = '#444';
     ctx.lineWidth = 2;
-    let px = s.x - ux * halfDoor;
-    let py = s.y - uy * halfDoor;
-    for (let i = 0; i < panelCount; i++) {
-      const angle = wallAngle + (i % 2 === 0 ? foldAngle * swingDir : -foldAngle * swingDir * 0.3);
-      const ex = px + panelW * Math.cos(angle);
-      const ey = py + panelW * Math.sin(angle);
+    ctx.beginPath();
+    points.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)));
+    ctx.stroke();
+    ctx.fillStyle = '#666';
+    for (const p of points.slice(0, -1)) {
       ctx.beginPath();
-      ctx.moveTo(px, py);
-      ctx.lineTo(ex, ey);
-      ctx.stroke();
-      ctx.fillStyle = '#666';
-      ctx.beginPath();
-      ctx.arc(px, py, 1.5, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, 1.5, 0, Math.PI * 2);
       ctx.fill();
-      px = ex;
-      py = ey;
     }
 
   } else if (doorType === 'opening') {
@@ -1113,8 +1106,8 @@ export function drawStair(cs: CanvasState, stair: Stair, selected: boolean): voi
     const postR = r * 0.12;
     ctx.fillStyle = strokeCol; ctx.beginPath(); ctx.arc(0, 0, postR, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = treadCol; ctx.lineWidth = 0.5;
-    const totalAngle = Math.PI * 1.75;
-    const startAngle = -Math.PI / 2;
+    const totalAngle = SPIRAL_SWEEP;
+    const startAngle = SPIRAL_START_ANGLE;
     for (let i = 0; i <= stair.riserCount; i++) {
       const a = startAngle + (i / stair.riserCount) * totalAngle;
       ctx.beginPath(); ctx.moveTo(postR * Math.cos(a), postR * Math.sin(a)); ctx.lineTo(r * Math.cos(a), r * Math.sin(a)); ctx.stroke();
@@ -1477,6 +1470,17 @@ export function drawRoomFloorPattern(cs: CanvasState, room: Room, screenPoly: Po
   ctx.restore();
 }
 
+/** Clear room sizes, kept until the outline or the walls change: drawRooms runs
+ * on every redraw, and the editor rebuilds outlines whenever the walls change. */
+const clearRoomExtents = new WeakMap<Point[], { walls: Wall[]; extent: ReturnType<typeof interiorRoomExtent> }>();
+function clearRoomExtent(poly: Point[], walls: Wall[]) {
+  const cached = clearRoomExtents.get(poly);
+  if (cached?.walls === walls) return cached.extent;
+  const extent = interiorRoomExtent(poly, walls);
+  clearRoomExtents.set(poly, { walls, extent });
+  return extent;
+}
+
 export function drawRooms(
   cs: CanvasState,
   floor: Floor,
@@ -1524,6 +1528,9 @@ export function drawRooms(
     if (showDimensions && dimSettings.showInternalDimensions && poly.length >= 3) {
       let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
       for (const pt of poly) { if (pt.x < minX) minX = pt.x; if (pt.x > maxX) maxX = pt.x; if (pt.y < minY) minY = pt.y; if (pt.y > maxY) maxY = pt.y; }
+      // Edge to edge gives the clear size between wall faces, as the wall dimensions do (issue #121).
+      const clear = dimSettings.wallMeasureMode === 'edge' ? clearRoomExtent(poly, floor.walls) : null;
+      if (clear) ({ minX, maxX, minY, maxY } = clear);
       const roomW = (maxX - minX) / 100;
       const roomD = (maxY - minY) / 100;
       if (roomW > 0.1 && roomD > 0.1) {

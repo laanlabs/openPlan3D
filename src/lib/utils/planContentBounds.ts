@@ -11,6 +11,7 @@ import { wallPlanBounds } from './wallPlanGeometry';
 import { furniturePlanBounds } from './furniturePlanBounds';
 import { textAnnotationBounds } from './textAnnotationLayout';
 import { dimensionPlanGeometry } from './dimensionPlanGeometry';
+import { interiorRoomExtent } from './interiorArea';
 
 type Bounds = { minX: number; minY: number; maxX: number; maxY: number };
 
@@ -119,8 +120,10 @@ export function planContentBounds(floor: Floor, options: {
     }
     if (options.automaticDimensions?.internal) for (const { polygon } of options.dimensionRooms ?? []) {
       if (polygon.length < 3) continue;
-      const width = Math.max(...polygon.map(p => p.x)) - Math.min(...polygon.map(p => p.x));
-      const depth = Math.max(...polygon.map(p => p.y)) - Math.min(...polygon.map(p => p.y));
+      // The caption drawRooms prints: the clear size when walls are measured edge to edge.
+      const clear = options.automaticDimensions.edge ? interiorRoomExtent(polygon, options.openingWalls ?? floor.walls) : null;
+      const width = clear ? clear.maxX - clear.minX : Math.max(...polygon.map(p => p.x)) - Math.min(...polygon.map(p => p.x));
+      const depth = clear ? clear.maxY - clear.minY : Math.max(...polygon.map(p => p.y)) - Math.min(...polygon.map(p => p.y));
       if (width <= 10 || depth <= 10) continue;
       const center = roomCentroid(polygon), size = Math.max(9, 10 * scale);
       caption(`${formatLength(width, options.units ?? 'metric')} × ${formatLength(depth, options.units ?? 'metric')}`,

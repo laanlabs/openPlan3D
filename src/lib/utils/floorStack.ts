@@ -19,3 +19,34 @@ export function assembleFloorStack(
   }
   return entries;
 }
+
+/** How "Show All Floors Stacked" draws the floors other than the active one. */
+export type StackedFloorsStyle = 'translucent' | 'solid';
+
+/** Opacity of the other floors in the translucent stacked view. */
+export const STACKED_FLOOR_OPACITY = 0.35;
+
+/** Material flags for the other floors' walls, slabs and columns. Solid floors leave the
+ * transparent pass entirely (no per-frame sorting or blending, so no flicker between
+ * overlapping storeys); both styles write depth, as the translucent view always has. */
+export function stackedFloorMaterial(style: StackedFloorsStyle): { transparent: boolean; opacity: number; depthWrite: boolean } {
+  return style === 'solid'
+    ? { transparent: false, opacity: 1, depthWrite: true }
+    : { transparent: true, opacity: STACKED_FLOOR_OPACITY, depthWrite: true };
+}
+
+interface PickHit { distance: number; object: { userData: Record<string, unknown> } }
+
+/** True when a solid other floor (meshes flagged `userData.stackedFloor`) lies in front of
+ * `distance` along the ray, so a click there must not reach the active floor behind it.
+ * Translucent floors never block: the active floor is visible through them. */
+export function stackedFloorOccludes(hits: readonly PickHit[], distance: number, style: StackedFloorsStyle): boolean {
+  return style === 'solid' && hits.some(hit => hit.object.userData.stackedFloor === true && hit.distance < distance);
+}
+
+/** The active-floor wall a 3D click or hover reaches, given raycast hits sorted by distance. */
+export function pickedWallId(hits: readonly PickHit[], style: StackedFloorsStyle): string | null {
+  const hit = hits.find(entry => typeof entry.object.userData.wallId === 'string');
+  if (!hit || stackedFloorOccludes(hits, hit.distance, style)) return null;
+  return hit.object.userData.wallId as string;
+}

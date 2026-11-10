@@ -2,6 +2,8 @@ import type { Project, DetailKind } from '$lib/models/types';
 import { validateItemDetails, validateRetainedDetailState } from './itemDetails';
 import { refreshLegacyFurnitureCategories } from './legacyFurnitureCategories';
 import { validateCustomModelDefinitions } from './customModelDefinitions';
+import { MAX_FURNITURE_ELEVATION } from './furnitureElevation';
+import { isDoorFrameColor } from './doorStyle';
 
 /** Read untrusted native files without mutating their input or the active editor. */
 export function readProject(value: unknown): Project {
@@ -117,6 +119,10 @@ export function readProject(value: unknown): Project {
         choice(opening.type, ['single', 'double', 'sliding', 'french', 'pocket', 'bifold', 'opening', 'garage'], `${path}.type`);
         choice(opening.swingDirection, ['left', 'right'], `${path}.swingDirection`);
         booleans(opening, ['flipSide'], path);
+        // An empty colour means the type's default; anything else must be #rgb or #rrggbb.
+        if (opening.frameColor === '') delete opening.frameColor;
+        if (opening.frameColor !== undefined && !isDoorFrameColor(opening.frameColor)) fail(`${path}.frameColor`, 'has an unsupported value');
+        if (opening.leafStyle !== undefined) choice(opening.leafStyle, ['slab', 'shaker', 'glazedShaker', 'victorian', 'glazedVictorian', 'glazed'], `${path}.leafStyle`);
       } else {
         choice(opening.type, ['standard', 'fixed', 'casement', 'sliding', 'bay'], `${path}.type`);
         number(opening.sillHeight, `${path}.sillHeight`, 0);
@@ -129,6 +135,7 @@ export function readProject(value: unknown): Project {
       // Mirroring uses negative scale. Do not normalize signs or round dimensions.
       for (const key of ['x', 'y', 'z']) number(item.scale[key], `${path}.scale.${key}`);
       for (const key of ['width', 'depth', 'height']) if (item[key] !== undefined) positive(item[key], `${path}.${key}`);
+      if (item.elevation !== undefined) number(item.elevation, `${path}.elevation`, 0, MAX_FURNITURE_ELEVATION);
       strings(item, ['color', 'material', 'sourceCategory'], path); booleans(item, ['locked'], path);
     });
     elements('stairs', (item, path) => {
