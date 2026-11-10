@@ -5,7 +5,8 @@ import { pickedWallId, stackedFloorMaterial, stackedFloorOccludes, STACKED_FLOOR
 // Issue #130: "Show All Floors Stacked" can draw the other floors like the active one.
 it('takes solid stacked floors out of the transparent pass instead of only raising opacity', () => {
   expect(stackedFloorMaterial('solid')).toEqual({ transparent: false, opacity: 1, depthWrite: true });
-  expect(stackedFloorMaterial('translucent')).toEqual({ transparent: true, opacity: STACKED_FLOOR_OPACITY, depthWrite: true });
+  // Translucent floors stay out of the depth buffer, so overlapping storeys blend rather than hide each other (#122).
+  expect(stackedFloorMaterial('translucent')).toEqual({ transparent: true, opacity: STACKED_FLOOR_OPACITY, depthWrite: false });
   const material = new MeshStandardMaterial({ color: 0xffffff, ...stackedFloorMaterial('solid') });
   expect([material.transparent, material.opacity, material.depthWrite]).toEqual([false, 1, true]);
   material.dispose();
