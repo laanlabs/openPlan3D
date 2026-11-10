@@ -1,4 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { HANDOFF_LIMITS, HandoffError, reserveHandoff, type QuotaSnapshot, type QuotaState } from '$lib/server/handoffQuota';
 import { HandoffStorage } from '$lib/server/handoffStorage';
 import { readCapture, uploadHandoff, type HandoffSink } from '$lib/server/handoffUpload';
@@ -102,13 +103,41 @@ it('logs which stage refused a capture without quoting the capture', async () =>
   const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
   const secret = 'Private client name';
   const invalid = JSON.stringify({ openplanHandoffVersion: 1, walls: [{ dimensions: [-1, 2, 0], label: secret }] });
-  for (const [body, stage] of [[`{"name":"${secret}",`, 'json'], ['{"name":"x"}', 'format'], [invalid, 'validation']] as const) {
+  const prepared = JSON.stringify({ openplanPrepared: true, walls: [{ identifier: 'w', dimensions: [-1, 2, 0], label: secret }] });
+  for (const [body, stage, isPrepared] of [[`{"name":"${secret}",`, 'json', undefined], ['{"name":"x"}', 'format', undefined],
+    [invalid, 'validation', false], [prepared, 'validation', true]] as const) {
     await expect(readCapture(request(body))).rejects.toMatchObject({ status: 422 });
     const logged = JSON.parse(warn.mock.calls.at(-1)![0] as string);
     expect(logged).toMatchObject({ event: 'handoff_invalid', stage });
+    // Only a recognised capture can be a prepared plan; a document refused earlier may not even be an object.
+    expect(logged.prepared).toBe(isPrepared);
     expect(JSON.stringify(logged)).not.toContain(secret);
   }
-  expect(JSON.parse(warn.mock.calls.at(-1)![0] as string).detail).toMatch(/^Invalid RoomPlan file: walls\[0\]/);
+  expect(JSON.parse(warn.mock.calls.at(-1)![0] as string).detail)
+    .toBe('Invalid RoomPlan file: walls[0].dimensions must have a nonnegative length. No project was imported.');
+  warn.mockRestore();
+});
+
+it('accepts an iPhone plan with a wall its editor collapsed, logging only counts', async () => {
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  const body = readFileSync(new URL('./fixtures/handoff-collapsed-wall.json', import.meta.url), 'utf8');
+  const store = new MemorySink();
+  const result = await uploadHandoff(request(body), store, now);
+  expect(result.code).toMatch(/^[A-HJ-NP-Z2-9]{8}$/);
+  expect(Buffer.from(store.captures[0].bytes).toString()).toBe(body);
+  expect(warn).toHaveBeenCalledOnce();
+  expect(JSON.parse(warn.mock.calls[0][0] as string)).toEqual({ event: 'handoff_tolerated', collapsedWalls: 1, walls: 4, prepared: true });
+  warn.mockRestore();
+});
+
+it('counts only walls of length 0, or within rounding of it, and logs nothing for other captures', async () => {
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  const wall = (identifier: string, length: number) => ({ identifier, dimensions: [length, 2.5, 0.1], transform: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1] });
+  await readCapture(request(JSON.stringify({ openplanHandoffVersion: 1, walls: [wall('a', 0.003), wall('b', 3)] })));
+  expect(warn).not.toHaveBeenCalled();
+  await readCapture(request(JSON.stringify({ openplanHandoffVersion: 1, walls: [wall('a', 0), wall('b', 5e-7), wall('c', 1e-6)] })));
+  expect(warn).toHaveBeenCalledOnce();
+  expect(JSON.parse(warn.mock.calls[0][0] as string)).toEqual({ event: 'handoff_tolerated', collapsedWalls: 2, walls: 3, prepared: false });
   warn.mockRestore();
 });
 

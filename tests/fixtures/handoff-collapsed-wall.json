@@ -1,0 +1,217 @@
+{
+  "defaults": {
+    "ceilingHeight": 2.4,
+    "exteriorWallThickness": 0.2,
+    "interiorWallThickness": 0.12
+  },
+  "doors": [
+    {
+      "category": {
+        "door": {}
+      },
+      "dimensions": [
+        0.9,
+        2,
+        0.12
+      ],
+      "hingeLeft": true,
+      "identifier": "44B2C120-DFBD-4CCD-B51D-BB6CA466C1AA",
+      "opensInward": true,
+      "parentIdentifier": "858180B6-8D4E-4629-A866-4BD4C58707C1",
+      "story": 0,
+      "style": "single",
+      "transform": [
+        -1,
+        0,
+        1.2246467991473532e-16,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -1.2246467991473532e-16,
+        0,
+        -1,
+        0,
+        2.5,
+        1,
+        4,
+        1
+      ]
+    }
+  ],
+  "floors": [],
+  "objects": [],
+  "openings": [],
+  "openplanHandoffVersion": 1,
+  "openplanImportOptions": {
+    "orthogonal": false,
+    "straighten": false
+  },
+  "openplanPrepared": true,
+  "sections": [],
+  "stories": [
+    {
+      "index": 0,
+      "name": "Ground Floor"
+    }
+  ],
+  "version": 2,
+  "walls": [
+    {
+      "category": {
+        "wall": {}
+      },
+      "dimensions": [
+        0,
+        2.4,
+        0.12
+      ],
+      "identifier": "E2F11362-5135-49CE-8DCF-6FBC95563674",
+      "story": 0,
+      "transform": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1.2,
+        0,
+        1
+      ]
+    },
+    {
+      "category": {
+        "wall": {}
+      },
+      "dimensions": [
+        6.4031242374328485,
+        2.4,
+        0.12
+      ],
+      "identifier": "49C9B6BF-6B02-4643-8C02-95D1C8BE1764",
+      "story": 0,
+      "transform": [
+        0.7808688094430303,
+        0,
+        0.6246950475544243,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -0.6246950475544243,
+        0,
+        0.7808688094430303,
+        0,
+        2.5,
+        1.2,
+        2,
+        1
+      ]
+    },
+    {
+      "category": {
+        "wall": {}
+      },
+      "dimensions": [
+        5,
+        2.4,
+        0.12
+      ],
+      "identifier": "858180B6-8D4E-4629-A866-4BD4C58707C1",
+      "story": 0,
+      "transform": [
+        -1,
+        0,
+        1.2246467991473532e-16,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -1.2246467991473532e-16,
+        0,
+        -1,
+        0,
+        2.5,
+        1.2,
+        4,
+        1
+      ]
+    },
+    {
+      "category": {
+        "wall": {}
+      },
+      "dimensions": [
+        4,
+        2.4,
+        0.12
+      ],
+      "identifier": "12CA6189-6C83-4874-8927-4BCAF20EF905",
+      "story": 0,
+      "transform": [
+        6.123233995736766e-17,
+        0,
+        -1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        6.123233995736766e-17,
+        0,
+        0,
+        1.2,
+        2,
+        1
+      ]
+    }
+  ],
+  "windows": [
+    {
+      "category": {
+        "window": {}
+      },
+      "dimensions": [
+        1.2,
+        1.2,
+        0.12
+      ],
+      "identifier": "A0620EDD-D89E-42FB-847A-E2D85262E757",
+      "parentIdentifier": "E2F11362-5135-49CE-8DCF-6FBC95563674",
+      "sillHeight": 0.9,
+      "story": 0,
+      "style": "fixed",
+      "transform": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1.5,
+        0,
+        1
+      ]
+    }
+  ]
+}

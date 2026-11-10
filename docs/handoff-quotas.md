@@ -71,8 +71,25 @@ Rejected captures now log `{"event":"handoff_invalid","stage":…}` with the
 stage that refused them (`utf-8`, `json`, `format` or `validation`). A
 validation failure also logs the validator's message, which holds only a field
 path and a fixed reason. JSON parse messages quote the input, so they are never
-logged. An additional process-local guard admits at most 30 requests per
-minute into parsing/storage work; it is not the authoritative global quota.
+logged. Validation failures also log `prepared` (`openplanPrepared === true`).
+It is true for any prepared plan: an edited iPhone plan, a sibling planner's
+export or a hand-written plan. It is false for a raw RoomPlan scan. To tell
+producers apart, use the request log's user agent. A refused size names what is
+wrong (for example `walls[3].dimensions must have a positive height`); before
+#120 every size problem logged `must contain valid positive width/height and
+nonnegative depth`. An additional process-local guard admits at most 30 requests
+per minute into parsing/storage work; it is not the authoritative global quota.
+
+From October 16 to 20, 2026, 23 of 808 shares were refused, every one at
+`walls[N].dimensions`. The iPhone editor can drag a wall's two ends onto one
+point, and the wall then exports with length 0. Such walls are now accepted and
+left out on import (see [the format](handoff-format-v1.md#validation-and-recovery)).
+A capture that passes validation with such walls logs
+`{"event":"handoff_tolerated","collapsedWalls":…,"walls":…,"prepared":…}`.
+`collapsedWalls` counts walls shorter than a micrometre, `walls` is the
+capture's total across all floors, and `prepared` is as above. The line is
+written before admission, so a share then refused with 429 or 503 is counted
+too. It shows when iPhone releases stop producing these walls.
 
 A zero-byte object, `_system/handoff-admission-v1`, stores the current day/minute
 and counters in metadata. The existing runtime identity accesses it through IAM;

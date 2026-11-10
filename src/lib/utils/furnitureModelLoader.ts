@@ -4,6 +4,7 @@ import { createFurnitureModel } from './furnitureModels3d';
 import { getCatalogItem, type FurnitureDef } from './furnitureCatalog';
 import type { FurnitureItem, Project } from '$lib/models/types';
 import { getModelFile } from './furnitureModelFiles';
+import { placedFurnitureY } from './furnitureElevation';
 import { furnitureFinishes } from './furnitureFinishes';
 import { disposeModel, isModelDisposed, loadCatalogModel, releaseWithModel } from './furnitureModelResources';
 import { depthOffset } from './depthOrder';
@@ -125,7 +126,7 @@ export function createPlacedFurnitureModel(item: FurnitureItem, onLoaded?: (mode
   const model = item.customModelId ? createProjectFurniture(item, definition, project, onLoaded, depth) : createFurnitureModelWithGLB(item.catalogId, definition, onLoaded, {
     color: item.color, material: item.material, depthOffset: depth,
   });
-  model.position.set(item.position.x, 1.5, item.position.y);
+  model.position.set(item.position.x, placedFurnitureY(item), item.position.y);
   model.rotation.y = -item.rotation * Math.PI / 180;
   // The plan's Y scale is world Z; height uses the saved Z magnitude.
   model.scale.set(item.scale?.x ?? 1, Math.abs(item.scale?.z ?? 1), item.scale?.y ?? 1);

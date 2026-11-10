@@ -53,7 +53,7 @@ ids must be unique in the project. Every number must be finite. Missing element 
 | `walls[]` | `id`, `start{x,y}`, `end{x,y}`, `thickness` | `height` = max(`startHeight` ?? 280, `endHeight` ?? 280), `color` `#444444` | `thickness` > 0; `height`, `startHeight`, `endHeight` ≥ 0; optional `curvePoint{x,y}` (quadratic bezier control), `texture`, `interiorColor`, `exteriorColor`, `interiorTexture`, `exteriorTexture` text |
 | `doors[]` | `id`, `wallId`, `position`, `width` | `height` 210, `type` `single`, `swingDirection` `left`, `flipSide` false | `wallId` must exist on the same floor; `position` 0–1 along the wall from `start`; `width`, `height` > 0; `type` ∈ single, double, sliding, french, pocket, bifold, opening, garage; `swingDirection` ∈ left, right; `flipSide` boolean |
 | `windows[]` | `id`, `wallId`, `position`, `width` | `height` 120, `type` `standard`, `sillHeight` 90 | same wall and position rules; `sillHeight` ≥ 0; `type` ∈ standard, fixed, casement, sliding, bay |
-| `furniture[]` | `id`, `catalogId`, `position{x,y}` (footprint centre) | `rotation` 0, `scale` `{x:1,y:1,z:1}` | `width`/`depth`/`height` overrides > 0 (cm); negative `scale` mirrors; `catalogId` is not checked against the catalog, an unknown id draws a 50×50×50 "Unknown furniture" box; `sourceCategory`, `color`, `material` text; `locked` boolean |
+| `furniture[]` | `id`, `catalogId`, `position{x,y}` (footprint centre) | `rotation` 0, `scale` `{x:1,y:1,z:1}` | `width`/`depth`/`height` overrides > 0 (cm); `elevation` 0–10000 (cm of the item's bottom above its floor; omitted = 0, but wall art 120, mirror 100, clock 140, sconces and ceiling lights hang at their usual heights); negative `scale` mirrors; `catalogId` is not checked against the catalog, an unknown id draws a 50×50×50 "Unknown furniture" box; `sourceCategory`, `color`, `material` text; `locked` boolean |
 | `rooms[]` | `id`, `walls` (array of wall ids) | `name` "", `floorTexture` `light-oak`, `area` 0 | metadata keyed by wall set, see §5; `roomType` text (`indoor`, `outdoor`, `garage`, `utility`); `color` text; `labelOffset{x,y}`; `floorOpening` boolean; `area` ≥ 0 and recomputed by the editor |
 | `stairs[]` | `id`, `position`, `width`, `depth`, `riserCount` | `rotation` 0, `stairType` `straight`, `direction` `up` | `width`, `depth` > 0; `riserCount` positive integer; `stairType` ∈ straight, l-shaped, u-shaped, spiral; typical 100 × 300 cm, 14 risers |
 | `columns[]` | `id`, `position`, `diameter`, `height`, `shape` | `rotation` 0, `color` `#cccccc` | `diameter` > 0; `height` ≥ 0; `shape` ∈ round, square (no default) |
@@ -89,12 +89,13 @@ are retained for re-export (§1) but never change the imported geometry.
 
 - Every entry of `walls`, `doors`, `windows`, `openings` and `objects` needs a nonempty `identifier` that is unique
   across all five lists (it becomes the web id), `dimensions: [width, height, depth]` in metres (width and height > 0,
-  depth ≥ 0, objects need depth > 0) and `transform`: exactly 16 finite numbers, column-major, translation at indices
+  except a wall's length, see Walls; depth ≥ 0, objects need depth > 0) and `transform`: exactly 16 finite numbers, column-major, translation at indices
   12–14, and a nonzero ground direction `(transform[0], transform[2])`. `story` is an optional integer, default 0.
 - Walls: centre = translation (x, z); direction = `(t[0], t[2])` normalised; length = `dimensions[0]`;
   `start = centre - dir*len/2`, `end = centre + dir*len/2`. Height = `dimensions[1]`; thickness = `dimensions[2]`
   (0 → 15 cm). For a wall from `(x1,z1)` to `(x2,z2)` with unit direction `(dx,dz)` write
-  `transform = [dx,0,dz,0, 0,1,0,0, -dz,0,dx,0, cx,h/2,cz,1]`.
+  `transform = [dx,0,dz,0, 0,1,0,0, -dz,0,dx,0, cx,h/2,cz,1]`. Write every wall at least 1 cm long. Length 0 is
+  accepted only because shipped iPhone builds send it; such a wall is dropped on import with its doors and windows.
 - Doors, windows, openings: `parentIdentifier` must name a wall on the same `story`; the web `position` is the
   translation projected onto that wall (clamped to 0–1). Door `style` ∈ single, double, sliding, patio (patio → web
   sliding); without `style` the `category` decides (`door` → single, `doubleDoor`/`french` → double, `slidingDoor` →
@@ -105,7 +106,8 @@ are retained for re-export (§1) but never change the imported geometry.
   `sillHeight` in metres (≥ 0) is used as written; when absent it is derived from the window's and wall's vertical
   transforms, so always write it.
 - Objects: `dimensions = [width, height, depth]` become the web `width`, `height`, `depth` overrides in cm; position =
-  translation (x, z); `rotation = atan2(t[2], t[0])` in degrees; a mirrored ground-plane transform sets `scale.y = -1`.
+  translation (x, z); `rotation = atan2(t[2], t[0])` in degrees; a mirrored ground-plane transform sets `scale.y = -1`;
+  in prepared files `y = elevation + height / 2` (floor at 0) sets the web `elevation`.
   `category` is a string or `{ "name": {} }`. A web catalog id is used as is; Apple names map (`bed` → `bed_queen` when
   width > 140 cm else `bed_twin`, `refrigerator` → `fridge`, `sink` → `sink_b`, `washerDryer` → `washer_dryer`, and
   `sofa`, `chair`, `table`, `storage`, `stove`, `oven`, `dishwasher`, `toilet`, `bathtub`, `fireplace`, `television`,

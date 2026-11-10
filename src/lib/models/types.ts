@@ -89,6 +89,10 @@ export interface Door {
   type: 'single' | 'double' | 'sliding' | 'french' | 'pocket' | 'bifold' | 'opening' | 'garage';
   swingDirection: 'left' | 'right';
   flipSide: boolean; // flip which side of wall the door opens to (vertical flip)
+  /** Hex colour for the door frame and, on glazed doors, the leaf frames. Defaults per type. */
+  frameColor?: string;
+  /** Leaf design for single and double doors. Defaults to 'slab'. */
+  leafStyle?: 'slab' | 'shaker' | 'glazedShaker' | 'victorian' | 'glazedVictorian' | 'glazed';
 }
 
 export interface Window {
@@ -118,6 +122,9 @@ export interface FurnitureItem {
   width?: number;   // cm
   depth?: number;   // cm
   height?: number;  // cm
+  /** Height of the item's bottom above its floor in cm (wall-mounted TV, plant on a table).
+   *  Omitted means the catalog default: 0, except wall/ceiling decor and lights (furnitureElevation.ts). */
+  elevation?: number;
   material?: string; // material name/id
   locked?: boolean;
 }
