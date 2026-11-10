@@ -239,6 +239,12 @@ The companion iOS app can share an edited plan or [Apple RoomPlan](https://devel
 
 [`storage.rules`](storage.rules) allows public reads of a capture by its code and no public writes, so every capture passes the endpoint's admission limits. The endpoint enforces 1 MiB per capture, 1,000 reservations / 250 MiB per UTC day, and 10 reservations per minute. See [configuration, costs and the cutover record](docs/handoff-quotas.md). These limits are not a cap on Firebase spending.
 
+### Local agent bridge (dev server)
+
+Running `npm run dev`, a local agent or script can read and edit the project open in your editor tab — live, one Undo
+step per edit — through an MCP endpoint at `http://localhost:5173/agent-bridge/mcp`. Loopback only, never in
+production builds; optional mirroring of every save to a folder. See [docs/agent-bridge.md](docs/agent-bridge.md).
+
 ### Assistant shares
 
 `POST /api/assistant-shares` accepts a whole project package for the assistant
