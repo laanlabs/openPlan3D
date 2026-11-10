@@ -7,9 +7,9 @@ import { getModelFile } from './furnitureModelFiles';
 import { placedFurnitureY } from './furnitureElevation';
 import { furnitureFinishes } from './furnitureFinishes';
 import { disposeModel, isModelDisposed, loadCatalogModel, releaseWithModel } from './furnitureModelResources';
-import { depthOffset } from './depthOrder';
+import type { DepthOffset } from './depthOrder';
 
-export interface FurnitureAppearance { color?: string; material?: string; ghost?: boolean; depthOffset?: number }
+export interface FurnitureAppearance { color?: string; material?: string; ghost?: boolean; depthOffset?: DepthOffset }
 
 function applyAppearance(model: THREE.Group, appearance: FurnitureAppearance, tint: boolean) {
   const seen = new Set<THREE.Material>();
@@ -18,7 +18,7 @@ function applyAppearance(model: THREE.Group, appearance: FurnitureAppearance, ti
     for (const material of Array.isArray(child.material) ? child.material : [child.material]) {
       if (seen.has(material)) continue;
       seen.add(material);
-      if (appearance.depthOffset !== undefined) Object.assign(material, depthOffset(appearance.depthOffset));
+      if (appearance.depthOffset) Object.assign(material, appearance.depthOffset);
       if (!(material instanceof THREE.MeshStandardMaterial)) continue;
       // A tint keeps the source model's texture and contrasting material detail.
       if (tint && appearance.color) material.color.multiply(new THREE.Color(appearance.color));
@@ -80,7 +80,7 @@ export function createFurnitureModelWithGLB(
 
 
 /** Retain the procedural fallback until a verified project source is ready. */
-function createProjectFurniture(item: FurnitureItem, def: FurnitureDef, project?: Project, onLoaded?: (model: THREE.Group) => void, depth?: number) {
+function createProjectFurniture(item: FurnitureItem, def: FurnitureDef, project?: Project, onLoaded?: (model: THREE.Group) => void, depth?: DepthOffset) {
   const container = new THREE.Group();
   container.name = `furniture_${item.customModelId}`;
   const appearance = { color: item.color, material: item.material, depthOffset: depth };
@@ -111,7 +111,7 @@ function createProjectFurniture(item: FurnitureItem, def: FurnitureDef, project?
 }
 
 /** Build a saved item even when its original catalog is unavailable. */
-export function createPlacedFurnitureModel(item: FurnitureItem, onLoaded?: (model: THREE.Group) => void, project?: Project, depth?: number): THREE.Group | null {
+export function createPlacedFurnitureModel(item: FurnitureItem, onLoaded?: (model: THREE.Group) => void, project?: Project, depth?: DepthOffset): THREE.Group | null {
   const catalog = getCatalogItem(item.catalogId);
   const custom = project?.customModels?.find(model => model.id === item.customModelId);
   if (catalog?.symbol && !item.customModelId) return null;

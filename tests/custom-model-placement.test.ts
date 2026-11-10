@@ -59,6 +59,22 @@ it('fits original geometry in centimeters and preserves saved position, rotation
   expect(saved).toEqual(before);
   disposeModel(model); expect(close).toHaveBeenCalledTimes(1);
 });
+it('keeps the depth offset on the fallback and on the project model that replaces it', async () => {
+  const offset = { polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -3 } as const;
+  const materials = (root: THREE.Object3D) => {
+    const found: THREE.Material[] = [];
+    root.traverse(child => { if (child instanceof THREE.Mesh) found.push(...[child.material].flat()); });
+    return found;
+  };
+  const loaded = vi.fn(), model = createPlacedFurnitureModel(item(), loaded, project(), offset)!;
+  const fallback = model.children[0];
+  for (const material of materials(model)) expect(material).toMatchObject(offset);
+  await vi.waitFor(() => expect(loaded).toHaveBeenCalledTimes(1));
+  expect(model.children[0]).not.toBe(fallback);
+  expect(materials(model).length).toBeGreaterThan(0);
+  for (const material of materials(model)) expect(material).toMatchObject(offset);
+  disposeModel(model);
+});
 it('lifts a project model to its saved height above the floor (issue #131)', async () => {
   const loaded = vi.fn(), model = createPlacedFurnitureModel({ ...item(), elevation: 75 }, loaded, project())!;
   expect(new THREE.Box3().setFromObject(model).min.y).toBeCloseTo(76.5); // procedural fallback
