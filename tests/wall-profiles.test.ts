@@ -189,3 +189,18 @@ it('keeps baseboard ends out of the wall end and reveal planes', () => {
   // Joints between spans of a curved wall stay flush.
   expect(baseboardSegment({ width: 50, offsetX: 25 }, { from: 100, length: 50 }, 300)).toEqual({ width: 50, offsetX: 25 });
 });
+
+it('drops a baseboard piece the opening cut uses up instead of moving it past the wall end', () => {
+  // positionOnWall keeps a door's centre at 90% of the wall or less: a 79.4 cm door dragged to the
+  // end of a 400 cm wall leaves a piece [399.7, 400]. Growing it 1 cm at the wall end before the
+  // 0.5 cm cut at the door put the whole board at [400.2, 401], outside the wall.
+  const [, end] = buildWallSegments(400, 8, 8, [door({ position: 0.9, width: 79.4 })], []);
+  expect(end.offsetX - end.width / 2).toBeCloseTo(399.7);
+  expect(end.offsetX + end.width / 2).toBeCloseTo(400);
+  expect(baseboardSegment(end, { from: 0, length: 400 }, 400).width).toBe(0);
+  // The same at the wall's start, and on the end spans of a curved wall.
+  expect(baseboardSegment({ width: 0.3, offsetX: 0.15 }, { from: 0, length: 400 }, 400).width).toBe(0);
+  expect(baseboardSegment({ width: 0.4, offsetX: 49.8 }, { from: 250, length: 50 }, 300).width).toBe(0);
+  // A piece wider than the cut keeps the rest and still reaches 1 cm past the wall end.
+  expect(baseboardSegment({ width: 2, offsetX: 399 }, { from: 0, length: 400 }, 400)).toEqual({ width: 2.5, offsetX: 399.75 });
+});
