@@ -153,10 +153,49 @@ export function endUndoGroup(description?: string) {
     resetCoalescing();
     const project = get(currentProject);
     // Drag frames bump updatedAt; only changed content earns an entry and discards Redo.
-    if (before === null || !project || JSON.stringify({ ...project, updatedAt }) === before) return;
-    pushHistory(undoStack, { state: before, description: action, timestamp: Date.now(), selection });
-    redoStack.length = 0;
-    syncHistoryStore();
+    if (before !== null && project && JSON.stringify({ ...project, updatedAt }) !== before) {
+      pushHistory(undoStack, { state: before, description: action, timestamp: Date.now(), selection });
+      redoStack.length = 0;
+      syncHistoryStore();
+    }
+    runQueuedExternalEdits();
+  }
+}
+
+/** Raised when an external edit waited longer than allowed for the user's gesture to finish; nothing was changed. */
+export class GestureInProgressError extends Error {}
+
+// Edits from outside the editor (the local agent bridge) that wait for the open undo group to close.
+interface QueuedExternalEdit { run: () => void; timer?: ReturnType<typeof setTimeout> }
+const queuedExternalEdits: QueuedExternalEdit[] = [];
+
+/**
+ * Run an edit made outside the editor (the local agent bridge) once no undo group is open. A gesture collects every
+ * frame into one undo group; an edit landing inside it would join the gesture's Undo step, or be overwritten by the
+ * gesture's next frame. Queued edits run in order, synchronously, as the group closes, so each one reads the project
+ * the gesture left behind and records its own Undo step. With `timeoutMs`, an edit still waiting then is dropped and
+ * the promise rejects with GestureInProgressError.
+ */
+export function afterUndoGroup<T>(edit: () => T, timeoutMs = Infinity): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const run = () => { try { resolve(edit()); } catch (error) { reject(error); } };
+    if (undoGroupDepth === 0 && !queuedExternalEdits.length) return run();
+    const entry: QueuedExternalEdit = { run };
+    if (Number.isFinite(timeoutMs)) entry.timer = setTimeout(() => {
+      const index = queuedExternalEdits.indexOf(entry);
+      if (index < 0) return;
+      queuedExternalEdits.splice(index, 1);
+      reject(new GestureInProgressError('The user is in the middle of an edit in the editor (dragging or placing something); nothing was changed. Retry in a moment.'));
+    }, timeoutMs);
+    queuedExternalEdits.push(entry);
+  });
+}
+
+function runQueuedExternalEdits() {
+  while (undoGroupDepth === 0 && queuedExternalEdits.length) {
+    const entry = queuedExternalEdits.shift()!;
+    clearTimeout(entry.timer);
+    entry.run();
   }
 }
 
@@ -853,9 +892,10 @@ export function commitItemDetails(expected: Project, next: Project, description:
 /**
  * Replace the open project with a version prepared outside the editor (the local agent bridge): validated like an
  * import, recorded as one Undo step, saved by autosave like any edit. Keeps the floor the user is looking at.
- * Returns false when nothing changed.
+ * Returns false when nothing changed. Call it through afterUndoGroup(), never while a gesture's undo group is open.
  */
 export function applyExternalProject(next: Project, description = 'Agent edit'): boolean {
+  if (undoGroupDepth > 0) throw new Error('An external edit cannot land inside an undo group; queue it with afterUndoGroup().');
   const current = get(currentProject);
   if (!current) throw new Error('No project is open.');
   if (next.id !== current.id) throw new Error('The edit is for a different project than the one open.');
@@ -1035,6 +1075,8 @@ export function loadProject(project: Project) {
   clearFloorContext();
   currentProject.set(project);
   syncHistoryStore();
+  // Edits queued for the previous project run now and find a different project open.
+  runQueuedExternalEdits();
 }
 
 /** How many elements a merge placed and their ids per floor, for selecting them afterwards. */
