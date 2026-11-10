@@ -28,11 +28,13 @@ export const STACKED_FLOOR_OPACITY = 0.35;
 
 /** Material flags for the other floors' walls, slabs and columns. Solid floors leave the
  * transparent pass entirely (no per-frame sorting or blending, so no flicker between
- * overlapping storeys); both styles write depth, as the translucent view always has. */
+ * overlapping storeys). Translucent floors do not write depth, like the viewer's other
+ * transparent surfaces: overlapping translucent walls and slabs then blend, instead of the
+ * one drawn first hiding the others in an order that changes as the camera moves. */
 export function stackedFloorMaterial(style: StackedFloorsStyle): { transparent: boolean; opacity: number; depthWrite: boolean } {
   return style === 'solid'
     ? { transparent: false, opacity: 1, depthWrite: true }
-    : { transparent: true, opacity: STACKED_FLOOR_OPACITY, depthWrite: true };
+    : { transparent: true, opacity: STACKED_FLOOR_OPACITY, depthWrite: false };
 }
 
 interface PickHit { distance: number; object: { userData: Record<string, unknown> } }

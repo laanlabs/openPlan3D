@@ -20,7 +20,7 @@
   import { createRoomSlabGeometry } from '$lib/utils/roomSlabGeometry';
   import { roomHoles } from '$lib/utils/roomNesting';
   import { createSlopedBoxGeometry, mapWallUVs } from '$lib/utils/slopedWallGeometry';
-  import { buildWallSegments, roomCeilingHeight, wallProfileSpans, wallPathProfile, pathOpening } from '$lib/utils/wallProfiles';
+  import { buildWallSegments, baseboardSegment, roomCeilingHeight, wallProfileSpans, wallPathProfile, pathOpening } from '$lib/utils/wallProfiles';
   import { doorFrameColor, doorOpeningSide, isDoorFrameColor, isGlazedDoor, pocketDoorTravel, swingLeaves } from '$lib/utils/doorStyle';
   import { assembleFloorStack, pickedWallId, stackedFloorMaterial, stackedFloorOccludes, type StackedFloorsStyle } from '$lib/utils/floorStack';
   import { setFloorCameraPose } from '$lib/utils/floorCamera';
@@ -47,6 +47,9 @@
   import { addFurniture } from '$lib/stores/project';
   import { detectRooms, resolveRoomGeometry, getRoomPolygon, roomCentroid, roomLabelPosition } from '$lib/utils/roomDetection';
   import { getMaterial } from '$lib/utils/materials';
+  import { doorFrameBoxes, windowOuterBars } from '$lib/utils/openingFrames';
+  import { DEPTH_ORDER, depthOffset, furnitureDepthOffsets } from '$lib/utils/depthOrder';
+  import { columnGeometry } from '$lib/utils/columnGeometry';
   import { getWallTextureCanvas, getFloorTextureCanvas, setTextureLoadCallback } from '$lib/utils/textureGenerator';
 
   let container: HTMLDivElement;
@@ -802,9 +805,7 @@
       roughness: 0.92,
       metalness: 0
     });
-    groundMat.polygonOffset = true;
-    groundMat.polygonOffsetFactor = 2;
-    groundMat.polygonOffsetUnits = 2;
+    Object.assign(groundMat, depthOffset(DEPTH_ORDER.ground));
     const ground = new THREE.Mesh(groundGeo, groundMat);
     sceneGround = ground;
     ground.rotation.x = -Math.PI / 2;
@@ -812,7 +813,8 @@
     ground.receiveShadow = true;
     scene.add(ground);
 
-    camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 1, 20000);
+    // A 1 cm near plane cannot separate the floor layers (0, 0.5, 1 cm) from 40 m away.
+    camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 5, 20000);
     camera.position.set(800, 600, 800);
 
     try {
@@ -1053,7 +1055,7 @@
     const floorTex = createFloorTexture();
     const floorGeo = new THREE.PlaneGeometry(SITE_FLOOR_SIZE, SITE_FLOOR_SIZE);
     plainSiteFloor = floorGeo;
-    const floorMat = new THREE.MeshStandardMaterial({ map: floorTex, side: THREE.DoubleSide, roughness: 0.8, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 });
+    const floorMat = new THREE.MeshStandardMaterial({ map: floorTex, side: THREE.DoubleSide, roughness: 0.8, ...depthOffset(DEPTH_ORDER.basePlane) });
     const floorMesh = new THREE.Mesh(floorGeo, floorMat);
     siteFloor = floorMesh;
     floorMesh.rotation.x = -Math.PI / 2;
@@ -1127,9 +1129,10 @@
       tread.receiveShadow = true;
       group.add(tread);
 
-      const riserGeo = new THREE.BoxGeometry(width, riserHeight, 2);
+      // Inset into the tread so no riser face is coplanar with the tread's sides or top.
+      const riserGeo = new THREE.BoxGeometry(width - 1, riserHeight - 0.5, 2);
       const riser = new THREE.Mesh(riserGeo, sideMat);
-      riser.position.set(offsetX, offsetY + i * riserHeight + riserHeight / 2, offsetZ + i * treadDepth);
+      riser.position.set(offsetX, offsetY + i * riserHeight + (riserHeight - 0.5) / 2, offsetZ + i * treadDepth);
       riser.castShadow = true;
       group.add(riser);
     }
@@ -1217,15 +1220,8 @@
     if (!floor.columns) return;
     for (const col of floor.columns) {
       const h = col.height || 280;
-      const d = col.diameter || 30;
-      let geo: THREE.BufferGeometry;
-      if (col.shape === 'square') {
-        geo = new THREE.BoxGeometry(d, h, d);
-      } else {
-        geo = new THREE.CylinderGeometry(d / 2, d / 2, h, 24);
-      }
-      const mat = new THREE.MeshStandardMaterial({ color: col.color || '#cccccc', roughness: 0.7 });
-      const mesh = new THREE.Mesh(geo, mat);
+      const mat = new THREE.MeshStandardMaterial({ color: col.color || '#cccccc', roughness: 0.7, ...depthOffset(DEPTH_ORDER.column) });
+      const mesh = new THREE.Mesh(columnGeometry(col), mat);
       mesh.position.set(col.position.x, h / 2, col.position.y);
       mesh.castShadow = true;
       mesh.receiveShadow = true;
@@ -1324,7 +1320,7 @@
     cameraHelper = null;
     wallMeshMap.clear();
 
-    const defaultInteriorMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+    const defaultInteriorMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, ...depthOffset(DEPTH_ORDER.interiorWall) });
     const defaultExteriorMat = new THREE.MeshStandardMaterial({ color: 0xd4cfc9, roughness: 0.85 });
     const baseboardMat = new THREE.MeshStandardMaterial({ color: 0xe8e0d4, roughness: 0.7 });
 
@@ -1333,7 +1329,7 @@
       const DEFAULT_2D_COLORS = ['#cccccc', '#888888', '#444444', '#404040'];
 
       function resolveWallMat(color: string | undefined, texture: string | undefined, fallback: THREE.MeshStandardMaterial, isInterior: boolean = false): THREE.MeshStandardMaterial {
-        const polyOff = isInterior ? { polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 } : {};
+        const polyOff = isInterior ? depthOffset(DEPTH_ORDER.interiorWall) : {};
         if (texture) {
           const tex = generateWallTexture(texture, color || '#888888');
           return new THREE.MeshStandardMaterial({ map: tex, roughness: 0.85, ...polyOff });
@@ -1394,11 +1390,14 @@
         // The same cuts keep baseboards out of curved doorways.
         if (Math.min(startH, endH) >= BASEBOARD_HEIGHT) {
           const base = { ...wall, height: BASEBOARD_HEIGHT, startHeight: BASEBOARD_HEIGHT, endHeight: BASEBOARD_HEIGHT };
+          const pathLength = wallPathProfile(base).length;
           for (const span of wallProfileSpans(base, doors, windows)) {
             const angle = Math.atan2(span.end.y - span.start.y, span.end.x - span.start.x);
             for (const segment of span.segments) {
-              const mesh = new THREE.Mesh(createSlopedBoxGeometry(segment.width, t + 2, segment.bottomY, segment.topYLeft, segment.topYRight), baseboardMat);
-              mesh.position.set(span.start.x + segment.offsetX * Math.cos(angle), 0, span.start.y + segment.offsetX * Math.sin(angle));
+              const { width, offsetX } = baseboardSegment(segment, span, pathLength);
+              if (width <= 0) continue;
+              const mesh = new THREE.Mesh(createSlopedBoxGeometry(width, t + 2, segment.bottomY, segment.topYLeft, segment.topYRight), baseboardMat);
+              mesh.position.set(span.start.x + offsetX * Math.cos(angle), 0, span.start.y + offsetX * Math.sin(angle));
               mesh.rotation.y = -angle; mesh.castShadow = true; mesh.userData.xray = true; wallGroup.add(mesh);
             }
           }
@@ -1450,8 +1449,10 @@
         // walls: doors and windows whose sill is below the board cut it too.
         if (Math.min(startH, endH) >= BASEBOARD_HEIGHT) {
           for (const seg of buildWallSegments(len, BASEBOARD_HEIGHT, BASEBOARD_HEIGHT, doorOpenings, winOpenings)) {
-            const bbMesh = new THREE.Mesh(createSlopedBoxGeometry(seg.width, t + 2, seg.bottomY, seg.topYLeft, seg.topYRight), baseboardMat);
-            const localX = seg.offsetX - len / 2;
+            const { width, offsetX } = baseboardSegment(seg, { from: 0, length: len }, len);
+            if (width <= 0) continue;
+            const bbMesh = new THREE.Mesh(createSlopedBoxGeometry(width, t + 2, seg.bottomY, seg.topYLeft, seg.topYRight), baseboardMat);
+            const localX = offsetX - len / 2;
             bbMesh.position.set(cx + localX * Math.cos(angle), 0, cy + localX * Math.sin(angle));
             bbMesh.rotation.y = -angle;
             bbMesh.castShadow = true;
@@ -1478,17 +1479,16 @@
 
       const glazed = isGlazedDoor(door.type);
       const frameMat = new THREE.MeshStandardMaterial(glazed
-        ? { color: new THREE.Color(doorFrameColor(door)), roughness: 0.4, metalness: 0.25 }
-        : { color: new THREE.Color(doorFrameColor(door)), roughness: 0.6 });
+        ? { color: new THREE.Color(doorFrameColor(door)), roughness: 0.4, metalness: 0.25, ...depthOffset(DEPTH_ORDER.openingFrame) }
+        : { color: new THREE.Color(doorFrameColor(door)), roughness: 0.6, ...depthOffset(DEPTH_ORDER.openingFrame) });
       // Wooden leaves follow a chosen frame colour; unset, they keep the natural wood.
       const leafColor = new THREE.Color(isDoorFrameColor(door.frameColor) ? door.frameColor : 0x8B6914);
       const doorHeight = opening.top;
-      const jamb = 5; // jamb thickness
 
       // Clip jambs and header too when an opening reaches the wall profile.
-      addOpeningFrame(wall, (opening.left - jamb / 2) / length, jamb, 0, doorHeight, wt + 2, frameMat);
-      addOpeningFrame(wall, (opening.right + jamb / 2) / length, jamb, 0, doorHeight, wt + 2, frameMat);
-      addOpeningFrame(wall, t, opening.right - opening.left + jamb * 2, doorHeight, jamb, wt + 2, frameMat);
+      for (const box of doorFrameBoxes(path, opening, wt)) {
+        addOpeningFrame(wall, box.center / length, box.width, box.bottom, box.height, box.depth, frameMat);
+      }
 
       if (door.type === 'opening') {
         // Plain doorway — jambs and header only, no door leaf
@@ -1694,27 +1694,20 @@
       const effectiveWinH = opening.top - opening.bottom;
       const winCY = win.sillHeight + effectiveWinH / 2;
 
-      const frameMat = new THREE.MeshStandardMaterial({ color: 0xe0e0e0, roughness: 0.4, metalness: 0.1 });
+      const frameMat = new THREE.MeshStandardMaterial({ color: 0xe0e0e0, roughness: 0.4, metalness: 0.1, ...depthOffset(DEPTH_ORDER.openingFrame) });
       const mullionW = 4; // mullion bar width
 
-      // Outer frame — 4 bars forming rectangle
-      const bars: { w: number; h: number; ox: number; oy: number }[] = [
-        { w: win.width + mullionW * 2, h: mullionW, ox: 0, oy: -effectiveWinH / 2 - mullionW / 2 }, // bottom
-        { w: win.width + mullionW * 2, h: mullionW, ox: 0, oy: effectiveWinH / 2 + mullionW / 2 },  // top
-        { w: mullionW, h: effectiveWinH, ox: -win.width / 2 - mullionW / 2, oy: 0 },  // left
-        { w: mullionW, h: effectiveWinH, ox: win.width / 2 + mullionW / 2, oy: 0 },   // right
-        // Center vertical mullion
-        { w: mullionW, h: effectiveWinH, ox: 0, oy: 0 },
-        // Center horizontal mullion
-        { w: win.width, h: mullionW, ox: 0, oy: 0 },
-      ];
-      for (const bar of bars) {
-        addOpeningFrame(wall, t + bar.ox / length, bar.w, winCY + bar.oy - bar.h / 2, bar.h, mullionW, frameMat);
+      // Outer frame — up to 4 bars forming a rectangle, less any the wall profile clips away
+      for (const box of windowOuterBars(path, opening, mullionW)) {
+        addOpeningFrame(wall, box.center / length, box.width, box.bottom, box.height, mullionW, frameMat);
       }
+      // Center vertical and horizontal mullions
+      addOpeningFrame(wall, t, mullionW, win.sillHeight, effectiveWinH, mullionW, frameMat);
+      addOpeningFrame(wall, t, win.width, winCY - mullionW / 2, mullionW, mullionW, frameMat);
 
       // Glass panes (4 quadrants)
       const glassMat = new THREE.MeshStandardMaterial({
-        color: 0xa8d8ea, transparent: true, opacity: 0.3,
+        color: 0xa8d8ea, transparent: true, depthWrite: false, opacity: 0.3,
         roughness: 0.05, metalness: 0.1, side: THREE.DoubleSide
       });
       const halfW = (win.width - mullionW) / 2;
@@ -1732,8 +1725,9 @@
     }
 
     // Furniture
-    for (const fi of floor.furniture) {
-      const model = createPlacedFurnitureModel(fi, markSceneDirty, get(currentProject) ?? undefined);
+    const furnitureOffsets = furnitureDepthOffsets(floor.furniture);
+    for (const [i, fi] of floor.furniture.entries()) {
+      const model = createPlacedFurnitureModel(fi, markSceneDirty, get(currentProject) ?? undefined, furnitureOffsets[i]);
       if (model) wallGroup.add(model);
     }
 
@@ -1748,7 +1742,7 @@
 
       const slabGeometry = room.floorOpening ? null : createRoomSlabGeometry(poly, floor.slabThickness, holes[ri]);
       if (slabGeometry) {
-        const slab = new THREE.Mesh(slabGeometry, new THREE.MeshStandardMaterial({ color: 0xcccccc, roughness: 0.9 }));
+        const slab = new THREE.Mesh(slabGeometry, new THREE.MeshStandardMaterial({ color: 0xcccccc, roughness: 0.9, ...depthOffset(DEPTH_ORDER.slab) }));
         slab.userData.renderMaterial = 'floor';
         slab.receiveShadow = true;
         wallGroup.add(slab);
@@ -1832,6 +1826,7 @@
         });
       }
 
+      Object.assign(material, depthOffset(DEPTH_ORDER.roomFloor));
       const mesh = new THREE.Mesh(geo, material);
       // Rotate to lie on XZ plane, slightly above base floor
       mesh.userData.renderMaterial = 'floor';
@@ -1858,7 +1853,7 @@
       ctx2.fillText(formatArea(room.area, get(projectSettings).units), 128, 50);
 
       const tex = ownColorCanvasTexture(canvas);
-      const spriteMat = new THREE.SpriteMaterial({ map: tex, transparent: true });
+      const spriteMat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
       const sprite = new THREE.Sprite(spriteMat);
       sprite.position.set(centroid.x, 30, centroid.y);
       sprite.scale.set(150, 40, 1);
@@ -1970,7 +1965,7 @@
     ctx.fillText(name, 128, 32);
 
     const tex = ownColorCanvasTexture(canvas);
-    const spriteMat = new THREE.SpriteMaterial({ map: tex, transparent: true });
+    const spriteMat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
     const sprite = new THREE.Sprite(spriteMat);
 
     sprite.position.set(labelX, yOffset + 130, labelZ);
@@ -1982,8 +1977,7 @@
   function buildFloorIntoGroup(floor: Floor, group: THREE.Group, yOffset: number, style: StackedFloorsStyle) {
     const look = stackedFloorMaterial(style);
     const stackedMat = (color: number, roughness = 0.9) => new THREE.MeshStandardMaterial({
-      color, roughness, ...look,
-      polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1
+      color, roughness, ...look, ...depthOffset(DEPTH_ORDER.interiorWall)
     });
 
     const defaultInteriorMat = stackedMat(0xffffff);
@@ -2051,15 +2045,8 @@
     if (floor.columns) {
       for (const col of floor.columns) {
         const h = col.height || 280;
-        const d = col.diameter || 30;
-        let geo: THREE.BufferGeometry;
-        if (col.shape === 'square') {
-          geo = new THREE.BoxGeometry(d, h, d);
-        } else {
-          geo = new THREE.CylinderGeometry(d / 2, d / 2, h, 24);
-        }
-        const mat = new THREE.MeshStandardMaterial({ color: col.color || '#cccccc', roughness: 0.7, ...look });
-        const mesh = new THREE.Mesh(geo, mat);
+        const mat = new THREE.MeshStandardMaterial({ color: col.color || '#cccccc', roughness: 0.7, ...look, ...depthOffset(DEPTH_ORDER.column) });
+        const mesh = new THREE.Mesh(columnGeometry(col), mat);
         mesh.position.set(col.position.x, h / 2 + yOffset, col.position.y);
         mesh.castShadow = true;
         mesh.receiveShadow = true;
@@ -2112,6 +2099,7 @@
       for (const material of Array.isArray(child.material) ? child.material : [child.material]) {
         material.transparent = wallsTransparent;
         material.opacity = wallsTransparent ? 0.15 : 1;
+        material.depthWrite = !wallsTransparent;
         material.needsUpdate = true;
       }
     }

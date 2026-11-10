@@ -143,6 +143,33 @@ it.each([false, true])('renders unknown saved furniture with exact world bounds 
   expect(item).toEqual(before);
 });
 
+const materialsOf = (root: THREE.Object3D) => {
+  const materials: THREE.Material[] = [];
+  root.traverse(child => { if (child instanceof THREE.Mesh) materials.push(...[child.material].flat()); });
+  return materials;
+};
+const offset = { polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -4 } as const;
+
+it('applies the depth offset it is given to every material of the placed model', async () => {
+  const { createPlacedFurnitureModel } = await import('$lib/utils/furnitureModelLoader');
+  const model = createPlacedFurnitureModel({ id: 'a', catalogId: 'unavailable-model', position: { x: 0, y: 0 }, rotation: 0, scale: { x: 1, y: 1, z: 1 } }, undefined, undefined, offset)!;
+  const materials = materialsOf(model);
+  expect(materials.length).toBeGreaterThan(0);
+  for (const material of materials) expect(material).toMatchObject(offset);
+});
+
+it('keeps the depth offset on a catalog GLB that replaces the procedural fallback', async () => {
+  const source = template(); vi.spyOn(GLTFLoader.prototype, 'loadAsync').mockResolvedValue({ scene: source.group } as any);
+  const { createPlacedFurnitureModel } = await import('$lib/utils/furnitureModelLoader');
+  const loaded = vi.fn();
+  const model = createPlacedFurnitureModel({ id: 'a', catalogId: 'chair', position: { x: 0, y: 0 }, rotation: 0, scale: { x: 1, y: 1, z: 1 } }, loaded, undefined, offset)!;
+  await settle();
+  expect(loaded).toHaveBeenCalledTimes(1);
+  expect(firstMaterial(model).map).toBeTruthy(); // the GLB, not the untextured fallback
+  for (const material of materialsOf(model)) expect(material).toMatchObject(offset);
+  expect(source.material.polygonOffset).toBe(false); // the cached source stays untouched
+});
+
 it('continues omitting explicitly 2D-only catalog symbols from placed 3D furniture', async () => {
   const { createPlacedFurnitureModel } = await import('$lib/utils/furnitureModelLoader');
   const symbol = furnitureCatalog.find(item => item.symbol)!;
