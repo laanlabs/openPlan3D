@@ -1,7 +1,8 @@
 import { getEntourageImage } from './entourageImages';
 import { roomHoles, traceRoomRings } from './roomNesting';
-import { stairLocalBounds } from './stairPlanGeometry';
+import { SPIRAL_START_ANGLE, SPIRAL_SWEEP, stairLocalBounds } from './stairPlanGeometry';
 import { dimensionPlanGeometry } from './dimensionPlanGeometry';
+import { bifoldPoints } from './doorSymbol';
 /**
  * Canvas rendering functions for the floor plan editor.
  * All functions are pure — they take canvas context + data and render.
@@ -566,27 +567,18 @@ export function drawDoorOnWall(cs: CanvasState, wall: Wall, door: Door): void {
     ctx.stroke();
 
   } else if (doorType === 'bifold') {
-    const panelCount = 4;
-    const panelW = (door.width / panelCount) * zoom;
-    const foldAngle = Math.PI / 6;
+    // Same zig-zag as the exported symbol and the 3D model; dots mark the hinges.
+    const points = bifoldPoints(s.x, s.y, ux, uy, door.width * zoom, swingDir, sideFlip);
     ctx.strokeStyle = '#444';
     ctx.lineWidth = 2;
-    let px = s.x - ux * halfDoor;
-    let py = s.y - uy * halfDoor;
-    for (let i = 0; i < panelCount; i++) {
-      const angle = wallAngle + (i % 2 === 0 ? foldAngle * swingDir : -foldAngle * swingDir * 0.3);
-      const ex = px + panelW * Math.cos(angle);
-      const ey = py + panelW * Math.sin(angle);
+    ctx.beginPath();
+    points.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)));
+    ctx.stroke();
+    ctx.fillStyle = '#666';
+    for (const p of points.slice(0, -1)) {
       ctx.beginPath();
-      ctx.moveTo(px, py);
-      ctx.lineTo(ex, ey);
-      ctx.stroke();
-      ctx.fillStyle = '#666';
-      ctx.beginPath();
-      ctx.arc(px, py, 1.5, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, 1.5, 0, Math.PI * 2);
       ctx.fill();
-      px = ex;
-      py = ey;
     }
 
   } else if (doorType === 'opening') {
@@ -1113,8 +1105,8 @@ export function drawStair(cs: CanvasState, stair: Stair, selected: boolean): voi
     const postR = r * 0.12;
     ctx.fillStyle = strokeCol; ctx.beginPath(); ctx.arc(0, 0, postR, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = treadCol; ctx.lineWidth = 0.5;
-    const totalAngle = Math.PI * 1.75;
-    const startAngle = -Math.PI / 2;
+    const totalAngle = SPIRAL_SWEEP;
+    const startAngle = SPIRAL_START_ANGLE;
     for (let i = 0; i <= stair.riserCount; i++) {
       const a = startAngle + (i / stair.riserCount) * totalAngle;
       ctx.beginPath(); ctx.moveTo(postR * Math.cos(a), postR * Math.sin(a)); ctx.lineTo(r * Math.cos(a), r * Math.sin(a)); ctx.stroke();

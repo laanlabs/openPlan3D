@@ -10,8 +10,9 @@ import type { Floor, Wall, Door, Window, FurnitureItem, Room, Point, Project, In
 import { INTERCHANGE_BLOCK_KEYS } from '$lib/models/types';
 import { createDefaultProject, createDefaultFloor } from '$lib/stores/project';
 import { detectRooms, getRoomPolygon } from '$lib/utils/roomDetection';
-import { validateRoomPlan } from './roomplanValidation';
+import { COLLAPSED_WALL_LENGTH, validateRoomPlan } from './roomplanValidation';
 import { importedFurnitureCategory } from './furnitureCategories';
+import { isValidFurnitureElevation } from './furnitureElevation';
 import { openingDropTarget } from './openingDrop';
 export { validateRoomPlan, isRoomPlanJson } from './roomplanValidation';
 
@@ -592,6 +593,8 @@ export function roomPlanImportOptions(data: any): RoomPlanImportOptions {
 }
 
 const centimetres = (metres: number) => Math.round(metres * 100 * 1e8) / 1e8;
+/** Below this (cm) an imported object counts as standing on its floor: rounding, not placement. */
+const MIN_IMPORTED_ELEVATION = 0.5;
 
 export function importRoomPlan(jsonData: any, options: RoomPlanImportOptions = roomPlanImportOptions(jsonData)): Floor {
   validateRoomPlan(jsonData);
@@ -616,6 +619,11 @@ export function importRoomPlan(jsonData: any, options: RoomPlanImportOptions = r
   for (const rw of rpWalls) {
     if (!rw.dimensions || rw.dimensions.length < 2 || !rw.transform || rw.transform.length < 16) continue;
     if (!isFinite(rw.dimensions[0]) || !isFinite(rw.dimensions[1])) continue;
+    // A wall 0 long has no direction or extent, so neither it nor its openings have a place on the
+    // plan; the iPhone draws it as a dot and does not draw its openings. Moving them, as
+    // dropCollapsedWalls does after straightening, would invent a position. Without the wall's id
+    // in wallIdMap, the opening loops below drop them.
+    if (rw.dimensions[0] < COLLAPSED_WALL_LENGTH) continue;
     const pos = getPosition(rw.transform);
     const halfWidth = (rw.dimensions[0] / 2) * 100;
     const height = centimetres(rw.dimensions[1]);
@@ -718,6 +726,11 @@ export function importRoomPlan(jsonData: any, options: RoomPlanImportOptions = r
     // Local X supplies heading; the determinant retains the remaining Y
     // reflection, including native mirrored furniture exported without sidecars.
     const reflected = ro.transform[0] * ro.transform[10] - ro.transform[2] * ro.transform[8] < 0;
+    // Prepared files put each story's floor at y = 0 and an object at y = elevation + height / 2
+    // (OpenKitchen3D wall cabinets, OpenCatio3D window boxes, this editor's own export). Raw Apple
+    // captures have an arbitrary vertical origin and keep their floor-standing import. Values at
+    // the floor, below it or out of range are left out so the catalog default applies.
+    const elevation = jsonData.openplanPrepared === true ? centimetres(pos.y - ro.dimensions[1] / 2) : 0;
     furniture.push({
       id: ro.identifier,
       ...importedFurnitureCategory(getCategoryKey(ro.category), centimetres(ro.dimensions[0])),
@@ -727,6 +740,7 @@ export function importRoomPlan(jsonData: any, options: RoomPlanImportOptions = r
       width: centimetres(ro.dimensions[0]),
       depth: centimetres(ro.dimensions[2]),
       height: centimetres(ro.dimensions[1]),
+      ...(elevation >= MIN_IMPORTED_ELEVATION && isValidFurnitureElevation(elevation) ? { elevation } : {}),
     });
   }
 

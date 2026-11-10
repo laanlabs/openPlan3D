@@ -4,6 +4,80 @@ The user-facing goal status is maintained in [STATUS.md](STATUS.md). Update it
 when implementation, validation, blockers or next priorities change; keep this
 file as the detailed backlog and evidence history.
 
+## Shares refused for walls collapsed on the iPhone — October 20
+
+Branch `fix/handoff-zero-length-walls` (PR #120). A production check of link
+sharing from the Storage cutover (October 16, 16:30 UTC) to October 20, 08:00
+UTC counted 785 accepted shares and 23 refusals (422), with no 429 or 5xx on
+`/api/handoffs`. Every refusal logged `walls[N].dimensions must contain valid
+positive width/height and nonnegative depth`. They came from 9 iPhone clients
+(IP and user agent); 8 sent no later successful share, and two tried 6 times
+each. 422s at 5–25 a day were already logged October 9–15, before the server
+recorded why it refused a capture (October 16).
+
+Cause, reproduced off-device by compiling the iPhone app's own model, drag and
+export code (openplan3d-ios `09eaa13`): the editor can leave a wall of length 0,
+which `PlanDocument+Export.swift` writes as `[0, height, thickness]`. Ways found:
+- dragging a wall's end handle within 12 cm of its other end (the right-angle
+  assist copies both coordinates);
+- dragging a corner that welds both ends of a wall under 5 cm (the length guard
+  exists only in `setLength`);
+- pushing a welded neighbour onto its own far end;
+- typing a length that reaches a collinear neighbour.
+
+Nothing removes such a wall on save, load or export. The phone shows it as a
+dot and draws none of its openings (`segment(of:)` returns nil for length 0),
+and the Length field cannot fix it. Raw scans are checked on the phone and
+cannot fail this way.
+
+- The validator accepts a wall of length 0. Negative sizes, and 0 for doors,
+  windows, openings and objects, are still refused. Each size problem now has
+  its own reason (for example `must have a positive height`), so later
+  refusals show which one failed.
+- The importer leaves out walls of length 0, and those shorter than a
+  micrometre (rounding), with their doors and windows, before any
+  straightening. That covers link handoffs, Build > Import RoomPlan, Import
+  JSON and the welcome screen. Every longer wall imports as before: the iPhone
+  and OpenKitchen3D exporters write raw lengths, and their length fields can
+  leave a real sliver of a few millimetres whose openings the user sees.
+  Openings on a wall of length 0 are dropped rather than moved: the wall has no
+  direction, the phone does not draw them, and moving one would place a window
+  the user never saw, possibly past a corner. The phone's statistics and
+  schedules still count them.
+- A floor whose only walls collapsed imports with no walls. A guard refusing
+  captures whose walls are all 0 long was left out: each floor is validated on
+  its own, so it would refuse a whole multi-floor plan.
+- The server logs `handoff_tolerated` (`collapsedWalls`, `walls`, `prepared`)
+  for a capture with such walls that passes validation, before admission.
+  `handoff_invalid` now also logs `prepared`. It is true for any prepared plan
+  (an edited iPhone plan or a sibling planner's export) and false for a raw scan.
+- Tests use two bodies from the iPhone exporter itself
+  (`tests/fixtures/handoff-collapsed-wall.json` and `handoff-collapsed-jog.json`).
+  Both are accepted and import without the collapsed wall. Each still encloses
+  one room, and passes the project check, packaging, re-export and Add to this
+  plan. The window on the collapsed wall is dropped under every geometry choice.
+  A 3 mm wall keeps its window. Refusals for negative sizes and for 0 outside
+  walls, each size's reason, and the log fields are pinned. Six mutations of the
+  change (skip removed, skip only without straightening, 5 mm threshold,
+  `prepared` fixed at false, tolerated always logged, server counting only
+  exact 0) each fail at least one test.
+- Validation: `npm run check` clean; `npm test` 1,596 passed; the three sibling
+  parity suites pass (6, 22 and 4 tests); the 11 specs that drive RoomPlan
+  import pass on Chromium, Firefox and WebKit (117 runs). Four reviewers
+  (correctness, interchange contract, server and logging, evidence) checked the
+  change, with a skeptic re-checking each serious finding; the confirmed ones
+  are fixed. The rest of the browser suite runs in CI.
+- Rollback: a revert would make the editor refuse links already issued for such
+  plans. Inbox captures live about a day, and the phone reuses a link for up to
+  24 hours.
+- iPhone follow-ups are in
+  [openplan3d-ios#49](https://github.com/laanlabs/openplan3d-ios/issues/49).
+  #120 does not fix two related failures. On the phone, Share with Assistant and
+  Export project package also fail for these plans, because the package check
+  refuses a wall whose start equals its end. OpenKitchen3D's web importer
+  refuses walls under 1 mm in an Editable Plan JSON file; its iOS importer keeps
+  them, dropping only the openings on a wall of length 0.
+
 ## Build-tab RoomPlan import regression (issue #118) — October 20
 
 Branch `fix/roomplan-import-clone` (PR #119). Build > Import RoomPlan failed

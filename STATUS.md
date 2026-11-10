@@ -1,10 +1,11 @@
 # OpenPlan3D status
 
-Last verified: **October 20, 2026** (UTC): local unit suite, type check, build
-and three-engine import specs on `fix/roomplan-import-clone` (#119), and CI and
-the App Hosting rollout for the merge of #115. Earlier, on October 16: full
-three-engine browser CI on PRs #107–#112; production rollout, CORS preflight
-and the Storage rules cutover checked; see below.
+Last verified: **October 20, 2026** (UTC): a production check of link sharing
+since the Storage cutover; the local unit suite, type check, sibling parity
+suites and three-engine import specs on `fix/handoff-zero-length-walls` (#120);
+and CI and the App Hosting rollouts for the merges of #115 and #119. Earlier,
+on October 16: full three-engine browser CI on PRs #107–#112; production
+rollout, CORS preflight and the Storage rules cutover checked; see below.
 
 ## Current delivery — October 16
 
@@ -56,8 +57,28 @@ from the October 15 interchange work, which structured-clones those
 attributes; the dialog held the parsed file in deep reactive state, and a proxy
 cannot be cloned. #119 holds the file in `$state.raw` and adds a spec that
 imports the sample both ways. Import JSON, the welcome screen and
-`/editor?import=CODE` handoffs were not affected. **#119 awaits the owner's
-merge.**
+`/editor?import=CODE` handoffs were not affected. The owner merged #119 on
+October 20 at 02:23 UTC (`fdb9675`); its checks and rollout succeeded, and the
+new spec passed against production.
+
+### Shares refused for walls collapsed on the iPhone
+
+A production check on October 20 covered the Storage cutover (October 16,
+16:30 UTC) to 08:00 UTC that day. The live Storage rules still match `main`.
+Link sharing accepted 785 captures and refused 23 (422), with no quota
+refusals and no server errors; every share came from the iPhone app. All 23
+refusals were at `walls[N].dimensions`, from 9 clients, 8 of which got no share
+through afterwards. 422s at 5–25 a day were also logged October 9–15, before
+the server recorded why it refused a capture.
+
+The cause is in the iPhone editor. Dragging a wall's end onto its other end, or
+a corner that welds both ends of a short wall, leaves a wall of length 0, which
+the exporter sends as `[0, height, thickness]`. The phone shows it as a dot and
+does not draw its openings. #120 accepts walls of length 0, leaves them and
+their openings out on import, and logs counts as `handoff_tolerated`, so
+shipped iPhone builds share these plans without an update. **#120 awaits the owner's
+merge.** The editor fix is tracked in
+[openplan3d-ios#49](https://github.com/laanlabs/openplan3d-ios/issues/49).
 
 ## Goal and overall state
 
@@ -70,11 +91,12 @@ Storage rules cutover was deployed and verified (#115). Its owner tasks moved
 to #116 (billing budget alerts) and
 [openplan3d-ios#47](https://github.com/laanlabs/openplan3d-ios/issues/47)
 (physical-iPhone QA). #105 (publish the iOS repository) needs the owner.
-#118, a Build-tab import regression reported on October 17, is fixed in #119,
-which awaits merge. Broader fidelity work and physical-device testing remain
-open.
+#118, a Build-tab import regression reported on October 17, was fixed by #119
+(merged October 20). Shares refused for walls collapsed on the iPhone are fixed
+in #120, which awaits merge. Broader fidelity work and physical-device testing
+remain open.
 
-Web `main` is at `46aa9d2` (the merge of #115).
+Web `main` is at `fdb9675` (the merge of #119).
 
 This is the concise, maintained status page. Update it as implementation,
 validation, blockers, or priorities change during the goal. Keep the full scope
@@ -87,7 +109,7 @@ Remote state was checked when preparing this report.
 
 | Repository | Branch | Latest implementation checkpoint | Delivery |
 | --- | --- | --- | --- |
-| Web app: `openPlan3D` | `main` | `46aa9d2` — merge of #115, after #107–#114 | **Merged and live** (App Hosting rollouts succeeded October 16 and 20); #119 open |
+| Web app: `openPlan3D` | `main` | `fdb9675` — merge of #119, after #107–#115 | **Merged and live** (App Hosting rollouts succeeded October 16 and 20); #120 open |
 | Native app: `openplan3d-ios` | `marketing/youtube-shorts-drawing` | `f2c6ea1` — marketing Shorts; no native code change in this batch | Clean checkout; the earlier `codex/local-floorplan-render` work (`bdaad71`) is unchanged |
 | Website: `openplan3d-www` | `main` | `dfdb9ec` — lists OpenLandscape3D, OpenKitchen3D and OpenCatio3D, with an FAQ entry on the exchange | **Pushed and live** on openplan3d.com |
 

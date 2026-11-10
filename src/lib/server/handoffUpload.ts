@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto';
-import { isRoomPlanJson, validateRoomPlan } from '$lib/utils/roomplanValidation';
+import { COLLAPSED_WALL_LENGTH, isRoomPlanJson, validateRoomPlan } from '$lib/utils/roomplanValidation';
 import { HANDOFF_LIMITS, HandoffError, reserveHandoff, type QuotaStore } from './handoffQuota';
 
 export interface HandoffSink extends QuotaStore {
@@ -35,10 +35,11 @@ export async function readCapture(request: Request): Promise<Uint8Array> {
     // Which stage refused the capture is logged so rejected shares can be diagnosed. Only validator
     // messages (a field path and a fixed reason) are kept verbatim: JSON.parse quotes the input.
     let stage: 'utf-8' | 'json' | 'format' | 'validation' = 'utf-8';
+    let capture: any;
     try {
       const text = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
       stage = 'json';
-      const capture = JSON.parse(text);
+      capture = JSON.parse(text);
       stage = 'format';
       if (!isRoomPlanJson(capture)) throw new Error('Unrecognized RoomPlan export');
       stage = 'validation';
@@ -46,8 +47,14 @@ export async function readCapture(request: Request): Promise<Uint8Array> {
     }
     catch (error) {
       const detail = stage === 'validation' && error instanceof Error && error.message.startsWith('Invalid RoomPlan file:') ? error.message.slice(0, 240) : undefined;
-      console.warn(JSON.stringify({ event: 'handoff_invalid', stage, ...(detail ? { detail } : {}) }));
+      const prepared = stage === 'validation' ? { prepared: capture.openplanPrepared === true } : {};
+      console.warn(JSON.stringify({ event: 'handoff_invalid', stage, ...prepared, ...(detail ? { detail } : {}) }));
       throw new HandoffError(422, 'This capture cannot be shared. Check it using Export Editable Plan (JSON).');
+    }
+    // Counts only, before admission: shows how often plans still carry walls collapsed by editing.
+    const collapsedWalls = capture.walls.filter((wall: any) => wall.dimensions[0] < COLLAPSED_WALL_LENGTH).length;
+    if (collapsedWalls) {
+      console.warn(JSON.stringify({ event: 'handoff_tolerated', collapsedWalls, walls: capture.walls.length, prepared: capture.openplanPrepared === true }));
     }
     return bytes;
   } finally {

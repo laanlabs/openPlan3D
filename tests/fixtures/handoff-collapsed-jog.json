@@ -1,0 +1,178 @@
+{
+  "defaults": {
+    "ceilingHeight": 2.4,
+    "exteriorWallThickness": 0.2,
+    "interiorWallThickness": 0.12
+  },
+  "doors": [],
+  "floors": [],
+  "objects": [],
+  "openings": [],
+  "openplanHandoffVersion": 1,
+  "openplanImportOptions": {
+    "orthogonal": false,
+    "straighten": false
+  },
+  "openplanPrepared": true,
+  "sections": [],
+  "stories": [
+    {
+      "index": 0,
+      "name": "Ground Floor"
+    }
+  ],
+  "version": 2,
+  "walls": [
+    {
+      "category": {
+        "wall": {}
+      },
+      "dimensions": [
+        2.7,
+        2.4,
+        0.12
+      ],
+      "identifier": "3BFBB5D3-6B31-4463-B8EC-79DA02E48264",
+      "story": 0,
+      "transform": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1.35,
+        1.2,
+        0,
+        1
+      ]
+    },
+    {
+      "category": {
+        "wall": {}
+      },
+      "dimensions": [
+        0,
+        2.4,
+        0.12
+      ],
+      "identifier": "D674E0C2-48AD-486A-B52A-8BDCE1C4F079",
+      "story": 0,
+      "transform": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        2.7,
+        1.2,
+        0,
+        1
+      ]
+    },
+    {
+      "category": {
+        "wall": {}
+      },
+      "dimensions": [
+        2.300195643852931,
+        2.4,
+        0.12
+      ],
+      "identifier": "B5490735-DD41-4DE6-9378-CEACB38EDF11",
+      "story": 0,
+      "transform": [
+        0.9999149446902684,
+        0,
+        0.01304236884378611,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -0.01304236884378611,
+        0,
+        0.9999149446902684,
+        0,
+        3.85,
+        1.2,
+        0.015,
+        1
+      ]
+    },
+    {
+      "category": {
+        "wall": {}
+      },
+      "dimensions": [
+        3.97,
+        2.4,
+        0.12
+      ],
+      "identifier": "BFF58735-9414-4056-B62D-80275849319D",
+      "story": 0,
+      "transform": [
+        6.123233995736766e-17,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -1,
+        0,
+        6.123233995736766e-17,
+        0,
+        5,
+        1.2,
+        2.015,
+        1
+      ]
+    },
+    {
+      "category": {
+        "wall": {}
+      },
+      "dimensions": [
+        6.4031242374328485,
+        2.4,
+        0.12
+      ],
+      "identifier": "805333D3-3679-4B1F-B770-A70C20D9E19C",
+      "story": 0,
+      "transform": [
+        -0.7808688094430304,
+        0,
+        -0.6246950475544242,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0.6246950475544242,
+        0,
+        -0.7808688094430304,
+        0,
+        2.5,
+        1.2,
+        2,
+        1
+      ]
+    }
+  ],
+  "windows": []
+}

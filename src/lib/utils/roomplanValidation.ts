@@ -1,4 +1,14 @@
 /** Shared format recognition for file imports and link admission. */
+
+/**
+ * Metres, compared with a wall's `dimensions[0]`, its length. The iPhone editor can drag a wall's
+ * two ends onto one point and still exports the wall, 0 long. A wall shorter than this (0 or
+ * rounding) has no direction or extent, so the importer leaves it out with its openings. Every
+ * longer wall imports as before: the iPhone and OpenKitchen3D exporters write raw lengths, and a
+ * real sliver of a few millimetres can carry an opening the user sees.
+ */
+export const COLLAPSED_WALL_LENGTH = 1e-6;
+
 export function isRoomPlanJson(data: any): boolean {
   return !!data && (data.openplanPrepared === true || data.openplanHandoffVersion !== undefined ||
     (Array.isArray(data.walls) && data.walls.some((wall: any) => wall?.dimensions !== undefined)));
@@ -33,11 +43,17 @@ export function validateRoomPlan(data: any): void {
       if (typeof item.identifier !== 'string' || !item.identifier.trim()) fail(path, 'needs an identifier');
       if (ids.has(item.identifier)) fail(path, 'has a duplicate identifier');
       ids.add(item.identifier);
-      if (!Array.isArray(item.dimensions) || item.dimensions.length < 2 ||
-          !item.dimensions.every(finite) || item.dimensions[0] <= 0 || item.dimensions[1] <= 0 ||
-          (item.dimensions.length > 2 && item.dimensions[2] < 0) ||
-          (key === 'objects' && !(item.dimensions[2] > 0))) {
-        fail(`${path}.dimensions`, 'must contain valid positive width/height and nonnegative depth');
+      const size = item.dimensions;
+      if (!Array.isArray(size) || size.length < 2 || !size.every(finite)) {
+        fail(`${path}.dimensions`, 'must list a finite width and height, and optionally depth, in metres');
+      }
+      // Only a wall may be 0 long (see COLLAPSED_WALL_LENGTH).
+      if (key === 'walls' ? size[0] < 0 : size[0] <= 0) {
+        fail(`${path}.dimensions`, key === 'walls' ? 'must have a nonnegative length' : 'must have a positive width');
+      }
+      if (size[1] <= 0) fail(`${path}.dimensions`, 'must have a positive height');
+      if (key === 'objects' ? !(size[2] > 0) : size[2] < 0) {
+        fail(`${path}.dimensions`, key === 'objects' ? 'must have a positive depth' : 'must have a nonnegative depth');
       }
       if (!Array.isArray(item.transform) || item.transform.length !== 16 || !item.transform.every(finite) ||
           Math.hypot(item.transform[0], item.transform[2]) < 1e-8) {

@@ -17,7 +17,9 @@
   import { openingOnWall } from '$lib/utils/wallProfiles';
   import { getEntourageDef } from '$lib/utils/entourageCatalog';
   import { floorMaterials, wallColors } from '$lib/utils/materials';
-  import { getCatalogItem } from '$lib/utils/furnitureCatalog';
+  import { colorInputValue, doorFrameColor, DOOR_FRAME_PRESETS } from '$lib/utils/doorStyle';
+  import { getCatalogItem, getFurnitureSize } from '$lib/utils/furnitureCatalog';
+  import { MAX_FURNITURE_ELEVATION, furnitureElevation, storedFurnitureElevation } from '$lib/utils/furnitureElevation';
   import { projectSettings, formatLength, formatArea, parseLengthInput } from '$lib/stores/settings';
     import type { Floor, Wall, Door, Window as Win, Room, FurnitureItem, Stair, Column, RoomCategory, TextAnnotation } from '$lib/models/types';
   import { getWallStartHeight, getWallEndHeight } from '$lib/models/types';
@@ -194,20 +196,31 @@
     if (!selectedFurniture) return;
     updateFurniture(selectedFurniture.id, { color });
   }
+  // The displayed size is the effective one (base size x |scale|), because dragging a
+  // canvas handle resizes through scale. Edits store the base size that yields the typed value.
+  let furnitureSize = $derived(selectedFurniture ? getFurnitureSize(selectedFurniture) : null);
+  function furnitureAxisScale(axis: 'x' | 'y' | 'z') {
+    return Math.abs(selectedFurniture?.scale?.[axis] ?? 1) || 1;
+  }
   function onFurnitureWidth(e: Event) {
-    if (!selectedFurniture) return;
-    dimensionInput(e, selectedFurniture.width ?? getCatalogItem(selectedFurniture.catalogId)?.width ?? 50,
-      value => updateFurniture(selectedFurniture!.id, { width: value }));
+    if (!selectedFurniture || !furnitureSize) return;
+    dimensionInput(e, furnitureSize.width,
+      value => updateFurniture(selectedFurniture!.id, { width: value / furnitureAxisScale('x') }));
   }
   function onFurnitureDepth(e: Event) {
-    if (!selectedFurniture) return;
-    dimensionInput(e, selectedFurniture.depth ?? getCatalogItem(selectedFurniture.catalogId)?.depth ?? 50,
-      value => updateFurniture(selectedFurniture!.id, { depth: value }));
+    if (!selectedFurniture || !furnitureSize) return;
+    dimensionInput(e, furnitureSize.depth,
+      value => updateFurniture(selectedFurniture!.id, { depth: value / furnitureAxisScale('y') }));
   }
   function onFurnitureHeight(e: Event) {
+    if (!selectedFurniture || !furnitureSize) return;
+    dimensionInput(e, furnitureSize.height,
+      value => updateFurniture(selectedFurniture!.id, { height: value / furnitureAxisScale('z') }));
+  }
+  function onFurnitureElevation(e: Event) {
     if (!selectedFurniture) return;
-    dimensionInput(e, selectedFurniture.height ?? getCatalogItem(selectedFurniture.catalogId)?.height ?? 50,
-      value => updateFurniture(selectedFurniture!.id, { height: value }));
+    dimensionInput(e, furnitureElevation(selectedFurniture),
+      value => updateFurniture(selectedFurniture!.id, { elevation: storedFurnitureElevation(selectedFurniture!, value) }), true, MAX_FURNITURE_ELEVATION);
   }
   function onFurnitureMaterial(e: Event) {
     if (!selectedFurniture) return;
@@ -219,7 +232,12 @@
   }
   function resetFurnitureDefaults() {
     if (!selectedFurniture) return;
-    updateFurniture(selectedFurniture.id, { color: undefined, width: undefined, depth: undefined, height: undefined, material: undefined });
+    const s = selectedFurniture.scale;
+    updateFurniture(selectedFurniture.id, {
+      color: undefined, width: undefined, depth: undefined, height: undefined, elevation: undefined, material: undefined,
+      // Handle drags resize through scale; reset magnitudes but keep mirroring.
+      scale: { x: s.x < 0 ? -1 : 1, y: s.y < 0 ? -1 : 1, z: 1 },
+    });
   }
 
   // Door distance handlers
@@ -572,6 +590,19 @@
           <option value="garage">{$t('openingCatalog.garage')}</option>
         </select>
       </label>
+      {#if selectedDoor.type === 'single' || selectedDoor.type === 'double'}
+      <label class="block">
+        <span class="text-xs text-gray-500">{$t('openingProperties.leafStyle')}</span>
+        <select value={selectedDoor.leafStyle ?? 'slab'} onchange={(e) => { if (selectedDoor) updateDoor(selectedDoor.id, { leafStyle: (e.target as HTMLSelectElement).value as NonNullable<Door['leafStyle']> }); }} class="w-full px-2 py-1 border border-gray-200 rounded text-sm">
+          <option value="slab">{$t('openingProperties.leafStyle.slab')}</option>
+          <option value="shaker">{$t('openingProperties.leafStyle.shaker')}</option>
+          <option value="glazedShaker">{$t('openingProperties.leafStyle.glazedShaker')}</option>
+          <option value="victorian">{$t('openingProperties.leafStyle.victorian')}</option>
+          <option value="glazedVictorian">{$t('openingProperties.leafStyle.glazedVictorian')}</option>
+          <option value="glazed">{$t('openingProperties.leafStyle.glazed')}</option>
+        </select>
+      </label>
+      {/if}
       {#if selectedDoor.type !== 'opening' && selectedDoor.type !== 'garage'}
       <div role="group" aria-label={$t('openingProperties.hinge')}>
         <span class="text-xs text-gray-500">{$t('openingProperties.hinge')}</span>
@@ -585,6 +616,39 @@
         <div class="flex gap-2">
           <button aria-pressed={!selectedDoor.flipSide} onclick={() => { if (selectedDoor) updateDoor(selectedDoor.id, { flipSide: false }); }} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {!(selectedDoor?.flipSide) ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">{$t('openingProperties.inward')}</button>
           <button aria-pressed={!!selectedDoor.flipSide} onclick={() => { if (selectedDoor) updateDoor(selectedDoor.id, { flipSide: true }); }} class="flex-1 px-2 py-1.5 border rounded text-sm transition-colors {selectedDoor?.flipSide ? 'bg-blue-100 border-blue-400 text-blue-700' : 'border-gray-200 hover:bg-gray-50'}">{$t('openingProperties.outward')}</button>
+        </div>
+      </div>
+      {/if}
+      {#if selectedDoor.type !== 'opening'}
+      {@const frameColor = colorInputValue(doorFrameColor(selectedDoor)).toLowerCase()}
+      <div role="group" aria-label={$t('openingProperties.frameColor')}>
+        <span class="text-xs text-gray-500 block mb-2">{$t('openingProperties.frameColor')}</span>
+        <div class="grid grid-cols-7 gap-1.5 mb-2">
+          {#each DOOR_FRAME_PRESETS as { key, color }}
+            <button
+              class="w-6 h-6 rounded border-2 hover:border-gray-300 transition-colors {frameColor === color.toLowerCase() ? 'border-blue-500 ring-1 ring-blue-200' : 'border-gray-200'}"
+              style="background-color: {color}"
+              title={$t(`doorFrameColor.${key}`)}
+              aria-label={$t(`doorFrameColor.${key}`)}
+              aria-pressed={frameColor === color.toLowerCase()}
+              onclick={() => { if (selectedDoor) updateDoor(selectedDoor.id, { frameColor: color }); }}
+            ></button>
+          {/each}
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-gray-500">{$t('furnitureProperties.custom')}</span>
+          <input
+            type="color" aria-label={$t('furnitureProperties.customColor')}
+            value={frameColor}
+            oninput={(e) => { if (selectedDoor) updateDoor(selectedDoor.id, { frameColor: (e.target as HTMLInputElement).value }); }}
+            class="w-8 h-6 rounded border border-gray-200 cursor-pointer"
+          />
+          {#if selectedDoor.frameColor}
+            <button
+              class="ml-auto text-xs text-gray-500 hover:text-gray-700 underline"
+              onclick={() => { if (selectedDoor) updateDoor(selectedDoor.id, { frameColor: undefined }); }}
+            >{$t('openingProperties.defaultFrameColor')}</button>
+          {/if}
         </div>
       </div>
       {/if}
@@ -691,7 +755,7 @@
         <span class="text-xs text-gray-500">{$t('openingProperties.width')} ({unitLabel()})</span>
         <input 
           type="number" 
-          value={displayValue(selectedFurniture.width ?? getCatalogItem(selectedFurniture.catalogId)?.width ?? 50)}
+          value={displayValue(furnitureSize?.width ?? 50)}
           oninput={onFurnitureWidth} onblur={onFurnitureWidth} min={settings.units === 'imperial' ? 1 / 2.54 : 1} step="any"
           class="w-full px-2 py-1 border border-gray-200 rounded text-sm" 
         />
@@ -700,7 +764,7 @@
         <span class="text-xs text-gray-500">{$t('furnitureProperties.depth')} ({unitLabel()})</span>
         <input 
           type="number" 
-          value={displayValue(selectedFurniture.depth ?? getCatalogItem(selectedFurniture.catalogId)?.depth ?? 50)}
+          value={displayValue(furnitureSize?.depth ?? 50)}
           oninput={onFurnitureDepth} onblur={onFurnitureDepth} min={settings.units === 'imperial' ? 1 / 2.54 : 1} step="any"
           class="w-full px-2 py-1 border border-gray-200 rounded text-sm" 
         />
@@ -709,9 +773,19 @@
         <span class="text-xs text-gray-500">{$t('openingProperties.height')} ({unitLabel()})</span>
         <input 
           type="number" 
-          value={displayValue(selectedFurniture.height ?? getCatalogItem(selectedFurniture.catalogId)?.height ?? 50)}
+          value={displayValue(furnitureSize?.height ?? 50)}
           oninput={onFurnitureHeight} onblur={onFurnitureHeight} min={settings.units === 'imperial' ? 1 / 2.54 : 1} step="any"
           class="w-full px-2 py-1 border border-gray-200 rounded text-sm" 
+        />
+      </label>
+      <label class="block">
+        <span class="text-xs text-gray-500">{$t('furnitureProperties.elevation')} ({unitLabel()})</span>
+        <input
+          type="number"
+          value={displayValue(furnitureElevation(selectedFurniture))}
+          oninput={onFurnitureElevation} onblur={onFurnitureElevation} min="0" step="any"
+          title={$t('furnitureProperties.elevationHelp')}
+          class="w-full px-2 py-1 border border-gray-200 rounded text-sm"
         />
       </label>
       

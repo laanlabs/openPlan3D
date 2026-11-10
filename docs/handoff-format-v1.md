@@ -43,7 +43,7 @@ An unknown handoff version is rejected before replacing the current project.
 | Window `style: fixed/sliding` | Fixed/sliding window |
 | Window `sillHeight` | Explicit height above its floor in metres; absent values derive from opening and parent-wall vertical transforms |
 | Apple `openings` | Doorway passages, with no door leaf |
-| Object dimensions and transform | Size, position and rotation; existing category-to-catalog mapping remains in use |
+| Object dimensions and transform | Size, position and rotation; existing category-to-catalog mapping remains in use. In `openplanPrepared` files the vertical translation also gives the height above the floor (`elevation = y − height / 2`, kept from 0.5 cm up); raw Apple captures stay on the floor |
 | Section `center`, `label`, `displayName`, `color` | Detected room association, custom room name and color |
 
 The iPhone exporter sends resolved opening styles and orientation, including the
@@ -63,6 +63,15 @@ All RoomPlan surfaces are validated before building/loading a project: finite
 dimensions/transforms, valid identifiers and parent references, integral floors,
 room anchors, supported styles and typed import choices. A malformed element
 rejects the whole import with a visible error, leaving the current project open.
+
+One exception keeps shipped iPhone builds sharing: a wall may have length
+(`dimensions[0]`) 0. Their editor can drag a wall's two ends onto one point and
+still exports the wall; the phone shows it as a dot and does not draw its doors
+or windows. Such a wall has no direction or extent, so the importer leaves it out
+with its openings, as it does a wall shorter than a micrometre (rounding). Every
+longer wall imports as before. Producers should write every wall at least 1 cm
+long, as the web exporter does. A refused size names what is wrong, for example
+`walls[3].dimensions must have a positive height`.
 
 A raw-capture ZIP must contain exactly one `room.json`. A dataset with `plan.json`
 is rejected with instructions to export Editable Plan JSON: importing its raw
@@ -226,8 +235,8 @@ and the retained blocks:
 - Geometry follows the conventions above: metres rounded to eight decimals;
   a wall at its midpoint with `y = height / 2`, heading start → end; openings
   on their wall at `position`, windows with `sillHeight`; furniture at its
-  footprint centre with the catalog or override size, a mirrored item
-  negating the local Z column; a section at each detected room's label
+  footprint centre with the catalog or override size at
+  `y = elevation + height / 2`, a mirrored item negating the local Z column; a section at each detected room's label
   position with `label` from the room's native type or a name that matches a
   type (else `room`), `displayName` and `color`; `stories` from every floor,
   bumping floors that share a level like the native package. Identifiers are
