@@ -49,6 +49,7 @@
   import { getMaterial } from '$lib/utils/materials';
   import { doorFrameBoxes, windowOuterBars } from '$lib/utils/openingFrames';
   import { DEPTH_ORDER, depthOffset, furnitureDepthOffsets } from '$lib/utils/depthOrder';
+  import { columnGeometry } from '$lib/utils/columnGeometry';
   import { getWallTextureCanvas, getFloorTextureCanvas, setTextureLoadCallback } from '$lib/utils/textureGenerator';
 
   let container: HTMLDivElement;
@@ -1219,15 +1220,8 @@
     if (!floor.columns) return;
     for (const col of floor.columns) {
       const h = col.height || 280;
-      const d = col.diameter || 30;
-      let geo: THREE.BufferGeometry;
-      if (col.shape === 'square') {
-        geo = new THREE.BoxGeometry(d, h, d);
-      } else {
-        geo = new THREE.CylinderGeometry(d / 2, d / 2, h, 24);
-      }
       const mat = new THREE.MeshStandardMaterial({ color: col.color || '#cccccc', roughness: 0.7, ...depthOffset(DEPTH_ORDER.column) });
-      const mesh = new THREE.Mesh(geo, mat);
+      const mesh = new THREE.Mesh(columnGeometry(col), mat);
       mesh.position.set(col.position.x, h / 2, col.position.y);
       mesh.castShadow = true;
       mesh.receiveShadow = true;
@@ -2055,15 +2049,8 @@
     if (floor.columns) {
       for (const col of floor.columns) {
         const h = col.height || 280;
-        const d = col.diameter || 30;
-        let geo: THREE.BufferGeometry;
-        if (col.shape === 'square') {
-          geo = new THREE.BoxGeometry(d, h, d);
-        } else {
-          geo = new THREE.CylinderGeometry(d / 2, d / 2, h, 24);
-        }
         const mat = new THREE.MeshStandardMaterial({ color: col.color || '#cccccc', roughness: 0.7, ...look, ...depthOffset(DEPTH_ORDER.column) });
-        const mesh = new THREE.Mesh(geo, mat);
+        const mesh = new THREE.Mesh(columnGeometry(col), mat);
         mesh.position.set(col.position.x, h / 2 + yOffset, col.position.y);
         mesh.castShadow = true;
         mesh.receiveShadow = true;

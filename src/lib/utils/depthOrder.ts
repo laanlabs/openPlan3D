@@ -2,17 +2,25 @@ import type { FurnitureItem } from '$lib/models/types';
 import { furniturePlanBounds } from './furniturePlanBounds';
 import { getCatalogItem } from './furnitureCatalog';
 
-/** Polygon offset per kind of surface in the 3D viewer; surfaces not listed use 0. Where surfaces
- * of different objects lie in one plane, the lower value is drawn. Geometry keeps the viewer's own
- * surfaces apart where it can; this order settles what users place against each other. */
+/** Polygon offset per kind of surface in the 3D viewer; surfaces not listed (exterior wall faces,
+ * wall ends) use 0. Where surfaces of different objects lie in one plane, the lower value is drawn.
+ * Geometry keeps the viewer's own surfaces apart where it can; this order settles what users place
+ * against each other.
+ *
+ * The factor part of an offset scales with a face's depth slope, so a higher value also pushes a
+ * surface back by centimetres at glancing views, behind nearby parallel faces it stands in front
+ * of. Columns therefore stay at 0: ahead of wall tops and interior faces (a column as tall as the
+ * wall it stands in keeps its top), level with exterior faces (a column inside a thicker wall cannot
+ * show through it). Square columns stand COLUMN_SKIN proud of their plan outline, so one exactly as
+ * thick as its wall does not share the planes of its faces. */
 export const DEPTH_ORDER = {
   furniture: -2,
   roomFloor: -1,
   openingFrame: -1,
+  column: 0,
   interiorWall: 1,
   slab: 1,
   basePlane: 1,
-  column: 2,
   ground: 3,
 } as const;
 
