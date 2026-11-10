@@ -107,6 +107,8 @@
   }
   let activeFloorElevation = $state(0);
   let sceneGround: THREE.Mesh;
+  /** How far beyond the model's bounds a double-click on bare ground still sets the orbit centre, in cm. */
+  const ORBIT_PICK_MARGIN = 500;
   /** The site's paved floor just above the ground, and both surfaces' uncut geometry and size. An opening
    *  on the active floor swaps in copies with it cut out. */
   let siteFloor: THREE.Mesh;
@@ -918,6 +920,38 @@
       selectedElementId.set(pickedWallId(raycaster.intersectObjects(wallGroup.children, false), otherFloorsStyle));
     });
 
+    // Double-click: orbit around the clicked point. Camera and target move by the same offset,
+    // so the view direction and distance stay the same.
+    // A placement click turns its mode off before the dblclick arrives, so note the mode when the press starts.
+    let orbitPickBlocked = false;
+    renderer.domElement.addEventListener('pointerdown', () => {
+      orbitPickBlocked = walkthroughMode || cameraPlacementMode || furniturePlacementMode;
+    });
+    renderer.domElement.addEventListener('dblclick', (e) => {
+      if (orbitPickBlocked || walkthroughMode || cameraPlacementMode || furniturePlacementMode) return;
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+      // Skip labels and anything hidden or excluded from the rendered model (ceilings).
+      const shown = (o: THREE.Object3D | null): boolean => !o || (o.visible && !o.userData.renderExclude && shown(o.parent));
+      // Translucent stacked floors are see-through for picking, as for selection and placement.
+      const seeThrough = (o: THREE.Object3D) => o.userData.stackedFloor && otherFloorsStyle === 'translucent';
+      const hit = raycaster.intersectObjects(wallGroup.children, true)
+        .find(i => !(i.object instanceof THREE.Sprite) && shown(i.object) && !seeThrough(i.object));
+      let point = hit?.point ?? null;
+      if (!point) {
+        // Off the model, the floor plane runs to the horizon: only orbit around ground near the plan.
+        const near = new THREE.Box3().setFromObject(wallGroup).expandByScalar(ORBIT_PICK_MARGIN);
+        point = raycaster.ray.intersectPlane(floorPlane, new THREE.Vector3());
+        if (point && (near.isEmpty() || !near.containsPoint(point.clone().setY(near.min.y)))) point = null;
+      }
+      if (!point) return;
+      orbitGlide = { position: camera.position.clone(), target: controls.target.clone(), offset: point.sub(controls.target), start: performance.now() };
+      requestRender();
+    });
+    controls.addEventListener('start', () => { orbitGlide = null; });
+
     // Hover highlight in edit mode
     let hoveredMesh: THREE.Mesh | null = null;
     renderer.domElement.addEventListener('mousemove', (e) => {
@@ -1060,6 +1094,7 @@
   }
 
   function autoCenterCamera() {
+    orbitGlide = null;
     frameScene(camera, new THREE.Box3().setFromObject(wallGroup), controls.target);
     controls.update();
   }
@@ -2092,6 +2127,7 @@
 
   function viewTopDown() {
     if (walkthroughMode) exitWalkthroughMode();
+    orbitGlide = null;
     // Consume pending orbit/pan deltas before setting the requested view. This
     // public update path clears damping without reaching into control internals.
     const damping = controls.enableDamping;
@@ -2113,6 +2149,7 @@
   }
 
   function enterWalkthroughMode() {
+    orbitGlide = null;
     cancelAIRender();
     cameraPlacementMode = false;
     cameraPreviewOpen = false;
@@ -2176,6 +2213,9 @@
 
 
   let lastOrbitFrame: number | undefined;
+  /** Double-click glide: camera and target move by `offset` over ORBIT_GLIDE_MS. */
+  const ORBIT_GLIDE_MS = 350;
+  let orbitGlide: { position: THREE.Vector3; target: THREE.Vector3; offset: THREE.Vector3; start: number } | null = null;
   function animate(timestamp: number) {
     animId = undefined;
 
@@ -2191,6 +2231,13 @@
       if (walkthroughMotion.active) requestRender();
       else walkthroughMotion.stopClock();
     } else {
+      if (orbitGlide) {
+        const t = THREE.MathUtils.smoothstep(timestamp - orbitGlide.start, 0, ORBIT_GLIDE_MS);
+        camera.position.copy(orbitGlide.position).addScaledVector(orbitGlide.offset, t);
+        controls.target.copy(orbitGlide.target).addScaledVector(orbitGlide.offset, t);
+        sceneDirty = true;
+        if (t < 1) requestRender(); else orbitGlide = null;
+      }
       // A change event schedules the next damping step. Once the controls settle,
       // leave no callback queued until an interaction or scene update wakes us.
       updateOrbitDamping(controls, lastOrbitFrame === undefined ? 1 / 60 : (timestamp - lastOrbitFrame) / 1000);

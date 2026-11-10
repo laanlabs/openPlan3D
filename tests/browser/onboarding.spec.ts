@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
 const exportMessage = 'Your plan is ready! Try SVG for vector graphics or PDF for printing.';
-const viewerMessage = 'Orbit with mouse, scroll to zoom. Try walkthrough mode!';
+const viewerMessage = 'Orbit with mouse, scroll to zoom, double-click to orbit around a point. Try walkthrough mode!';
 const tip = (page: Page) => page.getByRole('region', { name: 'Getting started tip', exact: true });
 
 async function openEditorWithClock(page: Page) {
