@@ -106,6 +106,8 @@
   }
   let activeFloorElevation = $state(0);
   let sceneGround: THREE.Mesh;
+  /** How far beyond the model's bounds a double-click on bare ground still sets the orbit centre, in cm. */
+  const ORBIT_PICK_MARGIN = 500;
   // Stacked geometry uses the same floor levels as the 2D reference layer.
 
   // Walkthrough mode
@@ -913,16 +915,30 @@
 
     // Double-click: orbit around the clicked point. Camera and target move by the same offset,
     // so the view direction and distance stay the same.
+    // A placement click turns its mode off before the dblclick arrives, so note the mode when the press starts.
+    let orbitPickBlocked = false;
+    renderer.domElement.addEventListener('pointerdown', () => {
+      orbitPickBlocked = walkthroughMode || cameraPlacementMode || furniturePlacementMode;
+    });
     renderer.domElement.addEventListener('dblclick', (e) => {
-      if (walkthroughMode || cameraPlacementMode || furniturePlacementMode) return;
+      if (orbitPickBlocked || walkthroughMode || cameraPlacementMode || furniturePlacementMode) return;
       const rect = renderer.domElement.getBoundingClientRect();
       mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
       raycaster.setFromCamera(mouse, camera);
       // Skip labels and anything hidden or excluded from the rendered model (ceilings).
       const shown = (o: THREE.Object3D | null): boolean => !o || (o.visible && !o.userData.renderExclude && shown(o.parent));
-      const hit = raycaster.intersectObjects(wallGroup.children, true).find(i => !(i.object instanceof THREE.Sprite) && shown(i.object));
-      const point = hit?.point ?? raycaster.ray.intersectPlane(floorPlane, new THREE.Vector3());
+      // Translucent stacked floors are see-through for picking, as for selection and placement.
+      const seeThrough = (o: THREE.Object3D) => o.userData.stackedFloor && otherFloorsStyle === 'translucent';
+      const hit = raycaster.intersectObjects(wallGroup.children, true)
+        .find(i => !(i.object instanceof THREE.Sprite) && shown(i.object) && !seeThrough(i.object));
+      let point = hit?.point ?? null;
+      if (!point) {
+        // Off the model, the floor plane runs to the horizon: only orbit around ground near the plan.
+        const near = new THREE.Box3().setFromObject(wallGroup).expandByScalar(ORBIT_PICK_MARGIN);
+        point = raycaster.ray.intersectPlane(floorPlane, new THREE.Vector3());
+        if (point && (near.isEmpty() || !near.containsPoint(point.clone().setY(near.min.y)))) point = null;
+      }
       if (!point) return;
       orbitGlide = { position: camera.position.clone(), target: controls.target.clone(), offset: point.sub(controls.target), start: performance.now() };
       requestRender();
