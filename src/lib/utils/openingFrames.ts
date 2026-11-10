@@ -1,28 +1,45 @@
 // Door and window frames in the 3D viewer. Frames reach OVERLAP into their opening so no
 // frame face is coplanar with a wall reveal (coplanar faces z-fight).
+import { pathOpening, type WallOpening, type wallPathProfile } from './wallProfiles';
+
+type WallPath = ReturnType<typeof wallPathProfile>;
 
 const DOOR_JAMB = 5;
 const OVERLAP = 0.5;
 
-/** Jambs and header around a door opening spanning `left`..`right` along the wall path (cm).
- * Depth is wall thickness + 3: 0.5 cm proud of the baseboard on each face. */
-export function doorFrameBoxes(left: number, right: number, doorHeight: number, wallThickness: number) {
-  const width = DOOR_JAMB + OVERLAP, depth = wallThickness + 3;
-  return [
-    { center: left - DOOR_JAMB / 2 + OVERLAP / 2, width, bottom: 0, height: doorHeight, depth },
-    { center: right + DOOR_JAMB / 2 - OVERLAP / 2, width, bottom: 0, height: doorHeight, depth },
-    { center: (left + right) / 2, width: right - left + DOOR_JAMB * 2, bottom: doorHeight - OVERLAP,
-      height: DOOR_JAMB + OVERLAP, depth },
-  ];
+/** A frame member along the wall path (cm): `center` and `width` along it, `bottom` and `height` up. */
+export interface FrameBox { center: number; width: number; bottom: number; height: number }
+
+/** The member covering `member`, reaching OVERLAP into the opening across its `edge`. The wall's
+ * ends and top clip members; one they clip away entirely is left out, or the overlap alone would
+ * draw a 0.5 cm sliver there (a fin at a wall end, a lid on a full-height door). */
+function frameMember(path: WallPath, member: WallOpening, edge: keyof WallOpening): FrameBox | null {
+  const { left, right, bottom, top } = member;
+  if (!pathOpening(path, (left + right) / 2, right - left, bottom, top - bottom)) return null;
+  const box = { ...member, [edge]: member[edge] + (edge === 'left' || edge === 'bottom' ? -OVERLAP : OVERLAP) };
+  return { center: (box.left + box.right) / 2, width: box.right - box.left, bottom: box.bottom, height: box.top - box.bottom };
 }
 
-/** Window outer frame bars as offsets from the opening centre (`ox` along the wall, `oy` vertical). */
-export function windowOuterBars(width: number, height: number, bar: number) {
-  const w = bar + OVERLAP, shift = (bar - OVERLAP) / 2;
-  return [
-    { w: width + bar * 2, h: w, ox: 0, oy: -height / 2 - shift }, // bottom
-    { w: width + bar * 2, h: w, ox: 0, oy: height / 2 + shift },  // top
-    { w, h: height, ox: -width / 2 - shift, oy: 0 },              // left
-    { w, h: height, ox: width / 2 + shift, oy: 0 },               // right
-  ];
+const present = <T>(boxes: (T | null)[]) => boxes.filter((box): box is T => box !== null);
+
+/** Jambs and header around a door `opening` on the wall `path` (cm), as clipped by the wall.
+ * Depth is wall thickness + 3: 0.5 cm proud of the baseboard on each face. */
+export function doorFrameBoxes(path: WallPath, opening: WallOpening, wallThickness: number) {
+  const { left, right, bottom, top } = opening, depth = wallThickness + 3;
+  return present([
+    frameMember(path, { left: left - DOOR_JAMB, right: left, bottom, top }, 'right'),
+    frameMember(path, { left: right, right: right + DOOR_JAMB, bottom, top }, 'left'),
+    frameMember(path, { left: left - DOOR_JAMB, right: right + DOOR_JAMB, bottom: top, top: top + DOOR_JAMB }, 'bottom'),
+  ]).map(box => ({ ...box, depth }));
+}
+
+/** A window's outer frame bars, `bar` wide, around its `opening` on the wall `path` (cm). */
+export function windowOuterBars(path: WallPath, opening: WallOpening, bar: number) {
+  const { left, right, bottom, top } = opening;
+  return present([
+    frameMember(path, { left: left - bar, right: right + bar, bottom: bottom - bar, top: bottom }, 'top'), // bottom
+    frameMember(path, { left: left - bar, right: right + bar, bottom: top, top: top + bar }, 'bottom'),    // top
+    frameMember(path, { left: left - bar, right: left, bottom, top }, 'right'),                            // left
+    frameMember(path, { left: right, right: right + bar, bottom, top }, 'left'),                           // right
+  ]);
 }

@@ -1486,7 +1486,7 @@
       const doorHeight = opening.top;
 
       // Clip jambs and header too when an opening reaches the wall profile.
-      for (const box of doorFrameBoxes(opening.left, opening.right, doorHeight, wt)) {
+      for (const box of doorFrameBoxes(path, opening, wt)) {
         addOpeningFrame(wall, box.center / length, box.width, box.bottom, box.height, box.depth, frameMat);
       }
 
@@ -1697,17 +1697,13 @@
       const frameMat = new THREE.MeshStandardMaterial({ color: 0xe0e0e0, roughness: 0.4, metalness: 0.1, ...depthOffset(DEPTH_ORDER.openingFrame) });
       const mullionW = 4; // mullion bar width
 
-      // Outer frame — 4 bars forming rectangle
-      const bars: { w: number; h: number; ox: number; oy: number }[] = [
-        ...windowOuterBars(win.width, effectiveWinH, mullionW),
-        // Center vertical mullion
-        { w: mullionW, h: effectiveWinH, ox: 0, oy: 0 },
-        // Center horizontal mullion
-        { w: win.width, h: mullionW, ox: 0, oy: 0 },
-      ];
-      for (const bar of bars) {
-        addOpeningFrame(wall, t + bar.ox / length, bar.w, winCY + bar.oy - bar.h / 2, bar.h, mullionW, frameMat);
+      // Outer frame — up to 4 bars forming a rectangle, less any the wall profile clips away
+      for (const box of windowOuterBars(path, opening, mullionW)) {
+        addOpeningFrame(wall, box.center / length, box.width, box.bottom, box.height, mullionW, frameMat);
       }
+      // Center vertical and horizontal mullions
+      addOpeningFrame(wall, t, mullionW, win.sillHeight, effectiveWinH, mullionW, frameMat);
+      addOpeningFrame(wall, t, win.width, winCY - mullionW / 2, mullionW, mullionW, frameMat);
 
       // Glass panes (4 quadrants)
       const glassMat = new THREE.MeshStandardMaterial({
