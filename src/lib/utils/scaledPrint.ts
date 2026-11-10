@@ -18,7 +18,8 @@ function printInk(canvas: HTMLCanvasElement, project: Project, visibility: PlanE
   const context = typeof canvas.getContext === 'function' ? canvas.getContext('2d') : null;
   return context ? {
     context, pixelsPerMm: PIXELS_PER_MM, roomLabels: visibility.roomLabels, roomDimensions: visibility.roomDimensions,
-    units: get(projectSettings).units, furnitureCaption: item => customModelName(item, project),
+    units: get(projectSettings).units, wallMeasureMode: get(projectSettings).wallMeasureMode,
+    furnitureCaption: item => customModelName(item, project),
   } : undefined;
 }
 

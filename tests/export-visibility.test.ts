@@ -182,6 +182,9 @@ it('prints room width × depth only while automatic dimensions and Internal Dime
   expect(printed().some(text => text.includes(' × '))).toBe(false);
   projectSettings.update(s => ({ ...s, showInternalDimensions: true }));
   expect(printed()).toContain('4 m × 3 m');
+  // Edge to edge prints the clear size, as the editor shows it (issue #121).
+  projectSettings.update(s => ({ ...s, wallMeasureMode: 'edge' }));
+  expect(printed()).toContain('3.85 m × 2.85 m');
   projectSettings.update(s => ({ ...s, showDimensions: false }));
   expect(printed().some(text => text.includes(' × '))).toBe(false);
 });
