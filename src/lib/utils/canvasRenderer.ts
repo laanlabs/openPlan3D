@@ -1,6 +1,6 @@
 import { getEntourageImage } from './entourageImages';
 import { roomHoles, traceRoomRings } from './roomNesting';
-import { stairLocalBounds } from './stairPlanGeometry';
+import { SPIRAL_START_ANGLE, SPIRAL_SWEEP, stairLocalBounds } from './stairPlanGeometry';
 import { dimensionPlanGeometry } from './dimensionPlanGeometry';
 import { bifoldPoints } from './doorSymbol';
 /**
@@ -1105,8 +1105,8 @@ export function drawStair(cs: CanvasState, stair: Stair, selected: boolean): voi
     const postR = r * 0.12;
     ctx.fillStyle = strokeCol; ctx.beginPath(); ctx.arc(0, 0, postR, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = treadCol; ctx.lineWidth = 0.5;
-    const totalAngle = Math.PI * 1.75;
-    const startAngle = -Math.PI / 2;
+    const totalAngle = SPIRAL_SWEEP;
+    const startAngle = SPIRAL_START_ANGLE;
     for (let i = 0; i <= stair.riserCount; i++) {
       const a = startAngle + (i / stair.riserCount) * totalAngle;
       ctx.beginPath(); ctx.moveTo(postR * Math.cos(a), postR * Math.sin(a)); ctx.lineTo(r * Math.cos(a), r * Math.sin(a)); ctx.stroke();
