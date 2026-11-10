@@ -26,3 +26,10 @@ export function stairRises(floors: Floor[], floorId: string): StairRises {
 export function stairSpan(stair: Pick<Stair, 'direction'>, rises: StairRises): { base: number; rise: number } {
   return stair.direction === 'down' ? { base: -rises.down, rise: rises.down } : { base: 0, rise: rises.up };
 }
+
+/** The floor directly below, by elevation. */
+export function floorBelow(floors: Floor[], floorId: string): Floor | undefined {
+  const entries = floorElevations(floors);
+  const index = entries.findIndex(entry => entry.floor.id === floorId);
+  return index > 0 ? entries[index - 1].floor : undefined;
+}

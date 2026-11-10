@@ -12,7 +12,7 @@
   import OpenAIModelPicker from '$lib/components/ai/OpenAIModelPicker.svelte';
   import { activeFloor, currentProject, selectedElementId } from '$lib/stores/project';
   import { triggerTip } from '$lib/stores/onboarding.svelte';
-  import type { Floor, Wall, Door, Window as Win, Stair } from '$lib/models/types';
+  import type { Floor, Wall, Door, Window as Win, Stair, Point } from '$lib/models/types';
   import { getWallStartHeight, getWallEndHeight } from '$lib/models/types';
   import { wallColors, type WallColor } from '$lib/utils/materials';
   import { projectSettings, formatArea } from '$lib/stores/settings';
@@ -29,6 +29,7 @@
   import { portableRenderSceneJSON } from '$lib/utils/portableRenderScene';
   import { sceneSignature } from '$lib/utils/sceneSignature';
   import { stairRises, stairSpan } from '$lib/utils/stairLevels';
+  import { groundWithOpenings, stairwellView } from '$lib/utils/stairwell';
   import { SPIRAL_START_ANGLE, SPIRAL_SWEEP, stairFlights } from '$lib/utils/stairPlanGeometry';
   import { framingContext, shouldFrameScene, type FramingContext } from '$lib/utils/sceneFraming';
   import { WalkthroughMotion } from '$lib/utils/walkthroughMotion';
@@ -106,6 +107,11 @@
   }
   let activeFloorElevation = $state(0);
   let sceneGround: THREE.Mesh;
+  /** The site's paved floor just above the ground, and both surfaces' uncut geometry and size. An opening
+   *  on the active floor swaps in copies with it cut out. */
+  let siteFloor: THREE.Mesh;
+  let plainGround: THREE.BufferGeometry, plainSiteFloor: THREE.BufferGeometry;
+  const GROUND_SIZE = 40000, SITE_FLOOR_SIZE = 4000;
   // Stacked geometry uses the same floor levels as the 2D reference layer.
 
   // Walkthrough mode
@@ -749,8 +755,9 @@
     scene.background = skyTexture;
 
     // Ground plane — textured concrete with grid overlay
-    const groundSize = 40000;
+    const groundSize = GROUND_SIZE;
     const groundGeo = new THREE.PlaneGeometry(groundSize, groundSize);
+    plainGround = groundGeo;
     // Generate a subtle concrete texture with grid
     const groundCanvas = document.createElement('canvas');
     groundCanvas.width = 1024; groundCanvas.height = 1024;
@@ -1010,9 +1017,11 @@
 
     // Textured floor
     const floorTex = createFloorTexture();
-    const floorGeo = new THREE.PlaneGeometry(4000, 4000);
+    const floorGeo = new THREE.PlaneGeometry(SITE_FLOOR_SIZE, SITE_FLOOR_SIZE);
+    plainSiteFloor = floorGeo;
     const floorMat = new THREE.MeshStandardMaterial({ map: floorTex, side: THREE.DoubleSide, roughness: 0.8, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 });
     const floorMesh = new THREE.Mesh(floorGeo, floorMat);
+    siteFloor = floorMesh;
     floorMesh.rotation.x = -Math.PI / 2;
     floorMesh.position.y = 0.5;
     floorMesh.receiveShadow = true;
@@ -1848,6 +1857,45 @@
     applyWallTransparency();
   }
 
+  /** Cuts the openings out of the ground and the site floor, or restores them whole. */
+  function cutGround(openings: Point[][]) {
+    for (const [mesh, plain, size] of [[sceneGround, plainGround, GROUND_SIZE], [siteFloor, plainSiteFloor, SITE_FLOOR_SIZE]] as const) {
+      const previous = mesh.geometry;
+      if (previous === plain && !openings.length) continue;
+      mesh.geometry = openings.length ? groundWithOpenings(size, openings) : plain;
+      if (previous !== plain) previous.dispose();
+    }
+  }
+
+  /** On the active floor alone, an "Open to floor below" room looks down a well to the floor below, where the
+   *  stairs that climb into it stand (with the active floor's own Down stairs). The ground is cut away there. */
+  function buildStairwell(view: ReturnType<typeof stairwellView>) {
+    cutGround(view?.openings ?? []);
+    if (!view) return;
+    const below = -view.depth;
+    for (const opening of view.openings) {
+      const shape = new THREE.Shape(opening.map(p => new THREE.Vector2(p.x, -p.y)));
+      const bottom = new THREE.Mesh(new THREE.ShapeGeometry(shape), new THREE.MeshStandardMaterial({ color: 0xcccccc, roughness: 0.9 }));
+      bottom.userData.renderMaterial = 'floor';
+      bottom.rotation.x = -Math.PI / 2;
+      bottom.position.y = below;
+      bottom.receiveShadow = true;
+      wallGroup.add(bottom);
+      // The well's sides, from the floor below up to the ground, seen from inside or out.
+      const sideMat = new THREE.MeshStandardMaterial({ color: 0xe7e3dc, roughness: 0.95, side: THREE.DoubleSide });
+      opening.forEach((a, i) => {
+        const b = opening[(i + 1) % opening.length], length = Math.hypot(b.x - a.x, b.y - a.y);
+        if (length < 1) return;
+        const side = new THREE.Mesh(new THREE.PlaneGeometry(length, view.depth - 1), sideMat);
+        side.position.set((a.x + b.x) / 2, below + (view.depth - 1) / 2, (a.y + b.y) / 2);
+        side.rotation.y = -Math.atan2(b.y - a.y, b.x - a.x);
+        side.receiveShadow = true;
+        wallGroup.add(side);
+      });
+    }
+    if (view.stairs.length) buildStairs({ ...view.below, stairs: view.stairs }, wallGroup, below);
+  }
+
   /** Build all floors stacked vertically in 3D */
   function buildAllFloorsStacked() {
     const project = get(currentProject);
@@ -1993,12 +2041,14 @@
     const walkingPosition = walkthroughMode ? camera.position.clone() : null;
     const walkingRotation = walkthroughMode ? camera.quaternion.clone() : null;
     if (showAllFloors) {
+      cutGround([]);
       buildAllFloorsStacked();
     } else if (currentFloor) {
       activeFloorElevation = 0;
       floorPlane.constant = 0;
       sceneGround.position.y = -1;
       buildWalls(currentFloor);
+      buildStairwell(stairwellView(project.floors, currentFloor.id));
     }
     // Fit the orbit camera only for a new project, floor or stacking choice, so edits, Undo/Redo,
     // unit changes and arriving textures keep the user's view. Walkthrough restores its pose below.

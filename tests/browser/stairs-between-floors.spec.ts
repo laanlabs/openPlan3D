@@ -2,7 +2,8 @@ import { test, expect, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
 // Issue #134: a stair reaches the neighbouring floor's elevation, a Down stair descends to
-// the floor below, and stacked views show the stairs of the other floors.
+// the floor below, stacked views show the stairs of the other floors, and the active floor alone
+// shows the stairs below its "Open to floor below" rooms.
 test.describe.configure({ timeout: 180_000 });
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('o3d_tips_seen', JSON.stringify(['first-3d', 'first-export'])));
@@ -60,12 +61,16 @@ test('stairs span the floor-to-floor height and Down stairs descend, in active a
   await page.getByRole('button', { name: '3D', exact: true }).click();
   await expect(page.locator('canvas[data-plan3d-canvas="true"]')).toBeVisible({ timeout: 60_000 });
 
-  // Upper floor alone: its Down stair hangs from the floor surface to the floor below (320 cm).
+  // Upper floor alone: its Down stair hangs from the floor surface to the floor below (320 cm), and the
+  // stairwell's "Open to floor below" shows the ground floor's Up stair climbing into it, over the same span.
   const active = stairMeshes(await exportedScene(page));
-  expect(active).toHaveLength(28); // 14 treads + 14 risers
-  const [activeLow, activeHigh] = span(active);
-  expect(activeLow).toBeCloseTo(-3.2, 5);
-  expect(activeHigh).toBeCloseTo(0, 5);
+  expect(active).toHaveLength(56); // two flights of 14 treads + 14 risers
+  for (const flight of [active.slice(0, 28), active.slice(28)]) {
+    const [low, high] = span(flight);
+    expect(low).toBeCloseTo(-3.2, 5);
+    expect(high).toBeCloseTo(0, 5);
+  }
+  await testInfo.attach('stairs-active-first-floor', { body: await page.screenshot(), contentType: 'image/png' });
 
   // Stacked: the ground floor's Up stair is drawn too, and both flights occupy the same 0–3.2 m.
   await page.getByRole('button', { name: 'Show All Floors Stacked', exact: true }).click();
