@@ -1,6 +1,6 @@
 import type { Floor, Project } from '$lib/models/types';
 import type { ProjectSettings } from '$lib/stores/settings';
-import { stairRises } from './stairLevels';
+import { floorBelow, stairRises } from './stairLevels';
 import type { StackedFloorsStyle } from './floorStack';
 
 function renderedFloor(floor: Floor) {
@@ -28,5 +28,8 @@ export function sceneSignature(project: Project, floor: Floor, stacked: boolean,
     customModels: project.customModels,
     floors: (stacked ? project.floors : [floor]).map(renderedFloor),
     // Stairs reach the neighbouring floors, so their elevations matter even on the active floor alone.
-    ...(!stacked && floor.stairs?.length ? { stairRises: stairRises(project.floors, floor.id) } : {}) });
+    ...(!stacked && floor.stairs?.length ? { stairRises: stairRises(project.floors, floor.id) } : {}),
+    // An opening on the active floor alone shows the stairs below it, down to that floor.
+    ...(!stacked && floor.rooms.some(room => room.floorOpening)
+      ? { stairwell: { rises: stairRises(project.floors, floor.id), stairs: floorBelow(project.floors, floor.id)?.stairs ?? [] } } : {}) });
 }
