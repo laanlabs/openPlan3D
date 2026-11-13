@@ -1,0 +1,30 @@
+node_modules
+
+# Output
+.output
+.vercel
+.netlify
+.wrangler
+/.svelte-kit
+/playwright-report
+/test-results
+/benchmark-results
+firebase-debug.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code (personal)
+.claude/
+.vscode/
+
+# Env
+.env
+.env.*
+!.env.example
+!.env.test
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*

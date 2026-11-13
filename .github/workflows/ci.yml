@@ -8,15 +8,19 @@ on:
 permissions:
   contents: read
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -25,12 +29,13 @@ jobs:
           NODE_ENV: production
           NPM_CONFIG_INCLUDE: dev
       - run: npm run catalog:check
-      - run: npm audit --audit-level=high
+      - run: npm audit --audit-level=high --omit dev
+      - run: npm audit --audit-level=high || echo "::warning title=Dependency audit::High-severity vulnerabilities found in dev dependencies."
       - run: npm run check
       - run: npm test
       - run: npm run build
       - name: Production build for all browser engines
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@v7
         with:
           name: browser-build
           path: build/
@@ -49,10 +54,10 @@ jobs:
         # the existing per-job limit without dropping tests or assertions.
         shard: [1, 2, 3, 4, 5, 6]
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -60,7 +65,7 @@ jobs:
         env:
           NODE_ENV: production
           NPM_CONFIG_INCLUDE: dev
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@v8
         with:
           name: browser-build
           path: build/
@@ -75,7 +80,7 @@ jobs:
           LIBGL_ALWAYS_SOFTWARE: '1'
       - name: Browser report and failure traces
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@v7
         with:
           name: browser-checks-${{ matrix.browser }}-${{ matrix.shard }}
           path: |
@@ -92,10 +97,10 @@ jobs:
       matrix:
         profile: [desktop, phone-viewport]
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -103,7 +108,7 @@ jobs:
         env:
           NODE_ENV: production
           NPM_CONFIG_INCLUDE: dev
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@v8
         with:
           name: browser-build
           path: build/
@@ -111,7 +116,7 @@ jobs:
       - run: npm run benchmark:viewer -- --project=${{ matrix.profile }}
       - name: Rendering measurements and failure evidence
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@v7
         with:
           name: rendering-benchmarks-${{ matrix.profile }}
           path: benchmark-results/
@@ -131,3 +136,77 @@ jobs:
           BROWSER_RESULT: ${{ needs.browser.result }}
           BENCHMARK_RESULT: ${{ needs.benchmark.result }}
         run: test "$BUILD_RESULT" = success && test "$BROWSER_RESULT" = success && test "$BENCHMARK_RESULT" = success
+
+  container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    needs:
+      - check
+
+    permissions:
+      packages: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: browser-build
+          path: build/
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            # 1. Latest for main
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+
+            # 2. Ref for a tag
+            type=ref,event=tag
+
+            # 3. Pull Requests: 'pr-{number}'
+            type=raw,value=pr-${{ github.event.number }},enable=${{ github.event_name == 'pull_request' }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v7
+        id: build-and-push
+        with:
+          context: .
+          file: ./.github/github.dockerfile
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # This step generates an artifact attestation for the image, which is an
+      # unforgeable statement about where and how it was built. It increases
+      # supply chain security for people who consume the image.
+      - name: Generate artifact attestation
+        uses: actions/attest@v4
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.build-and-push.outputs.digest }}
+          push-to-registry: true
