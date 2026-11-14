@@ -876,6 +876,22 @@ function storyName(index: number, stories: RPStory[]): string {
   return `Floor ${index}`;
 }
 
+/** The storey indices a capture holds, ascending; a capture without any is the ground floor alone. */
+export function roomPlanStoryIndices(jsonData: any): number[] {
+  const tagged: { story?: number }[] = [
+    ...(jsonData.walls ?? []),
+    ...(jsonData.doors ?? []),
+    ...(jsonData.openings ?? []),
+    ...(jsonData.windows ?? []),
+    ...(jsonData.objects ?? []),
+    ...(jsonData.sections ?? []),
+  ];
+  const indices = new Set<number>(tagged.map(storyOf));
+  for (const s of (jsonData.stories ?? []) as RPStory[]) indices.add(s.index);
+  if (indices.size === 0) indices.add(0);
+  return [...indices].sort((a, b) => a - b);
+}
+
 /**
  * Import every storey in a capture. Elements carry a `story` index (absent =
  * ground floor); each distinct storey becomes its own Floor, so a multi-level
@@ -887,19 +903,7 @@ export function importRoomPlanFloors(
 ): Floor[] {
   validateRoomPlan(jsonData);
   const stories: RPStory[] = jsonData.stories ?? [];
-  const tagged: { story?: number }[] = [
-    ...(jsonData.walls ?? []),
-    ...(jsonData.doors ?? []),
-    ...(jsonData.openings ?? []),
-    ...(jsonData.windows ?? []),
-    ...(jsonData.objects ?? []),
-    ...(jsonData.sections ?? []),
-  ];
-
-  const indices = new Set<number>(tagged.map(storyOf));
-  for (const s of stories) indices.add(s.index);
-  if (indices.size === 0) indices.add(0);
-  const sorted = [...indices].sort((a, b) => a - b);
+  const sorted = roomPlanStoryIndices(jsonData);
 
   return sorted
     .map(index => {

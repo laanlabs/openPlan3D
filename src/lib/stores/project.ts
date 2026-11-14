@@ -1108,6 +1108,15 @@ export function addRoomPlanFloorsToProject(floors: Floor[], gapCm?: number, inte
   return applyRoomPlanMerge(floors, 'Added RoomPlan scan', gapCm, interchange);
 }
 
+/** Add a single-storey scan beside the content of the floor `floorId`, whatever level it was scanned as,
+ *  as one undo step; `interchange` carries the file's sibling data. Nothing changes if that floor is gone. */
+export function addRoomPlanFloorToFloor(floor: Floor, floorId: string, gapCm?: number, interchange?: InterchangeState): RoomPlanMergeResult {
+  const p = get(currentProject);
+  const target = p && orderedFloors(p.floors).find(entry => entry.floor.id === floorId);
+  if (!target) return { placed: 0, added: [] };
+  return applyRoomPlanMerge([{ ...floor, level: target.level }], 'Added RoomPlan scan', gapCm, interchange);
+}
+
 /** Show `floorId` with exactly `ids` selected and a clean editing context (select tool, nothing being placed). */
 export function selectImportedElements(floorId: string, ids: string[]) {
   const p = get(currentProject);
