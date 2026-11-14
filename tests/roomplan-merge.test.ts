@@ -3,9 +3,9 @@ import { readFileSync } from 'node:fs';
 import { get } from 'svelte/store';
 import type { Floor } from '$lib/models/types';
 import { floorContentBounds, mergeInterchangeState, mergeRoomPlanFloors, offsetFloor, placeFloorBeside, selectableContentIds, uniqueFloorIds } from '$lib/utils/roomplanMerge';
-import { importRoomPlanFloors, interchangeStateFromRoomPlan } from '$lib/utils/roomplanImport';
+import { importRoomPlanFloors, interchangeStateFromRoomPlan, roomPlanStoryIndices } from '$lib/utils/roomplanImport';
 import { resolveRoomGeometry } from '$lib/utils/roomDetection';
-import { addRoomPlanFloorsToProject, createDefaultFloor, currentProject, importFloorIntoCurrentProject, loadProject, placingStair, redo, selectImportedElements, selectedElementId, selectedElementIds, selectedRoomId, selectedTool, undo, undoHistoryStore } from '$lib/stores/project';
+import { addRoomPlanFloorToFloor, addRoomPlanFloorsToProject, createDefaultFloor, currentProject, importFloorIntoCurrentProject, loadProject, placingStair, redo, selectImportedElements, selectedElementId, selectedElementIds, selectedRoomId, selectedTool, undo, undoHistoryStore } from '$lib/stores/project';
 import { rectangleWalls, roomProject } from './fixtures/project';
 
 // Issue #103: rooms scanned one at a time are joined in one plan afterwards.
@@ -170,6 +170,15 @@ describe('mergeRoomPlanFloors', () => {
   });
 });
 
+describe('roomPlanStoryIndices', () => {
+  it('lists the storeys a capture holds, or the ground floor alone', () => {
+    expect(roomPlanStoryIndices(structuredClone(fixture))).toEqual([0, 2, 3]);
+    expect(roomPlanStoryIndices({ walls: [{}, { story: 0 }] })).toEqual([0]);
+    expect(roomPlanStoryIndices({ walls: [] })).toEqual([0]);
+    expect(roomPlanStoryIndices({ walls: [{ story: -1 }], stories: [{ index: 1 }] })).toEqual([-1, 1]);
+  });
+});
+
 describe('selectableContentIds', () => {
   it('keeps the ids the canvas can select, in floor order, and drops rooms, groups, guides and unknown ids', () => {
     const floor = furnishedFloor();
@@ -221,8 +230,34 @@ describe('project store', () => {
     expect(get(currentProject)!.floors[0].walls).toHaveLength(4);
   });
 
+  it('adds a single-storey scan to the floor picked for it, keeping that floor\'s level', () => {
+    const project = roomProject(), upper = { ...createDefaultFloor(1), name: 'Upper' };
+    project.floors.push(upper);
+    loadProject(project);
+    const ground = scan()[0];
+    const result = addRoomPlanFloorToFloor(ground, upper.id);
+    expect(result).toEqual({ placed: arrived(ground).length, added: [{ floorId: upper.id, ids: arrived(ground) }] });
+    const after = get(currentProject)!;
+    expect(after.floors.map(f => f.name)).toEqual([project.floors[0].name, 'Upper']);
+    expect(after.floors[0].walls).toHaveLength(4);
+    expect(after.floors[1].level).toBe(1);
+    expect(ids(after.floors[1].walls)).toEqual(ids(ground.walls));
+    expect(after.floors[1].rooms.map(r => r.name)).toEqual(['QA Kitchen']);
+    expect(get(undoHistoryStore).entries.map(entry => entry.description)).toEqual(['Added RoomPlan scan']);
+    undo();
+    expect(get(currentProject)!.floors[1].walls).toHaveLength(0);
+  });
+
+  it('leaves the plan alone when the picked floor is gone', () => {
+    const before = JSON.stringify(get(currentProject));
+    expect(addRoomPlanFloorToFloor(scan()[0], 'no-such-floor')).toEqual({ placed: 0, added: [] });
+    expect(JSON.stringify(get(currentProject))).toBe(before);
+    expect(get(undoHistoryStore).entries).toHaveLength(0);
+  });
+
   it('does nothing without an open project', () => {
     currentProject.set(null);
+    expect(addRoomPlanFloorToFloor(scan()[0], 'any')).toEqual({ placed: 0, added: [] });
     expect(addRoomPlanFloorsToProject(scan())).toEqual({ placed: 0, added: [] });
     expect(importFloorIntoCurrentProject(scan()[0])).toEqual({ placed: 0, added: [] });
     expect(get(currentProject)).toBeNull();
@@ -231,6 +266,15 @@ describe('project store', () => {
 
 describe('sibling data on merge', () => {
   const kitchen = () => JSON.parse(readFileSync(new URL('./fixtures/siblings/ios-sample-kitchen.openplan3d.json', import.meta.url), 'utf8'));
+
+  it('carries the file\'s sibling data when a scan goes onto a picked floor', () => {
+    const file = kitchen(), [floor] = importRoomPlanFloors(file), state = interchangeStateFromRoomPlan(file)!;
+    const project = roomProject(), upper = { ...createDefaultFloor(1), name: 'Upper' };
+    project.floors.push(upper);
+    loadProject(project);
+    expect(addRoomPlanFloorToFloor(floor, upper.id, undefined, state).added[0].floorId).toBe(upper.id);
+    expect(get(currentProject)!.interchange!.blocks).toEqual(state.blocks);
+  });
 
   it('adopts the file\'s block, attributes, defaults and notes when the plan has none, following re-issued ids', () => {
     const file = kitchen(), floors = importRoomPlanFloors(file), state = interchangeStateFromRoomPlan(file)!;

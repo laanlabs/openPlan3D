@@ -20,8 +20,9 @@
   import type { FurnitureDef } from '$lib/utils/furnitureCatalog';
   import FurnitureThumbnail from './FurnitureThumbnail.svelte';
   import CustomModelPanel from './CustomModelPanel.svelte';
-  import { createProjectFromRoomPlan, extractRoomJsonFromZip, importRoomPlanFloors, interchangeStateFromRoomPlan, roomPlanImportOptions, validateRoomPlan, ORTHO_VERSION } from '$lib/utils/roomplanImport';
-  import { addRoomPlanFloorsToProject, currentProject, selectImportedElements } from '$lib/stores/project';
+  import { createProjectFromRoomPlan, extractRoomJsonFromZip, importRoomPlanFloors, interchangeStateFromRoomPlan, roomPlanImportOptions, roomPlanStoryIndices, validateRoomPlan, ORTHO_VERSION } from '$lib/utils/roomplanImport';
+  import { addRoomPlanFloorToFloor, addRoomPlanFloorsToProject, currentProject, selectImportedElements } from '$lib/stores/project';
+  import { orderedFloors } from '$lib/utils/floors';
   import { selectableContentIds, type AddedContent } from '$lib/utils/roomplanMerge';
   import { interchangeProjectName } from '$lib/utils/interchange';
 
@@ -46,6 +47,11 @@
   let optMergeDistance = $state(15);
   /** 'add' stitches the scan into the open plan (issue #103); 'new' opens it as its own project. */
   let importTarget = $state<'new' | 'add'>('new');
+  /** Floors in the capture: a single-storey scan goes onto the floor picked here, several go onto their matching levels. */
+  let importStoreyCount = $state(1);
+  let importFloorId = $state('');
+  /** The open plan's floors, lowest first, as the floor switcher lists them. */
+  const importFloors = $derived($currentProject ? orderedFloors($currentProject.floors).map(entry => entry.floor) : []);
 
   function setTool(tool: Tool) {
     if (tool === 'measure' || tool === 'annotate') activateMeasurementTool(tool);
@@ -275,6 +281,8 @@
         optOrthogonal = options.orthogonal ?? true;
         optMergeDistance = options.mergeDistance ?? 15;
         importJsonData = jsonData;
+        importStoreyCount = roomPlanStoryIndices(jsonData).length;
+        importFloorId = get(currentProject)?.activeFloorId ?? '';
         importFileName = file.name.replace(/\.(json|zip)$/, '');
         showImportDialog = true;
       } catch (e: any) {
@@ -294,7 +302,11 @@
       if (importTarget === 'add') {
         // Stitch the scan into the open plan beside its current content; one Undo removes it again.
         // The file's sibling block, attributes, defaults and notes travel with the scan.
-        added = addRoomPlanFloorsToProject(importRoomPlanFloors(input, options), undefined, interchangeStateFromRoomPlan(input)).added;
+        // A single-storey scan goes onto the floor picked in the dialog, whatever level it was scanned as.
+        const floors = importRoomPlanFloors(input, options), interchange = interchangeStateFromRoomPlan(input);
+        const onPickedFloor = floors.length === 1 && get(currentProject)?.floors.some(f => f.id === importFloorId);
+        added = (onPickedFloor ? addRoomPlanFloorToFloor(floors[0], importFloorId, undefined, interchange)
+          : addRoomPlanFloorsToProject(floors, undefined, interchange)).added;
         selectAddedContent(added);
       } else {
         // Create a new project for the imported data instead of merging into current
@@ -856,6 +868,20 @@
               <div class="text-xs text-gray-400">{$t('roomPlanDialog.addToPlanHelp')}</div>
             </div>
           </label>
+          {#if importTarget === 'add'}
+            {#if importStoreyCount === 1}
+              <label class="block pl-6">
+                <div class="text-xs text-gray-500 mb-1">{$t('roomPlanDialog.floor')}</div>
+                <select bind:value={importFloorId} class="w-full px-2 py-1 border border-gray-200 rounded text-sm bg-white">
+                  {#each importFloors as floor (floor.id)}
+                    <option value={floor.id}>{floor.id === $currentProject?.activeFloorId ? $t('roomPlanDialog.floorCurrent', { name: floor.name }) : floor.name}</option>
+                  {/each}
+                </select>
+              </label>
+            {:else}
+              <p class="pl-6 text-xs text-gray-400">{$t('roomPlanDialog.floorsMatched', { count: importStoreyCount })}</p>
+            {/if}
+          {/if}
         </fieldset>
 
         <label class="flex items-start gap-2.5 cursor-pointer">
