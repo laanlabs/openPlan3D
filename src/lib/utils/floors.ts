@@ -24,6 +24,21 @@ export function nextFloorLevel(floors: Floor[]): number {
   return Math.max(-1, ...orderedFloors(floors).map(entry => entry.level)) + 1;
 }
 
+/** The level for a new floor under the lowest one: -1 below a ground floor, 0 for an empty plan. */
+export function floorLevelBelow(floors: Floor[]): number {
+  return Math.min(1, ...orderedFloors(floors).map(entry => entry.level)) - 1;
+}
+
+/** Ground Floor, Floor 1, Floor 2… above ground; Basement, Basement 2… below, as scanned storeys are named. */
+export function defaultFloorName(level: number): string {
+  if (level === 0) return 'Ground Floor';
+  if (level < 0) return level === -1 ? 'Basement' : `Basement ${-level}`;
+  return `Floor ${level}`;
+}
+
+/** Longest floor name the editor accepts. */
+export const MAX_FLOOR_NAME_LENGTH = 60;
+
 export function getFloorBelow(project: Project | null): Floor | null {
   if (!project) return null;
   const entries = orderedFloors(project.floors);

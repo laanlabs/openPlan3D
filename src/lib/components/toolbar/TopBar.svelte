@@ -9,6 +9,7 @@
   import { interchangeProjectName } from '$lib/utils/interchange';
   import { modalDialog, hasOpenModal } from '$lib/utils/modalDialog';
   import { focusInlineEditor } from '$lib/utils/inlineEditorFocus';
+  import { MAX_FLOOR_NAME_LENGTH } from '$lib/utils/floors';
   import { openProject, openStoredProject } from '$lib/services/projectOpening';
   import { saveConflict, savingCopy, saveCurrentAsCopy } from '$lib/stores/saveStatus';
   import ImportError from '$lib/components/ImportError.svelte';
@@ -19,8 +20,8 @@
   import { onMount, onDestroy } from 'svelte';
   import { base } from '$app/paths';
   import { orderedFloors } from '$lib/utils/floors';
-  import type { FloorSeed } from '$lib/stores/project';
-  import { currentProject, viewMode, undo, redo, addFloor, removeFloor, setActiveFloor, updateProjectName, createDefaultProject, snapEnabled, canvasZoom, canvasMinimumZoom, panMode, showFurnitureStore, layerVisibility, activeFloor, selectedElementId, elevationWallId, elevationPickMode } from '$lib/stores/project';
+  import type { FloorPosition, FloorSeed } from '$lib/stores/project';
+  import { currentProject, viewMode, undo, redo, addFloor, removeFloor, renameFloor, setActiveFloor, updateProjectName, createDefaultProject, snapEnabled, canvasZoom, canvasMinimumZoom, panMode, showFurnitureStore, layerVisibility, activeFloor, selectedElementId, elevationWallId, elevationPickMode } from '$lib/stores/project';
   import { get } from 'svelte/store';
   import type { Floor } from '$lib/models/types';
   import { exportAsJSON } from '$lib/utils/export';
@@ -60,6 +61,9 @@
   // Floor-seed menu on the desktop + button
   let floorMenuOpen = $state(false);
   let floorMenuRef: HTMLDivElement | undefined = $state();
+  // Inline rename of the current floor (the desktop selector, or the mobile overflow menu)
+  let editingFloorName = $state(false);
+  let floorName = $state('');
 
   onDestroy(currentProject.subscribe((p) => {
     if (p) {
@@ -123,10 +127,33 @@
     }
   }
 
-  function onAddFloor(seed: FloorSeed = 'outer') {
-    addFloor(undefined, seed);
+  function onAddFloor(seed: FloorSeed = 'outer', position: FloorPosition = 'top') {
+    addFloor(undefined, seed, position);
     floorMenuOpen = false;
     moreOpen = false;
+  }
+
+  function startFloorRename() {
+    floorName = floors.find(f => f.id === activeFloorId)?.name ?? '';
+    editingFloorName = true;
+  }
+
+  /** Blank names are ignored by the store, so clearing the field and leaving it keeps the old name. */
+  function onFloorNameBlur() {
+    editingFloorName = false;
+    renameFloor(activeFloorId, floorName);
+    // Like the overflow menu's other items, renaming there closes it.
+    moreOpen = false;
+  }
+
+  function onFloorNameKeydown(e: KeyboardEvent) {
+    if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
+    else if (e.key === 'Escape') {
+      // Cancel: restore the saved name so the blur's commit changes nothing; keep the Escape here.
+      e.stopPropagation();
+      floorName = floors.find(f => f.id === activeFloorId)?.name ?? floorName;
+      (e.target as HTMLInputElement).blur();
+    }
   }
 
   function onRemoveFloor(id: string) {
@@ -382,10 +409,31 @@
 
   <!-- Floor selector as buttons (in overflow menu on mobile) -->
   <div class="flex items-center gap-1 max-xl:hidden">
-    <select aria-label={$t('floorControls.current')} value={activeFloorId} onchange={(e) => setActiveFloor(e.currentTarget.value)}
-      class="w-32 rounded bg-slate-700 px-2 py-1 text-xs text-white" title={$t('floorControls.switch')}>
-      {#each floors as fl}<option value={fl.id}>{fl.name}</option>{/each}
-    </select>
+    {#if editingFloorName && !moreOpen}
+      <input
+        use:focusInlineEditor={{ select: true }}
+        type="text"
+        maxlength={MAX_FLOOR_NAME_LENGTH}
+        aria-label={$t('floorControls.name')}
+        bind:value={floorName}
+        onblur={onFloorNameBlur}
+        onkeydown={onFloorNameKeydown}
+        class="w-32 rounded bg-white/20 px-2 py-1 text-xs text-white border border-white/30 outline-none"
+      />
+    {:else}
+      <select aria-label={$t('floorControls.current')} value={activeFloorId} onchange={(e) => setActiveFloor(e.currentTarget.value)}
+        class="w-32 rounded bg-slate-700 px-2 py-1 text-xs text-white" title={$t('floorControls.switch')}>
+        {#each floors as fl}<option value={fl.id}>{fl.name}</option>{/each}
+      </select>
+      <button
+        onclick={startFloorRename}
+        class="p-1 text-white/60 hover:text-white hover:bg-white/10 rounded transition-colors"
+        title={$t('floorControls.rename')}
+        aria-label={$t('floorControls.rename')}
+      >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      </button>
+    {/if}
     <div class="relative" bind:this={floorMenuRef}>
       <button
         onclick={() => floorMenuOpen = !floorMenuOpen}
@@ -404,6 +452,17 @@
             {$t('floorControls.all')} <span class="text-gray-400">{$t('floorControls.partitions')}</span>
           </button>
           <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => onAddFloor('empty')}>
+            {$t('floorControls.empty')}
+          </button>
+          <hr class="my-1 border-gray-100" />
+          <div class="px-3 pt-1 pb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">{$t('floorControls.below')}</div>
+          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" aria-label={`${$t('floorControls.below')}: ${$t('floorControls.exterior')}`} onclick={() => onAddFloor('outer', 'below')}>
+            {$t('floorControls.exterior')} <span class="text-gray-400">{$t('floorControls.footprint')}</span>
+          </button>
+          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" aria-label={`${$t('floorControls.below')}: ${$t('floorControls.all')}`} onclick={() => onAddFloor('copy', 'below')}>
+            {$t('floorControls.all')} <span class="text-gray-400">{$t('floorControls.partitions')}</span>
+          </button>
+          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" aria-label={`${$t('floorControls.below')}: ${$t('floorControls.empty')}`} onclick={() => onAddFloor('empty', 'below')}>
             {$t('floorControls.empty')}
           </button>
           <hr class="my-1 border-gray-100" />
@@ -567,6 +626,22 @@
           <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => { onAddFloor('outer'); }}>+ {$t('floorControls.add')} <span class="text-gray-400">{$t('floorControls.outerHint')}</span></button>
           <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => { onAddFloor('copy'); }}>+ {$t('floorControls.add')} <span class="text-gray-400">{$t('floorControls.allHint')}</span></button>
           <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => { onAddFloor('empty'); }}>+ {$t('floorControls.add')} <span class="text-gray-400">{$t('floorControls.emptyHint')}</span></button>
+          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => { onAddFloor('outer', 'below'); }}>+ {$t('floorControls.below')} <span class="text-gray-400">{$t('floorControls.outerHint')}</span></button>
+          <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={() => { onAddFloor('empty', 'below'); }}>+ {$t('floorControls.below')} <span class="text-gray-400">{$t('floorControls.emptyHint')}</span></button>
+          {#if editingFloorName}
+            <input
+              use:focusInlineEditor={{ select: true }}
+              type="text"
+              maxlength={MAX_FLOOR_NAME_LENGTH}
+              aria-label={$t('floorControls.name')}
+              bind:value={floorName}
+              onblur={onFloorNameBlur}
+              onkeydown={onFloorNameKeydown}
+              class="mx-3 my-1 w-[calc(100%-1.5rem)] rounded border border-gray-300 px-2 py-1 text-sm text-gray-800 outline-none focus:border-blue-400"
+            />
+          {:else}
+            <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left" onclick={startFloorRename}>{$t('floorControls.rename')}</button>
+          {/if}
           <button class="w-full px-3 py-2 text-sm text-red-700 hover:bg-gray-100 text-left disabled:opacity-40" disabled={floors.length <= 1}
             onclick={() => { onRemoveFloor(activeFloorId); moreOpen = false; }}>{$t('floorControls.remove')}</button>
           <div class="h-px bg-gray-100 my-1"></div>
