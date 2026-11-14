@@ -7,7 +7,7 @@ import { writable, derived, get, type Writable } from 'svelte/store';
 import type { Project, Floor, Wall, Door, Window as Win, FurnitureItem, Point, Stair, Column, BackgroundImage, GuideLine, ElementGroup, EntourageItem, InterchangeState } from '$lib/models/types';
 import { planWallResize, finitePoint, validPositiveDimension, validOpeningPosition, type WallEndpoint } from '$lib/utils/wallEditing';
 import { getOuterWalls } from '$lib/utils/outerWalls';
-import { nextFloorLevel, floorElevations, validFloorElevation, orderedFloors, DEFAULT_FLOOR_SPACING } from '$lib/utils/floors';
+import { nextFloorLevel, floorLevelBelow, defaultFloorName, floorElevations, validFloorElevation, orderedFloors, DEFAULT_FLOOR_SPACING, MAX_FLOOR_NAME_LENGTH } from '$lib/utils/floors';
 import { getWallStartHeight, getWallEndHeight, getWallHeightAt, validWallHeight } from '$lib/models/types';
 import type { DetailTarget, ItemDetails } from '$lib/models/types';
 import { detailItem, itemDetails, validateItemDetails } from '$lib/utils/itemDetails';
@@ -22,7 +22,7 @@ function uid(): string {
 
 export function createDefaultFloor(level = 0): Floor {
   const id = uid();
-  return { id, name: level === 0 ? 'Ground Floor' : `Floor ${level}`, level, walls: [], rooms: [], doors: [], windows: [], furniture: [], stairs: [], columns: [], guides: [], measurements: [], annotations: [], textAnnotations: [], groups: [] };
+  return { id, name: defaultFloorName(level), level, walls: [], rooms: [], doors: [], windows: [], furniture: [], stairs: [], columns: [], guides: [], measurements: [], annotations: [], textAnnotations: [], groups: [] };
 }
 
 export function createDefaultProject(name = 'Untitled Project'): Project {
@@ -961,19 +961,23 @@ export function updateRoom(id: string, updates: Partial<{ name: string; floorTex
  */
 export type FloorSeed = 'empty' | 'outer' | 'copy';
 
-export function addFloor(name?: string, seed: FloorSeed = 'outer') {
+/** Where a new storey goes: above the top floor or under the lowest one. */
+export type FloorPosition = 'top' | 'below';
+
+export function addFloor(name?: string, seed: FloorSeed = 'outer', position: FloorPosition = 'top') {
   const p = get(currentProject);
   if (!p) return;
   snapshot('Added floor');
-  // Levels drive the 3D stacking order, so derive from the highest existing
-  // level rather than the floor count — removing a middle floor would
+  // Levels drive the 3D stacking order, so derive from the highest (or lowest)
+  // existing level rather than the floor count — removing a middle floor would
   // otherwise hand the next storey a level that is already taken.
-  const level = nextFloorLevel(p.floors);
+  const level = position === 'top' ? nextFloorLevel(p.floors) : floorLevelBelow(p.floors);
   const floor = createDefaultFloor(level);
-  // Continue the top floor's adjusted elevation, retaining any skipped levels.
-  const top = floorElevations(p.floors).at(-1);
-  if (top) {
-    const elevation = top.elevation + (level - top.level) * DEFAULT_FLOOR_SPACING;
+  // Continue from the neighbouring floor's adjusted elevation, retaining any skipped levels.
+  const entries = floorElevations(p.floors);
+  const neighbour = position === 'top' ? entries.at(-1) : entries[0];
+  if (neighbour) {
+    const elevation = neighbour.elevation + (level - neighbour.level) * DEFAULT_FLOOR_SPACING;
     if (elevation !== level * DEFAULT_FLOOR_SPACING && validFloorElevation(elevation)) floor.elevation = elevation;
   }
   if (name !== undefined) floor.name = name;
@@ -991,6 +995,18 @@ export function addFloor(name?: string, seed: FloorSeed = 'outer') {
   clearFloorContext();
   p.floors.push(floor);
   p.activeFloorId = floor.id;
+  p.updatedAt = new Date();
+  currentProject.set({ ...p });
+}
+
+/** Rename a floor. Blank names are ignored; names are trimmed and capped, and rapid edits share one step. */
+export function renameFloor(floorId: string, name: string) {
+  const p = get(currentProject);
+  const floor = p?.floors.find(f => f.id === floorId);
+  const trimmed = name.trim().slice(0, MAX_FLOOR_NAME_LENGTH);
+  if (!p || !floor || !trimmed || floor.name === trimmed) return;
+  snapshot('Renamed floor', `floor-name:${floorId}`);
+  floor.name = trimmed;
   p.updatedAt = new Date();
   currentProject.set({ ...p });
 }

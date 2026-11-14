@@ -6,6 +6,7 @@
  * Our coordinate system: 2D XY in centimeters (roomplan X→our X, roomplan Z→our Y)
  */
 
+import { defaultFloorName } from './floors';
 import type { Floor, Wall, Door, Window, FurnitureItem, Room, Point, Project, InterchangeState } from '$lib/models/types';
 import { INTERCHANGE_BLOCK_KEYS } from '$lib/models/types';
 import { createDefaultProject, createDefaultFloor } from '$lib/stores/project';
@@ -871,9 +872,7 @@ export const DEFAULT_ROOMPLAN_OPTIONS: RoomPlanImportOptions = {
 function storyName(index: number, stories: RPStory[]): string {
   const named = stories.find(s => s.index === index);
   if (named?.name) return named.name;
-  if (index === 0) return 'Ground Floor';
-  if (index < 0) return index === -1 ? 'Basement' : `Basement ${-index}`;
-  return `Floor ${index}`;
+  return defaultFloorName(index);
 }
 
 /** The storey indices a capture holds, ascending; a capture without any is the ground floor alone. */

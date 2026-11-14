@@ -1,10 +1,12 @@
 import { beforeEach, expect, it } from 'vitest';
 import { get } from 'svelte/store';
-import { addFloor, createDefaultFloor, currentProject, loadProject, removeFloor, setActiveFloor, undo, redo, selectedElementId, selectedElementIds, elevationWallId, selectedTool } from '$lib/stores/project';
+import { addFloor, createDefaultFloor, currentProject, loadProject, removeFloor, renameFloor, setActiveFloor, undo, redo, selectedElementId, selectedElementIds, elevationWallId, selectedTool } from '$lib/stores/project';
 import { roomProject } from './fixtures/project';
 import { updateFloorElevation, updateFloorSlabThickness } from '$lib/stores/project';
 import { calibrationMode, calibrationPoints } from '$lib/stores/project';
-import { floorElevations } from '$lib/utils/floors';
+import { defaultFloorName, floorElevations, floorLevelBelow, MAX_FLOOR_NAME_LENGTH } from '$lib/utils/floors';
+import { stairRises, floorBelow } from '$lib/utils/stairLevels';
+import { undoHistoryStore } from '$lib/stores/project';
 
 beforeEach(() => loadProject(roomProject()));
 
@@ -166,4 +168,59 @@ it('discards calibration points across floor switches, additions, removal and hi
   begin(); removeFloor(upper); cleared();
   begin(); undo(); cleared();
   begin(); redo(); cleared();
+});
+
+it('names default floors by level, as scanned storeys are named', () => {
+  expect([2, 1, 0, -1, -2].map(defaultFloorName)).toEqual(['Floor 2', 'Floor 1', 'Ground Floor', 'Basement', 'Basement 2']);
+  expect(createDefaultFloor(-1).name).toBe('Basement');
+  expect(floorLevelBelow([])).toBe(0);
+  expect(floorLevelBelow([createDefaultFloor(0), createDefaultFloor(2)])).toBe(-1);
+  expect(floorLevelBelow([createDefaultFloor(-2), createDefaultFloor(1)])).toBe(-3);
+});
+
+it('adds a floor below the lowest one, continuing its elevation, seeded from the current floor and undone in one step', () => {
+  const ground = get(currentProject)!.floors[0];
+  updateFloorElevation(ground.id, 40);
+  addFloor(undefined, 'outer', 'below');
+  let p = get(currentProject)!;
+  const basement = p.floors.find(f => f.id === p.activeFloorId)!;
+  expect(basement).toMatchObject({ name: 'Basement', level: -1, elevation: -260 });
+  expect(basement.walls).toHaveLength(4);
+  expect(basement.walls.every(w => !ground.walls.some(g => g.id === w.id))).toBe(true);
+  // Stairs and the floor below follow the new order: the basement sits under the ground floor.
+  expect(floorBelow(p.floors, ground.id)?.id).toBe(basement.id);
+  expect(stairRises(p.floors, basement.id).up).toBe(300);
+
+  addFloor(undefined, 'empty', 'below');
+  p = get(currentProject)!;
+  expect(floorElevations(p.floors).map(e => [e.floor.name, e.level, e.elevation])).toEqual([
+    ['Basement 2', -2, -560], ['Basement', -1, -260], [ground.name, 0, 40]]);
+  undo();
+  expect(get(currentProject)!.floors.map(f => f.level)).toEqual([0, -1]);
+});
+
+it('adds a floor below an unadjusted ground floor at the default spacing without storing an elevation', () => {
+  addFloor(undefined, 'empty', 'below');
+  const p = get(currentProject)!;
+  const basement = p.floors.find(f => f.id === p.activeFloorId)!;
+  expect(basement.level).toBe(-1);
+  expect(basement.elevation).toBeUndefined();
+  expect(floorElevations(p.floors).map(e => e.elevation)).toEqual([-300, 0]);
+});
+
+it('renames floors with trimming and a length cap, ignores blank or unchanged names, and groups edits per floor', () => {
+  const id = get(currentProject)!.floors[0].id;
+  const history = () => get(undoHistoryStore).entries.map(entry => entry.description);
+  renameFloor(id, '  Daylight basement  ');
+  expect(get(currentProject)!.floors[0].name).toBe('Daylight basement');
+  renameFloor(id, 'Daylight basement 2');
+  expect(history()).toEqual(['Renamed floor']);
+  renameFloor(id, '   ');
+  renameFloor(id, 'Daylight basement 2');
+  renameFloor('missing', 'Attic');
+  expect(history()).toEqual(['Renamed floor']);
+  renameFloor(id, 'x'.repeat(MAX_FLOOR_NAME_LENGTH + 10));
+  expect(get(currentProject)!.floors[0].name).toHaveLength(MAX_FLOOR_NAME_LENGTH);
+  undo();
+  expect(get(currentProject)!.floors[0].name).toBe(roomProject().floors[0].name);
 });
