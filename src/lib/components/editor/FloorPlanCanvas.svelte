@@ -25,6 +25,7 @@
   import { hasOpenModal } from '$lib/utils/modalDialog';
   import { focusInlineEditor } from '$lib/utils/inlineEditorFocus';
   import ContextMenu from './ContextMenu.svelte';
+  import MoveToFloorMenu from './MoveToFloorMenu.svelte';
   import { roomPresets, placePreset } from '$lib/utils/roomPresets';
   import { roomTemplates, placeRoomTemplate } from '$lib/utils/roomTemplates';
   import { openingDropTarget } from '$lib/utils/openingDrop';
@@ -4233,6 +4234,9 @@
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M4 12h4M16 12h4"/></svg>
           </button>
+        {/if}
+        {#if currentSelectedId && currentSelectedIds.size === 0}
+          <MoveToFloorMenu ids={new Set([currentSelectedId])} />
         {/if}
         <div class="w-px h-5 bg-gray-200 mx-0.5"></div>
         <button

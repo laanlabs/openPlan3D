@@ -2,6 +2,7 @@
   import { t } from '$lib/i18n';
   import { selectedElementIds, activeFloor } from '$lib/stores/project';
   import { alignElements, alignmentItems, type AlignmentOp } from '$lib/utils/alignment';
+  import MoveToFloorMenu from './MoveToFloorMenu.svelte';
 
   const multiCount = $derived($selectedElementIds.size);
   const supported = $derived($activeFloor ? alignmentItems($activeFloor,$selectedElementIds) : []);
@@ -41,5 +42,7 @@
         <div class="w-px h-5 bg-gray-200 mx-0.5"></div>
       {/if}
     {/each}
+    <div class="w-px h-5 bg-gray-200 mx-0.5"></div>
+    <MoveToFloorMenu ids={$selectedElementIds} />
   </div>
 {/if}
