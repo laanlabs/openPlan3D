@@ -13,6 +13,7 @@ import type { DetailTarget, ItemDetails } from '$lib/models/types';
 import { detailItem, itemDetails, validateItemDetails } from '$lib/utils/itemDetails';
 import { readProject } from '$lib/utils/projectValidation';
 import { mergeRoomPlanFloors, selectableContentIds, type AddedContent } from '$lib/utils/roomplanMerge';
+import { movePlanSelection } from '$lib/utils/moveToFloor';
 import { doorJoin } from '$lib/utils/scanAlignment';
 
 
@@ -1140,6 +1141,25 @@ export function selectImportedElements(floorId: string, ids: string[]) {
   if (p.activeFloorId !== floorId) setActiveFloor(floorId); else clearFloorContext();
   selectedElementIds.set(new Set(ids.length > 1 ? ids : []));
   selectedElementId.set(ids.length === 1 ? ids[0] : null);
+}
+
+/** Move the selected content from the active floor to `targetFloorId`, keeping positions
+ *  (see utils/moveToFloor), as one undo step. The target floor becomes the active one with the
+ *  moved elements selected. Returns their ids; nothing changes when nothing would move. */
+export function moveSelectionToFloor(ids: ReadonlySet<string>, targetFloorId: string): string[] {
+  const p = get(currentProject);
+  if (!p || !ids.size || targetFloorId === p.activeFloorId) return [];
+  const source = p.floors.find(f => f.id === p.activeFloorId), target = p.floors.find(f => f.id === targetFloorId);
+  if (!source || !target) return [];
+  const nextSource = structuredClone(source), nextTarget = structuredClone(target);
+  const moved = movePlanSelection(nextSource, nextTarget, ids, uid);
+  if (!moved.length) return [];
+  snapshot('Moved to floor');
+  p.floors = p.floors.map(f => f.id === source.id ? nextSource : f.id === target.id ? nextTarget : f);
+  p.updatedAt = new Date();
+  currentProject.set({ ...p });
+  selectImportedElements(target.id, moved);
+  return moved;
 }
 
 /** Door-to-door scan alignment: the door picked first, until a second door is clicked or the mode is cancelled. */
