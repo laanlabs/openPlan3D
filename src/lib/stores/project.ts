@@ -3,6 +3,7 @@ import { splitWallRoomReferences } from '$lib/utils/splitWallRooms';
 import { splitWallGeometry } from '$lib/utils/splitWallGeometry';
 import { wallPathProfile } from '$lib/utils/wallProfiles';
 import { duplicatePlanSelection, pastePlanSelection, shiftedOpeningPosition } from '$lib/utils/duplicateSelection';
+import { settleStacks } from '$lib/utils/furnitureStacking';
 import { writable, derived, get, type Writable } from 'svelte/store';
 import type { Project, Floor, Wall, Door, Window as Win, FurnitureItem, Point, Stair, Column, BackgroundImage, GuideLine, ElementGroup, EntourageItem, InterchangeState } from '$lib/models/types';
 import { planWallResize, finitePoint, validPositiveDimension, validOpeningPosition, type WallEndpoint } from '$lib/utils/wallEditing';
@@ -153,6 +154,7 @@ export function endUndoGroup(description?: string) {
     _nextDescription = '';
     resetCoalescing();
     const project = get(currentProject);
+    if (before !== null && project) settleProjectStacks(project, JSON.parse(before) as Project);
     // Drag frames bump updatedAt; only changed content earns an entry and discards Redo.
     if (before !== null && project && JSON.stringify({ ...project, updatedAt }) !== before) {
       pushHistory(undoStack, { state: before, description: action, timestamp: Date.now(), selection });
@@ -323,13 +325,38 @@ export function jumpToUndoStep(targetIndex: number) {
   syncHistoryStore();
 }
 
+const placementCopy = (furniture: FurnitureItem[]) => furniture.map(item => ({ ...item, position: { ...item.position }, scale: { ...item.scale } }));
+
+/** Rest one floor's stacked furniture after an edit (see settleStacks); changes `floor` in place. */
+function settleFloorStacks(floor: Floor, before: FurnitureItem[]): boolean {
+  const updates = settleStacks(before, floor.furniture);
+  for (const item of floor.furniture) {
+    if (!updates.has(item.id)) continue;
+    const elevation = updates.get(item.id);
+    if (elevation === undefined) delete item.elevation; else item.elevation = elevation;
+  }
+  return updates.size > 0;
+}
+
+function settleProjectStacks(project: Project, before: Project) {
+  let changed = false;
+  for (const floor of project.floors) {
+    const previous = before.floors.find(f => f.id === floor.id);
+    if (previous && settleFloorStacks(floor, previous.furniture)) changed = true;
+  }
+  if (changed) currentProject.set({ ...project });
+}
+
 /** Apply `fn` to the active floor as one Undo step. An edit that changes nothing leaves history, Redo and updatedAt alone. */
 function mutate(fn: (floor: Floor) => void, description?: string, coalesceKey?: string) {
   const p = get(currentProject);
   const floor = p?.floors.find((f) => f.id === p.activeFloorId);
   if (!p || !floor) return;
   const before = JSON.stringify(p);
+  // Inside an undo group the group's end settles stacks once, against the state it began from.
+  const furnitureBefore = undoGroupDepth === 0 ? placementCopy(floor.furniture) : null;
   fn(floor);
+  if (furnitureBefore) settleFloorStacks(floor, furnitureBefore);
   if (JSON.stringify(p) === before) return;
   snapshot(description, coalesceKey, before);
   p.updatedAt = new Date();

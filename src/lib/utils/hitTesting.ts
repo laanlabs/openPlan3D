@@ -1,3 +1,4 @@
+import { byElevation } from './furnitureStacking';
 import { stairContainsLocalPoint } from './stairPlanGeometry';
 import { roomHoles } from './roomNesting';
 /**
@@ -110,7 +111,8 @@ export function findHandleAt(
 }
 
 export function findFurnitureAt(p: Point, furniture: FurnitureItem[]): FurnitureItem | null {
-  for (const fi of [...furniture].reverse()) {
+  // Topmost first: a lamp on a table is picked before the table.
+  for (const fi of byElevation(furniture).reverse()) {
     const dx = p.x - fi.position.x;
     const dy = p.y - fi.position.y;
     const angle = -(fi.rotation * Math.PI) / 180;
