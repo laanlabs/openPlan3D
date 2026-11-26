@@ -1220,6 +1220,14 @@ export function drawGuides(cs: CanvasState, floor: Floor, selectedGuideId: strin
 
 // ── Persisted measurements ───────────────────────────────────────────
 
+/** End handle of a selected measurement or dimension: drag it to move that point. */
+function drawLineEndHandle(ctx: CanvasRenderingContext2D, p: Point): void {
+  ctx.fillStyle = '#ffffff';
+  ctx.strokeStyle = '#3b82f6';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+}
+
 export function drawPersistedMeasurements(cs: CanvasState, floor: Floor, selectedMeasurementId: string | null, dimSettings: ProjectSettings): void {
   if (!floor.measurements) return;
   const { ctx } = cs;
@@ -1234,7 +1242,8 @@ export function drawPersistedMeasurements(cs: CanvasState, floor: Floor, selecte
     ctx.setLineDash([]);
 
     for (const p of [s, e]) {
-      ctx.fillStyle = selected ? '#3b82f6' : '#ef4444';
+      if (selected) { drawLineEndHandle(ctx, p); continue; }
+      ctx.fillStyle = '#ef4444';
       ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx.fill();
     }
 
@@ -1346,11 +1355,7 @@ export function drawAnnotation(cs: CanvasState, a: Annotation, selected: boolean
   ctx.fillStyle = color;
   ctx.fillText(label, dimMx, dimMy);
 
-  if (selected) {
-    for (const p of [s1, s2]) {
-      ctx.fillStyle = '#3b82f6'; ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI * 2); ctx.fill();
-    }
-  }
+  if (selected) for (const p of [s1, s2]) drawLineEndHandle(ctx, p);
 }
 
 export function drawAnnotations(cs: CanvasState, floor: Floor, selectedAnnotationId: string | null, dimSettings: ProjectSettings): void {
