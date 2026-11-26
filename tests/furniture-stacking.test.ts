@@ -2,7 +2,7 @@
 import { expect, it } from 'vitest';
 import { get } from 'svelte/store';
 import type { FurnitureItem, Project } from '$lib/models/types';
-import { byElevation, restingElevation, settleStacks } from '$lib/utils/furnitureStacking';
+import { byElevation, restingElevation, settleStacks, typedFurnitureElevation } from '$lib/utils/furnitureStacking';
 import { findFurnitureAt } from '$lib/utils/hitTesting';
 import {
   addFurniture, beginUndoGroup, currentProject, endUndoGroup, loadProject, removeElement,
@@ -128,4 +128,60 @@ it('draws and picks raised items above what they rest on', () => {
   const lamp = item('lamp', 'table_lamp', 100, 100, { elevation: 75 }), table = item('table', 'dining_table');
   expect(byElevation([lamp, table]).map(i => i.id)).toEqual(['table', 'lamp']);
   expect(findFurnitureAt({ x: 100, y: 100 }, [lamp, table])?.id).toBe('lamp');
+});
+
+it('keeps fixtures and appliances on the floor inside a counter run or a scanned cabinet', () => {
+  const counter = item('counter', 'counter', 100, 100, { width: 240 }); // 240 x 60, 85 high
+  const cabinet = item('cabinet', 'storage', 100, 100, { width: 200, depth: 60, height: 90 });
+  for (const base of [counter, cabinet]) {
+    for (const id of ['sink_k', 'sink_b', 'stove', 'oven', 'dishwasher', 'fridge', 'washer_dryer', 'toilet', 'counter', 'storage']) {
+      expect(settleStacks([base], [base, item('x', id, 110, 100, { width: 60, depth: 45 })]).size, `${id} on ${base.catalogId}`).toBe(0);
+    }
+    // Loose things still stand on them.
+    expect(settleStacks([base], [base, item('plant', 'potted_plant')]).get('plant')).toBe(base.catalogId === 'counter' ? 85 : 90);
+  }
+  // Nudging a sink that was saved inside its counter leaves it there.
+  loadProject(withFurniture(counter, item('sink', 'sink_k')));
+  drag('sink', 110, 100);
+  expect(elevationOf('sink')).toBeUndefined();
+});
+
+it('stands everything on a deck at the deck’s height, chairs and rugs included', () => {
+  const deck = item('deck', 'deck_patio', 300, 300); // 400 x 300, 15 high
+  for (const id of ['patio_table', 'patio_chair', 'lounger', 'sofa', 'rug', 'bbq_grill', 'sink_k']) {
+    expect(settleStacks([deck], [deck, item('x', id, 300, 300)]).get('x'), id).toBe(15);
+  }
+  // Trees, lawns and pools keep to the ground, and a deck is never lifted itself.
+  for (const id of ['tree_oak', 'lawn_square', 'hot_tub']) expect(settleStacks([deck], [deck, item('x', id, 300, 300)]).size, id).toBe(0);
+  expect(restingElevation(item('small', 'deck_patio', 300, 300, { width: 100, depth: 100 }), [deck])).toBeNull();
+
+  // A chair under a table on the deck stands on the deck; the lamp on the table adds the table's height.
+  loadProject(withFurniture(deck));
+  const table = addFurniture('patio_table', { x: 300, y: 300 });
+  const chair = addFurniture('patio_chair', { x: 320, y: 300 });
+  const lamp = addFurniture('table_lamp', { x: 300, y: 300 });
+  expect([table, chair, lamp].map(elevationOf)).toEqual([15, 15, 90]);
+  // Raising the deck carries all three.
+  updateFurniture('deck', { height: 30 });
+  expect([table, chair, lamp].map(elevationOf)).toEqual([30, 30, 105]);
+  // Off the deck they are back on the ground.
+  drag(chair, 900, 900);
+  expect(elevationOf(chair)).toBeUndefined();
+});
+
+it('keeps an item on the floor once 0 is typed for it under a surface', () => {
+  loadProject(withFurniture(item('table', 'dining_table'), item('lamp', 'table_lamp', 100, 100, { elevation: 75 }),
+    item('art', 'wall_art', 100, 100)));
+  const typed = (id: string, value: number) => typedFurnitureElevation(furniture().find(i => i.id === id)!, value, furniture());
+  // Typing 0 for the resting lamp is kept as a number, so the next edits don't lift it again.
+  expect(typed('lamp', 0)).toBe(0);
+  updateFurniture('lamp', { elevation: typed('lamp', 0) });
+  drag('lamp', 105, 100);
+  expect(elevationOf('lamp')).toBe(0);
+  drag('table', 110, 100);
+  expect(elevationOf('lamp')).toBe(0);
+  // Elsewhere a typed default is still stored as no height, as before.
+  expect(typed('table', 0)).toBeUndefined();
+  expect(typed('art', 120)).toBeUndefined(); // wall art's own default
+  expect(typed('lamp', 40)).toBe(40);
 });

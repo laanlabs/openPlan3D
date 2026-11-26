@@ -1,12 +1,16 @@
 import type { FurnitureItem } from '$lib/models/types';
 import { getCatalogItem, getFurnitureSize } from './furnitureCatalog';
-import { defaultFurnitureElevation, furnitureElevation } from './furnitureElevation';
+import { defaultFurnitureElevation, furnitureElevation, storedFurnitureElevation } from './furnitureElevation';
 
 /**
  * Stacking: when two items share a spot on the floor, the smaller one rests on top of the larger.
  * "Share a spot" means the smaller item's centre lies inside the larger item's rotated footprint;
  * "smaller" compares footprint areas. Only items left at their default height of 0 stack, and a
  * height the user typed is never changed.
+ *
+ * A furniture top takes only loose items: seating, beds, rugs, fixtures and appliances stay on the
+ * floor beside or under it. A platform (a deck) is a raised floor, so everything on it stands at
+ * its height.
  */
 
 const SEATING = ['sofa', 'loveseat', 'chair', 'office_chair', 'dining_chair', 'patio_chair', 'bench_outdoor', 'lounger', 'pool_lounge'];
@@ -15,8 +19,17 @@ const RUGS = ['rug', 'round_rug', 'runner_rug'];
 /** Floor coverings outdoors; like rugs, things stand on the ground through them. */
 const GROUND_COVER_CATEGORIES = new Set(['Paths & Lawns', 'Pool & Spa', 'Fencing']);
 
-/** Never lifted: a chair tucked under a table or a rug under a coffee table stays on the floor. */
-const STAYS_ON_FLOOR = new Set([...SEATING, ...BEDS, ...RUGS, 'curtain', 'sheer_curtain', 'deck_patio', 'stairs',
+/**
+ * Built in or plumbed in. A sink, stove or fridge set into a run of counters, or a scanned sink
+ * inside its scanned cabinet, is centred on a larger item without standing on top of it.
+ */
+const FIXTURES = ['stove', 'fridge', 'sink_k', 'counter', 'dishwasher', 'oven', 'toilet', 'bathtub', 'shower', 'sink_b',
+  'washer_dryer', 'fireplace', 'wardrobe', 'storage'];
+/** Raised floors: whatever stands on one stands at its height, chairs and rugs included. */
+const PLATFORMS = new Set(['deck_patio']);
+
+/** Never lifted onto furniture: a chair tucked under a table or a rug under a coffee table stays on the floor. */
+const STAYS_ON_FLOOR = new Set([...SEATING, ...BEDS, ...RUGS, ...FIXTURES, 'curtain', 'sheer_curtain', 'stairs',
   'garage_door_single', 'garage_door_double']);
 
 /** Nothing rests on these: their tops are cushions, mattresses, roofs, canopies or water. */
@@ -35,8 +48,15 @@ function takesPart(item: Stackable): boolean {
   return defaultFurnitureElevation(item) === 0;
 }
 
-export const canRest = (item: Stackable) => takesPart(item) && (!!item.customModelId || !STAYS_ON_FLOOR.has(item.catalogId));
+const isPlatform = (item: Stackable) => !item.customModelId && PLATFORMS.has(item.catalogId);
+/** Whether stacking can ever lift the item: onto a platform at least. */
+export const canRest = (item: Stackable) => takesPart(item) && !isPlatform(item);
 export const canHold = (item: Stackable) => takesPart(item) && (!!item.customModelId || !NOT_A_SURFACE.has(item.catalogId));
+/** Whether `item` may rest on `base`: anything that stands on the floor stands on a platform; a furniture top takes only loose items. */
+export function canRestOn(item: Stackable, base: Stackable): boolean {
+  if (!canRest(item) || !canHold(base)) return false;
+  return isPlatform(base) || !!item.customModelId || !STAYS_ON_FLOOR.has(item.catalogId);
+}
 
 const area = (item: Stackable) => { const s = getFurnitureSize(item as FurnitureItem); return s.width * s.depth; };
 
@@ -53,7 +73,7 @@ export function restingElevation(item: Stackable, furniture: readonly Stackable[
   const own = area(item);
   let top: number | null = null;
   for (const base of furniture) {
-    if (base.id === item.id || !canHold(base) || area(base) <= own || !covers(base, item.position)) continue;
+    if (base.id === item.id || !canRestOn(item, base) || area(base) <= own || !covers(base, item.position)) continue;
     const height = furnitureElevation(base) + getFurnitureSize(base as FurnitureItem).height;
     if (top === null || height > top) top = height;
   }
@@ -118,11 +138,21 @@ export function settleStacks(before: readonly Stackable[], after: readonly Stack
       if (next === item.elevation) continue;
       item.elevation = next;
       updates.set(item.id, next);
-      for (const other of list) if (other.id !== item.id && canRest(other) && covers(item, other.position) && area(other) < area(item)) pending.add(other.id);
+      for (const other of list) if (other.id !== item.id && canRestOn(other, item) && covers(item, other.position) && area(other) < area(item)) pending.add(other.id);
     }
   }
   for (const [id, value] of updates) if (value === after.find(i => i.id === id)!.elevation) updates.delete(id);
   return updates;
+}
+
+/**
+ * Stored form of a height typed in Properties. A typed default is normally stored as "no height",
+ * which stacking reads as free to lift. Over a surface it is kept as a number instead, so an item
+ * put back on the floor under a table stays there.
+ */
+export function typedFurnitureElevation(item: FurnitureItem, value: number, furniture: readonly Stackable[]): number | undefined {
+  const stored = storedFurnitureElevation(item, value);
+  return stored === undefined && restingElevation(item, furniture) !== null ? value : stored;
 }
 
 /** Plan drawing order: raised items over what they rest on; stable, so the user's order still applies at one height. */
