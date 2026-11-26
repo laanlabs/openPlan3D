@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { byElevation } from '$lib/utils/furnitureStacking';
   import { t, locale, translate } from '$lib/i18n';
   import { connectedWallGroup } from '$lib/utils/scanAlignment';
   import { dimensionAnchor, dimensionOffsetAt, lineEndAt, lineToolbarAnchor, moveLineEnd, translateLine, type LineEnd } from '$lib/utils/dimensionEditing';
@@ -1290,7 +1291,7 @@
 
     // Furniture
     if (showFurniture) {
-      for (const fi of floor.furniture) {
+      for (const fi of byElevation(floor.furniture)) {
         const selected = isSelected(fi.id);
         if (selected && draggingFurnitureId === fi.id) drawAlignmentGuides(fi);
         drawFurniture(fi, selected);

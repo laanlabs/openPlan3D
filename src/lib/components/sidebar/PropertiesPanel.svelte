@@ -19,7 +19,8 @@
   import { floorMaterials, wallColors } from '$lib/utils/materials';
   import { colorInputValue, doorFrameColor, DOOR_FRAME_PRESETS } from '$lib/utils/doorStyle';
   import { getCatalogItem, getFurnitureSize } from '$lib/utils/furnitureCatalog';
-  import { MAX_FURNITURE_ELEVATION, furnitureElevation, storedFurnitureElevation } from '$lib/utils/furnitureElevation';
+  import { MAX_FURNITURE_ELEVATION, furnitureElevation } from '$lib/utils/furnitureElevation';
+  import { typedFurnitureElevation } from '$lib/utils/furnitureStacking';
   import { projectSettings, formatLength, formatArea, parseLengthInput } from '$lib/stores/settings';
     import type { Floor, Wall, Door, Window as Win, Room, FurnitureItem, Stair, Column, RoomCategory, TextAnnotation } from '$lib/models/types';
   import { getWallStartHeight, getWallEndHeight } from '$lib/models/types';
@@ -220,7 +221,7 @@
   function onFurnitureElevation(e: Event) {
     if (!selectedFurniture) return;
     dimensionInput(e, furnitureElevation(selectedFurniture),
-      value => updateFurniture(selectedFurniture!.id, { elevation: storedFurnitureElevation(selectedFurniture!, value) }), true, MAX_FURNITURE_ELEVATION);
+      value => updateFurniture(selectedFurniture!.id, { elevation: typedFurnitureElevation(selectedFurniture!, value, floor?.furniture ?? []) }), true, MAX_FURNITURE_ELEVATION);
   }
   function onFurnitureMaterial(e: Event) {
     if (!selectedFurniture) return;
