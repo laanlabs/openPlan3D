@@ -74,6 +74,14 @@ for (const locale of ['en', 'pt']) test(`${locale}: requested annotation editing
   await page.keyboard.press('Escape');
   await expect(menu).toHaveCount(0);
   await expect(canvas).toBeFocused();
+  // The new note is still selected, so the keyboard menu is the note's own (issue #157).
+  await canvas.press('Shift+F10');
+  await expect(items).toHaveText(locale === 'pt' ? [/Propriedades$/, /Excluir$/] : [/Properties$/, /Delete$/]);
+  await page.keyboard.press('Escape');
+  await expect(menu).toHaveCount(0);
+  await expect(canvas).toBeFocused();
+  // With nothing selected it is the canvas menu, which ends with Zoom to Fit.
+  await canvas.press('Escape');
   await canvas.press('Shift+F10');
   await expect(items.first()).toBeFocused();
   await page.keyboard.press('End');
