@@ -33,7 +33,16 @@ async function openPlan(page: Page, width = 1440) {
   await page.getByRole('button', { name: 'Import JSON', exact: true }).click();
   await (await chooser).setFiles({ name: 'dimensions.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(plan)) });
   await expect(page.getByRole('button', { name: plan.name, exact: true })).toBeVisible();
-  await expect.poll(() => page.evaluate(() => Object.keys((window as any).__labels ?? {}))).toEqual(expect.arrayContaining(['2 m', 'Span', 'Pantry']));
+  // The plan draws once where it was imported and is fitted to the canvas a frame later. Wait for
+  // the fitted view, which puts the middle of the room in the middle of the canvas.
+  await expect.poll(() => page.evaluate(() => {
+    const labels = (window as any).__labels ?? {}, measure = labels['2 m'], span = labels['Span'];
+    if (!measure || !span || !labels['Pantry']) return false;
+    const box = document.querySelector('canvas[aria-label="Floor plan editor canvas"]')!.getBoundingClientRect();
+    const scale = (span.y - measure.y) / 140, middle = { x: measure.x + 50 * scale, y: measure.y + 50 * scale };
+    return Math.abs(middle.x - (box.x + box.width / 2)) < 20 && Math.abs(middle.y - (box.y + box.height / 2)) < 20;
+  })).toBe(true);
+  await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
 
   const label = (text: string) => page.evaluate(name => (window as any).__labels[name] as Spot, text);
   const measure = await label('2 m'), span = await label('Span');
