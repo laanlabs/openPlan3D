@@ -25,7 +25,8 @@ jobs:
           NODE_ENV: production
           NPM_CONFIG_INCLUDE: dev
       - run: npm run catalog:check
-      - run: npm audit --audit-level=high
+      # Fails on high and critical advisories, except those excepted in tooling/audit-exceptions.json.
+      - run: npm run audit:gate
       - run: npm run check
       - run: npm test
       - run: npm run build

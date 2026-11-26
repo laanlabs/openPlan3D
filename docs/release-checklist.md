@@ -12,6 +12,7 @@ device and cost gates.
   checks, all three browser jobs and benchmark assertions. Use
   [the workflow](../.github/workflows/ci.yml) as the current command/job source.
 - [ ] Review dependency-audit results and any skips/failures; record their impact.
+- [ ] Review each entry in `tooling/audit-exceptions.json`: remove it once its fix is installed, and confirm its reason still holds.
 - [ ] Review the final diff, format/storage compatibility changes and applicable
   fixture regressions. Update [capabilities](../FEATURES.md) and release notes.
 
