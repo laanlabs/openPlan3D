@@ -1,0 +1,8 @@
+[
+  {
+    "id": "GHSA-3r8g-jcqq-3p5j",
+    "package": "@sveltejs/kit",
+    "reason": "Denial of service in remote functions' form parsing. It only affects apps that turn on kit.experimental.remoteFunctions; this app doesn't (tests/audit-gate.test.ts checks). The fix is in @sveltejs/kit 3.1.1, and SvelteKit 3 needs Vite 8 and TypeScript 6.",
+    "expires": "2027-01-31"
+  }
+]

@@ -7,7 +7,7 @@
     x: number;
     y: number;
     visible: boolean;
-    targetType: 'furniture' | 'wall' | 'door' | 'window' | 'room' | 'canvas' | null;
+    targetType: 'furniture' | 'wall' | 'door' | 'window' | 'room' | 'measurement' | 'dimension' | 'note' | 'canvas' | null;
     targetId: string | null;
     targetWall?: Wall | null;
     targetFurniture?: FurnitureItem | null;
@@ -173,6 +173,22 @@
       <div class="ctx-sep"></div>
       <button class="ctx-item ctx-danger" role="menuitem" onclick={() => clickItem('delete-room')}>
         <span class="ctx-icon">🗑️</span> {$t('contextMenu.deleteRoom')}
+      </button>
+
+    {:else if targetType === 'measurement' || targetType === 'dimension' || targetType === 'note'}
+      {#if targetType === 'dimension'}
+        <button class="ctx-item" role="menuitem" onclick={() => clickItem('edit-dimension-label')}>
+          <span class="ctx-icon">✏️</span> {$t('dimensionActions.editLabel')}
+        </button>
+        <div class="ctx-sep"></div>
+      {:else if targetType === 'note'}
+        <button class="ctx-item" role="menuitem" onclick={() => clickItem('properties')}>
+          <span class="ctx-icon">⚙️</span> {$t('contextMenu.properties')}
+        </button>
+        <div class="ctx-sep"></div>
+      {/if}
+      <button class="ctx-item ctx-danger" role="menuitem" onclick={() => clickItem('delete')}>
+        <span class="ctx-icon">🗑️</span> {$t('contextMenu.delete')}
       </button>
 
     {:else if targetType === 'canvas'}

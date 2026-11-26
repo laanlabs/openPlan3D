@@ -2,6 +2,7 @@
   import { byElevation } from '$lib/utils/furnitureStacking';
   import { t, locale, translate } from '$lib/i18n';
   import { connectedWallGroup } from '$lib/utils/scanAlignment';
+  import { dimensionAnchor, dimensionOffsetAt, lineEndAt, lineToolbarAnchor, moveLineEnd, translateLine, type LineEnd } from '$lib/utils/dimensionEditing';
   import { furnitureName, customModelName } from '$lib/i18n/furnitureNames';
   import { multiSelectionBounds } from '$lib/utils/multiSelectionBounds';
   import { onMount, onDestroy, tick } from 'svelte';
@@ -151,12 +152,61 @@
   let selectedAnnotationId: string | null = $state(null);
   let editingDimensionId: string | null = $state(null);
   let dimensionLabel = $state('');
+  type DimensionLine = { x1: number; y1: number; x2: number; y2: number };
+  /**
+   * A press on a measurement or dimension. An end handle moves that point; the line itself moves
+   * a measurement, or sets how far a dimension's line sits from the points it measures.
+   */
+  let draggingDimension: { kind: 'measurement' | 'annotation'; id: string; part: LineEnd | 'line'; from: Point; line: DimensionLine; offset: number } | null = $state(null);
+  const DIMENSION_HANDLE = 8; // px
+
+  function editDimensionLabel(id: string) {
+    dimensionLabel = currentFloor?.annotations?.find(item => item.id === id)?.label ?? '';
+    editingDimensionId = id;
+  }
 
   function finishDimensionLabel() {
-    if (editingDimensionId && dimensionLabel.trim()) {
-      updateAnnotation(editingDimensionId, { label: dimensionLabel.trim() });
-    }
+    const dimension = currentFloor?.annotations?.find(item => item.id === editingDimensionId);
+    const label = dimensionLabel.trim();
+    // An emptied label goes back to showing the measured distance.
+    if (dimension && label !== (dimension.label ?? '')) updateAnnotation(dimension.id, { label: label || undefined });
     editingDimensionId = null;
+  }
+
+  /** The one measurement or dimension that is selected on its own, if its layer is shown. */
+  function selectedDimension(): { kind: 'measurement'; item: Measurement } | { kind: 'annotation'; item: Annotation } | null {
+    if (!currentFloor || currentSelectedIds.size > 0) return null;
+    const measurement = layerVis.measurements ? currentFloor.measurements?.find(item => item.id === selectedMeasurementId) : undefined;
+    if (measurement) return { kind: 'measurement', item: measurement };
+    const annotation = layerVis.annotations ? currentFloor.annotations?.find(item => item.id === selectedAnnotationId) : undefined;
+    return annotation ? { kind: 'annotation', item: annotation } : null;
+  }
+
+  function startDimensionDrag(kind: 'measurement' | 'annotation', id: string, part: LineEnd | 'line', from: Point) {
+    const item = (kind === 'measurement' ? currentFloor?.measurements : currentFloor?.annotations)?.find(item => item.id === id);
+    if (!item) return;
+    draggingDimension = { kind, id, part, from, line: { x1: item.x1, y1: item.y1, x2: item.x2, y2: item.y2 }, offset: kind === 'annotation' ? (item as Annotation).offset ?? 40 : 0 };
+  }
+
+  function setDimensionLine(kind: 'measurement' | 'annotation', id: string, line: DimensionLine) {
+    if (kind === 'measurement') updateMeasurement(id, line); else updateAnnotation(id, line);
+  }
+
+  function deleteDimension(id: string) {
+    removeElement(id);
+    clearAuxiliarySelection();
+    markDirty();
+  }
+
+  /** The measurement, text note or dimension under a point, in the order a click picks them. */
+  function auxiliaryAt(wp: Point): { kind: 'measurement' | 'text' | 'annotation'; id: string } | null {
+    if (!currentFloor) return null;
+    const measurement = hitTestMeasurement(wp, currentFloor);
+    if (measurement) return { kind: 'measurement', id: measurement };
+    const note = hitTestTextAnnotation(wp, currentFloor);
+    if (note) return { kind: 'text', id: note };
+    const dimension = hitTestAnnotation(wp, currentFloor);
+    return dimension ? { kind: 'annotation', id: dimension } : null;
   }
 
   // Text annotation tool
@@ -302,7 +352,7 @@
   let ctxMenuVisible = $state(false);
   let ctxMenuX = $state(0);
   let ctxMenuY = $state(0);
-  let ctxMenuTargetType: 'furniture' | 'wall' | 'door' | 'window' | 'room' | 'canvas' | null = $state(null);
+  let ctxMenuTargetType: 'furniture' | 'wall' | 'door' | 'window' | 'room' | 'measurement' | 'dimension' | 'note' | 'canvas' | null = $state(null);
   let ctxMenuTargetId: string | null = $state(null);
   let ctxMenuWall: Wall | null = $state(null);
   let ctxMenuFurniture: FurnitureItem | null = $state(null);
@@ -2397,11 +2447,21 @@
       selectedGuideId = null;
     }
 
-    // Measurement click detection (select)
+    // An end handle of the selected measurement or dimension: drag it to measure somewhere else.
+    if (tool === 'select' && currentFloor && !e.shiftKey) {
+      const selected = selectedDimension();
+      const end = selected ? lineEndAt(wp, selected.item, DIMENSION_HANDLE / zoom) : null;
+      if (selected && end) {
+        startDimensionDrag(selected.kind, selected.item.id, end, wp);
+        return;
+      }
+    }
+
+    // Measurement click detection (select + drag)
     if (tool === 'select' && currentFloor) {
       const hitId = hitTestMeasurement(wp, currentFloor);
       if (hitId && (e.ctrlKey || e.metaKey || !(currentSelectedIds.size >= 2 && currentSelectedIds.has(hitId)))) {
-        selectAnnotationTarget('measurement',hitId,e,wp);
+        if (!selectAnnotationTarget('measurement',hitId,e,wp)) startDimensionDrag('measurement', hitId, 'line', wp);
         return;
       }
       selectedMeasurementId = null;
@@ -2426,7 +2486,7 @@
     if (tool === 'select' && currentFloor) {
       const hitId = hitTestAnnotation(wp, currentFloor);
       if (hitId && (e.ctrlKey || e.metaKey || !(currentSelectedIds.size >= 2 && currentSelectedIds.has(hitId)))) {
-        selectAnnotationTarget('annotation',hitId,e,wp);
+        if (!selectAnnotationTarget('annotation',hitId,e,wp)) startDimensionDrag('annotation', hitId, 'line', wp);
         return;
       }
       selectedAnnotationId = null;
@@ -2741,6 +2801,16 @@
       }
     }
 
+    // Double-click on a dimension to edit its label
+    if (currentTool === 'select' && currentFloor) {
+      const dimensionId = hitTestAnnotation(selectionPoint, currentFloor);
+      if (dimensionId) {
+        selectAuxiliary('annotation', dimensionId);
+        editDimensionLabel(dimensionId);
+        return;
+      }
+    }
+
     // Double-click on a room to edit its name inline
     if (currentTool === 'select') {
       const wp = selectionPoint;
@@ -2798,7 +2868,7 @@
     }
 
     if ((draggingWallEndpoint || draggingWallParallel || draggingCurveHandle || draggingRoomId
-      || draggingStairId || draggingColumnId || draggingTextAnnotationId || draggingMultiSelect
+      || draggingStairId || draggingColumnId || draggingTextAnnotationId || draggingDimension || draggingMultiSelect
       || draggingDoorId || draggingWindowId || draggingGuideId || draggingEntourageId || resizingEntourageId) && !geometryGestureStarted) {
       if (Math.hypot(e.clientX - canvasPressPosition.x, e.clientY - canvasPressPosition.y) < 3) return;
       beginUndoGroup();
@@ -2971,6 +3041,19 @@
         }
       }
     }
+    if (draggingDimension) {
+      const drag = draggingDimension;
+      if (drag.part !== 'line') {
+        const moved = moveLineEnd(drag.line, drag.part, magneticSnap(mousePos));
+        if (moved) setDimensionLine(drag.kind, drag.id, moved);
+      } else if (drag.kind === 'annotation') {
+        // Follow the pointer from where the line was grabbed, so a press on an extension line doesn't jump.
+        const offset = drag.offset + dimensionOffsetAt(drag.line, mousePos) - dimensionOffsetAt(drag.line, drag.from);
+        updateAnnotation(drag.id, { offset: Math.round(offset) });
+      } else {
+        setDimensionLine(drag.kind, drag.id, translateLine(drag.line, { x: snap(mousePos.x - drag.from.x), y: snap(mousePos.y - drag.from.y) }));
+      }
+    }
     if (draggingTextAnnotationId && currentFloor?.textAnnotations) {
       const basePos = { x: mousePos.x - textAnnotationDragOffset.x, y: mousePos.y - textAnnotationDragOffset.y };
       moveTextAnnotation(draggingTextAnnotationId, { x: snap(basePos.x), y: snap(basePos.y) });
@@ -3129,6 +3212,7 @@
       geometryGestureStarted = false;
     }
     draggingTextAnnotationId = null;
+    draggingDimension = null;
     draggingRoomId = null;
     roomDragStartPositions.clear();
     draggingMultiSelect = null;
@@ -3665,7 +3749,14 @@
       const door = floor.doors.find(item => item.id === id);
       const win = floor.windows.find(item => item.id === id);
       const room = detectedRooms.find(item => item.id === currentSelectedRoomId);
-      if (furniture) {
+      const dimension = selectedDimension();
+      const note = floor.textAnnotations?.find(item => item.id === selectedTextAnnotationId);
+      if (dimension) {
+        ctxMenuTargetType = dimension.kind === 'annotation' ? 'dimension' : 'measurement'; ctxMenuTargetId = dimension.item.id;
+        anchor = dimension.kind === 'annotation' ? dimensionAnchor(dimension.item) : lineToolbarAnchor(dimension.item);
+      } else if (note) {
+        ctxMenuTargetType = 'note'; ctxMenuTargetId = note.id; anchor = { x: note.x, y: note.y };
+      } else if (furniture) {
         ctxMenuTargetType = 'furniture'; ctxMenuTargetId = furniture.id;
         ctxMenuFurniture = furniture; anchor = furniture.position;
       } else if (wall) {
@@ -3701,6 +3792,22 @@
     // Show context menu
     const rect = canvas.getBoundingClientRect();
     const wp = screenToWorld(e.clientX - rect.left, e.clientY - rect.top);
+
+    // Measurements, notes and dimensions lie over rooms and walls; like a click, a right-click
+    // picks them first. Otherwise it would open the room's menu, whose only Delete is Delete Room.
+    const aux = auxiliaryAt(wp);
+    if (aux && !(currentSelectedIds.size >= 2 && currentSelectedIds.has(aux.id))) {
+      selectAuxiliary(aux.kind, aux.id);
+      ctxMenuTargetType = aux.kind === 'text' ? 'note' : aux.kind === 'annotation' ? 'dimension' : 'measurement';
+      ctxMenuTargetId = aux.id;
+      ctxMenuFurniture = null;
+      ctxMenuWall = null;
+      ctxMenuRoom = null;
+      ctxMenuX = e.clientX;
+      ctxMenuY = e.clientY;
+      ctxMenuVisible = true;
+      return;
+    }
 
     // Hit-test in priority order: furniture > door > window > wall > room > canvas
     const fi = findFurnitureAt(wp);
@@ -3888,7 +3995,10 @@
 
       // Shared actions
       case 'delete':
-        if (id) { removeElement(id); selectedElementId.set(null); }
+        if (id) { removeElement(id); selectedElementId.set(null); clearAuxiliarySelection(); }
+        break;
+      case 'edit-dimension-label':
+        if (id) editDimensionLabel(id);
         break;
       case 'properties':
         if (id) {
@@ -3916,6 +4026,7 @@
     draggingStairId ? 'move' :
     draggingColumnId ? 'move' :
     draggingTextAnnotationId ? 'move' :
+    draggingDimension ? 'move' :
     draggingWallParallel ? 'move' :
     draggingCurveHandle ? 'crosshair' :
     draggingWallEndpoint ? 'crosshair' :
@@ -4154,6 +4265,41 @@
         <span>{$t('layerVisibility.automaticDimensions')}</span>
       </label>
     </div>
+  {/if}
+
+  <!-- Measurements and dimensions have no Properties panel, so their actions live on this toolbar. -->
+  {#if currentTool === 'select' && !elevationOpen && !draggingDimension && !editingDimensionId}
+    {@const selected = selectedDimension()}
+    {#if selected}
+      {@const anchor = selected.kind === 'annotation' ? dimensionAnchor(selected.item) : lineToolbarAnchor(selected.item)}
+      {@const pos = worldToScreen(anchor.x, anchor.y)}
+      <div
+        class="absolute z-40 flex items-center gap-0.5 bg-white rounded-lg shadow-lg border border-gray-200 px-1 py-0.5"
+        style="left: {pos.x}px; top: {pos.y < 90 ? pos.y + 18 : pos.y - 58}px; transform: translateX(-50%);"
+        role="toolbar"
+        aria-label={$t(selected.kind === 'annotation' ? 'dimensionActions.dimension' : 'dimensionActions.measurement')}
+      >
+        {#if selected.kind === 'annotation'}
+          <button
+            class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700"
+            title={$t('dimensionActions.editLabel')}
+            aria-label={$t('dimensionActions.editLabel')}
+            onclick={() => editDimensionLabel(selected.item.id)}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </button>
+          <div class="w-px h-5 bg-gray-200 mx-0.5"></div>
+        {/if}
+        <button
+          class="w-7 h-7 flex items-center justify-center rounded hover:bg-red-50 text-gray-400 hover:text-red-600"
+          title={$t('contextMenu.delete')}
+          aria-label={$t('contextMenu.delete')}
+          onclick={() => deleteDimension(selected.item.id)}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14"/></svg>
+        </button>
+      </div>
+    {/if}
   {/if}
 
   <!-- Contextual Toolbar (hidden while the integrated elevation view covers the canvas) -->
