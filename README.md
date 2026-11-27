@@ -133,8 +133,10 @@ and exports, and keyboard tools. Use `npm run test:watch` while working on a fix
 Production-browser CI runs the same regression suite in Chromium, Firefox and
 WebKit, covering import/edit/undo/save/reload/export, damaged-file recovery,
 iPhone project packages, photos, catalog loading, 3D and cold/warm asset transfers.
-Each engine runs in a separate job against the same production build, with an
-isolated Node server and analytics/cloud uploads disabled. The final `check` job
+Each engine runs in a separate job against the same production build, on Node
+servers the job starts itself. The one every spec uses has analytics and cloud
+uploads disabled; a second one has production's settings, so one spec can check
+that the built server reads its environment. The final `check` job
 requires the build, every browser job and the rendering benchmark assertions to pass. Engine-specific failure
 screenshots/traces and HTML reports are retained for seven days; the shared build
 expires after one day. To run one engine, use

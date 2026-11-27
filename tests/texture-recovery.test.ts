@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 vi.mock('$lib/utils/catalogAssetUrl', () => ({ catalogAssetUrl: (path: string) => path }));
-vi.mock('$app/paths', () => ({ base: '' }));
 
 class TestImage {
   static requests: TestImage[] = [];

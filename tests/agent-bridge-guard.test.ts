@@ -6,7 +6,7 @@ import * as replyRoute from '../src/routes/agent-bridge/reply/+server';
 import * as savedRoute from '../src/routes/agent-bridge/saved/+server';
 import * as syncRoute from '../src/routes/agent-bridge/sync/+server';
 
-vi.mock('$app/environment', () => ({ dev: true, browser: false, building: false, version: 'test' }));
+vi.mock('$app/env', () => ({ dev: true, browser: false, building: false, version: 'test' }));
 
 const MCP = 'http://localhost:5173/agent-bridge/mcp';
 const initialize = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {} });

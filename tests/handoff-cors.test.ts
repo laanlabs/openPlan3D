@@ -4,11 +4,11 @@ import { HandoffError } from '$lib/server/handoffQuota';
 import { uploadHandoff } from '$lib/server/handoffUpload';
 import { OPTIONS, POST } from '../src/routes/api/handoffs/+server';
 
-// vitest.config.ts does not load the SvelteKit plugin, so the route's `$env/dynamic/private` is virtual here;
+// vitest.config.ts does not load the SvelteKit plugin, so the route's `$app/env/private` is virtual here;
 // the hoisted object lets each test decide whether uploads are enabled. Uploads themselves are stubbed so the
 // route is exercised without a bucket.
 const { env } = vi.hoisted(() => ({ env: {} as Record<string, string | undefined> }));
-vi.mock('$env/dynamic/private', () => ({ env }));
+vi.mock('$app/env/private', () => env);
 vi.mock('$lib/server/handoffUpload', () => ({ uploadHandoff: vi.fn() }));
 
 const ALLOWED = [
@@ -38,7 +38,7 @@ function preflight(origin: string) {
 function post(origin?: string) {
   return new Request(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json', ...(origin ? { Origin: origin } : {}) }, body: '{"openplanHandoffVersion":1,"walls":[]}' });
 }
-beforeEach(() => { delete env.HANDOFF_UPLOADS_ENABLED; delete env.HANDOFF_BUCKET; delete env.HANDOFF_CORS_ALLOW_LOCAL; });
+beforeEach(() => { env.HANDOFF_UPLOADS_ENABLED = env.HANDOFF_BUCKET = env.HANDOFF_CORS_ALLOW_LOCAL = undefined; });
 
 it.each(ALLOWED)('allows %s', origin => {
   expect(allowedHandoffOrigin(origin)).toBe(true);

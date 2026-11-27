@@ -18,7 +18,7 @@
   import { isLibraryBackup, LibraryBackupFileError } from '$lib/services/libraryRestore';
   import AssistantShareDialog from '$lib/components/AssistantShareDialog.svelte';
   import { onMount, onDestroy } from 'svelte';
-  import { base } from '$app/paths';
+  import { resolve } from '$app/paths';
   import { orderedFloors } from '$lib/utils/floors';
   import type { FloorPosition, FloorSeed } from '$lib/stores/project';
   import { currentProject, viewMode, undo, redo, addFloor, removeFloor, renameFloor, setActiveFloor, updateProjectName, createDefaultProject, snapEnabled, canvasZoom, canvasMinimumZoom, panMode, showFurnitureStore, layerVisibility, activeFloor, selectedElementId, elevationWallId, elevationPickMode } from '$lib/stores/project';
@@ -377,7 +377,7 @@
 <div class="h-12 bg-gradient-to-r from-slate-800 to-slate-700 flex items-center px-4 gap-2 max-xl:px-2 max-xl:gap-1 shrink-0 shadow-sm">
   <!-- Back to Projects -->
   <a
-    href={base || '/'}
+    href={resolve('/')}
     class="flex items-center gap-1 text-white/70 hover:text-white text-sm transition-colors"
     title={$t('projectToolbar.back')}
   >

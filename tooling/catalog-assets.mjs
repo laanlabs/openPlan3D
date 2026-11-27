@@ -14,8 +14,13 @@ export function catalogAssets() {
       building = config.command === 'build';
     },
     resolveId(id) { if (id === virtualId) return '\0' + virtualId; },
-    resolveFileUrl({ moduleId, fileName }) {
-      if (moduleId === '\0' + virtualId) return JSON.stringify('/' + fileName);
+    // Vite 8's own asset plugin also answers resolveFileUrl and runs first by default; it would give the
+    // client build URLs relative to the importing chunk. 'pre' keeps the root-relative public path.
+    resolveFileUrl: {
+      order: 'pre',
+      handler({ moduleId, fileName }) {
+        if (moduleId === '\0' + virtualId) return JSON.stringify('/' + fileName);
+      },
     },
     load(id) {
       if (id !== '\0' + virtualId) return;

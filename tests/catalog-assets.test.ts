@@ -1,6 +1,5 @@
 import { afterEach, expect, it } from 'vitest';
-import { build } from 'vite';
-import type { RollupOutput } from 'rollup';
+import { build, type Rolldown } from 'vite';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -17,7 +16,8 @@ it('emits content-hashed public URLs and invalidates only modified assets', asyn
   writeFileSync(join(root, 'static/textures/oak.jpg'), 'texture-v1');
   writeFileSync(join(root, 'main.js'), "export { default } from 'virtual:catalog-assets';");
   async function compile() {
-    const result = await build({ root, configFile: false, logLevel: 'silent', plugins: [catalogAssets()], build: { write: false, minify: false, rollupOptions: { input: join(root, 'main.js'), preserveEntrySignatures: 'strict', output: { assetFileNames: '_app/immutable/assets/[name].[hash][extname]' } } } }) as RollupOutput;
+    // base './' is what SvelteKit's client build uses; with it Vite's own resolveFileUrl would return chunk-relative URLs.
+    const result = await build({ root, base: './', configFile: false, logLevel: 'silent', plugins: [catalogAssets()], build: { write: false, minify: false, rolldownOptions: { input: join(root, 'main.js'), preserveEntrySignatures: 'strict', output: { assetFileNames: '_app/immutable/assets/[name].[hash][extname]' } } } }) as Rolldown.RolldownOutput;
     const chunk = result.output.find(x => x.type === 'chunk')!;
     if (chunk.type !== 'chunk') throw new Error('Entry chunk missing');
     const urls = (await import('data:text/javascript;base64,' + Buffer.from(chunk.code).toString('base64'))).default as Record<string, string>;

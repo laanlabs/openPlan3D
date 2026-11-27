@@ -1,5 +1,5 @@
-import { dev } from '$app/environment';
-import { base } from '$app/paths';
+import { dev } from '$app/env';
+import { resolve } from '$app/paths';
 import { get } from 'svelte/store';
 import type { Project } from '$lib/models/types';
 import { currentProject, applyExternalProject, afterUndoGroup } from '$lib/stores/project';
@@ -84,8 +84,8 @@ export async function answerAgentRequest(req: Pick<AgentRequest, 'kind' | 'args'
 export function startAgentBridge(): () => void {
   if (!dev || typeof window === 'undefined' || typeof EventSource === 'undefined') return () => {};
   const tab = (crypto.randomUUID?.() ?? `${Date.now()}${Math.random()}`).replace(/[^A-Za-z0-9]/g, '').slice(0, 32);
-  const post = (path: string, body: unknown) =>
-    fetch(`${base}/agent-bridge/${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).catch(() => {});
+  const post = (path: 'reply' | 'saved', body: unknown) =>
+    fetch(resolve(`/agent-bridge/${path}`), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).catch(() => {});
   let source: EventSource | null = null;
   let lastProjectId: string | null | undefined;
   const hello = () => post('reply', { tab, hello: true, projectId: get(currentProject)?.id ?? null });
@@ -99,7 +99,7 @@ export function startAgentBridge(): () => void {
     }
   }
 
-  source = new EventSource(`${base}/agent-bridge/events?tab=${tab}&project=${encodeURIComponent(get(currentProject)?.id ?? '')}`);
+  source = new EventSource(resolve(`/agent-bridge/events?tab=${tab}&project=${encodeURIComponent(get(currentProject)?.id ?? '')}`));
   source.addEventListener('request', (event) => void handle(JSON.parse((event as MessageEvent).data)));
   // the project's mirrored file was edited on disk (by a tool or an agent): take it over as one Undo step
   source.addEventListener('external', (event) => {
@@ -116,7 +116,7 @@ export function startAgentBridge(): () => void {
   const sync = async () => {
     const p = get(currentProject);
     if (!p) return;
-    const res = await fetch(`${base}/agent-bridge/sync`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    const res = await fetch(resolve('/agent-bridge/sync'), { method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ tab, projectId: p.id, updatedAt: new Date(p.updatedAt).toISOString() }) }).catch(() => null);
     if (!res?.ok) return;
     const answer = await res.json().catch(() => ({}));

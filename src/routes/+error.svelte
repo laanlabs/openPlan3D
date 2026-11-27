@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from '$app/state';
-  import { base } from '$app/paths';
+  import { resolve } from '$app/paths';
   import { t } from '$lib/i18n';
   import { prepareToLeave } from '$lib/services/deployment';
   import { currentProject } from '$lib/stores/project';
@@ -19,6 +19,6 @@
   <div class="mt-5 flex gap-4">
     <button class="rounded bg-blue-600 px-4 py-2 text-white" onclick={retry}>{$t('errorPage.retry')}</button>
     {#if $currentProject}<button onclick={() => { if ($currentProject) exportAsJSON($currentProject); }}>{$t('errorPage.backup')}</button>{/if}
-    <a class="p-2 underline" href={`${base}/`}>{$t('errorPage.library')}</a>
+    <a class="p-2 underline" href={resolve('/')}>{$t('errorPage.library')}</a>
   </div>
 </main>

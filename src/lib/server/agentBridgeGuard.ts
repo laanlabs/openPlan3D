@@ -1,4 +1,4 @@
-import { dev } from '$app/environment';
+import { dev } from '$app/env';
 import { bridgeEnabled, isLocalClient } from './agentBridge';
 
 export interface BridgeRequestEvent { request: Request; getClientAddress: () => string }

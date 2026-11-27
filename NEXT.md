@@ -4,6 +4,95 @@ The user-facing goal status is maintained in [STATUS.md](STATUS.md). Update it
 when implementation, validation, blockers or next priorities change; keep this
 file as the detailed backlog and evidence history.
 
+## SvelteKit 3 upgrade — November 26–27
+
+Branch `chore/sveltekit-3` (PR #162, not merged). SvelteKit 2.70.4 → 3.4.1, adapter-node
+5.5.8 → 6.0.6, Vite 7 → 8.3.8, TypeScript 5.9 → 6.0.3, Svelte 5.59.2, Tailwind 4.3.5. It
+removes the audit exception for GHSA-3r8g-jcqq-3p5j that #159 added until 2027-01-31;
+`npm audit` reports no advisories on the branch.
+
+Two things break production while the build and the older tests stay green, and both
+are covered now:
+
+- **Environment variables.** SvelteKit 3 gives the app only variables declared in
+  `src/env.ts`. Without the declarations, link sharing, assistant shares and `/mcp`
+  answer 503 and the analytics opt-out is ignored.
+  `tests/browser/server-environment.spec.ts` runs the build with production's
+  settings on a second Playwright server and fails in that case.
+- **Start command.** App Hosting's buildpack works out `node build/index.js` only when
+  `svelte.config.js` exists, and SvelteKit 3 does not allow that file. `apphosting.yaml`
+  states the command (`scripts.runCommand`) and `package.json` `main` gives the same
+  one through the buildpack's older rule.
+
+Release record, for the checklist:
+
+- **Serving before the merge:** build `1795735370595` (`main` at `09e99ac`, #160).
+- **Recovery:** if the new revision fails to start, App Hosting keeps the previous one
+  serving (per its documentation; not observed). Otherwise roll back to the previous
+  rollout in the Firebase console (App Hosting → Rollouts), then revert the merge.
+- **After the rollout:** `/_app/version.json` shows a new build; `/` and `/editor`
+  load; a catalog model loads in 3D; `POST /api/handoffs` and
+  `POST /api/assistant-shares` with `Content-Type: application/xml` answer 415 (503
+  means the server cannot see its variables: roll back); `/mcp` initialize answers 200;
+  `handoff_*` and `assistant_share_*` log events continue.
+
+Behaviour that changed with the framework:
+
+- A POST, PUT, PATCH or DELETE with no `Content-Type` (or `text/ping`) and no
+  same-origin `Origin` gets the framework's 403 before the route runs; the endpoints
+  used to answer 415, 400 or 405 themselves. "Same origin" is judged against the
+  `Host` header the server receives, because production sets no `ORIGIN`.
+- The server no longer logs `[404] GET /path` lines, and an unexpected error is logged
+  as a stack trace without method or path.
+- Pages send no `Link` preload header (the HTML has `modulepreload` tags); static
+  files have content-hash ETags and no `Last-Modified`; the redirect that removes a
+  trailing slash sends a relative `Location`.
+- SvelteKit also checks `/_app/version.json` itself (focus, tab visible, hourly).
+- An exception while rendering shows the error page and raises no `pageerror`, so the
+  browser specs' `pageerror` guards cannot see one.
+- `build/` is 36 MB (was 22 MB): server source maps, a second copy of the catalog and
+  an unused 1.8 MB viewer chunk under `build/server`.
+
+Read from production on November 27 (build `build-2026-11-26-003` for `09e99ac`):
+
+- The builder is `google-22-full/builder/nodejs:nodejs_20261104_RC00` with the
+  `google.nodejs.runtime`, `google.nodejs.npm` and `google.nodejs.firebasebundle`
+  buildpacks. It logs "Nodejs version not specified, using the latest available
+  Nodejs runtime for the stack ubuntu2204" and installs **Node.js 22.23.5**, the
+  version the rehearsal used. SvelteKit 3 needs 22.17 or later.
+- It runs `npm ci --quiet --no-fund --no-audit` with `NODE_ENV=production`,
+  `npm run build`, then `npm prune --production` (which removes nothing, because
+  `NPM_CONFIG_INCLUDE=dev` is set). The rehearsal ran the same three commands.
+- The Cloud Run service has no command or arguments of its own (the image's `web`
+  process starts the app), no `ORIGIN`, and a TCP start-up probe on port 8080.
+  Revision `openplan3d-build-2026-11-26-003` serves all traffic; it is the one to
+  return to.
+- The backend has no runtime setting, so `runConfig.runtime: nodejs22` in
+  `apphosting.yaml` has no effect; Node 22 is the builder's default.
+
+Not checked: the two start-command settings have not been through a real build
+(the first rollout's log should say `Setting run command from apphosting.yaml`).
+Node 22 ran only on macOS arm64; CI runs Linux on Node 24. Which `Host` the
+container receives was not read. Native Safari and a physical iPhone were not
+used; the bundler, minifier and CSS output all changed.
+
+Follow-ups:
+
+1. Replace the deprecated `$lib` alias with `#lib` (about 1,160 import specifiers;
+   the notice prints on every sync, check and build).
+2. Move the four `replaceState` calls in the editor to
+   `goto(url, { state, shallow: true, replace: true })`. `DeploymentNotice`'s
+   `beforeNavigate` must let those through, or it cancels them while the editor is
+   unsaved.
+3. Let the browser specs see rendering errors again (collect console errors, or a
+   client `handleError` hook).
+4. Keep the dev server from serving `.svelte-kit/generated/dev/env/config.js`, which
+   holds the values of private variables, before any secret is declared in
+   `src/env.ts`.
+5. Decide on Vite 8.4 (published November 26, untested here) and on moving App Hosting
+   to Node 24 to match CI.
+6. A CI job on Node 22, the version production builds with.
+
 ## Shares refused for walls collapsed on the iPhone — October 20
 
 Branch `fix/handoff-zero-length-walls` (PR #120). A production check of link
@@ -2468,7 +2557,7 @@ These are follow-up work areas, not claims that every item is a reproduced bug.
    local attachments. Do not rely on temporary QA directories as source artifacts.
 3. Web baseline: Node 24/npm; run `NODE_ENV=production npm run check`,
    `NODE_ENV=production npm test` and `NODE_ENV=production npm run build`.
-   Finish check before starting build; both regenerate SvelteKit artifacts.
+   Run them one after another: each regenerates SvelteKit's files.
    Production browser workflows run in GitHub CI with cloud uploads/analytics
    disabled. Use the approved browser-control tools for local interactive QA.
 4. Native baseline: `openPlan3d.xcodeproj`, scheme `FloorPlan`, Debug simulator

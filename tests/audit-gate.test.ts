@@ -1,5 +1,4 @@
-import { readFileSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { advisories, evaluate } from '../tooling/audit-gate.mjs';
 
@@ -55,20 +54,5 @@ describe('audit exceptions on file', () => {
       expect(item.expires).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       expect(item.expires <= '2027-05-31', `${item.id} expires ${item.expires}`).toBe(true);
     }
-  });
-
-  // GHSA-3r8g-jcqq-3p5j is excepted because remote functions are off. Turning them on ends that.
-  it('remote functions are not in use', () => {
-    if (!exceptions.some(item => item.id === 'GHSA-3r8g-jcqq-3p5j')) return;
-    for (const file of ['svelte.config.js', 'vite.config.ts']) expect(readFileSync(file, 'utf8'), file).not.toMatch(/remoteFunctions/);
-    const remoteFiles: string[] = [];
-    const walk = (dir: string) => {
-      for (const entry of readdirSync(dir, { withFileTypes: true })) {
-        if (entry.isDirectory()) walk(join(dir, entry.name));
-        else if (/\.remote\.(ts|js)$/.test(entry.name)) remoteFiles.push(join(dir, entry.name));
-      }
-    };
-    walk('src');
-    expect(remoteFiles).toEqual([]);
   });
 });

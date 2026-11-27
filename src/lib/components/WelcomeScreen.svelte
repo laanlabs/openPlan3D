@@ -7,7 +7,7 @@
   import { isLibraryBackup, LibraryBackupFileError } from '$lib/services/libraryRestore';
   import ImportError from '$lib/components/ImportError.svelte';
   import { goto } from '$app/navigation';
-  import { base } from '$app/paths';
+  import { resolve } from '$app/paths';
   import { createDefaultProject } from '$lib/stores/project';
   import { houseTemplates } from '$lib/utils/houseTemplates';
   import { modalDialog, reconcileNativeClose } from '$lib/utils/modalDialog';
@@ -40,7 +40,7 @@
       const project = await openProject(create, 'new', openingLifetime.signal);
       if (!project) return;
       markSeen();
-      goto(`${base}/editor?id=${encodeURIComponent(project.id)}`);
+      goto(resolve(`/editor?id=${encodeURIComponent(project.id)}`));
     } catch (error) { importError = error instanceof Error ? error.message : $t('welcome.projectFailed'); }
   }
 
@@ -72,7 +72,7 @@
       }, 'import', openingLifetime.signal);
       if (!project) return;
       markSeen();
-      goto(`${base}/editor?id=${encodeURIComponent(project.id)}`);
+      goto(resolve(`/editor?id=${encodeURIComponent(project.id)}`));
     } catch (error) {
       if (error instanceof LibraryBackupFileError && onRestoreLibrary) { onRestoreLibrary(file); return; }
       const message = error instanceof Error ? error.message : $t('welcome.fileFailed');

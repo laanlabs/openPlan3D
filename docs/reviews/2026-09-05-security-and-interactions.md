@@ -19,7 +19,7 @@ A clean `npm ci` followed by `npm audit` reports **zero advisories**, down from 
 
 Updated jsPDF to 4.2.1, SvelteKit to 2.70.3, the Node adapter to 5.5.7, Svelte to 5.57.0, Vite to 7.3.6, and Firebase to 12.18.0, plus affected transitive packages. These stay within the existing major versions. CI now fails on high/critical audit findings.
 
-SvelteKit's `cookie` dependency still requests the vulnerable 0.6 line. A narrowly scoped override selects `cookie` 0.7.2. Compatibility tests cover valid parse/serialize behavior and rejection of injected name/path/domain fields. Remove the override when the framework's own dependency range includes a patched version.
+SvelteKit's `cookie` dependency still requests the vulnerable 0.6 line. A narrowly scoped override selects `cookie` 0.7.2. Compatibility tests cover valid parse/serialize behavior and rejection of injected name/path/domain fields. Remove the override when the framework's own dependency range includes a patched version. (Done in the SvelteKit 3 upgrade, November 2026: SvelteKit 3 depends on `cookie` 2, so the override and its test were removed.)
 
 Relevant upstream advisories: [jsPDF](https://github.com/parallax/jsPDF/security/advisories/GHSA-7x6v-j9x4-qf24), [protobufjs](https://github.com/protobufjs/protobuf.js/security/advisories/GHSA-xq3m-2v4x-88gg), [websocket-driver](https://github.com/faye/websocket-driver-node/security/advisories/GHSA-mp7j-qc5w-4988), and [cookie](https://github.com/jshttp/cookie/security/advisories/GHSA-pxg6-pf52-xh8x). The app's PDF path uses drawing, text, and image embedding. The Firebase module imports app/analytics; this batch does not introduce database or Storage features.
 

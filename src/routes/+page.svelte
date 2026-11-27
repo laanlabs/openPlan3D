@@ -5,7 +5,7 @@
   import { modalDialog, reconcileNativeClose } from '$lib/utils/modalDialog';
   import { onMount, onDestroy, tick } from 'svelte';
   import { goto } from '$app/navigation';
-  import { base } from '$app/paths';
+  import { resolve } from '$app/paths';
   import { localStore, storageErrorMessage, downloadLibraryBackup } from '$lib/services/datastore';
   import { openProject } from '$lib/services/projectOpening';
   import { createDefaultProject } from '$lib/stores/project';
@@ -81,7 +81,7 @@
       const project = await openProject(create, 'new', openingLifetime.signal);
       if (!project) return;
       showTemplateModal = false;
-      goto(`${base}/editor?id=${encodeURIComponent(project.id)}`);
+      goto(resolve(`/editor?id=${encodeURIComponent(project.id)}`));
     });
   }
 
@@ -242,7 +242,7 @@
         {#each projects as project (project.id)}
           <div class="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-gray-300 transition-all duration-200 relative {project.id === duplicatedId ? 'ring-2 ring-blue-400' : ''}">
             <!-- Thumbnail -->
-            <a href={`${base}/editor?id=${encodeURIComponent(project.id)}`} aria-label={$t('library.openName', { name: project.name || $t('library.untitled') })} class="block">
+            <a href={resolve(`/editor?id=${encodeURIComponent(project.id)}`)} aria-label={$t('library.openName', { name: project.name || $t('library.untitled') })} class="block">
               <div class="aspect-[4/3] bg-gray-100 relative overflow-hidden">
                 {#if Object.hasOwn(thumbnails, project.id) && thumbnails[project.id]}
                   <img src={thumbnails[project.id]} alt="" class="w-full h-full object-contain" />
@@ -256,7 +256,7 @@
 
             <!-- Info -->
             <div class="p-4">
-              <a href={`${base}/editor?id=${encodeURIComponent(project.id)}`} class="block">
+              <a href={resolve(`/editor?id=${encodeURIComponent(project.id)}`)} class="block">
                 <h3 class="font-semibold text-gray-800 text-sm truncate">{project.name || $t('library.untitled')}</h3>
               </a>
               <p class="text-xs text-gray-400 mt-1">{formatDate(project.updatedAt, $locale)}</p>
@@ -264,7 +264,7 @@
 
             <ProjectActionsMenu name={project.name} disabled={duplicating}
               onaction={(action) => {
-                if (action === 'open') goto(`${base}/editor?id=${encodeURIComponent(project.id)}`);
+                if (action === 'open') goto(resolve(`/editor?id=${encodeURIComponent(project.id)}`));
                 else if (action === 'duplicate') void duplicateProject(project.id);
                 else openAction(action, project);
               }} />
