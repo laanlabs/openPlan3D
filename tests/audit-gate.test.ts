@@ -60,7 +60,7 @@ describe('audit exceptions on file', () => {
   // GHSA-3r8g-jcqq-3p5j is excepted because remote functions are off. Turning them on ends that.
   it('remote functions are not in use', () => {
     if (!exceptions.some(item => item.id === 'GHSA-3r8g-jcqq-3p5j')) return;
-    for (const file of ['svelte.config.js', 'vite.config.ts']) expect(readFileSync(file, 'utf8'), file).not.toMatch(/remoteFunctions/);
+    for (const file of ['vite.config.ts']) expect(readFileSync(file, 'utf8'), file).not.toMatch(/remoteFunctions/);
     const remoteFiles: string[] = [];
     const walk = (dir: string) => {
       for (const entry of readdirSync(dir, { withFileTypes: true })) {

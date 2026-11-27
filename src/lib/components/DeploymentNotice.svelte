@@ -3,8 +3,9 @@
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
   import { beforeNavigate, goto } from '$app/navigation';
-  import { dev, version } from '$app/environment';
-  import { assets, base } from '$app/paths';
+  import { dev, version } from '$app/env';
+  import { asset, resolve } from '$app/paths';
+  import type { AssetPath } from '$app/types';
   import { currentProject } from '$lib/stores/project';
   import { saveState } from '$lib/stores/saveStatus';
   import { loadingFailure, prepareToLeave } from '$lib/services/deployment';
@@ -18,7 +19,7 @@
 
   beforeNavigate(navigation => {
     if (navigation.willUnload || !navigation.to?.url) return;
-    const dirtyEditor = navigation.from?.url.pathname === `${base}/editor` && get(saveState) !== 'saved';
+    const dirtyEditor = navigation.from?.url.pathname === resolve('/editor') && get(saveState) !== 'saved';
     if (!updateAvailable && !dirtyEditor) return;
     navigation.cancel();
     target = navigation.to.url;
@@ -30,7 +31,7 @@
         if (!saved) { message = 'deployment.navigateFailed'; return; }
         if (!updateAvailable && target === destination) {
           target = null;
-          void goto(destination, { replaceState: navigation.type === 'popstate' });
+          void goto(destination, { replace: navigation.type === 'popstate' });
         }
       });
     }
@@ -55,7 +56,7 @@
       if (document.hidden || updateAvailable || checking || Date.now() - lastCheck < 60_000) return;
       lastCheck = Date.now();
       checking = true;
-      void hasDeploymentUpdate(version, `${assets}/_app/version.json`).then(available => {
+      void hasDeploymentUpdate(version, asset('_app/version.json' as AssetPath)).then(available => {
         if (!disposed && available) updateAvailable = true;
       }).finally(() => { checking = false; });
     };

@@ -1,3 +1,9 @@
+# The start command is stated because App Hosting's buildpack only works it out for SvelteKit when
+# svelte.config.js exists, and SvelteKit 3 does not allow that file. package.json "main" says the same
+# for a builder that does not read this key.
+scripts:
+  runCommand: node build/index.js
+
 runConfig:
   runtime: nodejs22
   concurrency: 80

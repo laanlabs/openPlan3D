@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { dev } from '$app/environment';
+  import { dev } from '$app/env';
   import type { createViewer, LabStatus } from '$lib/renderLab/viewer';
   let { startupModel = '' }: { startupModel?: string } = $props();
   let host: HTMLDivElement;

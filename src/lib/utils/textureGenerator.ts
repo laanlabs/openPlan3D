@@ -4,7 +4,6 @@ import { catalogAssetUrl } from '$lib/utils/catalogAssetUrl';
  * High-quality texture generator for walls and floors.
  * Uses real photo textures from ambientCG (CC0) with procedural fallback.
  */
-import { base } from '$app/paths';
 
 const cache = new Map<string, HTMLCanvasElement>();
 const imageCache = new Map<string, HTMLImageElement>();

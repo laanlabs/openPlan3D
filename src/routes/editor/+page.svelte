@@ -5,7 +5,7 @@
   import { modalDialog, hasOpenModal } from '$lib/utils/modalDialog';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
-  import { base } from '$app/paths';
+  import { resolve } from '$app/paths';
   import { replaceState } from '$app/navigation';
   import { page } from '$app/state';
   import { reportLoadingFailure } from '$lib/services/deployment';
@@ -109,7 +109,7 @@
       // A storage failure must not discard a successfully downloaded capture.
       await autoSave();
       // Remove ?import=CODE so a refresh doesn't re-import
-      replaceState(`${base}/editor?id=${project.id}`, page.state);
+      replaceState(resolve(`/editor?id=${project.id}`), page.state);
       return true;
     } catch (e: any) {
       importError = e instanceof CaptureImportError ? e : e?.message ?? new CaptureImportError('captureImport.fallback');
@@ -162,13 +162,13 @@
           const p = createDefaultProject();
           loadProject(p);
           await autoSave();
-          replaceState(`${base}/editor?id=${p.id}`, page.state);
+          replaceState(resolve(`/editor?id=${p.id}`), page.state);
         }
       } else {
         const p = createDefaultProject();
         loadProject(p);
         await autoSave();
-        replaceState(`${base}/editor?id=${p.id}`, page.state);
+        replaceState(resolve(`/editor?id=${p.id}`), page.state);
       }
       ready = true;
     } catch (error) {
@@ -512,7 +512,7 @@
       <p role="alert" class="max-w-lg px-6 text-center text-red-700">{projectServiceMessage(loadError, $locale)}</p>
       <button class="text-blue-700 underline" onclick={initializeEditor}>{$t('library.retry')}</button>
       <button class="text-blue-700 underline" onclick={backupLibrary}>{$t('library.backup')}</button>
-      <a class="text-blue-700 underline" href={`${base}/`}>{$t('editorRecovery.back')}</a>
+      <a class="text-blue-700 underline" href={resolve('/')}>{$t('editorRecovery.back')}</a>
     {:else if importingCapture}
       <div class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
       <p class="text-gray-400">{$t('editorRecovery.importing')}</p>

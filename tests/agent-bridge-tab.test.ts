@@ -9,7 +9,7 @@ import {
 import { initAutoSave, markClean, saveState } from '$lib/stores/saveStatus';
 import { roomProject } from './fixtures/project';
 
-vi.mock('$app/environment', () => ({ dev: true, browser: false, building: false, version: 'test' }));
+vi.mock('$app/env', () => ({ dev: true, browser: false, building: false, version: 'test' }));
 vi.mock('$lib/stores/versionHistory', () => ({ saveSnapshot: vi.fn() }));
 
 let stop: () => void;

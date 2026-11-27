@@ -1,4 +1,4 @@
-import { env } from '$env/dynamic/private';
+import * as env from '$app/env/private';
 import { json } from '@sveltejs/kit';
 import { HandoffError } from './handoffQuota';
 import { HandoffStorage, HandoffStorageFailure } from './handoffStorage';
