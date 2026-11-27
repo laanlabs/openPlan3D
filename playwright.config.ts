@@ -46,8 +46,8 @@ export default defineConfig({
         BODY_SIZE_LIMIT: '2M',
       },
     },
-    // The same build with production's settings (apphosting.yaml): sharing on, analytics not turned off.
-    // The bucket does not exist; tests/browser/server-environment.spec.ts never gets as far as storage.
+    // The same build with production's settings (apphosting.yaml): sharing on, analytics not turned off,
+    // no ORIGIN. The bucket does not exist; tests/browser/server-environment.spec.ts never gets as far as storage.
     {
       command: 'node build/index.js',
       url: 'http://127.0.0.1:4189',
@@ -55,7 +55,6 @@ export default defineConfig({
       timeout: 30_000,
       env: {
         NODE_ENV: 'production', HOST: '127.0.0.1', PORT: '4189',
-        ORIGIN: 'http://127.0.0.1:4189',
         HANDOFF_UPLOADS_ENABLED: 'true', HANDOFF_BUCKET: 'bucket.invalid',
         ASSISTANT_SHARES_ENABLED: 'true', BODY_SIZE_LIMIT: '68M',
       },

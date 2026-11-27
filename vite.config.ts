@@ -4,11 +4,10 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
 import { renderLabAsset } from './tooling/render-lab-asset.ts';
 import { catalogAssets } from './tooling/catalog-assets.mjs';
+import { browserBaseline } from './tooling/browser-baseline.mjs';
 
 export default defineConfig({
-	// Vite 7's browser baseline, kept through the move to Vite 8. Vite 8's default (Safari 16.4, Chrome 111,
-	// Firefox 114) would leave the responsive CSS as media range queries, which Safari 16.0 to 16.3 ignores.
-	build: { target: ['chrome107', 'edge107', 'firefox104', 'safari16'] },
+	build: { target: browserBaseline },
 	plugins: [
     {
       name: 'require-production-build',
