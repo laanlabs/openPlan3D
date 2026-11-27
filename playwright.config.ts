@@ -33,16 +33,32 @@ export default defineConfig({
     { name: 'firefox', use: { ...devices['Desktop Firefox'], viewport: { width: 1440, height: 900 } } },
     { name: 'webkit', use: { ...devices['Desktop Safari'], viewport: { width: 1440, height: 900 } } },
   ],
-  webServer: {
-    command: 'node build/index.js',
-    url: 'http://127.0.0.1:4188',
-    reuseExistingServer: false,
-    timeout: 30_000,
-    env: {
-      NODE_ENV: 'production', HOST: '127.0.0.1', PORT: '4188',
-      ORIGIN: 'http://127.0.0.1:4188', PUBLIC_ENABLE_ANALYTICS: 'false',
-      HANDOFF_UPLOADS_ENABLED: 'false', HANDOFF_BUCKET: '',
-      BODY_SIZE_LIMIT: '2M',
+  webServer: [
+    {
+      command: 'node build/index.js',
+      url: 'http://127.0.0.1:4188',
+      reuseExistingServer: false,
+      timeout: 30_000,
+      env: {
+        NODE_ENV: 'production', HOST: '127.0.0.1', PORT: '4188',
+        ORIGIN: 'http://127.0.0.1:4188', PUBLIC_ENABLE_ANALYTICS: 'false',
+        HANDOFF_UPLOADS_ENABLED: 'false', HANDOFF_BUCKET: '',
+        BODY_SIZE_LIMIT: '2M',
+      },
     },
-  },
+    // The same build with production's settings (apphosting.yaml): sharing on, analytics not turned off.
+    // The bucket does not exist; tests/browser/server-environment.spec.ts never gets as far as storage.
+    {
+      command: 'node build/index.js',
+      url: 'http://127.0.0.1:4189',
+      reuseExistingServer: false,
+      timeout: 30_000,
+      env: {
+        NODE_ENV: 'production', HOST: '127.0.0.1', PORT: '4189',
+        ORIGIN: 'http://127.0.0.1:4189',
+        HANDOFF_UPLOADS_ENABLED: 'true', HANDOFF_BUCKET: 'bucket.invalid',
+        ASSISTANT_SHARES_ENABLED: 'true', BODY_SIZE_LIMIT: '68M',
+      },
+    },
+  ],
 });
