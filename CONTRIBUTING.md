@@ -52,10 +52,19 @@ npx playwright install --with-deps chromium firefox webkit
 npm run test:browser -- tests/browser/selection-clipboard.spec.ts --project=chromium
 ```
 
-Playwright uses the production `build/`, starts its own server on port 4188 and
-disables analytics/cloud uploads. Rebuild after code changes before browser tests;
-do not start a second server on that port. Engine names are `chromium`, `firefox`
-and `webkit`. See [playwright.config.ts](playwright.config.ts) for current settings.
+Playwright uses the production `build/` and starts two servers of its own. Every
+spec uses the one on port 4188, with analytics and cloud uploads disabled. The one
+on port 4189 has production's settings (sharing on, against a bucket that does not
+exist; analytics not turned off) and is used only by
+`tests/browser/server-environment.spec.ts`, which refuses requests to other hosts.
+Rebuild after code changes before browser tests, and keep both ports free. Engine
+names are `chromium`, `firefox` and `webkit`. See
+[playwright.config.ts](playwright.config.ts) for current settings.
+
+SvelteKit's generated types live in `node_modules/$app`. `npm install <package>`,
+`npm uninstall` and `npm prune` delete that folder. `npm run check`, `npm test`,
+`npm run dev` and `npm run build` recreate it; before anything else that reads
+`tsconfig.json` (an editor, `npx vitest run <file>`), run `npx svelte-kit sync`.
 
 Before review, report the checks appropriate to the change and any failures,
 skips or untested environments. Documentation-only changes normally need link

@@ -117,3 +117,11 @@ now waits for an entire 350 ms quiet interval within the existing 40-second sett
 budget. It still requires zero pending work and exactly unchanged callback and
 GPU draw counts throughout the accepted interval. Viewer application code and all
 control/wakeup/pixel assertions are unchanged.
+
+## Since the SvelteKit 3 upgrade (November 2026)
+
+- `version` now comes from `$app/env`.
+- adapter-node 6 serves static files with content-hash ETags and no `Last-Modified`, so the size and
+  modification-time collision described above no longer applies to it.
+- SvelteKit's own client now also requests `version.json`: on focus, when the tab becomes visible, and
+  hourly, without this component's one-minute throttle. The app's `no-store` check is unchanged.

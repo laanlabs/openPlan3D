@@ -58,6 +58,9 @@ address alone does not keep them out. A request is refused when:
 | `Sec-Fetch-Site` is sent and is not `same-origin` (or `none`) | 403 | cross-site requests that carry no `Origin`, e.g. `<script src>` |
 | a POST without `Content-Type: application/json` | 415 | other sites can send `text/plain` without a preflight |
 
+A built server started with the bridge on answers some of these earlier: SvelteKit itself refuses a POST whose
+`Content-Type` is missing, `text/plain` or a form type with 403, before the bridge's check runs.
+
 Local MCP clients and scripts send no `Origin` or `Sec-Fetch-*` headers and pass; so do the editor tab's own
 same-origin requests. The port is not checked: a browser never lets a page send a loopback `Host` for its own
 hostname, so the hostname alone defeats rebinding, and the dev server may move to another port. Under `npm run dev`,
@@ -87,7 +90,7 @@ tool accepts an optional `projectId` so an agent never edits a tab that shows a 
 
 ## Plain HTTP (without MCP)
 
-The same endpoint speaks JSON-RPC directly (send `Content-Type: application/json`; anything else gets 415):
+The same endpoint speaks JSON-RPC directly (send `Content-Type: application/json`; anything else is refused):
 
 ```sh
 curl -s localhost:5173/agent-bridge/mcp -H 'Content-Type: application/json' \
