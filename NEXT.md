@@ -53,13 +53,28 @@ Behaviour that changed with the framework:
 - `build/` is 36 MB (was 22 MB): server source maps, a second copy of the catalog and
   an unused 1.8 MB viewer chunk under `build/server`.
 
-Not checked: production itself (the `gcloud` and `firebase` logins on the build
-machine had expired), so the Node version App Hosting installs (SvelteKit 3 needs
-22.17 or later), whether its builder reads `scripts.runCommand`, and which `Host`
-the container receives are taken from the buildpack's source, not observed. Node 22
-ran only on macOS arm64; CI runs Linux on Node 24. `runConfig.runtime: nodejs22` in
-`apphosting.yaml` is not a field the buildpack reads. Native Safari and a physical
-iPhone were not used; the bundler, minifier and CSS output all changed.
+Read from production on November 27 (build `build-2026-11-26-003` for `09e99ac`):
+
+- The builder is `google-22-full/builder/nodejs:nodejs_20261104_RC00` with the
+  `google.nodejs.runtime`, `google.nodejs.npm` and `google.nodejs.firebasebundle`
+  buildpacks. It logs "Nodejs version not specified, using the latest available
+  Nodejs runtime for the stack ubuntu2204" and installs **Node.js 22.23.5**, the
+  version the rehearsal used. SvelteKit 3 needs 22.17 or later.
+- It runs `npm ci --quiet --no-fund --no-audit` with `NODE_ENV=production`,
+  `npm run build`, then `npm prune --production` (which removes nothing, because
+  `NPM_CONFIG_INCLUDE=dev` is set). The rehearsal ran the same three commands.
+- The Cloud Run service has no command or arguments of its own (the image's `web`
+  process starts the app), no `ORIGIN`, and a TCP start-up probe on port 8080.
+  Revision `openplan3d-build-2026-11-26-003` serves all traffic; it is the one to
+  return to.
+- The backend has no runtime setting, so `runConfig.runtime: nodejs22` in
+  `apphosting.yaml` has no effect; Node 22 is the builder's default.
+
+Not checked: the two start-command settings have not been through a real build
+(the first rollout's log should say `Setting run command from apphosting.yaml`).
+Node 22 ran only on macOS arm64; CI runs Linux on Node 24. Which `Host` the
+container receives was not read. Native Safari and a physical iPhone were not
+used; the bundler, minifier and CSS output all changed.
 
 Follow-ups:
 
